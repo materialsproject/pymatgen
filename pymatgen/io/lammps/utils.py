@@ -33,7 +33,7 @@ __author__ = 'Kiran Mathew, Brandon Wood, Michael Humbert'
 __email__ = 'kmathew@lbl.gov'
 
 
-class Polymer(object):
+class Polymer:
     """
     Generate polymer chain via Random walk. At each position there are
     a total of 5 possible moves(excluding the previous direction).
@@ -168,7 +168,7 @@ class Polymer(object):
             self.end += len(self.monomer)
 
 
-class PackmolRunner(object):
+class PackmolRunner:
     """
     Wrapper for the Packmol software that can be used to pack various types of
     molecules into a one single unit.
@@ -443,7 +443,7 @@ class PackmolRunner(object):
         return packed_mol
 
 
-class LammpsRunner(object):
+class LammpsRunner:
     def __init__(self, input_filename="lammps.in", bin="lammps"):
         """
         LAMMPS wrapper

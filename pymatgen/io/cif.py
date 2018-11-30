@@ -81,7 +81,7 @@ def _get_cod_data():
     return _COD_DATA
 
 
-class CifBlock(object):
+class CifBlock:
     maxlen = 70  # not quite 80 so we can deal with semicolons and things
 
     def __init__(self, data, loops, header):
@@ -252,7 +252,7 @@ class CifBlock(object):
         return cls(data, loops, header)
 
 
-class CifFile(object):
+class CifFile:
     """
     Reads and parses CifBlocks from a .cif file or string
     """
@@ -295,7 +295,7 @@ class CifFile(object):
             return cls.from_string(f.read())
 
 
-class CifParser(object):
+class CifParser:
     """
     Parses a CIF file. Attempts to fix CIFs that are out-of-spec, but will
     issue warnings if corrections applied. These are also stored in the
@@ -1192,7 +1192,7 @@ class CifParser(object):
         return len(self.errors) > 0
 
 
-class CifWriter(object):
+class CifWriter:
     def __init__(self, struct, symprec=None, write_magmoms=False):
         """
         A wrapper around CifFile to write CIF files from pymatgen structures.

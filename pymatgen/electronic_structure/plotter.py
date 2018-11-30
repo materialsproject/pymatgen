@@ -39,7 +39,7 @@ __date__ = "May 1, 2012"
 logger = logging.getLogger(__name__)
 
 
-class DosPlotter(object):
+class DosPlotter:
     """
     Class for plotting DOSs. Note that the interface is extremely flexible
     given that there are many different ways in which people want to view
@@ -242,7 +242,7 @@ class DosPlotter(object):
         plt.show()
 
 
-class BSPlotter(object):
+class BSPlotter:
     """
     Class to plot or get data to facilitate the plot of band structure objects.
 
@@ -2094,7 +2094,7 @@ class BSPlotterProjected(BSPlotter):
         return plt, shift
 
 
-class BSDOSPlotter(object):
+class BSDOSPlotter:
     """
     A joint, aligned band structure and density of states plot. Contributions 
     from Jan Pohls as well as the online example from Germain Salvato-Vallverdu:
@@ -2549,7 +2549,7 @@ class BSDOSPlotter(object):
         inset_ax.get_yaxis().set_visible(False)
 
 
-class BoltztrapPlotter(object):
+class BoltztrapPlotter:
     # TODO: We need a unittest for this. Come on folks.
     """
     class containing methods to plot the data from Boltztrap.
@@ -3456,7 +3456,7 @@ class BoltztrapPlotter(object):
         return plt
 
 
-class CohpPlotter(object):
+class CohpPlotter:
     """
     Class for plotting crystal orbital Hamilton populations (COHPs) or
     crystal orbital overlap populations (COOPs). It is modeled after the

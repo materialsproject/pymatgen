@@ -150,7 +150,7 @@ class SuperTransformation(AbstractTransformation):
         return True
 
 
-class MultipleSubstitutionTransformation(object):
+class MultipleSubstitutionTransformation:
     """
     Performs multiple substitutions on a structure. For example, can do a
     fractional replacement of Ge in LiGePS with a list of species, creating one

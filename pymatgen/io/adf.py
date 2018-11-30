@@ -618,7 +618,7 @@ class AdfTask(MSONable):
                    others)
 
 
-class AdfInput(object):
+class AdfInput:
     """
     A basic ADF input file writer.
     """
@@ -670,7 +670,7 @@ class AdfInput(object):
             f.write("END INPUT")
 
 
-class AdfOutput(object):
+class AdfOutput:
     """
     A basic ADF output file parser.
 

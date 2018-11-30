@@ -1457,7 +1457,7 @@ class QcInput(MSONable):
             return cls.from_string(f.read())
 
 
-class QcOutput(object):
+class QcOutput:
 
     kcal_per_mol_2_eV = 4.3363E-2
 
@@ -1959,7 +1959,7 @@ class QcOutput(object):
         }
         return data
 
-class QcNucVeloc(object):
+class QcNucVeloc:
     """
     class to QChem AMID NucVeloc file.
     

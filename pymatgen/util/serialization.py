@@ -118,14 +118,14 @@ def pmg_pickle_dump(obj, filobj, **kwargs):
     Dump an object to a pickle file using PmgPickler.
 
     Args:
-        obj (object): Object to dump.
+        obj : Object to dump.
         fileobj: File-like object
         \\*\\*kwargs: Any of the keyword arguments supported by PmgPickler
     """
     return PmgPickler(filobj, **kwargs).dump(obj)
 
 
-class SlotPickleMixin(object):
+class SlotPickleMixin:
     """
     This mixin makes it possible to pickle/unpickle objects with __slots__
     defined.

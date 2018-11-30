@@ -26,7 +26,7 @@ except ImportError:
     ase_loaded = False
 
 
-class AseAtomsAdaptor(object):
+class AseAtomsAdaptor:
     """
     Adaptor serves as a bridge between ASE Atoms and pymatgen structure.
     """

@@ -125,7 +125,7 @@ class CostDBElements(CostDBCSV):
             self, os.path.join(module_dir, "costdb_elements.csv"))
 
 
-class CostAnalyzer(object):
+class CostAnalyzer:
     """
     Given a CostDB, figures out the minimum cost solutions via convex hull
     """

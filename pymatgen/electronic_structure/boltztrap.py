@@ -734,7 +734,7 @@ class BoltztrapError(Exception):
         return "BoltztrapError : " + self.msg
 
 
-class BoltztrapAnalyzer(object):
+class BoltztrapAnalyzer:
     """
     Class used to store all the data from a boltztrap run
     """

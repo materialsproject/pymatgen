@@ -23,7 +23,7 @@ from pymatgen.analysis.chemenv.utils.math_utils import smoothstep, smootherstep
 from pymatgen.analysis.chemenv.utils.math_utils import power2_inverse_power2_decreasing
 
 
-class AbstractRatioFunction(object):
+class AbstractRatioFunction:
 
     ALLOWED_FUNCTIONS = {}
 

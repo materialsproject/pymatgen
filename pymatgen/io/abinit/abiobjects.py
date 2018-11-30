@@ -269,7 +269,7 @@ class AbivarAble(six.with_metaclass(abc.ABCMeta, object)):
 
 
 @singleton
-class MandatoryVariable(object):
+class MandatoryVariable:
     """
     Singleton used to tag mandatory variables, just because I can use
     the cool syntax: variable is MANDATORY!
@@ -277,7 +277,7 @@ class MandatoryVariable(object):
 
 
 @singleton
-class DefaultVariable(object):
+class DefaultVariable:
     """Singleton used to tag variables that will have the default value"""
 
 MANDATORY = MandatoryVariable()

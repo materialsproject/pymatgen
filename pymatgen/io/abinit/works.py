@@ -1271,7 +1271,7 @@ class QptdmWork(Work):
 
 # TODO: MergeDdb --> DfptWork(Work) postpone it because it may break pickle.
 
-class MergeDdb(object):
+class MergeDdb:
     """Mixin class for Works that have to merge the DDB files produced by the tasks."""
 
     def add_becs_from_scf_task(self, scf_task, ddk_tolerance, ph_tolerance):

@@ -33,7 +33,7 @@ class ExecError(Exception):
     """Error class raised by :class:`ExecWrapper`"""
 
 
-class ExecWrapper(object):
+class ExecWrapper:
     """Base class that runs an executable in a subprocess."""
     Error = ExecError
 

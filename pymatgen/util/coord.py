@@ -358,7 +358,7 @@ def get_angle(v1, v2, units="degrees"):
         raise ValueError("Invalid units {}".format(units))
 
 
-class Simplex(object):
+class Simplex:
     """
     A generalized simplex object. See http://en.wikipedia.org/wiki/Simplex.
 

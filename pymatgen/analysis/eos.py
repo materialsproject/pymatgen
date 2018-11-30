@@ -520,7 +520,7 @@ class NumericalEOS(PolynomialEOS):
         self._set_params()
 
 
-class EOS(object):
+class EOS:
     """
     Convenient wrapper. Retained in its original state to ensure backward
     compatibility.

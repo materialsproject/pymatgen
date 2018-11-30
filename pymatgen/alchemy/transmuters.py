@@ -31,7 +31,7 @@ from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.io.vasp.sets import MPRelaxSet
 
 
-class StandardTransmuter(object):
+class StandardTransmuter:
     """
     An example of a Transmuter object, which performs a sequence of
     transformations on many structures to generate TransformedStructures.

@@ -31,7 +31,7 @@ from math import fabs
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 
-class Xr(object):
+class Xr:
     """
     Basic object for working with xr files.
 

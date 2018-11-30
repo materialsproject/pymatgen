@@ -29,7 +29,7 @@ __date__ = "Feb 1, 2012"
 __status__ = "Beta"
 
 
-class AbstractVoltagePair(object):
+class AbstractVoltagePair:
     """
     An Abstract Base Class for a Voltage Pair.
     """

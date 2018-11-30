@@ -31,7 +31,7 @@ csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
 
 
 @singleton
-class HHIModel(object):
+class HHIModel:
 
     def __init__(self):
         self.symbol_hhip_hhir = {}  # symbol->(HHI_production, HHI reserve)

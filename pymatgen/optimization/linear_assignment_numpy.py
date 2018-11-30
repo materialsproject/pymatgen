@@ -23,7 +23,7 @@ import numpy as np
 from six.moves import range
 
 
-class LinearAssignment(object):
+class LinearAssignment:
     """
     This class finds the solution to the Linear Assignment Problem.
     It finds a minimum cost matching between two sets, given a cost

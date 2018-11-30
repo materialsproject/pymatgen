@@ -80,7 +80,7 @@ _gulp_kw = {
 }
 
 
-class GulpIO(object):
+class GulpIO:
     """
     To generate GULP input and process output
     """
@@ -481,7 +481,7 @@ class GulpIO(object):
         return Structure(latt, sp, coords)
 
 
-class GulpCaller(object):
+class GulpCaller:
     """
     Class to run gulp from commandline
     """
@@ -644,7 +644,7 @@ class GulpConvergenceError(Exception):
         return self.msg
 
 
-class BuckinghamPotential(object):
+class BuckinghamPotential:
     """
     Generate the Buckingham Potential Table from the bush.lib and lewis.lib.
 
@@ -722,7 +722,7 @@ class BuckinghamPotential(object):
             self.spring_dict = spring_dict
 
 
-class TersoffPotential(object):
+class TersoffPotential:
     """
     Generate Tersoff Potential Table from "OxideTersoffPotentialentials" file
     """

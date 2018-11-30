@@ -28,7 +28,7 @@ __status__ = "Production"
 __date__ = "Aug 1 2012"
 
 
-class EwaldSummation(object):
+class EwaldSummation:
     """
     Calculates the electrostatic energy of a periodic array of charges using
     the Ewald technique.

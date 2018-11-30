@@ -1356,7 +1356,7 @@ class BSVasprun(Vasprun):
         return jsanitize(d, strict=True)
 
 
-class Outcar(object):
+class Outcar:
     """
     Parser for data in OUTCAR that is not available in Vasprun.xml
 
@@ -3148,7 +3148,7 @@ class Chgcar(VolumetricData):
             return None
 
 
-class Procar(object):
+class Procar:
     """
     Object for reading a PROCAR file.
 
@@ -3316,7 +3316,7 @@ class Procar(object):
                 for spin, d in self.data.items()}
 
 
-class Oszicar(object):
+class Oszicar:
     """
     A basic parser for an OSZICAR output from VASP.  In general, while the
     OSZICAR is useful for a quick look at the output from a VASP run, we
@@ -3500,7 +3500,7 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None,
             return None
 
 
-class Xdatcar(object):
+class Xdatcar:
     """
     Class representing an XDATCAR file. Only tested with VASP 5.x files.
 
@@ -3718,7 +3718,7 @@ class Xdatcar(object):
         return self.get_string()
 
 
-class Dynmat(object):
+class Dynmat:
     """
     Object for reading a DYNMAT file.
 
@@ -4194,7 +4194,7 @@ class Wavecar:
             return mesh
 
 
-class Wavederf(object):
+class Wavederf:
     """
     Object for reading a WAVEDERF file.
 

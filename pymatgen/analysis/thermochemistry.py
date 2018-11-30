@@ -23,7 +23,7 @@ from pymatgen.core.composition import Composition
 STANDARD_TEMP = 298.0
 
 
-class ThermoData(object):
+class ThermoData:
     """
     A object container for an experimental Thermochemical Data.
 

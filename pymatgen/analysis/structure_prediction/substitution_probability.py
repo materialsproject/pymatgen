@@ -31,7 +31,7 @@ __date__ = "Aug 31, 2012"
 
 
 @cached_class
-class SubstitutionProbability(object):
+class SubstitutionProbability:
     """
     This class finds substitution probabilities given lists of atoms
     to substitute. The inputs make more sense if you look through the
@@ -154,7 +154,7 @@ class SubstitutionProbability(object):
         return cls(**d['init_args'])
 
 
-class SubstitutionPredictor(object):
+class SubstitutionPredictor:
     """
     Predicts likely substitutions either to or from a given composition
     or species list using the SubstitutionProbability

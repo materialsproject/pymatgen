@@ -29,7 +29,7 @@ __email__ = "ongsp@ucsd.edu"
 __date__ = "3/27/15"
 
 
-class PWInput(object):
+class PWInput:
     """
     Base input file class. Right now, only supports no symmetry and is
     very basic.
@@ -406,7 +406,7 @@ class PWInputError(BaseException):
     pass
 
 
-class PWOutput(object):
+class PWOutput:
 
     patterns = {
         "energies": r'total energy\s+=\s+([\d\.\-]+)\sRy',

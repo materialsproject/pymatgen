@@ -44,7 +44,7 @@ def straceback():
     return traceback.format_exc()
 
 
-class ScriptEditor(object):
+class ScriptEditor:
     """Simple editor that simplifies the writing of shell scripts"""
     _shell = '/bin/bash'
 
@@ -130,7 +130,7 @@ class PyLauncherError(Exception):
     """Error class for PyLauncher."""
 
 
-class PyLauncher(object):
+class PyLauncher:
     """This object handle the submission of the tasks contained in a :class:`Flow`"""
     Error = PyLauncherError
 
@@ -247,7 +247,7 @@ class PyFlowSchedulerError(Exception):
     """Exceptions raised by `PyFlowScheduler`."""
 
 
-class PyFlowScheduler(object):
+class PyFlowScheduler:
     """
     This object schedules the submission of the tasks in a :class:`Flow`.
     There are two types of errors that might occur during the execution of the jobs:
@@ -949,7 +949,7 @@ class BatchLauncherError(Exception):
     """Exceptions raised by :class:`BatchLauncher`."""
 
 
-class BatchLauncher(object):
+class BatchLauncher:
     """
     This object automates the execution of multiple flow. It generates a job script
     that uses abirun.py to run each flow stored in self with a scheduler.

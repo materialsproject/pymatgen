@@ -30,7 +30,7 @@ __status__ = "Production"
 __date__ = "Feb, 2016"
 
 
-class ZSLGenerator(object):
+class ZSLGenerator:
     """
     This class generate matching interface super lattices based on the methodology
     of lattice vector matching for heterostructural interfaces proposed by

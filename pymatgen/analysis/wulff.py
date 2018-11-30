@@ -71,7 +71,7 @@ def get_tri_area(pts):
     return area_tri
 
 
-class WulffFacet(object):
+class WulffFacet:
     """
     Helper container for each Wulff plane.
     """
@@ -89,7 +89,7 @@ class WulffFacet(object):
         self.outer_lines = []
 
 
-class WulffShape(object):
+class WulffShape:
     """
     Generate Wulff Shape from list of miller index and surface energies,
     with given conventional unit cell.

@@ -25,7 +25,7 @@ __all_errors__ = ['SubmitError', 'FullQueueError', 'DiskError', 'TimeCancelError
 
 
 @six.add_metaclass(ABCMeta)
-class CorrectorProtocolScheduler(object):
+class CorrectorProtocolScheduler:
     """
     Abstract class to define the protocol / interface for correction operators. The client code quadapters / submission
     script generator method / ... should implement these methods.
@@ -76,7 +76,7 @@ class CorrectorProtocolScheduler(object):
 
 
 @six.add_metaclass(ABCMeta)
-class CorrectorProtocolApplication(object):
+class CorrectorProtocolApplication:
     """
     Abstract class to define the protocol / interface for correction operators. The client code quadapters / submission
     script generator method / ... should implement these methods.
@@ -106,7 +106,7 @@ class CorrectorProtocolApplication(object):
 
 
 @six.add_metaclass(ABCMeta)
-class AbstractError(object):
+class AbstractError:
     """
     Error base class
     """
@@ -235,7 +235,7 @@ class NodeFailureError(AbstractError):
 
 
 @six.add_metaclass(ABCMeta)
-class AbstractErrorParser(object):
+class AbstractErrorParser:
     """
     Abstract class for parsing errors originating from the scheduler system and error that are not reported by the
     program itself, i.e. segmentation faults.

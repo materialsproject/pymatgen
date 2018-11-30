@@ -160,7 +160,7 @@ class Fiesta_run(MSONable):
                           log_file=d['log_file'])
 
 
-class Basis_set_reader(object):
+class Basis_set_reader:
     """
     A basis set reader.
     Args:
@@ -685,7 +685,7 @@ $geometry
             return cls.from_string(f.read())
 
 
-class FiestaOutput(object):
+class FiestaOutput:
     """
     A Fiesta output file parser.
 
@@ -772,7 +772,7 @@ class FiestaOutput(object):
         return GW_results
 
 
-class BSEOutput(object):
+class BSEOutput:
     """
     A bse output file parser. The start...
 

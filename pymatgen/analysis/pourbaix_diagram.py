@@ -767,7 +767,7 @@ class PourbaixDiagram(MSONable):
                    d.get('conc_dict'))
 
 
-class PourbaixPlotter(object):
+class PourbaixPlotter:
     """
     A plotter class for phase diagrams.
 

@@ -32,7 +32,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Apr 28, 2012"
 
 
-class BabelMolAdaptor(object):
+class BabelMolAdaptor:
     """
     Adaptor serves as a bridge between OpenBabel's Molecule and pymatgen's
     Molecule.

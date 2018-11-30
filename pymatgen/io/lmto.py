@@ -28,7 +28,7 @@ __email__ = "esters@uoregon.edu"
 __date__ = "Nov 30, 2017"
 
 
-class LMTOCtrl(object):
+class LMTOCtrl:
     """
     Class for parsing CTRL files from the Stuttgart LMTO-ASA code.
     Currently, only HEADER, VERS and the structure can be used.
@@ -308,7 +308,7 @@ class LMTOCtrl(object):
         return cls(structure, header=d["HEADER"], version=d["VERS"])
 
 
-class LMTOCopl(object):
+class LMTOCopl:
     """
     Class for reading COPL files, which contain COHP data.
 

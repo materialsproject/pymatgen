@@ -689,7 +689,7 @@ class Slab(Structure):
             warnings.warn("Equivalent sites could not be found for removal for all indices. Surface unchanged.")
 
             
-class SlabGenerator(object):
+class SlabGenerator:
 
     """
     This class generates different slabs using shift values determined by where
@@ -1282,7 +1282,7 @@ with open(os.path.join(module_dir,
     reconstructions_archive = json.load(data_file)
 
 
-class ReconstructionGenerator(object):
+class ReconstructionGenerator:
 
     """
     This class takes in a pre-defined dictionary specifying the parameters

@@ -135,7 +135,7 @@ def _maketemp(name, createmode=None):
     return tempname
 
 
-class AtomicFile(object):
+class AtomicFile:
     """
     This is a straight port of Alexander Saltanov's atomicfile package.
 

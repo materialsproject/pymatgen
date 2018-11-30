@@ -21,7 +21,7 @@ from collections import OrderedDict
 from pymatgen.util.plotting import pretty_plot
 
 
-class VoltageProfilePlotter(object):
+class VoltageProfilePlotter:
     """
     A plotter to make voltage profile plots for batteries.
 

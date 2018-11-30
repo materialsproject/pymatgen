@@ -9,7 +9,7 @@ __version__ = "0.1"
 __maintainer__ = "Matteo Giantomassi"
 
 
-class XSF(object):
+class XSF:
     """
     Class for parsing XCrysden files.
     """

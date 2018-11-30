@@ -258,7 +258,7 @@ class PhononScfCycle(D2DEScfCycle):
     """Iterations of the DFPT SCF cycle for phonons."""
 
 
-class CyclesPlotter(object):
+class CyclesPlotter:
     """Relies on the plot method of cycle objects to build multiple subfigures."""
 
     def __init__(self):
@@ -678,7 +678,7 @@ def yaml_read_irred_perts(filename, doc_tag="!IrredPerts"):
         #return d["irred_perts"]
 
 
-class YamlDoc(object):
+class YamlDoc:
     """
     Handy object that stores that YAML document, its main tag and the
     position inside the file.

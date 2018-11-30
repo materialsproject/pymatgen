@@ -42,7 +42,7 @@ def freq_units(units):
         raise KeyError('Value for units `{}` unknown\nPossible values are:\n {}'.format(units, list(d.keys())))
 
 
-class PhononDosPlotter(object):
+class PhononDosPlotter:
     """
     Class for plotting phonon DOSs. Note that the interface is extremely flexible
     given that there are many different ways in which people want to view
@@ -220,7 +220,7 @@ class PhononDosPlotter(object):
         plt.show()
 
 
-class PhononBSPlotter(object):
+class PhononBSPlotter:
     """
     Class to plot or get data to facilitate the plot of band structure objects.
 
@@ -481,7 +481,7 @@ class PhononBSPlotter(object):
         plot_brillouin_zone(self._bs.lattice_rec, lines=lines, labels=labels)
 
 
-class ThermoPlotter(object):
+class ThermoPlotter:
     """
     Plotter for thermodynamic properties obtained from phonon DOS.
     If the structure corresponding to the DOS, it will be used to extract the forumla unit and provide

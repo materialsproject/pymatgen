@@ -505,7 +505,7 @@ class NwInputError(Exception):
     pass
 
 
-class NwOutput(object):
+class NwOutput:
     """
     A Nwchem output file parser. Very basic for now - supports only dft and
     only parses energies and geometries. Please note that Nwchem typically

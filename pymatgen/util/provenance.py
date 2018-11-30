@@ -171,7 +171,7 @@ class Author(namedtuple('Author', ['name', 'email'])):
             return Author(author[0], author[1])
 
 
-class StructureNL(object):
+class StructureNL:
     """
     The Structure Notation Language (SNL, pronounced 'snail') is container
     for a pymatgen Structure/Molecule object with some additional fields for

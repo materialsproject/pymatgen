@@ -22,7 +22,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Jan 24, 2012"
 
 
-class Cssr(object):
+class Cssr:
     """
     Basic object for working with Cssr file. Right now, only conversion from
     a Structure to a Cssr file is supported.

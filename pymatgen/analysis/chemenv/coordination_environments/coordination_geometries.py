@@ -314,14 +314,14 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         return out
 
 
-class CoordinationGeometry(object):
+class CoordinationGeometry:
     """
     Class used to store the ideal representation of a chemical environment or "coordination geometry"
     """
     CSM_SKIP_SEPARATION_PLANE_ALGO = 10.0 # Default value of continuous symmetry measure below which no further
                                         #  search is performed for the separation plane algorithms
 
-    class NeighborsSetsHints(object):
+    class NeighborsSetsHints:
 
         ALLOWED_HINTS_TYPES = ['single_cap', 'double_cap', 'triple_cap']
 

@@ -1161,7 +1161,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
                    d["normalize_terminal_compositions"])
 
 
-class ReactionDiagram(object):
+class ReactionDiagram:
 
     def __init__(self, entry1, entry2, all_entries, tol=1e-4,
                  float_fmt="%.4f"):
@@ -1342,7 +1342,7 @@ def get_facets(qhull_data, joggle=False):
         return ConvexHull(qhull_data, qhull_options="Qt i").simplices
 
 
-class PDPlotter(object):
+class PDPlotter:
     """
     A plotter class for phase diagrams.
 

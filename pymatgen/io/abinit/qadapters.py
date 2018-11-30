@@ -65,7 +65,7 @@ class SubmitResults(namedtuple("SubmitResult", "qid, out, err, process")):
     """
 
 
-class MpiRunner(object):
+class MpiRunner:
     """
     This object provides an abstraction for the mpirunner provided
     by the different MPI libraries. It's main task is handling the
@@ -186,7 +186,7 @@ class OmpEnv(AttrDict):
         return "\n".join("export %s=%s" % (k, v) for k, v in self.items())
 
 
-class Hardware(object):
+class Hardware:
     """
     This object collects information on the hardware available in a given queue.
 
@@ -261,7 +261,7 @@ class Hardware(object):
                    mem_per_node=dd['mem_per_node'])
 
 
-class _ExcludeNodesFile(object):
+class _ExcludeNodesFile:
     """
     This file contains the list of nodes to be excluded.
     Nodes are indexed by queue name.

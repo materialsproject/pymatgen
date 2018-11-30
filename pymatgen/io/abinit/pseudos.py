@@ -541,7 +541,7 @@ class PawAbinitPseudo(PawPseudo, AbinitPseudo):
         return True
 
 
-class Hint(object):
+class Hint:
     """
     Suggested value for the cutoff energy [Hartree units]
     and the cutoff energy for the dense grid (only for PAW pseudos).
@@ -981,7 +981,7 @@ class PseudoParserError(Exception):
     """Base Error class for the exceptions raised by :class:`PseudoParser`"""
 
 
-class PseudoParser(object):
+class PseudoParser:
     """
     Responsible for parsing pseudopotential files and returning pseudopotential objects.
 

@@ -43,7 +43,7 @@ __date__ = "4/5/13"
 BADEREXE = which("bader") or which("bader.exe")
 
 
-class BaderAnalysis(object):
+class BaderAnalysis:
     """
     Bader analysis for a CHGCAR.
 

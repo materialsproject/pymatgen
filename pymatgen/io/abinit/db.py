@@ -77,7 +77,7 @@ def scan_nestdict(d, key):
         return None
 
 
-class DBConnector(object):
+class DBConnector:
 
     #DEFAULTS = dict(
     #    database="abinit",

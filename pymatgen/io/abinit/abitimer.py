@@ -550,7 +550,7 @@ class ParallelEfficiency(dict):
         return bad_sections[:nmax]
 
 
-class AbinitTimerSection(object):
+class AbinitTimerSection:
     """Record with the timing results associated to a section of code."""
     STR_FIELDS = [
         "name"
@@ -602,7 +602,7 @@ class AbinitTimerSection(object):
         return string[:-1]
 
 
-class AbinitTimer(object):
+class AbinitTimer:
     """Container class storing the timing results."""
 
     def __init__(self, sections, info, cpu_time, wall_time):

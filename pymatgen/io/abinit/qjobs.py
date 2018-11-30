@@ -79,7 +79,7 @@ class JobStatus(int):
             return cls.from_string("UNKNOWN")
 
 
-class QueueJob(object):
+class QueueJob:
     """
     This object provides methods to contact the resource manager to get info on the status
     of the job and useful statistics. This is an abstract class.

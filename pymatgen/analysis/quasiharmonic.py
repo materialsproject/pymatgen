@@ -30,7 +30,7 @@ __author__ = "Kiran Mathew, Brandon Bocklund"
 __credits__ = "Cormac Toher"
 
 
-class QuasiharmonicDebyeApprox(object):
+class QuasiharmonicDebyeApprox:
     """
     Args:
         energies (list): list of DFT energies in eV

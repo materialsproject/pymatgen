@@ -76,11 +76,11 @@ class NetcdfReaderError(Exception):
     """Base error class for NetcdfReader"""
 
 
-class NO_DEFAULT(object):
+class NO_DEFAULT:
     """Signal that read_value should raise an Error"""
 
 
-class NetcdfReader(object):
+class NetcdfReader:
     """
     Wraps and extends netCDF4.Dataset. Read only mode. Supports with statements.
 
@@ -364,7 +364,7 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
 
     return structure
 
-class _H(object):
+class _H:
     __slots__ = ["name", "doc", "etsf_name"]
 
     def __init__(self, name, doc, etsf_name=None):

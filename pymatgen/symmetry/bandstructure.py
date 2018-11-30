@@ -20,7 +20,7 @@ Created on March 25, 2013
 @author: geoffroy
 """
 
-class HighSymmKpath(object):
+class HighSymmKpath:
     """
     This class looks for path along high symmetry lines in
     the Brillouin Zone.

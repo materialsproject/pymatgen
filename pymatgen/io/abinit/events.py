@@ -409,7 +409,7 @@ class EventsParserError(Exception):
     """Base class for the exceptions raised by :class:`EventsParser`."""
 
 
-class EventsParser(object):
+class EventsParser:
     """
     Parses the output or the log file produced by ABINIT and extract the list of events.
     """

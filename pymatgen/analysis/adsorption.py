@@ -44,7 +44,7 @@ __status__ = "Development"
 __date__ = "December 2, 2015"
 
 
-class AdsorbateSiteFinder(object):
+class AdsorbateSiteFinder:
     """
     This class finds adsorbate sites on slabs and generates
     adsorbate structures according to user-defined criteria.

@@ -48,7 +48,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Feb 22, 2013"
 
 
-class MPRester(object):
+class MPRester:
     """
     A class to conveniently interface with the Materials Project REST
     interface. The recommended way to use MPRester is with the "with" context

@@ -129,7 +129,7 @@ class PolarizationLattice(Structure):
         return ns[0][0:2]
 
 
-class Polarization(object):
+class Polarization:
     """
     Class for recovering the same branch polarization for a set of
     polarization calculations along the nonpolar - polar distortion
@@ -392,7 +392,7 @@ class Polarization(object):
         return rms
 
 
-class EnergyTrend(object):
+class EnergyTrend:
     def __init__(self, energies):
         self.energies = energies
 

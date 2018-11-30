@@ -45,7 +45,7 @@ module_dir = os.path.dirname(os.path.abspath(__file__))
 EL_COLORS = loadfn(os.path.join(module_dir, "ElementColorSchemes.yaml"))
 
 
-class StructureVis(object):
+class StructureVis:
     """
     Provides Structure object visualization using VTK.
     """

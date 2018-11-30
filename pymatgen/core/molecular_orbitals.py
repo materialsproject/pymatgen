@@ -14,7 +14,7 @@ solids. Usefull for predicting PDOS character from structural information.
 '''
 
 
-class MolecularOrbitals(object):
+class MolecularOrbitals:
     '''
     Represents the character of bands in a solid. The input is a chemical
     formula, since no structural characteristics are taken into account.

@@ -2563,7 +2563,7 @@ class FlowCallbackError(Exception):
     """Exceptions raised by FlowCallback."""
 
 
-class FlowCallback(object):
+class FlowCallback:
     """
     This object implements the callbacks executed by the :class:`flow` when
     particular conditions are fulfilled. See on_dep_ok method of :class:`Flow`.

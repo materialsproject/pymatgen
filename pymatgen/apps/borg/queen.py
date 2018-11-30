@@ -30,7 +30,7 @@ from multiprocessing import Manager, Pool
 logger = logging.getLogger("BorgQueen")
 
 
-class BorgQueen(object):
+class BorgQueen:
     """
     The Borg Queen controls the drones to assimilate data in an entire
     directory tree. Uses multiprocessing to speed up things considerably. It

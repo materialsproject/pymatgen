@@ -240,7 +240,7 @@ class VasprunLoader:
         return self.UCvol
 
 
-class BztInterpolator(object):
+class BztInterpolator:
     """
         Interpolate the dft band structures
         
@@ -369,7 +369,7 @@ class BztInterpolator(object):
         return CompleteDos(self.data.structure, total_dos=tdos, pdoss=pdoss)
 
 
-class BztTransportProperties(object):
+class BztTransportProperties:
     """
         Compute Seebeck, Conductivity, Electrical part of thermal conductivity
         and Hall coefficient, conductivity effective mass, Power Factor tensors
@@ -559,7 +559,7 @@ class BztTransportProperties(object):
         dumpfn(self.props_dict, fname)
 
 
-class BztPlotter(object):
+class BztPlotter:
     """
         Plotter to plot transport properties, interpolated bands along some high
         symmetry k-path, and fermisurface

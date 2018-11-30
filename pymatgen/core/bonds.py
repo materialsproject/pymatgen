@@ -38,7 +38,7 @@ def _load_bond_length_data():
 bond_lengths = _load_bond_length_data()
 
 
-class CovalentBond(object):
+class CovalentBond:
     """
     Defines a covalent bond between two sites.
     """

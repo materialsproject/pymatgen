@@ -32,7 +32,7 @@ except ImportError:
 
 @requires(aiida_loaded, "To use the AiidaStructureAdaptor, you need to have "
                         "aiida installed.")
-class AiidaStructureAdaptor(object):
+class AiidaStructureAdaptor:
     """
     Adaptor serves as a bridge between AiiDA StructureData and pymatgen
     Molecule/Structure objects.

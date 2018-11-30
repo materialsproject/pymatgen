@@ -1399,7 +1399,7 @@ OrbitalDescription = namedtuple('OrbitalDescription',
                                 ['l', 'E', 'Type', "Rcut", "Type2", "Rcut2"])
 
 
-class PotcarSingle(object):
+class PotcarSingle:
     """
     Object for a **single** POTCAR. The builder assumes the complete string is
     the POTCAR contains the complete untouched data in "data" as a string and

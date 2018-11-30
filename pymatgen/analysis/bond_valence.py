@@ -127,7 +127,7 @@ def calculate_bv_sum_unordered(site, nn_list, scale_factor=1):
     return bvsum
 
 
-class BVAnalyzer(object):
+class BVAnalyzer:
     """
     This class implements a maximum a posteriori (MAP) estimation method to
     determine oxidation states in a structure. The algorithm is as follows:
