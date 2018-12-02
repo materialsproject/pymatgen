@@ -4,6 +4,8 @@ jobs:
     working_directory: ~/pymatgen
     docker:
       - image: materialsvirtuallab/circle-ci-pmg-py3:0.0.2
+        environment:
+          PMG_MAPI_ENDPOINT: https://zola.lbl.gov/rest/v2
     parallelism: 4
     steps:
       - checkout

@@ -76,8 +76,8 @@ class MPRester(object):
             their setups and MPRester can then be called without any arguments.
         endpoint (str): Url of endpoint to access the MaterialsProject REST
             interface. Defaults to the standard Materials Project REST
-            address, but can be changed to other urls implementing a similar
-            interface.
+            address at "https://www.materialsproject.org/rest/v2", but
+            can be changed to other urls implementing a similar interface.
     """
 
     supported_properties = ("energy", "energy_per_atom", "volume",
@@ -98,13 +98,16 @@ class MPRester(object):
                                  "is_compatible", "spacegroup",
                                  "band_gap", "density", "icsd_id", "cif")
 
-    def __init__(self, api_key=None,
-                 endpoint="https://www.materialsproject.org/rest/v2"):
+    def __init__(self, api_key=None, endpoint=None):
         if api_key is not None:
             self.api_key = api_key
         else:
             self.api_key = SETTINGS.get("PMG_MAPI_KEY", "")
-        self.preamble = endpoint
+        if endpoint is not None:
+            self.preamble = endpoint
+        else:
+            self.preamble = SETTINGS.get("PMG_MAPI_ENDPOINT",
+                                         "https://www.materialsproject.org/rest/v2")
         import requests
         if sys.version_info[0] < 3:
             try:
