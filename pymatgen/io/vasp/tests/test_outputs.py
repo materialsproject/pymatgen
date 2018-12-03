@@ -1111,7 +1111,7 @@ class ProcarTest(unittest.TestCase):
         # new style phase factors (VASP 5.4.4+)
         filepath = os.path.join(test_dir, 'PROCAR.new_format_5.4.4')
         p = Procar(filepath)
-        self.assertAlmostEqual(p.phase_factors[Spin.up][0, 0, 0, 0], -0.13+0.199j))
+        self.assertAlmostEqual(p.phase_factors[Spin.up][0, 0, 0, 0], -0.13+0.199j)
 
 
 class XdatcarTest(unittest.TestCase):
