@@ -76,6 +76,7 @@ class QChemDictSet(QCInput):
         myrem["basis"] = self.basis_set
         myrem["max_scf_cycles"] = self.max_scf_cycles
         myrem["gen_scfman"] = "true"
+        myrem["XC_GRID"] = "3"
         myrem["scf_algorithm"] = self.scf_algorithm
 
         if self.dft_rung == 1:
@@ -141,7 +142,7 @@ class OptSet(QChemDictSet):
                  basis_set="6-311++G*",
                  pcm_dielectric=None,
                  smd_solvent=None,
-                 scf_algorithm="gdm",
+                 scf_algorithm="diis-gdm",
                  max_scf_cycles=200,
                  geom_opt_max_cycles=200,
                  overwrite_inputs=None):
@@ -173,7 +174,7 @@ class SinglePointSet(QChemDictSet):
                  basis_set="6-311++G*",
                  pcm_dielectric=None,
                  smd_solvent=None,
-                 scf_algorithm="gdm",
+                 scf_algorithm="diis-gdm",
                  max_scf_cycles=200,
                  overwrite_inputs=None):
         self.basis_set = basis_set
@@ -202,7 +203,7 @@ class FreqSet(QChemDictSet):
                  basis_set="6-311++G*",
                  pcm_dielectric=None,
                  smd_solvent=None,
-                 scf_algorithm="gdm",
+                 scf_algorithm="diis-gdm",
                  max_scf_cycles=200,
                  overwrite_inputs=None):
         self.basis_set = basis_set
