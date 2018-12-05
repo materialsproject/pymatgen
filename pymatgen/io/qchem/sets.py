@@ -76,7 +76,7 @@ class QChemDictSet(QCInput):
         myrem["basis"] = self.basis_set
         myrem["max_scf_cycles"] = self.max_scf_cycles
         myrem["gen_scfman"] = "true"
-        # myrem["XC_GRID"] = "3"
+        myrem["XC_GRID"] = "3"
         myrem["scf_algorithm"] = self.scf_algorithm
 
         if self.dft_rung == 1:
