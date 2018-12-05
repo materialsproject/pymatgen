@@ -1092,6 +1092,7 @@ class ProcarTest(unittest.TestCase):
                                0.85796295426000124)
 
     def test_phase_factors(self):
+        
         filepath = os.path.join(test_dir, 'PROCAR.phase')
         p = Procar(filepath)
         self.assertAlmostEqual(p.phase_factors[Spin.up][0, 0, 0, 0],
@@ -1106,6 +1107,11 @@ class ProcarTest(unittest.TestCase):
                                -0.053 + 0.007j)
         self.assertAlmostEqual(p.phase_factors[Spin.down][0, 0, 2, 0],
                                0.027 - 0.047j)
+        
+        # new style phase factors (VASP 5.4.4+)
+        filepath = os.path.join(test_dir, 'PROCAR.new_format_5.4.4')
+        p = Procar(filepath)
+        self.assertAlmostEqual(p.phase_factors[Spin.up][0, 0, 0, 0], -0.13+0.199j)
 
 
 class XdatcarTest(unittest.TestCase):
