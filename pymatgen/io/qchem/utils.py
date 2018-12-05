@@ -131,7 +131,7 @@ def lower_and_check_unique(dict_to_check):
             if new_key == "jobtype":
                 new_key = "job_type"
             if new_key in to_return:
-                if to_return[key] != to_return[new_key]
+                if to_return[key] != to_return[new_key]:
                     raise Exception(
                         "Multiple instances of key " + new_key + " found with different values! Exiting...")
             else:
