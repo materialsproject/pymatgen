@@ -476,7 +476,7 @@ class Element(Enum):
                             # Ignore error. val will just remain a string.
                             pass
             return val
-        raise AttributeError
+        raise AttributeError("Element has no attribute %s!" % item)
 
     @property
     def data(self):
