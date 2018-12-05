@@ -18,7 +18,6 @@ Tran, R.; Xu, Z.; Radhakrishnan, B.; Winston, D.; Persson, K. A.; Ong, S. P.
 (2016). Surface energies of elemental crystals. Scientific Data.
 """
 
-from __future__ import division, unicode_literals
 from pymatgen.core.structure import Structure
 from pymatgen.core.surface import get_recp_symmetry_operation
 from pymatgen.util.coord import get_angle

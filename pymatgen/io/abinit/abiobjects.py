@@ -4,7 +4,6 @@
 """
 Low-level objects providing an abstraction for the objects involved in the calculation.
 """
-from __future__ import unicode_literals, division, print_function
 
 import collections
 import abc

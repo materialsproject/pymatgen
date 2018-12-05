@@ -15,7 +15,6 @@ TODO:
         user does not need to generate a dict
 """
 
-from __future__ import division, unicode_literals
 
 import numpy as np
 import itertools

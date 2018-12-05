@@ -2,7 +2,6 @@
 """
 This module defines the Node class that is inherited by Task, Work and Flow objects.
 """
-from __future__ import division, print_function, unicode_literals
 
 import sys
 import os

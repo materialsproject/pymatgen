@@ -9,7 +9,6 @@ following work::
     Ceder, The Journal of Chemical Physics 145 (7), 074112
 """
 
-from __future__ import division, print_function, unicode_literals, \
     absolute_import
 
 import numpy as np

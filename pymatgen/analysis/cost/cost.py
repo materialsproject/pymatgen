@@ -10,7 +10,6 @@ optimization is performed to determine a set of compositions that can be mixed
 to give the desired compound with lowest total cost.
 """
 
-from __future__ import division, unicode_literals
 import abc
 from collections import defaultdict
 import csv

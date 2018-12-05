@@ -6,7 +6,6 @@ Created on Nov 10, 2012
 
 @author: shyue
 """
-from __future__ import division, unicode_literals
 
 from pymatgen.util.testing import PymatgenTest
 

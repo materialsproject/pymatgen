@@ -6,7 +6,6 @@ provided by the resource manager  (qsub, qdel and qstat for PBS, sinfo, squeue..
 The main goal indeed is providing a simplified common interface for different resource managers without
 having to rely on external libraries.
 """
-from __future__ import print_function, division, unicode_literals
 
 import shlex
 

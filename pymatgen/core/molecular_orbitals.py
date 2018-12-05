@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, print_function, unicode_literals
 from itertools import chain, combinations
 
 from pymatgen.core.periodic_table import Element

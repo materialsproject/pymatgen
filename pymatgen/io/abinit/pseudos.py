@@ -5,7 +5,6 @@
 This module provides objects describing the basic parameters of the
 pseudopotentials used in Abinit, and a parser to instantiate pseudopotential objects..
 """
-from __future__ import unicode_literals, division, print_function
 
 import abc
 import collections

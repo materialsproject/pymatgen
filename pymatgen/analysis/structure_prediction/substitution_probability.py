@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 from collections import defaultdict
 from operator import mul
 from pymatgen.core.periodic_table import Specie, get_el_sp

@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """Wrappers for ABINIT main executables"""
-from __future__ import unicode_literals, division, print_function
 
 import os
 import numpy as np

@@ -13,7 +13,6 @@ This programmatic interface is used by the `TaskManager` for optimizing the para
 of the run before submitting the job (Abinit provides the autoparal option that
 allows one to get a list of parallel configuration and their expected efficiency).
 """
-from __future__ import print_function, division, unicode_literals
 
 import sys
 import os

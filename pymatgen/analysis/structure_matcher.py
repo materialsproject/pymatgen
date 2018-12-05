@@ -6,7 +6,6 @@
 This module provides classes to perform fitting of structures.
 """
 
-from __future__ import division, unicode_literals
 
 import six
 from six.moves import filter
