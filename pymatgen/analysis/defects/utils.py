@@ -1127,6 +1127,7 @@ class ChargeDensityAnalyzer:
                     frac_coords.append(f_coords + image)
             merged_fcoords.append(np.average(frac_coords, axis=0))
 
+        merged_fcoords = [f - np.floor(f) for f in merged_fcoords]
         self._update_extrema(merged_fcoords, extrema_type=self.extrema_type)
         logger.debug(
             "{} vertices after combination.".format(len(self.extrema_coords)))
