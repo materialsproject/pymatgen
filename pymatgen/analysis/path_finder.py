@@ -9,8 +9,6 @@ following work::
     Ceder, The Journal of Chemical Physics 145 (7), 074112
 """
 
-    absolute_import
-
 import numpy as np
 import numpy.linalg as la
 import scipy.signal
