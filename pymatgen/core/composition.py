@@ -323,7 +323,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         """
         sym_amt = self.get_el_amt_dict()
         syms = sorted(sym_amt.keys(),
-                      key=lambda s: iupac_ordering_dict[get_el_sp(s)])
+                      key=lambda s: get_el_sp(s).iupac_ordering)
         formula = [s + formula_double_format(sym_amt[s], False) for s in syms]
         return " ".join(formula)
 
@@ -1073,7 +1073,7 @@ def reduce_formula(sym_amt, iupac_ordering=False):
 
     if iupac_ordering:
         syms = sorted(syms,
-                      key=lambda x: [iupac_ordering_dict[get_el_sp(x)], x])
+                      key=lambda x: [get_el_sp(x).iupac_ordering, x])
 
     reduced_form = []
     for s in syms:
@@ -1156,20 +1156,6 @@ class ChemicalPotential(dict, MSONable):
 
     def __repr__(self):
         return "ChemPots: " + super(ChemicalPotential, self).__repr__()
-
-
-_order = [([18], range(6, 0, -1)), ([1], range(7, 1, -1)),
-          ([2], range(7, 1, -1)), (range(17, 8, -1), [9]), ([3], [9]),
-          (range(17, 8, -1), [8]), ([3], [8]),  ([3], (5, 4)), ([4], (6, 5, 4)),
-          ([5], (6, 5, 4)), ([6], (6, 5, 4)), ([7], (6, 5, 4)),
-          ([8], (6, 5, 4)), ([9], (6, 5, 4)), ([10], (6, 5, 4)),
-          ([11], (6, 5, 4)), ([12], (6, 5, 4)), ([13], range(6, 1, -1)),
-          ([14], range(6, 1, -1)), ([15], range(6, 1, -1)), ([1], [1]),
-          ([16], range(6, 1, -1)), ([17], range(6, 1, -1))]
-_order = sum([list(product(x, y)) for x, y in _order], [])
-iupac_ordering_dict = dict(zip(
-    [Element.from_row_and_group(row, group) for group, row in _order],
-    range(len(_order))))
 
 
 if __name__ == "__main__":
