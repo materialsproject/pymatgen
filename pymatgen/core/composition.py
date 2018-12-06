@@ -613,8 +613,12 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 that the full oxidation state list is *very* inclusive and
                 can produce nonsensical results.
             max_sites (int): if possible, will reduce Compositions to at most
-                this many many sites to speed up oxidation state guesses. Set
-                to -1 to just reduce fully.
+                this many sites to speed up oxidation state guesses. If the
+                composition cannot be reduced to this many sites a ValueError
+                will be raised. Set to -1 to just reduce fully. If set to a
+                number less than -1, the formula will be fully reduced but a
+                ValueError will be thrown if the number of atoms in the reduced
+                formula is greater than abs(max_sites).
 
         Returns:
             A list of dicts - each dict reports an element symbol and average
@@ -624,14 +628,18 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
 
         return self._get_oxid_state_guesses(all_oxi_states, max_sites, oxi_states_override, target_charge)[0]
 
-    def add_charges_from_oxi_state_guesses(self, oxi_states_override=None, target_charge=0,
-                          all_oxi_states=False, max_sites=None):
+    def add_charges_from_oxi_state_guesses(self,
+                                           oxi_states_override=None,
+                                           target_charge=0,
+                                           all_oxi_states=False,
+                                           max_sites=None):
         """
         Assign oxidation states basedon guessed oxidation states.
 
-        See `oxi_state_guesses` for an explanation of how oxidation states are guessed.
-        This operation uses the set of oxidation states for each site that were determined
-        to be most likley from the oxidation state guessing routine.
+        See `oxi_state_guesses` for an explanation of how oxidation states are
+        guessed. This operation uses the set of oxidation states for each site
+        that were determined to be most likley from the oxidation state guessing
+        routine.
 
         Args:
             oxi_states_override (dict): dict of str->list to override an
@@ -644,35 +652,41 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 that the full oxidation state list is *very* inclusive and
                 can produce nonsensical results.
             max_sites (int): if possible, will reduce Compositions to at most
-                this many many sites to speed up oxidation state guesses. Set
-                to -1 to just reduce fully.
+                this many sites to speed up oxidation state guesses. If the
+                composition cannot be reduced to this many sites a ValueError
+                will be raised. Set to -1 to just reduce fully. If set to a
+                number less than -1, the formula will be fully reduced but a
+                ValueError will be thrown if the number of atoms in the reduced
+                formula is greater than abs(max_sites).
 
         Returns:
-            Composition, where the elements are assigned oxidation states based on the
-                results form guessing oxidation states. If no oxidation state is possible,
-                returns a Composition where all oxidation states are 0
+            Composition, where the elements are assigned oxidation states based
+            on the results form guessing oxidation states. If no oxidation state
+            is possible, returns a Composition where all oxidation states are 0.
         """
 
-        _, oxidation_states = self._get_oxid_state_guesses(all_oxi_states, max_sites, oxi_states_override, target_charge)
+        _, oxidation_states = self._get_oxid_state_guesses(
+            all_oxi_states, max_sites, oxi_states_override, target_charge)
 
         # Special case: No charged compound is possible
         if len(oxidation_states) == 0:
-            return Composition(dict((Specie(e,0),f) for e,f in self.items()))
+            return Composition(dict((Specie(e, 0), f) for e, f in self.items()))
 
         # Generate the species
         species = []
         for el, charges in oxidation_states[0].items():
-            species.extend([Specie(el,c) for c in charges])
+            species.extend([Specie(el, c) for c in charges])
 
         # Return the new object
         return Composition(collections.Counter(species))
 
-    def _get_oxid_state_guesses(self, all_oxi_states, max_sites, oxi_states_override, target_charge):
+    def _get_oxid_state_guesses(self, all_oxi_states, max_sites,
+                                oxi_states_override, target_charge):
         """
         Utility operation for guessing oxidation states.
 
-        See `oxi_state_guesses` for full details. This operation does the calculation
-        of the most likely oxidation states
+        See `oxi_state_guesses` for full details. This operation does the
+        calculation of the most likely oxidation states
 
         Args:
             oxi_states_override (dict): dict of str->list to override an
@@ -685,8 +699,13 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 that the full oxidation state list is *very* inclusive and
                 can produce nonsensical results.
             max_sites (int): if possible, will reduce Compositions to at most
-                this many many sites to speed up oxidation state guesses. Set
-                to -1 to just reduce fully.
+                this many sites to speed up oxidation state guesses. If the
+                composition cannot be reduced to this many sites a ValueError
+                will be raised. Set to -1 to just reduce fully. If set to a
+                number less than -1, the formula will be fully reduced but a
+                ValueError will be thrown if the number of atoms in the reduced
+                formula is greater than abs(max_sites).
+
         Returns:
             A list of dicts - each dict reports an element symbol and average
                 oxidation state across all sites in that composition. If the
@@ -699,8 +718,13 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
             """
         comp = self.copy()
         # reduce Composition if necessary
-        if max_sites == -1:
+        if max_sites and max_sites < 0:
             comp = self.reduced_composition
+
+            if max_sites < -1 and comp.num_atoms > abs(max_sites):
+                raise ValueError(
+                    "Composition {} cannot accommodate max_sites "
+                    "setting!".format(comp))
 
         elif max_sites and comp.num_atoms > max_sites:
             reduced_comp, reduced_factor = self. \
