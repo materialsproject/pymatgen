@@ -433,6 +433,16 @@ class CompositionTest(PymatgenTest):
                          oxi_state_guesses(max_sites=-1)[0],
                          {"Li": 1, "Fe": 2, "P": 5, "O": -2})
 
+        # negative max_sites less than -1 - should throw error if cannot reduce
+        # to under the abs(max_sites) number of sites. Will also timeout if
+        # incorrect.
+        self.assertEqual(
+            Composition("Sb10000O10000F10000").oxi_state_guesses(
+                max_sites=-3)[0],
+            {"Sb": 3, "O": -2, "F": -1})
+        self.assertRaises(ValueError, Composition("LiOF").oxi_state_guesses,
+                          max_sites=-2)
+
         self.assertRaises(ValueError, Composition("V2O3").
                           oxi_state_guesses, max_sites=1)
 
