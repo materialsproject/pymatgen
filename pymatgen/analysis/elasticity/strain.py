@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-                        unicode_literals)
 
 """
 This module provides classes and methods used to describe deformations and
