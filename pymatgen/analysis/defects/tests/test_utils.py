@@ -340,13 +340,14 @@ class ChgDenAnalyzerTest(unittest.TestCase):
         ca.get_local_extrema()
         ca.sort_sites_by_integrated_chg()
         print(ca._extrema_df.iloc[0], 0.5)
+        print(ca._extrema_df.iloc[0]['avg_charge_den'])
         self.assertAlmostEqual(ca._extrema_df.iloc[0]['a'], 0.0)
         self.assertAlmostEqual(ca._extrema_df.iloc[0]['b'], 0.5)
         self.assertAlmostEqual(ca._extrema_df.iloc[0]['c'], 0.0)
         self.assertAlmostEqual(ca._extrema_df.iloc[0]['Charge Density'],
                                1.65288944124)
-        self.assertAlmostEqual(ca._extrema_df.iloc[0]['Int. Charge Density'],
-                               0.0018375161626331743)
+        self.assertAlmostEqual(ca._extrema_df.iloc[0]['avg_charge_den'],
+                               0.006831484178753711)
 
 
 if __name__ == "__main__":
