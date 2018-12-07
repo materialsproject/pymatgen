@@ -59,7 +59,6 @@ class StructureGraph(MSONable):
 
         This class that contains connection information:
         relationships between sites represented by a Graph structure,
-
         and an associated structure object.
 
         This class uses the NetworkX package to store and operate
