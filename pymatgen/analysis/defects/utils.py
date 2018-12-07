@@ -1128,6 +1128,10 @@ class ChargeDensityAnalyzer(object):
             merged_fcoords.append(np.average(frac_coords, axis=0))
 
         merged_fcoords = [f - np.floor(f) for f in merged_fcoords]
+        merged_fcoords = [f * (np.abs(f - 1) > 1E-15) for f in merged_fcoords]
+        # the second line for fringe cases like 
+        # np.array([ 5.0000000e-01 -4.4408921e-17  5.0000000e-01])
+        # where the shift to [0,1) does not work due to float precision
         self._update_extrema(merged_fcoords, extrema_type=self.extrema_type)
         logger.debug(
             "{} vertices after combination.".format(len(self.extrema_coords)))
