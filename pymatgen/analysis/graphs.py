@@ -29,7 +29,7 @@ from networkx.readwrite import json_graph
 from networkx.drawing.nx_agraph import write_dot
 
 import logging
-logging.basicConfig(level=logging.INFO)
+
 logger = logging.getLogger(__name__)
 
 __author__ = "Matthew Horton, Evan Spotte-Smith"
