@@ -31,6 +31,7 @@ from networkx.drawing.nx_agraph import write_dot
 import logging
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 __author__ = "Matthew Horton, Evan Spotte-Smith"
 __version__ = "0.1"
@@ -58,6 +59,7 @@ class StructureGraph(MSONable):
 
         This class that contains connection information:
         relationships between sites represented by a Graph structure,
+
         and an associated structure object.
 
         This class uses the NetworkX package to store and operate
