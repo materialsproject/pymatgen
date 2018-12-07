@@ -1222,10 +1222,10 @@ class ChargeDensityAnalyzer(object):
 
     def sort_sites_by_integrated_chg(self, r=0.4):
         """
-        Get the integrated charge density around each site in a given radius
-        Note that
+        Get the average charge density around each local minima in the charge density
+        and store the result in _extrema_df
         Args:
-            r (float): radius of sphere around each site to integrate
+            r (float): radius of sphere around each site to evaluate the average
         """
 
         if self.extrema_type is None:
@@ -1233,10 +1233,11 @@ class ChargeDensityAnalyzer(object):
         int_den = []
         for isite in self.extrema_coords:
             mask = self._dist_mat(isite) < r
-            chg_in_sphere = np.sum(self.chgcar.data['total'] * mask) / mask.size
+            vol_sphere = self.chgcar.structure.volume * (mask.sum()/self.chgcar.ngridpts)
+            chg_in_sphere = np.sum(self.chgcar.data['total'] * mask) / mask.size / vol_sphere
             int_den.append(chg_in_sphere)
-        self._extrema_df['Int. Charge Density'] = int_den
-        self._extrema_df.sort_values(by=['Int. Charge Density'], inplace=True)
+        self._extrema_df['avg_charge_den'] = int_den
+        self._extrema_df.sort_values(by=['avg_charge_den'], inplace=True)
         self._extrema_df.reset_index(drop=True, inplace=True)
 
     def _dist_mat(self, pos_frac):
