@@ -588,7 +588,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         return {"reduced_cell_composition": self.to_reduced_dict,
                 "unit_cell_composition": self.as_dict(),
                 "reduced_cell_formula": self.reduced_formula,
-                "elements": self.as_dict().keys(),
+                "elements": list(self.as_dict().keys()),
                 "nelements": len(self.as_dict().keys())}
 
     def oxi_state_guesses(self, oxi_states_override=None, target_charge=0,
