@@ -257,6 +257,7 @@ class CompositionTest(PymatgenTest):
     def test_pickle(self):
         for c in self.comp:
             self.serialize_with_pickle(c, test_eq=True)
+            self.serialize_with_pickle(c.to_data_dict, test_eq=True)
 
     def test_add(self):
         self.assertEqual((self.comp[0] + self.comp[2]).formula,
