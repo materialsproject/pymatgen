@@ -27,7 +27,9 @@ import numpy as np
 
 from collections import defaultdict
 
-from pymatgen.analysis.graphs import MoleculeGraph
+from networkx.readwrite import json_graph
+
+from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.core.lattice import get_integer_index
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.core.periodic_table import Specie
@@ -70,8 +72,7 @@ def get_dimensionality_larsen(bonded_structure):
 
 
 def get_structure_components(bonded_structure, inc_orientation=False,
-                             inc_site_ids=False, inc_molecule_graph=False,
-                             inc_graph=False):
+                             inc_site_ids=False, inc_molecule_graph=False):
     """
     Gets information on the components in a bonded structure.
 
@@ -98,15 +99,13 @@ def get_structure_components(bonded_structure, inc_orientation=False,
             of the sites in the structure component.
         inc_molecule_graph (bool, optional): Whether to include MoleculeGraph
             objects for zero-dimensional components.
-        inc_graph (bool, optional): Whether to include the component Graph
-            object.
 
     Returns:
         (list of dict): Information on the components in a structure as a list
         of dictionaries with the keys:
 
-        - "structure": A pymatgen Structure object containing the component
-            atoms.
+        - "structure_graph": A pymatgen StructureGraph object for the
+            component.
         - "dimensionality": The dimensionality of the structure component as an
             int.
         - "orientation": If inc_orientation is `True`, the orientation of the
@@ -115,9 +114,6 @@ def get_structure_components(bonded_structure, inc_orientation=False,
             sites in the component as a tuple.
         - "molecule_graph": If inc_molecule_graph is `True`, the site a
             MoleculeGraph object for zero-dimensional components.
-        - "graph": If inc_graph is `True`, the networkx Graph for the component.
-            The node indices have been reordered to match the site indices
-            for the component structure rather than the initial structure.
     """
     import networkx as nx  # optional dependency therefore not top level import
 
@@ -126,14 +122,10 @@ def get_structure_components(bonded_structure, inc_orientation=False,
 
     components = []
     for graph in comp_graphs:
-        sites = [bonded_structure.structure[n] for n in sorted(graph.nodes())]
-        component_structure = Structure.from_sites(sites)
-
         dimensionality, vertices = calculate_dimensionality_of_site(
             bonded_structure, list(graph.nodes())[0], inc_vertices=True)
 
-        component = {'structure': component_structure,
-                     'dimensionality': dimensionality}
+        component = {'dimensionality': dimensionality}
 
         if inc_orientation:
             if dimensionality in [1, 2]:
@@ -160,13 +152,15 @@ def get_structure_components(bonded_structure, inc_orientation=False,
             component['molecule_graph'] = zero_d_graph_to_molecule_graph(
                 bonded_structure, graph)
 
-        if inc_graph:
-            # add specie names to graph to be able to identify sites
-            species = {n: {'specie': str(bonded_structure.structure[n].specie)}
-                       for n in graph}
-            nx.set_node_attributes(graph, species)
-            component['graph'] = nx.convert_node_labels_to_integers(
-                graph, ordering="sorted")
+        component_structure = Structure.from_sites(
+            [bonded_structure.structure[n] for n in sorted(graph.nodes())])
+
+        sorted_graph = nx.convert_node_labels_to_integers(
+            graph, ordering="sorted")
+        component_graph = StructureGraph(
+            component_structure,
+            graph_data=json_graph.adjacency_data(sorted_graph))
+        component['structure_graph'] = component_graph
 
         components.append(component)
     return components
