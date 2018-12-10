@@ -68,6 +68,10 @@ class LarsenDimensionalityTest(PymatgenTest):
         self.assertEqual(components[0]['structure'].num_sites, 2)
         self.assertEqual(components[0]['orientation'], (0, 0, 1))
 
+        # test getting component graphs
+        components = get_structure_components(self.graphite, inc_graph=True)
+        self.assertEqual(list(components[0]['graph'].nodes()), [0, 1])
+
     def test_calculate_dimensionality_of_site(self):
         dimen = calculate_dimensionality_of_site(self.tricky_structure, 0)
         self.assertEqual(dimen, 3)
