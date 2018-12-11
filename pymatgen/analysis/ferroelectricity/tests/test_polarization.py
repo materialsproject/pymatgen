@@ -115,29 +115,29 @@ class PolarizationTest(PymatgenTest):
         self.assertArrayAlmostEqual(p_ions[-1].ravel().tolist(), self.p_ions[-1].ravel().tolist())
 
     def test_get_same_branch_polarization_data(self):
-        same_branch = self.polarization.get_same_branch_polarization_data(convert_to_muC_per_cm2=True)
+        same_branch = self.polarization.get_same_branch_polarization_data(convert_to_muC_per_cm2=True, all_in_polar=False)
         self.assertArrayAlmostEqual(same_branch[0].ravel().tolist(), self.same_branch[0].ravel().tolist())
         self.assertArrayAlmostEqual(same_branch[-1].ravel().tolist(), self.same_branch[-1].ravel().tolist())
 
     def test_get_lattice_quanta(self):
-        quanta = self.polarization.get_lattice_quanta(convert_to_muC_per_cm2=True)
+        quanta = self.polarization.get_lattice_quanta(convert_to_muC_per_cm2=True, all_in_polar=False)
         self.assertArrayAlmostEqual(quanta[0].ravel().tolist(), self.quanta[0].ravel().tolist())
         self.assertArrayAlmostEqual(quanta[-1].ravel().tolist(), self.quanta[-1].ravel().tolist())
 
     def test_get_polarization_change(self):
-        change = self.polarization.get_polarization_change()
+        change = self.polarization.get_polarization_change(convert_to_muC_per_cm2=True, all_in_polar=False)
         self.assertArrayAlmostEqual(change, self.change)
 
     def test_get_polarization_change_norm(self):
-        change_norm = self.polarization.get_polarization_change_norm()
+        change_norm = self.polarization.get_polarization_change_norm(convert_to_muC_per_cm2=True, all_in_polar=False)
         self.assertAlmostEqual(change_norm, self.change_norm)
 
     def test_max_spline_jumps(self):
-        max_jumps = self.polarization.max_spline_jumps()
+        max_jumps = self.polarization.max_spline_jumps(convert_to_muC_per_cm2=True, all_in_polar=False)
         self.assertArrayAlmostEqual(self.max_jumps, max_jumps)
 
     def test_smoothness(self):
-        smoothness = self.polarization.smoothness()
+        smoothness = self.polarization.smoothness(convert_to_muC_per_cm2=True, all_in_polar=False)
         self.assertArrayAlmostEqual(self.smoothness, smoothness)
 
 
