@@ -1,5 +1,5 @@
-pymatgen\.analysis\.cost package
-================================
+pymatgen.analysis.cost package
+==============================
 
 Subpackages
 -----------

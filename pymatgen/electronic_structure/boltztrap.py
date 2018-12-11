@@ -946,7 +946,7 @@ class BoltztrapAnalyzer:
         else:
             bnd_around_efermi = []
             delta = 0
-            spin = sbs_bz.bands.keys()[0]
+            spin = list(sbs_bz.bands.keys())[0]
             while len(bnd_around_efermi) < 8 and delta < 100:
                 delta += 0.1
                 bnd_around_efermi = []

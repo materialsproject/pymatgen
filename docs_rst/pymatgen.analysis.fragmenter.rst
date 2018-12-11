@@ -1,5 +1,5 @@
-pymatgen\.analysis\.fragmenter module
-=====================================
+pymatgen.analysis.fragmenter module
+===================================
 
 .. automodule:: pymatgen.analysis.fragmenter
     :members:

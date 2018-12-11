@@ -1,5 +1,5 @@
-pymatgen\.util package
-======================
+pymatgen.util package
+=====================
 
 Subpackages
 -----------

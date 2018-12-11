@@ -1,5 +1,5 @@
-pymatgen\.symmetry\.settings module
-===================================
+pymatgen.symmetry.settings module
+=================================
 
 .. automodule:: pymatgen.symmetry.settings
     :members:

@@ -1,5 +1,5 @@
-pymatgen\.core\.structure module
-================================
+pymatgen.core.structure module
+==============================
 
 .. automodule:: pymatgen.core.structure
     :members:
