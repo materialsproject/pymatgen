@@ -1,5 +1,5 @@
-pymatgen\.electronic\_structure\.dos module
-===========================================
+pymatgen.electronic\_structure.dos module
+=========================================
 
 .. automodule:: pymatgen.electronic_structure.dos
     :members:

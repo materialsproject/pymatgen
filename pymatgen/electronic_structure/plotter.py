@@ -1917,7 +1917,7 @@ class BSPlotterProjected(BSPlotter):
                     _sites = self._bs.structure.sites
                     indices = []
                     for i in range(0, len(_sites)):
-                        if _sites[i]._species.keys()[0].__eq__(Element(elt)):
+                        if list(_sites[i]._species.keys())[0].__eq__(Element(elt)):
                             indices.append(i + 1)
                     flag_1 = len(set(dictpa[elt]).intersection(indices))
                     flag_2 = len(set(sum_atoms[elt]).intersection(indices))
@@ -1967,7 +1967,7 @@ class BSPlotterProjected(BSPlotter):
                     _sites = self._bs.structure.sites
                     indices = []
                     for i in range(0, len(_sites)):
-                        if _sites[i]._species.keys()[0].__eq__(Element(elt)):
+                        if list(_sites[i]._species.keys())[0].__eq__(Element(elt)):
                             indices.append(i + 1)
                     flag_1 = len(set(dictpa[elt]).intersection(indices))
                     flag_2 = len(set(sum_atoms[elt]).intersection(indices))
