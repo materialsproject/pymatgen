@@ -232,6 +232,13 @@ class Polarization(object):
         image of a given polarization lattice vector that is closest to the previous polarization
         lattice vector image.
 
+        Note, using convert_to_muC_per_cm2=True and all_in_polar=True calculates the "proper
+        polarization" (meaning the change in polarization does not depend on the choice of
+        polarization branch) while convert_to_muC_per_cm2=True and all_in_polar=False calculates
+        the "improper polarization" (meaning the change in polarization does depend on the choice
+        of branch). As one might guess from the names. We recommend calculating the "proper
+        polarization".
+
         convert_to_muC_per_cm2: convert polarization from electron * Angstroms to
             microCoulomb per centimeter**2
         all_in_polar: convert polarization to be in polar (final structure) polarization lattice
