@@ -9,7 +9,7 @@ import logging
 import numpy as np
 
 from abc import ABCMeta, abstractmethod
-from monty.json import MSONable
+from monty.json import MSONable, MontyDecoder
 from monty.functools import lru_cache
 
 from pymatgen.core import PeriodicSite, Structure
@@ -471,7 +471,7 @@ class DefectEntry(MSONable):
     for many defect analysis.
     """
 
-    def __init__(self, defect, uncorrected_energy, corrections=None, parameters=None, entry_id=None):
+    def __init__(self, defect, uncorrected_energy, corrections=None, parameters=None, entry_id=None, task_id=None):
         """
         Args:
             defect:
@@ -501,6 +501,8 @@ class DefectEntry(MSONable):
         self.corrections = corrections if corrections else {}
         self.entry_id = entry_id
         self.parameters = parameters if parameters else {}
+        self.task_id = task_id
+
 
     @property
     def bulk_structure(self):
@@ -578,6 +580,42 @@ class DefectEntry(MSONable):
                           (kb * temperature))
 
         return conc
+
+    def as_dict(self):
+        """
+        Json-serializable dict representation of DefectEntry
+        """
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__,
+             "defect": self.defect.as_dict(),
+             "uncorrected_energy": self.uncorrected_energy,
+             "corrections": self.corrections,
+             "parameters": self.parameters,
+             "entry_id": self.entry_id,
+             "task_id": self.task_id}
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        """
+        Reconstitute a DefectEntry object from a dict representation created using
+        as_dict().
+
+        Args:
+            d (dict): dict representation of DefectEntry.
+
+        Returns:
+            DefectEntry object
+        """
+        defect = MontyDecoder().process_decoded( d["defect"])
+        uncorrected_energy = d["uncorrected_energy"]
+        corrections = d.get("corrections", None)
+        parameters = d.get("parameters", None)
+        entry_id = d.get("entry_id", None)
+        task_id = d.get("task_id", None)
+
+        return cls(defect, uncorrected_energy, corrections=corrections,
+                   parameters=parameters, entry_id=entry_id, task_id=task_id)
 
     def __repr__(self):
         """
