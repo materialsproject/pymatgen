@@ -6,11 +6,6 @@
 This module provides classes to perform fitting of structures.
 """
 
-
-import six
-
-
-
 import numpy as np
 import itertools
 import abc
@@ -34,7 +29,7 @@ __status__ = "Production"
 __date__ = "Dec 3, 2012"
 
 
-class AbstractComparator(six.with_metaclass(abc.ABCMeta, MSONable)):
+class AbstractComparator(MSONable, metaclass=abc.ABCMeta):
     """
     Abstract Comparator class. A Comparator defines how sites are compared in
     a structure.

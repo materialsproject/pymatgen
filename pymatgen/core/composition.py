@@ -9,7 +9,6 @@ import string
 from itertools import combinations_with_replacement, product
 
 import os
-import six
 import re
 
 from collections import defaultdict

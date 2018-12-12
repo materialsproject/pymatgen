@@ -15,7 +15,6 @@ import scipy.signal
 import scipy.stats
 from scipy.interpolate import interp1d
 import math
-import six
 
 from abc import ABCMeta
 
@@ -259,7 +258,7 @@ class NEBPathfinder:
                          disc_coords[2] / v.shape[2]])
 
 
-class StaticPotential(six.with_metaclass(ABCMeta)):
+class StaticPotential(metaclass=ABCMeta):
     """
     Defines a general static potential for diffusion calculations. Implements
     grid-rescaling and smearing for the potential grid. Also provides a

@@ -8,8 +8,6 @@ This module implements abstract base classes for post-processing entries.
 Any class which modifies entries should inherit these classes.
 """
 
-import six
-
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "0.1"
@@ -20,7 +18,7 @@ __date__ = "Oct 6, 2011"
 import abc
 
 
-class EntryPostProcessor(six.with_metaclass(abc.ABCMeta, object)):
+class EntryPostProcessor(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def process_entry(self, entry):
         """

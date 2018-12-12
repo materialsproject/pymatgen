@@ -7,13 +7,12 @@ from operator import mul
 from pymatgen.core.periodic_table import Specie, get_el_sp
 from monty.design_patterns import cached_class
 
+import functools
 import itertools
 import json
 import logging
 import math
 import os
-
-import six
 
 
 """
@@ -196,10 +195,10 @@ class SubstitutionPredictor:
         def _recurse(output_prob, output_species):
             best_case_prob = list(max_probabilities)
             best_case_prob[:len(output_prob)] = output_prob
-            if six.moves.reduce(mul, best_case_prob) > self.threshold:
+            if functools.reduce(mul, best_case_prob) > self.threshold:
                 if len(output_species) == len(species):
                     odict = {
-                        'probability': six.moves.reduce(mul, best_case_prob)}
+                        'probability': functools.reduce(mul, best_case_prob)}
                     if to_this_composition:
                         odict['substitutions'] = dict(
                             zip(output_species, species))

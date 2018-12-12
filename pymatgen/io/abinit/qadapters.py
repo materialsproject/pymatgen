@@ -20,7 +20,6 @@ import abc
 import string
 import copy
 import getpass
-import six
 import json
 import math
 from . import qutils as qu
@@ -352,7 +351,7 @@ class MaxNumLaunchesError(QueueAdapterError):
     """Raised by `submit_to_queue` if we try to submit more than `max_num_launches` times."""
 
 
-class QueueAdapter(six.with_metaclass(abc.ABCMeta, MSONable)):
+class QueueAdapter(MSONable, metaclass=abc.ABCMeta):
     """
     The `QueueAdapter` is responsible for all interactions with a specific queue management system.
     This includes handling all details of queue script format as well as queue submission and management.

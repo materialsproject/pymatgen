@@ -17,7 +17,6 @@ import os
 import itertools
 from monty.design_patterns import singleton
 from monty.string import unicode2str
-import six
 
 import scipy.constants as const
 
@@ -68,7 +67,7 @@ class CostEntry(PDEntry):
                                                           self.energy)
 
 
-class CostDB(six.with_metaclass(abc.ABCMeta)):
+class CostDB(metaclass=abc.ABCMeta):
     """
     Abstract class for representing a Cost database.
     Can be extended, e.g. for file-based or REST-based databases

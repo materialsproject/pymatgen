@@ -4,8 +4,6 @@
 
 import abc
 
-import six
-
 from monty.json import MSONable
 from pymatgen.analysis.ewald import EwaldSummation
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -24,7 +22,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "11/19/13"
 
 
-class EnergyModel(six.with_metaclass(abc.ABCMeta, MSONable)):
+class EnergyModel(MSONable, metaclass=abc.ABCMeta):
     """
     Abstract structure filter class.
     """

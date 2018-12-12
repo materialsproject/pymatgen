@@ -4,8 +4,6 @@
 
 import re
 import abc
-import six
-
 from abc import ABCMeta, abstractmethod
 
 """
@@ -23,8 +21,7 @@ __all_errors__ = ['SubmitError', 'FullQueueError', 'DiskError', 'TimeCancelError
                   'NodeFailureError']
 
 
-@six.add_metaclass(ABCMeta)
-class CorrectorProtocolScheduler:
+class CorrectorProtocolScheduler(metaclass=ABCMeta):
     """
     Abstract class to define the protocol / interface for correction operators. The client code quadapters / submission
     script generator method / ... should implement these methods.
@@ -74,8 +71,7 @@ class CorrectorProtocolScheduler:
         """
 
 
-@six.add_metaclass(ABCMeta)
-class CorrectorProtocolApplication:
+class CorrectorProtocolApplication(metaclass=ABCMeta):
     """
     Abstract class to define the protocol / interface for correction operators. The client code quadapters / submission
     script generator method / ... should implement these methods.
@@ -104,8 +100,7 @@ class CorrectorProtocolApplication:
         """
 
 
-@six.add_metaclass(ABCMeta)
-class AbstractError:
+class AbstractError(metaclass=ABCMeta):
     """
     Error base class
     """
@@ -233,8 +228,7 @@ class NodeFailureError(AbstractError):
         return [(CorrectorProtocolScheduler.exclude_nodes, [self.nodes])]
 
 
-@six.add_metaclass(ABCMeta)
-class AbstractErrorParser:
+class AbstractErrorParser(metaclass=ABCMeta):
     """
     Abstract class for parsing errors originating from the scheduler system and error that are not reported by the
     program itself, i.e. segmentation faults.

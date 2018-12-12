@@ -4,8 +4,6 @@
 
 
 import numpy as np
-import six
-
 import collections
 from numbers import Number
 import numbers

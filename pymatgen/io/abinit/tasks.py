@@ -11,7 +11,6 @@ import collections
 import abc
 import copy
 import ruamel.yaml as yaml
-import six
 from io import StringIO
 import numpy as np
 
@@ -1305,7 +1304,7 @@ class TaskRestartError(TaskError):
     """Exception raised while trying to restart the :class:`Task`."""
 
 
-class Task(six.with_metaclass(abc.ABCMeta, Node)):
+class Task(Node, metaclass=abc.ABCMeta):
     """
     A Task is a node that performs some kind of calculation.
     This is base class providing low-level methods.

@@ -13,10 +13,9 @@ import random
 import warnings
 from fnmatch import fnmatch
 import re
+import functools
 
 from math import gcd
-
-import six
 
 import numpy as np
 
@@ -47,7 +46,7 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 
-class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
+class SiteCollection(collections.Sequence, metaclass=ABCMeta):
     """
     Basic SiteCollection. Essentially a sequence of Sites or PeriodicSites.
     This serves as a base class for Molecule (a collection of Site, i.e., no
@@ -1334,7 +1333,7 @@ class IStructure(SiteCollection, MSONable):
             np.fill_diagonal(non_nbrs, True)
             grouped_non_nbrs.append(non_nbrs)
 
-        num_fu = six.moves.reduce(gcd, map(len, grouped_sites))
+        num_fu = functools.reduce(gcd, map(len, grouped_sites))
         for size, ms in get_hnf(num_fu):
             inv_ms = np.linalg.inv(ms)
 
@@ -2440,7 +2439,7 @@ class Structure(IStructure, collections.MutableSequence):
 
         if isinstance(i, int):
             indices = [i]
-        elif isinstance(i, str + (Element, Specie)):
+        elif isinstance(i, (str, Element, Specie)):
             self.replace_species({i: site})
             return
         elif isinstance(i, slice):
@@ -3233,7 +3232,7 @@ class Molecule(IMolecule, collections.MutableSequence):
 
         if isinstance(i, int):
             indices = [i]
-        elif isinstance(i, str + (Element, Specie)):
+        elif isinstance(i, (str, Element, Specie)):
             self.replace_species({i: site})
             return
         elif isinstance(i, slice):

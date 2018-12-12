@@ -8,7 +8,6 @@ import os
 import time
 import collections
 import abc
-import six
 import numpy as np
 
 from pprint import pprint
@@ -438,7 +437,7 @@ class SpectatorNodeError(NodeError):
     """
 
 
-class Node(six.with_metaclass(abc.ABCMeta, object)):
+class Node(metaclass=abc.ABCMeta):
     """
     Abstract base class defining the interface that must be
     implemented by the nodes of the calculation.

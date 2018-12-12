@@ -28,7 +28,6 @@ import copy
 from monty.json import MSONable
 from monty.dev import requires
 from pymatgen.io.babel import BabelMolAdaptor
-import six
 
 try:
     import openbabel as ob
@@ -36,7 +35,7 @@ except ImportError:
     ob = None
 
 
-class AbstractMolAtomMapper(six.with_metaclass(abc.ABCMeta, MSONable)):
+class AbstractMolAtomMapper(MSONable, metaclass=abc.ABCMeta):
     """
     Abstract molecular atom order mapping class. A mapping will be able to
     find the uniform atom order of two molecules that can pair the

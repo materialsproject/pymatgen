@@ -7,7 +7,6 @@ import math
 import itertools
 import warnings
 from collections import OrderedDict
-import six
 
 import numpy as np
 

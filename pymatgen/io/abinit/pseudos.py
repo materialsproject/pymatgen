@@ -13,8 +13,6 @@ import logging
 import os
 import sys
 import numpy as np
-import six
-
 from collections import OrderedDict, defaultdict, namedtuple
 from monty.collections import AttrDict, Namespace
 from tabulate import tabulate
@@ -91,7 +89,7 @@ def str2l(s):
     return _str2l[s]
 
 
-class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
+class Pseudo(MSONable, metaclass=abc.ABCMeta):
     """
     Abstract base class defining the methods that must be
     implemented by the concrete pseudopotential sub-classes.
@@ -381,7 +379,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
             return None
 
 
-class NcPseudo(six.with_metaclass(abc.ABCMeta, object)):
+class NcPseudo(metaclass=abc.ABCMeta):
     """
     Abstract class defining the methods that must be implemented
     by the concrete classes representing norm-conserving pseudopotentials.
@@ -409,7 +407,7 @@ class NcPseudo(six.with_metaclass(abc.ABCMeta, object)):
             return None
 
 
-class PawPseudo(six.with_metaclass(abc.ABCMeta, object)):
+class PawPseudo(metaclass=abc.ABCMeta):
     """
     Abstract class that defines the methods that must be implemented
     by the concrete classes representing PAW pseudopotentials.
@@ -1503,7 +1501,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
     #    return fig
 
 
-class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable, object)):
+class PseudoTable(collections.Sequence, MSONable, metaclass=abc.ABCMeta):
     """
     Define the pseudopotentials from the element table.
     Individidual elements are accessed by name, symbol or atomic number.

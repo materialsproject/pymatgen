@@ -7,7 +7,6 @@ Low-level objects providing an abstraction for the objects involved in the calcu
 
 import collections
 import abc
-import six
 import numpy as np
 import pymatgen.core.units as units
 
@@ -246,7 +245,7 @@ def contract(s):
     return " ".join("%d*%s" % (c, t) for c, t in count)
 
 
-class AbivarAble(six.with_metaclass(abc.ABCMeta, object)):
+class AbivarAble(metaclass=abc.ABCMeta):
     """
     An `AbivarAble` object provides a method `to_abivars`
     that returns a dictionary with the abinit variables.

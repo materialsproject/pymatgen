@@ -7,7 +7,6 @@ import math
 import warnings
 from collections import namedtuple, defaultdict
 
-import six
 import ruamel.yaml as yaml
 import os
 import json
