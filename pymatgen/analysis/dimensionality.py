@@ -26,7 +26,9 @@ import numpy as np
 
 from collections import defaultdict
 
-from pymatgen.analysis.graphs import MoleculeGraph
+from networkx.readwrite import json_graph
+
+from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.core.lattice import get_integer_index
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.core.periodic_table import Specie
@@ -101,8 +103,8 @@ def get_structure_components(bonded_structure, inc_orientation=False,
         (list of dict): Information on the components in a structure as a list
         of dictionaries with the keys:
 
-        - "structure": A pymatgen Structure object containing the component
-            atoms.
+        - "structure_graph": A pymatgen StructureGraph object for the
+            component.
         - "dimensionality": The dimensionality of the structure component as an
             int.
         - "orientation": If inc_orientation is `True`, the orientation of the
@@ -119,14 +121,10 @@ def get_structure_components(bonded_structure, inc_orientation=False,
 
     components = []
     for graph in comp_graphs:
-        sites = [bonded_structure.structure[n] for n in graph.nodes()]
-        component_structure = Structure.from_sites(sites)
-
         dimensionality, vertices = calculate_dimensionality_of_site(
             bonded_structure, list(graph.nodes())[0], inc_vertices=True)
 
-        component = {'structure': component_structure,
-                     'dimensionality': dimensionality}
+        component = {'dimensionality': dimensionality}
 
         if inc_orientation:
             if dimensionality in [1, 2]:
@@ -152,6 +150,16 @@ def get_structure_components(bonded_structure, inc_orientation=False,
         if inc_molecule_graph and dimensionality == 0:
             component['molecule_graph'] = zero_d_graph_to_molecule_graph(
                 bonded_structure, graph)
+
+        component_structure = Structure.from_sites(
+            [bonded_structure.structure[n] for n in sorted(graph.nodes())])
+
+        sorted_graph = nx.convert_node_labels_to_integers(
+            graph, ordering="sorted")
+        component_graph = StructureGraph(
+            component_structure,
+            graph_data=json_graph.adjacency_data(sorted_graph))
+        component['structure_graph'] = component_graph
 
         components.append(component)
     return components
