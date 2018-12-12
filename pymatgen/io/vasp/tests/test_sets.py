@@ -190,7 +190,7 @@ class MITMPRelaxSetTest(unittest.TestCase):
                                                 'LDAUU': {'Fe': 5.0, 'S': 0}}
                                             )
         self.assertEqual(userset_ldauu_fallback.incar['LDAUU'], [5.0, 0, 0])
-        
+
         # Expected to be oxide (O is the most electronegative atom)
         s = Structure(lattice, ["Fe", "O", "S"], coords)
         incar = MITRelaxSet(s).incar
@@ -230,7 +230,7 @@ class MITMPRelaxSetTest(unittest.TestCase):
         self.assertEqual(mpr.incar["NELECT"], 7,
                          "NELECT not properly set for nonzero charge")
 
-        #test that NELECT does not get set when use_structure_charge = False
+        # test that NELECT does not get set when use_structure_charge = False
         mpr = MPRelaxSet(struct, use_structure_charge=False)
         self.assertFalse("NELECT" in mpr.incar.keys(),
                          "NELECT should not be set when "
@@ -370,6 +370,7 @@ class MPStaticSetTest(PymatgenTest):
         shutil.rmtree(self.tmp)
         warnings.resetwarnings()
 
+
 class MPNonSCFSetTest(PymatgenTest):
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
@@ -445,7 +446,8 @@ class MagmomLdauTest(PymatgenTest):
         self.assertEqual(magmom, magmom_ans)
 
     def test_ln_magmom(self):
-        YAML_PATH = os.path.join(os.path.dirname(__file__), "../VASPIncarBase.yaml")
+        YAML_PATH = os.path.join(os.path.dirname(__file__),
+                                 "../VASPIncarBase.yaml")
         MAGMOM_SETTING = loadfn(YAML_PATH)["MAGMOM"]
         structure = Structure.from_file(os.path.join(test_dir, "La4Fe4O12.cif"))
         structure.add_oxidation_state_by_element({"La": +3, "Fe": +3, "O": -2})
@@ -506,7 +508,7 @@ class MVLNPTMDSetTest(unittest.TestCase):
 
     def test_incar(self):
         npt_set = self.mvl_npt_set
-        
+
         syms = npt_set.potcar_symbols
         self.assertEqual(syms, ['Fe', 'P', 'O'])
 
@@ -591,7 +593,6 @@ class MITNEBSetTest(unittest.TestCase):
 
 
 class MPSOCSetTest(PymatgenTest):
-
     def setUp(self):
         warnings.simplefilter("ignore")
 
@@ -612,7 +613,6 @@ class MPSOCSetTest(PymatgenTest):
 
 
 class MPNMRSetTest(PymatgenTest):
-
     def setUp(self):
         warnings.simplefilter("ignore")
 
@@ -713,7 +713,6 @@ class MVLSlabSetTest(PymatgenTest):
 
 
 class MVLElasticSetTest(PymatgenTest):
-
     def setUp(self):
         warnings.simplefilter("ignore")
 
@@ -839,7 +838,7 @@ class MVLScanRelaxSetTest(PymatgenTest):
         self.assertEqual(test_potcar_set_1.potcar.functional, "PBE_54")
 
         self.assertRaises(ValueError, MVLScanRelaxSet,
-            self.struct, potcar_functional="PBE")
+                          self.struct, potcar_functional="PBE")
 
     def test_as_from_dict(self):
         d = self.mvl_scan_set.as_dict()
@@ -889,6 +888,43 @@ class MVLGBSetTest(unittest.TestCase):
         k_a = int(40 / (self.s.lattice.abc[0]) + 0.5)
         k_b = int(40 / (self.s.lattice.abc[1]) + 0.5)
         self.assertEqual(kpoints.kpts, [[k_a, k_b, 1]])
+
+
+class MVLRelax52SetTest(unittest.TestCase):
+    def setUp(self):
+        file_path = os.path.join(test_dir, 'POSCAR')
+        poscar = Poscar.from_file(file_path)
+        self.struct = poscar.structure
+        self.mvl_rlx_set = MVLRelax52Set(
+            self.struct, potcar_functional="PBE_54",
+            user_incar_settings={"NSW": 500})
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
+
+    def test_incar(self):
+        incar = self.mvl_rlx_set.incar
+        self.assertIn("NSW", incar)
+        self.assertEqual(incar["LREAL"], "Auto")
+
+    def test_potcar(self):
+        self.assertEqual(self.mvl_rlx_set.potcar.functional, "PBE_54")
+        self.assertIn("Fe", self.mvl_rlx_set.potcar.symbols)
+
+        self.struct.remove_species(["Fe"])
+        test_potcar_set_1 = MVLRelax52Set(self.struct,
+                                          potcar_functional="PBE_52")
+        self.assertEqual(test_potcar_set_1.potcar.functional, "PBE_52")
+
+        self.assertRaises(ValueError, MVLRelax52Set,
+                          self.struct, potcar_functional="PBE")
+
+    def test_as_from_dict(self):
+        d = self.mvl_rlx_set.as_dict()
+        v = dec.process_decoded(d)
+        self.assertEqual(type(v), MVLRelax52Set)
+        self.assertEqual(v.incar["NSW"], 500)
 
 
 if __name__ == '__main__':

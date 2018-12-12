@@ -9,6 +9,7 @@ env:
     - PATH=$PATH:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit:`pwd`/cmd_line/boltztrap/Linux_64bit
     - GULP_LIB=`pwd`/cmd_line/gulp/Libraries
     - MPLBACKEND=Agg
+    - PMG_MAPI_ENDPOINT=https://zola.lbl.gov/rest/v2
 # command to install dependencies
 sudo: false
 install:
@@ -18,6 +19,8 @@ install:
   - export CFLAGS=$CFLAGS" -std=gnu++11"
   - travis_wait pip install BoltzTraP2
   - export CFLAGS=${CFLAGS%% -std=gnu++11}
+  - >-
+    echo "backend: Agg" > matplotlibrc
 # This is needed, otherwise, nosetests can't find the installed pymatgen C
 # extensions.
 before_script:

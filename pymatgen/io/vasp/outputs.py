@@ -1561,6 +1561,14 @@ class Outcar(object):
         Average electrostatic potential at each atomic position in order
         of the atoms in POSCAR.
 
+    ..attribute: final_energy_contribs
+        Individual contributions to the total final energy as a dictionary.
+        Include contirbutions from keys, e.g.:
+        {'DENC': -505778.5184347, 'EATOM': 15561.06492564, 'EBANDS': -804.53201231,
+        'EENTRO': -0.08932659, 'EXHF': 0.0, 'Ediel_sol': 0.0,
+        'PAW double counting': 664.6726974100002, 'PSCENC': 742.48691646,
+        'TEWEN': 489742.86847338, 'XCENC': -169.64189814}
+
     One can then call a specific reader depending on the type of run being
     performed. These are currently: read_igpar(), read_lepsilon() and
     read_lcalcpol(), read_core_state_eign(), read_avg_core_pot().
@@ -1774,6 +1782,19 @@ class Outcar(object):
             self.nmr_efg = True
             self.read_nmr_efg()
             self.read_nmr_efg_tensor()
+
+        # Store the individual contributions to the final total energy
+        final_energy_contribs = {}
+        for k in ["PSCENC", "TEWEN", "DENC", "EXHF", "XCENC", "PAW double counting",
+                  "EENTRO", "EBANDS", "EATOM", "Ediel_sol"]:
+            if k == "PAW double counting":
+                self.read_pattern({k: r"%s\s+=\s+([\.\-\d]+)\s+([\.\-\d]+)" % (k)})
+            else:
+                self.read_pattern({k: r"%s\s+=\s+([\d\-\.]+)" % (k)})
+            if not self.data[k]:
+                continue
+            final_energy_contribs[k] = sum([float(f) for f in self.data[k][-1]])
+        self.final_energy_contribs = final_energy_contribs
 
     def read_pattern(self, patterns, reverse=False, terminate_on_match=False,
                      postprocess=str):
@@ -3339,13 +3360,22 @@ class Procar(object):
                         data[spin][current_kpoint, current_band,
                                    index, :] = num_data
                     else:
-                        if np.isnan(phase_factors[spin][
-                                current_kpoint, current_band, index, 0]):
-                            phase_factors[spin][current_kpoint, current_band,
-                                                index, :] = num_data
+                        if len(toks) > len(headers):
+                            # new format of PROCAR (vasp 5.4.4)
+                            num_data = np.array([float(t)
+                                                 for t in toks[:2*len(headers)]])
+                            for orb in range(len(headers)):
+                                phase_factors[spin][current_kpoint, current_band,
+                                    index, orb] = complex(num_data[2*orb], num_data[2*orb+1])
                         else:
-                            phase_factors[spin][current_kpoint, current_band,
-                                                index, :] += 1j * num_data
+                            # old format of PROCAR (vasp 5.4.1 and before)
+                            if np.isnan(phase_factors[spin][
+                                    current_kpoint, current_band, index, 0]):
+                                phase_factors[spin][current_kpoint, current_band,
+                                                    index, :] = num_data
+                            else:
+                                phase_factors[spin][current_kpoint, current_band,
+                                                    index, :] += 1j * num_data
                 elif l.startswith("tot"):
                     done = True
                 elif preambleexpr.match(l):

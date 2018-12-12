@@ -11,7 +11,7 @@ import os
 from pymatgen.analysis.structure_analyzer import solid_angle, \
     contains_peroxide, RelaxationAnalyzer, VoronoiConnectivity, \
     oxide_type, sulfide_type, average_coordination_number, \
-    VoronoiAnalyzer, get_dimensionality
+    VoronoiAnalyzer
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.outputs import Xdatcar
 from pymatgen import Element, Structure, Lattice
@@ -42,20 +42,6 @@ class VoronoiAnalyzerTest(PymatgenTest):
         self.assertIn(('[1 3 4 7 1 0 0 0]', 3),
                       ensemble, "Cannot find the right polyhedron in ensemble.")
 
-
-class GetDimensionalityTest(PymatgenTest):
-
-    def test_get_dimensionality(self):
-        s = self.get_structure('LiFePO4')
-        self.assertEqual(get_dimensionality(s), 3)
-
-        s = self.get_structure('Graphite')
-        self.assertEqual(get_dimensionality(s), 2)
-
-    def test_get_dimensionality_with_bonds(self):
-        s = self.get_structure('CsCl')
-        self.assertEqual(get_dimensionality(s), 1)
-        self.assertEqual(get_dimensionality(s, bonds={("Cs", "Cl"): 3.7}), 3)
 
 class RelaxationAnalyzerTest(unittest.TestCase):
     def setUp(self):

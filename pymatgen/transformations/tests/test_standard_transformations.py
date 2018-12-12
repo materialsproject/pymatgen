@@ -502,5 +502,41 @@ class ChargedCellTransformationTest(unittest.TestCase):
         s = cct.apply_transformation(s_orig)
         self.assertEqual(s.charge, 3)
 
+
+class ScaleToRelaxedTransformationTest(unittest.TestCase):
+
+    def test_apply_transformation(self):
+
+        # Test on slab relaxation where volume is fixed
+        f = os.path.join(test_dir, "surface_tests")
+        Cu_fin = Structure.from_file(os.path.join(f, 'Cu_slab_fin.cif'))
+        Cu_init = Structure.from_file(os.path.join(f, 'Cu_slab_init.cif'))
+        slab_scaling = ScaleToRelaxedTransformation(Cu_init, Cu_fin)
+        Au_init = Structure.from_file(os.path.join(f, 'Au_slab_init.cif'))
+        Au_fin = slab_scaling.apply_transformation(Au_init)
+        self.assertAlmostEqual(Au_fin.lattice.volume, Au_init.lattice.volume)
+
+        # Test on gb relaxation
+        f = os.path.join(test_dir, "grain_boundary")
+        Be_fin = Structure.from_file(os.path.join(f, 'Be_gb_fin.cif'))
+        Be_init = Structure.from_file(os.path.join(f, 'Be_gb_init.cif'))
+        Zn_init = Structure.from_file(os.path.join(f, 'Zn_gb_init.cif'))
+        gb_scaling = ScaleToRelaxedTransformation(Be_init, Be_fin)
+        Zn_fin = gb_scaling.apply_transformation(Zn_init)
+        self.assertTrue(all([site.species_string == "Zn" for site in Zn_fin]))
+        self.assertEqual(Be_init.lattice.a < Be_fin.lattice.a, Zn_init.lattice.a < Zn_fin.lattice.a)
+        self.assertEqual(Be_init.lattice.b < Be_fin.lattice.b, Zn_init.lattice.b < Zn_fin.lattice.b)
+        self.assertEqual(Be_init.lattice.c < Be_fin.lattice.c, Zn_init.lattice.c < Zn_fin.lattice.c)
+        Fe_fin = Structure.from_file(os.path.join(f, 'Fe_gb_fin.cif'))
+        Fe_init = Structure.from_file(os.path.join(f, 'Fe_gb_init.cif'))
+        Mo_init = Structure.from_file(os.path.join(f, 'Mo_gb_init.cif'))
+        gb_scaling = ScaleToRelaxedTransformation(Fe_init, Fe_fin)
+        Mo_fin = gb_scaling.apply_transformation(Mo_init)
+        self.assertTrue(all([site.species_string == "Mo" for site in Mo_fin]))
+        self.assertEqual(Fe_init.lattice.a < Fe_fin.lattice.a, Mo_init.lattice.a < Mo_fin.lattice.a)
+        self.assertEqual(Fe_init.lattice.b < Fe_fin.lattice.b, Mo_init.lattice.b < Mo_fin.lattice.b)
+        self.assertEqual(Fe_init.lattice.c < Fe_fin.lattice.c, Mo_init.lattice.c < Mo_fin.lattice.c)
+
+
 if __name__ == "__main__":
     unittest.main()

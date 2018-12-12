@@ -322,7 +322,7 @@ class Interstitial(Defect):
         # consistently with bulk structure for final defect_structure
         defect_properties = self.site.properties.copy()
         if ('velocities' in self.bulk_structure.site_properties) and \
-                ('velocities' not in defect_properties):
+            'velocities' not in defect_properties:
             if all( vel == self.bulk_structure.site_properties['velocities'][0]
                     for vel in self.bulk_structure.site_properties['velocities']):
                 defect_properties['velocities'] = self.bulk_structure.site_properties['velocities'][0]
@@ -331,7 +331,7 @@ class Interstitial(Defect):
                                  "bulk_structure velocities are not homogeneous. Please specify this "
                                  "property within the initialized defect_site object.")
         elif ('velocities' in self.bulk_structure.site_properties) and \
-                ('velocities' in defect_properties):
+              'velocities' in defect_properties:
             if type(self.bulk_structure.site_properties['velocities'][0]) != type( defect_properties['velocities']):
                 if all(vel == self.bulk_structure.site_properties['velocities'][0]
                             for vel in self.bulk_structure.site_properties['velocities']):
@@ -357,7 +357,6 @@ class Interstitial(Defect):
                                  "bulk_structure velocities are not homogeneous, so I cannot rectify these velocities. "
                                  "Please fix this property within the initialized defect_site object.".format(
                     type(self.bulk_structure.site_properties['velocities'][0]), type( defect_properties['velocities'])))
-
 
         #create a trivial defect structure to find where supercell transformation moves the defect site
         site_properties_for_fake_struct = {prop: [val] for prop,val in defect_properties.items()}

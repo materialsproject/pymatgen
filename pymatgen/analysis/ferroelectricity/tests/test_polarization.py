@@ -19,7 +19,7 @@ bto_folders += ['polar_polarization']
 
 structures = [Structure.from_file(test_dir+"/"+folder+"/POSCAR") for folder in bto_folders]
 
-ions = np.matrix([[-44.363484, -44.363484, -44.79259988],
+ions = np.array([[-44.363484, -44.363484, -44.79259988],
                   [-44.324764, -44.324764, -69.43452043],
                   [-44.286055, -44.286055, -69.8792077 ],
                   [-44.247335, -44.247335, -70.32475473],
@@ -44,13 +44,13 @@ class UtilsTest(PymatgenTest):
 
     def test_get_total_ionic_dipole(self):
         p_ion = get_total_ionic_dipole(self.structures[-1],self.zval_dict)
-        self.assertArrayAlmostEqual(p_ion, self.ions[-1].A1.tolist())
+        self.assertArrayAlmostEqual(p_ion, self.ions[-1].ravel().tolist())
 
 
 class PolarizationTest(PymatgenTest):
     def setUp(self):
         self.p_ions = ions
-        self.p_ions_outcar = np.matrix([[0.0, 0.0, 43.93437],
+        self.p_ions_outcar = np.array([[0.0, 0.0, 43.93437],
                                         [0.0, 0.0, 19.81697],
                                         [0.0, 0.0, 19.76076],
                                         [0.0, 0.0, 19.70306],
@@ -60,7 +60,7 @@ class PolarizationTest(PymatgenTest):
                                         [0.0, 0.0, -5.31457],
                                         [0.0, 0.0, -5.44026],
                                         [0.0, 0.0, -5.56684]])
-        self.p_elecs = np.matrix([[4.03304, -4.03304, -3.60393],
+        self.p_elecs = np.array([[4.03304, -4.03304, -3.60393],
                                   [4.02958, 4.02958, -3.77177],
                                   [4.02611, 4.02611, -3.93397],
                                   [4.02264, 4.02263, -4.08851],
@@ -70,7 +70,7 @@ class PolarizationTest(PymatgenTest):
                                   [4.00867, 4.00863, 3.74561],
                                   [4.00517, 4.00512, 3.67949],
                                   [0.00024, 0.00019, 3.61674]])
-        self.same_branch = np.matrix([[  9.76948106e-05,  -9.76948108e-05,   4.59556390e-05],
+        self.same_branch = np.array([[  9.76948106e-05,  -9.76948108e-05,   4.59556390e-05],
                                       [ -1.36325612e-03,  -1.36325612e-03,   5.99098550e+00],
                                       [ -2.54781559e-03,  -2.54781559e-03,   1.18312234e+01],
                                       [ -3.74896442e-03,  -3.50709575e-03,   1.74695147e+01],
@@ -80,7 +80,7 @@ class PolarizationTest(PymatgenTest):
                                       [ -6.28132190e-03,  -5.32598777e-03,   3.74721262e+01],
                                       [ -6.71430111e-03,  -5.52382219e-03,   4.19231297e+01],
                                       [ -5.69679257e-03,  -4.50996078e-03,   4.62887982e+01]])
-        self.quanta = np.matrix([[  98.50186747,   98.50186747,   98.50186747],
+        self.quanta = np.array([[  98.50186747,   98.50186747,   98.50186747],
                                  [  98.09416498,   98.09416498,   98.67403571],
                                  [  97.69065056,   97.69065056,   98.84660662],
                                  [  97.29131054,   97.29131054,   99.01967988],
@@ -93,7 +93,7 @@ class PolarizationTest(PymatgenTest):
         self.structures = structures
         self.polarization = Polarization(self.p_elecs, self.p_ions, self.structures)
         self.outcars = [Outcar(test_dir+"/"+folder+"/OUTCAR") for folder in bto_folders]
-        self.change = np.matrix([[ -5.79448738e-03,  -4.41226597e-03,   4.62887522e+01]])
+        self.change = np.array([[ -5.79448738e-03,  -4.41226597e-03,   4.62887522e+01]])
         self.change_norm = 46.288752795325244
         self.max_jumps = [0.00021336004941047062, 0.00016254800426403291, 0.038269946959965086]
         self.smoothness = [0.00017013512377086267, 0.00013467465540412905, 0.034856268571937743]
@@ -101,28 +101,28 @@ class PolarizationTest(PymatgenTest):
     def test_from_outcars_and_structures(self):
         polarization = Polarization.from_outcars_and_structures(self.outcars, self.structures)
         p_elecs, p_ions = polarization.get_pelecs_and_pions(convert_to_muC_per_cm2=False)
-        self.assertArrayAlmostEqual(p_elecs[0].A1.tolist(), self.p_elecs[0].A1.tolist())
-        self.assertArrayAlmostEqual(p_elecs[-1].A1.tolist(), self.p_elecs[-1].A1.tolist())
-        self.assertArrayAlmostEqual(p_ions[0].A1.tolist(), self.p_ions_outcar[0].A1.tolist())
-        self.assertArrayAlmostEqual(p_ions[-1].A1.tolist(), self.p_ions_outcar[-1].A1.tolist())
+        self.assertArrayAlmostEqual(p_elecs[0].ravel().tolist(), self.p_elecs[0].ravel().tolist())
+        self.assertArrayAlmostEqual(p_elecs[-1].ravel().tolist(), self.p_elecs[-1].ravel().tolist())
+        self.assertArrayAlmostEqual(p_ions[0].ravel().tolist(), self.p_ions_outcar[0].ravel().tolist())
+        self.assertArrayAlmostEqual(p_ions[-1].ravel().tolist(), self.p_ions_outcar[-1].ravel().tolist())
         # Test for calc_ionic_from_zval=True
         polarization = Polarization.from_outcars_and_structures(self.outcars, self.structures,
                                                                 calc_ionic_from_zval=True)
         p_elecs, p_ions = polarization.get_pelecs_and_pions(convert_to_muC_per_cm2=False)
-        self.assertArrayAlmostEqual(p_elecs[0].A1.tolist(), self.p_elecs[0].A1.tolist())
-        self.assertArrayAlmostEqual(p_elecs[-1].A1.tolist(), self.p_elecs[-1].A1.tolist())
-        self.assertArrayAlmostEqual(p_ions[0].A1.tolist(), self.p_ions[0].A1.tolist())
-        self.assertArrayAlmostEqual(p_ions[-1].A1.tolist(), self.p_ions[-1].A1.tolist())
+        self.assertArrayAlmostEqual(p_elecs[0].ravel().tolist(), self.p_elecs[0].ravel().tolist())
+        self.assertArrayAlmostEqual(p_elecs[-1].ravel().tolist(), self.p_elecs[-1].ravel().tolist())
+        self.assertArrayAlmostEqual(p_ions[0].ravel().tolist(), self.p_ions[0].ravel().tolist())
+        self.assertArrayAlmostEqual(p_ions[-1].ravel().tolist(), self.p_ions[-1].ravel().tolist())
 
     def test_get_same_branch_polarization_data(self):
         same_branch = self.polarization.get_same_branch_polarization_data(convert_to_muC_per_cm2=True)
-        self.assertArrayAlmostEqual(same_branch[0].A1.tolist(), self.same_branch[0].A1.tolist())
-        self.assertArrayAlmostEqual(same_branch[-1].A1.tolist(), self.same_branch[-1].A1.tolist())
+        self.assertArrayAlmostEqual(same_branch[0].ravel().tolist(), self.same_branch[0].ravel().tolist())
+        self.assertArrayAlmostEqual(same_branch[-1].ravel().tolist(), self.same_branch[-1].ravel().tolist())
 
     def test_get_lattice_quanta(self):
         quanta = self.polarization.get_lattice_quanta(convert_to_muC_per_cm2=True)
-        self.assertArrayAlmostEqual(quanta[0].A1.tolist(), self.quanta[0].A1.tolist())
-        self.assertArrayAlmostEqual(quanta[-1].A1.tolist(), self.quanta[-1].A1.tolist())
+        self.assertArrayAlmostEqual(quanta[0].ravel().tolist(), self.quanta[0].ravel().tolist())
+        self.assertArrayAlmostEqual(quanta[-1].ravel().tolist(), self.quanta[-1].ravel().tolist())
 
     def test_get_polarization_change(self):
         change = self.polarization.get_polarization_change()

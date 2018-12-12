@@ -366,9 +366,12 @@ class IStructure(SiteCollection, MSONable):
             coords (Nx3 array): list of fractional/cartesian coordinates of
                 each species.
             charge (int): overall charge of the structure. Defaults to behavior
-                in SiteCollection where total charge is the sum of the oxidation states
+                in SiteCollection where total charge is the sum of the oxidation
+                states.
             validate_proximity (bool): Whether to check if there are sites
                 that are less than 0.01 Ang apart. Defaults to False.
+            to_unit_cell (bool): Whether to map all sites into the unit cell,
+                i.e., fractional coords between 0 and 1. Defaults to False.
             coords_are_cartesian (bool): Set to True if you are providing
                 coordinates in cartesian coordinates. Defaults to False.
             site_properties (dict): Properties associated with the sites as a
@@ -1199,9 +1202,33 @@ class IStructure(SiteCollection, MSONable):
                                           site_properties=self.site_properties))
         return structs
 
+    def get_miller_index_from_site_indexes(self, site_ids, round_dp=4,
+                                           verbose=True):
+        """
+        Get the Miller index of a plane from a set of sites indexes.
+
+        A minimum of 3 sites are required. If more than 3 sites are given
+        the best plane that minimises the distance to all points will be
+        calculated.
+
+        Args:
+            site_ids (list of int): A list of site indexes to consider. A
+                minimum of three site indexes are required. If more than three
+                sites are provided, the best plane that minimises the distance
+                to all sites will be calculated.
+            round_dp (int, optional): The number of decimal places to round the
+                miller index to.
+            verbose (bool, optional): Whether to print warnings.
+
+        Returns:
+            (tuple): The Miller index.
+        """
+        return self.lattice.get_miller_index_from_coords(
+            self.frac_coords[site_ids], coords_are_cartesian=False,
+            round_dp=round_dp, verbose=verbose)
+
     def get_primitive_structure(self, tolerance=0.25, use_site_props=False,
-                                constrain_latt=[False, False, False, False,
-                                                False, False]):
+                                constrain_latt=None):
         """
         This finds a smaller unit cell than the input. Sometimes it doesn"t
         find the smallest possible one, so this method is recursively called
@@ -1224,6 +1251,8 @@ class IStructure(SiteCollection, MSONable):
         Returns:
             The most primitive structure found.
         """
+        if constrain_latt is None:
+            constrain_latt = [False, False, False, False, False, False]
 
         def site_label(site):
             if not use_site_props:
@@ -2332,9 +2361,9 @@ class Structure(IStructure, collections.MutableSequence):
     """
     __hash__ = None
 
-    def __init__(self, lattice, species, coords, charge=None, validate_proximity=False,
-                 to_unit_cell=False, coords_are_cartesian=False,
-                 site_properties=None):
+    def __init__(self, lattice, species, coords, charge=None,
+                 validate_proximity=False, to_unit_cell=False,
+                 coords_are_cartesian=False, site_properties=None):
         """
         Create a periodic structure.
 
@@ -2353,9 +2382,15 @@ class Structure(IStructure, collections.MutableSequence):
                 ii. List of dict of elements/species and occupancies, e.g.,
                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
                     disordered structures.
-            fractional_coords: list of fractional coordinates of each species.
+            coords (Nx3 array): list of fractional/cartesian coordinates of
+                each species.
+            charge (int): overall charge of the structure. Defaults to behavior
+                in SiteCollection where total charge is the sum of the oxidation
+                states.
             validate_proximity (bool): Whether to check if there are sites
                 that are less than 0.01 Ang apart. Defaults to False.
+            to_unit_cell (bool): Whether to map all sites into the unit cell,
+                i.e., fractional coords between 0 and 1. Defaults to False.
             coords_are_cartesian (bool): Set to True if you are providing
                 coordinates in cartesian coordinates. Defaults to False.
             site_properties (dict): Properties associated with the sites as a

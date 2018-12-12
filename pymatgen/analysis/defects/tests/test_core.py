@@ -13,7 +13,6 @@ from pymatgen.analysis.defects.core import Vacancy, Interstitial, \
     Substitution, DefectEntry, create_saturated_interstitial_structure
 from pymatgen.util.testing import PymatgenTest
 
-
 class DefectsCoreTest(PymatgenTest):
     def test_vacancy(self):
         struc = PymatgenTest.get_structure("VO2")
@@ -62,6 +61,10 @@ class DefectsCoreTest(PymatgenTest):
         sc_scaled_struc.make_supercell(2)
         self.assertRaises( ValueError, Vacancy, struc, sc_scaled_struc[V_index])
         self.assertRaises( ValueError, Vacancy, sc_scaled_struc, struc[V_index])
+
+        # test that structure has all velocities equal to [0., 0., 0.](previously caused failures for structure printing)
+        # self.assertTrue( (np.array(sc_scaled_struc.site_properties['velocities']) == 0.).all())
+        # self.assertEqual( len(sc_scaled_struc.site_properties['velocities']), len(sc_scaled_struc))
 
     def test_interstitial(self):
         struc = PymatgenTest.get_structure("VO2")
@@ -161,7 +164,7 @@ class DefectsCoreTest(PymatgenTest):
         substitution = Substitution(struc, sub_site)
         self.assertEqual(substitution.multiplicity, 4)
 
-        # Test composoition
+        # Test composition
         self.assertEqual(dict(substitution.defect_composition.as_dict()), {"V": 2, "Sr": 1, "O": 3})
 
         # test that structure has all velocities equal if velocities previously existed
@@ -173,6 +176,7 @@ class DefectsCoreTest(PymatgenTest):
 
         self.assertTrue( (np.array(sub_struc.site_properties['velocities']) == 0.).all())
         self.assertEqual( len(sub_struc.site_properties['velocities']), len(sub_struc))
+
 
 class create_saturated_interstitial_structureTest(PymatgenTest):
 
