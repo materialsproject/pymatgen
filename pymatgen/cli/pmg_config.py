@@ -12,7 +12,7 @@ from monty.serialization import loadfn, dumpfn
 
 from pymatgen import SETTINGS_FILE
 from urllib.request import urlretrieve
-from six.moves import input
+
 
 
 """

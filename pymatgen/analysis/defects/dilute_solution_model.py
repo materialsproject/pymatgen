@@ -5,7 +5,7 @@
 import math
 import copy
 import numpy as np
-from six.moves import zip
+
 
 from monty.fractions import gcd
 from sympy import Symbol, nsolve, Integer, Float, Matrix, exp, solve, Eq

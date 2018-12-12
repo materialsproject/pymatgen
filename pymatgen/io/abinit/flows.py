@@ -18,7 +18,7 @@ import tempfile
 import numpy as np
 
 from pprint import pprint
-from six.moves import map, StringIO
+
 from tabulate import tabulate
 from pydispatch import dispatcher
 from collections import OrderedDict

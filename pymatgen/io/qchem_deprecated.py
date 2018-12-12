@@ -105,7 +105,7 @@ class QcTask(MSONable):
         self.mol = copy.deepcopy(molecule) if molecule else "read"
         self.charge = charge
         self.spin_multiplicity = spin_multiplicity
-        if isinstance(self.mol, six.string_types):
+        if isinstance(self.mol, str):
             self.mol = self.mol.lower()
             if self.mol != "read":
                 raise ValueError('The only accept text value for mol is "read"')
@@ -171,7 +171,7 @@ class QcTask(MSONable):
                 k = k.lower()
                 if k in self.alternative_keys:
                     k = self.alternative_keys[k]
-                if isinstance(v, six.string_types):
+                if isinstance(v, str):
                     v = str(v).lower()
                     if v in self.alternative_values:
                         # noinspection PyTypeChecker
@@ -194,7 +194,7 @@ class QcTask(MSONable):
 
         if aux_basis_set is None:
             if self._aux_basis_required():
-                if isinstance(self.params["rem"]["basis"], six.string_types):
+                if isinstance(self.params["rem"]["basis"], str):
                     if self.params["rem"]["basis"].startswith("6-31+g"):
                         self.set_auxiliary_basis_set("rimp2-aug-cc-pvdz")
                     elif self.params["rem"]["basis"].startswith("6-311+g"):
@@ -235,7 +235,7 @@ class QcTask(MSONable):
         self.params["velocity"] = velocities
 
     def set_basis_set(self, basis_set):
-        if isinstance(basis_set, six.string_types):
+        if isinstance(basis_set, str):
             self.params["rem"]["basis"] = str(basis_set).lower()
             if basis_set.lower() not in ["gen", "mixed"]:
                 self.params.pop("basis", None)
@@ -284,7 +284,7 @@ class QcTask(MSONable):
         self.params["alist"] = alist
 
     def set_basis2(self, basis2_basis_set):
-        if isinstance(basis2_basis_set, six.string_types):
+        if isinstance(basis2_basis_set, str):
             self.params["rem"]["basis2"] = basis2_basis_set.lower()
             if basis2_basis_set.lower() not in ["basis2_gen", "basis2_mixed"]:
                 self.params.pop("basis2", None)
@@ -322,7 +322,7 @@ class QcTask(MSONable):
             raise Exception('Can\'t handle type "{}"'.format(type(basis2_basis_set)))
 
     def set_auxiliary_basis_set(self, aux_basis_set):
-        if isinstance(aux_basis_set, six.string_types):
+        if isinstance(aux_basis_set, str):
             self.params["rem"]["aux_basis"] = aux_basis_set.lower()
             if aux_basis_set.lower() not in ["gen", "mixed"]:
                 self.params.pop("aux_basis", None)
@@ -360,7 +360,7 @@ class QcTask(MSONable):
             raise Exception('Can\'t handle type "{}"'.format(type(aux_basis_set)))
 
     def set_ecp(self, ecp):
-        if isinstance(ecp, six.string_types):
+        if isinstance(ecp, str):
             self.params["rem"]["ecp"] = ecp.lower()
         elif isinstance(ecp, dict):
             self.params["rem"]["ecp"] = "gen"
@@ -609,15 +609,15 @@ class QcTask(MSONable):
         if pcm_params:
             for k, v in pcm_params.items():
                 self.params["pcm"][k.lower()] = v.lower() \
-                    if isinstance(v, six.string_types) else v
+                    if isinstance(v, str) else v
 
         for k, v in default_pcm_params.items():
             if k.lower() not in self.params["pcm"].keys():
                 self.params["pcm"][k.lower()] = v.lower() \
-                    if isinstance(v, six.string_types) else v
+                    if isinstance(v, str) else v
         for k, v in solvent_params.items():
             self.params[solvent_key][k.lower()] = v.lower() \
-                if isinstance(v, six.string_types) else copy.deepcopy(v)
+                if isinstance(v, str) else copy.deepcopy(v)
         self.params["rem"]["solvent_method"] = "pcm"
         if radii_force_field:
             self.params["pcm"]["radii"] = "bondi"
@@ -682,7 +682,7 @@ class QcTask(MSONable):
         if self.charge is not None:
             lines.append(" {charge:d}  {multi:d}".format(charge=self
                          .charge, multi=self.spin_multiplicity))
-        if isinstance(self.mol, six.string_types) and self.mol == "read":
+        if isinstance(self.mol, str) and self.mol == "read":
             lines.append(" read")
         elif isinstance(self.mol, list):
             starting_index = 0
@@ -856,7 +856,7 @@ class QcTask(MSONable):
         return lines
 
     def as_dict(self):
-        if isinstance(self.mol, six.string_types):
+        if isinstance(self.mol, str):
             mol_dict = self.mol
         elif isinstance(self.mol, Molecule):
             mol_dict = self.mol.as_dict()

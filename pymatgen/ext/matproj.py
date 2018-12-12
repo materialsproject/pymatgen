@@ -11,7 +11,7 @@ import warnings
 from time import sleep
 
 from monty.json import MontyDecoder, MontyEncoder
-from six import string_types
+
 from copy import deepcopy
 
 from pymatgen import SETTINGS

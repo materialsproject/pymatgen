@@ -6,7 +6,7 @@ import os
 from fractions import Fraction
 import numpy as np
 from monty.design_patterns import cached_class
-from six import string_types
+
 
 import textwrap
 

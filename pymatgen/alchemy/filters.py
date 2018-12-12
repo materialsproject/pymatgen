@@ -5,7 +5,7 @@
 import abc
 
 import six
-from six.moves import map
+
 
 from pymatgen.core.periodic_table import get_el_sp
 from monty.json import MSONable

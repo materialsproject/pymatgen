@@ -11,7 +11,7 @@ import warnings
 from collections import OrderedDict, deque
 
 import six
-from six.moves import zip, cStringIO
+
 
 import numpy as np
 from functools import partial
@@ -309,7 +309,7 @@ class CifParser:
     def __init__(self, filename, occupancy_tolerance=1., site_tolerance=1e-4):
         self._occupancy_tolerance = occupancy_tolerance
         self._site_tolerance = site_tolerance
-        if isinstance(filename, six.string_types):
+        if isinstance(filename, str):
             self._cif = CifFile.from_file(filename)
         else:
             self._cif = CifFile.from_string(filename.read())
@@ -669,7 +669,7 @@ class CifParser:
                                "_space_group_symop_operation_xyz_"]:
             if data.data.get(symmetry_label):
                 xyz = data.data.get(symmetry_label)
-                if isinstance(xyz, six.string_types):
+                if isinstance(xyz, str):
                     msg = "A 1-line symmetry op P1 CIF is detected!"
                     warnings.warn(msg)
                     self.errors.append(msg)
@@ -763,14 +763,14 @@ class CifParser:
         if data.data.get("_space_group_symop_magn_operation.xyz"):
 
             xyzt = data.data.get("_space_group_symop_magn_operation.xyz")
-            if isinstance(xyzt, six.string_types):
+            if isinstance(xyzt, str):
                 xyzt = [xyzt]
             magsymmops = [MagSymmOp.from_xyzt_string(s) for s in xyzt]
 
             if data.data.get("_space_group_symop_magn_centering.xyz"):
 
                 xyzt = data.data.get("_space_group_symop_magn_centering.xyz")
-                if isinstance(xyzt, six.string_types):
+                if isinstance(xyzt, str):
                     xyzt = [xyzt]
                 centering_symops = [MagSymmOp.from_xyzt_string(s) for s in xyzt]
 

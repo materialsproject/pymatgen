@@ -3,7 +3,6 @@
 # Distributed under the terms of the MIT License.
 
 
-from six.moves import zip
 import itertools
 import numpy as np
 import math

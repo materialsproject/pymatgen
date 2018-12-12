@@ -14,7 +14,7 @@ import math
 import os
 
 import six
-from six.moves import zip
+
 
 """
 This module provides classes for representing species substitution

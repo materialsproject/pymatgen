@@ -14,7 +14,7 @@ import numpy as np
 import six
 import copy
 
-from six.moves import filter
+
 from monty.collections import AttrDict
 from monty.itertools import chunks
 from monty.functools import lazy_property

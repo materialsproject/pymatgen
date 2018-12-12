@@ -9,8 +9,8 @@ import operator
 import os
 from math import exp, sqrt
 
-from six.moves import filter
-from six.moves import zip
+
+
 
 from monty.serialization import loadfn
 

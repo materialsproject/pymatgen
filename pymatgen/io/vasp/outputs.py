@@ -21,8 +21,8 @@ from monty.json import MSONable
 from monty.json import jsanitize
 from monty.re import regrep
 from monty.os.path import zpath
-from six import string_types
-from six.moves import map, zip
+
+
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice

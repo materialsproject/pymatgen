@@ -9,22 +9,15 @@ and to find adsorption sites on slabs
 """
 
 import numpy as np
-from six.moves import range
 from pymatgen import Structure, Lattice, vis
-import tempfile
-import sys
-import subprocess
 import itertools
 import os
 from monty.serialization import loadfn
 from scipy.spatial import Delaunay
-import warnings
 
 from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.symmetry.analyzer import generate_full_symmops
-from pymatgen.util.coord import in_coord_list, in_coord_list_pbc
-from pymatgen.core.sites import PeriodicSite
+from pymatgen.util.coord import in_coord_list_pbc
 from pymatgen.analysis.local_env import VoronoiNN
 from pymatgen.core.surface import generate_all_slabs
 from pymatgen.analysis.structure_matcher import StructureMatcher

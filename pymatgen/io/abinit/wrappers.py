@@ -5,9 +5,8 @@
 
 import os
 import numpy as np
-
+from io import StringIO
 from monty.string import list_strings
-from six.moves import map, cStringIO
 
 import logging
 logger = logging.getLogger(__name__)
@@ -127,7 +126,7 @@ class Mrgscr(ExecWrapper):
         self.stdin_fname, self.stdout_fname, self.stderr_fname = \
             map(os.path.join, 3 * [workdir], ["mrgscr.stdin", "mrgscr.stdout", "mrgscr.stderr"])
 
-        inp = cStringIO()
+        inp = StringIO()
         inp.write(str(nfiles) + "\n")     # Number of files to merge.
         inp.write(out_prefix + "\n")      # Prefix for the final output file:
 
@@ -179,7 +178,7 @@ class Mrggkk(ExecWrapper):
         self.stdin_fname, self.stdout_fname, self.stderr_fname = \
             map(os.path.join, 3 * [workdir], ["mrggkk.stdin", "mrggkk.stdout", "mrggkk.stderr"])
 
-        inp = cStringIO()
+        inp = StringIO()
         inp.write(out_gkk + "\n")        # Name of the output file
         inp.write(str(binascii) + "\n")  # Integer flag: 0 --> binary output, 1 --> ascii formatted output
         inp.write(gswfk_file + "\n")     # Name of the groud state wavefunction file WF
@@ -234,7 +233,7 @@ class Mrgddb(ExecWrapper):
         self.stdin_fname, self.stdout_fname, self.stderr_fname = \
             map(os.path.join, 3 * [os.path.abspath(workdir)], ["mrgddb.stdin", "mrgddb.stdout", "mrgddb.stderr"])
 
-        inp = cStringIO()
+        inp = StringIO()
         inp.write(out_ddb + "\n")              # Name of the output file.
         inp.write(str(description) + "\n")     # Description.
         inp.write(str(len(ddb_files)) + "\n")  # Number of input DDBs.
@@ -294,7 +293,7 @@ class Mrgdvdb(ExecWrapper):
         self.stdin_fname, self.stdout_fname, self.stderr_fname = \
             map(os.path.join, 3 * [os.path.abspath(workdir)], ["mrgdvdb.stdin", "mrgdvdb.stdout", "mrgdvdb.stderr"])
 
-        inp = cStringIO()
+        inp = StringIO()
         inp.write(out_dvdb + "\n")             # Name of the output file.
         inp.write(str(len(pot_files)) + "\n")  # Number of input POT files.
 

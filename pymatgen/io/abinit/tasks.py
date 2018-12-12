@@ -16,7 +16,7 @@ import numpy as np
 
 from pprint import pprint
 from itertools import product
-from six.moves import map, zip, StringIO
+
 from monty.string import is_string, list_strings
 from monty.termcolor import colored, cprint
 from monty.collections import AttrDict

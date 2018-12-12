@@ -5,7 +5,6 @@
 import abc
 
 from monty.json import MSONable, MontyDecoder
-import six
 
 """
 Defines an abstract base class contract for Transformation object.
@@ -19,8 +18,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Sep 23, 2011"
 
 
-
-class AbstractTransformation(six.with_metaclass(abc.ABCMeta, MSONable)):
+class AbstractTransformation(abc.ABCMeta, MSONable):
     """
     Abstract transformation class.
     """

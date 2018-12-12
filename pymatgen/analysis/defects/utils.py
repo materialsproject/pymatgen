@@ -37,7 +37,7 @@ try:
 except ImportError:
     peak_local_max_found = False
 
-from six.moves import map
+
 
 __author__ = "Danny Broberg, Shyam Dwaraknath, Bharat Medasani, Nils Zimmermann, Geoffroy Hautier"
 __copyright__ = "Copyright 2014, The Materials Project"

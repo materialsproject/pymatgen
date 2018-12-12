@@ -586,7 +586,7 @@ class KSampling(AbivarAble, MSONable):
         .. note::
             The default behavior of the constructor is monkhorst.
         """
-        if isinstance(mode, six.string_types):
+        if isinstance(mode, str):
             mode = KSamplingModes[mode]
 
         super(KSampling, self).__init__()
@@ -1011,7 +1011,7 @@ class PPModel(AbivarAble, MSONable):
         return cls(mode=mode, plasmon_freq=plasmon_freq)
 
     def __init__(self, mode="godby", plasmon_freq=None):
-        if isinstance(mode, six.string_types):
+        if isinstance(mode, str):
             mode = PPModelModes[mode]
         self.mode = mode
         self.plasmon_freq = plasmon_freq

@@ -637,7 +637,7 @@ class Incar(dict, MSONable):
         """
         super(Incar, self).__setitem__(
             key.strip(), Incar.proc_val(key.strip(), val.strip())
-            if isinstance(val, six.string_types) else val)
+            if isinstance(val, str) else val)
 
     def as_dict(self):
         d = dict(self)
@@ -966,7 +966,7 @@ class Kpoints(MSONable):
 
     @style.setter
     def style(self, style):
-        if isinstance(style, six.string_types):
+        if isinstance(style, str):
             style = Kpoints.supported_modes.from_string(style)
 
         if style in (Kpoints.supported_modes.Automatic,

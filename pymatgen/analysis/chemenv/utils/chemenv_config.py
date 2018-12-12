@@ -6,7 +6,7 @@ from pymatgen.analysis.chemenv.utils.scripts_utils import strategies_class_looku
 from os.path import expanduser, exists
 from os import makedirs
 import json
-from six.moves import input
+
 from pymatgen import SETTINGS
 
 """

@@ -22,7 +22,7 @@ __date__ = "June 23, 2016"
 
 import re
 
-from six.moves import map
+
 import numpy as np
 
 from monty.io import zopen

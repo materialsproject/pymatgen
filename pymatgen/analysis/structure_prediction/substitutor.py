@@ -6,7 +6,7 @@ import itertools
 import logging
 from operator import mul
 import six
-from six.moves import zip
+
 
 from monty.json import MSONable
 

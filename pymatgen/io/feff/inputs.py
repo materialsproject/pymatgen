@@ -6,7 +6,7 @@
 import re
 import warnings
 from operator import itemgetter
-from six import string_types
+
 from tabulate import tabulate
 
 import numpy as np

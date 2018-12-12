@@ -12,7 +12,7 @@ import pandas as pd
 from monty.json import MSONable
 from monty.dev import deprecated
 from ruamel.yaml import YAML
-from six import string_types
+
 
 from pymatgen.util.io_utils import clean_lines
 from pymatgen import Molecule, Element, Lattice, Structure, SymmOp

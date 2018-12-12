@@ -7,7 +7,7 @@ import os
 import abc
 import warnings
 import six
-from six.moves import filter, map
+
 
 from collections import defaultdict
 

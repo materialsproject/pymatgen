@@ -10,7 +10,7 @@ import pickle
 
 from collections import deque
 from datetime import timedelta
-from six.moves import cStringIO
+
 from monty.io import get_open_fds
 from monty.string import boxed, is_string
 from monty.os.path import which

@@ -9,7 +9,7 @@ import collections
 import itertools
 from io import open
 import math
-from six.moves import zip
+
 import logging
 
 from monty.json import MSONable, MontyDecoder

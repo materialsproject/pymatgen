@@ -1554,7 +1554,7 @@ class BSPlotterProjected(BSPlotter):
                             raise ValueError(
                                 "The dictio[%s] is empty. We cannot do anything" % elt)
                         for orb in dictio[elt]:
-                            if not isinstance(orb, six.string_types):
+                            if not isinstance(orb, str):
                                 raise ValueError(
                                     "The invalid format of orbitals is in 'dictio[%s]': %s. "
                                     "They should be string." % (elt, str(orb)))
@@ -1591,7 +1591,7 @@ class BSPlotterProjected(BSPlotter):
                 if Element.is_valid_symbol(elt):
                     if isinstance(sum_morbs[elt], list):
                         for orb in sum_morbs[elt]:
-                            if not isinstance(orb, six.string_types):
+                            if not isinstance(orb, str):
                                 raise TypeError(
                                     "The invalid format of orbitals is in 'sum_morbs[%s]': %s. "
                                     "They should be string." % (elt, str(orb)))

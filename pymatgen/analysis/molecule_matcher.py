@@ -29,7 +29,7 @@ from monty.json import MSONable
 from monty.dev import requires
 from pymatgen.io.babel import BabelMolAdaptor
 import six
-from six.moves import zip
+
 try:
     import openbabel as ob
 except ImportError:

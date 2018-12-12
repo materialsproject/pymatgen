@@ -3,9 +3,6 @@
 # Distributed under the terms of the MIT License.
 
 
-from six.moves import map
-from six.moves import zip
-
 import math
 import itertools
 import logging

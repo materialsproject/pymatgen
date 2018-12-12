@@ -12,7 +12,7 @@ generating deformed structure sets for further calculations.
 import numpy as np
 import scipy
 import itertools
-from six.moves import zip
+
 import collections
 from monty.dev import deprecated
 

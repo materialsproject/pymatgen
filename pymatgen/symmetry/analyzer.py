@@ -14,7 +14,6 @@ from fractions import Fraction
 
 import numpy as np
 
-from six.moves import filter, map, zip
 import spglib
 
 from pymatgen.core.structure import Structure, Molecule

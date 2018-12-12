@@ -8,9 +8,6 @@ import os
 import warnings
 from string import Template
 
-from six import string_types
-from six.moves import zip
-
 import numpy as np
 
 from monty.io import zopen

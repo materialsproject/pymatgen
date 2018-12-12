@@ -8,8 +8,8 @@ This module provides classes to perform fitting of structures.
 
 
 import six
-from six.moves import filter
-from six.moves import zip
+
+
 
 import numpy as np
 import itertools

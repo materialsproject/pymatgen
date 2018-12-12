@@ -11,7 +11,7 @@ import os
 import collections
 import numpy as np
 
-from six.moves import zip
+
 from monty.string import is_string, list_strings
 from pymatgen.util.num import minloc
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt

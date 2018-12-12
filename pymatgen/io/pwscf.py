@@ -107,7 +107,7 @@ class PWInput:
                     c += 1
 
         def to_str(v):
-            if isinstance(v, six.string_types):
+            if isinstance(v, str):
                 return "'%s'" % v
             elif isinstance(v, float):
                 return "%s" % str(v).replace("e", "d")

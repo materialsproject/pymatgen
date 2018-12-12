@@ -5,7 +5,7 @@ import warnings
 import numpy as np
 import json
 import random
-from six.moves import zip
+
 from scipy.misc import central_diff_weights
 from copy import deepcopy
 

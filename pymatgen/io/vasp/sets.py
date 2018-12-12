@@ -528,9 +528,9 @@ class MPStaticSet(MPRelaxSet):
             \\*\\*kwargs: kwargs supported by MPRelaxSet.
         """
         super(MPStaticSet, self).__init__(structure, **kwargs)
-        if isinstance(prev_incar, six.string_types):
+        if isinstance(prev_incar, str):
             prev_incar = Incar.from_file(prev_incar)
-        if isinstance(prev_kpoints, six.string_types):
+        if isinstance(prev_kpoints, str):
             prev_kpoints = Kpoints.from_file(prev_kpoints)
 
         self.prev_incar = prev_incar
@@ -821,7 +821,7 @@ class MPNonSCFSet(MPRelaxSet):
             \\*\\*kwargs: kwargs supported by MPVaspInputSet.
         """
         super(MPNonSCFSet, self).__init__(structure, **kwargs)
-        if isinstance(prev_incar, six.string_types):
+        if isinstance(prev_incar, str):
             prev_incar = Incar.from_file(prev_incar)
         self.prev_incar = prev_incar
         self.kwargs = kwargs

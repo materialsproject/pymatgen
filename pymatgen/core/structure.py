@@ -2440,7 +2440,7 @@ class Structure(IStructure, collections.MutableSequence):
 
         if isinstance(i, int):
             indices = [i]
-        elif isinstance(i, six.string_types + (Element, Specie)):
+        elif isinstance(i, str + (Element, Specie)):
             self.replace_species({i: site})
             return
         elif isinstance(i, slice):
@@ -2460,7 +2460,7 @@ class Structure(IStructure, collections.MutableSequence):
                                      "single int indices!")
                 self._sites[ii] = site
             else:
-                if isinstance(site, six.string_types) or (
+                if isinstance(site, str) or (
                         not isinstance(site, collections.Sequence)):
                     sp = site
                     frac_coords = self._sites[ii].frac_coords
@@ -3233,7 +3233,7 @@ class Molecule(IMolecule, collections.MutableSequence):
 
         if isinstance(i, int):
             indices = [i]
-        elif isinstance(i, six.string_types + (Element, Specie)):
+        elif isinstance(i, str + (Element, Specie)):
             self.replace_species({i: site})
             return
         elif isinstance(i, slice):
@@ -3247,7 +3247,7 @@ class Molecule(IMolecule, collections.MutableSequence):
             if isinstance(site, Site):
                 self._sites[ii] = site
             else:
-                if isinstance(site, six.string_types) or (
+                if isinstance(site, str) or (
                         not isinstance(site, collections.Sequence)):
                     sp = site
                     coords = self._sites[ii].coords

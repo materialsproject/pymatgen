@@ -27,7 +27,7 @@ import abc
 from monty.json import MSONable, MontyDecoder
 import json
 import os
-from six import with_metaclass
+
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 

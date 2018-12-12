@@ -5,7 +5,6 @@
 import unittest
 import tempfile
 import numpy.testing.utils as nptu
-from six.moves import zip
 from io import open
 import os
 import json

@@ -15,7 +15,7 @@ import re
 from collections import defaultdict
 
 from monty.serialization import loadfn
-from six.moves import filter, zip
+
 
 from functools import total_ordering
 
@@ -127,7 +127,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         # to pass the composition to dict()
         if len(args) == 1 and isinstance(args[0], Composition):
             elmap = args[0]
-        elif len(args) == 1 and isinstance(args[0], six.string_types):
+        elif len(args) == 1 and isinstance(args[0], str):
             elmap = self._parse_formula(args[0])
         else:
             elmap = dict(*args, **kwargs)

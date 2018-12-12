@@ -36,7 +36,7 @@ from pymatgen.analysis.chemenv.utils.func_utils import RatioFunction
 from pymatgen.analysis.chemenv.utils.chemenv_errors import EquivalentSiteSearchError
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
-from six import with_metaclass
+
 from pymatgen.analysis.chemenv.coordination_environments.voronoi import DetailedVoronoiContainer
 from collections import OrderedDict
 

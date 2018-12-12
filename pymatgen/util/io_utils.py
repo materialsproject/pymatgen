@@ -3,7 +3,6 @@
 # Distributed under the terms of the MIT License.
 
 import re
-import six
 import errno
 import os
 import tempfile
@@ -25,7 +24,7 @@ __date__ = "Sep 23, 2011"
 
 def ask_yesno(question, default=True):
     try:
-        answer = six.moves.input(question)
+        answer = input(question)
         return answer.lower().strip() in ["y", "yes"]
     except EOFError:
         return default

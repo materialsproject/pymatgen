@@ -148,9 +148,9 @@ class Cohp(MSONable):
         elif spin is None:
             return populations
         else:
-            if isinstance(spin, six.integer_types):
+            if isinstance(spin, int):
                 spin = Spin(spin)
-            elif isinstance(spin, six.string_types):
+            elif isinstance(spin, str):
                 s = {"up": 1, "down": -1}[spin.lower()]
                 spin = Spin(s)
             return {spin: populations[spin]}
@@ -392,13 +392,13 @@ class CompleteCohp(Cohp):
                     orbs.append(tuple((orbital[0], Orbital(orbital[1]))))
                 elif isinstance(orbital[1], Orbital):
                     orbs.append(tuple((orbital[0], orbital[1])))
-                elif isinstance(orbital[1], six.string_types):
+                elif isinstance(orbital[1], str):
                     orbs.append(tuple((orbital[0], Orbital[orbital[1]])))
                 else:
                     raise TypeError("Orbital must be str, int, or Orbital.")
             orb_index = cohp_orbs.index(orbs)
             orb_label = list(self.orb_res_cohp[label].keys())[orb_index]
-        elif isinstance(orbitals, six.string_types):
+        elif isinstance(orbitals, str):
             orb_label = orbitals
         else:
             raise TypeError("Orbitals must be str, list, or tuple.")

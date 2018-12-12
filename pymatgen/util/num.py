@@ -9,7 +9,6 @@ This module provides utilities for basic math operations.
 
 import collections
 
-from six.moves import zip
 import numpy as np
 
 

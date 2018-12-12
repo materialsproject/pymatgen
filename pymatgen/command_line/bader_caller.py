@@ -10,7 +10,7 @@ import warnings
 import glob
 import numpy as np
 
-from six.moves import map, zip
+
 from pymatgen.io.vasp.outputs import Chgcar
 from pymatgen.io.vasp.inputs import Potcar
 from monty.dev import requires

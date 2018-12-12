@@ -19,8 +19,6 @@ __date__ = "Jan 28, 2013"
 
 import numpy as np
 
-from six.moves import range
-
 
 class LinearAssignment:
     """

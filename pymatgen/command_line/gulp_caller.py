@@ -26,8 +26,8 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.bond_valence import BVAnalyzer
-from six.moves import map
-from six.moves import zip
+
+
 
 from monty.tempfile import ScratchDir
 

@@ -4,7 +4,6 @@
 """Tools and helper functions for abinit calculations"""
 
 import os
-import six
 import re
 import collections
 import shutil
@@ -12,7 +11,6 @@ import operator
 import numpy as np
 
 from fnmatch import fnmatch
-from six.moves import filter
 from monty.collections import dict2namedtuple
 from monty.string import list_strings
 from monty.fnmatch import WildCard
@@ -841,13 +839,8 @@ class Editor:
     def user_wants_to_exit():
         """Show an interactive prompt asking if exit is wanted."""
         # Fix python 2.x.
-        if six.PY2:
-            my_input = raw_input
-        else:
-            my_input = input
-
         try:
-            answer = my_input("Do you want to continue [Y/n]")
+            answer = input("Do you want to continue [Y/n]")
         except EOFError:
             return True
 

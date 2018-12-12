@@ -11,7 +11,7 @@ from math import gcd
 
 from fractions import Fraction
 
-from six.moves import map, zip
+
 
 import numpy as np
 from numpy.linalg import inv
