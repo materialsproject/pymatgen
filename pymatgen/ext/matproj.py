@@ -294,7 +294,7 @@ class MPRester:
             MPRestError
         """
         try:
-            if isinstance(filename_or_structure, string_types):
+            if isinstance(filename_or_structure, str):
                 s = Structure.from_file(filename_or_structure)
             elif isinstance(filename_or_structure, Structure):
                 s = filename_or_structure

@@ -11,7 +11,6 @@ import logging
 import math
 import glob
 
-import six
 import numpy as np
 from numpy.linalg import det
 from collections import OrderedDict, namedtuple

@@ -11,15 +11,13 @@ import time
 import abc
 import collections
 import numpy as np
-import six
 import copy
-
+import six
 
 from monty.collections import AttrDict
 from monty.itertools import chunks
 from monty.functools import lazy_property
 from monty.fnmatch import WildCard
-#from monty.dev import deprecated
 from pydispatch import dispatcher
 from pymatgen.core.units import EnergyArray
 from . import wrappers

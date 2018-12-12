@@ -206,7 +206,7 @@ class StructureNL:
 
         # turn authors into list of Author objects
         authors = authors.split(',')\
-            if isinstance(authors, string_types) else authors
+            if isinstance(authors, str) else authors
         self.authors = [Author.parse_author(a) for a in authors]
 
         # turn projects into list of Strings

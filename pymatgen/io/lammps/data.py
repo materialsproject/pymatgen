@@ -1019,7 +1019,7 @@ class ForceField(MSONable):
 
         """
         map_mass = lambda v: v.atomic_mass.real if isinstance(v, Element) \
-            else Element(v).atomic_mass.real if isinstance(v, string_types) \
+            else Element(v).atomic_mass.real if isinstance(v, str) \
             else v
         index, masses, self.mass_info, atoms_map = [], [], [], {}
         for i, m in enumerate(mass_info):

@@ -265,7 +265,7 @@ $theory_spec
             spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
 
         elements = set(mol.composition.get_el_amt_dict().keys())
-        if isinstance(basis_set, string_types):
+        if isinstance(basis_set, str):
             basis_set = {el: basis_set for el in elements}
 
         basis_set_option = basis_set_option

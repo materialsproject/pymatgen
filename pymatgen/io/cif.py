@@ -9,10 +9,7 @@ import os
 import textwrap
 import warnings
 from collections import OrderedDict, deque
-
-import six
-
-
+from io import StringIO
 import numpy as np
 from functools import partial
 
@@ -374,7 +371,7 @@ class CifParser:
         Returns:
             CifParser
         """
-        stream = cStringIO(cif_string)
+        stream = StringIO(cif_string)
         return CifParser(stream, occupancy_tolerance)
 
     def _sanitize_data(self, data):

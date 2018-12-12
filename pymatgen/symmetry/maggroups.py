@@ -106,7 +106,7 @@ class MagneticSpaceGroup(SymmetryGroup):
         # retrieve raw data
         db = sqlite3.connect(MAGSYMM_DATA)
         c = db.cursor()
-        if isinstance(id, string_types):
+        if isinstance(id, str):
             id = "".join(id.split())  # remove any white space
             c.execute('SELECT * FROM space_groups WHERE BNS_label=?;', (id, ))
         elif isinstance(id, list):

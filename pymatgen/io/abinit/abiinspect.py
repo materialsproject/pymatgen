@@ -9,7 +9,6 @@ by extracting information from the main output file (text format).
 import os
 import numpy as np
 import ruamel.yaml as yaml
-import six
 
 try:
     from collections.abc import Mapping, Iterable, Iterator
@@ -633,7 +632,7 @@ class YamlTokenizer(Iterator):
         """
         while True:
             try:
-                doc = six.advance_iterator(self)
+                doc = next(self)
                 if doc.tag == doc_tag:
                     return doc
 

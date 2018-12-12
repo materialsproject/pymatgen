@@ -11,8 +11,6 @@ import shutil
 import warnings
 from itertools import chain
 from copy import deepcopy
-
-import six
 import numpy as np
 
 from monty.serialization import loadfn
@@ -73,7 +71,7 @@ __date__ = "May 28 2016"
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
+class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
     """
     Base class representing a set of Vasp input parameters with a structure
     supplied as init parameters. Typically, you should not inherit from this

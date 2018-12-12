@@ -14,8 +14,6 @@ import os
 import numpy as np
 from string import Template
 
-import six
-
 from monty.io import zopen
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Molecule
