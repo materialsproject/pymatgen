@@ -34,7 +34,7 @@ __date__ = "Mar 18, 2012"
 logger = logging.getLogger(__name__)
 
 
-class AbstractDrone(abc.ABCMeta, MSONable):
+class AbstractDrone(MSONable, metaclass=abc.ABCMeta):
     """
     Abstract drone class that defines the various methods that must be
     implemented by drones. Because of the quirky nature of Python"s

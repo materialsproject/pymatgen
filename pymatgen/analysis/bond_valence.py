@@ -7,6 +7,7 @@ import collections
 import numpy as np
 import operator
 import os
+import functools
 from math import exp, sqrt
 
 from monty.serialization import loadfn

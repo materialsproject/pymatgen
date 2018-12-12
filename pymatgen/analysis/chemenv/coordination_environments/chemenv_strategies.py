@@ -47,7 +47,7 @@ MPSYMBOL_TO_CN = AllCoordinationGeometries().get_symbol_cn_mapping()
 ALLCG = AllCoordinationGeometries()
 
 
-class StrategyOption(with_metaclass(abc.ABCMeta, MSONable)):
+class StrategyOption(MSONable, metaclass=abc.ABCMeta):
 
     allowed_values = None
 
@@ -812,7 +812,7 @@ class TargettedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy)
                    max_csm=d["max_csm"])
 
 
-class NbSetWeight(with_metaclass(abc.ABCMeta, MSONable)):
+class NbSetWeight(MSONable, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def as_dict(self):

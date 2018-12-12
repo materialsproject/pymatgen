@@ -37,7 +37,7 @@ EXPLICIT_PERMUTATIONS = 'EXPLICIT_PERMUTATIONS'
 SEPARATION_PLANE = 'SEPARATION_PLANE'
 
 
-class AbstractChemenvAlgorithm(with_metaclass(abc.ABCMeta, MSONable)):
+class AbstractChemenvAlgorithm(MSONable, metaclass=abc.ABCMeta):
     """
     Class used to define a Chemenv strategy for the neighbors and coordination environment to be applied to a
     StructureEnvironments object

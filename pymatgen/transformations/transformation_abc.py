@@ -18,7 +18,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Sep 23, 2011"
 
 
-class AbstractTransformation(abc.ABCMeta, MSONable):
+class AbstractTransformation(MSONable, metaclass=abc.ABCMeta):
     """
     Abstract transformation class.
     """
