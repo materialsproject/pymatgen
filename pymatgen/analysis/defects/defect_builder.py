@@ -10,11 +10,12 @@ import numpy as np
 from monty.json import MontyDecoder, MontyEncoder
 
 from pymatgen.core import Structure
-from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.analysis.structure_matcher import StructureMatcher, PointDefectComparator
 from pymatgen import MPRester
 
 from pymatgen.analysis.defects.defect_compatibility import DefectCompatibility
 from pymatgen.analysis.defects.core import DefectEntry, Interstitial
+from pymatgen.analysis.defects.thermodynamics import DefectPhaseDiagram
 
 
 class TaskDefectBuilder(object):
@@ -1070,6 +1071,7 @@ class DefectThermoBuilder(Builder):
                  ltol=0.2,
                  stol=0.3,
                  angle_tol=5,
+                 update_all=False,
                  **kwargs):
         """
         Creates DefectEntry from vasp task docs
@@ -1082,6 +1084,8 @@ class DefectThermoBuilder(Builder):
             ltol (float): StructureMatcher tuning parameter for matching tasks to materials
             stol (float): StructureMatcher tuning parameter for matching tasks to materials
             angle_tol (float): StructureMatcher tuning parameter for matching tasks to materials
+            update_all (bool): Whether to consider all task ids from defects store.
+                Default is False (will not re-consider task-ids which have been considered previously.
         """
 
         self.defects = defects
@@ -1091,6 +1095,7 @@ class DefectThermoBuilder(Builder):
         self.ltol = ltol
         self.stol = stol
         self.angle_tol = angle_tol
+        self.update_all = update_all
         super().__init__(sources=[defects], targets=[defectthermo], **kwargs)
 
     def get_items(self):
@@ -1101,59 +1106,156 @@ class DefectThermoBuilder(Builder):
 
         #get all new Defect Entries since last time DefectThermo was updated...
         q = dict(self.query)
-        q.update(self.defects.lu_filter(self.defectthermo))  #TODO: does this work??
+        if not self.update_all:
+            # if not update_all then grab entry_ids of defects that have been analyzed already...
+            prev_dpd = list(self.defectthermo.query(properties=['metadata.all_entry_ids_considered']))
+            if "entry_id" in self.query.keys():
+                self.query["entry_id"] = {"$nin": []}
+            elif "$nin" not in self.query["entry_id"].keys():
+                self.query["entry_id"]["$nin"] = []
+            for dpd in prev_dpd:
+                self.query["entry_id"]["$nin"].extend( dpd['metadata']['all_entry_ids_considered'])
 
-        defect_entries = list(self.defects.query(criteria=q))
+        # q.update(self.defects.lu_filter(self.defectthermo))  #TODO: does this work?? / is it needed?
+
+        #pulling restricted amount of defect info for PD, so not an overwhelming database query
+        entry_keys_needed_for_thermo = ['defect', 'parameters.task_level_metadata', 'parameters.last_updated',
+                                        'task_id', 'entry_id', '@module', '@class',
+                                        'uncorrected_energy', 'corrections', 'parameters.dielectric',
+                                        'parameters.cbm', 'parameters.vbm', 'parameters.gap',
+                                        'parameters.hybrid_cbm', 'parameters.hybrid_vbm',
+                                        'parameters.hybrid_gap', 'parameters.potalign',
+                                        'parameters.kumagai_meta', 'parameters.is_compatible',
+                                        'parameters.delocalization_meta', 'parameters.phasediagram_meta']
+        defect_entries = list(self.defects.query(criteria=q,
+                                                        properties=entry_keys_needed_for_thermo))
+        thermo_entries = list(self.defectthermo.query(properties=['bulk_chemsys', 'bulk_prim_struct',
+                                                                  'run_metadata', 'entry_id']))
         self.logger.info("Found {} new defect entries to consider".format( len(defect_entries)))
 
-        #group them based on bulk composition element types and task level metadata info
-        grpd_entry_list = {}
+        #group them based on bulk types and task level metadata info
+        sm = StructureMatcher(primitive_cell=True, scale=False, attempt_supercell=True,
+                              allow_subset=False)
+        grpd_entry_list = []
         for entry_dict in defect_entries:
-            #get bulk symbol set
-            # #TODO = create the bulk_sym_set...
-            bulk_struct = Structure.from_dict( entry_dict['defect']['bulk_structure'])
-            bulk_sym_set = frozenset( bulk_struct.symbol_set)
-
-            if bulk_sym_set not in grpd_entry_list.keys():
-                grpd_entry_list[bulk_sym_set] = {}
+            #get bulk chemsys and struct
+            base_bulk_struct = Structure.from_dict(entry_dict['defect']['structure'])
+            base_bulk_struct = base_bulk_struct.get_primitive_structure()
+            bulk_chemsys = "-".join(sorted((base_bulk_struct.symbol_set)))
 
             #get run metadata info
-            run_metadata = entry_dict['parameters']['potcar_summary'].copy()
-            run_metadata.update( entry_dict['parameters']['incar_calctype_summary'].copy())
-            run_metadata['pot_spec'] = frozenset(run_metadata['pot_spec'])
-            run_metadata['pot_labels'] = frozenset(run_metadata['pot_labels'])
+            entry_dict_md = entry_dict['parameters']['task_level_metadata']
+            run_metadata = entry_dict_md['incar_calctype_summary'].copy()
+            if 'potcar_summary' in entry_dict_md:
+                run_metadata.update( entry_dict_md['potcar_summary'].copy())
+                #only want to filter based on bulk POTCAR
+                pspec, plab = set(), set()
+                for symbol, full_potcar_label in zip(run_metadata['pot_labels'],
+                                                     run_metadata['pot_spec']):
+                    red_sym = symbol.split('_')[0]
+                    if red_sym in base_bulk_struct.symbol_set:
+                        pspec.add( symbol)
+                        plab.add( full_potcar_label)
 
-            if run_metadata not in grpd_entry_list[bulk_sym_set].keys():
-                grpd_entry_list[bulk_sym_set][run_metadata] = []
+                run_metadata['pot_spec'] = "-".join(sorted(set(pspec))) #had to switch to this approach for proper dict comparison later on
+                run_metadata['pot_labels'] = "-".join(sorted(set(plab)))
 
-            for prev_run_metadata in grpd_entry_list[bulk_sym_set].keys():
-                if prev_run_metadata == run_metadata:
-                    grpd_entry_list[bulk_sym_set][prev_run_metadata].append( entry_dict)
+            matched = False
+            for grp_ind, grpd_entry in enumerate(grpd_entry_list):
+                if grpd_entry[0] == bulk_chemsys and grpd_entry[1] == run_metadata:
+                    if sm.fit( base_bulk_struct, grpd_entry[2]):
+                        grpd_entry[3].append( entry_dict.copy())
+                        matched = True
+                        break
+                    else:
+                        continue
+                else:
+                    continue
 
-        for bulk_set, metadatadict in grpd_entry_list.items():
-            self.logger.info("Symbol set {} categorized".format(bulk_set))
-            for metakey, metalist in metadatadict.items():
-                self.logger.info("\t {} DefectEntries found for md:\n{}".format(len(metalist), metakey))
+            if not matched: #have not logged yet, see if previous thermo phase diagram created for this system
+                for t_ent in thermo_entries:
+                    if t_ent['bulk_chemsys'] == bulk_chemsys and t_ent['run_metadata'] == run_metadata:
+                        if sm.fit(base_bulk_struct, Structure.from_dict(t_ent['bulk_prim_struct'])):
+                            #get previous entries from thermo database update them
+                            old_entry_set = list(self.defectthermo.query( {'entry_id': t_ent['entry_id']},
+                                                                           properties=['entries']))[0]['entries']
+                            old_entries_list = [entry.as_dict() if type(entry) != dict else entry for entry in
+                                                old_entry_set]
+                            old_entries_list.append( entry_dict.copy())
+                            grpd_entry_list.append( [bulk_chemsys, run_metadata.copy(),  base_bulk_struct.copy(),
+                                                     old_entries_list, t_ent['entry_id']])
+                            matched = True
+                            break
+                        else:
+                            continue
+                    else:
+                        continue
 
-        flatten_entry_list = [grpd_entry_set for grpd_entry_by_elts in grpd_entry_list.values()
-                              for grpd_entry_set in grpd_entry_by_elts.values()]
+            if not matched: #create new thermo phase diagram for this system, and generate an entry_id for it
+                #TODO: this might cause issues if multiple instances of this builder are run at same time
+                # at the same time...(multiple phase diagrams created for same system)
+                entry_id = max(self.defectthermo.distinct('entry_id')) + 1
+                grpd_entry_list.append( [bulk_chemsys, run_metadata.copy(), base_bulk_struct.copy(),
+                                         [entry_dict.copy()], entry_id])
 
-        self.logger.info('Found {} new thermo entries to update.'.format(len(flatten_entry_list)))
-        for entry_list in flatten_entry_list:
-            #TODO: also output the defectthermo object if it already exists
-            yield entry_list
 
-    def process_items(self, item):
-        #group defect entries into same bulk structure type set
+        for new_defects_for_thermo_entry in grpd_entry_list:
+            yield new_defects_for_thermo_entry
 
-        #see if thermo object already exists (add to it if it already does...)
 
-        #store run_meta_data type (hse / scan /gga) and other relevant metadata worth keeping
-        # 'task_level_metadata' key in parameters has keys:
-        #     defect_dir_name, bulk_dir_name, bulk_taskdb_task_id, potcar_summary, incar_calctype_summary,
-        #     defect_incar, bulk_incar, defect_kpoints, bulk_kpoints, defect_task_last_updated
+    def process_items(self, items):
+        #group defect entries into groups of same defect type (charge included)
+        distinct_entries = []
+        bulk_chemsys, run_metadata, bulk_prim_struct, entrylist, entry_id = items
 
-        pass
+        needed_entry_keys = ['@module', '@class', 'defect', 'uncorrected_energy', 'corrections',
+                             'parameters', 'entry_id', 'task_id']
+        pdc = PointDefectComparator(check_charge=True, check_primitive_cell=True, check_lattice_scale=False)
+        for entry_dict in entrylist:
+            entry = DefectEntry.from_dict({k:v for k,v in entry_dict.items() if k in needed_entry_keys})
+            matched = False
+            for grpind, grp in enumerate(distinct_entries):
+                if pdc.are_equal( entry.defect, grp[0]['defect']):
+                    matched = True
+                    break
+
+            if matched:
+                distinct_entries[grpind].append( entry_dict.copy())
+            else:
+                distinct_entries.append( [entry_dict.copy()])
+
+        #now sort through entries and pick one that has been updated last (but track all previous entry_ids
+        all_entry_ids_considered, entries = [], []
+        for ident_entries in distinct_entries:
+            lu_list = [[ent['parameter']['last_updated'], ent_ind] for ent_ind, ent in enumerate(ident_entries)]
+            lu_list.sort(reverse=True)
+            all_entry_ids_considered.extend( [ent['entry_id'] for ent in ident_entries])
+            recent_entry_dict = ident_entries[ lu_list[0][1]]
+            new_entry = DefectEntry.from_dict( {k:v for k,v in recent_entry_dict.items() if k in needed_entry_keys})
+            entries.append( new_entry.copy())
+
+        # get vbm and bandgap; also verify all vbms and bandgaps are the same
+        vbm = entries[0].parameters['vbm']
+        band_gap = entries[0].parameters['gap']
+        for ent in entries:
+            if vbm != ent.parameters['vbm']:
+                self.logger.error("Logging vbm = {} (retrieved from {}, task-id {}) but {} "
+                                  "(task-id {}) has vbm = {}. Be careful with this defectphasediagram "
+                                  "if these are very different".format( vbm, entries[0].name, entries[0].task_id,
+                                                                        ent.parameters['vbm'], ent.name, ent.task_id))
+            if band_gap != ent.parameters['gap']:
+                self.logger.error("Logging gap = {} (retrieved from {}, task-id {}) but {} "
+                                  "(task-id {}) has gap = {}. Be careful with this defectphasediagram "
+                                  "if these are very different".format( band_gap, entries[0].name, entries[0].task_id,
+                                                                        ent.parameters['gap'], ent.name, ent.task_id))
+
+        defect_phase_diagram = DefectPhaseDiagram( entries, vbm, band_gap, filter_compatible=False,
+                                                   metadata={'all_entry_ids_considered': all_entry_ids_considered})
+        defect_phase_diagram_as_dict = defect_phase_diagram.as_dict()
+        defect_phase_diagram_as_dict.update( {'bulk_chemsys': bulk_chemsys, 'bulk_prim_struct': bulk_prim_struct.as_dict(),
+                                'run_metadata': run_metadata, 'entry_id': entry_id, 'last_updated': datetime.utcnow()})
+
+        return defect_phase_diagram_as_dict
 
     def update_targets(self, items):
 
