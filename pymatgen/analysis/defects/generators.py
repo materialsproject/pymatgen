@@ -27,7 +27,7 @@ This module defines classes to generate point defect structures
 logger = logging.getLogger(__name__)
 
 
-class DefectGenerator(MSONable, metaclass=ABCMeta, MSONable):
+class DefectGenerator(MSONable, metaclass=ABCMeta):
     """
     Abstract class for point defects
     Implements generator pattern

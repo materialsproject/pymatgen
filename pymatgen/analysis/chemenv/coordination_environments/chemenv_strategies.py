@@ -143,7 +143,7 @@ class AdditionalConditionInt(int, StrategyOption):
         return cls(d['value'])
 
 
-class AbstractChemenvStrategy(with_metaclass(abc.ABCMeta, MSONable)):
+class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
     """
     Class used to define a Chemenv strategy for the neighbors and coordination environment to be applied to a
     StructureEnvironments object
