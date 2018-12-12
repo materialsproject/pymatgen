@@ -10,6 +10,7 @@ from itertools import groupby, chain
 
 from pymatgen.analysis.structure_matcher import PointDefectComparator
 from pymatgen.electronic_structure.dos import FermiDos
+from pymatgen.analysis.defects.core import DefectEntry
 
 __author__ = "Danny Broberg, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -37,7 +38,7 @@ class DefectPhaseDiagram(MSONable):
         dentries ([DefectEntry]): A list of DefectEntry objects
     """
 
-    def __init__(self, entries, vbm, band_gap, filter_compatible=True):
+    def __init__(self, entries, vbm, band_gap, filter_compatible=True, metadata={}):
         self.vbm = vbm
         self.band_gap = band_gap
         self.filter_compatible = filter_compatible
@@ -48,6 +49,42 @@ class DefectPhaseDiagram(MSONable):
             self.entries = entries
 
         self.find_stable_charges()
+        self.metadata = metadata
+
+
+    def as_dict(self):
+        """
+        Json-serializable dict representation of DefectPhaseDiagram
+        """
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__,
+             "entries": [entry.as_dict() for entry in self.entries],
+             "vbm": self.vbm,
+             "band_gap": self.band_gap,
+             "filter_compatible": self.filter_compatible,
+             "metadata": self.metadata}
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        """
+        Reconstitute a DefectPhaseDiagram object from a dict representation created using
+        as_dict().
+
+        Args:
+            d (dict): dict representation of DefectPhaseDiagram.
+
+        Returns:
+            DefectPhaseDiagram object
+        """
+        entries = [DefectEntry.from_dict(entry_dict) for entry_dict in d.get("entries")]
+        vbm = d["vbm"]
+        band_gap = d["band_gap"]
+        filter_compatible = d.get("filter_compatible", True)
+        metadata = d.get("metadata", {})
+
+        return cls(entries, vbm, band_gap, filter_compatible=filter_compatible,
+                   metadata=metadata)
 
     def find_stable_charges(self):
         """
@@ -139,13 +176,29 @@ class DefectPhaseDiagram(MSONable):
             else:
                 # if ints_and_facets is empty, then there is likely only one defect...
                 if len(defects) != 1:
-                    raise ValueError("ints and facets was empty but more than one defect exists... why?")
+                    #confirm formation energies dominant for one defect over other identical defects
+                    name_set = [one_def.name+'_chg'+str(one_def.charge) for one_def in defects]
+                    vb_list = [one_def.formation_energy( fermi_level=limits[0][0]) for one_def in defects]
+                    cb_list = [one_def.formation_energy( fermi_level=limits[0][1]) for one_def in defects]
+                    vbm_def_index = vb_list.index( min(vb_list))
+                    name_stable_below_vbm = name_set[vbm_def_index]
+                    name_stable_above_cbm = name_set[cb_list.index( min(cb_list))]
+                    if name_stable_below_vbm != name_stable_above_cbm:
+                        raise ValueError("HalfSpace identified only stable charge out of list: {}\nBut {} is "
+                                         "stable below vbm and {} is "
+                                         "stable above cbm.".format(name_set, name_stable_below_vbm,
+                                                                    name_stable_above_cbm))
+                    else:
+                        print("{} is only stable defect out of {}".format( name_stable_below_vbm, name_set))
+                        transition_level_map[name_stable_below_vbm] = {}
+                        stable_entries[name_stable_below_vbm] = list([defects[vbm_def_index]])
+                        finished_charges[name_stable_below_vbm] = [defects[vbm_def_index].charge]
+                else:
+                    transition_level_map[defects[0].name] = {}
 
-                transition_level_map[defects[0].name] = {}
+                    stable_entries[defects[0].name] = list([defects[0]])
 
-                stable_entries[defects[0].name] = list([defects[0]])
-
-                finished_charges[defects[0].name] = [defects[0].charge]
+                    finished_charges[defects[0].name] = [defects[0].charge]
 
 
         self.transition_level_map = transition_level_map
