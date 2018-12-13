@@ -19,6 +19,7 @@ environment:
 install:
   # Add the paths
   - 'set PATH=%PYTHON%;%PYTHON%\Library\bin;%PYTHON%\Scripts;%PATH%'
+  - 'set MPLBACKEND=Agg'
   # Check that we have the expected version and architecture for Python
   # - 'python --version'
   # - 'python -c "import struct; print(struct.calcsize(''P'') * 8)"'
