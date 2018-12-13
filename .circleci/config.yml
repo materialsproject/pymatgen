@@ -40,7 +40,7 @@ jobs:
             export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
             export MPLBACKEND=Agg
             # Only do matproj and other ext API tests once every four random runs.
-            if [ "$(( RANDOM % 4 ))" == "0" ]; then export NOSE_EXCLUDE_TESTS=pymatgen.ext.tests.MPResterTest; fi
+            if [ "$(( RANDOM % 4 ))" == "0" ]; then export NOSE_EXCLUDE_TESTS=pymatgen.ext.tests.test_matproj.MPResterTest; fi
             source activate test_env
             pip install --quiet -e .
             nosetests --config=nose.cfg --processes=4 --process-timeout=600 --cover-html --cover-html-dir=coverage_reports --with-timer --timer-top-n 30
