@@ -203,7 +203,7 @@ class Polarization:
 
             return p_elecs, p_ions
 
-    def get_same_branch_polarization_data(self, convert_to_muC_per_cm2=False):
+    def get_same_branch_polarization_data(self, convert_to_muC_per_cm2=True, all_in_polar=True):
         """
         Get same branch dipole moment (convert_to_muC_per_cm2=False)
         or polarization for given polarization data (convert_to_muC_per_cm2=True).
@@ -230,8 +230,16 @@ class Polarization:
         image of a given polarization lattice vector that is closest to the previous polarization
         lattice vector image.
 
+        Note, using convert_to_muC_per_cm2=True and all_in_polar=True calculates the "proper
+        polarization" (meaning the change in polarization does not depend on the choice of
+        polarization branch) while convert_to_muC_per_cm2=True and all_in_polar=False calculates
+        the "improper polarization" (meaning the change in polarization does depend on the choice
+        of branch). As one might guess from the names. We recommend calculating the "proper
+        polarization".
+
         convert_to_muC_per_cm2: convert polarization from electron * Angstroms to
             microCoulomb per centimeter**2
+        all_in_polar: convert polarization to be in polar (final structure) polarization lattice
         """
 
         p_elec, p_ion = self.get_pelecs_and_pions()
@@ -243,12 +251,13 @@ class Polarization:
 
         L = len(p_elec)
 
+        e_to_muC = -1.6021766e-13
+        cm2_to_A2 = 1e16
+        units = 1.0 / np.array(volumes)
+        units *= e_to_muC * cm2_to_A2
+
         # convert polarizations and lattice lengths prior to adjustment
-        if convert_to_muC_per_cm2:
-            e_to_muC = -1.6021766e-13
-            cm2_to_A2 = 1e16
-            units = 1.0 / np.array(volumes)
-            units *= e_to_muC * cm2_to_A2
+        if convert_to_muC_per_cm2 and not all_in_polar:
             # Convert the total polarization
             p_tot = np.multiply(units.T[:, np.newaxis], p_tot)
             # adjust lattices
@@ -257,6 +266,18 @@ class Polarization:
                 l, a = lattice.lengths_and_angles
                 lattices[i] = Lattice.from_lengths_and_angles(
                     np.array(l) * units.ravel()[i], a)
+        #  convert polarizations to polar lattice
+        elif convert_to_muC_per_cm2 and all_in_polar:
+            abc = [lattice.abc for lattice in lattices]
+            abc = np.array(abc)  # [N, 3]
+            p_tot /= abc  # e * Angstroms to e
+            p_tot *= abc[-1] / volumes[-1] * e_to_muC * cm2_to_A2  # to muC / cm^2
+            for i in range(L):
+                lattice = lattices[-1]  # Use polar lattice
+                l, a = lattice.lengths_and_angles
+                lattices[i] = Lattice.from_lengths_and_angles(
+                    np.array(l) * units.ravel()[-1], a)  # Use polar units (volume)
+
 
         d_structs = []
         sites = []
@@ -285,7 +306,7 @@ class Polarization:
 
         return adjust_pol
 
-    def get_lattice_quanta(self, convert_to_muC_per_cm2=True):
+    def get_lattice_quanta(self, convert_to_muC_per_cm2=True, all_in_polar=True):
         """
         Returns the dipole / polarization quanta along a, b, and c for
         all structures.
@@ -295,35 +316,42 @@ class Polarization:
 
         L = len(self.structures)
 
+        e_to_muC = -1.6021766e-13
+        cm2_to_A2 = 1e16
+        units = 1.0 / np.array(volumes)
+        units *= e_to_muC * cm2_to_A2
+
         # convert polarizations and lattice lengths prior to adjustment
-        if convert_to_muC_per_cm2:
-            e_to_muC = -1.6021766e-13
-            cm2_to_A2 = 1e16
-            units = 1.0 / np.array(volumes)
-            units *= e_to_muC * cm2_to_A2
+        if convert_to_muC_per_cm2 and not all_in_polar:
             # adjust lattices
             for i in range(L):
                 lattice = lattices[i]
                 l, a = lattice.lengths_and_angles
                 lattices[i] = Lattice.from_lengths_and_angles(
                     np.array(l) * units.ravel()[i], a)
+        elif convert_to_muC_per_cm2 and all_in_polar:
+            for i in range(L):
+                lattice = lattices[-1]
+                l, a = lattice.lengths_and_angles
+                lattices[i] = Lattice.from_lengths_and_angles(
+                    np.array(l) * units.ravel()[-1], a)
 
         quanta = np.array(
             [np.array(l.lengths_and_angles[0]) for l in lattices])
 
         return quanta
 
-    def get_polarization_change(self):
+    def get_polarization_change(self, convert_to_muC_per_cm2=True, all_in_polar=True):
         """
         Get difference between nonpolar and polar same branch polarization.
         """
         tot = self.get_same_branch_polarization_data(
-            convert_to_muC_per_cm2=True)
+            convert_to_muC_per_cm2=convert_to_muC_per_cm2, all_in_polar=all_in_polar)
         # reshape to preserve backwards compatibility due to changes
         # when switching from np.matrix to np.array
         return (tot[-1] - tot[0]).reshape((1,  3))
 
-    def get_polarization_change_norm(self):
+    def get_polarization_change_norm(self, convert_to_muC_per_cm2=True, all_in_polar=True):
         """
         Get magnitude of difference between nonpolar and polar same branch
         polarization.
@@ -332,18 +360,19 @@ class Polarization:
         a, b, c = polar.lattice.matrix
         a, b, c = a / np.linalg.norm(a), b / np.linalg.norm(
             b), c / np.linalg.norm(c)
-        P = self.get_polarization_change().ravel()
+        P = self.get_polarization_change(convert_to_muC_per_cm2=convert_to_muC_per_cm2,
+                                         all_in_polar=all_in_polar).ravel()
         P_norm = np.linalg.norm(a * P[0] + b * P[1] + c * P[2])
         return P_norm
 
-    def same_branch_splines(self):
+    def same_branch_splines(self, convert_to_muC_per_cm2=True, all_in_polar=True):
         """
         Fit splines to same branch polarization. This is used to assess any jumps
         in the same branch polarizaiton.
         """
         from scipy.interpolate import UnivariateSpline
         tot = self.get_same_branch_polarization_data(
-            convert_to_muC_per_cm2=True)
+            convert_to_muC_per_cm2=convert_to_muC_per_cm2, all_in_polar=all_in_polar)
         L = tot.shape[0]
         try:
             sp_a = UnivariateSpline(range(L), tot[:, 0].ravel())
@@ -359,28 +388,30 @@ class Polarization:
             sp_c = None
         return sp_a, sp_b, sp_c
 
-    def max_spline_jumps(self):
+    def max_spline_jumps(self, convert_to_muC_per_cm2=True, all_in_polar=True):
         """
         Get maximum difference between spline and same branch polarization data.
         """
         tot = self.get_same_branch_polarization_data(
-            convert_to_muC_per_cm2=True)
-        sps = self.same_branch_splines()
+            convert_to_muC_per_cm2=convert_to_muC_per_cm2, all_in_polar=all_in_polar)
+        sps = self.same_branch_splines(convert_to_muC_per_cm2=convert_to_muC_per_cm2,
+                                       all_in_polar=all_in_polar)
         max_jumps = [None, None, None]
         for i, sp in enumerate(sps):
             if sp != None:
                 max_jumps[i] = max(tot[:, i].ravel() - sp(range(len(tot[:, i].ravel()))))
         return max_jumps
 
-    def smoothness(self):
+    def smoothness(self, convert_to_muC_per_cm2=True, all_in_polar=True):
         """
         Get rms average difference between spline and same branch polarization data.
         """
         tot = self.get_same_branch_polarization_data(
-            convert_to_muC_per_cm2=True)
+            convert_to_muC_per_cm2=convert_to_muC_per_cm2, all_in_polar=all_in_polar)
         L = tot.shape[0]
         try:
-            sp = self.same_branch_splines()
+            sp = self.same_branch_splines(convert_to_muC_per_cm2=convert_to_muC_per_cm2,
+                                          all_in_polar=all_in_polar)
         except:
             print("Something went wrong.")
             return None
