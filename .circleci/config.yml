@@ -39,6 +39,8 @@ jobs:
             export PATH=$HOME/miniconda3/bin:$PATH
             export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
             export MPLBACKEND=Agg
+            if [ "$(( RANDOM % 4 ))" == "0" ]; then export NOSE_EXCLUDE_DIRS=pymatgen.ext; fi
+            --exclude-test=
             source activate test_env
             pip install --quiet -e .
             nosetests --config=nose.cfg --processes=4 --process-timeout=600 --cover-html --cover-html-dir=coverage_reports --with-timer --timer-top-n 30
