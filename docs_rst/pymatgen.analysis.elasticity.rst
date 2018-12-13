@@ -1,5 +1,5 @@
-pymatgen\.analysis\.elasticity package
-======================================
+pymatgen.analysis.elasticity package
+====================================
 
 Submodules
 ----------

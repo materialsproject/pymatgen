@@ -1,5 +1,5 @@
-pymatgen\.io\.abinit\.qjobs module
-==================================
+pymatgen.io.abinit.qjobs module
+===============================
 
 .. automodule:: pymatgen.io.abinit.qjobs
     :members:

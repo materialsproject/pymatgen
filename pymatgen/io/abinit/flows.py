@@ -6,7 +6,6 @@ A Flow is a container for Works, and works consist of tasks.
 Flows are the final objects that can be dumped directly to a pickle file on disk
 Flows are executed using abirun (abipy).
 """
-from __future__ import unicode_literals, division, print_function
 
 import os
 import sys
@@ -19,7 +18,7 @@ import tempfile
 import numpy as np
 
 from pprint import pprint
-from six.moves import map, StringIO
+
 from tabulate import tabulate
 from pydispatch import dispatcher
 from collections import OrderedDict
@@ -2563,7 +2562,7 @@ class FlowCallbackError(Exception):
     """Exceptions raised by FlowCallback."""
 
 
-class FlowCallback(object):
+class FlowCallback:
     """
     This object implements the callbacks executed by the :class:`flow` when
     particular conditions are fulfilled. See on_dep_ok method of :class:`Flow`.

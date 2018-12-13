@@ -1,4 +1,3 @@
-from __future__ import division, unicode_literals
 
 __author__ = 'Xiang-Guo Li'
 __copyright__ = 'Copyright 2018, The Materials Virtual Lab'

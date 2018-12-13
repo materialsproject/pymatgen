@@ -2,14 +2,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 from functools import reduce
-try:
-    # New Py>=3.5 import
-    from math import gcd
-except ImportError:
-    # Deprecated import from Py3.5 onwards.
-    from fractions import gcd
+from math import gcd
 import math
 import itertools
 import logging
@@ -689,7 +683,7 @@ class Slab(Structure):
             warnings.warn("Equivalent sites could not be found for removal for all indices. Surface unchanged.")
 
             
-class SlabGenerator(object):
+class SlabGenerator:
 
     """
     This class generates different slabs using shift values determined by where
@@ -1282,7 +1276,7 @@ with open(os.path.join(module_dir,
     reconstructions_archive = json.load(data_file)
 
 
-class ReconstructionGenerator(object):
+class ReconstructionGenerator:
 
     """
     This class takes in a pre-defined dictionary specifying the parameters

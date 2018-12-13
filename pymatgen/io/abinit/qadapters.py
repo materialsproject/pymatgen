@@ -13,7 +13,6 @@ This programmatic interface is used by the `TaskManager` for optimizing the para
 of the run before submitting the job (Abinit provides the autoparal option that
 allows one to get a list of parallel configuration and their expected efficiency).
 """
-from __future__ import print_function, division, unicode_literals
 
 import sys
 import os
@@ -21,7 +20,6 @@ import abc
 import string
 import copy
 import getpass
-import six
 import json
 import math
 from . import qutils as qu
@@ -65,7 +63,7 @@ class SubmitResults(namedtuple("SubmitResult", "qid, out, err, process")):
     """
 
 
-class MpiRunner(object):
+class MpiRunner:
     """
     This object provides an abstraction for the mpirunner provided
     by the different MPI libraries. It's main task is handling the
@@ -186,7 +184,7 @@ class OmpEnv(AttrDict):
         return "\n".join("export %s=%s" % (k, v) for k, v in self.items())
 
 
-class Hardware(object):
+class Hardware:
     """
     This object collects information on the hardware available in a given queue.
 
@@ -261,7 +259,7 @@ class Hardware(object):
                    mem_per_node=dd['mem_per_node'])
 
 
-class _ExcludeNodesFile(object):
+class _ExcludeNodesFile:
     """
     This file contains the list of nodes to be excluded.
     Nodes are indexed by queue name.
@@ -353,7 +351,7 @@ class MaxNumLaunchesError(QueueAdapterError):
     """Raised by `submit_to_queue` if we try to submit more than `max_num_launches` times."""
 
 
-class QueueAdapter(six.with_metaclass(abc.ABCMeta, MSONable)):
+class QueueAdapter(MSONable, metaclass=abc.ABCMeta):
     """
     The `QueueAdapter` is responsible for all interactions with a specific queue management system.
     This includes handling all details of queue script format as well as queue submission and management.
