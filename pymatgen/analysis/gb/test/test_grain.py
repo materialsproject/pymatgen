@@ -18,7 +18,7 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 class Test_GrainBoundary(PymatgenTest):
     @classmethod
     def setUpClass(cls):
-        warnings.simplefilter("ignore")
+        warnings.filterwarnings("ignore")
         cls.Cu_conv = Structure.from_file(os.path.join(test_dir,
                                                        "Cu_mp-30_conventional_standard.cif"))
         GB_Cu_conv = GrainBoundaryGenerator(cls.Cu_conv)
@@ -109,7 +109,7 @@ class GrainBoundaryGeneratorTest(PymatgenTest):
 
     @classmethod
     def setUpClass(cls):
-        warnings.simplefilter("ignore")
+        warnings.filterwarnings("ignore")
         cls.Cu_prim = Structure.from_file(os.path.join(test_dir, "Cu_mp-30_primitive.cif"))
         cls.GB_Cu_prim = GrainBoundaryGenerator(cls.Cu_prim)
         cls.Cu_conv = Structure.from_file(os.path.join(test_dir,
