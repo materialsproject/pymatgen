@@ -1116,7 +1116,7 @@ class MagCifTest(unittest.TestCase):
                                                 "Mn3Ge_IR2.mcif"))
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")()
 
     def test_mcif_detection(self):
         self.assertTrue(self.mcif.feature_flags["magcif"])

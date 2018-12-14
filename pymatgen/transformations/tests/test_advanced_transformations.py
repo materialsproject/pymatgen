@@ -69,7 +69,7 @@ class SuperTransformationTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")()
 
     def test_apply_transformation(self):
         tl = [SubstitutionTransformation({"Li+": "Na+"}),
@@ -121,7 +121,7 @@ class MultipleSubstitutionTransformationTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")()
 
     def test_apply_transformation(self):
         sub_dict = {1: ["Na", "K"]}
@@ -171,7 +171,7 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")()
 
     def test_apply_transformation(self):
         enum_trans = EnumerateStructureTransformation(refine_structure=True)
@@ -296,7 +296,7 @@ class MagOrderingTransformationTest(PymatgenTest):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")()
 
     def test_apply_transformation(self):
         trans = MagOrderingTransformation({"Fe": 5})
@@ -496,7 +496,7 @@ class DopingTransformationTest(PymatgenTest):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")()
 
     def test_apply_transformation(self):
         structure = PymatgenTest.get_structure("LiFePO4")
