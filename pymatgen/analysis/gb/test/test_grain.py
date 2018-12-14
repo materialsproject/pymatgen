@@ -18,6 +18,7 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 class Test_GrainBoundary(PymatgenTest):
     @classmethod
     def setUpClass(cls):
+        warnings.simplefilter("ignore")
         cls.Cu_conv = Structure.from_file(os.path.join(test_dir,
                                                        "Cu_mp-30_conventional_standard.cif"))
         GB_Cu_conv = GrainBoundaryGenerator(cls.Cu_conv)
@@ -28,7 +29,6 @@ class Test_GrainBoundary(PymatgenTest):
         cls.Cu_GB2 = GB_Cu_conv.gb_from_parameters([1, 2, 3], 123.74898859588858,
                                                    expand_times=4, vacuum_thickness=1.5,
                                                    ab_shift=[0.2, 0.2], rm_ratio=0.0)
-        warnings.simplefilter("ignore")
 
     @classmethod
     def tearDownClass(cls):
@@ -105,9 +105,11 @@ class Test_GrainBoundary(PymatgenTest):
                                     self.Cu_GB2.lattice.matrix)
 
 
-class Test_GrainBoundaryGenerator(PymatgenTest):
+class GrainBoundaryGeneratorTest(PymatgenTest):
+
     @classmethod
     def setUpClass(cls):
+        warnings.simplefilter("ignore")
         cls.Cu_prim = Structure.from_file(os.path.join(test_dir, "Cu_mp-30_primitive.cif"))
         cls.GB_Cu_prim = GrainBoundaryGenerator(cls.Cu_prim)
         cls.Cu_conv = Structure.from_file(os.path.join(test_dir,
@@ -125,8 +127,6 @@ class Test_GrainBoundaryGenerator(PymatgenTest):
         cls.Bi = Structure.from_file(os.path.join(test_dir,
                                                   "Bi_mp-23152_primitive.cif"))
         cls.GB_Bi = GrainBoundaryGenerator(cls.Bi)
-
-        warnings.simplefilter("ignore")
 
     @classmethod
     def tearDownClass(cls):
