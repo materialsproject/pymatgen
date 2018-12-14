@@ -25,7 +25,7 @@ class CovalentBondTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.simplefilter("default")()
+        warnings.simplefilter("default")
 
     def test_length(self):
         site1 = Site("C", [0, 0, 0])

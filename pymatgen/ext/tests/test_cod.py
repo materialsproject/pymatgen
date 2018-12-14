@@ -29,7 +29,7 @@ class CODTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.simplefilter("default")()
+        warnings.simplefilter("default")
 
     @unittest.skipIf(not which("mysql"), "No mysql.")
     def test_get_cod_ids(self):

@@ -254,7 +254,7 @@ class PourbaixPlotterTest(unittest.TestCase):
         self.plotter = PourbaixPlotter(self.pd)
 
     def tearDown(self):
-        warnings.simplefilter("default")()
+        warnings.simplefilter("default")
 
     def test_plot_pourbaix(self):
         plotter = PourbaixPlotter(self.pd)

@@ -1178,7 +1178,7 @@ class MoleculeTest(PymatgenTest):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.simplefilter("default")()
+        warnings.simplefilter("default")
 
     def test_mutable_sequence_methods(self):
         s = self.mol

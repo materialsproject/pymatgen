@@ -260,7 +260,7 @@ class ElasticTensorExpansionTest(PymatgenTest):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.simplefilter("default")()
+        warnings.simplefilter("default")
 
     def test_init(self):
         cijkl = Tensor.from_voigt(self.c2)

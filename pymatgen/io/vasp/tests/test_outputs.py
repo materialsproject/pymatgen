@@ -50,7 +50,7 @@ class VasprunTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.simplefilter("default")()
+        warnings.simplefilter("default")
 
     def test_multiple_dielectric(self):
         v = Vasprun(os.path.join(test_dir, "vasprun.GW0.xml"))

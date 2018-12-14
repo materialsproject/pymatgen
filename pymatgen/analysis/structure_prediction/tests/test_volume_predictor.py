@@ -19,7 +19,7 @@ class RLSVolumePredictorTest(PymatgenTest):
         warnings.filterwarnings("ignore")
 
     def tearDown(self):
-        warnings.simplefilter("default")()
+        warnings.simplefilter("default")
 
     def test_predict(self):
         s = PymatgenTest.get_structure("CsCl")

@@ -33,7 +33,7 @@ class NEBAnalysisTest(PymatgenTest):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.simplefilter("default")()
+        warnings.simplefilter("default")
 
     def runTest(self):
         neb_analysis1 = NEBAnalysis.from_dir(os.path.join

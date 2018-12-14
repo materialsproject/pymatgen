@@ -203,7 +203,7 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.simplefilter("default")()
+        warnings.simplefilter("default")
 
     def test_apply_transformation(self):
         t = PartialRemoveSpecieTransformation("Li+", 1.0 / 3, 3)

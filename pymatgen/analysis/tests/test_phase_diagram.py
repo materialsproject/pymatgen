@@ -131,7 +131,7 @@ class PhaseDiagramTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.simplefilter("default")()
+        warnings.simplefilter("default")
 
     def test_init(self):
         # Ensure that a bad set of entries raises a PD error. Remove all Li
