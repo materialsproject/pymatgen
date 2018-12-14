@@ -7,6 +7,7 @@ __date__ = '07/30/18'
 from pymatgen.util.testing import PymatgenTest
 import os
 import numpy as np
+import warnings
 from pymatgen import Structure
 from pymatgen.analysis.gb.grain import GrainBoundary, GrainBoundaryGenerator
 
@@ -27,6 +28,11 @@ class Test_GrainBoundary(PymatgenTest):
         cls.Cu_GB2 = GB_Cu_conv.gb_from_parameters([1, 2, 3], 123.74898859588858,
                                                    expand_times=4, vacuum_thickness=1.5,
                                                    ab_shift=[0.2, 0.2], rm_ratio=0.0)
+        warnings.simplefilter("ignore")
+
+    @classmethod
+    def tearDownClass(cls):
+        warnings.simplefilter("default")
 
     def test_init(self):
         self.assertAlmostEqual(self.Cu_GB1.rotation_angle, 123.74898859588858)
@@ -119,6 +125,12 @@ class Test_GrainBoundaryGenerator(PymatgenTest):
         cls.Bi = Structure.from_file(os.path.join(test_dir,
                                                   "Bi_mp-23152_primitive.cif"))
         cls.GB_Bi = GrainBoundaryGenerator(cls.Bi)
+
+        warnings.simplefilter("ignore")
+
+    @classmethod
+    def tearDownClass(cls):
+        warnings.simplefilter("default")
 
     def test_gb_from_parameters(self):
         # from fcc primitive cell,axis[1,2,3],sigma 9.

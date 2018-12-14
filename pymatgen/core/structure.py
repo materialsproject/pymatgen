@@ -3164,8 +3164,8 @@ class Structure(IStructure, collections.MutableSequence):
                 for key in props.keys():
                     if props[key] is not None and self[i].properties[key] != props[key]:
                         props[key] = None
-                        warnings.warn("Sites with different site property %s are merged."
-                                      "so property is set to none" % key)
+                        warnings.warn("Sites with different site property %s are merged. "
+                                      "So property is set to none" % key)
             sites.append(PeriodicSite(species, coords, self.lattice, properties=props))
 
         self._sites = sites
