@@ -1,6 +1,5 @@
 from pymatgen.core.structure import Structure
 from monty.json import MSONable
-from monty.functools import lru_cache
 import numpy as np
 
 
@@ -77,11 +76,11 @@ class Trajectory(MSONable):
         _displacements = np.subtract(_coords, self.base_structure.frac_coords)
         self.displacements = np.concatenate((self.displacements, _displacements), axis=0)
         self.site_properties.extend(trajectory.site_properties)
+        self.length = len(_displacements)
 
-    @lru_cache()
     def as_structures(self):
         """
-        For compatibility with existing codes..
+        For compatibility with existing codes which use [Structure] inputs..
 
         :return: A list of structures
         """
@@ -91,13 +90,13 @@ class Trajectory(MSONable):
             structures[i] = self.structure.copy()
         return structures
 
-    @lru_cache()
     def sequential_displacements(self, skip=1, wrapped=False, cartesian=True):
         """
-        Returns the frame to frame displacements. Useful for summing to obtain MSD's
+        Returns the frame(n) to frame(n+1) displacements. Useful for summing to obtain MSD's
 
-        :param skip: Number of time steps to skip between each returned displacement
-        :param wrapped: Specifies whether the displacements returned will be wrapped or unwrapped
+        :param skip: (int) Number of time steps to skip between each returned displacement
+        :param wrapped: (bool) Specifies whether the displacements returned will be wrapped or unwrapped
+        :param cartesian: (bool) Specifies whether returned coordinates will be cartesian(True) or fractional(False)
         :return:
         """
         seq_displacements = np.subtract(self.displacements[::skip],
@@ -112,14 +111,12 @@ class Trajectory(MSONable):
 
         return seq_displacements
 
-    @lru_cache()
     def positions(self, skip=1):
         """
-
-        :param skip:
+        :param skip: (int) Number of time steps to skip between each returned displacement
         :return:
         """
-        positions = np.add(self.structure.frac_coords, self.displacements)
+        positions = np.add(self.structure.frac_coords[::skip], self.displacements[::skip])
         return positions
 
     @classmethod
@@ -137,7 +134,7 @@ class Trajectory(MSONable):
     @classmethod
     def from_ionic_steps(cls, ionic_steps_dict):
         """
-        Convenience constructor to make a Trajectory from a list of Structures
+        Convenience constructor to make a Trajectory from an the ionic steps dictionary from the parsed vasprun.xml
         :param ionic_steps_dict:
         :return:
         """
