@@ -1085,7 +1085,7 @@ class DefectThermoBuilder(Builder):
         Args:
             defects (Store): Store of defect entries
             defectthermo (Store): Store of DefectPhaseDiagram documents
-            query (dict): dictionary to limit materials to be analyzed
+            query (dict): dictionary to limit materials to be analyzed (note query is for defects Store)
             compatibility (PymatgenCompatability): Compatability module to ensure defect calculations are compatible
             ltol (float): StructureMatcher tuning parameter for matching tasks to materials
             stol (float): StructureMatcher tuning parameter for matching tasks to materials
@@ -1271,5 +1271,5 @@ class DefectThermoBuilder(Builder):
 
         self.logger.info("Updating {} DefectThermo documents".format(len(items)))
 
-        self.defectthermo.update(items, update_lu=True, key='entry_id')
+        self.defectthermo.update([items], update_lu=True, key='entry_id')
 
