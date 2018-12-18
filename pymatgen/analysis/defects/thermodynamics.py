@@ -111,7 +111,8 @@ class DefectPhaseDiagram(MSONable):
             pdc = PointDefectComparator( check_charge=False, check_primitive_cell=True,
                                          check_lattice_scale=False)
             grp_def_sets = []
-            for ent in entryset:
+            grp_def_indices = []
+            for ent_ind, ent in enumerate(entryset):
                 #TODO: more pythonic/elegant way of grouping entry sets with PointDefectComparator
                 matched_ind = None
                 for grp_ind, defgrp in enumerate(grp_def_sets):
@@ -120,9 +121,12 @@ class DefectPhaseDiagram(MSONable):
                         break
                 if matched_ind is not None:
                     grp_def_sets[matched_ind].append( ent.copy())
+                    grp_def_indices[matched_ind].append( ent_ind)
                 else:
                     grp_def_sets.append( [ent.copy()])
-            return grp_def_sets
+                    grp_def_indices.append( [ent_ind])
+
+            return zip(grp_def_sets, grp_def_indices)
 
         # Limits for search
         # E_fermi = { -1 eV to band gap+1}
@@ -135,7 +139,7 @@ class DefectPhaseDiagram(MSONable):
         transition_level_map = {}
 
         # Grouping by defect types
-        for defects in similar_defects( self.entries):
+        for defects, index_list in similar_defects( self.entries):
             defects = list(defects)
 
             # prepping coefficient matrix forx half-space intersection
@@ -160,19 +164,24 @@ class DefectPhaseDiagram(MSONable):
             # sort based on transition level
             ints_and_facets = list(sorted(ints_and_facets, key=lambda int_and_facet: int_and_facet[0][0]))
 
+            # log a defect name for tracking (storing index list with name for now, since this is best way to deal with this for now)
+            # TODO: figure out a better way to track labels?
+            str_index_list = [str(ind) for ind in sorted(index_list)]
+            track_name = defects[0].name + "-" + str("-".join(str_index_list))
+
             if len(ints_and_facets):
                 # Unpack into lists
                 _, facets = zip(*ints_and_facets)
                 # Map of transition level: charge states
 
-                transition_level_map[defects[0].name] = {
+                transition_level_map[track_name] = {
                     intersection[0]: [defects[i].charge for i in facet]
                     for intersection, facet in ints_and_facets
                 }
 
-                stable_entries[defects[0].name] = list(set([defects[i] for dual in facets for i in dual]))
+                stable_entries[track_name] = list(set([defects[i] for dual in facets for i in dual]))
 
-                finished_charges[defects[0].name] = [defect.charge for defect in defects]
+                finished_charges[track_name] = [defect.charge for defect in defects]
             else:
                 # if ints_and_facets is empty, then there is likely only one defect...
                 if len(defects) != 1:
@@ -190,15 +199,15 @@ class DefectPhaseDiagram(MSONable):
                                                                     name_stable_above_cbm))
                     else:
                         print("{} is only stable defect out of {}".format( name_stable_below_vbm, name_set))
-                        transition_level_map[name_stable_below_vbm] = {}
-                        stable_entries[name_stable_below_vbm] = list([defects[vbm_def_index]])
-                        finished_charges[name_stable_below_vbm] = [defects[vbm_def_index].charge]
+                        transition_level_map[track_name] = {}
+                        stable_entries[track_name] = list([defects[vbm_def_index]])
+                        finished_charges[track_name] = [defects[vbm_def_index].charge]
                 else:
-                    transition_level_map[defects[0].name] = {}
+                    transition_level_map[track_name] = {}
 
-                    stable_entries[defects[0].name] = list([defects[0]])
+                    stable_entries[track_name] = list([defects[0]])
 
-                    finished_charges[defects[0].name] = [defects[0].charge]
+                    finished_charges[track_name] = [defects[0].charge]
 
 
         self.transition_level_map = transition_level_map
