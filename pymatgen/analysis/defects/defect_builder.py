@@ -1142,7 +1142,7 @@ class DefectThermoBuilder(Builder):
                                                                   'run_metadata', 'entry_id']))
         self.logger.info("Found {} new defect entries to consider".format( len(defect_entries)))
 
-        #group them based on bulk types and task level metadata info
+        #group defect entries based on bulk types and task level metadata info
         sm = StructureMatcher(primitive_cell=True, scale=False, attempt_supercell=True,
                               allow_subset=False)
         grpd_entry_list = []
@@ -1185,11 +1185,15 @@ class DefectThermoBuilder(Builder):
                 for t_ent in thermo_entries:
                     if t_ent['bulk_chemsys'] == bulk_chemsys and t_ent['run_metadata'] == run_metadata:
                         if sm.fit(base_bulk_struct, Structure.from_dict(t_ent['bulk_prim_struct'])):
-                            #get previous entries from thermo database update them
-                            old_entry_set = list(self.defectthermo.query( {'entry_id': t_ent['entry_id']},
-                                                                           properties=['entries']))[0]['entries']
-                            old_entries_list = [entry.as_dict() if type(entry) != dict else entry for entry in
-                                                old_entry_set]
+                            if not self.update_all:
+                                #if not wanting to update everything, then get previous entries from thermo database
+                                old_entry_set = list(self.defectthermo.query( {'entry_id': t_ent['entry_id']},
+                                                                               properties=['entries']))[0]['entries']
+                                old_entries_list = [entry.as_dict() if type(entry) != dict else entry for entry in
+                                                    old_entry_set]
+                            else:
+                                old_entries_list = []
+
                             old_entries_list.append( entry_dict.copy())
                             grpd_entry_list.append( [bulk_chemsys, run_metadata.copy(),  base_bulk_struct.copy(),
                                                      old_entries_list, t_ent['entry_id']])
