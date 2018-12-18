@@ -1112,6 +1112,7 @@ class DefectThermoBuilder(Builder):
 
         #get all new Defect Entries since last time DefectThermo was updated...
         q = dict(self.query)
+        self.logger.debug('query is initially: {}'.format( q))
         if not self.update_all:
             # if not update_all then grab entry_ids of defects that have been analyzed already...
             prev_dpd = list(self.defectthermo.query(properties=['metadata.all_entry_ids_considered']))
@@ -1121,6 +1122,7 @@ class DefectThermoBuilder(Builder):
                 self.query["entry_id"]["$nin"] = []
             for dpd in prev_dpd:
                 self.query["entry_id"]["$nin"].extend( dpd['metadata']['all_entry_ids_considered'])
+            self.logger.debug('query after removing previously considered entry_ids is: {}'.format( q))
 
         # q.update(self.defects.lu_filter(self.defectthermo))  #TODO: does this work?? / is it needed?
 
