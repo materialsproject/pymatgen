@@ -203,7 +203,7 @@ class TaskDefectBuilder(object):
                 for dindex, dsite in enumerate(initial_defect_structure.sites):
                     if dsite.distance_and_image_from_frac_coords( defect_frac_sc_coords)[0] > 0.001:  #exclude the defect site from site_matching...
                         poss_deflist = sorted(bulk_sc_structure.get_sites_in_sphere(dsite.coords, 1, include_index=True), key=lambda x: x[1])
-                        bulkindex = poss_deflist[0][2]
+                        bulkindex = int(poss_deflist[0][2])
                         site_matching_indices.append( [bulkindex, dindex])
 
                 # assuming Wigner-Seitz radius for sampling radius
@@ -718,6 +718,8 @@ class DefectBuilder(Builder):
             defoutcar = item['calcs_reversed'][0]['output']['outcar']
             defect_atomic_site_averages = defoutcar['electrostatic_potential']
             bulk_sc_structure = parameters['bulk_sc_structure']
+            if type(bulk_sc_structure) == dict:
+                bulk_sc_structure = Structure.from_dict( bulk_sc_structure)
 
             struct_for_defect_site = Structure(defect.bulk_structure.copy().lattice,
                                                [defect.site.specie],
@@ -782,6 +784,10 @@ class DefectBuilder(Builder):
 
         defect_entry = self.compatibility.process_entry( defect_entry)
         defect_entry.parameters['last_updated'] = datetime.utcnow()
+        #hack to make sure that structures are stored as dict, otherwise they become strings in database
+        for struct_type in ['bulk_sc_structure', 'initial_defect_structure', 'final_defect_structure']:
+            if struct_type in defect_entry.parameters.keys() and type(defect_entry.parameters[struct_type]) != Structure:
+                defect_entry.parameters[struct_type] = defect_entry.parameters[struct_type].as_dict()
 
         #add additional tags as desired...
         dentry_as_dict = defect_entry.as_dict()
@@ -1125,6 +1131,7 @@ class DefectThermoBuilder(Builder):
                                         'parameters.cbm', 'parameters.vbm', 'parameters.gap',
                                         'parameters.hybrid_cbm', 'parameters.hybrid_vbm',
                                         'parameters.hybrid_gap', 'parameters.potalign',
+                                        'parameters.freysoldt_meta',
                                         'parameters.kumagai_meta', 'parameters.is_compatible',
                                         'parameters.delocalization_meta', 'parameters.phasediagram_meta']
         defect_entries = list(self.defects.query(criteria=q,
@@ -1227,6 +1234,7 @@ class DefectThermoBuilder(Builder):
         #now sort through entries and pick one that has been updated last (but track all previous entry_ids
         all_entry_ids_considered, entries = [], []
         for ident_entries in distinct_entries:
+            #TODO -> add functionality to compare which has most complete data?
             lu_list = [[ent['parameter']['last_updated'], ent_ind] for ent_ind, ent in enumerate(ident_entries)]
             lu_list.sort(reverse=True)
             all_entry_ids_considered.extend( [ent['entry_id'] for ent in ident_entries])
