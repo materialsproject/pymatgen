@@ -1212,7 +1212,7 @@ class DefectThermoBuilder(Builder):
             yield new_defects_for_thermo_entry
 
 
-    def process_items(self, items):
+    def process_item(self, items):
         #group defect entries into groups of same defect type (charge included)
         distinct_entries = []
         bulk_chemsys, run_metadata, bulk_prim_struct, entrylist, entry_id = items
@@ -1270,6 +1270,6 @@ class DefectThermoBuilder(Builder):
     def update_targets(self, items):
 
         self.logger.info("Updating {} DefectThermo documents".format(len(items)))
-
-        self.defectthermo.update([items], update_lu=True, key='entry_id')
+        
+        self.defectthermo.update(items, update_lu=True, key='entry_id')
 
