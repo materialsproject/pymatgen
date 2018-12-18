@@ -1237,7 +1237,7 @@ class DefectThermoBuilder(Builder):
         all_entry_ids_considered, entries = [], []
         for ident_entries in distinct_entries:
             #TODO -> add functionality to compare which has most complete data?
-            lu_list = [[ent['parameter']['last_updated'], ent_ind] for ent_ind, ent in enumerate(ident_entries)]
+            lu_list = [[ent['parameters']['last_updated'], ent_ind] for ent_ind, ent in enumerate(ident_entries)]
             lu_list.sort(reverse=True)
             all_entry_ids_considered.extend( [ent['entry_id'] for ent in ident_entries])
             recent_entry_dict = ident_entries[ lu_list[0][1]]
@@ -1270,6 +1270,6 @@ class DefectThermoBuilder(Builder):
     def update_targets(self, items):
 
         self.logger.info("Updating {} DefectThermo documents".format(len(items)))
-        
+
         self.defectthermo.update(items, update_lu=True, key='entry_id')
 
