@@ -9,6 +9,8 @@ env:
     - PATH=$PATH:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit:`pwd`/cmd_line/boltztrap/Linux_64bit
     - GULP_LIB=`pwd`/cmd_line/gulp/Libraries
     - MPLBACKEND=Agg
+    - PMG_MAPI_ENDPOINT=https://zola.lbl.gov/rest/v2
+    - NOSE_EXCLUDE_TESTS="pymatgen.ext.tests.test_matproj.MPResterTest;pymatgen.analysis.tests.test_pourbaix_diagram.PourbaixDiagramTest;pymatgen.tests.test_init.SettingsTestCase"
 # command to install dependencies
 sudo: false
 install:
@@ -25,7 +27,8 @@ install:
 before_script:
   - python setup.py --quiet develop
 # command to run tests, e.g. python setup.py test
-script: travis_wait 28800 nosetests --with-timer --timer-top-n 30 pymatgen
+script:
+  - travis_wait 28800 nosetests --with-timer --timer-top-n 30 pymatgen
 notifications:
   email:
     recipients:

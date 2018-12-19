@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import warnings
 import ruamel.yaml as yaml
@@ -68,7 +67,7 @@ def average_coordination_number(structures, freq=10):
     return coordination_numbers
 
 
-class VoronoiAnalyzer(object):
+class VoronoiAnalyzer:
     """
     Performs a statistical analysis of Voronoi polyhedra around each site.
     Each Voronoi polyhedron is described using Schaefli notation.
@@ -180,7 +179,7 @@ class VoronoiAnalyzer(object):
         return plt
 
 
-class RelaxationAnalyzer(object):
+class RelaxationAnalyzer:
     """
     This class analyzes the relaxation in a calculation.
     """
@@ -256,7 +255,7 @@ class RelaxationAnalyzer(object):
         return data
 
 
-class VoronoiConnectivity(object):
+class VoronoiConnectivity:
     """
     Computes the solid angles swept out by the shared face of the voronoi
     polyhedron between two sites.
@@ -497,7 +496,7 @@ def contains_peroxide(structure, relative_cutoff=1.1):
         return False
 
 
-class OxideType(object):
+class OxideType:
     """
     Separate class for determining oxide type.
 

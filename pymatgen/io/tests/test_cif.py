@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals, division, print_function
 
 import unittest
 import os
@@ -1117,7 +1116,7 @@ class MagCifTest(unittest.TestCase):
                                                 "Mn3Ge_IR2.mcif"))
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_mcif_detection(self):
         self.assertTrue(self.mcif.feature_flags["magcif"])

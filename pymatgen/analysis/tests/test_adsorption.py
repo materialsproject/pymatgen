@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-from __future__ import print_function
 
 import unittest
 
@@ -7,6 +5,7 @@ from pymatgen.util.testing import PymatgenTest
 from pymatgen.analysis.adsorption import *
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen import Structure, Lattice, Molecule
+from pymatgen.util.coord import in_coord_list
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')

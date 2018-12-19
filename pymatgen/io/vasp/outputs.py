@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
 
 import json
 import glob
@@ -22,8 +21,8 @@ from monty.json import MSONable
 from monty.json import jsanitize
 from monty.re import regrep
 from monty.os.path import zpath
-from six import string_types
-from six.moves import map, zip
+
+
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
@@ -879,7 +878,7 @@ class Vasprun(MSONable):
             warnings.warn("No POTCAR file with matching TITEL fields"
                           " was found in {}".format(os.path.abspath(p)))
 
-        if isinstance(path, string_types):
+        if isinstance(path, str):
             if "POTCAR" in path:
                 potcar = Potcar.from_file(path)
                 if {d.TITEL for d in potcar} != \
@@ -1356,7 +1355,7 @@ class BSVasprun(Vasprun):
         return jsanitize(d, strict=True)
 
 
-class Outcar(object):
+class Outcar:
     """
     Parser for data in OUTCAR that is not available in Vasprun.xml
 
@@ -3148,7 +3147,7 @@ class Chgcar(VolumetricData):
             return None
 
 
-class Procar(object):
+class Procar:
     """
     Object for reading a PROCAR file.
 
@@ -3243,13 +3242,22 @@ class Procar(object):
                         data[spin][current_kpoint, current_band,
                                    index, :] = num_data
                     else:
-                        if np.isnan(phase_factors[spin][
-                                current_kpoint, current_band, index, 0]):
-                            phase_factors[spin][current_kpoint, current_band,
-                                                index, :] = num_data
+                        if len(toks) > len(headers):
+                            # new format of PROCAR (vasp 5.4.4)
+                            num_data = np.array([float(t)
+                                                 for t in toks[:2*len(headers)]])
+                            for orb in range(len(headers)):
+                                phase_factors[spin][current_kpoint, current_band,
+                                    index, orb] = complex(num_data[2*orb], num_data[2*orb+1])
                         else:
-                            phase_factors[spin][current_kpoint, current_band,
-                                                index, :] += 1j * num_data
+                            # old format of PROCAR (vasp 5.4.1 and before)
+                            if np.isnan(phase_factors[spin][
+                                    current_kpoint, current_band, index, 0]):
+                                phase_factors[spin][current_kpoint, current_band,
+                                                    index, :] = num_data
+                            else:
+                                phase_factors[spin][current_kpoint, current_band,
+                                                    index, :] += 1j * num_data
                 elif l.startswith("tot"):
                     done = True
                 elif preambleexpr.match(l):
@@ -3316,7 +3324,7 @@ class Procar(object):
                 for spin, d in self.data.items()}
 
 
-class Oszicar(object):
+class Oszicar:
     """
     A basic parser for an OSZICAR output from VASP.  In general, while the
     OSZICAR is useful for a quick look at the output from a VASP run, we
@@ -3500,7 +3508,7 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None,
             return None
 
 
-class Xdatcar(object):
+class Xdatcar:
     """
     Class representing an XDATCAR file. Only tested with VASP 5.x files.
 
@@ -3718,7 +3726,7 @@ class Xdatcar(object):
         return self.get_string()
 
 
-class Dynmat(object):
+class Dynmat:
     """
     Object for reading a DYNMAT file.
 
@@ -4194,7 +4202,7 @@ class Wavecar:
             return mesh
 
 
-class Wavederf(object):
+class Wavederf:
     """
     Object for reading a WAVEDERF file.
 

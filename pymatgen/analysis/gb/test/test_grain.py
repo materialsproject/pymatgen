@@ -1,4 +1,3 @@
-from __future__ import division, unicode_literals
 
 __author__ = 'Xiang-Guo Li'
 __copyright__ = 'Copyright 2018, The Materials Virtual Lab'
@@ -8,6 +7,7 @@ __date__ = '07/30/18'
 from pymatgen.util.testing import PymatgenTest
 import os
 import numpy as np
+import warnings
 from pymatgen import Structure
 from pymatgen.analysis.gb.grain import GrainBoundary, GrainBoundaryGenerator
 
@@ -18,6 +18,7 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 class Test_GrainBoundary(PymatgenTest):
     @classmethod
     def setUpClass(cls):
+        warnings.filterwarnings("ignore")
         cls.Cu_conv = Structure.from_file(os.path.join(test_dir,
                                                        "Cu_mp-30_conventional_standard.cif"))
         GB_Cu_conv = GrainBoundaryGenerator(cls.Cu_conv)
@@ -28,6 +29,10 @@ class Test_GrainBoundary(PymatgenTest):
         cls.Cu_GB2 = GB_Cu_conv.gb_from_parameters([1, 2, 3], 123.74898859588858,
                                                    expand_times=4, vacuum_thickness=1.5,
                                                    ab_shift=[0.2, 0.2], rm_ratio=0.0)
+
+    @classmethod
+    def tearDownClass(cls):
+        warnings.simplefilter("default")
 
     def test_init(self):
         self.assertAlmostEqual(self.Cu_GB1.rotation_angle, 123.74898859588858)
@@ -100,9 +105,11 @@ class Test_GrainBoundary(PymatgenTest):
                                     self.Cu_GB2.lattice.matrix)
 
 
-class Test_GrainBoundaryGenerator(PymatgenTest):
+class GrainBoundaryGeneratorTest(PymatgenTest):
+
     @classmethod
     def setUpClass(cls):
+        warnings.filterwarnings("ignore")
         cls.Cu_prim = Structure.from_file(os.path.join(test_dir, "Cu_mp-30_primitive.cif"))
         cls.GB_Cu_prim = GrainBoundaryGenerator(cls.Cu_prim)
         cls.Cu_conv = Structure.from_file(os.path.join(test_dir,
@@ -120,6 +127,10 @@ class Test_GrainBoundaryGenerator(PymatgenTest):
         cls.Bi = Structure.from_file(os.path.join(test_dir,
                                                   "Bi_mp-23152_primitive.cif"))
         cls.GB_Bi = GrainBoundaryGenerator(cls.Bi)
+
+    @classmethod
+    def tearDownClass(cls):
+        warnings.simplefilter("default")
 
     def test_gb_from_parameters(self):
         # from fcc primitive cell,axis[1,2,3],sigma 9.

@@ -1,7 +1,6 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-from __future__ import unicode_literals, division, print_function
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinit.utils import *
@@ -9,7 +8,7 @@ from pymatgen.io.abinit.utils import *
 class RpnTest(PymatgenTest):
 
     def test_mongodb_like_conditions(self):
-        class Foo(object):
+        class Foo:
             one = 1.0
             two = 2.0
             three = 3.0
@@ -43,7 +42,7 @@ class ConditionTest(PymatgenTest):
         assert not c
         print(c)
 
-        class A(object): 
+        class A: 
             def __init__(self):
                 self.one = 1.0
 

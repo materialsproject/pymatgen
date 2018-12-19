@@ -15,7 +15,6 @@ TODO:
         user does not need to generate a dict
 """
 
-from __future__ import division, unicode_literals
 
 import numpy as np
 import itertools
@@ -357,7 +356,7 @@ class SlabEntry(ComputedStructureEntry):
                          adsorbates=adsorbates, clean_entry=clean_entry, **kwargs)
 
 
-class SurfaceEnergyPlotter(object):
+class SurfaceEnergyPlotter:
     """
     A class used for generating plots to analyze the thermodynamics of surfaces
         of a material. Produces stability maps of different slab configurations,
@@ -1316,7 +1315,7 @@ def entry_dict_from_list(all_slab_entries):
     return entry_dict
 
 
-class WorkFunctionAnalyzer(object):
+class WorkFunctionAnalyzer:
     """
     A class used for calculating the work function
         from a slab model and visualizing the behavior
@@ -1548,7 +1547,7 @@ class WorkFunctionAnalyzer(object):
                                     o.efermi, shift=shift)
 
 
-class NanoscaleStability(object):
+class NanoscaleStability:
     """
     A class for analyzing the stability of nanoparticles of different
         polymorphs with respect to size. The Wulff shape will be the
@@ -1806,12 +1805,12 @@ class NanoscaleStability(object):
 
         return plt
 
-        # class GetChempotRange(object):
+        # class GetChempotRange:
         #     def __init__(self, entry):
         #         self.entry = entry
         #
         #
-        # class SlabEntryGenerator(object):
+        # class SlabEntryGenerator:
         #     def __init__(self, entry):
         #         self.entry = entry
 

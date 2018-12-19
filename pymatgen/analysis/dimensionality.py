@@ -18,16 +18,19 @@ get_dimensionality_gorai:
     J. Mater. Chem. A 2, 4136 (2016).
 """
 
-from __future__ import division, unicode_literals
 
 import itertools
 import copy
+
 import numpy as np
 
 from collections import defaultdict
 
+from networkx.readwrite import json_graph
+
+from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.core.lattice import get_integer_index
-from pymatgen.core.structure import Structure
+from pymatgen.core.structure import Structure, Molecule
 from pymatgen.core.periodic_table import Specie
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.analysis.local_env import JmolNN
@@ -64,10 +67,11 @@ def get_dimensionality_larsen(bonded_structure):
         (int): The dimensionality of the structure.
     """
     return max([c['dimensionality'] for c in
-                get_structure_component_info(bonded_structure)])
+                get_structure_components(bonded_structure)])
 
 
-def get_structure_component_info(bonded_structure, inc_orientation=False):
+def get_structure_components(bonded_structure, inc_orientation=False,
+                             inc_site_ids=False, inc_molecule_graph=False):
     """
     Gets information on the components in a bonded structure.
 
@@ -90,17 +94,25 @@ def get_structure_component_info(bonded_structure, inc_orientation=False):
         inc_orientation (bool, optional): Whether to include the orientation
             of the structure component. For surfaces, the miller index is given,
             for one-dimensional structures, the direction of the chain is given.
+        inc_site_ids (bool, optional): Whether to include the site indices
+            of the sites in the structure component.
+        inc_molecule_graph (bool, optional): Whether to include MoleculeGraph
+            objects for zero-dimensional components.
 
     Returns:
         (list of dict): Information on the components in a structure as a list
         of dictionaries with the keys:
 
-        - "structure": A pymatgen Structure object containing the component
-            atoms.
+        - "structure_graph": A pymatgen StructureGraph object for the
+            component.
         - "dimensionality": The dimensionality of the structure component as an
             int.
         - "orientation": If inc_orientation is `True`, the orientation of the
             component as a tuple. E.g. (1, 1, 1)
+        - "site_ids": If inc_site_ids is `True`, the site indices of the
+            sites in the component as a tuple.
+        - "molecule_graph": If inc_molecule_graph is `True`, the site a
+            MoleculeGraph object for zero-dimensional components.
     """
     import networkx as nx  # optional dependency therefore not top level import
 
@@ -109,14 +121,10 @@ def get_structure_component_info(bonded_structure, inc_orientation=False):
 
     components = []
     for graph in comp_graphs:
-        sites = [bonded_structure.structure[n] for n in graph.nodes()]
-        component_structure = Structure.from_sites(sites)
-
         dimensionality, vertices = calculate_dimensionality_of_site(
             bonded_structure, list(graph.nodes())[0], inc_vertices=True)
 
-        component = {'structure': component_structure,
-                     'dimensionality': dimensionality}
+        component = {'dimensionality': dimensionality}
 
         if inc_orientation:
             if dimensionality in [1, 2]:
@@ -135,6 +143,23 @@ def get_structure_component_info(bonded_structure, inc_orientation=False):
                 orientation = None
 
             component['orientation'] = orientation
+
+        if inc_site_ids:
+            component['site_ids'] = tuple(graph.nodes())
+
+        if inc_molecule_graph and dimensionality == 0:
+            component['molecule_graph'] = zero_d_graph_to_molecule_graph(
+                bonded_structure, graph)
+
+        component_structure = Structure.from_sites(
+            [bonded_structure.structure[n] for n in sorted(graph.nodes())])
+
+        sorted_graph = nx.convert_node_labels_to_integers(
+            graph, ordering="sorted")
+        component_graph = StructureGraph(
+            component_structure,
+            graph_data=json_graph.adjacency_data(sorted_graph))
+        component['structure_graph'] = component_graph
 
         components.append(component)
     return components
@@ -211,6 +236,57 @@ def calculate_dimensionality_of_site(bonded_structure, site_index,
                 list(seen_comp_vertices[site_index]))
     else:
         return rank(seen_comp_vertices[site_index])
+
+
+def zero_d_graph_to_molecule_graph(bonded_structure, graph):
+    """
+    Converts a zero-dimensional networkx Graph object into a MoleculeGraph.
+
+    Implements a similar breadth-first search to that in
+    calculate_dimensionality_of_site().
+
+    Args:
+        bonded_structure (StructureGraph): A structure with bonds, represented
+            as a pymatgen structure graph. For example, generated using the
+            CrystalNN.get_bonded_structure() method.
+        graph (nx.Graph): A networkx `Graph` object for the component of
+            interest.
+
+    Returns:
+        (MoleculeGraph): A MoleculeGraph object of the component.
+    """
+    import networkx as nx
+    seen_indices = []
+    sites = []
+
+    start_index = list(graph.nodes())[0]
+    queue = [(start_index, (0, 0, 0),
+              bonded_structure.structure[start_index])]
+    while len(queue) > 0:
+        comp_i, image_i, site_i = queue.pop(0)
+
+        if comp_i in [x[0] for x in seen_indices]:
+            raise ValueError("Graph component is not 0D")
+
+        seen_indices.append((comp_i, image_i))
+        sites.append(site_i)
+
+        for site_j in bonded_structure.get_connected_sites(
+                comp_i, jimage=image_i):
+
+            if ((site_j.index, site_j.jimage) not in seen_indices and
+                    (site_j.index, site_j.jimage, site_j.site) not in queue):
+                queue.append((site_j.index, site_j.jimage, site_j.site))
+
+    # sort the list of indices and the graph by index to make consistent
+    indices_ordering = np.argsort([x[0] for x in seen_indices])
+    sorted_sites = np.array(sites, dtype=object)[indices_ordering]
+    sorted_graph = nx.convert_node_labels_to_integers(graph, ordering="sorted")
+    mol = Molecule([s.specie for s in sorted_sites],
+                   [s.coords for s in sorted_sites])
+    mol_graph = MoleculeGraph.with_edges(mol, nx.Graph(sorted_graph).edges())
+
+    return mol_graph
 
 
 def get_dimensionality_cheon(structure_raw, tolerance=0.45,

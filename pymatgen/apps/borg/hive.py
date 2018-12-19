@@ -2,20 +2,13 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
-
 
 import abc
 import os
-import re
 import glob
 import logging
-import fnmatch
 import json
 import warnings
-
-import six
-from six.moves import zip
 
 from monty.io import zopen
 from pymatgen.io.vasp.inputs import Incar, Potcar, Poscar
@@ -41,7 +34,7 @@ __date__ = "Mar 18, 2012"
 logger = logging.getLogger(__name__)
 
 
-class AbstractDrone(six.with_metaclass(abc.ABCMeta, MSONable)):
+class AbstractDrone(MSONable, metaclass=abc.ABCMeta):
     """
     Abstract drone class that defines the various methods that must be
     implemented by drones. Because of the quirky nature of Python"s

@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import unittest
 import os
@@ -100,7 +99,7 @@ class StructureGraphTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_properties(self):
 
@@ -513,7 +512,7 @@ class MoleculeGraphTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
         del self.ethylene
         del self.butadiene
         del self.cyclohexene

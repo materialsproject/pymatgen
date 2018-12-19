@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 from pymatgen.core import Specie, Element, Lattice, Structure
 from pymatgen.io.cif import CifParser
 from pymatgen.analysis.magnetism import *
@@ -85,7 +84,7 @@ class CollinearMagneticStructureAnalyzerTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_get_representations(self):
 

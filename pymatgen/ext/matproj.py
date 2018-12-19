@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import sys
 import itertools
@@ -12,7 +11,7 @@ import warnings
 from time import sleep
 
 from monty.json import MontyDecoder, MontyEncoder
-from six import string_types
+
 from copy import deepcopy
 
 from pymatgen import SETTINGS
@@ -48,7 +47,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Feb 22, 2013"
 
 
-class MPRester(object):
+class MPRester:
     """
     A class to conveniently interface with the Materials Project REST
     interface. The recommended way to use MPRester is with the "with" context
@@ -76,8 +75,8 @@ class MPRester(object):
             their setups and MPRester can then be called without any arguments.
         endpoint (str): Url of endpoint to access the MaterialsProject REST
             interface. Defaults to the standard Materials Project REST
-            address, but can be changed to other urls implementing a similar
-            interface.
+            address at "https://www.materialsproject.org/rest/v2", but
+            can be changed to other urls implementing a similar interface.
     """
 
     supported_properties = ("energy", "energy_per_atom", "volume",
@@ -98,13 +97,16 @@ class MPRester(object):
                                  "is_compatible", "spacegroup",
                                  "band_gap", "density", "icsd_id", "cif")
 
-    def __init__(self, api_key=None,
-                 endpoint="https://www.materialsproject.org/rest/v2"):
+    def __init__(self, api_key=None, endpoint=None):
         if api_key is not None:
             self.api_key = api_key
         else:
             self.api_key = SETTINGS.get("PMG_MAPI_KEY", "")
-        self.preamble = endpoint
+        if endpoint is not None:
+            self.preamble = endpoint
+        else:
+            self.preamble = SETTINGS.get("PMG_MAPI_ENDPOINT",
+                                         "https://www.materialsproject.org/rest/v2")
         import requests
         if sys.version_info[0] < 3:
             try:
@@ -292,7 +294,7 @@ class MPRester(object):
             MPRestError
         """
         try:
-            if isinstance(filename_or_structure, string_types):
+            if isinstance(filename_or_structure, str):
                 s = Structure.from_file(filename_or_structure)
             elif isinstance(filename_or_structure, Structure):
                 s = filename_or_structure

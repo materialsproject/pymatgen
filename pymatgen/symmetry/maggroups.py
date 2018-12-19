@@ -2,12 +2,11 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import os
 from fractions import Fraction
 import numpy as np
 from monty.design_patterns import cached_class
-from six import string_types
+
 
 import textwrap
 
@@ -107,7 +106,7 @@ class MagneticSpaceGroup(SymmetryGroup):
         # retrieve raw data
         db = sqlite3.connect(MAGSYMM_DATA)
         c = db.cursor()
-        if isinstance(id, string_types):
+        if isinstance(id, str):
             id = "".join(id.split())  # remove any white space
             c.execute('SELECT * FROM space_groups WHERE BNS_label=?;', (id, ))
         elif isinstance(id, list):

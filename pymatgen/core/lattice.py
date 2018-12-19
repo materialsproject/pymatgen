@@ -2,22 +2,16 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import math
 import itertools
 import warnings
 
 from functools import reduce
-try:
-    # New Py>=3.5 import
-    from math import gcd
-except ImportError:
-    # Deprecated import from Py3.5 onwards.
-    from fractions import gcd
+from math import gcd
 
 from fractions import Fraction
 
-from six.moves import map, zip
+
 
 import numpy as np
 from numpy.linalg import inv
@@ -1189,17 +1183,19 @@ def get_integer_index(miller_index, round_dp=4, verbose=True):
     # deal with the case we have nice fractions
     md = [Fraction(n).limit_denominator(12).denominator for n in miller_index]
     miller_index *= reduce(lambda x, y: x * y, md)
-    round_miller_index = np.int_(np.round(miller_index, 1))
-    miller_index /= np.abs(reduce(gcd, round_miller_index))
+    int_miller_index = np.int_(np.round(miller_index, 1))
+    miller_index /= np.abs(reduce(gcd, int_miller_index))
 
     # round to a reasonable precision
     miller_index = np.array([round(h, round_dp) for h in miller_index])
 
     # need to recalculate this after rounding as values may have changed
-    round_miller_index = np.int_(np.round(miller_index, 1))
-    if (np.any(np.abs(miller_index - round_miller_index) > 1e-6) and
+    int_miller_index = np.int_(np.round(miller_index, 1))
+    if (np.any(np.abs(miller_index - int_miller_index) > 1e-6) and
             verbose):
         warnings.warn("Non-integer encountered in Miller index")
+    else:
+        miller_index = int_miller_index
 
     # minimise the number of negative indexes
     miller_index += 0  # converts -0 to 0
