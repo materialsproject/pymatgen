@@ -1242,7 +1242,7 @@ class DefectThermoBuilder(Builder):
 
         #now sort through entries and pick one that has been updated last (but track all previous entry_ids)
         all_entry_ids_considered, entries = [], []
-        for ident_entries in distinct_entries:
+        for ident_entries in distinct_entries_full:
             all_entry_ids_considered.extend([ent['entry_id'] for ent in ident_entries])
             # sort based on which was done most recently
             lu_list = [[ent['parameters']['last_updated'], ent_ind] for ent_ind, ent in enumerate(ident_entries)]
