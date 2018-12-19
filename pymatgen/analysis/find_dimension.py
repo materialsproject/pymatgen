@@ -1,6 +1,5 @@
 # coding: utf-8
 
-from __future__ import division, unicode_literals
 
 """
 This module provides functions for finding the dimensions of connected subunits in a crystal structure.

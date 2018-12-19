@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import unittest
 import os
@@ -51,7 +50,7 @@ class MPResterTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_get_all_materials_ids_doc(self):
         mids = self.rester.get_materials_ids("Al2O3")

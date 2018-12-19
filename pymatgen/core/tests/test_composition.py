@@ -6,7 +6,6 @@ Created on Nov 10, 2012
 
 @author: shyue
 """
-from __future__ import division, unicode_literals
 
 from pymatgen.util.testing import PymatgenTest
 
@@ -138,6 +137,13 @@ class CompositionTest(PymatgenTest):
         self.assertEqual(Composition("Na 3 Zr (PO 4) 3").reduced_formula,
                          "Na3Zr(PO4)3")
 
+    def test_iupac_formula(self):
+        correct_formulas = ['Li3 Fe2 P3 O12', 'Li3 Fe1 P1 O5', 'Li1 Mn2 O4',
+                            'Li4 O4', 'Li3 Mo3 Fe2 O12', 'Li3 Fe2 C10 P6 O54',
+                            'Li1.5 Si0.5', 'Zn1 H1 O1']
+        all_formulas = [c.iupac_formula for c in self.comp]
+        self.assertEqual(all_formulas, correct_formulas)
+
     def test_mixed_valence(self):
         comp = Composition({"Fe2+": 2, "Fe3+": 4, "Li+": 8})
         self.assertEqual(comp.reduced_formula, "Li4Fe3")
@@ -179,6 +185,15 @@ class CompositionTest(PymatgenTest):
         all_formulas = [c.reduced_formula for c in self.comp]
         self.assertEqual(all_formulas, correct_reduced_formulas)
 
+        # test iupac reduced formula (polyanions should still appear at the end)
+        all_formulas = [c.get_reduced_formula_and_factor(iupac_ordering=True)[0]
+                        for c in self.comp]
+        self.assertEqual(all_formulas, correct_reduced_formulas)
+        self.assertEqual(
+            Composition('H6CN').get_integer_formula_and_factor(
+                iupac_ordering=True)[0],
+            'CNH6')
+
         # test rounding
         c = Composition({'Na': 2 - Composition.amount_tolerance / 2, 'Cl': 2})
         self.assertEqual('NaCl', c.reduced_formula)
@@ -197,8 +212,18 @@ class CompositionTest(PymatgenTest):
         self.assertEqual(formula, 'Li(BH)6')
         self.assertAlmostEqual(factor, 1 / 6)
 
+        # test iupac reduced formula (polyanions should still appear at the end)
+        all_formulas = [c.get_integer_formula_and_factor(iupac_ordering=True)[0]
+                        for c in self.comp]
+        self.assertEqual(all_formulas, correct_reduced_formulas)
+        self.assertEqual(
+            Composition('H6CN0.5').get_integer_formula_and_factor(
+                iupac_ordering=True),
+            ('C2NH12', 0.5))
+
     def test_num_atoms(self):
         correct_num_atoms = [20, 10, 7, 8, 20, 75, 2, 3]
+
         all_natoms = [c.num_atoms for c in self.comp]
         self.assertEqual(all_natoms, correct_num_atoms)
 
@@ -257,6 +282,7 @@ class CompositionTest(PymatgenTest):
     def test_pickle(self):
         for c in self.comp:
             self.serialize_with_pickle(c, test_eq=True)
+            self.serialize_with_pickle(c.to_data_dict, test_eq=True)
 
     def test_add(self):
         self.assertEqual((self.comp[0] + self.comp[2]).formula,
@@ -432,6 +458,16 @@ class CompositionTest(PymatgenTest):
         self.assertEqual(Composition("Li10000Fe10000P10000O40000").
                          oxi_state_guesses(max_sites=-1)[0],
                          {"Li": 1, "Fe": 2, "P": 5, "O": -2})
+
+        # negative max_sites less than -1 - should throw error if cannot reduce
+        # to under the abs(max_sites) number of sites. Will also timeout if
+        # incorrect.
+        self.assertEqual(
+            Composition("Sb10000O10000F10000").oxi_state_guesses(
+                max_sites=-3)[0],
+            {"Sb": 3, "O": -2, "F": -1})
+        self.assertRaises(ValueError, Composition("LiOF").oxi_state_guesses,
+                          max_sites=-2)
 
         self.assertRaises(ValueError, Composition("V2O3").
                           oxi_state_guesses, max_sites=1)

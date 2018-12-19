@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals, division, print_function
 
 import math
 
@@ -38,6 +37,9 @@ try:
     else:  # likely 'TerminalInteractiveShell'
         from tqdm import tqdm as PBar
 except NameError:
-    from tqdm import tqdm as PBar
+    try:
+        from tqdm import tqdm as PBar
+    except ImportError:
+        PBar = PBarSafe
 except ImportError:
     PBar = PBarSafe

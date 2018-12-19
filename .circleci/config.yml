@@ -4,6 +4,8 @@ jobs:
     working_directory: ~/pymatgen
     docker:
       - image: materialsvirtuallab/circle-ci-pmg-py3:0.0.2
+        environment:
+          PMG_MAPI_ENDPOINT: https://zola.lbl.gov/rest/v2
     parallelism: 4
     steps:
       - checkout
@@ -37,6 +39,10 @@ jobs:
             export PATH=$HOME/miniconda3/bin:$PATH
             export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
             export MPLBACKEND=Agg
+            # Only do matproj and other ext API tests once every five random runs or so.
+            # The parallelism is 4. If 1/20 we have to run, that measn the probability of a matproj test running is 1-(1-0.05)**4 = 0.18.
+            if [ "$(( RANDOM % 20 ))" -ne "0" ]; then export NOSE_EXCLUDE_TESTS="pymatgen.ext.tests.test_matproj.MPResterTest;pymatgen.analysis.tests.test_pourbaix_diagram.PourbaixDiagramTest;pymatgen.tests.test_init.SettingsTestCase"; fi
+            echo "NOSE_EXCLUDE_TESTS=$NOSE_EXCLUDE_TESTS"
             source activate test_env
             pip install --quiet -e .
             nosetests --config=nose.cfg --processes=4 --process-timeout=600 --cover-html --cover-html-dir=coverage_reports --with-timer --timer-top-n 30

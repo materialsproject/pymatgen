@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 """
 This module provides so-called "strategies" to determine the coordination environments of an atom in a structure.
@@ -37,7 +36,7 @@ from pymatgen.analysis.chemenv.utils.func_utils import RatioFunction
 from pymatgen.analysis.chemenv.utils.chemenv_errors import EquivalentSiteSearchError
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
-from six import with_metaclass
+
 from pymatgen.analysis.chemenv.coordination_environments.voronoi import DetailedVoronoiContainer
 from collections import OrderedDict
 
@@ -48,7 +47,7 @@ MPSYMBOL_TO_CN = AllCoordinationGeometries().get_symbol_cn_mapping()
 ALLCG = AllCoordinationGeometries()
 
 
-class StrategyOption(with_metaclass(abc.ABCMeta, MSONable)):
+class StrategyOption(MSONable, metaclass=abc.ABCMeta):
 
     allowed_values = None
 
@@ -144,7 +143,7 @@ class AdditionalConditionInt(int, StrategyOption):
         return cls(d['value'])
 
 
-class AbstractChemenvStrategy(with_metaclass(abc.ABCMeta, MSONable)):
+class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
     """
     Class used to define a Chemenv strategy for the neighbors and coordination environment to be applied to a
     StructureEnvironments object
@@ -813,7 +812,7 @@ class TargettedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy)
                    max_csm=d["max_csm"])
 
 
-class NbSetWeight(with_metaclass(abc.ABCMeta, MSONable)):
+class NbSetWeight(MSONable, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def as_dict(self):

@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
 
 import os
 import re
@@ -142,6 +141,13 @@ class Element(Enum):
     .. attribute:: is_actinoid
 
         True if element is a actinoid.
+
+    .. attribute:: iupac_ordering
+
+        Ordering according to Table VI of "Nomenclature of Inorganic Chemistry
+        (IUPAC Recommendations 2005)". This ordering effectively follows the
+        groups and rows of the periodic table, except the Lanthanides, Actanides
+        and hydrogen.
 
     .. attribute:: long_name
 
@@ -476,7 +482,7 @@ class Element(Enum):
                             # Ignore error. val will just remain a string.
                             pass
             return val
-        raise AttributeError
+        raise AttributeError("Element has no attribute %s!" % item)
 
     @property
     def data(self):
@@ -612,6 +618,10 @@ class Element(Enum):
         # angular moment (L) and number of valence e- (v_e)
 
         """
+        # the number of valence of noble gas is 0
+        if self.group == 18:
+            return (np.nan, 0)
+
         L_symbols = 'SPDFGHIKLMNOQRTUVWXYZ'
         valence = []
         full_electron_config = self.full_electronic_structure
@@ -960,6 +970,16 @@ class Element(Enum):
         """
         return {k: FloatWithUnit(v, "mbarn")
                 for k, v in self.data.get("NMR Quadrupole Moment", {}).items()}
+
+    @property
+    def iupac_ordering(self):
+        """
+        Ordering according to Table VI of "Nomenclature of Inorganic Chemistry
+        (IUPAC Recommendations 2005)". This ordering effectively follows the
+        groups and rows of the periodic table, except the Lanthanides, Actanides
+        and hydrogen.
+        """
+        return self._data["IUPAC ordering"]
 
     def __deepcopy__(self, memo):
         return Element(self.symbol)

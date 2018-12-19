@@ -2,10 +2,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """Tools and helper functions for abinit calculations"""
-from __future__ import unicode_literals, division, print_function
 
 import os
-import six
 import re
 import collections
 import shutil
@@ -13,7 +11,6 @@ import operator
 import numpy as np
 
 from fnmatch import fnmatch
-from six.moves import filter
 from monty.collections import dict2namedtuple
 from monty.string import list_strings
 from monty.fnmatch import WildCard
@@ -41,7 +38,7 @@ def as_bool(s):
         raise ValueError("Don't know how to convert type %s: %s into a boolean" % (type(s), s))
 
 
-class File(object):
+class File:
     """
     Very simple class used to store file basenames, absolute paths and directory names.
     Provides wrappers for the most commonly used functions defined in os.path.
@@ -156,7 +153,7 @@ class File(object):
         return os.path.getsize(self.path)
 
 
-class Directory(object):
+class Directory:
     """
     Very simple class that provides helper functions
     wrapping the most commonly used functions defined in os.path.
@@ -531,7 +528,7 @@ def abi_splitext(filename):
     return root, ext
 
 
-class FilepathFixer(object):
+class FilepathFixer:
     """
     This object modifies the names of particular output files
     produced by ABINIT so that the file extension is preserved.
@@ -758,7 +755,7 @@ def evaluate_rpn(rpn):
     return vals_stack[0]
 
 
-class Condition(object):
+class Condition:
     """
     This object receives a dictionary that defines a boolean condition whose syntax is similar
     to the one used in mongodb (albeit not all the operators available in mongodb are supported here).
@@ -811,7 +808,7 @@ class Condition(object):
             return False
 
 
-class Editor(object):
+class Editor:
     """
     Wrapper class that calls the editor specified by the user
     or the one specified in the $EDITOR env variable.
@@ -842,20 +839,15 @@ class Editor(object):
     def user_wants_to_exit():
         """Show an interactive prompt asking if exit is wanted."""
         # Fix python 2.x.
-        if six.PY2:
-            my_input = raw_input
-        else:
-            my_input = input
-
         try:
-            answer = my_input("Do you want to continue [Y/n]")
+            answer = input("Do you want to continue [Y/n]")
         except EOFError:
             return True
 
         return answer.lower().strip() in ["n", "no"]
 
 
-class SparseHistogram(object):
+class SparseHistogram:
 
     def __init__(self, items, key=None, num=None, step=None):
         if num is None and step is None:
@@ -897,7 +889,7 @@ class SparseHistogram(object):
         return fig
 
 
-class Dirviz(object):
+class Dirviz:
 
     #file_color = np.array((255, 0, 0)) / 255
     #dir_color = np.array((0, 0, 255)) / 255
