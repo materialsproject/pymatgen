@@ -1218,7 +1218,8 @@ class DefectThermoBuilder(Builder):
 
     def process_item(self, items):
         #group defect entries into groups of same defect type (charge included)
-        distinct_entries = []
+        distinct_entries_full = [] #for storing full defect_dict
+        distinct_entries = {} #for storing defect object
         bulk_chemsys, run_metadata, bulk_prim_struct, entrylist, entry_id = items
 
         needed_entry_keys = ['@module', '@class', 'defect', 'uncorrected_energy', 'corrections',
@@ -1227,19 +1228,18 @@ class DefectThermoBuilder(Builder):
         for entry_dict in entrylist:
             entry = DefectEntry.from_dict({k:v for k,v in entry_dict.items() if k in needed_entry_keys})
             matched = False
-            for grpind, grp in enumerate(distinct_entries):
-                if pdc.are_equal( entry.defect, grp[0]['defect']):
+            for grpind, grpdefect in distinct_entries.items():
+                if pdc.are_equal( entry.defect, grpdefect):
                     matched = True
                     break
 
             if matched:
-                distinct_entries[grpind].append( entry_dict.copy())
+                distinct_entries_full[grpind].append( entry_dict.copy())
             else:
-                distinct_entries.append( [entry_dict.copy()])
+                distinct_entries_full.append( [entry_dict.copy()])
+                nxt_ind = max( distinct_entries.keys()) + 1 if len(distinct_entries.keys()) else 0
+                distinct_entries[nxt_ind] = entry.defect.copy()
 
-        self.logger.info("Found following distinct entries:")
-        for de in distinct_entries:
-            self.logger.info("-> {}".format( [d['entry_id'] for d in de]))
         #now sort through entries and pick one that has been updated last (but track all previous entry_ids)
         all_entry_ids_considered, entries = [], []
         for ident_entries in distinct_entries:
