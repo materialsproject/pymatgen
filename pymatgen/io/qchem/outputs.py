@@ -129,8 +129,45 @@ class QCOutput(MSONable):
         # Parse the Mulliken charges
         self._read_mulliken()
 
-        # Parse PCM information
-        self._read_pcm_information()
+        # Check to see if PCM or SMD are present
+        self.data["solvent_method"] = None
+        self.data["solvent_data"] = None
+        if read_pattern(
+                self.text, {
+                    "key": r"solvent_method\s*=?\s*pcm"
+                },
+                terminate_on_match=True).get('key') == [[]]:
+            self.data["solvent_method"] = "PCM"
+        if read_pattern(
+                self.text, {
+                    "key": r"solvent_method\s*=?\s*smd"
+                },
+                terminate_on_match=True).get('key') == [[]]:
+            self.data["solvent_method"] = "SMD"
+
+        # Parse information specific to a solvent model
+        if self.data["solvent_method"] == "PCM":
+            self.data["solvent_data"] = {}
+            temp_dielectric = read_pattern(
+                self.text, {
+                    "key": r"dielectric\s*([\d\-\.]+)"
+                },
+                terminate_on_match=True).get('key')
+            self.data["solvent_data"]["PCM_dielectric"] = float(temp_dielectric[0][0])
+            self._read_pcm_information()
+        elif self.data["solvent_method"] == "SMD":
+            self.data["solvent_data"] = {}
+            temp_solvent = read_pattern(
+                self.text, {
+                    "key": r"\s[Ss]olvent:? ([a-zA-Z]+)"
+                }).get('key')
+            for val in temp_solvent:
+                if val[0] != temp_solvent[0][0]:
+                    raise ValueError(
+                        "SMD should never find two different solvents!"
+                    )
+            self.data["solvent_data"]["SMD_solvent"] = temp_solvent[0][0]
+            self._read_smd_information()
 
         # Parse the final energy
         temp_final_energy = read_pattern(
@@ -168,6 +205,17 @@ class QCOutput(MSONable):
                         spin_contamination[ii] = abs(correct_s2-entry)
                     self.data["warnings"]["spin_contamination"] = spin_contamination
 
+        # Check for inaccurate integrated density 
+        temp_inac_integ = read_pattern(
+            self.text, {
+                "key": r"Inaccurate integrated density:\n\s+Number of electrons\s+=\s+([\d\-\.]+)\n\s+Numerical integral\s+=\s+([\d\-\.]+)\n\s+Relative error\s+=\s+([\d\-\.]+)\s+\%\n"
+            }).get('key')
+        if temp_inac_integ != None:
+            inaccurate_integrated_density = np.zeros(shape=(len(temp_inac_integ), 3))
+            for ii,entry in enumerate(temp_inac_integ):
+                for jj,val in enumerate(entry):
+                    inaccurate_integrated_density[ii][jj] = float(val)
+            self.data["warnings"]["inaccurate_integrated_density"] = inaccurate_integrated_density
 
         # Check if the calculation is a geometry optimization. If so, parse the relevant output
         self.data["optimization"] = read_pattern(
@@ -427,6 +475,17 @@ class QCOutput(MSONable):
                 SCF_energy[ii] = float(val[0])
             self.data["SCF_energy_in_the_final_basis_set"] = SCF_energy
 
+        temp_Total_energy = read_pattern(self.text, {
+            "key": r"Total energy in the final basis set =\s*([\d\-\.]+)"
+        }).get('key')
+        if len(temp_Total_energy) == 1:
+            self.data["Total_energy_in_the_final_basis_set"] = float(temp_Total_energy[0][0])
+        else:
+            Total_energy = np.zeros(len(temp_Total_energy))
+            for ii, val in enumerate(temp_Total_energy):
+                Total_energy[ii] = float(val[0])
+            self.data["Total_energy_in_the_final_basis_set"] = Total_energy
+
 
     def _read_mulliken(self):
         """
@@ -508,7 +567,7 @@ class QCOutput(MSONable):
 
         self.data["gradients"] = sorted_gradients
 
-        if "total_contribution_pcm" in self.data:
+        if self.data["solvent_method"] != None:
             header_pattern = r"total gradient after adding PCM contribution --\s+-+\s+Atom\s+X\s+Y\s+Z\s+-+"
             table_pattern = r"\s+\d+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s"
             footer_pattern = r"-+"
@@ -523,6 +582,32 @@ class QCOutput(MSONable):
                         pcm_gradients[ii][jj][kk] = float(val)
 
             self.data["pcm_gradients"] = pcm_gradients
+        else:
+            self.data["pcm_gradients"] = None
+
+        if read_pattern(self.text, {
+                    "key": r"Gradient of CDS energy"
+                },
+                terminate_on_match=True).get('key') == [[]]:
+            header_pattern = r"Gradient of CDS energy"
+            table_pattern = r"(?:\s+\d+(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?)?\n\s\s\s\s[1-3]\s*([\d\-\.]{2,})(?:\s+([\d\-\.]{2,}))?(?:\s+([\d\-\.]{2,}))?(?:\s+([\d\-\.]{2,}))?(?:\s+([\d\-\.]{2,}))?(?:\s+([\d\-\.]{2,}))?"
+            footer_pattern = r"Gradient of SCF Energy"
+
+            parsed_gradients = read_table_pattern(
+                self.text, header_pattern, table_pattern, footer_pattern)
+
+            sorted_gradients = np.zeros(shape=(len(parsed_gradients), len(self.data["initial_molecule"]), 3))
+            for ii, grad in enumerate(parsed_gradients):
+                for jj in range(int(len(grad)/3)):
+                    for kk in range(6):
+                        if grad[jj*3][kk] != 'None':
+                            sorted_gradients[ii][jj*6+kk][0] = grad[jj*3][kk]
+                            sorted_gradients[ii][jj*6+kk][1] = grad[jj*3+1][kk]
+                            sorted_gradients[ii][jj*6+kk][2] = grad[jj*3+2][kk]
+
+            self.data["CDS_gradients"] = sorted_gradients
+        else:
+            self.data["CDS_gradients"] = None
 
     def _read_last_geometry(self):
         """
@@ -690,19 +775,54 @@ class QCOutput(MSONable):
                 "g_dispersion": r"\s*G_dispersion\s+=\s+([\d\-\.]+)\s+hartree\s+=\s+([\d\-\.]+)\s+kcal/mol\s*",
                 "g_repulsion": r"\s*G_repulsion\s+=\s+([\d\-\.]+)\s+hartree\s+=\s+([\d\-\.]+)\s+kcal/mol\s*",
                 "total_contribution_pcm": r"\s*Total\s+=\s+([\d\-\.]+)\s+hartree\s+=\s+([\d\-\.]+)\s+kcal/mol\s*",
+                "solute_internal_energy": r"Solute Internal Energy \(H0\)\s*=\s*([\d\-\.]+)"
             }
         )
 
         for key in temp_dict:
             if temp_dict.get(key) is None:
-                self.data[key] = None
+                self.data["solvent_data"][key] = None
             elif len(temp_dict.get(key)) == 1:
-                self.data[key] = float(temp_dict.get(key)[0][0])
+                self.data["solvent_data"][key] = float(temp_dict.get(key)[0][0])
             else:
                 temp_result = np.zeros(len(temp_dict.get(key)))
                 for ii, entry in enumerate(temp_dict.get(key)):
                     temp_result[ii] = float(entry[0])
-                self.data[key] = temp_result
+                self.data["solvent_data"][key] = temp_result
+
+        smd_keys = ["smd0","smd3","smd4","smd6","smd9"]
+        for key in smd_keys:
+            self.data["solvent_data"][key] = None
+
+    def _read_smd_information(self):
+        """
+        Parses information from SMD solvent calculations.
+        """
+
+        temp_dict = read_pattern(
+            self.text, {
+                "smd0": r"E-EN\(g\) gas\-phase elect\-nuc energy\s*([\d\-\.]+) a\.u\.",
+                "smd3": r"G\-ENP\(liq\) elect\-nuc\-pol free energy of system\s*([\d\-\.]+) a\.u\.",
+                "smd4": r"G\-CDS\(liq\) cavity\-dispersion\-solvent structure\s*free energy\s*([\d\-\.]+) kcal\/mol",
+                "smd6": r"G\-S\(liq\) free energy of system\s*([\d\-\.]+) a\.u\.",
+                "smd9": r"DeltaG\-S\(liq\) free energy of\s*solvation\s*\(9\) = \(6\) \- \(0\)\s*([\d\-\.]+) kcal\/mol"
+            }
+        )
+
+        for key in temp_dict:
+            if temp_dict.get(key) is None:
+                self.data["solvent_data"][key] = None
+            elif len(temp_dict.get(key)) == 1:
+                self.data["solvent_data"][key] = float(temp_dict.get(key)[0][0])
+            else:
+                temp_result = np.zeros(len(temp_dict.get(key)))
+                for ii, entry in enumerate(temp_dict.get(key)):
+                    temp_result[ii] = float(entry[0])
+                self.data["solvent_data"][key] = temp_result
+
+        pcm_keys = ["g_electrostatic","g_cavitation","g_dispersion","g_repulsion","total_contribution_pcm","solute_internal_energy"]
+        for key in pcm_keys:
+            self.data["solvent_data"][key] = None
 
     def _check_optimization_errors(self):
         """
