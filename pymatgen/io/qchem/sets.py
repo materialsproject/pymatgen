@@ -107,6 +107,7 @@ class QChemDictSet(QCInput):
         if self.smd_solvent is not None:
             mysmx["solvent"] = self.smd_solvent
             myrem["solvent_method"] = "smd"
+            myrem["ideriv"] = "2"
 
         if self.overwrite_inputs:
             for sec, sec_dict in self.overwrite_inputs.items():
