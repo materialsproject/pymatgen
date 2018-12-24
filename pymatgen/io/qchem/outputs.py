@@ -303,7 +303,7 @@ class QCOutput(MSONable):
         # in which case include it in the warnings
         temp_not_analytic = read_pattern(
             self.text, {
-                "key": r"Desired Analytical derivatives not available"
+                "key": r"Starting finite difference calculation for IDERIV"
             },
             terminate_on_match=True).get("key")
         if temp_not_analytic == [[]]:
@@ -467,24 +467,26 @@ class QCOutput(MSONable):
         temp_SCF_energy = read_pattern(self.text, {
             "key": r"SCF   energy in the final basis set =\s*([\d\-\.]+)"
         }).get('key')
-        if len(temp_SCF_energy) == 1:
-            self.data["SCF_energy_in_the_final_basis_set"] = float(temp_SCF_energy[0][0])
-        else:
-            SCF_energy = np.zeros(len(temp_SCF_energy))
-            for ii, val in enumerate(temp_SCF_energy):
-                SCF_energy[ii] = float(val[0])
-            self.data["SCF_energy_in_the_final_basis_set"] = SCF_energy
+        if temp_SCF_energy != None:
+            if len(temp_SCF_energy) == 1:
+                self.data["SCF_energy_in_the_final_basis_set"] = float(temp_SCF_energy[0][0])
+            else:
+                SCF_energy = np.zeros(len(temp_SCF_energy))
+                for ii, val in enumerate(temp_SCF_energy):
+                    SCF_energy[ii] = float(val[0])
+                self.data["SCF_energy_in_the_final_basis_set"] = SCF_energy
 
         temp_Total_energy = read_pattern(self.text, {
             "key": r"Total energy in the final basis set =\s*([\d\-\.]+)"
         }).get('key')
-        if len(temp_Total_energy) == 1:
-            self.data["Total_energy_in_the_final_basis_set"] = float(temp_Total_energy[0][0])
-        else:
-            Total_energy = np.zeros(len(temp_Total_energy))
-            for ii, val in enumerate(temp_Total_energy):
-                Total_energy[ii] = float(val[0])
-            self.data["Total_energy_in_the_final_basis_set"] = Total_energy
+        if temp_Total_energy != None:
+            if len(temp_Total_energy) == 1:
+                self.data["Total_energy_in_the_final_basis_set"] = float(temp_Total_energy[0][0])
+            else:
+                Total_energy = np.zeros(len(temp_Total_energy))
+                for ii, val in enumerate(temp_Total_energy):
+                    Total_energy[ii] = float(val[0])
+                self.data["Total_energy_in_the_final_basis_set"] = Total_energy
 
 
     def _read_mulliken(self):
@@ -550,7 +552,7 @@ class QCOutput(MSONable):
         Parses all gradients obtained during an optimization trajectory
         """
         header_pattern = r"Gradient of SCF Energy"
-        table_pattern = r"(?:\s+\d+(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?)?\n\s\s\s\s[1-3]\s*([\d\-\.]{2,})(?:\s+([\d\-\.]{2,}))?(?:\s+([\d\-\.]{2,}))?(?:\s+([\d\-\.]{2,}))?(?:\s+([\d\-\.]{2,}))?(?:\s+([\d\-\.]{2,}))?"
+        table_pattern = r"(?:\s+\d+(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?)?\n\s\s\s\s[1-3]\s*([\d\-\.]{2,})(?:\s*(-?[\d\.]{2,}))?(?:\s*(-?[\d\.]{2,}))?(?:\s*(-?[\d\.]{2,}))?(?:\s*(-?[\d\.]{2,}))?(?:\s*(-?[\d\.]{2,}))?"
         footer_pattern = r"Max gradient component"
 
         parsed_gradients = read_table_pattern(
@@ -730,7 +732,7 @@ class QCOutput(MSONable):
             self.data['IR_intens'] = intens
 
             header_pattern = r"\s*Raman Active:\s+[YESNO]+\s+(?:[YESNO]+\s+)*X\s+Y\s+Z\s+(?:X\s+Y\s+Z\s+)*"
-            table_pattern = r"\s*[a-zA-Z][a-zA-Z\s]\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*(?:([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*)(?:([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*)"
+            table_pattern = r"\s*[a-zA-Z][a-zA-Z\s]\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*(?:([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*(?:([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+))*)*"
             footer_pattern = r"TransDip\s+[\d\-\.]+\s*[\d\-\.]+\s*[\d\-\.]+\s*(?:[\d\-\.]+\s*[\d\-\.]+\s*[\d\-\.]+\s*)*"
             temp_freq_mode_vecs = read_table_pattern(
                 self.text, header_pattern, table_pattern, footer_pattern)
@@ -893,13 +895,16 @@ class QCOutput(MSONable):
                 },
                 terminate_on_match=True).get('key') != [[]]:
             self.data["errors"] += ["never_called_qchem"]
-        elif len(read_pattern(
+        else: 
+            tmp_failed_line_searches = read_pattern(
                 self.text, {
                     "key": r"\d+\s+failed line searches\.\s+Resetting"
                 },
-                terminate_on_match=False).get('key')) > 10:
-            self.data["errors"] += ["SCF_failed_to_converge"]
-        else:
+                terminate_on_match=False).get('key')
+            if tmp_failed_line_searches != None:
+                if len(tmp_failed_line_searches) > 10:
+                    self.data["errors"] += ["SCF_failed_to_converge"]
+        if self.data.get("errors") == []:
             self.data["errors"] += ["unknown_error"]
 
     def as_dict(self):
