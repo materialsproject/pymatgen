@@ -573,6 +573,38 @@ class QCOutput(MSONable):
                 terminate_on_match=True).get('key') == [[]]:
             self.data["warnings"]["hessian_local_structure"] = True
 
+        # Check if GetCART cycle iterations ever exceeded
+        if read_pattern(
+                self.text, {
+                    "key": r"\*\*\*ERROR\*\*\* Exceeded allowed number of iterative cycles in GetCART"
+                },
+                terminate_on_match=True).get('key') == [[]]:
+            self.data["warnings"]["GetCART_cycles"] = True
+
+        # Check for problems with internal coordinates
+        if read_pattern(
+                self.text, {
+                    "key": r"\*\*WARNING\*\* Problems with Internal Coordinates"
+                },
+                terminate_on_match=True).get('key') == [[]]:
+            self.data["warnings"]["internal_coordinates"] = True
+
+        # Check for problem with eigenvalue magnitude
+        if read_pattern(
+                self.text, {
+                    "key": r"\*\*WARNING\*\* Magnitude of eigenvalue"
+                },
+                terminate_on_match=True).get('key') == [[]]:
+            self.data["warnings"]["eigenvalue_magnitude"] = True
+
+        # Check for problem with hereditary postivive definiteness
+        if read_pattern(
+                self.text, {
+                    "key": r"\*\*WARNING\*\* Hereditary positive definiteness endangered"
+                },
+                terminate_on_match=True).get('key') == [[]]:
+            self.data["warnings"]["positive_definiteness_endangered"] = True
+
     def _read_optimized_geometry(self):
         """
         Parses optimized XYZ coordinates. If not present, parses optimized Z-matrix.
