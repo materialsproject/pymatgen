@@ -133,6 +133,9 @@ class QCOutput(MSONable):
         # Parse the Mulliken charges
         self._read_mulliken()
 
+        # Check for various warnings
+        self._detect_general_warnings()
+
         # Check to see if PCM or SMD are present
         self.data["solvent_method"] = None
         self.data["solvent_data"] = None
@@ -219,18 +222,6 @@ class QCOutput(MSONable):
                         spin_contamination[ii] = abs(correct_s2-entry)
                     self.data["warnings"]["spin_contamination"] = spin_contamination
 
-        # Check for inaccurate integrated density 
-        temp_inac_integ = read_pattern(
-            self.text, {
-                "key": r"Inaccurate integrated density:\n\s+Number of electrons\s+=\s+([\d\-\.]+)\n\s+Numerical integral\s+=\s+([\d\-\.]+)\n\s+Relative error\s+=\s+([\d\-\.]+)\s+\%\n"
-            }).get('key')
-        if temp_inac_integ != None:
-            inaccurate_integrated_density = np.zeros(shape=(len(temp_inac_integ), 3))
-            for ii,entry in enumerate(temp_inac_integ):
-                for jj,val in enumerate(entry):
-                    inaccurate_integrated_density[ii][jj] = float(val)
-            self.data["warnings"]["inaccurate_integrated_density"] = inaccurate_integrated_density
-
         # Check if the calculation is a geometry optimization. If so, parse the relevant output
         self.data["optimization"] = read_pattern(
             self.text, {
@@ -258,7 +249,18 @@ class QCOutput(MSONable):
                 # to be determined.
                 if len(self.data.get("errors")) == 0 and self.data.get('optimized_geometry') is None \
                         and len(self.data.get('optimized_zmat')) == 0:
-                    self._check_optimization_errors()
+                    if read_pattern(
+                            self.text, {
+                                "key": r"MAXIMUM OPTIMIZATION CYCLES REACHED"
+                            },
+                            terminate_on_match=True).get('key') == [[]]:
+                        self.data["errors"] += ["out_of_opt_cycles"]
+                    elif read_pattern(
+                            self.text, {
+                                "key": r"UNABLE TO DETERMINE Lamda IN FormD"
+                            },
+                            terminate_on_match=True).get('key') == [[]]:
+                        self.data["errors"] += ["unable_to_determine_lamda"]
 
         # Check if the calculation contains a constraint in an $opt section.
         self.data["opt_constraint"] = read_pattern(self.text, {
@@ -304,34 +306,6 @@ class QCOutput(MSONable):
         if self.data.get("single_point_job", []):
             self._read_single_point_data()
 
-        # Check for an MKL error, in which case include it in the warnings
-        temp_mkl = read_pattern(
-            self.text, {
-                "key": r"Intel MKL ERROR"
-            },
-            terminate_on_match=True).get("key")
-        if temp_mkl == [[]]:
-            self.data["warnings"]["mkl"] = True
-
-        # Check if the job is being hindered by a lack of analytical derivatives,
-        # in which case include it in the warnings
-        temp_not_analytic = read_pattern(
-            self.text, {
-                "key": r"Starting finite difference calculation for IDERIV"
-            },
-            terminate_on_match=True).get("key")
-        if temp_not_analytic == [[]]:
-            self.data["warnings"]["missing_analytical_derivates"] = True
-
-        # Check if the job is complaining about files of inconsistent size,
-        # in which case include it in the warnings
-        temp_inconsistent_size = read_pattern(
-            self.text, {
-                "key": r"Inconsistent size"
-            },
-            terminate_on_match=True).get("key")
-        if temp_inconsistent_size == [[]]:
-            self.data["warnings"]["inconsistent_size"] = True
 
         # If the calculation did not finish and no errors have been identified yet, check for other errors
         if not self.data.get('completion',
@@ -545,6 +519,59 @@ class QCOutput(MSONable):
             real_mulliken += [temp]
 
         self.data["Mulliken"] = real_mulliken
+
+    def _detect_general_warnings(self):
+        # Check for inaccurate integrated density 
+        temp_inac_integ = read_pattern(
+            self.text, {
+                "key": r"Inaccurate integrated density:\n\s+Number of electrons\s+=\s+([\d\-\.]+)\n\s+Numerical integral\s+=\s+([\d\-\.]+)\n\s+Relative error\s+=\s+([\d\-\.]+)\s+\%\n"
+            }).get('key')
+        if temp_inac_integ != None:
+            inaccurate_integrated_density = np.zeros(shape=(len(temp_inac_integ), 3))
+            for ii,entry in enumerate(temp_inac_integ):
+                for jj,val in enumerate(entry):
+                    inaccurate_integrated_density[ii][jj] = float(val)
+            self.data["warnings"]["inaccurate_integrated_density"] = inaccurate_integrated_density
+
+        # Check for an MKL error
+        if read_pattern(
+                self.text, {
+                    "key": r"Intel MKL ERROR"
+                },
+                terminate_on_match=True).get('key') == [[]]:
+            self.data["warnings"]["mkl"] = True
+
+        # Check if the job is being hindered by a lack of analytical derivatives
+        if read_pattern(
+                self.text, {
+                    "key": r"Starting finite difference calculation for IDERIV"
+                },
+                terminate_on_match=True).get('key') == [[]]:
+            self.data["warnings"]["missing_analytical_derivates"] = True
+
+        # Check if the job is complaining about MO files of inconsistent size
+        if read_pattern(
+                self.text, {
+                    "key": r"Inconsistent size for SCF MO coefficient file"
+                },
+                terminate_on_match=True).get('key') == [[]]:
+            self.data["warnings"]["inconsistent_size"] = True
+
+        # Check for AO linear depend
+        if read_pattern(
+                self.text, {
+                    "key": r"Linear dependence detected in AO basis"
+                },
+                terminate_on_match=True).get('key') == [[]]:
+            self.data["warnings"]["linear_dependence"] = True
+
+        # Check for Hessian without desired local structure
+        if read_pattern(
+                self.text, {
+                    "key": r"\*\*WARNING\*\* Hessian does not have the Desired Local Structure"
+                },
+                terminate_on_match=True).get('key') == [[]]:
+            self.data["warnings"]["hessian_local_structure"] = True
 
     def _read_optimized_geometry(self):
         """
@@ -858,31 +885,6 @@ class QCOutput(MSONable):
         for key in pcm_keys:
             self.data["solvent_data"][key] = None
 
-    def _check_optimization_errors(self):
-        """
-        Parses three potential optimization errors: failing to converge within the allowed number
-        of optimization cycles, failure to determine the lamda needed to continue, and inconsistent
-        size of MO files due to a linear dependence in the AO basis.
-        """
-        if read_pattern(
-                self.text, {
-                    "key": r"MAXIMUM OPTIMIZATION CYCLES REACHED"
-                },
-                terminate_on_match=True).get('key') == [[]]:
-            self.data["errors"] += ["out_of_opt_cycles"]
-        elif read_pattern(
-                self.text, {
-                    "key": r"UNABLE TO DETERMINE Lamda IN FormD"
-                },
-                terminate_on_match=True).get('key') == [[]]:
-            self.data["errors"] += ["unable_to_determine_lamda"]
-        elif read_pattern(
-                self.text, {
-                    "key": r"Inconsistent size for SCF MO coefficient file"
-                },
-                terminate_on_match=True).get('key') == [[]]:
-            self.data["errors"] += ["linear_dependent_basis"]
-
     def _check_completion_errors(self):
         """
         Parses four potential errors that can cause jobs to crash: inability to transform
@@ -914,7 +916,7 @@ class QCOutput(MSONable):
                     "key": r"FileMan error: End of file reached prematurely"
                 },
                 terminate_on_match=True).get('key') == [[]]:
-            self.data["errors"] += ["IO_error"]
+            self.data["errors"] += ["premature_end_FileMan_error"]
         elif read_pattern(
                 self.text, {
                     "key": r"Could not find \$molecule section in ParseQInput"
