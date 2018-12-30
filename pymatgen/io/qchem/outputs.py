@@ -69,7 +69,11 @@ class QCOutput(MSONable):
         # Parse the molecular details: charge, multiplicity,
         # species, and initial geometry.
         self._read_charge_and_multiplicity()
-        if self.data.get('charge') is not None:
+        if read_pattern(
+                self.text, {
+                    "key": r"Nuclear Repulsion Energy"
+                },
+                terminate_on_match=True).get('key') == [[]]:
             self._read_species_and_inital_geometry()
 
         # Check if calculation finished
@@ -156,6 +160,12 @@ class QCOutput(MSONable):
             self.data["solvent_data"]["PCM_dielectric"] = float(temp_dielectric[0][0])
             self._read_pcm_information()
         elif self.data["solvent_method"] == "SMD":
+            if read_pattern(
+                self.text, {
+                    "key": r"Unrecognized solvent"
+                },
+                terminate_on_match=True).get('key') == [[]]:
+                self.data["errors"] += ["unrecognized_solvent"]
             self.data["solvent_data"] = {}
             temp_solvent = read_pattern(
                 self.text, {
@@ -163,9 +173,13 @@ class QCOutput(MSONable):
                 }).get('key')
             for val in temp_solvent:
                 if val[0] != temp_solvent[0][0]:
-                    raise ValueError(
-                        "SMD should never find two different solvents!"
-                    )
+                    if val[0] != "for":
+                        raise ValueError(
+                            "SMD should never find two different solvents! Found both " + str(temp_solvent[0][0]) + " and " + str(val[0])
+                        )
+                    else:
+                        if "unrecognized_solvent" not in self.data["errors"]:
+                            raise ValueError("Error in SMD parsing!")
             self.data["solvent_data"]["SMD_solvent"] = temp_solvent[0][0]
             self._read_smd_information()
 
@@ -309,6 +323,16 @@ class QCOutput(MSONable):
         if temp_not_analytic == [[]]:
             self.data["warnings"]["missing_analytical_derivates"] = True
 
+        # Check if the job is complaining about files of inconsistent size,
+        # in which case include it in the warnings
+        temp_inconsistent_size = read_pattern(
+            self.text, {
+                "key": r"Inconsistent size"
+            },
+            terminate_on_match=True).get("key")
+        if temp_inconsistent_size == [[]]:
+            self.data["warnings"]["inconsistent_size"] = True
+
         # If the calculation did not finish and no errors have been identified yet, check for other errors
         if not self.data.get('completion',
                              []) and self.data.get("errors") == []:
@@ -415,11 +439,14 @@ class QCOutput(MSONable):
                     geometry[ii, jj] = float(entry[jj + 1])
             self.data["species"] = species
             self.data["initial_geometry"] = geometry
-            self.data["initial_molecule"] = Molecule(
-                species=species,
-                coords=geometry,
-                charge=self.data.get('charge'),
-                spin_multiplicity=self.data.get('multiplicity'))
+            if self.data["charge"] != None and self.data["multiplicity"] != None:
+                self.data["initial_molecule"] = Molecule(
+                    species=species,
+                    coords=geometry,
+                    charge=self.data.get('charge'),
+                    spin_multiplicity=self.data.get('multiplicity'))
+            else:
+                self.data["initial_molecule"] = None
 
     def _read_SCF(self):
         """
@@ -665,7 +692,7 @@ class QCOutput(MSONable):
         temp_dict = read_pattern(
             self.text, {
                 "frequencies":
-                r"\s*Frequency:\s+([\d\-\.]+)(?:\s+([\d\-\.]+)(?:\s+([\d\-\.]+))*)*",
+                r"\s*Frequency:\s+([\d\-\.\*]+)(?:\s+([\d\-\.]+)(?:\s+([\d\-\.]+))*)*",
                 "IR_intens":
                 r"\s*IR Intens:\s+([\d\-\.]+)(?:\s+([\d\-\.]+)(?:\s+([\d\-\.]+))*)*",
                 "IR_active":
@@ -722,7 +749,12 @@ class QCOutput(MSONable):
             freqs = np.zeros(len(temp_freqs) - temp_freqs.count('None'))
             for ii, entry in enumerate(temp_freqs):
                 if entry != 'None':
-                    freqs[ii] = float(entry)
+                    if "*" in entry:
+                        freqs[ii] = -10000000000
+                        if "undefined_frequency" not in self.data["errors"]:
+                            self.data["errors"] += ["undefined_frequency"]
+                    else:
+                        freqs[ii] = float(entry)
             self.data['frequencies'] = freqs
 
             intens = np.zeros(len(temp_intens) - temp_intens.count('None'))
