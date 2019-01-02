@@ -28,7 +28,7 @@ jobs:
             pip install BoltzTraP2
             export CFLAGS=${CFLAGS%% -std=gnu++11}
             rm -r coverage_reports
-      - save_cache: # special step to save dependency cache
+      - save_cache: # special step to save dependency cache 
           key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
           paths:
             - "/root/miniconda3/envs/test_env"
