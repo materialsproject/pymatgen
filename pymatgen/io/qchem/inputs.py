@@ -245,8 +245,12 @@ class QCInput(MSONable):
         smx_list = []
         smx_list.append("$smx")
         for key, value in smx.items():
-            smx_list.append("   {key} {value}".format(
-                key=key, value=value))
+            if value == "tetrahydrofuran":
+                smx_list.append("   {key} {value}".format(
+                    key=key, value="thf"))
+            else:
+                smx_list.append("   {key} {value}".format(
+                    key=key, value=value))
         smx_list.append("$end")
         return '\n'.join(smx_list)
 
@@ -424,4 +428,6 @@ class QCInput(MSONable):
             return {}
         else:
             smx = {key: val for key, val in smx_table[0]}
+            if smx["solvent"] == "tetrahydrofuran":
+                smx["solvent"] = "thf"
             return smx
