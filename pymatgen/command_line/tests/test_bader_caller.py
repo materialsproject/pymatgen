@@ -30,7 +30,7 @@ class BaderAnalysisTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_init(self):
         test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",

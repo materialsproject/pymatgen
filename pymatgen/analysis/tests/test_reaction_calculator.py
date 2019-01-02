@@ -17,7 +17,7 @@ class ReactionTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_init(self):
         reactants = [Composition("Fe"),
@@ -282,7 +282,7 @@ class BalancedReactionTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_init(self):
         rct = {Composition('K2SO4'): 3, Composition('Na2S'): 1,

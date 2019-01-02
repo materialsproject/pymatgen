@@ -99,7 +99,7 @@ class StructureGraphTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_properties(self):
 
@@ -512,7 +512,7 @@ class MoleculeGraphTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
         del self.ethylene
         del self.butadiene
         del self.cyclohexene

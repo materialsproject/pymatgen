@@ -47,7 +47,7 @@ class FunctionalGroupExtractorTest(unittest.TestCase):
         self.extractor = FunctionalGroupExtractor(self.mg)
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
         del self.extractor
         del self.mg
         del self.strat

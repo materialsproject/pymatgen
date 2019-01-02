@@ -53,7 +53,7 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_properties(self):
         self.assertAlmostEqual(self.bz.gap, 1.6644932121620404, 4)
