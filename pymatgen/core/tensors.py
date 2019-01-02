@@ -1,10 +1,6 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
-from __future__ import division, print_function, unicode_literals, \
-    absolute_import
-
 from scipy.linalg import polar
 import numpy as np
 import itertools
@@ -1040,7 +1036,7 @@ class TensorMapping(collections.MutableMapping):
 
 
 @deprecated(message="get_tkd_value is deprecated and will be removed in "
-            "pymatgen version 2019.1.1, please use the TensorMapping " 
+            "pymatgen version 2019.1.1, please use the TensorMapping "
             "class instead")
 def get_tkd_value(tensor_keyed_dict, tensor, allclose_kwargs=None):
     """

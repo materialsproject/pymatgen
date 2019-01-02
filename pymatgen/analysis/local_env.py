@@ -2,12 +2,11 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import math
+import warnings
 from collections import namedtuple, defaultdict
 
-import six
 import ruamel.yaml as yaml
 import os
 import json
@@ -69,7 +68,7 @@ with open(rad_file, 'r') as fp:
     _ion_radii = json.load(fp)
 
 
-class ValenceIonicRadiusEvaluator(object):
+class ValenceIonicRadiusEvaluator:
     """
     Computes site valences and ionic radii for a structure using bond valence
     analyzer
@@ -221,7 +220,7 @@ class ValenceIonicRadiusEvaluator(object):
         return valences
 
 
-class NearNeighbors(object):
+class NearNeighbors:
     """
     Base class to determine near neighbors that typically include nearest
     neighbors and others that are within some tolerable distance.
@@ -1755,7 +1754,7 @@ def gramschmidt(vin, uin):
     return vin - (vin_uin / uin_uin) * uin
 
 
-class LocalStructOrderParams(object):
+class LocalStructOrderParams:
     """
     This class permits the calculation of various types of local
     structure order parameters.
@@ -3079,7 +3078,7 @@ class CrystalNN(NearNeighbors):
     NNData = namedtuple("nn_data", ["all_nninfo", "cn_weights", "cn_nninfo"])
 
     def __init__(self, weighted_cn=False, cation_anion=False,
-                 distance_cutoffs=(0.5, 1.0), x_diff_weight=3.0,
+                 distance_cutoffs=(0.5, 1), x_diff_weight=3.0,
                  porous_adjustment=True, search_cutoff=7,
                  fingerprint_length=None):
         """
@@ -3230,12 +3229,22 @@ class CrystalNN(NearNeighbors):
             r1 = self._get_radius(structure[n])
             for entry in nn:
                 r2 = self._get_radius(entry["site"])
+                if r1 > 0 and r2 > 0:
+                    d = r1 + r2
+                else:
+                    warnings.warn(
+                        "CrystalNN: cannot locate an appropriate radius, "
+                        "covalent or atomic radii will be used, this can lead "
+                        "to non-optimal results.")
+                    d = CrystalNN._get_default_radius(structure[n]) + \
+                        CrystalNN._get_default_radius(entry["site"])
+
                 dist = np.linalg.norm(
                     structure[n].coords - entry["site"].coords)
                 dist_weight = 0
 
-                cutoff_low = (r1 + r2) + self.distance_cutoffs[0]
-                cutoff_high = (r1 + r2) + self.distance_cutoffs[1]
+                cutoff_low = d + self.distance_cutoffs[0]
+                cutoff_high = d + self.distance_cutoffs[1]
 
                 if dist <= cutoff_low:
                     dist_weight = 1
@@ -3357,11 +3366,11 @@ class CrystalNN(NearNeighbors):
 
         return (area1 - area2) / (0.25 * math.pi * r ** 2)
 
-
     @staticmethod
-    def _get_radius(site):
+    def _get_default_radius(site):
         """
-        An internal method to get the expected radius for a site.
+        An internal method to get a "default" covalent/element radius
+
         Args:
             site: (Site)
 
@@ -3372,6 +3381,49 @@ class CrystalNN(NearNeighbors):
             return CovalentRadius.radius[site.specie.symbol]
         except:
             return site.specie.atomic_radius
+
+
+    @staticmethod
+    def _get_radius(site):
+        """
+        An internal method to get the expected radius for a site with
+        oxidation state.
+        Args:
+            site: (Site)
+
+        Returns:
+            Oxidation-state dependent radius: ionic, covalent, or atomic.
+            Returns 0 if no oxidation state or appropriate radius is found.
+        """
+        if hasattr(site.specie, 'oxi_state'):
+            el = site.specie.element
+            oxi = site.specie.oxi_state
+
+            if oxi == 0:
+                return CrystalNN._get_default_radius(site)
+
+            elif oxi in el.ionic_radii:
+                return el.ionic_radii[oxi]
+
+            # e.g., oxi = 2.667, average together 2+ and 3+ radii
+            elif int(math.floor(oxi)) in el.ionic_radii and \
+                    int(math.ceil(oxi)) in el.ionic_radii:
+                oxi_low = el.ionic_radii[int(math.floor(oxi))]
+                oxi_high = el.ionic_radii[int(math.ceil(oxi))]
+                x = oxi - int(math.floor(oxi))
+                return (1-x) * oxi_low + x * oxi_high
+
+            elif oxi > 0 and el.average_cationic_radius > 0:
+                return el.average_cationic_radius
+
+            elif oxi < 0 and el.average_anionic_radius > 0:
+                return el.average_anionic_radius
+
+        else:
+            warnings.warn("CrystalNN: distance cutoffs set but no oxidation "
+                          "states specified on sites! For better results, set "
+                          "the site oxidation states in the structure.")
+        return 0
 
     @staticmethod
     def transform_to_length(nndata, length):

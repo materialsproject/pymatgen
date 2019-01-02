@@ -2,10 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
-
 import re
-import six
 
 from monty.io import zopen
 
@@ -29,7 +26,7 @@ __email__ = "ongsp@ucsd.edu"
 __date__ = "3/27/15"
 
 
-class PWInput(object):
+class PWInput:
     """
     Base input file class. Right now, only supports no symmetry and is
     very basic.
@@ -108,7 +105,7 @@ class PWInput(object):
                     c += 1
 
         def to_str(v):
-            if isinstance(v, six.string_types):
+            if isinstance(v, str):
                 return "'%s'" % v
             elif isinstance(v, float):
                 return "%s" % str(v).replace("e", "d")
@@ -406,7 +403,7 @@ class PWInputError(BaseException):
     pass
 
 
-class PWOutput(object):
+class PWOutput:
 
     patterns = {
         "energies": r'total energy\s+=\s+([\d\.\-]+)\sRy',

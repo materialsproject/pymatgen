@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import math
 import numpy as np
 
@@ -364,6 +363,7 @@ def add_fig_kwargs(func):
         savefig = kwargs.pop("savefig", None)
         tight_layout = kwargs.pop("tight_layout", False)
         ax_grid = kwargs.pop("ax_grid", None)
+        ax_annotate = kwargs.pop("ax_annotate", None)
 
         # Call func and return immediately if None is returned.
         fig = func(*args, **kwargs)
@@ -381,6 +381,14 @@ def add_fig_kwargs(func):
         if ax_grid is not None:
             for ax in fig.axes:
                 ax.grid(bool(ax_grid))
+
+        if ax_annotate:
+            from string import ascii_letters
+            tags = ascii_letters
+            if len(fig.axes) > len(tags):
+                tags = (1 + len(ascii_letters) // len(fig.axes)) * ascii_letters
+            for ax, tag in zip(fig.axes, tags):
+                ax.annotate("(%s)" % tag, xy=(0.05, 0.95), xycoords="axes fraction")
 
         if tight_layout:
             try:
@@ -411,9 +419,11 @@ def add_fig_kwargs(func):
         savefig           "abc.png" or "abc.eps" to save the figure to a file.
         size_kwargs       Dictionary with options passed to fig.set_size_inches
                           e.g. size_kwargs=dict(w=3, h=4)
+        tight_layout      True to call fig.tight_layout (default: False)
         ax_grid           True (False) to add (remove) grid from all axes in fig.
                           Default: None i.e. fig is left unchanged.
-        tight_layout      True to call fig.tight_layout (default: False)
+        ax_annotate       Add labels to  subplots e.g. (a), (b).
+                          Default: False
         ================  ====================================================
 
 """

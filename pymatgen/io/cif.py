@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
 
 import math
 import re
@@ -10,17 +9,11 @@ import os
 import textwrap
 import warnings
 from collections import OrderedDict, deque
-
-import six
-from six.moves import zip, cStringIO
-
+from io import StringIO
 import numpy as np
 from functools import partial
 
-try:
-    from inspect import getfullargspec as getargspec
-except ImportError:
-    from inspect import getargspec
+from inspect import getfullargspec as getargspec
 from itertools import groupby
 from pymatgen.core.periodic_table import Element, Specie, get_el_sp, DummySpecie
 from monty.io import zopen
@@ -81,7 +74,7 @@ def _get_cod_data():
     return _COD_DATA
 
 
-class CifBlock(object):
+class CifBlock:
     maxlen = 70  # not quite 80 so we can deal with semicolons and things
 
     def __init__(self, data, loops, header):
@@ -252,7 +245,7 @@ class CifBlock(object):
         return cls(data, loops, header)
 
 
-class CifFile(object):
+class CifFile:
     """
     Reads and parses CifBlocks from a .cif file or string
     """
@@ -295,7 +288,7 @@ class CifFile(object):
             return cls.from_string(f.read())
 
 
-class CifParser(object):
+class CifParser:
     """
     Parses a CIF file. Attempts to fix CIFs that are out-of-spec, but will
     issue warnings if corrections applied. These are also stored in the
@@ -313,7 +306,7 @@ class CifParser(object):
     def __init__(self, filename, occupancy_tolerance=1., site_tolerance=1e-4):
         self._occupancy_tolerance = occupancy_tolerance
         self._site_tolerance = site_tolerance
-        if isinstance(filename, six.string_types):
+        if isinstance(filename, str):
             self._cif = CifFile.from_file(filename)
         else:
             self._cif = CifFile.from_string(filename.read())
@@ -378,7 +371,7 @@ class CifParser(object):
         Returns:
             CifParser
         """
-        stream = cStringIO(cif_string)
+        stream = StringIO(cif_string)
         return CifParser(stream, occupancy_tolerance)
 
     def _sanitize_data(self, data):
@@ -673,7 +666,7 @@ class CifParser(object):
                                "_space_group_symop_operation_xyz_"]:
             if data.data.get(symmetry_label):
                 xyz = data.data.get(symmetry_label)
-                if isinstance(xyz, six.string_types):
+                if isinstance(xyz, str):
                     msg = "A 1-line symmetry op P1 CIF is detected!"
                     warnings.warn(msg)
                     self.errors.append(msg)
@@ -767,14 +760,14 @@ class CifParser(object):
         if data.data.get("_space_group_symop_magn_operation.xyz"):
 
             xyzt = data.data.get("_space_group_symop_magn_operation.xyz")
-            if isinstance(xyzt, six.string_types):
+            if isinstance(xyzt, str):
                 xyzt = [xyzt]
             magsymmops = [MagSymmOp.from_xyzt_string(s) for s in xyzt]
 
             if data.data.get("_space_group_symop_magn_centering.xyz"):
 
                 xyzt = data.data.get("_space_group_symop_magn_centering.xyz")
-                if isinstance(xyzt, six.string_types):
+                if isinstance(xyzt, str):
                     xyzt = [xyzt]
                 centering_symops = [MagSymmOp.from_xyzt_string(s) for s in xyzt]
 
@@ -1192,7 +1185,7 @@ class CifParser(object):
         return len(self.errors) > 0
 
 
-class CifWriter(object):
+class CifWriter:
     def __init__(self, struct, symprec=None, write_magmoms=False):
         """
         A wrapper around CifFile to write CIF files from pymatgen structures.

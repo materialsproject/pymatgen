@@ -4,11 +4,9 @@
 """
 Low-level objects providing an abstraction for the objects involved in the calculation.
 """
-from __future__ import unicode_literals, division, print_function
 
 import collections
 import abc
-import six
 import numpy as np
 import pymatgen.core.units as units
 
@@ -247,7 +245,7 @@ def contract(s):
     return " ".join("%d*%s" % (c, t) for c, t in count)
 
 
-class AbivarAble(six.with_metaclass(abc.ABCMeta, object)):
+class AbivarAble(metaclass=abc.ABCMeta):
     """
     An `AbivarAble` object provides a method `to_abivars`
     that returns a dictionary with the abinit variables.
@@ -269,7 +267,7 @@ class AbivarAble(six.with_metaclass(abc.ABCMeta, object)):
 
 
 @singleton
-class MandatoryVariable(object):
+class MandatoryVariable:
     """
     Singleton used to tag mandatory variables, just because I can use
     the cool syntax: variable is MANDATORY!
@@ -277,7 +275,7 @@ class MandatoryVariable(object):
 
 
 @singleton
-class DefaultVariable(object):
+class DefaultVariable:
     """Singleton used to tag variables that will have the default value"""
 
 MANDATORY = MandatoryVariable()
@@ -587,7 +585,7 @@ class KSampling(AbivarAble, MSONable):
         .. note::
             The default behavior of the constructor is monkhorst.
         """
-        if isinstance(mode, six.string_types):
+        if isinstance(mode, str):
             mode = KSamplingModes[mode]
 
         super(KSampling, self).__init__()
@@ -1012,7 +1010,7 @@ class PPModel(AbivarAble, MSONable):
         return cls(mode=mode, plasmon_freq=plasmon_freq)
 
     def __init__(self, mode="godby", plasmon_freq=None):
-        if isinstance(mode, six.string_types):
+        if isinstance(mode, str):
             mode = PPModelModes[mode]
         self.mode = mode
         self.plasmon_freq = plasmon_freq

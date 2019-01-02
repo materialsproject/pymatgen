@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 from itertools import product
 import numpy as np
 
@@ -10,12 +9,7 @@ from pymatgen.analysis.elasticity.strain import Deformation
 from pymatgen.core.surface import (SlabGenerator,
                                    get_symmetrically_distinct_miller_indices)
 
-try:
-    # New Py>=3.5 import
-    from math import gcd
-except ImportError:
-    # Deprecated import from Py3.5 onwards.
-    from fractions import gcd
+from math import gcd
 
 """
 This module provides classes to identify optimal substrates for film growth
@@ -30,7 +24,7 @@ __status__ = "Production"
 __date__ = "Feb, 2016"
 
 
-class ZSLGenerator(object):
+class ZSLGenerator:
     """
     This class generate matching interface super lattices based on the methodology
     of lattice vector matching for heterostructural interfaces proposed by

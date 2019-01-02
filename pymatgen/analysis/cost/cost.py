@@ -10,7 +10,6 @@ optimization is performed to determine a set of compositions that can be mixed
 to give the desired compound with lowest total cost.
 """
 
-from __future__ import division, unicode_literals
 import abc
 from collections import defaultdict
 import csv
@@ -18,7 +17,6 @@ import os
 import itertools
 from monty.design_patterns import singleton
 from monty.string import unicode2str
-import six
 
 import scipy.constants as const
 
@@ -69,7 +67,7 @@ class CostEntry(PDEntry):
                                                           self.energy)
 
 
-class CostDB(six.with_metaclass(abc.ABCMeta)):
+class CostDB(metaclass=abc.ABCMeta):
     """
     Abstract class for representing a Cost database.
     Can be extended, e.g. for file-based or REST-based databases
@@ -125,7 +123,7 @@ class CostDBElements(CostDBCSV):
             self, os.path.join(module_dir, "costdb_elements.csv"))
 
 
-class CostAnalyzer(object):
+class CostAnalyzer:
     """
     Given a CostDB, figures out the minimum cost solutions via convex hull
     """

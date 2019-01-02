@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals
 
 
 import unittest
@@ -255,7 +254,7 @@ class PourbaixPlotterTest(unittest.TestCase):
         self.plotter = PourbaixPlotter(self.pd)
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_plot_pourbaix(self):
         plotter = PourbaixPlotter(self.pd)

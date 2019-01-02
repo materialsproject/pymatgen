@@ -2,12 +2,11 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import re
 import warnings
 from operator import itemgetter
-from six import string_types
+
 from tabulate import tabulate
 
 import numpy as np
@@ -460,7 +459,7 @@ class Tags(dict):
             warnings.warn(key.strip() + " not in VALID_FEFF_TAGS list")
         super(Tags, self).__setitem__(key.strip(),
                                       Tags.proc_val(key.strip(), val.strip())
-                                      if isinstance(val, string_types) else val)
+                                      if isinstance(val, str) else val)
 
     def as_dict(self):
         """
@@ -934,7 +933,7 @@ def get_absorbing_atom_symbol_index(absorbing_atom, structure):
     Returns:
         str, int: symbol and site index
     """
-    if isinstance(absorbing_atom, string_types):
+    if isinstance(absorbing_atom, str):
         return absorbing_atom, structure.indices_from_symbol(absorbing_atom)[0]
     elif isinstance(absorbing_atom, int):
         return str(structure[absorbing_atom].specie), absorbing_atom

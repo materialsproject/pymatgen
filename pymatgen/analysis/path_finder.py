@@ -9,16 +9,12 @@ following work::
     Ceder, The Journal of Chemical Physics 145 (7), 074112
 """
 
-from __future__ import division, print_function, unicode_literals, \
-    absolute_import
-
 import numpy as np
 import numpy.linalg as la
 import scipy.signal
 import scipy.stats
 from scipy.interpolate import interp1d
 import math
-import six
 
 from abc import ABCMeta
 
@@ -262,7 +258,7 @@ class NEBPathfinder:
                          disc_coords[2] / v.shape[2]])
 
 
-class StaticPotential(six.with_metaclass(ABCMeta)):
+class StaticPotential(metaclass=ABCMeta):
     """
     Defines a general static potential for diffusion calculations. Implements
     grid-rescaling and smearing for the potential grid. Also provides a

@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """This module provides functions and classes related to Task objects."""
-from __future__ import division, print_function, unicode_literals, absolute_import
 
 import os
 import time
@@ -12,12 +11,12 @@ import collections
 import abc
 import copy
 import ruamel.yaml as yaml
-import six
+from io import StringIO
 import numpy as np
 
 from pprint import pprint
 from itertools import product
-from six.moves import map, zip, StringIO
+
 from monty.string import is_string, list_strings
 from monty.termcolor import colored, cprint
 from monty.collections import AttrDict
@@ -212,7 +211,7 @@ class ParalHintsError(Exception):
     """Base error class for `ParalHints`."""
 
 
-class ParalHintsParser(object):
+class ParalHintsParser:
 
     Error = ParalHintsError
 
@@ -433,7 +432,7 @@ class ParalHints(collections.Iterable):
         return hints
 
 
-class TaskPolicy(object):
+class TaskPolicy:
     """
     This object stores the parameters used by the :class:`TaskManager` to
     create the submission script and/or to modify the ABINIT variables
@@ -1045,7 +1044,7 @@ batch_adapter:
             raise ManagerIncreaseError('manager failed to increase time')
 
 
-class AbinitBuild(object):
+class AbinitBuild:
     """
     This object stores information on the options used to build Abinit
 
@@ -1192,7 +1191,7 @@ class AbinitBuild(object):
         return op(parse_version(self.version), parse_version(version_string))
 
 
-class FakeProcess(object):
+class FakeProcess:
     """
     This object is attached to a :class:`Task` instance if the task has not been submitted
     This trick allows us to simulate a process that is still running so that
@@ -1235,7 +1234,7 @@ class MyTimedelta(datetime.timedelta):
         return cls(delta.days, delta.seconds, delta.microseconds)
 
 
-class TaskDateTimes(object):
+class TaskDateTimes:
     """
     Small object containing useful :class:`datetime.datatime` objects associated to important events.
 
@@ -1305,7 +1304,7 @@ class TaskRestartError(TaskError):
     """Exception raised while trying to restart the :class:`Task`."""
 
 
-class Task(six.with_metaclass(abc.ABCMeta, Node)):
+class Task(Node, metaclass=abc.ABCMeta):
     """
     A Task is a node that performs some kind of calculation.
     This is base class providing low-level methods.
@@ -1731,8 +1730,11 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.start_lockfile.remove()
         self.qerr_file.remove()
         self.qout_file.remove()
+        if self.mpiabort_file.exists:
+            self.mpiabort_file.remove()
 
         self.set_status(self.S_INIT, msg="Reset on %s" % time.asctime())
+        self.num_restarts = 0
         self.set_qjob(None)
 
         # Reset finalized flags.
@@ -3163,7 +3165,7 @@ class AbinitTask(Task):
         return None
 
 
-class ProduceHist(object):
+class ProduceHist:
     """
     Mixin class for an :class:`AbinitTask` producing a HIST file.
     Provide the method `open_hist` that reads and return a HIST file.
@@ -3652,13 +3654,21 @@ class DfptTask(AbinitTask):
                     infile = self.indir.path_in("in_1WF%d" % ddk_case)
                     os.symlink(out_ddk, infile)
 
-                elif d == "WFK":
+                elif d in ("WFK", "WFQ"):
                     gs_task = dep.node
-                    out_wfk = gs_task.outdir.has_abiext("WFK")
+                    out_wfk = gs_task.outdir.has_abiext(d)
                     if not out_wfk:
-                        raise RuntimeError("%s didn't produce the WFK file" % gs_task)
-                    if not os.path.exists(self.indir.path_in("in_WFK")):
-                        os.symlink(out_wfk, self.indir.path_in("in_WFK"))
+                        raise RuntimeError("%s didn't produce the %s file" % (gs_task, d))
+
+                    if d == "WFK":
+                        bname = "in_WFK"
+                    elif d == "WFQ":
+                        bname = "in_WFQ"
+                    else:
+                        raise ValueError("Don't know how to handle `%s`" % d)
+
+                    if not os.path.exists(self.indir.path_in(bname)):
+                            os.symlink(out_wfk, self.indir.path_in(bname))
 
                 elif d == "DEN":
                     gs_task = dep.node
@@ -3688,6 +3698,48 @@ class DfptTask(AbinitTask):
 
                 else:
                     raise ValueError("Don't know how to handle extension: %s" % str(dep.exts))
+
+    def restart(self):
+        """
+        DFPT calculations can be restarted only if we have the 1WF file or the 1DEN file.
+        from which we can read the first-order wavefunctions or the first order density.
+        Prefer 1WF over 1DEN since we can reuse the wavefunctions.
+        """
+        # Abinit adds the idir-ipert index at the end of the file and this breaks the extension
+        # e.g. out_1WF4, out_DEN4. find_1wf_files and find_1den_files returns the list of files found
+        restart_file, irdvars = None, None
+
+        # Highest priority to the 1WF file because restart is more efficient.
+        wf_files = self.outdir.find_1wf_files()
+        if wf_files is not None:
+            restart_file = wf_files[0].path
+            irdvars = irdvars_for_ext("1WF")
+            if len(wf_files) != 1:
+                restart_file = None
+                self.history.critical("Found more than one 1WF file in outdir. Restart is ambiguous!")
+
+        if restart_file is None:
+            den_files = self.outdir.find_1den_files()
+            if den_files is not None:
+                restart_file = den_files[0].path
+                irdvars = {"ird1den": 1}
+                if len(den_files) != 1:
+                    restart_file = None
+                    self.history.critical("Found more than one 1DEN file in outdir. Restart is ambiguous!")
+
+        if restart_file is None:
+            # Raise because otherwise restart is equivalent to a run from scratch --> infinite loop!
+            raise self.RestartError("%s: Cannot find the 1WF|1DEN file to restart from." % self)
+
+        # Move file.
+        self.history.info("Will restart from %s", restart_file)
+        restart_file = self.out_to_in(restart_file)
+
+        # Add the appropriate variable for restarting.
+        self.set_vars(irdvars)
+
+        # Now we can resubmit the job.
+        return self._restart()
 
 
 class DdeTask(DfptTask):
@@ -3749,48 +3801,6 @@ class PhononTask(DfptTask):
     Provide support for in-place restart via (1WF|1DEN) files
     """
     color_rgb = np.array((0, 150, 250)) / 255
-
-    def restart(self):
-        """
-        Phonon calculations can be restarted only if we have the 1WF file or the 1DEN file.
-        from which we can read the first-order wavefunctions or the first order density.
-        Prefer 1WF over 1DEN since we can reuse the wavefunctions.
-        """
-        # Abinit adds the idir-ipert index at the end of the file and this breaks the extension
-        # e.g. out_1WF4, out_DEN4. find_1wf_files and find_1den_files returns the list of files found
-        restart_file, irdvars = None, None
-
-        # Highest priority to the 1WF file because restart is more efficient.
-        wf_files = self.outdir.find_1wf_files()
-        if wf_files is not None:
-            restart_file = wf_files[0].path
-            irdvars = irdvars_for_ext("1WF")
-            if len(wf_files) != 1:
-                restart_file = None
-                logger.critical("Found more than one 1WF file. Restart is ambiguous!")
-
-        if restart_file is None:
-            den_files = self.outdir.find_1den_files()
-            if den_files is not None:
-                restart_file = den_files[0].path
-                irdvars = {"ird1den": 1}
-                if len(den_files) != 1:
-                    restart_file = None
-                    logger.critical("Found more than one 1DEN file. Restart is ambiguous!")
-
-        if restart_file is None:
-            # Raise because otherwise restart is equivalent to a run from scratch --> infinite loop!
-            raise self.RestartError("%s: Cannot find the 1WF|1DEN file to restart from." % self)
-
-        # Move file.
-        self.history.info("Will restart from %s", restart_file)
-        restart_file = self.out_to_in(restart_file)
-
-        # Add the appropriate variable for restarting.
-        self.set_vars(irdvars)
-
-        # Now we can resubmit the job.
-        return self._restart()
 
     def inspect(self, **kwargs):
         """

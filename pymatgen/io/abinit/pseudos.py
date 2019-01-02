@@ -5,7 +5,6 @@
 This module provides objects describing the basic parameters of the
 pseudopotentials used in Abinit, and a parser to instantiate pseudopotential objects..
 """
-from __future__ import unicode_literals, division, print_function
 
 import abc
 import collections
@@ -14,8 +13,6 @@ import logging
 import os
 import sys
 import numpy as np
-import six
-
 from collections import OrderedDict, defaultdict, namedtuple
 from monty.collections import AttrDict, Namespace
 from tabulate import tabulate
@@ -92,7 +89,7 @@ def str2l(s):
     return _str2l[s]
 
 
-class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
+class Pseudo(MSONable, metaclass=abc.ABCMeta):
     """
     Abstract base class defining the methods that must be
     implemented by the concrete pseudopotential sub-classes.
@@ -382,7 +379,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
             return None
 
 
-class NcPseudo(six.with_metaclass(abc.ABCMeta, object)):
+class NcPseudo(metaclass=abc.ABCMeta):
     """
     Abstract class defining the methods that must be implemented
     by the concrete classes representing norm-conserving pseudopotentials.
@@ -410,7 +407,7 @@ class NcPseudo(six.with_metaclass(abc.ABCMeta, object)):
             return None
 
 
-class PawPseudo(six.with_metaclass(abc.ABCMeta, object)):
+class PawPseudo(metaclass=abc.ABCMeta):
     """
     Abstract class that defines the methods that must be implemented
     by the concrete classes representing PAW pseudopotentials.
@@ -541,7 +538,7 @@ class PawAbinitPseudo(PawPseudo, AbinitPseudo):
         return True
 
 
-class Hint(object):
+class Hint:
     """
     Suggested value for the cutoff energy [Hartree units]
     and the cutoff energy for the dense grid (only for PAW pseudos).
@@ -981,7 +978,7 @@ class PseudoParserError(Exception):
     """Base Error class for the exceptions raised by :class:`PseudoParser`"""
 
 
-class PseudoParser(object):
+class PseudoParser:
     """
     Responsible for parsing pseudopotential files and returning pseudopotential objects.
 
@@ -1504,7 +1501,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
     #    return fig
 
 
-class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable, object)):
+class PseudoTable(collections.Sequence, MSONable, metaclass=abc.ABCMeta):
     """
     Define the pseudopotentials from the element table.
     Individidual elements are accessed by name, symbol or atomic number.

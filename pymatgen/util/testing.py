@@ -2,11 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals
 import unittest
 import tempfile
 import numpy.testing.utils as nptu
-from six.moves import zip
 from io import open
 import os
 import json
