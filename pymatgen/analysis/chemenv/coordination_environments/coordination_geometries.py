@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 """
 This module contains the class describing the coordination geometries that can exist in a given structure. These
@@ -28,7 +27,7 @@ import abc
 from monty.json import MSONable, MontyDecoder
 import json
 import os
-from six import with_metaclass
+
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -38,7 +37,7 @@ EXPLICIT_PERMUTATIONS = 'EXPLICIT_PERMUTATIONS'
 SEPARATION_PLANE = 'SEPARATION_PLANE'
 
 
-class AbstractChemenvAlgorithm(with_metaclass(abc.ABCMeta, MSONable)):
+class AbstractChemenvAlgorithm(MSONable, metaclass=abc.ABCMeta):
     """
     Class used to define a Chemenv strategy for the neighbors and coordination environment to be applied to a
     StructureEnvironments object
@@ -314,14 +313,14 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         return out
 
 
-class CoordinationGeometry(object):
+class CoordinationGeometry:
     """
     Class used to store the ideal representation of a chemical environment or "coordination geometry"
     """
     CSM_SKIP_SEPARATION_PLANE_ALGO = 10.0 # Default value of continuous symmetry measure below which no further
                                         #  search is performed for the separation plane algorithms
 
-    class NeighborsSetsHints(object):
+    class NeighborsSetsHints:
 
         ALLOWED_HINTS_TYPES = ['single_cap', 'double_cap', 'triple_cap']
 

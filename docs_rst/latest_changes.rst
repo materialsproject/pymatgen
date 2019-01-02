@@ -1,15 +1,8 @@
 Change log
 ==========
 
-v2018.9.19
-----------
-* Fix to composition handling in `MolecularOrbitals` (@dyllamt)
-* Fix to allow mixed compressed/uncompressed loading of VASP band structures (@ajjackson)
-* New features and fixes to `chemenv` analysis module (@davidwaroquiers)
-* Fix to include structure predictor data with pip/conda-installed pymatgen (@shyamd)
-* Fixes to `Defect` objects, icluding allowing rotational supercell transformations (@dbroberg)
-* Fix to `BSDOSPlotter` to correctly fill in parts of DOS (@fraricci)
-* Added '@' notation parsing in `Composition` (@tamuhey)
-* BibTex reference extraction updated in `CifParser` to support ICSD CIFs (@shyamd)
-* Various updates to speed up and fix test suite (@shyuep, @fraricci)
-* Improvements to BoltzTraP 2 support (@shyuep, @fraricci)
+v2018.12.12
+-----------
+* Support for IUPAC ordering of elements in Composition formulae (@utf)
+* Various bug fixes including returning integer miller indices, catching negative values in Composition and fixes to graph analysis (@utf), fix to Composition serialization (@jmmshen), defect analysis (@HanmeiTang), removing sites in surfaces (@yiming-xu), and fix to support the new PROCAR format in VASP (@dkorotin)
+* `PMG_MAPI_ENDPOINT` environment variable added to support different endpoints for the Materials Project REST interface (@mkhorton)

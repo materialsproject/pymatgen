@@ -2,15 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import numpy as np
 from fractions import Fraction
-
-try:
-    from math import gcd
-except ImportError:
-    from fractions import gcd
+from math import gcd
 from itertools import groupby, product
 from string import ascii_lowercase
 from warnings import warn
@@ -150,7 +145,7 @@ class SuperTransformation(AbstractTransformation):
         return True
 
 
-class MultipleSubstitutionTransformation(object):
+class MultipleSubstitutionTransformation:
     """
     Performs multiple substitutions on a structure. For example, can do a
     fractional replacement of Ge in LiGePS with a list of species, creating one

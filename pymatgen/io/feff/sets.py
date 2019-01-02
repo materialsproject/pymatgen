@@ -2,12 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import sys
 import os
 import abc
-import six
 from copy import deepcopy
 import logging
 
@@ -44,7 +42,7 @@ sh.setFormatter(formatter)
 logger.addHandler(sh)
 
 
-class AbstractFeffInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
+class AbstractFeffInputSet(MSONable, metaclass=abc.ABCMeta):
     """
     Abstract base class representing a set of Feff input parameters.
     The idea is that using a FeffInputSet, a complete set of input files
@@ -115,7 +113,7 @@ class AbstractFeffInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
                                  ["HEADER", "PARAMETERS", "POTENTIALS", "ATOMS"]
                                  if k in feff)
 
-        for k, v in six.iteritems(feff):
+        for k, v in feff.items():
             with open(os.path.join(output_dir, k), "w") as f:
                 f.write(str(v))
 
@@ -243,7 +241,7 @@ class FEFFDictSet(AbstractFeffInputSet):
     def __str__(self):
         output = [self.spectrum]
         output.extend(["%s = %s" % (k, str(v))
-                       for k, v in six.iteritems(self.config_dict)])
+                       for k, v in self.config_dict.items()])
         output.append("")
         return "\n".join(output)
 

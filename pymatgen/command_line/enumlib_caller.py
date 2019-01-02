@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import re
 import math
@@ -15,8 +14,6 @@ import warnings
 import numpy as np
 from monty.fractions import lcm
 import fractions
-
-from six.moves import reduce
 
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.core.sites import PeriodicSite
@@ -73,7 +70,7 @@ makestr_cmd = which('makestr.x') or which('makeStr.x') or which('makeStr.py')
           "and 'makestr.x' or 'makeStr.py' to be in the path. Please download the "
           "library at http://enum.sourceforge.net/ and follow the instructions in "
           "the README to compile these two executables accordingly.")
-class EnumlibAdaptor(object):
+class EnumlibAdaptor:
     """
     An adaptor for enumlib.
 

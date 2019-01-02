@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import unittest
 
 from pymatgen.core.structure import Structure
@@ -42,6 +41,7 @@ class Critic2CallerTest(unittest.TestCase):
 
 
 class Critic2OutputTest(unittest.TestCase):
+    _multiprocess_shared_ = True
 
     def setUp(self):
         stdout_file = os.path.join(os.path.dirname(__file__), "..", "..", "..",

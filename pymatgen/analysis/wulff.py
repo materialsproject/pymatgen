@@ -18,7 +18,6 @@ Tran, R.; Xu, Z.; Radhakrishnan, B.; Winston, D.; Persson, K. A.; Ong, S. P.
 (2016). Surface energies of elemental crystals. Scientific Data.
 """
 
-from __future__ import division, unicode_literals
 from pymatgen.core.structure import Structure
 from pymatgen.core.surface import get_recp_symmetry_operation
 from pymatgen.util.coord import get_angle
@@ -26,6 +25,7 @@ import numpy as np
 import scipy as sp
 from scipy.spatial import ConvexHull
 import logging
+import warnings
 
 
 __author__ = 'Zihan Xu, Richard Tran, Shyue Ping Ong'
@@ -70,7 +70,7 @@ def get_tri_area(pts):
     return area_tri
 
 
-class WulffFacet(object):
+class WulffFacet:
     """
     Helper container for each Wulff plane.
     """
@@ -88,7 +88,7 @@ class WulffFacet(object):
         self.outer_lines = []
 
 
-class WulffShape(object):
+class WulffShape:
     """
     Generate Wulff Shape from list of miller index and surface energies,
     with given conventional unit cell.
@@ -164,6 +164,10 @@ class WulffShape(object):
             e_surf_list ([float]): list of corresponding surface energies
             symprec (float): for recp_operation, default is 1e-5.
         """
+
+        if any([se < 0 for se in e_surf_list]):
+            warnings.warn("Unphysical (negative) surface energy detected.")
+
         self.color_ind = list(range(len(miller_list)))
 
         self.input_miller_fig = [hkl_tuple_to_str(x) for x in miller_list]

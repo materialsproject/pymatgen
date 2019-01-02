@@ -15,7 +15,6 @@ TODO:
         user does not need to generate a dict
 """
 
-from __future__ import division, unicode_literals
 
 import numpy as np
 import itertools
@@ -188,6 +187,18 @@ class SlabEntry(ComputedStructureEntry):
 
         # Set up
         ref_entries = [] if not ref_entries else ref_entries
+
+        # Check if appropriate ref_entries are present if the slab is non-stoichiometric
+        # TODO: There should be a way to identify which specific species are
+        # non-stoichiometric relative to the others in systems with more than 2 species
+        slab_comp = self.composition.as_dict()
+        ucell_entry_comp = ucell_entry.composition.reduced_composition.as_dict()
+        slab_clean_comp = Composition({el: slab_comp[el] for el in ucell_entry_comp.keys()})
+        if slab_clean_comp.reduced_composition != ucell_entry.composition.reduced_composition:
+            list_els = [list(entry.composition.as_dict().keys())[0] for entry in ref_entries]
+            if not any([el in list_els for el in ucell_entry.composition.as_dict().keys()]):
+                warnings.warn("Elemental references missing for the non-dopant species.")
+
         gamma = (Symbol("E_surf") - Symbol("Ebulk")) / (2 * Symbol("A"))
         ucell_comp = ucell_entry.composition
         ucell_reduced_comp = ucell_comp.reduced_composition
@@ -345,7 +356,7 @@ class SlabEntry(ComputedStructureEntry):
                          adsorbates=adsorbates, clean_entry=clean_entry, **kwargs)
 
 
-class SurfaceEnergyPlotter(object):
+class SurfaceEnergyPlotter:
     """
     A class used for generating plots to analyze the thermodynamics of surfaces
         of a material. Produces stability maps of different slab configurations,
@@ -1304,14 +1315,11 @@ def entry_dict_from_list(all_slab_entries):
     return entry_dict
 
 
-class WorkFunctionAnalyzer(object):
+class WorkFunctionAnalyzer:
     """
-    A class that post processes a task document of a vasp calculation (from
-        using drone.assimilate). Can calculate work function from the vasp
-        calculations and plot the potential along the c axis. This class
-        assumes that LVTOT=True (i.e. the LOCPOT file was generated) for a
-        slab calculation and it was insert into the task document along with
-        the other outputs.
+    A class used for calculating the work function
+        from a slab model and visualizing the behavior
+        of the local potential along the slab.
 
     .. attribute:: efermi
 
@@ -1539,7 +1547,7 @@ class WorkFunctionAnalyzer(object):
                                     o.efermi, shift=shift)
 
 
-class NanoscaleStability(object):
+class NanoscaleStability:
     """
     A class for analyzing the stability of nanoparticles of different
         polymorphs with respect to size. The Wulff shape will be the
@@ -1797,12 +1805,12 @@ class NanoscaleStability(object):
 
         return plt
 
-        # class GetChempotRange(object):
+        # class GetChempotRange:
         #     def __init__(self, entry):
         #         self.entry = entry
         #
         #
-        # class SlabEntryGenerator(object):
+        # class SlabEntryGenerator:
         #     def __init__(self, entry):
         #         self.entry = entry
 

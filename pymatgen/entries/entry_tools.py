@@ -2,14 +2,13 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 """
 This module implements functions to perform various useful operations on
 entries, such as grouping entries by structure.
 """
 
-from six.moves import filter, zip
+
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"

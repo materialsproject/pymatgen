@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.cif &#8212; pymatgen 2018.9.12 documentation</title>
+    <title>pymatgen.io.cif &#8212; pymatgen 2018.12.12 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.9.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -345,10 +345,12 @@
 
 <div class="viewcode-block" id="CifParser"><a class="viewcode-back" href="../../../pymatgen.io.cif.html#pymatgen.io.cif.CifParser">[docs]</a><span class="k">class</span> <span class="nc">CifParser</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Parses a cif file</span>
+<span class="sd">    Parses a CIF file. Attempts to fix CIFs that are out-of-spec, but will</span>
+<span class="sd">    issue warnings if corrections applied. These are also stored in the</span>
+<span class="sd">    CifParser&#39;s errors attribute.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        filename (str): Cif filename. bzipped or gzipped cifs are fine too.</span>
+<span class="sd">        filename (str): CIF filename, bzipped or gzipped CIF files are fine too.</span>
 <span class="sd">        occupancy_tolerance (float): If total occupancy of a site is between 1</span>
 <span class="sd">            and occupancy_tolerance, the occupancies will be scaled down to 1.</span>
 <span class="sd">        site_tolerance (float): This tolerance is used to determine if two</span>
@@ -445,6 +447,15 @@
 <span class="sd">        databases, and that are different from standard ICSD formats.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
+        <span class="c1"># check for implicit hydrogens, warn if any present</span>
+        <span class="k">if</span> <span class="s2">&quot;_atom_site_attached_hydrogens&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">attached_hydrogens</span> <span class="o">=</span> <span class="p">[</span><span class="n">str2float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;_atom_site_attached_hydrogens&#39;</span><span class="p">]</span>
+                                  <span class="k">if</span> <span class="n">str2float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">attached_hydrogens</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Structure has implicit hydrogens defined, &quot;</span>
+                                   <span class="s2">&quot;parsed structure unlikely to be suitable for use &quot;</span>
+                                   <span class="s2">&quot;in calculations unless hydrogens added.&quot;</span><span class="p">)</span>
+
         <span class="c1"># Check to see if &quot;_atom_site_type_symbol&quot; exists, as some test CIFs do</span>
         <span class="c1"># not contain this key.</span>
         <span class="k">if</span> <span class="s2">&quot;_atom_site_type_symbol&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -527,6 +538,9 @@
                         <span class="k">del</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">original_key</span><span class="p">][</span><span class="nb">id</span><span class="p">]</span>
 
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">idxs_to_remove</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Pauling file corrections applied.&quot;</span><span class="p">)</span>
+
                 <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;_atom_site_label&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">new_atom_site_label</span>
                 <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;_atom_site_type_symbol&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">new_atom_site_type_symbol</span>
                 <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;_atom_site_occupancy&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">new_atom_site_occupancy</span>
@@ -581,8 +595,33 @@
             <span class="k">for</span> <span class="n">interim_key</span><span class="p">,</span> <span class="n">final_key</span> <span class="ow">in</span> <span class="n">renamed_keys</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">interim_key</span><span class="p">):</span>
                     <span class="n">changes_to_make</span><span class="p">[</span><span class="n">final_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">interim_key</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">changes_to_make</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Keys changed to match new magCIF specification.&quot;</span><span class="p">)</span>
+
             <span class="k">for</span> <span class="n">final_key</span><span class="p">,</span> <span class="n">interim_key</span> <span class="ow">in</span> <span class="n">changes_to_make</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">final_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">interim_key</span><span class="p">]</span>
+
+        <span class="c1"># check for finite precision frac co-ordinates (e.g. 0.6667 instead of 0.6666666...7)</span>
+        <span class="c1"># this can sometimes cause serious issues when applying symmetry operations</span>
+        <span class="n">important_fracs</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mf">3.</span><span class="p">,</span> <span class="mi">2</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span>
+        <span class="n">fracs_to_change</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;_atom_site_fract_x&#39;</span><span class="p">,</span> <span class="s1">&#39;_atom_site_fract_y&#39;</span><span class="p">,</span> <span class="s1">&#39;_atom_site_fract_z&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">frac</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">label</span><span class="p">]):</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">frac</span> <span class="o">=</span> <span class="n">str2float</span><span class="p">(</span><span class="n">frac</span><span class="p">)</span>
+                    <span class="k">except</span><span class="p">:</span>
+                        <span class="c1"># co-ordinate might not be defined e.g. &#39;?&#39;</span>
+                        <span class="k">continue</span>
+                    <span class="k">for</span> <span class="n">comparison_frac</span> <span class="ow">in</span> <span class="n">important_fracs</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">frac</span><span class="o">/</span><span class="n">comparison_frac</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-4</span><span class="p">:</span>
+                            <span class="n">fracs_to_change</span><span class="p">[(</span><span class="n">label</span><span class="p">,</span> <span class="n">idx</span><span class="p">)]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">comparison_frac</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fracs_to_change</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Some fractional co-ordinates rounded to ideal values to &quot;</span>
+                               <span class="s2">&quot;avoid finite precision errors.&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">idx</span><span class="p">),</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">fracs_to_change</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
 
         <span class="k">return</span> <span class="n">data</span>
 
@@ -996,6 +1035,9 @@
                 <span class="n">comp_d</span> <span class="o">=</span> <span class="p">{</span><span class="n">el</span><span class="p">:</span> <span class="n">occu</span><span class="p">}</span>
                 <span class="k">if</span> <span class="n">num_h</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">comp_d</span><span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">num_h</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Structure has implicit hydrogens defined, &quot;</span>
+                                       <span class="s2">&quot;parsed structure unlikely to be suitable for use &quot;</span>
+                                       <span class="s2">&quot;in calculations unless hydrogens added.&quot;</span><span class="p">)</span>
                 <span class="n">comp</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">(</span><span class="n">comp_d</span><span class="p">)</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
                     <span class="n">coord_to_species</span><span class="p">[</span><span class="n">coord</span><span class="p">]</span> <span class="o">=</span> <span class="n">comp</span>
@@ -1115,6 +1157,10 @@
                 <span class="c1"># in which the atomic coordinates are in Cartesian coords.</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Issues encountered while parsing CIF:&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">error</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">structures</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid cif file with no structures!&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">structures</span></div>
@@ -1427,7 +1473,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.9.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1435,7 +1481,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

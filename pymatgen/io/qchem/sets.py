@@ -6,7 +6,7 @@ import logging
 from pymatgen.io.qchem.inputs import QCInput
 from pymatgen.io.qchem.utils import lower_and_check_unique
 
-# Classes for reading/manipulating/writing QChem ouput files.
+# Classes for reading/manipulating/writing QChem output files.
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -27,6 +27,7 @@ class QChemDictSet(QCInput):
                  scf_algorithm,
                  dft_rung=4,
                  pcm_dielectric=None,
+                 smd_solvent=None,
                  max_scf_cycles=200,
                  geom_opt_max_cycles=200,
                  overwrite_inputs=None):
@@ -54,6 +55,7 @@ class QChemDictSet(QCInput):
         self.scf_algorithm = scf_algorithm
         self.dft_rung = dft_rung
         self.pcm_dielectric = pcm_dielectric
+        self.smd_solvent = smd_solvent
         self.max_scf_cycles = max_scf_cycles
         self.geom_opt_max_cycles = geom_opt_max_cycles
         self.overwrite_inputs = overwrite_inputs
@@ -68,6 +70,7 @@ class QChemDictSet(QCInput):
 
         mypcm = {}
         mysolvent = {}
+        mysmx = {}
         myrem = {}
         myrem["job_type"] = job_type
         myrem["basis"] = self.basis_set
@@ -92,10 +95,17 @@ class QChemDictSet(QCInput):
         if self.job_type.lower() == "opt":
             myrem["geom_opt_max_cycles"] = self.geom_opt_max_cycles
 
-        if self.pcm_dielectric != None:
+        if self.pcm_dielectric is not None and self.smd_solvent is not None:
+            raise ValueError("Only one of pcm or smd may be used for solvation.")
+
+        if self.pcm_dielectric is not None:
             mypcm = pcm_defaults
             mysolvent["dielectric"] = self.pcm_dielectric
             myrem["solvent_method"] = 'pcm'
+
+        if self.smd_solvent is not None:
+            mysmx["solvent"] = self.smd_solvent
+            myrem["solvent_method"] = "smd"
 
         if self.overwrite_inputs:
             for sec, sec_dict in self.overwrite_inputs.items():
@@ -111,9 +121,13 @@ class QChemDictSet(QCInput):
                     temp_solvent = lower_and_check_unique(sec_dict)
                     for k, v in temp_solvent.items():
                         mysolvent[k] = v
+                if sec == "smx":
+                    temp_smx = lower_and_check_unique(sec_dict)
+                    for k, v in temp_smx.items():
+                        mysmx[k] = v
 
         super(QChemDictSet, self).__init__(
-            self.molecule, rem=myrem, pcm=mypcm, solvent=mysolvent)
+            self.molecule, rem=myrem, pcm=mypcm, solvent=mysolvent, smx=mysmx)
 
 
 class OptSet(QChemDictSet):
@@ -126,6 +140,7 @@ class OptSet(QChemDictSet):
                  dft_rung=4,
                  basis_set="6-311++G*",
                  pcm_dielectric=None,
+                 smd_solvent=None,
                  scf_algorithm="gdm",
                  max_scf_cycles=200,
                  geom_opt_max_cycles=200,
@@ -139,6 +154,7 @@ class OptSet(QChemDictSet):
             job_type="opt",
             dft_rung=dft_rung,
             pcm_dielectric=pcm_dielectric,
+            smd_solvent=smd_solvent,
             basis_set=self.basis_set,
             scf_algorithm=self.scf_algorithm,
             max_scf_cycles=self.max_scf_cycles,
@@ -156,6 +172,7 @@ class SinglePointSet(QChemDictSet):
                  dft_rung=4,
                  basis_set="6-311++G*",
                  pcm_dielectric=None,
+                 smd_solvent=None,
                  scf_algorithm="gdm",
                  max_scf_cycles=200,
                  overwrite_inputs=None):
@@ -167,6 +184,7 @@ class SinglePointSet(QChemDictSet):
             job_type="sp",
             dft_rung=dft_rung,
             pcm_dielectric=pcm_dielectric,
+            smd_solvent=smd_solvent,
             basis_set=self.basis_set,
             scf_algorithm=self.scf_algorithm,
             max_scf_cycles=self.max_scf_cycles,
@@ -183,6 +201,7 @@ class FreqSet(QChemDictSet):
                  dft_rung=4,
                  basis_set="6-311++G*",
                  pcm_dielectric=None,
+                 smd_solvent=None,
                  scf_algorithm="gdm",
                  max_scf_cycles=200,
                  overwrite_inputs=None):
@@ -194,6 +213,7 @@ class FreqSet(QChemDictSet):
             job_type="freq",
             dft_rung=dft_rung,
             pcm_dielectric=pcm_dielectric,
+            smd_solvent=smd_solvent,
             basis_set=self.basis_set,
             scf_algorithm=self.scf_algorithm,
             max_scf_cycles=self.max_scf_cycles,
