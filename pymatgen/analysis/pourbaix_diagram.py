@@ -143,6 +143,20 @@ class PourbaixEntry(MSONable):
         """
         return self.energy + self.npH * PREFAC * pH + self.nPhi * V
 
+    def get_element_fraction(self, element):
+        """
+        Gets the elemental fraction of a given non-OH element
+
+        Args:
+            element (Element or str): string or element corresponding
+                to element to get from composition
+
+        Returns:
+            fraction of element / sum(all non-OH elements)
+
+        """
+        return self.composition.get(element) * self.normalization_factor
+
     @property
     def normalized_energy(self):
         """

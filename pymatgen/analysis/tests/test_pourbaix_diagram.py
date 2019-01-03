@@ -87,6 +87,12 @@ class PourbaixEntryTest(unittest.TestCase):
         m_entry_new = MultiEntry.from_dict(m_entry_dict)
         self.assertEqual(m_entry_new.energy, m_entry.energy)
 
+    def test_get_elt_fraction(self):
+        entry = ComputedEntry("Mn2Fe3O3", 49)
+        pbentry = PourbaixEntry(entry)
+        self.assertAlmostEqual(pbentry.get_element_fraction("Fe"), 0.6)
+        self.assertAlmostEqual(pbentry.get_element_fraction("Mn"), 0.4)
+
 
 class PourbaixDiagramTest(unittest.TestCase):
     _multiprocess_shared_ = True
