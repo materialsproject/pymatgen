@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals
 
 import unittest
 import os
@@ -18,6 +17,8 @@ try:
     BOLTZTRAP2_PRESENT = True
 except:
     BOLTZTRAP2_PRESENT = False
+
+BOLTZTRAP2_PRESENT = False
 
 from pymatgen.electronic_structure.core import Spin,OrbitalType
 
@@ -53,7 +54,7 @@ class BandstructureLoaderTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_properties(self):
         self.assertTupleEqual(self.loader.ebands.shape, (20, 120))
@@ -81,7 +82,7 @@ class VasprunLoaderTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_properties(self):
         self.assertTupleEqual(self.loader.ebands.shape, (20, 120))
@@ -119,7 +120,7 @@ class BztInterpolatorTest(unittest.TestCase):
         self.bztI_dn = BztInterpolator(loader_sp_dn,lpfac=2,energy_range=np.inf,curvature=False)
         
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_properties(self):
         self.assertTupleEqual(self.bztInterp.cband.shape,(5, 3, 3, 3, 29791))
@@ -152,20 +153,19 @@ class BztInterpolatorTest(unittest.TestCase):
         pdos = tot_proj_dos.get_spd_dos()[OrbitalType.s].densities[Spin.up][0]
         self.assertAlmostEqual(pdos,15.474392020,5)
 
-if BOLTZTRAP2_PRESENT:
-    loader = VasprunLoader(vrun)
-    bztInterp=BztInterpolator(loader,lpfac=2)
 
 @unittest.skipIf(not BOLTZTRAP2_PRESENT, "No boltztrap2, skipping tests...")
 class BztTransportPropertiesTest(unittest.TestCase):
 
     def setUp(self):
-        self.bztTransp = BztTransportProperties(bztInterp,temp_r = np.arange(300,600,100))
+        loader = VasprunLoader(vrun)
+        bztInterp = BztInterpolator(loader, lpfac=2)
+        self.bztTransp = BztTransportProperties(bztInterp, temp_r = np.arange(300,600,100))
         self.assertIsNotNone(self.bztTransp)
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_properties(self):
         for p in [self.bztTransp.Conductivity_mu, self.bztTransp.Seebeck_mu,
@@ -184,29 +184,20 @@ class BztTransportPropertiesTest(unittest.TestCase):
             
             self.assertTupleEqual(p['n'].shape,(3, 2, 3, 3))
 
-if BOLTZTRAP2_PRESENT:        
-    bztTransp=BztTransportProperties(bztInterp,temp_r = np.arange(300,600,100))
-
 
 @unittest.skipIf(not BOLTZTRAP2_PRESENT, "No boltztrap2, skipping tests...")
 class BztPlotterTest(unittest.TestCase):
 
-    def setUp(self):
+    def test_plot(self):
+        loader = VasprunLoader(vrun)
+        bztInterp = BztInterpolator(loader, lpfac=2)
+        bztTransp = BztTransportProperties(bztInterp, temp_r=np.arange(300, 600, 100))
         self.bztPlotter = BztPlotter(bztTransp,bztInterp)
         self.assertIsNotNone(self.bztPlotter)
-
-    def tearDown(self):
-        warnings.resetwarnings()
-
-    def test_plot_props(self):
         fig = self.bztPlotter.plot_props('S', 'mu', 'temp', temps=[300, 500])
         self.assertIsNotNone(fig)
-
-    def test_plot_bands(self):
         fig = self.bztPlotter.plot_bands()
         self.assertIsNotNone(fig)
-
-    def test_plot_dos(self):
         fig = self.bztPlotter.plot_dos()
         self.assertIsNotNone(fig)
 

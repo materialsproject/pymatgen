@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import unittest
 import os
@@ -23,6 +22,7 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
 
 
 class StructureMatcherTest(PymatgenTest):
+    _multiprocess_shared_ = True
 
     def setUp(self):
         with open(os.path.join(test_dir, "TiO2_entries.json"), 'r') as fp:

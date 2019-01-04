@@ -1,6 +1,68 @@
 Change log
 ==========
 
+v2018.12.12
+-----------
+* Support for IUPAC ordering of elements in Composition formulae (@utf)
+* Various bug fixes including returning integer miller indices, catching negative values in Composition and fixes to graph analysis (@utf), fix to Composition serialization (@jmmshen), defect analysis (@HanmeiTang), removing sites in surfaces (@yiming-xu), and fix to support the new PROCAR format in VASP (@dkorotin)
+* `PMG_MAPI_ENDPOINT` environment variable added to support different endpoints for the Materials Project REST interface (@mkhorton)
+
+v2018.11.30
+-----------
+* MPRester.query now supports bulk queries for large scale requests. 
+  (@dwinston)
+* MVLRelax52Set which uses VASP 52 pseudopotentials. (@HanmeiTang)
+* EPH calculations in ABINIT (@gmatteo)
+* New ScaleToRelaxedTransformation (@richardtran415)
+* New dimensionality finder, and consolidation of existing algorithms (@utf)
+* New dopant predictor built on structure predictor (@utf)
+* Misc bug fixes (@HanmeiTang, @utf, @tamuhey, @mkhorton, @yiming-xu, @richardtran415)
+
+v2018.11.6
+----------
+* Ionic radius based CrystalNN (@computron)
+* InterfacialReactivity (@dbroberg)
+* Misc bug fixes
+
+v2018.10.18
+-----------
+
+* New bond fragmenter and bond dissociation analysis modules (@samblau)
+* Improvements to MoleculeGraph (@espottesmith)
+* Fix: bug in triclinic tensor conversion to IEEE standard (@montoyjh)
+* Fix: insertion battery summary dictionary format (@jmmshn)
+* Speed improvements to certain tests (@shyuep, @samblau)
+
+v2018.9.30
+----------
+
+* Fix: increased cut-off to VoronoiNN to avoid scipy crash (@utf)
+* Fix: Outcar parsing issues with certain values of electrostatic potential (@sivonxay)
+* Fix: bug in EnumlibAdaptor/EnumerateStructureTransformation involving incorrect
+  stoichiometries in some instances (#1286) (@shyuep)
+* Fix: fractional co-ordinate finite precision errors in CifParser, now
+  also includes additional warnings for implicit hydrogens (@mkhorton)
+* New features and improvements to GBGenerator (@ucsdlxg, @shyuep)
+* New analysis options in StructureGraph, speed up tests (@mkhorton)
+* New utility function to pretty print disordered formulae, along with a
+  ordered-to-disordered structure transformation (@mkhorton)
+* Ability to use pymatgen's StructureMatcher against AFLOW's library of
+  crystallographic prototypes (@mkhorton)
+* Make Chgcar serializable to/from dict for database insertion (@jmmshn)
+
+v2018.9.19
+----------
+* Fix to composition handling in `MolecularOrbitals` (@dyllamt)
+* Fix to allow mixed compressed/uncompressed loading of VASP band structures (@ajjackson)
+* New features and fixes to `chemenv` analysis module (@davidwaroquiers)
+* Fix to include structure predictor data with pip/conda-installed pymatgen (@shyamd)
+* Fixes to `Defect` objects, icluding allowing rotational supercell transformations (@dbroberg)
+* Fix to `BSDOSPlotter` to correctly fill in parts of DOS (@fraricci)
+* Added '@' notation parsing in `Composition` (@tamuhey)
+* BibTex reference extraction updated in `CifParser` to support ICSD CIFs (@shyamd)
+* Various updates to speed up and fix test suite (@shyuep, @fraricci)
+* Improvements to BoltzTraP 2 support (@shyuep, @fraricci)
+
 v2018.9.12
 ----------
 * Use boltztrap2 (@fraricci)

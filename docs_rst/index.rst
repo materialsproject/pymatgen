@@ -29,16 +29,19 @@ for materials analysis. These are some of the main features:
    Database.
 
 Pymatgen is free to use. However, we also welcome your help to improve this
-library by making your own contributions.  These contributions can be in the
+library by making your own contributions. These contributions can be in the
 form of additional tools or modules you develop, or feature requests and bug
-reports. Please report any bugs and issues at pymatgen's `Github Issues
-page <https://github.com/materialsproject/pymatgen/issues>`_. For news, tips
-and help with pymatgen, please check out the following official pymatgen
-resources:
+reports. The following are resources for pymatgen:
 
+* Please report any bugs and issues at pymatgen's `Github Issues
+  page <https://github.com/materialsproject/pymatgen/issues>`_.
+* For help with any pymatgen issue, consult `Stack Overflow
+  <https://stackoverflow.com/questions/tagged/pymatgen>`_ and if
+  you cannot find an answer, please post a question with the tag "pymatgen".
+  Please note that the pymatgen Google group has been deprecated in
+  favor of Stack Overflow.
 * `Twitter <http://twitter.com/pymatgen>`_. Follow to get news and tips.
 * `matgenb <http://matgenb.materialsvirtuallab.org>`_. For example notebooks.
-* `pymatgen's Google Groups`_. Post questions that are not covered by examples.
 
     *The code is mightier than the pen.*
 
@@ -503,8 +506,11 @@ Reporting bugs
 --------------
 
 A simple way that anyone can contribute is simply to report bugs and issues
-to the developing team. You can either send an email to the `pymatgen's
-Google Groups page`_ or even better, submit an Issue in our `Github page`_.
+to the developing team. Please report any bugs and issues at pymatgen's
+`Github Issues page <https://github.com/materialsproject/pymatgen/issues>`_.
+For help with any pymatgen issue, consult `Stack Overflow
+<https://stackoverflow.com/questions/tagged/pymatgen>`_ and if
+you cannot find an answer, please post a question with the tag `pymatgen`.
 
 Developing new functionality
 ----------------------------
@@ -575,8 +581,6 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
-
-.. _`pymatgen's Google Groups`: https://groups.google.com/forum/?fromgroups#!forum/pymatgen/
 .. _`PyPI`: http://pypi.python.org/pypi/pymatgen
 .. _`Github page`: https://github.com/materialsproject/pymatgen/issues
 .. _`custodian`: https://pypi.python.org/pypi/custodian

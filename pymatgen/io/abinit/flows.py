@@ -6,7 +6,6 @@ A Flow is a container for Works, and works consist of tasks.
 Flows are the final objects that can be dumped directly to a pickle file on disk
 Flows are executed using abirun (abipy).
 """
-from __future__ import unicode_literals, division, print_function
 
 import os
 import sys
@@ -19,7 +18,7 @@ import tempfile
 import numpy as np
 
 from pprint import pprint
-from six.moves import map, StringIO
+
 from tabulate import tabulate
 from pydispatch import dispatcher
 from collections import OrderedDict
@@ -2563,7 +2562,7 @@ class FlowCallbackError(Exception):
     """Exceptions raised by FlowCallback."""
 
 
-class FlowCallback(object):
+class FlowCallback:
     """
     This object implements the callbacks executed by the :class:`flow` when
     particular conditions are fulfilled. See on_dep_ok method of :class:`Flow`.
@@ -2697,11 +2696,20 @@ def g0w0_flow(workdir, scf_input, nscf_input, scr_input, sigma_inputs, manager=N
 
 class PhononFlow(Flow):
     """
-        1) One workflow for the GS run.
+    This Flow provides a high-level interface to compute phonons with DFPT
+    The flow consists of
 
-        2) nqpt works for phonon calculations. Each work contains
-           nirred tasks where nirred is the number of irreducible phonon perturbations
-           for that particular q-point.
+    1) One workflow for the GS run.
+
+    2) nqpt works for phonon calculations. Each work contains
+       nirred tasks where nirred is the number of irreducible phonon perturbations
+       for that particular q-point.
+
+    .. note:
+
+        For a much more flexible interface, use the DFPT works defined in works.py
+        For instance, EPH calculations are much easier to implement by connecting a single
+        work that computes all the q-points with the EPH tasks instead of using PhononFlow.
     """
     @classmethod
     def from_scf_input(cls, workdir, scf_input, ph_ngqpt, with_becs=True, manager=None, allocate=True):

@@ -2,11 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals
 import unittest
 import tempfile
 import numpy.testing.utils as nptu
-from six.moves import zip
 from io import open
 import os
 import json
@@ -32,6 +30,7 @@ class PymatgenTest(unittest.TestCase):
     Extends unittest.TestCase with functions (taken from numpy.testing.utils)
     that support the comparison of arrays.
     """
+    _multiprocess_shared_ = True
     MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
     STRUCTURES_DIR = os.path.join(MODULE_DIR, "structures")
 

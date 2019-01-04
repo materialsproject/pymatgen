@@ -2,9 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
-
-import six
 import logging
 from abc import ABCMeta, abstractmethod
 
@@ -30,7 +27,7 @@ This module defines classes to generate point defect structures
 logger = logging.getLogger(__name__)
 
 
-class DefectGenerator(six.with_metaclass(ABCMeta, MSONable)):
+class DefectGenerator(MSONable, metaclass=ABCMeta):
     """
     Abstract class for point defects
     Implements generator pattern

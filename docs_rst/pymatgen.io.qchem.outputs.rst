@@ -1,5 +1,5 @@
-pymatgen\.io\.qchem\.outputs module
-===================================
+pymatgen.io.qchem.outputs module
+================================
 
 .. automodule:: pymatgen.io.qchem.outputs
     :members:

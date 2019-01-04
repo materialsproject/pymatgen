@@ -1,4 +1,3 @@
-from __future__ import division, unicode_literals
 
 import unittest
 import os
@@ -25,6 +24,7 @@ def get_path(path_str):
     path = os.path.join(cwd, "..", "..", "..", "test_files",
                         "surface_tests", path_str)
     return path
+
 
 class SlabEntryTest(PymatgenTest):
 

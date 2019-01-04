@@ -1,6 +1,5 @@
 # coding: utf-8
 
-from __future__ import division, unicode_literals, print_function
 
 import logging
 import math
@@ -734,7 +733,7 @@ class BoltztrapError(Exception):
         return "BoltztrapError : " + self.msg
 
 
-class BoltztrapAnalyzer(object):
+class BoltztrapAnalyzer:
     """
     Class used to store all the data from a boltztrap run
     """
@@ -947,7 +946,7 @@ class BoltztrapAnalyzer(object):
         else:
             bnd_around_efermi = []
             delta = 0
-            spin = sbs_bz.bands.keys()[0]
+            spin = list(sbs_bz.bands.keys())[0]
             while len(bnd_around_efermi) < 8 and delta < 100:
                 delta += 0.1
                 bnd_around_efermi = []

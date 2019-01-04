@@ -1,5 +1,5 @@
-pymatgen\.alchemy\.transmuters module
-=====================================
+pymatgen.alchemy.transmuters module
+===================================
 
 .. automodule:: pymatgen.alchemy.transmuters
     :members:

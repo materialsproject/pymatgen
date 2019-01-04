@@ -1,5 +1,5 @@
-pymatgen\.analysis\.functional\_groups module
-=============================================
+pymatgen.analysis.functional\_groups module
+===========================================
 
 .. automodule:: pymatgen.analysis.functional_groups
     :members:

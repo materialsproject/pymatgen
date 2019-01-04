@@ -7,8 +7,15 @@ Created on Nov 15, 2011
 
 from __future__ import division
 import json
+from itertools import product
+
 import ruamel.yaml as yaml
 import re
+
+from monty.serialization import loadfn
+
+from pymatgen import Element
+from pymatgen.core.periodic_table import get_el_sp
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -214,6 +221,48 @@ def gen_periodic_table():
 
     with open('periodic_table.json', 'w') as f:
         json.dump(data, f)
+
+
+def gen_iupac_ordering():
+    periodic_table = loadfn("periodic_table.json")
+    order = [([18], range(6, 0, -1)),  # noble gasses
+             ([1], range(7, 1, -1)),  # alkali metals
+             ([2], range(7, 1, -1)),  # alkali earth metals
+             (range(17, 2, -1), [9]),  # actinides
+             (range(17, 2, -1), [8]),  # lanthanides
+             ([3], (5, 4)),  # Y, Sc
+             ([4], (6, 5, 4)),  # Hf -> Ti
+             ([5], (6, 5, 4)),  # Ta -> V
+             ([6], (6, 5, 4)),  # W -> Cr
+             ([7], (6, 5, 4)),  # Re -> Mn
+             ([8], (6, 5, 4)),  # Os -> Fe
+             ([9], (6, 5, 4)),  # Ir -> Co
+             ([10], (6, 5, 4)),  # Pt -> Ni
+             ([11], (6, 5, 4)),  # Au -> Cu
+             ([12], (6, 5, 4)),  # Hg -> Zn
+             ([13], range(6, 1, -1)),  # Tl -> B
+             ([14], range(6, 1, -1)),  # Pb -> C
+             ([15], range(6, 1, -1)),  # Bi -> N
+             ([1], [1]),  # Hydrogen
+             ([16], range(6, 1, -1)),  # Po -> O
+             ([17], range(6, 1, -1))]  # At -> F
+
+    order = sum([list(product(x, y)) for x, y in order], [])
+    iupac_ordering_dict = dict(zip(
+        [Element.from_row_and_group(row, group) for group, row in order],
+        range(len(order))))
+
+    # first clean periodic table of any IUPAC ordering
+    for el in periodic_table:
+        periodic_table[el].pop('IUPAC ordering', None)
+
+    # now add iupac ordering
+    for el in periodic_table:
+        if 'IUPAC ordering' in periodic_table[el]:
+            # sanity check that we don't cover the same element twice
+            raise KeyError("IUPAC ordering already exists for {}".format(el))
+
+        periodic_table[el]['IUPAC ordering'] = iupac_ordering_dict[get_el_sp(el)]
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
-pymatgen\.optimization package
-==============================
+pymatgen.optimization package
+=============================
 
 Subpackages
 -----------

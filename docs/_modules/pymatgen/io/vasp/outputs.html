@@ -4,27 +4,16 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.vasp.outputs &#8212; pymatgen 2018.9.12 documentation</title>
-    
+    <title>pymatgen.io.vasp.outputs &#8212; pymatgen 2018.12.12 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../../',
-        VERSION:     '2018.9.12',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -35,8 +24,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +34,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.9.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -81,6 +69,7 @@
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">jsanitize</span>
 <span class="kn">from</span> <span class="nn">monty.re</span> <span class="k">import</span> <span class="n">regrep</span>
+<span class="kn">from</span> <span class="nn">monty.os.path</span> <span class="k">import</span> <span class="n">zpath</span>
 <span class="kn">from</span> <span class="nn">six</span> <span class="k">import</span> <span class="n">string_types</span>
 <span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">map</span><span class="p">,</span> <span class="nb">zip</span>
 
@@ -804,7 +793,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">kpoints_filename</span><span class="p">:</span>
-            <span class="n">kpoints_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;vasprun.xml&#39;</span><span class="p">,</span> <span class="s1">&#39;KPOINTS&#39;</span><span class="p">)</span>
+            <span class="n">kpoints_filename</span> <span class="o">=</span> <span class="n">zpath</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">),</span> <span class="s1">&#39;KPOINTS&#39;</span><span class="p">))</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">kpoints_filename</span><span class="p">)</span> <span class="ow">and</span> <span class="n">line_mode</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">VaspParserError</span><span class="p">(</span><span class="s1">&#39;KPOINTS needed to obtain band structure &#39;</span>
                                   <span class="s1">&#39;along symmetry lines.&#39;</span><span class="p">)</span>
@@ -1501,6 +1491,14 @@
 <span class="sd">        Average electrostatic potential at each atomic position in order</span>
 <span class="sd">        of the atoms in POSCAR.</span>
 
+<span class="sd">    ..attribute: final_energy_contribs</span>
+<span class="sd">        Individual contributions to the total final energy as a dictionary.</span>
+<span class="sd">        Include contirbutions from keys, e.g.:</span>
+<span class="sd">        {&#39;DENC&#39;: -505778.5184347, &#39;EATOM&#39;: 15561.06492564, &#39;EBANDS&#39;: -804.53201231,</span>
+<span class="sd">        &#39;EENTRO&#39;: -0.08932659, &#39;EXHF&#39;: 0.0, &#39;Ediel_sol&#39;: 0.0,</span>
+<span class="sd">        &#39;PAW double counting&#39;: 664.6726974100002, &#39;PSCENC&#39;: 742.48691646,</span>
+<span class="sd">        &#39;TEWEN&#39;: 489742.86847338, &#39;XCENC&#39;: -169.64189814}</span>
+
 <span class="sd">    One can then call a specific reader depending on the type of run being</span>
 <span class="sd">    performed. These are currently: read_igpar(), read_lepsilon() and</span>
 <span class="sd">    read_lcalcpol(), read_core_state_eign(), read_avg_core_pot().</span>
@@ -1616,6 +1614,8 @@
                 <span class="n">mag_z</span> <span class="o">=</span> <span class="p">[]</span>
                 <span class="n">read_mag_z</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">read_charge</span><span class="p">,</span> <span class="n">read_mag_x</span><span class="p">,</span> <span class="n">read_mag_y</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
+            <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;electrostatic&quot;</span><span class="p">,</span> <span class="n">clean</span><span class="p">):</span>
+                <span class="n">read_charge</span><span class="p">,</span> <span class="n">read_mag_x</span><span class="p">,</span> <span class="n">read_mag_y</span><span class="p">,</span> <span class="n">read_mag_z</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
 
         <span class="c1"># merge x, y and z components of magmoms if present (SOC calculation)</span>
         <span class="k">if</span> <span class="n">mag_y</span> <span class="ow">and</span> <span class="n">mag_z</span><span class="p">:</span>
@@ -1712,6 +1712,19 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">nmr_efg</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">read_nmr_efg</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">read_nmr_efg_tensor</span><span class="p">()</span>
+
+        <span class="c1"># Store the individual contributions to the final total energy</span>
+        <span class="n">final_energy_contribs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;PSCENC&quot;</span><span class="p">,</span> <span class="s2">&quot;TEWEN&quot;</span><span class="p">,</span> <span class="s2">&quot;DENC&quot;</span><span class="p">,</span> <span class="s2">&quot;EXHF&quot;</span><span class="p">,</span> <span class="s2">&quot;XCENC&quot;</span><span class="p">,</span> <span class="s2">&quot;PAW double counting&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;EENTRO&quot;</span><span class="p">,</span> <span class="s2">&quot;EBANDS&quot;</span><span class="p">,</span> <span class="s2">&quot;EATOM&quot;</span><span class="p">,</span> <span class="s2">&quot;Ediel_sol&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s2">&quot;PAW double counting&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">read_pattern</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">\s+=\s+([\.\-\d]+)\s+([\.\-\d]+)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">)})</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">read_pattern</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">\s+=\s+([\d\-\.]+)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">)})</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+                <span class="k">continue</span>
+            <span class="n">final_energy_contribs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">final_energy_contribs</span> <span class="o">=</span> <span class="n">final_energy_contribs</span>
 
 <div class="viewcode-block" id="Outcar.read_pattern"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Outcar.read_pattern">[docs]</a>    <span class="k">def</span> <span class="nf">read_pattern</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">patterns</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">terminate_on_match</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                      <span class="n">postprocess</span><span class="o">=</span><span class="nb">str</span><span class="p">):</span>
@@ -2725,7 +2738,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;fermi_contact_shift&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fc_shift_table</span></div></div>
 
 
-<div class="viewcode-block" id="VolumetricData"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.VolumetricData">[docs]</a><span class="k">class</span> <span class="nc">VolumetricData</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="VolumetricData"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.VolumetricData">[docs]</a><span class="k">class</span> <span class="nc">VolumetricData</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Simple volumetric object for reading LOCPOT and CHGCAR type files.</span>
 
@@ -3278,13 +3291,22 @@
                         <span class="n">data</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">current_kpoint</span><span class="p">,</span> <span class="n">current_band</span><span class="p">,</span>
                                    <span class="n">index</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">num_data</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">phase_factors</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span>
-                                <span class="n">current_kpoint</span><span class="p">,</span> <span class="n">current_band</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="mi">0</span><span class="p">]):</span>
-                            <span class="n">phase_factors</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">current_kpoint</span><span class="p">,</span> <span class="n">current_band</span><span class="p">,</span>
-                                                <span class="n">index</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">num_data</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">toks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">headers</span><span class="p">):</span>
+                            <span class="c1"># new format of PROCAR (vasp 5.4.4)</span>
+                            <span class="n">num_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+                                                 <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">toks</span><span class="p">[:</span><span class="mi">2</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">headers</span><span class="p">)]])</span>
+                            <span class="k">for</span> <span class="n">orb</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">headers</span><span class="p">)):</span>
+                                <span class="n">phase_factors</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">current_kpoint</span><span class="p">,</span> <span class="n">current_band</span><span class="p">,</span>
+                                    <span class="n">index</span><span class="p">,</span> <span class="n">orb</span><span class="p">]</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">(</span><span class="n">num_data</span><span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="n">orb</span><span class="p">],</span> <span class="n">num_data</span><span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="n">orb</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
                         <span class="k">else</span><span class="p">:</span>
-                            <span class="n">phase_factors</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">current_kpoint</span><span class="p">,</span> <span class="n">current_band</span><span class="p">,</span>
-                                                <span class="n">index</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">num_data</span>
+                            <span class="c1"># old format of PROCAR (vasp 5.4.1 and before)</span>
+                            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">phase_factors</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span>
+                                    <span class="n">current_kpoint</span><span class="p">,</span> <span class="n">current_band</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="mi">0</span><span class="p">]):</span>
+                                <span class="n">phase_factors</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">current_kpoint</span><span class="p">,</span> <span class="n">current_band</span><span class="p">,</span>
+                                                    <span class="n">index</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">num_data</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">phase_factors</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">current_kpoint</span><span class="p">,</span> <span class="n">current_band</span><span class="p">,</span>
+                                                    <span class="n">index</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">num_data</span>
                 <span class="k">elif</span> <span class="n">l</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;tot&quot;</span><span class="p">):</span>
                     <span class="n">done</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="k">elif</span> <span class="n">preambleexpr</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">l</span><span class="p">):</span>
@@ -4337,12 +4359,14 @@
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../../../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -4358,7 +4382,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.9.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -4366,7 +4390,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
