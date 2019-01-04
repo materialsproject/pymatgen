@@ -22,7 +22,7 @@ except ImportError:
 BoltzTraT2 is a python software interpolating band structures and
 computing materials properties from dft band structure using Boltzmann
 semi-classical transport theory.
-This module provides a pymatgen interface to BoltzTraT2. 
+This module provides a pymatgen interface to BoltzTraT2.
 Some of the code is written following the examples provided in BoltzTraP2
 
 BoltzTraT2 has been developed by Georg Madsen, Jesús Carrete, Matthieu J. Verstraete.
@@ -33,14 +33,14 @@ https://www.sciencedirect.com/science/article/pii/S0010465518301632
 References are:
 
     Georg K.H.Madsen, Jesús Carrete, Matthieu J.Verstraete;
-    BoltzTraP2, a program for interpolating band structures and 
+    BoltzTraP2, a program for interpolating band structures and
     calculating semi-classical transport coefficients
     Computer Physics Communications 231, 140-145, 2018
-    
+
     Madsen, G. K. H., and Singh, D. J. (2006).
     BoltzTraP. A code for calculating band-structure dependent quantities.
     Computer Physics Communications, 175, 67-71
-    
+
 TODO:
 - spin polarized bands
 - read first derivative of the eigenvalues from vasprun.xml (mommat)
@@ -202,7 +202,7 @@ class VasprunLoader:
 class BztInterpolator(object):
     """
         Interpolate the dft band structures
-        
+
         Args:
             data: A loader
             lpfac: the number of interpolation points in the real space. By
@@ -263,7 +263,7 @@ class BztInterpolator(object):
     def get_dos(self, partial_dos=False, npts_mu=10000, T=None):
         """
             Return a Dos object interpolating bands
-            
+
             Args:
                 partial_dos: if True, projections will be interpolated as well
                     and partial doses will be return. Projections must be available
@@ -286,7 +286,7 @@ class BztInterpolator(object):
     def get_partial_doses(self, tdos, npts_mu, T):
         """
             Return a CompleteDos object interpolating the projections
-            
+
             tdos: total dos previously calculated
             npts_mu: number of energy points of the Dos
             T: parameter used to smooth the Dos
@@ -333,14 +333,14 @@ class BztTransportProperties(object):
         and Hall coefficient, conductivity effective mass, Power Factor tensors
         w.r.t. the chemical potential and temperatures, from dft band structure via
         interpolation.
-        
+
         Args:
             BztInterpolator: a BztInterpolator previously generated
             temp_r: numpy array of temperatures at which to calculate trasport properties
             doping: doping levels at which to calculate trasport properties
             npts_mu: number of energy points at which to calculate trasport properties
             CRTA: constant value of the relaxation time
-            
+
         Upon creation, it contains properties tensors w.r.t. the chemical potential
         of size (len(temp_r),npts_mu,3,3):
             Conductivity_mu (S/m), Seebeck_mu (microV/K), Kappa_mu (W/(m*K)),
@@ -352,7 +352,7 @@ class BztTransportProperties(object):
                 (len(temp_r),npts_mu)
             mu_r_eV: array of energies in eV and with E_fermi at 0.0
                 where all the properties are calculated.
-        
+
         Example:
             bztTransp = BztTransportProperties(bztInterp,temp_r = np.arange(100,1400,100))
     """
@@ -521,7 +521,7 @@ class BztPlotter(object):
     """
         Plotter to plot transport properties, interpolated bands along some high
         symmetry k-path, and fermisurface
-        
+
         Example:
             bztPlotter = BztPlotter(bztTransp,bztInterp)
     """
@@ -536,7 +536,7 @@ class BztPlotter(object):
 
         """
             Function to plot the transport properties.
-            
+
             Args:
                 prop_y: property to plot among ("Conductivity","Seebeck","Kappa","Carrier_conc","Hall_carrier_conc_trace"). Abbreviations are possible, like "S" for "Seebeck"
                 prop_x: independent variable in the x-axis among ('mu','doping','temp')
@@ -552,7 +552,7 @@ class BztPlotter(object):
                     when prop_z='temp'
                 xlim: chemical potential range, useful when prop_x='mu'
                 ax: figure.axes where to plot. If None, a new figure is produced.
-                
+
             Example:
             bztPlotter.plot_props('S','mu','temp',temps=[600,900,1200]).show()
             more example are provided in the notebook
