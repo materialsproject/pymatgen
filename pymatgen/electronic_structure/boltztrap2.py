@@ -646,7 +646,7 @@ class BztPlotter(object):
             if prop_z == 'temp' and prop_x == 'mu':
                 for temp in temps:
                     ti = temps_all.index(temp)
-                    prop_out = p_array[ti]
+                    prop_out = p_array[ti]  if idx_prop == 6 else np.abs(p_array[ti])
                     plt.semilogy(mu, prop_out, label=str(temp) + ' K')
 
                 plt.xlabel(r"$\mu$ (eV)", fontsize=30)
