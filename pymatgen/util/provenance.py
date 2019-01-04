@@ -2,17 +2,13 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals
 
 import sys
 import re
 import datetime
 from collections import namedtuple
 import json
-
-from six.moves import map, cStringIO
-from six import string_types
-
+from io import StringIO
 from monty.json import MontyDecoder, MontyEncoder
 from monty.string import remove_non_ascii
 
@@ -51,7 +47,7 @@ def is_valid_bibtex(reference):
     """
     # str is necessary since pybtex seems to have an issue with unicode. The
     # filter expression removes all non-ASCII characters.
-    sio = cStringIO(remove_non_ascii(reference))
+    sio = StringIO(remove_non_ascii(reference))
     parser = bibtex.Parser()
     errors.set_strict_mode(False)
     bib_data = parser.parse_stream(sio)
@@ -155,7 +151,7 @@ class Author(namedtuple('Author', ['name', 'email'])):
         Returns:
             An Author object.
         """
-        if isinstance(author, string_types):
+        if isinstance(author, str):
             # Regex looks for whitespace, (any name), whitespace, <, (email),
             # >, whitespace
             m = re.match(r'\s*(.*?)\s*<(.*?@.*?)>\s*', author)
@@ -171,7 +167,7 @@ class Author(namedtuple('Author', ['name', 'email'])):
             return Author(author[0], author[1])
 
 
-class StructureNL(object):
+class StructureNL:
     """
     The Structure Notation Language (SNL, pronounced 'snail') is container
     for a pymatgen Structure/Molecule object with some additional fields for
@@ -210,16 +206,15 @@ class StructureNL(object):
 
         # turn authors into list of Author objects
         authors = authors.split(',')\
-            if isinstance(authors, string_types) else authors
+            if isinstance(authors, str) else authors
         self.authors = [Author.parse_author(a) for a in authors]
 
         # turn projects into list of Strings
         projects = projects if projects else []
-        self.projects = [projects] \
-            if isinstance(projects, string_types) else projects
+        self.projects = [projects] if isinstance(projects, str) else projects
 
         # check that references are valid BibTeX
-        if not isinstance(references, string_types):
+        if not isinstance(references, str):
             raise ValueError("Invalid format for SNL reference! Should be "
                              "empty string or BibTeX string.")
         if references and not is_valid_bibtex(references):
@@ -234,8 +229,7 @@ class StructureNL(object):
 
         # turn remarks into list of Strings
         remarks = remarks if remarks else []
-        self.remarks = [remarks] if isinstance(remarks, string_types) \
-            else remarks
+        self.remarks = [remarks] if isinstance(remarks, str) else remarks
 
         # check remarks limit
         for r in self.remarks:

@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import os
 import json
 import collections
@@ -38,7 +37,7 @@ def _load_bond_length_data():
 bond_lengths = _load_bond_length_data()
 
 
-class CovalentBond(object):
+class CovalentBond:
     """
     Defines a covalent bond between two sites.
     """

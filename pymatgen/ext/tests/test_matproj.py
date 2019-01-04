@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import unittest
 import os
@@ -44,13 +43,14 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
 
 @unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY"), "PMG_MAPI_KEY environment variable not set.")
 class MPResterTest(unittest.TestCase):
+    _multiprocess_shared_ = True
 
     def setUp(self):
         self.rester = MPRester()
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_get_all_materials_ids_doc(self):
         mids = self.rester.get_materials_ids("Al2O3")
@@ -160,11 +160,24 @@ class MPResterTest(unittest.TestCase):
     def test_query(self):
         criteria = {'elements': {'$in': ['Li', 'Na', 'K'], '$all': ['O']}}
         props = ['pretty_formula', 'energy']
-        data = self.rester.query(criteria=criteria, properties=props)
+        data = self.rester.query(
+            criteria=criteria, properties=props, chunk_size=0)
         self.assertTrue(len(data) > 6)
-        data = self.rester.query(criteria="*2O", properties=props)
+        data = self.rester.query(
+            criteria="*2O", properties=props, chunk_size=0)
         self.assertGreaterEqual(len(data), 52)
         self.assertIn("Li2O", (d["pretty_formula"] for d in data))
+
+    def test_query_chunk_size(self):
+        criteria = {"nelements": 2, "elements": "O"}
+        props = ['pretty_formula']
+        data1 = self.rester.query(
+            criteria=criteria, properties=props, chunk_size=0)
+        data2 = self.rester.query(
+            criteria=criteria, properties=props, chunk_size=500)
+        self.assertEqual({d['pretty_formula'] for d in data1},
+                         {d['pretty_formula'] for d in data2})
+        self.assertIn("Al2O3", {d['pretty_formula'] for d in data1})
 
     def test_get_exp_thermo_data(self):
         data = self.rester.get_exp_thermo_data("Fe2O3")
@@ -257,20 +270,23 @@ class MPResterTest(unittest.TestCase):
         Fe_entries = self.rester.get_entries("Fe", sort_by_e_above_hull=True)
         self.assertEqual(Fe_entries[0].data["e_above_hull"], 0)
 
-
     def test_get_pourbaix_entries(self):
-        pbx_entries = self.rester.get_pourbaix_entries(["Fe"])
+        pbx_entries = self.rester.get_pourbaix_entries(["Fe", "Cr"])
         for pbx_entry in pbx_entries:
             self.assertTrue(isinstance(pbx_entry, PourbaixEntry))
         # Ensure entries are pourbaix compatible
         pbx = PourbaixDiagram(pbx_entries)
 
         # Try binary system
-        pbx_entries = self.rester.get_pourbaix_entries(["Fe", "Cr"])
-        pbx = PourbaixDiagram(pbx_entries)
+        #pbx_entries = self.rester.get_pourbaix_entries(["Fe", "Cr"])
+        #pbx = PourbaixDiagram(pbx_entries)
+
+        # TODO: Shyue Ping: I do not understand this test. You seem to
+        # be grabbing Zn-S system, but I don't see proper test for anything,
+        # including Na ref. This test also takes a long time.
 
         # Test Zn-S, which has Na in reference solids
-        pbx_entries = self.rester.get_pourbaix_entries(["Zn", "S"])
+        # pbx_entries = self.rester.get_pourbaix_entries(["Zn", "S"])
 
     def test_get_exp_entry(self):
         entry = self.rester.get_exp_entry("Fe2O3")

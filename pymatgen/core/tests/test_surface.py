@@ -211,7 +211,7 @@ class SlabTest(PymatgenTest):
             m = s.lattice.matrix
             return np.linalg.norm(np.cross(m[0], m[1]))
 
-        all_slabs = generate_all_slabs(self.agfcc, 3, 10, 10, max_normal_search=3)
+        all_slabs = generate_all_slabs(self.agfcc, 2, 10, 10, max_normal_search=3)
         for slab in all_slabs:
             ouc = slab.oriented_unit_cell
             self.assertAlmostEqual(surface_area(slab), surface_area(ouc))
@@ -476,7 +476,7 @@ class ReconstructionGeneratorTests(PymatgenTest):
         self.Si = Structure.from_spacegroup("Fd-3m", Lattice.cubic(5.430500),
                                             ["Si"], [(0, 0, 0.5)])
 
-        with open(os.path.join(os.getcwd(), "pymatgen", "core",
+        with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), "..",
                                "reconstructions_archive.json")) as data_file:
             self.rec_archive = json.load(data_file)
 
@@ -584,6 +584,14 @@ class MillerIndexFinderTests(PymatgenTest):
         self.p1 = Structure(Lattice.from_parameters(3, 4, 5, 31, 43, 50),
                             ["H", "He"], [[0, 0, 0], [0.1, 0.2, 0.3]])
         self.graphite = self.get_structure("Graphite")
+        self.trigBi = Structure(Lattice.from_parameters(3, 3, 10, 90, 90, 120),
+                                ["Bi", "Bi", "Bi", "Bi", "Bi", "Bi"],
+                                [[0.3333, 0.6666, 0.39945113],
+                                 [0.0000, 0.0000, 0.26721554],
+                                 [0.0000, 0.0000, 0.73278446],
+                                 [0.6666, 0.3333, 0.60054887],
+                                 [0.6666, 0.3333, 0.06611779],
+                                 [0.3333, 0.6666, 0.93388221]])
 
     def test_get_symmetrically_distinct_miller_indices(self):
 
@@ -608,6 +616,10 @@ class MillerIndexFinderTests(PymatgenTest):
 
         indices = get_symmetrically_distinct_miller_indices(self.graphite, 2)
         self.assertEqual(len(indices), 12)
+
+        # Now try a trigonal system.
+        indices = get_symmetrically_distinct_miller_indices(self.trigBi, 2)
+        self.assertEqual(len(indices), 17)
 
     def test_generate_all_slabs(self):
 
@@ -676,24 +688,24 @@ class MillerIndexFinderTests(PymatgenTest):
         self.assertEqual(len(miller_list), len(all_miller_list))
 
     def test_miller_index_from_sites(self):
+        """Test surface miller index convenience function"""
+
         # test on a cubic system
-        m = Lattice.cubic(1).matrix
+        m = Lattice.cubic(1)
         s1 = np.array([0.5, -1.5, 3])
         s2 = np.array([0.5, 3.,-1.5])
         s3 = np.array([2.5, 1.5,-4.])
-        self.assertEqual(tuple(miller_index_from_sites(m, [s1, s2, s3])),
-                         (-2,-1,-1))
+        self.assertEqual(miller_index_from_sites(m, [s1, s2, s3]),
+                         (2, 1, 1))
 
-        # test on a hexagonal system
-        m = np.array([[2.319, -4.01662582, 0.],
-                      [2.319, 4.01662582, 0.],
-                      [0., 0., 7.252]])
+        # test casting from matrix to Lattice
+        m = [[2.319, -4.01662582, 0.], [2.319, 4.01662582, 0.], [0., 0., 7.252]]
 
         s1 = np.array([2.319, 1.33887527, 6.3455])
         s2 = np.array([1.1595, 0.66943764, 4.5325])
         s3 = np.array([1.1595, 0.66943764, 0.9065])
-        hkl = [np.round(i, 6) for i in miller_index_from_sites(m, [s1, s2, s3])]
-        self.assertEqual(tuple(hkl), (2, -1, 0))
+        hkl = miller_index_from_sites(m, [s1, s2, s3])
+        self.assertEqual(hkl, (2, -1, 0))
 
 
 if __name__ == "__main__":

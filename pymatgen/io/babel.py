@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import warnings
 import copy
@@ -32,7 +31,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Apr 28, 2012"
 
 
-class BabelMolAdaptor(object):
+class BabelMolAdaptor:
     """
     Adaptor serves as a bridge between OpenBabel's Molecule and pymatgen's
     Molecule.
@@ -139,6 +138,18 @@ class BabelMolAdaptor(object):
         Add hydrogens (make all hydrogen explicit).
         """
         self._obmol.AddHydrogens()
+
+    def remove_bond(self, idx1, idx2):
+        """
+        Remove a bond from an openbabel molecule
+
+        Args:
+            idx1: The atom index of one of the atoms participating the in bond
+            idx2: The atom index of the other atom participating in the bond 
+        """
+        for obbond in ob.OBMolBondIter(self._obmol):
+            if (obbond.GetBeginAtomIdx() == idx1 and obbond.GetEndAtomIdx() == idx2) or (obbond.GetBeginAtomIdx() == idx2 and obbond.GetEndAtomIdx() == idx1):
+                self._obmol.DeleteBond(obbond)
 
     def rotor_conformer(self, *rotor_args, algo="WeightedRotorSearch",
                         forcefield="mmff94"):

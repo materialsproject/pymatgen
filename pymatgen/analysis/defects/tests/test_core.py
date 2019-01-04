@@ -2,14 +2,14 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals
 
 import unittest
+import numpy as np
 
+from pymatgen.core import Structure
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.analysis.defects.core import Vacancy, Interstitial, Substitution, DefectEntry
 from pymatgen.util.testing import PymatgenTest
-
 
 class DefectsCoreTest(PymatgenTest):
     def test_vacancy(self):
@@ -26,6 +26,9 @@ class DefectsCoreTest(PymatgenTest):
 
         vac_struc = vac.generate_defect_structure(3)
         self.assertEqual(vac_struc.composition.as_dict(), {"V": 53, "O": 108})
+
+        vac_struc = vac.generate_defect_structure([[2., 0, 0], [0, 0, -3.], [0, 2., 0]])
+        self.assertEqual(vac_struc.composition.as_dict(), {"V": 23, "O": 48})
 
         # test charge
         vac = Vacancy(struc, struc[V_index])
@@ -48,8 +51,18 @@ class DefectsCoreTest(PymatgenTest):
         vac = Vacancy(struc, struc[O_index])
         self.assertEqual(vac.multiplicity, 4)
 
-        # Test composoition
+        # Test composition
         self.assertEqual(dict(vac.defect_composition.as_dict()), {"V": 2, "O": 3})
+
+        # test lattice value error occurs for differnet lattices
+        sc_scaled_struc = struc.copy()
+        sc_scaled_struc.make_supercell(2)
+        self.assertRaises( ValueError, Vacancy, struc, sc_scaled_struc[V_index])
+        self.assertRaises( ValueError, Vacancy, sc_scaled_struc, struc[V_index])
+
+        # test that structure has all velocities equal to [0., 0., 0.](previously caused failures for structure printing)
+        # self.assertTrue( (np.array(sc_scaled_struc.site_properties['velocities']) == 0.).all())
+        # self.assertEqual( len(sc_scaled_struc.site_properties['velocities']), len(sc_scaled_struc))
 
     def test_interstitial(self):
         struc = PymatgenTest.get_structure("VO2")
@@ -69,6 +82,9 @@ class DefectsCoreTest(PymatgenTest):
 
         int_struc = interstitial.generate_defect_structure(3)
         self.assertEqual(int_struc.composition.as_dict(), {"V": 55, "O": 108})
+
+        int_struc = interstitial.generate_defect_structure([[2., 0, 0], [0, 0, -3.], [0, 2., 0]])
+        self.assertEqual(int_struc.composition.as_dict(), {"V": 25, "O": 48})
 
         # test charge
         interstitial = Interstitial(struc, int_site)
@@ -93,6 +109,16 @@ class DefectsCoreTest(PymatgenTest):
         # Test composoition
         self.assertEqual(dict(interstitial.defect_composition.as_dict()), {"V": 3, "O": 4})
 
+        # test that structure has all velocities equal if velocities previously existed
+        # (previously caused failures for structure printing)
+        vel_struc = Structure( struc.lattice, struc.species, struc.frac_coords,
+                               site_properties= {'velocities': [[0., 0., 0.]]*len(struc) } )
+        interstitial = Interstitial(vel_struc, int_site, charge=-1.0)
+        int_struc = interstitial.generate_defect_structure(1)
+
+        self.assertTrue( (np.array(int_struc.site_properties['velocities']) == 0.).all())
+        self.assertEqual( len(int_struc.site_properties['velocities']), len(int_struc))
+
     def test_substitution(self):
         struc = PymatgenTest.get_structure("VO2")
         V_index = struc.indices_from_symbol("V")[0]
@@ -109,6 +135,9 @@ class DefectsCoreTest(PymatgenTest):
 
         sub_struc = substitution.generate_defect_structure(3)
         self.assertEqual(sub_struc.composition.as_dict(), {"V": 53, "Sr": 1, "O": 108})
+
+        sub_struc = substitution.generate_defect_structure([[2., 0, 0], [0, 0, -3.], [0, 2., 0]])
+        self.assertEqual(sub_struc.composition.as_dict(), {"V": 23, "O": 48, "Sr": 1})
 
         # test charge
         substitution = Substitution(struc, sub_site)
@@ -132,8 +161,19 @@ class DefectsCoreTest(PymatgenTest):
         substitution = Substitution(struc, sub_site)
         self.assertEqual(substitution.multiplicity, 4)
 
-        # Test composoition
+        # Test composition
         self.assertEqual(dict(substitution.defect_composition.as_dict()), {"V": 2, "Sr": 1, "O": 3})
+
+        # test that structure has all velocities equal if velocities previously existed
+        # (previously caused failures for structure printing)
+        vel_struc = Structure( struc.lattice, struc.species, struc.frac_coords,
+                               site_properties= {'velocities': [[0., 0., 0.]]*len(struc) } )
+        substitution = Substitution(vel_struc, sub_site)
+        sub_struc = substitution.generate_defect_structure(1)
+
+        self.assertTrue( (np.array(sub_struc.site_properties['velocities']) == 0.).all())
+        self.assertEqual( len(sub_struc.site_properties['velocities']), len(sub_struc))
+
 
 
 class DefectEntryTest(PymatgenTest):

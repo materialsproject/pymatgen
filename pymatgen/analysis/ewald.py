@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 from math import pi, sqrt, log
 from datetime import datetime
@@ -28,7 +27,7 @@ __status__ = "Production"
 __date__ = "Aug 1 2012"
 
 
-class EwaldSummation(object):
+class EwaldSummation:
     """
     Calculates the electrostatic energy of a periodic array of charges using
     the Ewald technique.

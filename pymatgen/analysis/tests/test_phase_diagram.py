@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals
 
 import unittest
 import os
@@ -132,7 +131,7 @@ class PhaseDiagramTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_init(self):
         # Ensure that a bad set of entries raises a PD error. Remove all Li

@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals
 
 import unittest
 import warnings
@@ -13,11 +12,12 @@ from pymatgen.entries.computed_entries import ComputedEntry
 
 
 class ReactionTest(unittest.TestCase):
+
     def setUp(self):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_init(self):
         reactants = [Composition("Fe"),
@@ -282,7 +282,7 @@ class BalancedReactionTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_init(self):
         rct = {Composition('K2SO4'): 3, Composition('Na2S'): 1,

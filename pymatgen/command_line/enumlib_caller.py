@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import re
 import math
@@ -15,8 +14,6 @@ import warnings
 import numpy as np
 from monty.fractions import lcm
 import fractions
-
-from six.moves import reduce
 
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.core.sites import PeriodicSite
@@ -73,7 +70,7 @@ makestr_cmd = which('makestr.x') or which('makeStr.x') or which('makeStr.py')
           "and 'makestr.x' or 'makeStr.py' to be in the path. Please download the "
           "library at http://enum.sourceforge.net/ and follow the instructions in "
           "the README to compile these two executables accordingly.")
-class EnumlibAdaptor(object):
+class EnumlibAdaptor:
     """
     An adaptor for enumlib.
 
@@ -263,19 +260,25 @@ class EnumlibAdaptor(object):
         output.append("partial")
 
         ndisordered = sum([len(s) for s in disordered_sites])
-
-        base = int(ndisordered*reduce(lcm,
-                                      [f.limit_denominator(
-                                          ndisordered *
+        base = int(ndisordered*lcm(*[f.limit_denominator(ndisordered *
                                           self.max_cell_size).denominator
                                        for f in map(fractions.Fraction,
                                                     index_amounts)]))
+
+        # This multiplicative factor of 10 is to prevent having too small bases
+        # which can lead to rounding issues in the next step.
+        # An old bug was that a base was set to 8, with a conc of 0.4:0.6. That
+        # resulted in a range that overlaps and a conc of 0.5 satisfying this
+        # enumeration. See Cu7Te5.cif test file.
+        base *= 10
+
         # base = ndisordered #10 ** int(math.ceil(math.log10(ndisordered)))
         # To get a reasonable number of structures, we fix concentrations to the
         # range expected in the original structure.
         total_amounts = sum(index_amounts)
         for amt in index_amounts:
             conc = amt / total_amounts
+
             if abs(conc * base - round(conc * base)) < 1e-5:
                 output.append("{} {} {}".format(int(round(conc * base)),
                                                 int(round(conc * base)),
