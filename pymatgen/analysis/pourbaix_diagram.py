@@ -397,6 +397,68 @@ def ion_or_solid_comp_object(formula):
 elements_HO = {Element('H'), Element('O')}
 
 
+# Temporary home to get convex hull in npH-nphi-e0-frac space
+
+def get_hull(entries, comp_dict=None):
+    """
+
+    Args:
+        entries ([PourbaixEntry]):
+
+    Returns:
+
+    """
+    # Get non-OH elements
+    pbx_elts = set(itertools.chain.from_iterable(
+        [entry.composition.elements for entry in entries]))
+    pbx_elts = list(pbx_elts - elements_HO)
+    dim = len(pbx_elts) - 1
+    comp_dict = comp_dict or {k: 1 / (dim + 1) for k in pbx_elts}
+    #elts = pbx_diagram.pourbaix_elements[:-1]
+
+    vecs = [[entry.npH, entry.nPhi, entry.energy] +
+            [entry.composition.get(elt) for elt in pbx_elts[:-1]]
+            for entry in entries]
+    vecs = np.array(vecs)
+    # TODO: remove concurrent points at each point in pourbaix space
+
+    # entries = pbx_diagram.unprocessed_entries
+    norms = np.transpose([[entry.normalization_factor
+                           for entry in entries]])
+    vecs *= norms
+    maxes = np.max(vecs[:, :3], axis=0)
+    extra_point = np.concatenate([maxes, np.ones(dim) / dim], axis=0)
+
+    # Add padding for extra point
+    pad = 1000
+    extra_point[3] += pad
+    points = np.concatenate([vecs, np.array([extra_point])], axis=0)
+    hull = ConvexHull(points, qhull_options="QJ i")
+
+    # Create facets and remote top
+    facets = [facet for facet in hull.simplices
+              if not len(points) - 1 in facet]
+    n = len(pbx_elts)
+    combos = []
+    for facet in facets:
+        for i in range(1, dim + 2):
+           combos.append([
+                frozenset(combo) for combo in itertools.combinations(facet, i)])
+
+    all_combos = set(itertools.chain.from_iterable(combos))
+    pbx_entries = []
+    for combo in all_combos:
+        these_entries = [entries[i] for i in combo]
+        mentry = PourbaixDiagram.process_multientry(these_entries, Composition(comp_dict))
+        if mentry:
+            pbx_entries.append(mentry)
+    if dim == 2:
+        import nose; nose.tools.set_trace()
+    return pbx_entries
+    # return all_combos
+
+
+
 # TODO: There's a lot of functionality here that diverges
 #   based on whether or not the pbx diagram is multielement
 #   or not.  Could be a more elegant way to treat the two distinct modes,

@@ -252,6 +252,27 @@ class PourbaixDiagramTest(unittest.TestCase):
         self.assertEqual(len(pd_binary.stable_entries),
                          len(new_binary.stable_entries))
 
+    def test_get_hull(self):
+        # Find some facets on
+        # pd_binary = PourbaixDiagram(self.test_data['Ag-Te'], filter_solids=True,
+        #                             comp_dict={"Ag": 0.5, "Te": 0.5},
+        #                             conc_dict={"Ag": 1e-8, "Te": 1e-8})
+        from pymatgen.analysis.pourbaix_diagram import get_hull
+        hull_entries = get_hull(self.test_data['Ag-Te'])
+        pbx = PourbaixDiagram(hull_entries)
+        ids = [frozenset(e.entry_id) for e in pbx.stable_entries]
+        pbx_old = PourbaixDiagram(self.test_data['Ag-Te'])
+        ids_old = [frozenset(e.entry_id) for e in pbx.stable_entries]
+        self.assertEqual(set(ids), set(ids_old))
+        # self.assertEqual(len(pbx.stable_entries), len(pbx_old.stable_entries))
+        hull3_entries = get_hull(self.test_data['Ag-Te-N'])
+        pbx3 = PourbaixDiagram(hull3_entries)
+        pbx3_old = PourbaixDiagram(self.test_data['Ag-Te-N'], nproc=4)
+        ids3 = [frozenset(e.entry_id) for e in pbx3.stable_entries]
+        ids3_old = [frozenset(e.entry_id) for e in pbx3_old.stable_entries]
+        self.assertEqual(set(ids3), set(ids3_old))
+        self.assertEqual(len(pbx3.stable_entries), len(pbx3_old.stable_entries))
+
 
 class PourbaixPlotterTest(unittest.TestCase):
     def setUp(self):
