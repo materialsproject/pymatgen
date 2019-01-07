@@ -1229,7 +1229,7 @@ class DefectThermoBuilder(Builder):
             entry = DefectEntry.from_dict({k:v for k,v in entry_dict.items() if k in needed_entry_keys})
             matched = False
             for grpind, grpdefect in distinct_entries.items():
-                if pdc.are_equal( entry.defect, grpdefect):
+                if pdc.are_equal( entry.defect, grpdefect.defect):
                     matched = True
                     break
 
