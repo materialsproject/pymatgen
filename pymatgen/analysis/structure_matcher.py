@@ -26,7 +26,7 @@ from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.optimization.linear_assignment import LinearAssignment
 from pymatgen.util.coord_cython import pbc_shortest_vectors, is_coord_subset_pbc
 from pymatgen.util.coord import lattice_points_in_supercell
-from pymatgen.analysis.defects.core import create_saturated_interstitial_structure, Interstitial
+from pymatgen.analysis.defects.core import create_saturated_interstitial_structure, Interstitial, Defect, Vacancy, Substitution
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 __author__ = "William Davidson Richards, Stephen Dacek, Shyue Ping Ong"
@@ -1148,6 +1148,10 @@ class PointDefectComparator(MSONable):
         Returns:
             True if defects are identical in type and sublattice.
         """
+        possible_defect_types = [Defect, Vacancy, Substitution, Interstitial]
+        if type(d1) not in possible_defect_types or type(d2) not in possible_defect_types:
+            raise ValueError("Cannot compare non-defect objects...")
+
         if (type(d1) != type(d2)):
             return False
         elif d1.site.specie != d2.site.specie:
