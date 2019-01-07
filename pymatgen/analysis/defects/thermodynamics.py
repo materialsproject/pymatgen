@@ -82,6 +82,8 @@ class DefectPhaseDiagram(MSONable):
         band_gap = d["band_gap"]
         filter_compatible = d.get("filter_compatible", True)
         metadata = d.get("metadata", {})
+        if 'entry_id' in entry_dict.keys() and 'entry_id' not in metadata:
+            metadata['entry_id'] = entry_dict['entry_id']
 
         return cls(entries, vbm, band_gap, filter_compatible=filter_compatible,
                    metadata=metadata)
