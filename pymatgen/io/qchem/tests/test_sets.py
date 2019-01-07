@@ -97,7 +97,8 @@ class QChemDictSetTest(PymatgenTest):
                 'geom_opt_max_cycles': 200,
                 'scf_algorithm': 'diis',
                 'xc_grid': '3',
-                'solvent_method': 'smd'
+                'solvent_method': 'smd',
+                'ideriv': '1'
             })
         self.assertEqual(test_DictSet.smx, {'solvent': 'water'})
 
@@ -228,7 +229,8 @@ class OptSetTest(PymatgenTest):
                 'geom_opt_max_cycles': 200,
                 'scf_algorithm': 'diis_gdm',
                 'xc_grid': '3',
-                'solvent_method': 'smd'
+                'solvent_method': 'smd',
+                'ideriv': '1'
             })
         self.assertEqual(test_OptSet.smx, {'solvent': 'water'})
         self.assertEqual(test_OptSet.molecule, test_molecule)
@@ -293,7 +295,8 @@ class SinglePointSetTest(PymatgenTest):
                 'method': 'wb97xd',
                 'scf_algorithm': 'diis_gdm',
                 'xc_grid': '3',
-                'solvent_method': 'smd'
+                'solvent_method': 'smd',
+                'ideriv': '1'
             })
         self.assertEqual(test_SPSet.smx, {'solvent': 'water'})
         self.assertEqual(test_SPSet.molecule, test_molecule)
