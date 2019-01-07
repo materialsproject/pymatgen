@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.local_env &#8212; pymatgen 2018.10.18 documentation</title>
+    <title>pymatgen.analysis.local_env &#8212; pymatgen 2018.12.12 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.10.18 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -53,6 +53,7 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
 
 <span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">namedtuple</span><span class="p">,</span> <span class="n">defaultdict</span>
 
 <span class="kn">import</span> <span class="nn">six</span>
@@ -3127,7 +3128,7 @@
     <span class="n">NNData</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;nn_data&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;all_nninfo&quot;</span><span class="p">,</span> <span class="s2">&quot;cn_weights&quot;</span><span class="p">,</span> <span class="s2">&quot;cn_nninfo&quot;</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weighted_cn</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cation_anion</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                 <span class="n">distance_cutoffs</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="n">x_diff_weight</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>
+                 <span class="n">distance_cutoffs</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">x_diff_weight</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>
                  <span class="n">porous_adjustment</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">search_cutoff</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
                  <span class="n">fingerprint_length</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -3278,12 +3279,22 @@
             <span class="n">r1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_radius</span><span class="p">(</span><span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">])</span>
             <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">nn</span><span class="p">:</span>
                 <span class="n">r2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_radius</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;site&quot;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">r1</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">r2</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">d</span> <span class="o">=</span> <span class="n">r1</span> <span class="o">+</span> <span class="n">r2</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                        <span class="s2">&quot;CrystalNN: cannot locate an appropriate radius, &quot;</span>
+                        <span class="s2">&quot;covalent or atomic radii will be used, this can lead &quot;</span>
+                        <span class="s2">&quot;to non-optimal results.&quot;</span><span class="p">)</span>
+                    <span class="n">d</span> <span class="o">=</span> <span class="n">CrystalNN</span><span class="o">.</span><span class="n">_get_default_radius</span><span class="p">(</span><span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">])</span> <span class="o">+</span> \
+                        <span class="n">CrystalNN</span><span class="o">.</span><span class="n">_get_default_radius</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;site&quot;</span><span class="p">])</span>
+
                 <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span>
                     <span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span> <span class="o">-</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;site&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
                 <span class="n">dist_weight</span> <span class="o">=</span> <span class="mi">0</span>
 
-                <span class="n">cutoff_low</span> <span class="o">=</span> <span class="p">(</span><span class="n">r1</span> <span class="o">+</span> <span class="n">r2</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_cutoffs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">cutoff_high</span> <span class="o">=</span> <span class="p">(</span><span class="n">r1</span> <span class="o">+</span> <span class="n">r2</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_cutoffs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">cutoff_low</span> <span class="o">=</span> <span class="n">d</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_cutoffs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">cutoff_high</span> <span class="o">=</span> <span class="n">d</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_cutoffs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
                 <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;=</span> <span class="n">cutoff_low</span><span class="p">:</span>
                     <span class="n">dist_weight</span> <span class="o">=</span> <span class="mi">1</span>
@@ -3405,11 +3416,11 @@
 
         <span class="k">return</span> <span class="p">(</span><span class="n">area1</span> <span class="o">-</span> <span class="n">area2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">0.25</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">r</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
 
-
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_get_radius</span><span class="p">(</span><span class="n">site</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_get_default_radius</span><span class="p">(</span><span class="n">site</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        An internal method to get the expected radius for a site.</span>
+<span class="sd">        An internal method to get a &quot;default&quot; covalent/element radius</span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            site: (Site)</span>
 
@@ -3420,6 +3431,49 @@
             <span class="k">return</span> <span class="n">CovalentRadius</span><span class="o">.</span><span class="n">radius</span><span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span><span class="p">]</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">atomic_radius</span>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_radius</span><span class="p">(</span><span class="n">site</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        An internal method to get the expected radius for a site with</span>
+<span class="sd">        oxidation state.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            site: (Site)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Oxidation-state dependent radius: ionic, covalent, or atomic.</span>
+<span class="sd">            Returns 0 if no oxidation state or appropriate radius is found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="s1">&#39;oxi_state&#39;</span><span class="p">):</span>
+            <span class="n">el</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">element</span>
+            <span class="n">oxi</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">oxi_state</span>
+
+            <span class="k">if</span> <span class="n">oxi</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">CrystalNN</span><span class="o">.</span><span class="n">_get_default_radius</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">oxi</span> <span class="ow">in</span> <span class="n">el</span><span class="o">.</span><span class="n">ionic_radii</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">el</span><span class="o">.</span><span class="n">ionic_radii</span><span class="p">[</span><span class="n">oxi</span><span class="p">]</span>
+
+            <span class="c1"># e.g., oxi = 2.667, average together 2+ and 3+ radii</span>
+            <span class="k">elif</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">oxi</span><span class="p">))</span> <span class="ow">in</span> <span class="n">el</span><span class="o">.</span><span class="n">ionic_radii</span> <span class="ow">and</span> \
+                    <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">oxi</span><span class="p">))</span> <span class="ow">in</span> <span class="n">el</span><span class="o">.</span><span class="n">ionic_radii</span><span class="p">:</span>
+                <span class="n">oxi_low</span> <span class="o">=</span> <span class="n">el</span><span class="o">.</span><span class="n">ionic_radii</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">oxi</span><span class="p">))]</span>
+                <span class="n">oxi_high</span> <span class="o">=</span> <span class="n">el</span><span class="o">.</span><span class="n">ionic_radii</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">oxi</span><span class="p">))]</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">oxi</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">oxi</span><span class="p">))</span>
+                <span class="k">return</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">oxi_low</span> <span class="o">+</span> <span class="n">x</span> <span class="o">*</span> <span class="n">oxi_high</span>
+
+            <span class="k">elif</span> <span class="n">oxi</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">el</span><span class="o">.</span><span class="n">average_cationic_radius</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">el</span><span class="o">.</span><span class="n">average_cationic_radius</span>
+
+            <span class="k">elif</span> <span class="n">oxi</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">el</span><span class="o">.</span><span class="n">average_anionic_radius</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">el</span><span class="o">.</span><span class="n">average_anionic_radius</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;CrystalNN: distance cutoffs set but no oxidation &quot;</span>
+                          <span class="s2">&quot;states specified on sites! For better results, set &quot;</span>
+                          <span class="s2">&quot;the site oxidation states in the structure.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">0</span>
 
 <div class="viewcode-block" id="CrystalNN.transform_to_length"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.CrystalNN.transform_to_length">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">transform_to_length</span><span class="p">(</span><span class="n">nndata</span><span class="p">,</span> <span class="n">length</span><span class="p">):</span>
@@ -3602,7 +3656,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.10.18 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

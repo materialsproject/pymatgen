@@ -97,17 +97,14 @@ as Python 3.x.
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2018.10.18",
+    version="2018.12.12",
     cmdclass={'build_ext': build_ext},
     setup_requires=['numpy>=1.14.3', 'setuptools>=18.0'],
-    install_requires=["numpy>=1.14.3", "six", "requests", "ruamel.yaml>=0.15.6",
+    install_requires=["numpy>=1.14.3", "requests", "ruamel.yaml>=0.15.6",
                       "monty>=0.9.6", "scipy>=1.0.1", "pydispatcher>=2.0.5",
                       "tabulate", "spglib>=1.9.9.44", "networkx>=2.1",
                       "matplotlib>=1.5", "palettable>=2.1.1", "sympy", "pandas"],
     extras_require={
-        ':python_version == "2.7"': [
-            'enum34',
-        ],
         "provenance": ["pybtex"],
         "ase": ["ase>=3.3"],
         "vis": ["vtk>=6.0.0"],
@@ -146,8 +143,6 @@ setup(
               "project", "electronic", "structure", "analysis", "phase", "diagrams",
               "crystal"],
     classifiers=[
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",

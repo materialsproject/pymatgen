@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Change log &#8212; pymatgen 2018.10.18 documentation</title>
+    <title>Change log &#8212; pymatgen 2018.12.12 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.10.18 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -45,6 +45,35 @@
             
   <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="v2018-12-12">
+<h2>v2018.12.12<a class="headerlink" href="#v2018-12-12" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Support for IUPAC ordering of elements in Composition formulae (&#64;utf)</li>
+<li>Various bug fixes including returning integer miller indices, catching negative values in Composition and fixes to graph analysis (&#64;utf), fix to Composition serialization (&#64;jmmshen), defect analysis (&#64;HanmeiTang), removing sites in surfaces (&#64;yiming-xu), and fix to support the new PROCAR format in VASP (&#64;dkorotin)</li>
+<li><cite>PMG_MAPI_ENDPOINT</cite> environment variable added to support different endpoints for the Materials Project REST interface (&#64;mkhorton)</li>
+</ul>
+</div>
+<div class="section" id="v2018-11-30">
+<h2>v2018.11.30<a class="headerlink" href="#v2018-11-30" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>MPRester.query now supports bulk queries for large scale requests.
+(&#64;dwinston)</li>
+<li>MVLRelax52Set which uses VASP 52 pseudopotentials. (&#64;HanmeiTang)</li>
+<li>EPH calculations in ABINIT (&#64;gmatteo)</li>
+<li>New ScaleToRelaxedTransformation (&#64;richardtran415)</li>
+<li>New dimensionality finder, and consolidation of existing algorithms (&#64;utf)</li>
+<li>New dopant predictor built on structure predictor (&#64;utf)</li>
+<li>Misc bug fixes (&#64;HanmeiTang, &#64;utf, &#64;tamuhey, &#64;mkhorton, &#64;yiming-xu, &#64;richardtran415)</li>
+</ul>
+</div>
+<div class="section" id="v2018-11-6">
+<h2>v2018.11.6<a class="headerlink" href="#v2018-11-6" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Ionic radius based CrystalNN (&#64;computron)</li>
+<li>InterfacialReactivity (&#64;dbroberg)</li>
+<li>Misc bug fixes</li>
+</ul>
+</div>
 <div class="section" id="v2018-10-18">
 <h2>v2018.10.18<a class="headerlink" href="#v2018-10-18" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
@@ -2042,6 +2071,9 @@ environment variable.</li>
   <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Change log</a><ul>
+<li><a class="reference internal" href="#v2018-12-12">v2018.12.12</a></li>
+<li><a class="reference internal" href="#v2018-11-30">v2018.11.30</a></li>
+<li><a class="reference internal" href="#v2018-11-6">v2018.11.6</a></li>
 <li><a class="reference internal" href="#v2018-10-18">v2018.10.18</a></li>
 <li><a class="reference internal" href="#v2018-9-30">v2018.9.30</a></li>
 <li><a class="reference internal" href="#v2018-9-19">v2018.9.19</a></li>
@@ -2288,7 +2320,7 @@ environment variable.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.10.18 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
       </ul>
     </div>
 

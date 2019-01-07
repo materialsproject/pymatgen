@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.ferroelectricity.polarization &#8212; pymatgen 2018.10.18 documentation</title>
+    <title>pymatgen.analysis.ferroelectricity.polarization &#8212; pymatgen 2018.12.12 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.10.18 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -198,8 +198,8 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">p_elecs</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">p_ions</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">p_elecs</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">structures</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;The number of electronic polarization and ionic polarization values must be equal.&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">p_elecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">p_elecs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">p_ions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">p_ions</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p_elecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">p_elecs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p_ions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">p_ions</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">structures</span> <span class="o">=</span> <span class="n">structures</span>
 
 <div class="viewcode-block" id="Polarization.from_outcars_and_structures"><a class="viewcode-back" href="../../../../pymatgen.analysis.ferroelectricity.polarization.html#pymatgen.analysis.ferroelectricity.polarization.Polarization.from_outcars_and_structures">[docs]</a>    <span class="nd">@classmethod</span>
@@ -243,11 +243,11 @@
             <span class="n">volumes</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">volume</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">]</span>
             <span class="n">e_to_muC</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.6021766e-13</span>
             <span class="n">cm2_to_A2</span> <span class="o">=</span> <span class="mf">1e16</span>
-            <span class="n">units</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">volumes</span><span class="p">)</span>
+            <span class="n">units</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">volumes</span><span class="p">)</span>
             <span class="n">units</span> <span class="o">*=</span> <span class="n">e_to_muC</span> <span class="o">*</span> <span class="n">cm2_to_A2</span>
 
-            <span class="n">p_elecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="n">p_elecs</span><span class="p">)</span>
-            <span class="n">p_ions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="n">p_ions</span><span class="p">)</span>
+            <span class="n">p_elecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="n">p_elecs</span><span class="p">)</span>
+            <span class="n">p_ions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="n">p_ions</span><span class="p">)</span>
 
             <span class="n">p_elecs</span><span class="p">,</span> <span class="n">p_ions</span> <span class="o">=</span> <span class="n">p_elecs</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">p_ions</span><span class="o">.</span><span class="n">T</span>
 
@@ -286,10 +286,10 @@
 
         <span class="n">p_elec</span><span class="p">,</span> <span class="n">p_ion</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pelecs_and_pions</span><span class="p">()</span>
         <span class="n">p_tot</span> <span class="o">=</span> <span class="n">p_elec</span> <span class="o">+</span> <span class="n">p_ion</span>
-        <span class="n">p_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">p_tot</span><span class="p">)</span>
+        <span class="n">p_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">p_tot</span><span class="p">)</span>
 
         <span class="n">lattices</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">lattice</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">]</span>
-        <span class="n">volumes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">([</span><span class="n">s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">volume</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">])</span>
+        <span class="n">volumes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">volume</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">])</span>
 
         <span class="n">L</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">p_elec</span><span class="p">)</span>
 
@@ -297,25 +297,24 @@
         <span class="k">if</span> <span class="n">convert_to_muC_per_cm2</span><span class="p">:</span>
             <span class="n">e_to_muC</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.6021766e-13</span>
             <span class="n">cm2_to_A2</span> <span class="o">=</span> <span class="mf">1e16</span>
-            <span class="n">units</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">volumes</span><span class="p">)</span>
+            <span class="n">units</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">volumes</span><span class="p">)</span>
             <span class="n">units</span> <span class="o">*=</span> <span class="n">e_to_muC</span> <span class="o">*</span> <span class="n">cm2_to_A2</span>
             <span class="c1"># Convert the total polarization</span>
-            <span class="n">p_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">p_tot</span><span class="p">)</span>
+            <span class="n">p_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">T</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">p_tot</span><span class="p">)</span>
             <span class="c1"># adjust lattices</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">L</span><span class="p">):</span>
                 <span class="n">lattice</span> <span class="o">=</span> <span class="n">lattices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
                 <span class="n">l</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">lengths_and_angles</span>
                 <span class="n">lattices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_lengths_and_angles</span><span class="p">(</span>
-                    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">A1</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">a</span><span class="p">)</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">ravel</span><span class="p">()[</span><span class="n">i</span><span class="p">],</span> <span class="n">a</span><span class="p">)</span>
 
         <span class="n">d_structs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">sites</span> <span class="o">=</span> <span class="p">[]</span>
-
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">L</span><span class="p">):</span>
             <span class="n">l</span> <span class="o">=</span> <span class="n">lattices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            <span class="n">frac_coord</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">p_tot</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span>
-                                   <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">([</span><span class="n">l</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="n">l</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="n">l</span><span class="o">.</span><span class="n">c</span><span class="p">]))</span>
-            <span class="n">d</span> <span class="o">=</span> <span class="n">PolarizationLattice</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">],</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">frac_coord</span><span class="p">)</span><span class="o">.</span><span class="n">A1</span><span class="p">])</span>
+            <span class="n">frac_coord</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">p_tot</span><span class="p">[</span><span class="n">i</span><span class="p">]]),</span>
+                                   <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">l</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="n">l</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="n">l</span><span class="o">.</span><span class="n">c</span><span class="p">]))</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">PolarizationLattice</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">],</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">frac_coord</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()])</span>
             <span class="n">d_structs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
             <span class="n">site</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -331,8 +330,8 @@
         <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">sites</span><span class="p">,</span> <span class="n">d_structs</span><span class="p">):</span>
             <span class="n">l</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">lattice</span>
             <span class="n">adjust_pol</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">([</span><span class="n">l</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="n">l</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="n">l</span><span class="o">.</span><span class="n">c</span><span class="p">]))</span><span class="o">.</span><span class="n">A1</span><span class="p">)</span>
-        <span class="n">adjust_pol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">adjust_pol</span><span class="p">)</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">l</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="n">l</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="n">l</span><span class="o">.</span><span class="n">c</span><span class="p">]))</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
+        <span class="n">adjust_pol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">adjust_pol</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">adjust_pol</span></div>
 
@@ -342,7 +341,7 @@
 <span class="sd">        all structures.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">lattices</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">lattice</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">]</span>
-        <span class="n">volumes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">([</span><span class="n">s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">volume</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">])</span>
+        <span class="n">volumes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">volume</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">])</span>
 
         <span class="n">L</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">)</span>
 
@@ -350,16 +349,16 @@
         <span class="k">if</span> <span class="n">convert_to_muC_per_cm2</span><span class="p">:</span>
             <span class="n">e_to_muC</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.6021766e-13</span>
             <span class="n">cm2_to_A2</span> <span class="o">=</span> <span class="mf">1e16</span>
-            <span class="n">units</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">volumes</span><span class="p">)</span>
+            <span class="n">units</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">volumes</span><span class="p">)</span>
             <span class="n">units</span> <span class="o">*=</span> <span class="n">e_to_muC</span> <span class="o">*</span> <span class="n">cm2_to_A2</span>
             <span class="c1"># adjust lattices</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">L</span><span class="p">):</span>
                 <span class="n">lattice</span> <span class="o">=</span> <span class="n">lattices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
                 <span class="n">l</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">lengths_and_angles</span>
                 <span class="n">lattices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_lengths_and_angles</span><span class="p">(</span>
-                    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">A1</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">a</span><span class="p">)</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">ravel</span><span class="p">()[</span><span class="n">i</span><span class="p">],</span> <span class="n">a</span><span class="p">)</span>
 
-        <span class="n">quanta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span>
+        <span class="n">quanta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
             <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">lengths_and_angles</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">lattices</span><span class="p">])</span>
 
         <span class="k">return</span> <span class="n">quanta</span></div>
@@ -370,7 +369,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">tot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_same_branch_polarization_data</span><span class="p">(</span>
             <span class="n">convert_to_muC_per_cm2</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">tot</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">tot</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+        <span class="c1"># reshape to preserve backwards compatibility due to changes</span>
+        <span class="c1"># when switching from np.matrix to np.array</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">tot</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">tot</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span>  <span class="mi">3</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="Polarization.get_polarization_change_norm"><a class="viewcode-back" href="../../../../pymatgen.analysis.ferroelectricity.polarization.html#pymatgen.analysis.ferroelectricity.polarization.Polarization.get_polarization_change_norm">[docs]</a>    <span class="k">def</span> <span class="nf">get_polarization_change_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -381,7 +382,7 @@
         <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">polar</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span>
         <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">a</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">a</span><span class="p">),</span> <span class="n">b</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span>
             <span class="n">b</span><span class="p">),</span> <span class="n">c</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
-        <span class="n">P</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_polarization_change</span><span class="p">()</span><span class="o">.</span><span class="n">A1</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_polarization_change</span><span class="p">()</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
         <span class="n">P_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">P</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">b</span> <span class="o">*</span> <span class="n">P</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="n">P</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">P_norm</span></div>
 
@@ -395,15 +396,15 @@
             <span class="n">convert_to_muC_per_cm2</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">L</span> <span class="o">=</span> <span class="n">tot</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">sp_a</span> <span class="o">=</span> <span class="n">UnivariateSpline</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">L</span><span class="p">),</span> <span class="n">tot</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">A1</span><span class="p">)</span>
+            <span class="n">sp_a</span> <span class="o">=</span> <span class="n">UnivariateSpline</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">L</span><span class="p">),</span> <span class="n">tot</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="n">sp_a</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">sp_b</span> <span class="o">=</span> <span class="n">UnivariateSpline</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">L</span><span class="p">),</span> <span class="n">tot</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">A1</span><span class="p">)</span>
+            <span class="n">sp_b</span> <span class="o">=</span> <span class="n">UnivariateSpline</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">L</span><span class="p">),</span> <span class="n">tot</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="n">sp_b</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">sp_c</span> <span class="o">=</span> <span class="n">UnivariateSpline</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">L</span><span class="p">),</span> <span class="n">tot</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">A1</span><span class="p">)</span>
+            <span class="n">sp_c</span> <span class="o">=</span> <span class="n">UnivariateSpline</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">L</span><span class="p">),</span> <span class="n">tot</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="n">sp_c</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">sp_a</span><span class="p">,</span> <span class="n">sp_b</span><span class="p">,</span> <span class="n">sp_c</span></div>
@@ -418,7 +419,7 @@
         <span class="n">max_jumps</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sps</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">sp</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">max_jumps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">tot</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">A1</span> <span class="o">-</span> <span class="n">sp</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tot</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">A1</span><span class="p">))))</span>
+                <span class="n">max_jumps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">tot</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span> <span class="o">-</span> <span class="n">sp</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tot</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">()))))</span>
         <span class="k">return</span> <span class="n">max_jumps</span></div>
 
 <div class="viewcode-block" id="Polarization.smoothness"><a class="viewcode-back" href="../../../../pymatgen.analysis.ferroelectricity.polarization.html#pymatgen.analysis.ferroelectricity.polarization.Polarization.smoothness">[docs]</a>    <span class="k">def</span> <span class="nf">smoothness</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -434,7 +435,7 @@
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Something went wrong.&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="n">sp_latt</span> <span class="o">=</span> <span class="p">[</span><span class="n">sp</span><span class="p">[</span><span class="n">i</span><span class="p">](</span><span class="nb">range</span><span class="p">(</span><span class="n">L</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
-        <span class="n">diff</span> <span class="o">=</span> <span class="p">[</span><span class="n">sp_latt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">tot</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">A1</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="p">[</span><span class="n">sp_latt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">tot</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
         <span class="n">rms</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">diff</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span> <span class="o">/</span> <span class="n">L</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
         <span class="k">return</span> <span class="n">rms</span></div></div>
 
@@ -519,7 +520,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.10.18 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

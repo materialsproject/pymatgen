@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.outputs module &#8212; pymatgen 2018.10.18 documentation</title>
+    <title>pymatgen.io.vasp.outputs module &#8212; pymatgen 2018.12.12 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.10.18 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -353,6 +353,15 @@ other value than the default.</p>
 <code class="descname">Dimensions for the Augementation grid</code></dt>
 <dd></dd></dl>
 
+<dl class="docutils">
+<dt>..attribute: final_energy_contribs</dt>
+<dd>Individual contributions to the total final energy as a dictionary.
+Include contirbutions from keys, e.g.:
+{‘DENC’: -505778.5184347, ‘EATOM’: 15561.06492564, ‘EBANDS’: -804.53201231,
+‘EENTRO’: -0.08932659, ‘EXHF’: 0.0, ‘Ediel_sol’: 0.0,
+‘PAW double counting’: 664.6726974100002, ‘PSCENC’: 742.48691646,
+‘TEWEN’: 489742.86847338, ‘XCENC’: -169.64189814}</dd>
+</dl>
 <p>One can then call a specific reader depending on the type of run being
 performed. These are currently: read_igpar(), read_lepsilon() and
 read_lcalcpol(), read_core_state_eign(), read_avg_core_pot().</p>
@@ -1946,7 +1955,7 @@ any. Note that this is sometimes very large</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.10.18 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
       </ul>
     </div>
 

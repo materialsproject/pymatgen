@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import unittest
 import os
@@ -51,7 +50,7 @@ class VasprunTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_multiple_dielectric(self):
         v = Vasprun(os.path.join(test_dir, "vasprun.GW0.xml"))
@@ -601,6 +600,11 @@ class OutcarTest(PymatgenTest):
 
             self.assertFalse(outcar.lepsilon)
 
+            toten = 0
+            for k in outcar.final_energy_contribs.keys():
+                toten += outcar.final_energy_contribs[k]
+            self.assertAlmostEqual(toten, outcar.final_energy, 6)
+
     def test_stopped(self):
         filepath = os.path.join(test_dir, 'OUTCAR.stopped')
         outcar = Outcar(filepath)
@@ -1087,6 +1091,7 @@ class ProcarTest(unittest.TestCase):
                                0.85796295426000124)
 
     def test_phase_factors(self):
+        
         filepath = os.path.join(test_dir, 'PROCAR.phase')
         p = Procar(filepath)
         self.assertAlmostEqual(p.phase_factors[Spin.up][0, 0, 0, 0],
@@ -1101,6 +1106,11 @@ class ProcarTest(unittest.TestCase):
                                -0.053 + 0.007j)
         self.assertAlmostEqual(p.phase_factors[Spin.down][0, 0, 2, 0],
                                0.027 - 0.047j)
+        
+        # new style phase factors (VASP 5.4.4+)
+        filepath = os.path.join(test_dir, 'PROCAR.new_format_5.4.4')
+        p = Procar(filepath)
+        self.assertAlmostEqual(p.phase_factors[Spin.up][0, 0, 0, 0], -0.13+0.199j)
 
 
 class XdatcarTest(unittest.TestCase):

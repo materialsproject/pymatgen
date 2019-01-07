@@ -4,7 +4,6 @@
 """
 Works for Abinit
 """
-from __future__ import unicode_literals, division, print_function
 
 import os
 import shutil
@@ -12,21 +11,18 @@ import time
 import abc
 import collections
 import numpy as np
-import six
 import copy
 
-from six.moves import filter
 from monty.collections import AttrDict
 from monty.itertools import chunks
 from monty.functools import lazy_property
 from monty.fnmatch import WildCard
-#from monty.dev import deprecated
 from pydispatch import dispatcher
 from pymatgen.core.units import EnergyArray
 from . import wrappers
-from .nodes import Dependency, Node, NodeError, NodeResults, check_spectator
+from .nodes import Dependency, Node, NodeError, NodeResults, FileNode, check_spectator
 from .tasks import (Task, AbinitTask, ScfTask, NscfTask, DfptTask, PhononTask, ElasticTask, DdkTask,
-                    BseTask, RelaxTask, DdeTask, BecTask, ScrTask, SigmaTask,
+                    BseTask, RelaxTask, DdeTask, BecTask, ScrTask, SigmaTask, TaskManager,
                     DteTask, EphTask, CollinearThenNonCollinearScfTask)
 
 from .utils import Directory
@@ -51,6 +47,8 @@ __all__ = [
     "SigmaConvWork",
     "BseMdfWork",
     "PhononWork",
+    "PhononWfkqWork",
+    "GKKPWork",
     "BecWork",
     "DteWork",
 ]
@@ -76,7 +74,7 @@ class WorkError(NodeError):
     """Base class for the exceptions raised by Work objects."""
 
 
-class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
+class BaseWork(Node, metaclass=abc.ABCMeta):
     Error = WorkError
 
     Results = WorkResults
@@ -209,7 +207,7 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
     def on_ok(self, sender):
         """
         This callback is called when one task reaches status `S_OK`.
-        It executes on_all_ok when all task in self have reached `S_OK`.
+        It executes on_all_ok when all tasks in self have reached `S_OK`.
         """
         logger.debug("in on_ok with sender %s" % sender)
 
@@ -238,7 +236,7 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
     #@check_spectator
     def on_all_ok(self):
         """
-        This method is called once the `Work` is completed i.e. when all the tasks
+        This method is called once the `Work` is completed i.e. when all tasks
         have reached status S_OK. Subclasses should provide their own implementation
 
         Returns:
@@ -357,7 +355,7 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
         return fg
 
 
-class NodeContainer(six.with_metaclass(abc.ABCMeta)):
+class NodeContainer(metaclass=abc.ABCMeta):
     """
     Mixin classes for `Work` and `Flow` objects providing helper functions
     to register tasks in the container. The helper function call the
@@ -418,7 +416,6 @@ class NodeContainer(six.with_metaclass(abc.ABCMeta)):
         kwargs["task_class"] = SigmaTask
         return self.register_task(*args, **kwargs)
 
-    # TODO: Remove
     def register_dde_task(self, *args, **kwargs):
         """Register a Dde task."""
         kwargs["task_class"] = DdeTask
@@ -773,7 +770,6 @@ class Work(BaseWork, NodeContainer):
 
         else:
             w = WildCard(exclude_wildcard)
-
             for dirpath, dirnames, filenames in os.walk(self.workdir):
                 for fname in filenames:
                     path = os.path.join(dirpath, fname)
@@ -1028,7 +1024,7 @@ class RelaxWork(Work):
             actual_dilatmx = self.ioncell_task.get_inpvar('dilatmx', 1.)
             if self.target_dilatmx < actual_dilatmx:
                 self.ioncell_task.reduce_dilatmx(target=self.target_dilatmx)
-                logger.info('Converging dilatmx. Value reduce from {} to {}.'
+                self.history.info('Converging dilatmx. Value reduce from {} to {}.'
                             .format(actual_dilatmx, self.ioncell_task.get_inpvar('dilatmx')))
                 self.ioncell_task.reset_from_scratch()
 
@@ -1184,11 +1180,6 @@ class BseMdfWork(Work):
                 robot.add_file(str(task), mdf_path)
         return robot
 
-    #def plot_conv_mdf(self, **kwargs)
-    #    with self.get_mdf_robot() as robot:
-    #        robot.get_mdf_plooter()
-    #    plotter.plot(**kwargs)
-
 
 class QptdmWork(Work):
     """
@@ -1228,7 +1219,6 @@ class QptdmWork(Work):
         with NetcdfReader(fake_task.outdir.has_abiext("qptdms.nc")) as reader:
             qpoints = reader.read_value("reduced_coordinates_of_kpoints")
         #print("qpoints)
-        #w.rmtree()
 
         # Now we can register the task for the different q-points
         for qpoint in qpoints:
@@ -1250,7 +1240,7 @@ class QptdmWork(Work):
         """
         scr_files = list(filter(None, [task.outdir.has_abiext("SCR") for task in self]))
 
-        logger.debug("will call mrgscr to merge %s:\n" % str(scr_files))
+        self.history.info("Will call mrgscr to merge %s SCR files:\n" % len(scr_files))
         assert len(scr_files) == len(self)
 
         mrgscr = wrappers.Mrgscr(manager=self[0].manager, verbose=1)
@@ -1275,12 +1265,51 @@ class QptdmWork(Work):
         final_scr = self.merge_scrfiles()
         return self.Results(node=self, returncode=0, message="mrgscr done", final_scr=final_scr)
 
+# TODO: MergeDdb --> DfptWork(Work) postpone it because it may break pickle.
 
-class MergeDdb(object):
+class MergeDdb:
     """Mixin class for Works that have to merge the DDB files produced by the tasks."""
 
+    def add_becs_from_scf_task(self, scf_task, ddk_tolerance, ph_tolerance):
+        """
+        Build tasks for the computation of Born effective charges and add them to the work.
+
+        Args:
+            scf_task: ScfTask object.
+            ddk_tolerance: dict {"varname": value} with the tolerance used in the DDK run.
+                None to use AbiPy default.
+            ph_tolerance: dict {"varname": value} with the tolerance used in the phonon run.
+                None to use AbiPy default.
+
+	Return:
+	    (ddk_tasks, bec_tasks)
+	"""
+        if not isinstance(scf_task, ScfTask):
+            raise TypeError("task `%s` does not inherit from ScfTask" % scf_task)
+
+	# DDK calculations (self-consistent to get electric field).
+        multi_ddk = scf_task.input.make_ddk_inputs(tolerance=ddk_tolerance)
+
+        ddk_tasks = []
+        for ddk_inp in multi_ddk:
+            ddk_task = self.register_ddk_task(ddk_inp, deps={scf_task: "WFK"})
+            ddk_tasks.append(ddk_task)
+
+        # Build the list of inputs for electric field perturbation and phonons
+        # Each BEC task is connected to all the previous DDK task and to the scf_task.
+        bec_deps = {ddk_task: "DDK" for ddk_task in ddk_tasks}
+        bec_deps.update({scf_task: "WFK"})
+
+        bec_inputs = scf_task.input.make_bec_inputs(tolerance=ph_tolerance)
+        bec_tasks = []
+        for bec_inp in bec_inputs:
+             bec_task = self.register_bec_task(bec_inp, deps=bec_deps)
+             bec_tasks.append(bec_task)
+
+        return ddk_tasks, bec_tasks
+
     def merge_ddb_files(self, delete_source_ddbs=True, only_dfpt_tasks=True,
-            exclude_tasks=None, include_tasks=None):
+                        exclude_tasks=None, include_tasks=None):
         """
         This method is called when all the q-points have been computed.
         It runs `mrgddb` in sequential on the local machine to produce
@@ -1311,7 +1340,7 @@ class MergeDdb(object):
         else:
             ddb_files = list(filter(None, [task.outdir.has_abiext("DDB") for task in my_tasks]))
 
-        self.history.info("Will call mrgddb to merge %s:\n" % str(ddb_files))
+        self.history.info("Will call mrgddb to merge %s DDB files:" % len(ddb_files))
         # DDB files are always produces so this should never happen!
         if not ddb_files:
             raise RuntimeError("Cannot find any DDB file to merge by the task of " % self)
@@ -1331,6 +1360,52 @@ class MergeDdb(object):
 
         return out_ddb
 
+    def merge_pot1_files(self, delete_source=True):
+        """
+        This method is called when all the q-points have been computed.
+        It runs `mrgdvdb` in sequential on the local machine to produce
+        the final DVDB file in the outdir of the `Work`.
+
+        Args:
+            delete_source: True if POT1 files should be removed after (successful) merge.
+
+        Returns:
+            path to the output DVDB file. None if not DFPT POT file is found.
+        """
+        natom = len(self[0].input.structure)
+        max_pertcase = 3 * natom
+
+        pot1_files = []
+        for task in self:
+            if not isinstance(task, DfptTask): continue
+            paths = task.outdir.list_filepaths(wildcard="*_POT*")
+            for path in paths:
+                # Include only atomic perturbations i.e. files whose ext <= 3 * natom
+                i = path.rindex("_POT")
+                pertcase = int(path[i+4:].replace(".nc", ""))
+                if pertcase <= max_pertcase:
+                    pot1_files.append(path)
+
+        # prtpot = 0 disables the output of the DFPT POT files so an empty list is not fatal here.
+        if not pot1_files: return None
+
+        self.history.info("Will call mrgdvdb to merge %s files:" % len(pot1_files))
+
+        # Final DDB file will be produced in the outdir of the work.
+        out_dvdb = self.outdir.path_in("out_DVDB")
+
+        if len(pot1_files) == 1:
+            # Avoid the merge. Just move the DDB file to the outdir of the work
+            shutil.copy(pot1_files[0], out_dvdb)
+        else:
+            # FIXME: The merge may require a non-negligible amount of memory if lots of qpts.
+            # Besides there are machines such as lemaitre3 that are problematic when
+            # running MPI applications on the front-end
+            mrgdvdb = wrappers.Mrgdvdb(manager=self[0].manager, verbose=0)
+            mrgdvdb.merge(self.outdir.path, pot1_files, out_dvdb, delete_source=delete_source)
+
+        return out_dvdb
+
 
 class PhononWork(Work, MergeDdb):
     """
@@ -1342,32 +1417,38 @@ class PhononWork(Work, MergeDdb):
     """
 
     @classmethod
-    def from_scf_task(cls, scf_task, qpoints, is_ngqpt=False, tolerance=None, manager=None):
+    def from_scf_task(cls, scf_task, qpoints, is_ngqpt=False, tolerance=None, with_becs=False,
+                      ddk_tolerance=None, manager=None):
         """
         Construct a `PhononWork` from a :class:`ScfTask` object.
         The input file for phonons is automatically generated from the input of the ScfTask.
-        Each phonon task depends on the WFK file produced by scf_task.
-
+        Each phonon task depends on the WFK file produced by the `scf_task`.
 
         Args:
             scf_task: ScfTask object.
             qpoints: q-points in reduced coordinates. Accepts single q-point, list of q-points
                 or three integers defining the q-mesh if `is_ngqpt`.
             is_ngqpt: True if `qpoints` should be interpreted as divisions instead of q-points.
-            tolerance: dict {varname: value} with the tolerance to be used in the DFPT run.
-                Defaults to {"tolvrs": 1.0e-10}.
+            tolerance: dict {"varname": value} with the tolerance to be used in the phonon run.
+                None to use AbiPy default.
+            with_becs: Activate calculation of Electric field and Born effective charges.
+            ddk_tolerance: dict {"varname": value} with the tolerance used in the DDK run if with_becs.
+                None to use AbiPy default.
             manager: :class:`TaskManager` object.
         """
         if not isinstance(scf_task, ScfTask):
-            raise TypeError("task %s does not inherit from ScfTask" % scf_task)
+            raise TypeError("task `%s` does not inherit from ScfTask" % scf_task)
 
         if is_ngqpt:
             qpoints = scf_task.input.abiget_ibz(ngkpt=qpoints, shiftk=[0, 0, 0], kptopt=1).points
-
         qpoints = np.reshape(qpoints, (-1, 3))
 
         new = cls(manager=manager)
+        if with_becs:
+            new.add_becs_from_scf_task(scf_task, ddk_tolerance, ph_tolerance=tolerance)
+
         for qpt in qpoints:
+            if with_becs and np.sum(qpt ** 2) < 1e-12: continue
             multi = scf_task.input.make_ph_inputs_qpoint(qpt, tolerance=tolerance)
             for ph_inp in multi:
                 new.register_phonon_task(ph_inp, deps={scf_task: "WFK"})
@@ -1375,10 +1456,12 @@ class PhononWork(Work, MergeDdb):
         return new
 
     @classmethod
-    def from_scf_input(cls, scf_input, qpoints, is_ngqpt=False, tolerance=None, manager=None):
+    def from_scf_input(cls, scf_input, qpoints, is_ngqpt=False, tolerance=None,
+                       with_becs=False, ddk_tolerance=None, manager=None):
         """
         Similar to `from_scf_task`, the difference is that this method requires
         an input for SCF calculation. A new ScfTask is created and added to the Work.
+        This API should be used if the DDB of the GS task should be merged.
         """
         if is_ngqpt:
             qpoints = scf_input.abiget_ibz(ngkpt=qpoints, shiftk=[0, 0, 0], kptopt=1).points
@@ -1388,43 +1471,17 @@ class PhononWork(Work, MergeDdb):
         new = cls(manager=manager)
         # Create ScfTask
         scf_task = new.register_scf_task(scf_input)
+
+        if with_becs:
+            new.add_becs_from_scf_task(scf_task, ddk_tolerance, ph_tolerance=tolerance)
+
         for qpt in qpoints:
+            if with_becs and np.sum(qpt ** 2) < 1e-12: continue
             multi = scf_task.input.make_ph_inputs_qpoint(qpt, tolerance=tolerance)
             for ph_inp in multi:
                 new.register_phonon_task(ph_inp, deps={scf_task: "WFK"})
 
         return new
-
-    def merge_pot1_files(self):
-        """
-        This method is called when all the q-points have been computed.
-        It runs `mrgdvdb` in sequential on the local machine to produce
-        the final DVDB file in the outdir of the `Work`.
-
-        Returns:
-            path to the output DVDB file. None if not DFPT POT file is found.
-        """
-        pot1_files = []
-        for task in self:
-            if not isinstance(task, DfptTask): continue
-            pot1_files.extend(task.outdir.list_filepaths(wildcard="*_POT*"))
-
-        # prtpot=0 disables the output of the DFPT POT files so an empty list is not fatal here.
-        if not pot1_files: return None
-
-        self.history.info("Will call mrgdvdb to merge %s:\n" % str(pot1_files))
-
-        # Final DDB file will be produced in the outdir of the work.
-        out_dvdb = self.outdir.path_in("out_DVDB")
-
-        if len(pot1_files) == 1:
-            # Avoid the merge. Just move the DDB file to the outdir of the work
-            shutil.copy(pot1_files[0], out_dvdb)
-        else:
-            mrgdvdb = wrappers.Mrgdvdb(manager=self[0].manager, verbose=0)
-            mrgdvdb.merge(self.outdir.path, pot1_files, out_dvdb)
-
-        return out_dvdb
 
     #@check_spectator
     def on_all_ok(self):
@@ -1439,10 +1496,312 @@ class PhononWork(Work, MergeDdb):
         # Merge DVDB files.
         out_dvdb = self.merge_pot1_files()
 
-        results = self.Results(node=self, returncode=0, message="DDB merge done")
-        results.register_gridfs_files(DDB=(out_ddb, "t"))
+        return self.Results(node=self, returncode=0, message="DDB merge done")
 
-        return results
+
+class PhononWfkqWork(Work, MergeDdb):
+    """
+    This work computes phonons with DFPT on an arbitrary q-mesh (usually denser than the k-mesh for electrons)
+    by computing WKQ files for each q-point.
+    The number of irreducible atomic perturbations for each q-point are taken into account.
+    It provides the callback method (on_all_ok) that calls mrgddb (mrgdv) to merge
+    all the partial DDB (POT) files produced. The two files are available in the
+    output directory of the Work. The WKQ files are removed at runtime.
+    """
+
+    @classmethod
+    def from_scf_task(cls, scf_task, ngqpt, ph_tolerance=None, tolwfr=1.0e-22, nband=None,
+                      with_becs=False, ddk_tolerance=None, shiftq=(0, 0, 0), is_ngqpt=True, remove_wfkq=True,
+                      manager=None):
+        """
+        Construct a `PhononWfkqWork` from a :class:`ScfTask` object.
+        The input files for WFQ and phonons are automatically generated from the input of the ScfTask.
+        Each phonon task depends on the WFK file produced by scf_task and the associated WFQ file.
+
+        Args:
+            scf_task: ScfTask object.
+            ngqpt: three integers defining the q-mesh
+            with_becs: Activate calculation of Electric field and Born effective charges.
+            ph_tolerance: dict {"varname": value} with the tolerance for the phonon run.
+                None to use AbiPy default.
+            tolwfr: tolerance used to compute WFQ.
+            ddk_tolerance: dict {"varname": value} with the tolerance used in the DDK run if with_becs.
+                None to use AbiPy default.
+            shiftq: Q-mesh shift. Multiple shifts are not supported.
+            is_ngqpt: the ngqpt is interpreted as a set of integers defining the q-mesh, otherwise
+                      is an explicit list of q-points
+            remove_wfkq: Remove WKQ files when the children are completed.
+            manager: :class:`TaskManager` object.
+
+        .. note:
+
+            Use k-meshes with one shift and q-meshes that are multiple of ngkpt
+            to decrease the number of WFQ files to be computed.
+        """
+        if not isinstance(scf_task, ScfTask):
+            raise TypeError("task `%s` does not inherit from ScfTask" % scf_task)
+
+        shiftq = np.reshape(shiftq, (3,))
+        if is_ngqpt:
+            qpoints = scf_task.input.abiget_ibz(ngkpt=ngqpt, shiftk=shiftq, kptopt=1).points
+        else:
+            qpoints = ngqpt
+
+        new = cls(manager=manager)
+        new.remove_wfkq = remove_wfkq
+        new.wfkq_tasks = []
+        new.wfkq_task_children = collections.defaultdict(list)
+
+        if with_becs:
+            # Add DDK and BECS.
+            new.add_becs_from_scf_task(scf_task, ddk_tolerance, ph_tolerance)
+
+        # Get ngkpt, shift for electrons from input.
+        # Won't try to skip WFQ if multiple shifts or off-diagonal kptrlatt
+        ngkpt, shiftk = scf_task.input.get_ngkpt_shiftk()
+        try_to_skip_wfkq = True
+        if ngkpt is None or len(shiftk) > 1 and is_ngqpt:
+            try_to_skip_wfkq = True
+
+        # TODO: One could avoid kptopt 3 by computing WFK in the IBZ and then rotating.
+        # but this has to be done inside Abinit.
+        for qpt in qpoints:
+            is_gamma = np.sum(qpt ** 2) < 1e-12
+            if with_becs and is_gamma: continue
+
+            # Avoid WFQ if k + q = k (requires ngkpt, multiple shifts are not supported)
+            need_wfkq = True
+            if is_gamma:
+                need_wfkq = False
+            elif try_to_skip_wfkq:
+                # k = (i + shiftk) / ngkpt
+                qinds = np.rint(qpt * ngqpt - shiftq)
+                f = (qinds * ngkpt) % ngqpt
+                need_wfkq = np.any(f != 0)
+
+            if need_wfkq:
+                nscf_inp = scf_task.input.new_with_vars(qpt=qpt, nqpt=1, iscf=-2, kptopt=3, tolwfr=tolwfr)
+                if nband:
+                    nbdbuf = max(2,nband*0.1)
+                    nscf_inp.set_vars(nband=nband+nbdbuf, nbdbuf=nbdbuf)
+                wfkq_task = new.register_nscf_task(nscf_inp, deps={scf_task: ["DEN", "WFK"]})
+                new.wfkq_tasks.append(wfkq_task)
+
+            multi = scf_task.input.make_ph_inputs_qpoint(qpt, tolerance=ph_tolerance)
+            for ph_inp in multi:
+                deps = {scf_task: "WFK", wfkq_task: "WFQ"} if need_wfkq else {scf_task: "WFK"}
+                #ph_inp["prtwf"] = -1
+                t = new.register_phonon_task(ph_inp, deps=deps)
+                if need_wfkq:
+                    new.wfkq_task_children[wfkq_task].append(t)
+
+        return new
+
+    def on_ok(self, sender):
+        """
+        This callback is called when one task reaches status `S_OK`.
+        It removes the WFKQ file if all its children have reached `S_OK`.
+        """
+        if self.remove_wfkq:
+            for task in self.wfkq_tasks:
+                if task.status != task.S_OK: continue
+                children = self.wfkq_task_children[task]
+                if all(child.status == child.S_OK for child in children):
+                   path = task.outdir.has_abiext("WFQ")
+                   if path:
+                       self.history.info("Removing WFQ: %s" % path)
+                       os.remove(path)
+
+        return super(PhononWfkqWork, self).on_ok(sender)
+
+    #@check_spectator
+    def on_all_ok(self):
+        """
+        This method is called when all the q-points have been computed.
+        Ir runs `mrgddb` in sequential on the local machine to produce
+        the final DDB file in the outdir of the `Work`.
+        """
+        # Merge DDB files.
+        out_ddb = self.merge_ddb_files()
+
+        # Merge DVDB files.
+        out_dvdb = self.merge_pot1_files()
+
+        return self.Results(node=self, returncode=0, message="DDB merge done")
+
+class GKKPWork(Work):
+    """
+    This work computes electron-phonon matrix elements for all the q-points
+    present in a DVDB and DDB file
+    """
+    @classmethod
+    def from_den_ddb_dvdb(cls, inp, den_path, ddb_path, dvdb_path, mpiprocs=1, remove_wfkq=True,
+                          qpath=None, with_ddk=True, expand=True, manager=None):
+        """
+        Construct a `PhononWfkqWork` from a DDB and DVDB file.
+        For each q found, a WFQ task and an EPH task computing the matrix elements are created.
+        """
+        import abipy.abilab as abilab
+
+        # Create file nodes
+        den_file = FileNode(den_path)
+        ddb_file = FileNode(ddb_path)
+        dvdb_file = FileNode(dvdb_path)
+
+        # Create new work
+        new = cls(manager=manager)
+        new.remove_wfkq = remove_wfkq
+        new.wfkq_tasks = []
+        new.wfkq_task_children = collections.defaultdict(list)
+        if manager is None: manager = TaskManager.from_user_config()
+        tm = manager.new_with_fixed_mpi_omp(mpiprocs, 1)
+
+        # Create a WFK task
+        kptopt = 1 if expand else 3
+        nscf_inp = inp.new_with_vars(iscf=-2, kptopt=kptopt)
+        wfk_task = new.register_nscf_task(nscf_inp, deps={den_file: "DEN"},manager=tm)
+        new.wfkq_tasks.append(wfk_task)
+        new.wfk_task = wfk_task
+
+        # Read path and regular grid from DDB file
+        with abilab.abiopen(ddb_path) as ddb:
+            q_frac_coords = np.array([k.frac_coords for k in ddb.qpoints])
+            ddb_ngqpt = ddb.guessed_ngqpt
+
+        # If qpath is set, we read the list of q-points to be used to interpolate the DVDB file.
+        # The DVDB and DDB file have to correspond to a regular grid.
+        dvdb = dvdb_file
+        if qpath is None:
+            qpath = q_frac_coords
+        else:
+            interp_inp = inp.new_with_vars(optdriver=7, eph_task=-5, ddb_ngqpt=ddb_ngqpt,
+                                           ph_nqpath=len(qpath), ph_qpath=qpath, prtphdos=0)
+            dvdb = new.register_eph_task(interp_inp, deps={wfk_task: "WFK", ddb_file: "DDB", dvdb_file: "DVDB"},
+                                          manager=tm)
+
+        # Create a WFK expansion task
+        if expand:
+            fbz_nscf_inp = inp.new_with_vars(optdriver=8)
+            fbz_nscf_inp.set_spell_check(False)
+            fbz_nscf_inp.set_vars(wfk_task="wfk_fullbz")
+            tm_serial = manager.new_with_fixed_mpi_omp(1,1)
+            wfk_task = new.register_nscf_task(fbz_nscf_inp, deps={wfk_task: "WFK", den_file: "DEN"},
+                                              manager=tm_serial)
+            new.wfkq_tasks.append(wfk_task)
+            new.wfk_task = wfk_task
+
+        if with_ddk:
+            kptopt = 3 if expand else 1
+            ddk_inp = inp.new_with_vars(optdriver=8,kptopt=kptopt)
+            ddk_inp.set_spell_check(False)
+            ddk_inp.set_vars(wfk_task="wfk_ddk")
+            ddk_task = new.register_nscf_task(ddk_inp, deps={wfk_task: "WFK", den_file: "DEN"}, manager=tm)
+            new.wfkq_tasks.append(ddk_task)
+
+        # For each qpoint
+        for qpt in qpath:
+            is_gamma = np.sum(qpt ** 2) < 1e-12
+            if is_gamma:
+                # Create a link from WFK to WFQ on_ok
+                wfkq_task = wfk_task
+                deps = {wfk_task: ["WFK","WFQ"], ddb_file: "DDB", dvdb: "DVDB" }
+            else:
+                # Create a WFQ task
+                nscf_inp = nscf_inp.new_with_vars(kptopt=3, qpt=qpt, nqpt=1)
+                wfkq_task = new.register_nscf_task(nscf_inp, deps={den_file: "DEN"}, manager=tm)
+                new.wfkq_tasks.append(wfkq_task)
+                deps = {wfk_task: "WFK", wfkq_task: "WFQ", ddb_file: "DDB", dvdb: "DVDB" }
+
+            # Create a EPH task
+            eph_inp = inp.new_with_vars(optdriver=7, prtphdos=0, eph_task=-2, kptopt=3,
+                                        ddb_ngqpt=[1,1,1], nqpt=1, qpt=qpt)
+            t = new.register_eph_task(eph_inp, deps=deps, manager=tm)
+            new.wfkq_task_children[wfkq_task].append(t)
+
+        return new
+
+    @classmethod
+    def from_phononwfkq_work(cls, phononwfkq_work, nscf_vars={}, remove_wfkq=True, with_ddk=True, manager=None):
+        """
+        Construct a `GKKPWork` from a `PhononWfkqWork` object.
+        The WFQ are the ones used for PhononWfkqWork so in principle have only valence bands
+        """
+        # Get list of qpoints from the the phonon tasks in this work
+        qpoints = []
+        qpoints_deps = []
+        for task in phononwfkq_work:
+            if isinstance(task,PhononTask):
+                # Store qpoints
+                qpt = task.input.get("qpt", [0,0,0])
+                qpoints.append(qpt)
+                # Store dependencies
+                qpoints_deps.append(task.deps)
+
+        # Create file nodes
+        ddb_path  = phononwfkq_work.outdir.has_abiext("DDB")
+        dvdb_path = phononwfkq_work.outdir.has_abiext("DVDB")
+        ddb_file = FileNode(ddb_path)
+        dvdb_file = FileNode(dvdb_path)
+
+        # Get scf_task from first q-point
+        for dep in qpoints_deps[0]:
+            if isinstance(dep.node,ScfTask) and dep.exts[0] == 'WFK':
+                scf_task = dep.node
+
+        # Create new work
+        new = cls(manager=manager)
+        new.remove_wfkq = remove_wfkq
+        new.wfkq_tasks = []
+        new.wfk_task = []
+
+        # Add one eph task per qpoint
+        for qpt,qpoint_deps in zip(qpoints,qpoints_deps):
+            # Create eph task
+            eph_input = scf_task.input.new_with_vars(optdriver=7, prtphdos=0, eph_task=-2,
+                                                     ddb_ngqpt=[1,1,1], nqpt=1, qpt=qpt)
+            deps = {ddb_file: "DDB", dvdb_file: "DVDB" }
+            for dep in qpoint_deps:
+                deps[dep.node] = dep.exts[0]
+            # If no WFQ in deps link the WFK with WFQ extension
+            if 'WFQ' not in deps.values():
+                inv_deps = dict((v, k) for k, v in deps.items())
+                wfk_task = inv_deps['WFK']
+                wfk_path = wfk_task.outdir.has_abiext("WFK")
+                # Check if netcdf
+                filename, extension = os.path.splitext(wfk_path)
+                infile = 'out_WFQ' + extension
+                wfq_path = os.path.join(os.path.dirname(wfk_path), infile)
+                if not os.path.isfile(wfq_path): os.symlink(wfk_path, wfq_path)
+                deps[FileNode(wfq_path)] = 'WFQ'
+            new.register_eph_task(eph_input, deps=deps)
+
+        return new
+
+    def on_ok(self, sender):
+        """
+        This callback is called when one task reaches status `S_OK`.
+        It removes the WFKQ file if all its children have reached `S_OK`.
+        """
+        if self.remove_wfkq:
+            for task in self.wfkq_tasks:
+                if task.status != task.S_OK: continue
+                children = self.wfkq_task_children[task]
+                if all(child.status == child.S_OK for child in children):
+                   path = task.outdir.has_abiext("WFQ")
+                   if path:
+                       self.history.info("Removing WFQ: %s" % path)
+                       os.remove(path)
+
+        # If wfk task we create a link to a wfq file so abinit is happy
+        if sender == self.wfk_task:
+            wfk_path = self.wfk_task.outdir.has_abiext("WFK")
+            # Check if netcdf
+            filename, extension = os.path.splitext(wfk_path)
+            infile = 'out_WFQ' + extension
+            infile = os.path.join(os.path.dirname(wfk_path), infile)
+            os.symlink(wfk_path, infile)
+
+        return super(GKKPWork, self).on_ok(sender)
 
 
 class BecWork(Work, MergeDdb):
@@ -1453,45 +1812,32 @@ class BecWork(Work, MergeDdb):
     It provides the callback method (on_all_ok) that calls mrgddb to merge the
     partial DDB files produced by the work.
     """
+
     @classmethod
-    def from_scf_task(cls, scf_task, ddk_tolerance=None):
-        """Build a BecWork from a ground-state task."""
-        if not isinstance(scf_task, ScfTask):
-            raise TypeError("task %s does not inherit from GsTask" % scf_task)
+    def from_scf_task(cls, scf_task, ddk_tolerance=None, ph_tolerance=None, manager=None):
+        """
+        Build tasks for the computation of Born effective charges from a ground-state task.
 
-        new = cls() #manager=scf_task.manager)
-
-        # DDK calculations
-        multi_ddk = scf_task.input.make_ddk_inputs(tolerance=ddk_tolerance)
-
-        ddk_tasks = []
-        for ddk_inp in multi_ddk:
-            ddk_task = new.register_ddk_task(ddk_inp, deps={scf_task: "WFK"})
-            ddk_tasks.append(ddk_task)
-
-        # Build the list of inputs for electric field perturbation and phonons
-        # Each bec task is connected to all the previous DDK task and to the scf_task.
-        bec_deps = {ddk_task: "DDK" for ddk_task in ddk_tasks}
-        bec_deps.update({scf_task: "WFK"})
-
-        bec_inputs = scf_task.input.make_bec_inputs() #tolerance=efile
-        for bec_inp in bec_inputs:
-             new.register_bec_task(bec_inp, deps=bec_deps)
-
+        Args:
+            scf_task: ScfTask object.
+            ddk_tolerance: tolerance used in the DDK run if with_becs. None to use AbiPy default.
+            ph_tolerance: dict {"varname": value} with the tolerance used in the phonon run.
+                None to use AbiPy default.
+            manager: :class:`TaskManager` object.
+	"""
+        new = cls(manager=manager)
+        new.add_becs_from_scf_task(scf_task, ddk_tolerance, ph_tolerance)
         return new
 
     def on_all_ok(self):
         """
-        This method is called when all the task reach S_OK
+        This method is called when all tasks reach S_OK
         Ir runs `mrgddb` in sequential on the local machine to produce
         the final DDB file in the outdir of the `Work`.
         """
         # Merge DDB files.
         out_ddb = self.merge_ddb_files()
-        results = self.Results(node=self, returncode=0, message="DDB merge done")
-        results.register_gridfs_files(DDB=(out_ddb, "t"))
-
-        return results
+        return self.Results(node=self, returncode=0, message="DDB merge done")
 
 
 class DteWork(Work, MergeDdb):
@@ -1502,12 +1848,19 @@ class DteWork(Work, MergeDdb):
     It provides the callback method (on_all_ok) that calls mrgddb to merge the partial DDB files produced
     """
     @classmethod
-    def from_scf_task(cls, scf_task, ddk_tolerance=None):
-        """Build a DteWork from a ground-state task."""
-        if not isinstance(scf_task, ScfTask):
-            raise TypeError("task %s does not inherit from GsTask" % scf_task)
+    def from_scf_task(cls, scf_task, ddk_tolerance=None, manager=None):
+        """
+	Build a DteWork from a ground-state task.
 
-        new = cls() #manager=scf_task.manager)
+        Args:
+            scf_task: ScfTask object.
+            ddk_tolerance: tolerance used in the DDK run if with_becs. None to use AbiPy default.
+            manager: :class:`TaskManager` object.
+	"""
+        if not isinstance(scf_task, ScfTask):
+            raise TypeError("task `%s` does not inherit from ScfTask" % scf_task)
+
+        new = cls(manager=manager)
 
         # DDK calculations
         multi_ddk = scf_task.input.make_ddk_inputs(tolerance=ddk_tolerance)
@@ -1519,8 +1872,8 @@ class DteWork(Work, MergeDdb):
 
         # Build the list of inputs for electric field perturbation
         # Each task is connected to all the previous DDK, DDE task and to the scf_task.
-
         multi_dde = scf_task.input.make_dde_inputs(use_symmetries=False)
+
         # To compute the nonlinear coefficients all the directions of the perturbation
         # have to be taken in consideration
         # DDE calculations
@@ -1545,14 +1898,10 @@ class DteWork(Work, MergeDdb):
 
     def on_all_ok(self):
         """
-        This method is called when all the task reach S_OK
+        This method is called when all tasks reach S_OK
         Ir runs `mrgddb` in sequential on the local machine to produce
         the final DDB file in the outdir of the `Work`.
         """
         # Merge DDB files.
         out_ddb = self.merge_ddb_files()
-
-        results = self.Results(node=self, returncode=0, message="DDB merge done")
-        results.register_gridfs_files(DDB=(out_ddb, "t"))
-
-        return results
+        return self.Results(node=self, returncode=0, message="DDB merge done")

@@ -18,7 +18,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "May 10 2018"
 
 
-class SpectrumPlotter(object):
+class SpectrumPlotter:
     """
     Class for plotting Spectrum objects and subclasses. Note that the interface
     is extremely flexible given that there are many different ways in which

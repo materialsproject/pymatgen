@@ -2,9 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
-
-import six
 import logging
 import numpy as np
 
@@ -28,7 +25,7 @@ __date__ = "Mar 15, 2018"
 logger = logging.getLogger(__name__)
 
 
-class Defect(six.with_metaclass(ABCMeta, MSONable)):
+class Defect(MSONable, metaclass=ABCMeta):
     """
     Abstract class for a single point defect
     """

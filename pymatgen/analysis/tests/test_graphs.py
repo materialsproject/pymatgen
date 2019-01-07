@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import unittest
 import os
@@ -100,7 +99,7 @@ class StructureGraphTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_properties(self):
 
@@ -111,6 +110,10 @@ class StructureGraphTest(unittest.TestCase):
         self.assertEqual(len(self.mos2_sg.get_connected_sites(0)), 6)
         self.assertTrue(isinstance(self.mos2_sg.get_connected_sites(0)[0].site, PeriodicSite))
         self.assertEqual(str(self.mos2_sg.get_connected_sites(0)[0].site.specie), 'S')
+        self.assertAlmostEqual(
+            self.mos2_sg.get_connected_sites(0, jimage=(0, 0, 100))[0].site.frac_coords[2],
+            100.303027
+        )
 
         # these two graphs should be equivalent
         for n in range(len(self.bc_square_sg)):
@@ -509,7 +512,7 @@ class MoleculeGraphTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
         del self.ethylene
         del self.butadiene
         del self.cyclohexene

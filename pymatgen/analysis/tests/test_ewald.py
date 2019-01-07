@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals
 
 import unittest
 import os
@@ -22,7 +21,7 @@ class EwaldSummationTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_init(self):
         filepath = os.path.join(test_dir, 'POSCAR')
@@ -72,7 +71,7 @@ class EwaldMinimizerTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_init(self):
         matrix = np.array([[-3., 3., 4., -0., 3., 3., 1., 14., 9., -4.],

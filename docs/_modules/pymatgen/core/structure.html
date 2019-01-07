@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.structure &#8212; pymatgen 2018.10.18 documentation</title>
+    <title>pymatgen.core.structure &#8212; pymatgen 2018.12.12 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.10.18 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -414,9 +414,12 @@
 <span class="sd">            coords (Nx3 array): list of fractional/cartesian coordinates of</span>
 <span class="sd">                each species.</span>
 <span class="sd">            charge (int): overall charge of the structure. Defaults to behavior</span>
-<span class="sd">                in SiteCollection where total charge is the sum of the oxidation states</span>
+<span class="sd">                in SiteCollection where total charge is the sum of the oxidation</span>
+<span class="sd">                states.</span>
 <span class="sd">            validate_proximity (bool): Whether to check if there are sites</span>
 <span class="sd">                that are less than 0.01 Ang apart. Defaults to False.</span>
+<span class="sd">            to_unit_cell (bool): Whether to map all sites into the unit cell,</span>
+<span class="sd">                i.e., fractional coords between 0 and 1. Defaults to False.</span>
 <span class="sd">            coords_are_cartesian (bool): Set to True if you are providing</span>
 <span class="sd">                coordinates in cartesian coordinates. Defaults to False.</span>
 <span class="sd">            site_properties (dict): Properties associated with the sites as a</span>
@@ -1247,9 +1250,33 @@
                                           <span class="n">site_properties</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">site_properties</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">structs</span></div>
 
+<div class="viewcode-block" id="IStructure.get_miller_index_from_site_indexes"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.get_miller_index_from_site_indexes">[docs]</a>    <span class="k">def</span> <span class="nf">get_miller_index_from_site_indexes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site_ids</span><span class="p">,</span> <span class="n">round_dp</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                                           <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the Miller index of a plane from a set of sites indexes.</span>
+
+<span class="sd">        A minimum of 3 sites are required. If more than 3 sites are given</span>
+<span class="sd">        the best plane that minimises the distance to all points will be</span>
+<span class="sd">        calculated.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            site_ids (list of int): A list of site indexes to consider. A</span>
+<span class="sd">                minimum of three site indexes are required. If more than three</span>
+<span class="sd">                sites are provided, the best plane that minimises the distance</span>
+<span class="sd">                to all sites will be calculated.</span>
+<span class="sd">            round_dp (int, optional): The number of decimal places to round the</span>
+<span class="sd">                miller index to.</span>
+<span class="sd">            verbose (bool, optional): Whether to print warnings.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (tuple): The Miller index.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_miller_index_from_coords</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="n">site_ids</span><span class="p">],</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">round_dp</span><span class="o">=</span><span class="n">round_dp</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="IStructure.get_primitive_structure"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.get_primitive_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_primitive_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">use_site_props</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                                <span class="n">constrain_latt</span><span class="o">=</span><span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span>
-                                                <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">]):</span>
+                                <span class="n">constrain_latt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This finds a smaller unit cell than the input. Sometimes it doesn&quot;t</span>
 <span class="sd">        find the smallest possible one, so this method is recursively called</span>
@@ -1272,6 +1299,8 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            The most primitive structure found.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">constrain_latt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">constrain_latt</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">]</span>
 
         <span class="k">def</span> <span class="nf">site_label</span><span class="p">(</span><span class="n">site</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">use_site_props</span><span class="p">:</span>
@@ -2380,9 +2409,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="fm">__hash__</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">validate_proximity</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                 <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                 <span class="n">site_properties</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">validate_proximity</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">site_properties</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a periodic structure.</span>
 
@@ -2401,9 +2430,15 @@
 <span class="sd">                ii. List of dict of elements/species and occupancies, e.g.,</span>
 <span class="sd">                    [{&quot;Fe&quot; : 0.5, &quot;Mn&quot;:0.5}, ...]. This allows the setup of</span>
 <span class="sd">                    disordered structures.</span>
-<span class="sd">            fractional_coords: list of fractional coordinates of each species.</span>
+<span class="sd">            coords (Nx3 array): list of fractional/cartesian coordinates of</span>
+<span class="sd">                each species.</span>
+<span class="sd">            charge (int): overall charge of the structure. Defaults to behavior</span>
+<span class="sd">                in SiteCollection where total charge is the sum of the oxidation</span>
+<span class="sd">                states.</span>
 <span class="sd">            validate_proximity (bool): Whether to check if there are sites</span>
 <span class="sd">                that are less than 0.01 Ang apart. Defaults to False.</span>
+<span class="sd">            to_unit_cell (bool): Whether to map all sites into the unit cell,</span>
+<span class="sd">                i.e., fractional coords between 0 and 1. Defaults to False.</span>
 <span class="sd">            coords_are_cartesian (bool): Set to True if you are providing</span>
 <span class="sd">                coordinates in cartesian coordinates. Defaults to False.</span>
 <span class="sd">            site_properties (dict): Properties associated with the sites as a</span>
@@ -3711,7 +3746,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.10.18 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

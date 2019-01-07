@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals
 
 """
 This module implements various transmuter classes.
@@ -14,7 +13,7 @@ It also includes the helper function, batch_write_vasp_input to generate an
 entire directory of vasp input files for running.
 """
 
-from six.moves import filter, map
+
 
 __author__ = "Shyue Ping Ong, Will Richards"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -31,7 +30,7 @@ from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.io.vasp.sets import MPRelaxSet
 
 
-class StandardTransmuter(object):
+class StandardTransmuter:
     """
     An example of a Transmuter object, which performs a sequence of
     transformations on many structures to generate TransformedStructures.

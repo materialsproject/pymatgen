@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.works module &#8212; pymatgen 2018.10.18 documentation</title>
+    <title>pymatgen.io.abinit.works module &#8212; pymatgen 2018.12.12 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.10.18 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -641,17 +641,18 @@ output directory of the Work.</p>
 </table>
 <dl class="classmethod">
 <dt id="pymatgen.io.abinit.works.PhononWork.from_scf_input">
-<em class="property">classmethod </em><code class="descname">from_scf_input</code><span class="sig-paren">(</span><em>scf_input</em>, <em>qpoints</em>, <em>is_ngqpt=False</em>, <em>tolerance=None</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#PhononWork.from_scf_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.PhononWork.from_scf_input" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">from_scf_input</code><span class="sig-paren">(</span><em>scf_input</em>, <em>qpoints</em>, <em>is_ngqpt=False</em>, <em>tolerance=None</em>, <em>with_becs=False</em>, <em>ddk_tolerance=None</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#PhononWork.from_scf_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.PhononWork.from_scf_input" title="Permalink to this definition">¶</a></dt>
 <dd><p>Similar to <cite>from_scf_task</cite>, the difference is that this method requires
-an input for SCF calculation. A new ScfTask is created and added to the Work.</p>
+an input for SCF calculation. A new ScfTask is created and added to the Work.
+This API should be used if the DDB of the GS task should be merged.</p>
 </dd></dl>
 
 <dl class="classmethod">
 <dt id="pymatgen.io.abinit.works.PhononWork.from_scf_task">
-<em class="property">classmethod </em><code class="descname">from_scf_task</code><span class="sig-paren">(</span><em>scf_task</em>, <em>qpoints</em>, <em>is_ngqpt=False</em>, <em>tolerance=None</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#PhononWork.from_scf_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.PhononWork.from_scf_task" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">from_scf_task</code><span class="sig-paren">(</span><em>scf_task</em>, <em>qpoints</em>, <em>is_ngqpt=False</em>, <em>tolerance=None</em>, <em>with_becs=False</em>, <em>ddk_tolerance=None</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#PhononWork.from_scf_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.PhononWork.from_scf_task" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct a <cite>PhononWork</cite> from a <code class="xref py py-class docutils literal notranslate"><span class="pre">ScfTask</span></code> object.
 The input file for phonons is automatically generated from the input of the ScfTask.
-Each phonon task depends on the WFK file produced by scf_task.</p>
+Each phonon task depends on the WFK file produced by the <cite>scf_task</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -661,27 +662,14 @@ Each phonon task depends on the WFK file produced by scf_task.</p>
 <li><strong>qpoints</strong> – q-points in reduced coordinates. Accepts single q-point, list of q-points
 or three integers defining the q-mesh if <cite>is_ngqpt</cite>.</li>
 <li><strong>is_ngqpt</strong> – True if <cite>qpoints</cite> should be interpreted as divisions instead of q-points.</li>
-<li><strong>tolerance</strong> – dict {varname: value} with the tolerance to be used in the DFPT run.
-Defaults to {“tolvrs”: 1.0e-10}.</li>
+<li><strong>tolerance</strong> – dict {“varname”: value} with the tolerance to be used in the phonon run.
+None to use AbiPy default.</li>
+<li><strong>with_becs</strong> – Activate calculation of Electric field and Born effective charges.</li>
+<li><strong>ddk_tolerance</strong> – dict {“varname”: value} with the tolerance used in the DDK run if with_becs.
+None to use AbiPy default.</li>
 <li><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</li>
 </ul>
 </td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.io.abinit.works.PhononWork.merge_pot1_files">
-<code class="descname">merge_pot1_files</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#PhononWork.merge_pot1_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.PhononWork.merge_pot1_files" title="Permalink to this definition">¶</a></dt>
-<dd><p>This method is called when all the q-points have been computed.
-It runs <cite>mrgdvdb</cite> in sequential on the local machine to produce
-the final DVDB file in the outdir of the <cite>Work</cite>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">path to the output DVDB file. None if not DFPT POT file is found.</td>
 </tr>
 </tbody>
 </table>
@@ -693,6 +681,117 @@ the final DVDB file in the outdir of the <cite>Work</cite>.</p>
 <dd><p>This method is called when all the q-points have been computed.
 Ir runs <cite>mrgddb</cite> in sequential on the local machine to produce
 the final DDB file in the outdir of the <cite>Work</cite>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.abinit.works.PhononWfkqWork">
+<em class="property">class </em><code class="descname">PhononWfkqWork</code><span class="sig-paren">(</span><em>workdir=None</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#PhononWfkqWork"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.PhononWfkqWork" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.works.Work" title="pymatgen.io.abinit.works.Work"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.works.Work</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.works.MergeDdb</span></code></p>
+<p>This work computes phonons with DFPT on an arbitrary q-mesh (usually denser than the k-mesh for electrons)
+by computing WKQ files for each q-point.
+The number of irreducible atomic perturbations for each q-point are taken into account.
+It provides the callback method (on_all_ok) that calls mrgddb (mrgdv) to merge
+all the partial DDB (POT) files produced. The two files are available in the
+output directory of the Work. The WKQ files are removed at runtime.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>workdir</strong> – Path to the working directory.</li>
+<li><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="classmethod">
+<dt id="pymatgen.io.abinit.works.PhononWfkqWork.from_scf_task">
+<em class="property">classmethod </em><code class="descname">from_scf_task</code><span class="sig-paren">(</span><em>scf_task</em>, <em>ngqpt</em>, <em>ph_tolerance=None</em>, <em>tolwfr=1e-22</em>, <em>nband=None</em>, <em>with_becs=False</em>, <em>ddk_tolerance=None</em>, <em>shiftq=(0</em>, <em>0</em>, <em>0)</em>, <em>is_ngqpt=True</em>, <em>remove_wfkq=True</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#PhononWfkqWork.from_scf_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.PhononWfkqWork.from_scf_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a <cite>PhononWfkqWork</cite> from a <code class="xref py py-class docutils literal notranslate"><span class="pre">ScfTask</span></code> object.
+The input files for WFQ and phonons are automatically generated from the input of the ScfTask.
+Each phonon task depends on the WFK file produced by scf_task and the associated WFQ file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>scf_task</strong> – ScfTask object.</li>
+<li><strong>ngqpt</strong> – three integers defining the q-mesh</li>
+<li><strong>with_becs</strong> – Activate calculation of Electric field and Born effective charges.</li>
+<li><strong>ph_tolerance</strong> – dict {“varname”: value} with the tolerance for the phonon run.
+None to use AbiPy default.</li>
+<li><strong>tolwfr</strong> – tolerance used to compute WFQ.</li>
+<li><strong>ddk_tolerance</strong> – dict {“varname”: value} with the tolerance used in the DDK run if with_becs.
+None to use AbiPy default.</li>
+<li><strong>shiftq</strong> – Q-mesh shift. Multiple shifts are not supported.</li>
+<li><strong>is_ngqpt</strong> – the ngqpt is interpreted as a set of integers defining the q-mesh, otherwise
+is an explicit list of q-points</li>
+<li><strong>remove_wfkq</strong> – Remove WKQ files when the children are completed.</li>
+<li><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.works.PhononWfkqWork.on_all_ok">
+<code class="descname">on_all_ok</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#PhononWfkqWork.on_all_ok"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.PhononWfkqWork.on_all_ok" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is called when all the q-points have been computed.
+Ir runs <cite>mrgddb</cite> in sequential on the local machine to produce
+the final DDB file in the outdir of the <cite>Work</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.works.PhononWfkqWork.on_ok">
+<code class="descname">on_ok</code><span class="sig-paren">(</span><em>sender</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#PhononWfkqWork.on_ok"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.PhononWfkqWork.on_ok" title="Permalink to this definition">¶</a></dt>
+<dd><p>This callback is called when one task reaches status <cite>S_OK</cite>.
+It removes the WFKQ file if all its children have reached <cite>S_OK</cite>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.abinit.works.GKKPWork">
+<em class="property">class </em><code class="descname">GKKPWork</code><span class="sig-paren">(</span><em>workdir=None</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#GKKPWork"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.GKKPWork" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.works.Work" title="pymatgen.io.abinit.works.Work"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.works.Work</span></code></a></p>
+<p>This work computes electron-phonon matrix elements for all the q-points
+present in a DVDB and DDB file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>workdir</strong> – Path to the working directory.</li>
+<li><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="classmethod">
+<dt id="pymatgen.io.abinit.works.GKKPWork.from_den_ddb_dvdb">
+<em class="property">classmethod </em><code class="descname">from_den_ddb_dvdb</code><span class="sig-paren">(</span><em>inp</em>, <em>den_path</em>, <em>ddb_path</em>, <em>dvdb_path</em>, <em>mpiprocs=1</em>, <em>remove_wfkq=True</em>, <em>qpath=None</em>, <em>with_ddk=True</em>, <em>expand=True</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#GKKPWork.from_den_ddb_dvdb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.GKKPWork.from_den_ddb_dvdb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a <cite>PhononWfkqWork</cite> from a DDB and DVDB file.
+For each q found, a WFQ task and an EPH task computing the matrix elements are created.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.io.abinit.works.GKKPWork.from_phononwfkq_work">
+<em class="property">classmethod </em><code class="descname">from_phononwfkq_work</code><span class="sig-paren">(</span><em>phononwfkq_work</em>, <em>nscf_vars={}</em>, <em>remove_wfkq=True</em>, <em>with_ddk=True</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#GKKPWork.from_phononwfkq_work"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.GKKPWork.from_phononwfkq_work" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a <cite>GKKPWork</cite> from a <cite>PhononWfkqWork</cite> object.
+The WFQ are the ones used for PhononWfkqWork so in principle have only valence bands</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.works.GKKPWork.on_ok">
+<code class="descname">on_ok</code><span class="sig-paren">(</span><em>sender</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#GKKPWork.on_ok"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.GKKPWork.on_ok" title="Permalink to this definition">¶</a></dt>
+<dd><p>This callback is called when one task reaches status <cite>S_OK</cite>.
+It removes the WFKQ file if all its children have reached <cite>S_OK</cite>.</p>
 </dd></dl>
 
 </dd></dl>
@@ -719,14 +818,29 @@ partial DDB files produced by the work.</p>
 </table>
 <dl class="classmethod">
 <dt id="pymatgen.io.abinit.works.BecWork.from_scf_task">
-<em class="property">classmethod </em><code class="descname">from_scf_task</code><span class="sig-paren">(</span><em>scf_task</em>, <em>ddk_tolerance=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#BecWork.from_scf_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.BecWork.from_scf_task" title="Permalink to this definition">¶</a></dt>
-<dd><p>Build a BecWork from a ground-state task.</p>
+<em class="property">classmethod </em><code class="descname">from_scf_task</code><span class="sig-paren">(</span><em>scf_task</em>, <em>ddk_tolerance=None</em>, <em>ph_tolerance=None</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#BecWork.from_scf_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.BecWork.from_scf_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build tasks for the computation of Born effective charges from a ground-state task.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>scf_task</strong> – ScfTask object.</li>
+<li><strong>ddk_tolerance</strong> – tolerance used in the DDK run if with_becs. None to use AbiPy default.</li>
+<li><strong>ph_tolerance</strong> – dict {“varname”: value} with the tolerance used in the phonon run.
+None to use AbiPy default.</li>
+<li><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.works.BecWork.on_all_ok">
 <code class="descname">on_all_ok</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#BecWork.on_all_ok"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.BecWork.on_all_ok" title="Permalink to this definition">¶</a></dt>
-<dd><p>This method is called when all the task reach S_OK
+<dd><p>This method is called when all tasks reach S_OK
 Ir runs <cite>mrgddb</cite> in sequential on the local machine to produce
 the final DDB file in the outdir of the <cite>Work</cite>.</p>
 </dd></dl>
@@ -754,14 +868,27 @@ It provides the callback method (on_all_ok) that calls mrgddb to merge the parti
 </table>
 <dl class="classmethod">
 <dt id="pymatgen.io.abinit.works.DteWork.from_scf_task">
-<em class="property">classmethod </em><code class="descname">from_scf_task</code><span class="sig-paren">(</span><em>scf_task</em>, <em>ddk_tolerance=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#DteWork.from_scf_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.DteWork.from_scf_task" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">from_scf_task</code><span class="sig-paren">(</span><em>scf_task</em>, <em>ddk_tolerance=None</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#DteWork.from_scf_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.DteWork.from_scf_task" title="Permalink to this definition">¶</a></dt>
 <dd><p>Build a DteWork from a ground-state task.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>scf_task</strong> – ScfTask object.</li>
+<li><strong>ddk_tolerance</strong> – tolerance used in the DDK run if with_becs. None to use AbiPy default.</li>
+<li><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.works.DteWork.on_all_ok">
 <code class="descname">on_all_ok</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#DteWork.on_all_ok"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.DteWork.on_all_ok" title="Permalink to this definition">¶</a></dt>
-<dd><p>This method is called when all the task reach S_OK
+<dd><p>This method is called when all tasks reach S_OK
 Ir runs <cite>mrgddb</cite> in sequential on the local machine to produce
 the final DDB file in the outdir of the <cite>Work</cite>.</p>
 </dd></dl>
@@ -808,7 +935,7 @@ the final DDB file in the outdir of the <cite>Work</cite>.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.10.18 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
       </ul>
     </div>
 

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.launcher &#8212; pymatgen 2018.10.18 documentation</title>
+    <title>pymatgen.io.abinit.launcher &#8212; pymatgen 2018.12.12 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.10.18 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -790,7 +790,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">check_status</span><span class="p">()</span>
 
             <span class="n">g</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">find_deadlocks</span><span class="p">()</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;deadlocked:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">deadlocked</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">runnables:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">runnables</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">running</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">running</span><span class="p">)</span>
+            <span class="c1">#print(&quot;deadlocked:\n&quot;, g.deadlocked, &quot;\nrunnables:\n&quot;, g.runnables, &quot;\nrunning\n&quot;, g.running)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;deadlocked:&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">deadlocked</span><span class="p">),</span> <span class="s2">&quot;, runnables:&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">runnables</span><span class="p">),</span> <span class="s2">&quot;, running:&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">running</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">deadlocked</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">g</span><span class="o">.</span><span class="n">runnables</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">g</span><span class="o">.</span><span class="n">running</span><span class="p">:</span>
                 <span class="n">err_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;No runnable job with deadlocked tasks:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">deadlocked</span><span class="p">))</span>
 
@@ -1397,7 +1398,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.10.18 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

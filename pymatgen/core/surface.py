@@ -2,14 +2,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 from functools import reduce
-try:
-    # New Py>=3.5 import
-    from math import gcd
-except ImportError:
-    # Deprecated import from Py3.5 onwards.
-    from fractions import gcd
+from math import gcd
 import math
 import itertools
 import logging
@@ -17,7 +11,6 @@ import warnings
 import copy
 import os
 import json
-from fractions import Fraction
 
 import numpy as np
 from scipy.spatial.distance import squareform
@@ -656,7 +649,8 @@ class Slab(Structure):
 
         slabcopy = SpacegroupAnalyzer(self.copy()).get_symmetrized_structure()
         points = [slabcopy[i].frac_coords for i in indices]
-
+        removal_list = []
+        
         for pt in points:
             # Get the index of the original site on top
             cart_point = slabcopy.lattice.get_cartesian_coords(pt)
@@ -669,6 +663,7 @@ class Slab(Structure):
                     eq_indices = slabcopy.equivalent_indices[i]
                     break
             i1 = eq_indices[eq_sites.index(slabcopy[site1])]
+            
             for i2 in eq_indices:
                 if i2 == i1:
                     continue
@@ -678,13 +673,17 @@ class Slab(Structure):
                 s = self.copy()
                 s.remove_sites([i1, i2])
                 if s.is_symmetric():
-                    self.remove_sites([i1, i2])
+                    removal_list.extend([i1, i2])
                     break
-                if eq_indices.index(i2) == len(eq_indices) - 1:
-                    warnings.warn("Equivalent site could not be found for removal")
+                    
+        # If expected, 2 atoms are removed per index
+        if len(removal_list) == 2*len(indices):
+            self.remove_sites(removal_list)
+        else:
+            warnings.warn("Equivalent sites could not be found for removal for all indices. Surface unchanged.")
 
-
-class SlabGenerator(object):
+            
+class SlabGenerator:
 
     """
     This class generates different slabs using shift values determined by where
@@ -1277,7 +1276,7 @@ with open(os.path.join(module_dir,
     reconstructions_archive = json.load(data_file)
 
 
-class ReconstructionGenerator(object):
+class ReconstructionGenerator:
 
     """
     This class takes in a pre-defined dictionary specifying the parameters
@@ -1730,40 +1729,37 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
     return all_slabs
 
 
-def get_integer_index(miller_index):
+def miller_index_from_sites(lattice, coords, coords_are_cartesian=True,
+                            round_dp=4, verbose=True):
     """
-    Converts a vector of floats to whole numbers
-    """
-    md = [Fraction(n).limit_denominator(12).denominator for n in miller_index]
-    miller_index *= reduce(lambda x, y: x * y, md)
-    round_miller_index = np.int_(np.round(miller_index, 1))
-    if np.any(np.abs(miller_index - round_miller_index) > 1e-6):
-        warnings.warn("Non-integer encountered in Miller index")
+    Get the Miller index of a plane from a list of site coordinates.
 
-    return miller_index / np.abs(reduce(gcd, round_miller_index))
+    A minimum of 3 sets of coordinates are required. If more than 3 sets of
+    coordinates are given, the best plane that minimises the distance to all
+    points will be calculated.
 
-
-def miller_index_from_sites(supercell_matrix, coords):
-    """
-    Get the Miller index of a plane from two vectors formed from three
-    cartesian coordinates. If you use this module, please consider
-    citing the following work::
-        Sun, W., & Ceder, G. (2018). A topological screening heuristic
-        for low-energy , high-index surfaces. Surface Science, 669(October
-        2017), 50–56. https://doi.org/10.1016/j.susc.2017.11.007
     Args:
-        supercell_matrix: 3x3 matrix describing the supercell or unit cell
-        coords: List of three (numpy arrays) points as cartesian coordinates
-            in the corresponding cell
-    Returns:
-        The Miller index
-    """
+        lattice (list or Lattice): A 3x3 lattice matrix or `Lattice` object (for
+            example obtained from Structure.lattice).
+        coords (iterable): A list or numpy array of coordinates. Can be
+            cartesian or fractional coordinates. If more than three sets of
+            coordinates are provided, the best plane that minimises the
+            distance to all sites will be calculated.
+        coords_are_cartesian (bool, optional): Whether the coordinates are
+            in cartesian space. If using fractional coordinates set to False.
+        round_dp (int, optional): The number of decimal places to round the
+            miller index to.
+        verbose (bool, optional): Whether to print warnings.
 
-    v1 = np.dot(np.linalg.inv(np.transpose(supercell_matrix)),
-                coords[0] - coords[1])
-    v2 = np.dot(np.linalg.inv(np.transpose(supercell_matrix)),
-                coords[0] - coords[2])
-    return get_integer_index(np.transpose(np.cross(v1, v2)))
+    Returns:
+        (tuple): The Miller index.
+    """
+    if not isinstance(lattice, Lattice):
+        lattice = Lattice(lattice)
+
+    return lattice.get_miller_index_from_coords(
+        coords, coords_are_cartesian=coords_are_cartesian, round_dp=round_dp,
+        verbose=verbose)
 
 
 def center_slab(slab):
@@ -1823,4 +1819,3 @@ def reduce_vector(vector):
     vector = tuple([int(i / d) for i in vector])
 
     return vector
-

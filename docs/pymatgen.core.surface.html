@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.surface module &#8212; pymatgen 2018.10.18 documentation</title>
+    <title>pymatgen.core.surface module &#8212; pymatgen 2018.12.12 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.10.18 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -961,12 +961,6 @@ each layer of atoms along c</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="pymatgen.core.surface.get_integer_index">
-<code class="descname">get_integer_index</code><span class="sig-paren">(</span><em>miller_index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#get_integer_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.get_integer_index" title="Permalink to this definition">¶</a></dt>
-<dd><p>Converts a vector of floats to whole numbers</p>
-</dd></dl>
-
-<dl class="function">
 <dt id="pymatgen.core.surface.get_recp_symmetry_operation">
 <code class="descname">get_recp_symmetry_operation</code><span class="sig-paren">(</span><em>structure</em>, <em>symprec=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#get_recp_symmetry_operation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.get_recp_symmetry_operation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find the symmetric operations of the reciprocal lattice,
@@ -997,28 +991,53 @@ structure. All other indices are equivalent to one of these.</div></blockquote>
 </dd></dl>
 
 <dl class="function">
+<dt id="pymatgen.core.surface.hkl_transformation">
+<code class="descname">hkl_transformation</code><span class="sig-paren">(</span><em>transf</em>, <em>miller_index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#hkl_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.hkl_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Miller index from setting
+A to B using a transformation matrix
+:param transf: The transformation matrix</p>
+<blockquote>
+<div>that transforms a lattice of A to B</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>miller_index</strong> (<em>[</em><em>h</em><em>, </em><em>k</em><em>, </em><em>l</em><em>]</em>) – Miller index to transform to setting B</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="pymatgen.core.surface.miller_index_from_sites">
-<code class="descname">miller_index_from_sites</code><span class="sig-paren">(</span><em>supercell_matrix</em>, <em>coords</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#miller_index_from_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.miller_index_from_sites" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the Miller index of a plane from two vectors formed from three
-cartesian coordinates. If you use this module, please consider
-citing the following work:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Sun, W., &amp; Ceder, G. (2018). A topological screening heuristic
-for low-energy , high-index surfaces. Surface Science, 669(October
-2017), 50–56. https://doi.org/10.1016/j.susc.2017.11.007
-</pre></div>
-</div>
+<code class="descname">miller_index_from_sites</code><span class="sig-paren">(</span><em>lattice</em>, <em>coords</em>, <em>coords_are_cartesian=True</em>, <em>round_dp=4</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#miller_index_from_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.miller_index_from_sites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the Miller index of a plane from a list of site coordinates.</p>
+<p>A minimum of 3 sets of coordinates are required. If more than 3 sets of
+coordinates are given, the best plane that minimises the distance to all
+points will be calculated.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>supercell_matrix</strong> – 3x3 matrix describing the supercell or unit cell</li>
-<li><strong>coords</strong> – List of three (numpy arrays) points as cartesian coordinates
-in the corresponding cell</li>
+<li><strong>lattice</strong> (<em>list</em><em> or </em><a class="reference internal" href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><em>Lattice</em></a>) – A 3x3 lattice matrix or <cite>Lattice</cite> object (for
+example obtained from Structure.lattice).</li>
+<li><strong>coords</strong> (<em>iterable</em>) – A list or numpy array of coordinates. Can be
+cartesian or fractional coordinates. If more than three sets of
+coordinates are provided, the best plane that minimises the
+distance to all sites will be calculated.</li>
+<li><strong>coords_are_cartesian</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether the coordinates are
+in cartesian space. If using fractional coordinates set to False.</li>
+<li><strong>round_dp</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of decimal places to round the
+miller index to.</li>
+<li><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to print warnings.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The Miller index</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The Miller index.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">(tuple)</p>
 </td>
 </tr>
 </tbody>
@@ -1070,7 +1089,7 @@ in the corresponding cell</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.10.18 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
       </ul>
     </div>
 

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.lattice &#8212; pymatgen 2018.10.18 documentation</title>
+    <title>pymatgen.core.lattice &#8212; pymatgen 2018.12.12 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.10.18 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -53,6 +53,17 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">reduce</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="c1"># New Py&gt;=3.5 import</span>
+    <span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">gcd</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="c1"># Deprecated import from Py3.5 onwards.</span>
+    <span class="kn">from</span> <span class="nn">fractions</span> <span class="k">import</span> <span class="n">gcd</span>
+
+<span class="kn">from</span> <span class="nn">fractions</span> <span class="k">import</span> <span class="n">Fraction</span>
 
 <span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">map</span><span class="p">,</span> <span class="nb">zip</span>
 
@@ -78,7 +89,6 @@
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Sep 23, 2011&quot;</span>
 
 
-
 <div class="viewcode-block" id="Lattice"><a class="viewcode-back" href="../../../pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice">[docs]</a><span class="k">class</span> <span class="nc">Lattice</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A lattice object.  Essentially a matrix with conversion matrices. In</span>
@@ -87,7 +97,6 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Properties lazily generated for efficiency.</span>
-
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">matrix</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1162,9 +1171,102 @@
             <span class="n">fc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">fc</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">d2</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span> <span class="n">fc</span>
 
+        <span class="n">jimage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">jimage</span><span class="p">)</span>
         <span class="n">mapped_vec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">jimage</span> <span class="o">+</span> <span class="n">frac_coords2</span>
                                                <span class="o">-</span> <span class="n">frac_coords1</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">mapped_vec</span><span class="p">),</span> <span class="n">jimage</span></div></div>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">mapped_vec</span><span class="p">),</span> <span class="n">jimage</span></div>
+
+<div class="viewcode-block" id="Lattice.get_miller_index_from_coords"><a class="viewcode-back" href="../../../pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice.get_miller_index_from_coords">[docs]</a>    <span class="k">def</span> <span class="nf">get_miller_index_from_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                     <span class="n">round_dp</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the Miller index of a plane from a list of site coordinates.</span>
+
+<span class="sd">        A minimum of 3 sets of coordinates are required. If more than 3 sets of</span>
+<span class="sd">        coordinates are given, the best plane that minimises the distance to all</span>
+<span class="sd">        points will be calculated.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            coords (iterable): A list or numpy array of coordinates. Can be</span>
+<span class="sd">                cartesian or fractional coordinates. If more than three sets of</span>
+<span class="sd">                coordinates are provided, the best plane that minimises the</span>
+<span class="sd">                distance to all sites will be calculated.</span>
+<span class="sd">            coords_are_cartesian (bool, optional): Whether the coordinates are</span>
+<span class="sd">                in cartesian space. If using fractional coordinates set to</span>
+<span class="sd">                False.</span>
+<span class="sd">            round_dp (int, optional): The number of decimal places to round the</span>
+<span class="sd">                miller index to.</span>
+<span class="sd">            verbose (bool, optional): Whether to print warnings.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (tuple): The Miller index.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">coords_are_cartesian</span><span class="p">:</span>
+            <span class="n">coords</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_fractional_coords</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">coords</span><span class="p">]</span>
+
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">coords</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># run singular value decomposition</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">vh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">coords</span> <span class="o">-</span> <span class="n">g</span><span class="p">)</span>
+
+        <span class="c1"># get unitary normal vector</span>
+        <span class="n">u_norm</span> <span class="o">=</span> <span class="n">vh</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="k">return</span> <span class="n">get_integer_index</span><span class="p">(</span><span class="n">u_norm</span><span class="p">,</span> <span class="n">round_dp</span><span class="o">=</span><span class="n">round_dp</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="get_integer_index"><a class="viewcode-back" href="../../../pymatgen.core.lattice.html#pymatgen.core.lattice.get_integer_index">[docs]</a><span class="k">def</span> <span class="nf">get_integer_index</span><span class="p">(</span><span class="n">miller_index</span><span class="p">,</span> <span class="n">round_dp</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Attempt to convert a vector of floats to whole numbers.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        miller_index (list of float): A list miller indexes.</span>
+<span class="sd">        round_dp (int, optional): The number of decimal places to round the</span>
+<span class="sd">            miller index to.</span>
+<span class="sd">        verbose (bool, optional): Whether to print warnings.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (tuple): The Miller index.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">miller_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">miller_index</span><span class="p">)</span>
+
+    <span class="c1"># deal with the case we have small irregular floats</span>
+    <span class="c1"># that are all equal or factors of each other</span>
+    <span class="n">miller_index</span> <span class="o">/=</span> <span class="nb">min</span><span class="p">([</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">miller_index</span> <span class="k">if</span> <span class="n">m</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">])</span>
+    <span class="n">miller_index</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">miller_index</span><span class="p">))</span>
+
+    <span class="c1"># deal with the case we have nice fractions</span>
+    <span class="n">md</span> <span class="o">=</span> <span class="p">[</span><span class="n">Fraction</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">limit_denominator</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span><span class="o">.</span><span class="n">denominator</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">miller_index</span><span class="p">]</span>
+    <span class="n">miller_index</span> <span class="o">*=</span> <span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span><span class="p">,</span> <span class="n">md</span><span class="p">)</span>
+    <span class="n">int_miller_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int_</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">miller_index</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">miller_index</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">reduce</span><span class="p">(</span><span class="n">gcd</span><span class="p">,</span> <span class="n">int_miller_index</span><span class="p">))</span>
+
+    <span class="c1"># round to a reasonable precision</span>
+    <span class="n">miller_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">round</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">round_dp</span><span class="p">)</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">miller_index</span><span class="p">])</span>
+
+    <span class="c1"># need to recalculate this after rounding as values may have changed</span>
+    <span class="n">int_miller_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int_</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">miller_index</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">miller_index</span> <span class="o">-</span> <span class="n">int_miller_index</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1e-6</span><span class="p">)</span> <span class="ow">and</span>
+            <span class="n">verbose</span><span class="p">):</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Non-integer encountered in Miller index&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">miller_index</span> <span class="o">=</span> <span class="n">int_miller_index</span>
+
+    <span class="c1"># minimise the number of negative indexes</span>
+    <span class="n">miller_index</span> <span class="o">+=</span> <span class="mi">0</span>  <span class="c1"># converts -0 to 0</span>
+
+    <span class="k">def</span> <span class="nf">n_minus</span><span class="p">(</span><span class="n">index</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">([</span><span class="n">h</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">index</span> <span class="k">if</span> <span class="n">h</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">n_minus</span><span class="p">(</span><span class="n">miller_index</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">n_minus</span><span class="p">(</span><span class="n">miller_index</span> <span class="o">*</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">miller_index</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+
+    <span class="c1"># if only one index is negative, make sure it is the smallest</span>
+    <span class="c1"># e.g. (-2 1 0) -&gt; (2 -1 0)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">miller_index</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">n_minus</span><span class="p">(</span><span class="n">miller_index</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+            <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">miller_index</span><span class="p">))</span> <span class="o">&gt;</span> <span class="nb">max</span><span class="p">(</span><span class="n">miller_index</span><span class="p">)):</span>
+        <span class="n">miller_index</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">miller_index</span><span class="p">)</span></div>
 </pre></div>
 
           </div>
@@ -1197,7 +1299,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.10.18 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals, division, print_function
 
 import unittest
 import os
@@ -1104,17 +1103,20 @@ loop_
 class MagCifTest(unittest.TestCase):
 
     def setUp(self):
-        with warnings.catch_warnings():
-            self.mcif = CifParser(os.path.join(test_dir,
-                                               "magnetic.example.NiO.mcif"))
-            self.mcif_ncl = CifParser(os.path.join(test_dir,
-                                                   "magnetic.ncl.example.GdB4.mcif"))
-            self.mcif_incom = CifParser(os.path.join(test_dir,
-                                                     "magnetic.incommensurate.example.Cr.mcif"))
-            self.mcif_disord = CifParser(os.path.join(test_dir,
-                                                      "magnetic.disordered.example.CuMnO2.mcif"))
-            self.mcif_ncl2 = CifParser(os.path.join(test_dir,
-                                                    "Mn3Ge_IR2.mcif"))
+        warnings.filterwarnings("ignore")
+        self.mcif = CifParser(os.path.join(test_dir,
+                                           "magnetic.example.NiO.mcif"))
+        self.mcif_ncl = CifParser(os.path.join(test_dir,
+                                               "magnetic.ncl.example.GdB4.mcif"))
+        self.mcif_incom = CifParser(os.path.join(test_dir,
+                                                 "magnetic.incommensurate.example.Cr.mcif"))
+        self.mcif_disord = CifParser(os.path.join(test_dir,
+                                                  "magnetic.disordered.example.CuMnO2.mcif"))
+        self.mcif_ncl2 = CifParser(os.path.join(test_dir,
+                                                "Mn3Ge_IR2.mcif"))
+
+    def tearDown(self):
+        warnings.simplefilter("default")
 
     def test_mcif_detection(self):
         self.assertTrue(self.mcif.feature_flags["magcif"])

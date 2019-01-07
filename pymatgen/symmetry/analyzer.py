@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
 import itertools
 import logging
 from collections import defaultdict
@@ -15,7 +14,6 @@ from fractions import Fraction
 
 import numpy as np
 
-from six.moves import filter, map, zip
 import spglib
 
 from pymatgen.core.structure import Structure, Molecule
@@ -47,7 +45,7 @@ __date__ = "May 14, 2016"
 logger = logging.getLogger(__name__)
 
 
-class SpacegroupAnalyzer(object):
+class SpacegroupAnalyzer:
     """
     Takes a pymatgen.core.structure.Structure object and a symprec.
     Uses pyspglib to perform various symmetry finding operations.
@@ -822,7 +820,7 @@ class SpacegroupAnalyzer(object):
         return str(self.get_point_group_symbol()) in laue
 
 
-class PointGroupAnalyzer(object):
+class PointGroupAnalyzer:
     """
     A class to analyze the point group of a molecule. The general outline of
     the algorithm is as follows:

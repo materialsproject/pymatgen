@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.composition &#8212; pymatgen 2018.10.18 documentation</title>
+    <title>pymatgen.core.composition &#8212; pymatgen 2018.12.12 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.10.18 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -64,7 +64,7 @@
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
 
 <span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="k">import</span> <span class="n">loadfn</span>
-<span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">filter</span><span class="p">,</span> <span class="nb">map</span><span class="p">,</span> <span class="nb">zip</span>
+<span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">filter</span><span class="p">,</span> <span class="nb">zip</span>
 
 <span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">total_ordering</span>
 
@@ -359,6 +359,23 @@
         <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">formula</span><span class="p">)</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">iupac_formula</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a formula string, with elements sorted by the iupac</span>
+<span class="sd">        electronegativity ordering defined in Table VI of &quot;Nomenclature of</span>
+<span class="sd">        Inorganic Chemistry (IUPAC Recommendations 2005)&quot;. This ordering</span>
+<span class="sd">        effectively follows the groups and rows of the periodic table, except</span>
+<span class="sd">        the Lanthanides, Actanides and hydrogen. Polyanions are still determined</span>
+<span class="sd">        based on the true electronegativity of the elements.</span>
+<span class="sd">        e.g. CH2(SO4)2</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sym_amt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_el_amt_dict</span><span class="p">()</span>
+        <span class="n">syms</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">sym_amt</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span>
+                      <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">get_el_sp</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">iupac_ordering</span><span class="p">)</span>
+        <span class="n">formula</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="o">+</span> <span class="n">formula_double_format</span><span class="p">(</span><span class="n">sym_amt</span><span class="p">[</span><span class="n">s</span><span class="p">],</span> <span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">syms</span><span class="p">]</span>
+        <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">formula</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">element_composition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the composition replacing any species by the corresponding</span>
@@ -398,9 +415,19 @@
         <span class="n">factor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_reduced_formula_and_factor</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">return</span> <span class="bp">self</span> <span class="o">/</span> <span class="n">factor</span><span class="p">,</span> <span class="n">factor</span></div>
 
-<div class="viewcode-block" id="Composition.get_reduced_formula_and_factor"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.get_reduced_formula_and_factor">[docs]</a>    <span class="k">def</span> <span class="nf">get_reduced_formula_and_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Composition.get_reduced_formula_and_factor"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.get_reduced_formula_and_factor">[docs]</a>    <span class="k">def</span> <span class="nf">get_reduced_formula_and_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iupac_ordering</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculates a reduced formula and factor.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            iupac_ordering (bool, optional): Whether to order the</span>
+<span class="sd">                formula by the iupac &quot;electronegativity&quot; series, defined in</span>
+<span class="sd">                Table VI of &quot;Nomenclature of Inorganic Chemistry (IUPAC</span>
+<span class="sd">                Recommendations 2005)&quot;. This ordering effectively follows</span>
+<span class="sd">                the groups and rows of the periodic table, except the</span>
+<span class="sd">                Lanthanides, Actanides and hydrogen. Note that polyanions</span>
+<span class="sd">                will still be determined based on the true electronegativity of</span>
+<span class="sd">                the elements.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A pretty normalized formula and a multiplicative factor, i.e.,</span>
@@ -411,7 +438,8 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">all_int</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">formula</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="mi">1</span>
         <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">v</span><span class="p">))</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_el_amt_dict</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-        <span class="p">(</span><span class="n">formula</span><span class="p">,</span> <span class="n">factor</span><span class="p">)</span> <span class="o">=</span> <span class="n">reduce_formula</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">formula</span><span class="p">,</span> <span class="n">factor</span><span class="p">)</span> <span class="o">=</span> <span class="n">reduce_formula</span><span class="p">(</span>
+            <span class="n">d</span><span class="p">,</span> <span class="n">iupac_ordering</span><span class="o">=</span><span class="n">iupac_ordering</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">formula</span> <span class="ow">in</span> <span class="n">Composition</span><span class="o">.</span><span class="n">special_formulas</span><span class="p">:</span>
             <span class="n">formula</span> <span class="o">=</span> <span class="n">Composition</span><span class="o">.</span><span class="n">special_formulas</span><span class="p">[</span><span class="n">formula</span><span class="p">]</span>
@@ -419,13 +447,22 @@
 
         <span class="k">return</span> <span class="n">formula</span><span class="p">,</span> <span class="n">factor</span></div>
 
-<div class="viewcode-block" id="Composition.get_integer_formula_and_factor"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.get_integer_formula_and_factor">[docs]</a>    <span class="k">def</span> <span class="nf">get_integer_formula_and_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_denominator</span><span class="o">=</span><span class="mi">10000</span><span class="p">):</span>
+<div class="viewcode-block" id="Composition.get_integer_formula_and_factor"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.get_integer_formula_and_factor">[docs]</a>    <span class="k">def</span> <span class="nf">get_integer_formula_and_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_denominator</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
+                                       <span class="n">iupac_ordering</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculates an integer formula and factor.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            max_denominator (int): all amounts in the el:amt dict are</span>
 <span class="sd">                first converted to a Fraction with this maximum denominator</span>
+<span class="sd">            iupac_ordering (bool, optional): Whether to order the</span>
+<span class="sd">                formula by the iupac &quot;electronegativity&quot; series, defined in</span>
+<span class="sd">                Table VI of &quot;Nomenclature of Inorganic Chemistry (IUPAC</span>
+<span class="sd">                Recommendations 2005)&quot;. This ordering effectively follows</span>
+<span class="sd">                the groups and rows of the periodic table, except the</span>
+<span class="sd">                Lanthanides, Actanides and hydrogen. Note that polyanions</span>
+<span class="sd">                will still be determined based on the true electronegativity of</span>
+<span class="sd">                the elements.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A pretty normalized formula and a multiplicative factor, i.e.,</span>
@@ -435,7 +472,8 @@
         <span class="n">g</span> <span class="o">=</span> <span class="n">gcd_float</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">el_amt</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">max_denominator</span><span class="p">)</span>
 
         <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">v</span> <span class="o">/</span> <span class="n">g</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">el_amt</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-        <span class="p">(</span><span class="n">formula</span><span class="p">,</span> <span class="n">factor</span><span class="p">)</span> <span class="o">=</span> <span class="n">reduce_formula</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">formula</span><span class="p">,</span> <span class="n">factor</span><span class="p">)</span> <span class="o">=</span> <span class="n">reduce_formula</span><span class="p">(</span>
+            <span class="n">d</span><span class="p">,</span> <span class="n">iupac_ordering</span><span class="o">=</span><span class="n">iupac_ordering</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">formula</span> <span class="ow">in</span> <span class="n">Composition</span><span class="o">.</span><span class="n">special_formulas</span><span class="p">:</span>
             <span class="n">formula</span> <span class="o">=</span> <span class="n">Composition</span><span class="o">.</span><span class="n">special_formulas</span><span class="p">[</span><span class="n">formula</span><span class="p">]</span>
             <span class="n">factor</span> <span class="o">/=</span> <span class="mi">2</span>
@@ -636,7 +674,7 @@
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;reduced_cell_composition&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_reduced_dict</span><span class="p">,</span>
                 <span class="s2">&quot;unit_cell_composition&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
                 <span class="s2">&quot;reduced_cell_formula&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">,</span>
-                <span class="s2">&quot;elements&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span>
+                <span class="s2">&quot;elements&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
                 <span class="s2">&quot;nelements&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())}</span>
 
 <div class="viewcode-block" id="Composition.oxi_state_guesses"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.oxi_state_guesses">[docs]</a>    <span class="k">def</span> <span class="nf">oxi_state_guesses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oxi_states_override</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">target_charge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
@@ -661,8 +699,12 @@
 <span class="sd">                that the full oxidation state list is *very* inclusive and</span>
 <span class="sd">                can produce nonsensical results.</span>
 <span class="sd">            max_sites (int): if possible, will reduce Compositions to at most</span>
-<span class="sd">                this many many sites to speed up oxidation state guesses. Set</span>
-<span class="sd">                to -1 to just reduce fully.</span>
+<span class="sd">                this many sites to speed up oxidation state guesses. If the</span>
+<span class="sd">                composition cannot be reduced to this many sites a ValueError</span>
+<span class="sd">                will be raised. Set to -1 to just reduce fully. If set to a</span>
+<span class="sd">                number less than -1, the formula will be fully reduced but a</span>
+<span class="sd">                ValueError will be thrown if the number of atoms in the reduced</span>
+<span class="sd">                formula is greater than abs(max_sites).</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of dicts - each dict reports an element symbol and average</span>
@@ -672,14 +714,18 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_oxid_state_guesses</span><span class="p">(</span><span class="n">all_oxi_states</span><span class="p">,</span> <span class="n">max_sites</span><span class="p">,</span> <span class="n">oxi_states_override</span><span class="p">,</span> <span class="n">target_charge</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="Composition.add_charges_from_oxi_state_guesses"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.add_charges_from_oxi_state_guesses">[docs]</a>    <span class="k">def</span> <span class="nf">add_charges_from_oxi_state_guesses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oxi_states_override</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">target_charge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-                          <span class="n">all_oxi_states</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_sites</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Composition.add_charges_from_oxi_state_guesses"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.add_charges_from_oxi_state_guesses">[docs]</a>    <span class="k">def</span> <span class="nf">add_charges_from_oxi_state_guesses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                                           <span class="n">oxi_states_override</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                           <span class="n">target_charge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                                           <span class="n">all_oxi_states</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                           <span class="n">max_sites</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Assign oxidation states basedon guessed oxidation states.</span>
 
-<span class="sd">        See `oxi_state_guesses` for an explanation of how oxidation states are guessed.</span>
-<span class="sd">        This operation uses the set of oxidation states for each site that were determined</span>
-<span class="sd">        to be most likley from the oxidation state guessing routine.</span>
+<span class="sd">        See `oxi_state_guesses` for an explanation of how oxidation states are</span>
+<span class="sd">        guessed. This operation uses the set of oxidation states for each site</span>
+<span class="sd">        that were determined to be most likley from the oxidation state guessing</span>
+<span class="sd">        routine.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            oxi_states_override (dict): dict of str-&gt;list to override an</span>
@@ -692,35 +738,41 @@
 <span class="sd">                that the full oxidation state list is *very* inclusive and</span>
 <span class="sd">                can produce nonsensical results.</span>
 <span class="sd">            max_sites (int): if possible, will reduce Compositions to at most</span>
-<span class="sd">                this many many sites to speed up oxidation state guesses. Set</span>
-<span class="sd">                to -1 to just reduce fully.</span>
+<span class="sd">                this many sites to speed up oxidation state guesses. If the</span>
+<span class="sd">                composition cannot be reduced to this many sites a ValueError</span>
+<span class="sd">                will be raised. Set to -1 to just reduce fully. If set to a</span>
+<span class="sd">                number less than -1, the formula will be fully reduced but a</span>
+<span class="sd">                ValueError will be thrown if the number of atoms in the reduced</span>
+<span class="sd">                formula is greater than abs(max_sites).</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            Composition, where the elements are assigned oxidation states based on the</span>
-<span class="sd">                results form guessing oxidation states. If no oxidation state is possible,</span>
-<span class="sd">                returns a Composition where all oxidation states are 0</span>
+<span class="sd">            Composition, where the elements are assigned oxidation states based</span>
+<span class="sd">            on the results form guessing oxidation states. If no oxidation state</span>
+<span class="sd">            is possible, returns a Composition where all oxidation states are 0.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">_</span><span class="p">,</span> <span class="n">oxidation_states</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_oxid_state_guesses</span><span class="p">(</span><span class="n">all_oxi_states</span><span class="p">,</span> <span class="n">max_sites</span><span class="p">,</span> <span class="n">oxi_states_override</span><span class="p">,</span> <span class="n">target_charge</span><span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">oxidation_states</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_oxid_state_guesses</span><span class="p">(</span>
+            <span class="n">all_oxi_states</span><span class="p">,</span> <span class="n">max_sites</span><span class="p">,</span> <span class="n">oxi_states_override</span><span class="p">,</span> <span class="n">target_charge</span><span class="p">)</span>
 
         <span class="c1"># Special case: No charged compound is possible</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">oxidation_states</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">Composition</span><span class="p">(</span><span class="nb">dict</span><span class="p">((</span><span class="n">Specie</span><span class="p">(</span><span class="n">e</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span><span class="p">,</span><span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+            <span class="k">return</span> <span class="n">Composition</span><span class="p">(</span><span class="nb">dict</span><span class="p">((</span><span class="n">Specie</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
 
         <span class="c1"># Generate the species</span>
         <span class="n">species</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">el</span><span class="p">,</span> <span class="n">charges</span> <span class="ow">in</span> <span class="n">oxidation_states</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">species</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">Specie</span><span class="p">(</span><span class="n">el</span><span class="p">,</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">charges</span><span class="p">])</span>
+            <span class="n">species</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">Specie</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">charges</span><span class="p">])</span>
 
         <span class="c1"># Return the new object</span>
         <span class="k">return</span> <span class="n">Composition</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">Counter</span><span class="p">(</span><span class="n">species</span><span class="p">))</span></div>
 
-    <span class="k">def</span> <span class="nf">_get_oxid_state_guesses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">all_oxi_states</span><span class="p">,</span> <span class="n">max_sites</span><span class="p">,</span> <span class="n">oxi_states_override</span><span class="p">,</span> <span class="n">target_charge</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_get_oxid_state_guesses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">all_oxi_states</span><span class="p">,</span> <span class="n">max_sites</span><span class="p">,</span>
+                                <span class="n">oxi_states_override</span><span class="p">,</span> <span class="n">target_charge</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Utility operation for guessing oxidation states.</span>
 
-<span class="sd">        See `oxi_state_guesses` for full details. This operation does the calculation</span>
-<span class="sd">        of the most likely oxidation states</span>
+<span class="sd">        See `oxi_state_guesses` for full details. This operation does the</span>
+<span class="sd">        calculation of the most likely oxidation states</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            oxi_states_override (dict): dict of str-&gt;list to override an</span>
@@ -733,8 +785,13 @@
 <span class="sd">                that the full oxidation state list is *very* inclusive and</span>
 <span class="sd">                can produce nonsensical results.</span>
 <span class="sd">            max_sites (int): if possible, will reduce Compositions to at most</span>
-<span class="sd">                this many many sites to speed up oxidation state guesses. Set</span>
-<span class="sd">                to -1 to just reduce fully.</span>
+<span class="sd">                this many sites to speed up oxidation state guesses. If the</span>
+<span class="sd">                composition cannot be reduced to this many sites a ValueError</span>
+<span class="sd">                will be raised. Set to -1 to just reduce fully. If set to a</span>
+<span class="sd">                number less than -1, the formula will be fully reduced but a</span>
+<span class="sd">                ValueError will be thrown if the number of atoms in the reduced</span>
+<span class="sd">                formula is greater than abs(max_sites).</span>
+
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of dicts - each dict reports an element symbol and average</span>
 <span class="sd">                oxidation state across all sites in that composition. If the</span>
@@ -747,8 +804,13 @@
 <span class="sd">            &quot;&quot;&quot;</span>
         <span class="n">comp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="c1"># reduce Composition if necessary</span>
-        <span class="k">if</span> <span class="n">max_sites</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">max_sites</span> <span class="ow">and</span> <span class="n">max_sites</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">comp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduced_composition</span>
+
+            <span class="k">if</span> <span class="n">max_sites</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="n">comp</span><span class="o">.</span><span class="n">num_atoms</span> <span class="o">&gt;</span> <span class="nb">abs</span><span class="p">(</span><span class="n">max_sites</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Composition </span><span class="si">{}</span><span class="s2"> cannot accommodate max_sites &quot;</span>
+                    <span class="s2">&quot;setting!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">comp</span><span class="p">))</span>
 
         <span class="k">elif</span> <span class="n">max_sites</span> <span class="ow">and</span> <span class="n">comp</span><span class="o">.</span><span class="n">num_atoms</span> <span class="o">&gt;</span> <span class="n">max_sites</span><span class="p">:</span>
             <span class="n">reduced_comp</span><span class="p">,</span> <span class="n">reduced_factor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span> \
@@ -1040,51 +1102,58 @@
                         <span class="k">yield</span> <span class="n">match</span></div>
 
 
-<div class="viewcode-block" id="reduce_formula"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.reduce_formula">[docs]</a><span class="k">def</span> <span class="nf">reduce_formula</span><span class="p">(</span><span class="n">sym_amt</span><span class="p">):</span>
+<div class="viewcode-block" id="reduce_formula"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.reduce_formula">[docs]</a><span class="k">def</span> <span class="nf">reduce_formula</span><span class="p">(</span><span class="n">sym_amt</span><span class="p">,</span> <span class="n">iupac_ordering</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Helper method to reduce a sym_amt dict to a reduced formula and factor.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        sym_amt (dict): {symbol: amount}.</span>
+<span class="sd">        iupac_ordering (bool, optional): Whether to order the</span>
+<span class="sd">            formula by the iupac &quot;electronegativity&quot; series, defined in</span>
+<span class="sd">            Table VI of &quot;Nomenclature of Inorganic Chemistry (IUPAC</span>
+<span class="sd">            Recommendations 2005)&quot;. This ordering effectively follows</span>
+<span class="sd">            the groups and rows of the periodic table, except the</span>
+<span class="sd">            Lanthanides, Actanides and hydrogen. Note that polyanions</span>
+<span class="sd">            will still be determined based on the true electronegativity of</span>
+<span class="sd">            the elements.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        (reduced_formula, factor).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">syms</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">sym_amt</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span>
-                  <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="p">[</span><span class="n">get_el_sp</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">s</span><span class="p">])</span>
+    <span class="n">syms</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">sym_amt</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">[</span><span class="n">get_el_sp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">x</span><span class="p">])</span>
 
-    <span class="n">syms</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="nb">abs</span><span class="p">(</span><span class="n">sym_amt</span><span class="p">[</span><span class="n">s</span><span class="p">])</span> <span class="o">&gt;</span>
-                       <span class="n">Composition</span><span class="o">.</span><span class="n">amount_tolerance</span><span class="p">,</span> <span class="n">syms</span><span class="p">))</span>
-    <span class="n">num_el</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">syms</span><span class="p">)</span>
-    <span class="n">contains_polyanion</span> <span class="o">=</span> <span class="p">(</span><span class="n">num_el</span> <span class="o">&gt;=</span> <span class="mi">3</span> <span class="ow">and</span>
-                          <span class="n">get_el_sp</span><span class="p">(</span><span class="n">syms</span><span class="p">[</span><span class="n">num_el</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">X</span>
-                          <span class="o">-</span> <span class="n">get_el_sp</span><span class="p">(</span><span class="n">syms</span><span class="p">[</span><span class="n">num_el</span> <span class="o">-</span> <span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">X</span> <span class="o">&lt;</span> <span class="mf">1.65</span><span class="p">)</span>
+    <span class="n">syms</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">abs</span><span class="p">(</span><span class="n">sym_amt</span><span class="p">[</span><span class="n">x</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">Composition</span><span class="o">.</span><span class="n">amount_tolerance</span><span class="p">,</span> <span class="n">syms</span><span class="p">))</span>
 
     <span class="n">factor</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="c1"># Enforce integers for doing gcd.</span>
     <span class="k">if</span> <span class="nb">all</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">==</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">sym_amt</span><span class="o">.</span><span class="n">values</span><span class="p">())):</span>
         <span class="n">factor</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">gcd</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">sym_amt</span><span class="o">.</span><span class="n">values</span><span class="p">())))</span>
 
+    <span class="n">polyanion</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># if the composition contains a poly anion</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">syms</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">get_el_sp</span><span class="p">(</span><span class="n">syms</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">X</span> <span class="o">-</span> <span class="n">get_el_sp</span><span class="p">(</span><span class="n">syms</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">X</span> <span class="o">&lt;</span> <span class="mf">1.65</span><span class="p">:</span>
+        <span class="n">poly_sym_amt</span> <span class="o">=</span> <span class="p">{</span><span class="n">syms</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span> <span class="n">sym_amt</span><span class="p">[</span><span class="n">syms</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">/</span> <span class="n">factor</span>
+                        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]}</span>
+        <span class="p">(</span><span class="n">poly_form</span><span class="p">,</span> <span class="n">poly_factor</span><span class="p">)</span> <span class="o">=</span> <span class="n">reduce_formula</span><span class="p">(</span>
+            <span class="n">poly_sym_amt</span><span class="p">,</span> <span class="n">iupac_ordering</span><span class="o">=</span><span class="n">iupac_ordering</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">poly_factor</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">polyanion</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;(</span><span class="si">{}</span><span class="s2">)</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">poly_form</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">poly_factor</span><span class="p">)))</span>
+
+    <span class="n">syms</span> <span class="o">=</span> <span class="n">syms</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">syms</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">polyanion</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">syms</span><span class="p">)]</span>
+
+    <span class="k">if</span> <span class="n">iupac_ordering</span><span class="p">:</span>
+        <span class="n">syms</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">syms</span><span class="p">,</span>
+                      <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">[</span><span class="n">get_el_sp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">iupac_ordering</span><span class="p">,</span> <span class="n">x</span><span class="p">])</span>
+
     <span class="n">reduced_form</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">n</span> <span class="o">=</span> <span class="n">num_el</span> <span class="o">-</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">contains_polyanion</span> <span class="k">else</span> <span class="n">num_el</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
-        <span class="n">s</span> <span class="o">=</span> <span class="n">syms</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">syms</span><span class="p">:</span>
         <span class="n">normamt</span> <span class="o">=</span> <span class="n">sym_amt</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">factor</span>
         <span class="n">reduced_form</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
         <span class="n">reduced_form</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">formula_double_format</span><span class="p">(</span><span class="n">normamt</span><span class="p">))</span>
 
-    <span class="k">if</span> <span class="n">contains_polyanion</span><span class="p">:</span>
-        <span class="n">poly_sym_amt</span> <span class="o">=</span> <span class="p">{</span><span class="n">syms</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span> <span class="n">sym_amt</span><span class="p">[</span><span class="n">syms</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">/</span> <span class="n">factor</span>
-                        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">num_el</span><span class="p">)}</span>
-        <span class="p">(</span><span class="n">poly_form</span><span class="p">,</span> <span class="n">poly_factor</span><span class="p">)</span> <span class="o">=</span> <span class="n">reduce_formula</span><span class="p">(</span><span class="n">poly_sym_amt</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">poly_factor</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">reduced_form</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;(</span><span class="si">{}</span><span class="s2">)</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">poly_form</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">poly_factor</span><span class="p">)))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">reduced_form</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">poly_form</span><span class="p">)</span>
-
-    <span class="n">reduced_form</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">reduced_form</span><span class="p">)</span>
-
+    <span class="n">reduced_form</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">reduced_form</span> <span class="o">+</span> <span class="n">polyanion</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">reduced_form</span><span class="p">,</span> <span class="n">factor</span></div>
 
 
@@ -1196,7 +1265,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.10.18 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

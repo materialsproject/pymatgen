@@ -688,24 +688,24 @@ class MillerIndexFinderTests(PymatgenTest):
         self.assertEqual(len(miller_list), len(all_miller_list))
 
     def test_miller_index_from_sites(self):
+        """Test surface miller index convenience function"""
+
         # test on a cubic system
-        m = Lattice.cubic(1).matrix
+        m = Lattice.cubic(1)
         s1 = np.array([0.5, -1.5, 3])
         s2 = np.array([0.5, 3.,-1.5])
         s3 = np.array([2.5, 1.5,-4.])
-        self.assertEqual(tuple(miller_index_from_sites(m, [s1, s2, s3])),
-                         (-2,-1,-1))
+        self.assertEqual(miller_index_from_sites(m, [s1, s2, s3]),
+                         (2, 1, 1))
 
-        # test on a hexagonal system
-        m = np.array([[2.319, -4.01662582, 0.],
-                      [2.319, 4.01662582, 0.],
-                      [0., 0., 7.252]])
+        # test casting from matrix to Lattice
+        m = [[2.319, -4.01662582, 0.], [2.319, 4.01662582, 0.], [0., 0., 7.252]]
 
         s1 = np.array([2.319, 1.33887527, 6.3455])
         s2 = np.array([1.1595, 0.66943764, 4.5325])
         s3 = np.array([1.1595, 0.66943764, 0.9065])
-        hkl = [np.round(i, 6) for i in miller_index_from_sites(m, [s1, s2, s3])]
-        self.assertEqual(tuple(hkl), (2, -1, 0))
+        hkl = miller_index_from_sites(m, [s1, s2, s3])
+        self.assertEqual(hkl, (2, -1, 0))
 
 
 if __name__ == "__main__":

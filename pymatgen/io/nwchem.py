@@ -2,15 +2,11 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import re
 import os
 import warnings
 from string import Template
-
-from six import string_types
-from six.moves import zip
 
 import numpy as np
 
@@ -269,7 +265,7 @@ $theory_spec
             spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
 
         elements = set(mol.composition.get_el_amt_dict().keys())
-        if isinstance(basis_set, string_types):
+        if isinstance(basis_set, str):
             basis_set = {el: basis_set for el in elements}
 
         basis_set_option = basis_set_option
@@ -505,7 +501,7 @@ class NwInputError(Exception):
     pass
 
 
-class NwOutput(object):
+class NwOutput:
     """
     A Nwchem output file parser. Very basic for now - supports only dft and
     only parses energies and geometries. Please note that Nwchem typically

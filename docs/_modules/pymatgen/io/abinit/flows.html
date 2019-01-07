@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.flows &#8212; pymatgen 2018.10.18 documentation</title>
+    <title>pymatgen.io.abinit.flows &#8212; pymatgen 2018.12.12 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.10.18 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -2745,11 +2745,20 @@
 
 <span class="k">class</span> <span class="nc">PhononFlow</span><span class="p">(</span><span class="n">Flow</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        1) One workflow for the GS run.</span>
+<span class="sd">    This Flow provides a high-level interface to compute phonons with DFPT</span>
+<span class="sd">    The flow consists of</span>
 
-<span class="sd">        2) nqpt works for phonon calculations. Each work contains</span>
-<span class="sd">           nirred tasks where nirred is the number of irreducible phonon perturbations</span>
-<span class="sd">           for that particular q-point.</span>
+<span class="sd">    1) One workflow for the GS run.</span>
+
+<span class="sd">    2) nqpt works for phonon calculations. Each work contains</span>
+<span class="sd">       nirred tasks where nirred is the number of irreducible phonon perturbations</span>
+<span class="sd">       for that particular q-point.</span>
+
+<span class="sd">    .. note:</span>
+
+<span class="sd">        For a much more flexible interface, use the DFPT works defined in works.py</span>
+<span class="sd">        For instance, EPH calculations are much easier to implement by connecting a single</span>
+<span class="sd">        work that computes all the q-points with the EPH tasks instead of using PhononFlow.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_scf_input</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">workdir</span><span class="p">,</span> <span class="n">scf_input</span><span class="p">,</span> <span class="n">ph_ngqpt</span><span class="p">,</span> <span class="n">with_becs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">allocate</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -3116,7 +3125,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.10.18 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

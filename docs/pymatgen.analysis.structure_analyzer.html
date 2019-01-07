@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.structure_analyzer module &#8212; pymatgen 2018.10.18 documentation</title>
+    <title>pymatgen.analysis.structure_analyzer module &#8212; pymatgen 2018.12.12 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.10.18 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -376,48 +376,6 @@ atoms must be to each other to be considered a peroxide.</li>
 </dd></dl>
 
 <dl class="function">
-<dt id="pymatgen.analysis.structure_analyzer.get_dimensionality">
-<code class="descname">get_dimensionality</code><span class="sig-paren">(</span><em>structure</em>, <em>max_hkl=2</em>, <em>el_radius_updates=None</em>, <em>min_slab_size=5</em>, <em>min_vacuum_size=5</em>, <em>standardize=True</em>, <em>bonds=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#get_dimensionality"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.get_dimensionality" title="Permalink to this definition">¶</a></dt>
-<dd><p>This method returns whether a structure is 3D, 2D (layered), or 1D (linear
-chains or molecules) according to the algorithm published in Gorai, P.,
-Toberer, E. &amp; Stevanovic, V. Computational Identification of Promising
-Thermoelectric Materials Among Known Quasi-2D Binary Compounds. J. Mater.
-Chem. A 2, 4136 (2016).</p>
-<p>Note that a 1D structure detection might indicate problems in the bonding
-algorithm, particularly for ionic crystals (e.g., NaCl)</p>
-<p>Users can change the behavior of bonds detection by passing either
-el_radius_updates to update atomic radii for auto-detection of max bond
-distances, or bonds to explicitly specify max bond distances for atom pairs.
-Note that if you pass both, el_radius_updates are ignored.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> – (Structure) structure to analyze dimensionality for</li>
-<li><strong>max_hkl</strong> – (int) max index of planes to look for layers</li>
-<li><strong>el_radius_updates</strong> – (dict) symbol-&gt;float to update atomic radii</li>
-<li><strong>min_slab_size</strong> – (float) internal surface construction parameter</li>
-<li><strong>min_vacuum_size</strong> – (float) internal surface construction parameter</li>
-<li><strong>standardize</strong> (<em>bool</em>) – whether to standardize the structure before
-analysis. Set to False only if you already have the structure in a
-convention where layers / chains will be along low &lt;hkl&gt; indexes.</li>
-<li><strong>bonds</strong> (<em>{</em><em>(</em><em>specie1</em><em>, </em><em>specie2</em>) – max_bond_dist}: bonds are
-specified as a dict of tuples: float of specie1, specie2
-and the max bonding distance. For example, PO4 groups may be
-defined as {(“P”, “O”): 3}.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="docutils">
-<dt>Returns: (int) the dimensionality of the structure - 1 (molecules/chains),</dt>
-<dd>2 (layered), or 3 (3D)</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
 <dt id="pymatgen.analysis.structure_analyzer.get_max_bond_lengths">
 <code class="descname">get_max_bond_lengths</code><span class="sig-paren">(</span><em>structure</em>, <em>el_radius_updates=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#get_max_bond_lengths"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.get_max_bond_lengths" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides max bond length estimates for a structure based on the JMol
@@ -538,7 +496,7 @@ center.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.10.18 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
       </ul>
     </div>
 

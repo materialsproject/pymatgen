@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.structure module &#8212; pymatgen 2018.10.18 documentation</title>
+    <title>pymatgen.core.structure module &#8212; pymatgen 2018.12.12 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.10.18 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -476,9 +476,12 @@ disordered structures.</li>
 <li><strong>coords</strong> (<em>Nx3 array</em>) – list of fractional/cartesian coordinates of
 each species.</li>
 <li><strong>charge</strong> (<em>int</em>) – overall charge of the structure. Defaults to behavior
-in SiteCollection where total charge is the sum of the oxidation states</li>
+in SiteCollection where total charge is the sum of the oxidation
+states.</li>
 <li><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if there are sites
 that are less than 0.01 Ang apart. Defaults to False.</li>
+<li><strong>to_unit_cell</strong> (<em>bool</em>) – Whether to map all sites into the unit cell,
+i.e., fractional coords between 0 and 1. Defaults to False.</li>
 <li><strong>coords_are_cartesian</strong> (<em>bool</em>) – Set to True if you are providing
 coordinates in cartesian coordinates. Defaults to False.</li>
 <li><strong>site_properties</strong> (<em>dict</em>) – Properties associated with the sites as a
@@ -855,6 +858,38 @@ Default is None for nearest image.</li>
 </dd></dl>
 
 <dl class="method">
+<dt id="pymatgen.core.structure.IStructure.get_miller_index_from_site_indexes">
+<code class="descname">get_miller_index_from_site_indexes</code><span class="sig-paren">(</span><em>site_ids</em>, <em>round_dp=4</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.get_miller_index_from_site_indexes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_miller_index_from_site_indexes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the Miller index of a plane from a set of sites indexes.</p>
+<p>A minimum of 3 sites are required. If more than 3 sites are given
+the best plane that minimises the distance to all points will be
+calculated.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>site_ids</strong> (<em>list of int</em>) – A list of site indexes to consider. A
+minimum of three site indexes are required. If more than three
+sites are provided, the best plane that minimises the distance
+to all sites will be calculated.</li>
+<li><strong>round_dp</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of decimal places to round the
+miller index to.</li>
+<li><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to print warnings.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The Miller index.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">(tuple)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.core.structure.IStructure.get_neighbors">
 <code class="descname">get_neighbors</code><span class="sig-paren">(</span><em>site</em>, <em>r</em>, <em>include_index=False</em>, <em>include_image=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.get_neighbors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_neighbors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all neighbors to a site within a sphere of radius r.  Excludes the
@@ -920,7 +955,7 @@ Image only supplied if include_image = True</p>
 
 <dl class="method">
 <dt id="pymatgen.core.structure.IStructure.get_primitive_structure">
-<code class="descname">get_primitive_structure</code><span class="sig-paren">(</span><em>tolerance=0.25, use_site_props=False, constrain_latt=[False, False, False, False, False, False]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.get_primitive_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_primitive_structure" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_primitive_structure</code><span class="sig-paren">(</span><em>tolerance=0.25</em>, <em>use_site_props=False</em>, <em>constrain_latt=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.get_primitive_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_primitive_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>This finds a smaller unit cell than the input. Sometimes it doesn”t
 find the smallest possible one, so this method is recursively called
 until it is unable to find a smaller cell.</p>
@@ -1744,9 +1779,15 @@ e.g., (3, 56, …) or actual Element or Specie objects.</li>
 disordered structures.</li>
 </ol>
 </li>
-<li><strong>fractional_coords</strong> – list of fractional coordinates of each species.</li>
+<li><strong>coords</strong> (<em>Nx3 array</em>) – list of fractional/cartesian coordinates of
+each species.</li>
+<li><strong>charge</strong> (<em>int</em>) – overall charge of the structure. Defaults to behavior
+in SiteCollection where total charge is the sum of the oxidation
+states.</li>
 <li><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if there are sites
 that are less than 0.01 Ang apart. Defaults to False.</li>
+<li><strong>to_unit_cell</strong> (<em>bool</em>) – Whether to map all sites into the unit cell,
+i.e., fractional coords between 0 and 1. Defaults to False.</li>
 <li><strong>coords_are_cartesian</strong> (<em>bool</em>) – Set to True if you are providing
 coordinates in cartesian coordinates. Defaults to False.</li>
 <li><strong>site_properties</strong> (<em>dict</em>) – Properties associated with the sites as a
@@ -2319,7 +2360,7 @@ Raised when the structure has problems, e.g., atoms that are too close.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.10.18 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
       </ul>
     </div>
 

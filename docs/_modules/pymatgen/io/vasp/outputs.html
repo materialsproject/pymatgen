@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.outputs &#8212; pymatgen 2018.10.18 documentation</title>
+    <title>pymatgen.io.vasp.outputs &#8212; pymatgen 2018.12.12 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.10.18 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -1491,6 +1491,14 @@
 <span class="sd">        Average electrostatic potential at each atomic position in order</span>
 <span class="sd">        of the atoms in POSCAR.</span>
 
+<span class="sd">    ..attribute: final_energy_contribs</span>
+<span class="sd">        Individual contributions to the total final energy as a dictionary.</span>
+<span class="sd">        Include contirbutions from keys, e.g.:</span>
+<span class="sd">        {&#39;DENC&#39;: -505778.5184347, &#39;EATOM&#39;: 15561.06492564, &#39;EBANDS&#39;: -804.53201231,</span>
+<span class="sd">        &#39;EENTRO&#39;: -0.08932659, &#39;EXHF&#39;: 0.0, &#39;Ediel_sol&#39;: 0.0,</span>
+<span class="sd">        &#39;PAW double counting&#39;: 664.6726974100002, &#39;PSCENC&#39;: 742.48691646,</span>
+<span class="sd">        &#39;TEWEN&#39;: 489742.86847338, &#39;XCENC&#39;: -169.64189814}</span>
+
 <span class="sd">    One can then call a specific reader depending on the type of run being</span>
 <span class="sd">    performed. These are currently: read_igpar(), read_lepsilon() and</span>
 <span class="sd">    read_lcalcpol(), read_core_state_eign(), read_avg_core_pot().</span>
@@ -1704,6 +1712,19 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">nmr_efg</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">read_nmr_efg</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">read_nmr_efg_tensor</span><span class="p">()</span>
+
+        <span class="c1"># Store the individual contributions to the final total energy</span>
+        <span class="n">final_energy_contribs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;PSCENC&quot;</span><span class="p">,</span> <span class="s2">&quot;TEWEN&quot;</span><span class="p">,</span> <span class="s2">&quot;DENC&quot;</span><span class="p">,</span> <span class="s2">&quot;EXHF&quot;</span><span class="p">,</span> <span class="s2">&quot;XCENC&quot;</span><span class="p">,</span> <span class="s2">&quot;PAW double counting&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;EENTRO&quot;</span><span class="p">,</span> <span class="s2">&quot;EBANDS&quot;</span><span class="p">,</span> <span class="s2">&quot;EATOM&quot;</span><span class="p">,</span> <span class="s2">&quot;Ediel_sol&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s2">&quot;PAW double counting&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">read_pattern</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">\s+=\s+([\.\-\d]+)\s+([\.\-\d]+)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">)})</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">read_pattern</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">\s+=\s+([\d\-\.]+)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">)})</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+                <span class="k">continue</span>
+            <span class="n">final_energy_contribs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">final_energy_contribs</span> <span class="o">=</span> <span class="n">final_energy_contribs</span>
 
 <div class="viewcode-block" id="Outcar.read_pattern"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Outcar.read_pattern">[docs]</a>    <span class="k">def</span> <span class="nf">read_pattern</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">patterns</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">terminate_on_match</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                      <span class="n">postprocess</span><span class="o">=</span><span class="nb">str</span><span class="p">):</span>
@@ -3270,13 +3291,22 @@
                         <span class="n">data</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">current_kpoint</span><span class="p">,</span> <span class="n">current_band</span><span class="p">,</span>
                                    <span class="n">index</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">num_data</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">phase_factors</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span>
-                                <span class="n">current_kpoint</span><span class="p">,</span> <span class="n">current_band</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="mi">0</span><span class="p">]):</span>
-                            <span class="n">phase_factors</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">current_kpoint</span><span class="p">,</span> <span class="n">current_band</span><span class="p">,</span>
-                                                <span class="n">index</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">num_data</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">toks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">headers</span><span class="p">):</span>
+                            <span class="c1"># new format of PROCAR (vasp 5.4.4)</span>
+                            <span class="n">num_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+                                                 <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">toks</span><span class="p">[:</span><span class="mi">2</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">headers</span><span class="p">)]])</span>
+                            <span class="k">for</span> <span class="n">orb</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">headers</span><span class="p">)):</span>
+                                <span class="n">phase_factors</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">current_kpoint</span><span class="p">,</span> <span class="n">current_band</span><span class="p">,</span>
+                                    <span class="n">index</span><span class="p">,</span> <span class="n">orb</span><span class="p">]</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">(</span><span class="n">num_data</span><span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="n">orb</span><span class="p">],</span> <span class="n">num_data</span><span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="n">orb</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
                         <span class="k">else</span><span class="p">:</span>
-                            <span class="n">phase_factors</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">current_kpoint</span><span class="p">,</span> <span class="n">current_band</span><span class="p">,</span>
-                                                <span class="n">index</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">num_data</span>
+                            <span class="c1"># old format of PROCAR (vasp 5.4.1 and before)</span>
+                            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">phase_factors</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span>
+                                    <span class="n">current_kpoint</span><span class="p">,</span> <span class="n">current_band</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="mi">0</span><span class="p">]):</span>
+                                <span class="n">phase_factors</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">current_kpoint</span><span class="p">,</span> <span class="n">current_band</span><span class="p">,</span>
+                                                    <span class="n">index</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">num_data</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">phase_factors</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">current_kpoint</span><span class="p">,</span> <span class="n">current_band</span><span class="p">,</span>
+                                                    <span class="n">index</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">num_data</span>
                 <span class="k">elif</span> <span class="n">l</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;tot&quot;</span><span class="p">):</span>
                     <span class="n">done</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="k">elif</span> <span class="n">preambleexpr</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">l</span><span class="p">):</span>
@@ -4352,7 +4382,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.10.18 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

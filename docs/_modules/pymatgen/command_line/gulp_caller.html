@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.command_line.gulp_caller &#8212; pymatgen 2018.10.18 documentation</title>
+    <title>pymatgen.command_line.gulp_caller &#8212; pymatgen 2018.12.12 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.10.18 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -77,6 +77,8 @@
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.bond_valence</span> <span class="k">import</span> <span class="n">BVAnalyzer</span>
 <span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">map</span>
 <span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">zip</span>
+
+<span class="kn">from</span> <span class="nn">monty.tempfile</span> <span class="k">import</span> <span class="n">ScratchDir</span>
 
 
 <span class="n">_anions</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">Element</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="s2">&quot;F&quot;</span><span class="p">,</span> <span class="s2">&quot;Cl&quot;</span><span class="p">,</span> <span class="s2">&quot;Br&quot;</span><span class="p">,</span> <span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="s2">&quot;P&quot;</span><span class="p">]))</span>
@@ -566,39 +568,39 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            gout: GULP output string</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1">#command=[&quot;gulp&quot;]</span>
-        <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_gulp_cmd</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
-            <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span>
-        <span class="p">)</span>
+        <span class="k">with</span> <span class="n">ScratchDir</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">):</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_gulp_cmd</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+                <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span>
+            <span class="p">)</span>
 
-        <span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">(</span><span class="nb">bytearray</span><span class="p">(</span><span class="n">gin</span><span class="p">,</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
-        <span class="n">out</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
-        <span class="n">err</span> <span class="o">=</span> <span class="n">err</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+            <span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">(</span><span class="nb">bytearray</span><span class="p">(</span><span class="n">gin</span><span class="p">,</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+            <span class="n">err</span> <span class="o">=</span> <span class="n">err</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="s2">&quot;Error&quot;</span> <span class="ow">in</span> <span class="n">err</span> <span class="ow">or</span> <span class="s2">&quot;error&quot;</span> <span class="ow">in</span> <span class="n">err</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">gin</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;----output_0---------&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;----End of output_0------</span><span class="se">\n\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;----output_1--------&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;----End of output_1------&quot;</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="n">GulpError</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;Error&quot;</span> <span class="ow">in</span> <span class="n">err</span> <span class="ow">or</span> <span class="s2">&quot;error&quot;</span> <span class="ow">in</span> <span class="n">err</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">gin</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;----output_0---------&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;----End of output_0------</span><span class="se">\n\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;----output_1--------&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;----End of output_1------&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">GulpError</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
 
-        <span class="c1"># We may not need this</span>
-        <span class="k">if</span> <span class="s2">&quot;ERROR&quot;</span> <span class="ow">in</span> <span class="n">out</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">GulpError</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+            <span class="c1"># We may not need this</span>
+            <span class="k">if</span> <span class="s2">&quot;ERROR&quot;</span> <span class="ow">in</span> <span class="n">out</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">GulpError</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
 
-        <span class="c1"># Sometimes optimisation may fail to reach convergence</span>
-        <span class="n">conv_err_string</span> <span class="o">=</span> <span class="s2">&quot;Conditions for a minimum have not been satisfied&quot;</span>
-        <span class="k">if</span> <span class="n">conv_err_string</span> <span class="ow">in</span> <span class="n">out</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">GulpConvergenceError</span><span class="p">()</span>
+            <span class="c1"># Sometimes optimisation may fail to reach convergence</span>
+            <span class="n">conv_err_string</span> <span class="o">=</span> <span class="s2">&quot;Conditions for a minimum have not been satisfied&quot;</span>
+            <span class="k">if</span> <span class="n">conv_err_string</span> <span class="ow">in</span> <span class="n">out</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">GulpConvergenceError</span><span class="p">()</span>
 
-        <span class="n">gout</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">out</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
-            <span class="n">gout</span> <span class="o">=</span> <span class="n">gout</span> <span class="o">+</span> <span class="n">line</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="k">return</span> <span class="n">gout</span></div></div>
+            <span class="n">gout</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">out</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
+                <span class="n">gout</span> <span class="o">=</span> <span class="n">gout</span> <span class="o">+</span> <span class="n">line</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="k">return</span> <span class="n">gout</span></div></div>
 
 
 <div class="viewcode-block" id="get_energy_tersoff"><a class="viewcode-back" href="../../../pymatgen.command_line.gulp_caller.html#pymatgen.command_line.gulp_caller.get_energy_tersoff">[docs]</a><span class="k">def</span> <span class="nf">get_energy_tersoff</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">gulp_cmd</span><span class="o">=</span><span class="s1">&#39;gulp&#39;</span><span class="p">):</span>
@@ -814,7 +816,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.10.18 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

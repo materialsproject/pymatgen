@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 """
 This module contains some utility functions and classes that are used in the chemenv package.
@@ -23,7 +22,7 @@ from pymatgen.analysis.chemenv.utils.math_utils import smoothstep, smootherstep
 from pymatgen.analysis.chemenv.utils.math_utils import power2_inverse_power2_decreasing
 
 
-class AbstractRatioFunction(object):
+class AbstractRatioFunction:
 
     ALLOWED_FUNCTIONS = {}
 

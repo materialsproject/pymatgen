@@ -1,0 +1,152 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pymatgen.util.sequence &#8212; pymatgen 2018.12.12 documentation</title>
+    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.util.sequence</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span>
+
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides utilities to chunk large sequences and display progress</span>
+<span class="sd">bars during processing.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="get_chunks"><a class="viewcode-back" href="../../../pymatgen.util.sequence.html#pymatgen.util.sequence.get_chunks">[docs]</a><span class="k">def</span> <span class="nf">get_chunks</span><span class="p">(</span><span class="n">sequence</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="n">chunks</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sequence</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">sequence</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">size</span><span class="p">:(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">size</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">chunks</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="PBarSafe"><a class="viewcode-back" href="../../../pymatgen.util.sequence.html#pymatgen.util.sequence.PBarSafe">[docs]</a><span class="k">class</span> <span class="nc">PBarSafe</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">total</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total</span> <span class="o">=</span> <span class="n">total</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">done</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">report</span><span class="p">()</span>
+
+<div class="viewcode-block" id="PBarSafe.update"><a class="viewcode-back" href="../../../pymatgen.util.sequence.html#pymatgen.util.sequence.PBarSafe.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">amount</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">done</span> <span class="o">+=</span> <span class="n">amount</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">report</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="PBarSafe.report"><a class="viewcode-back" href="../../../pymatgen.util.sequence.html#pymatgen.util.sequence.PBarSafe.report">[docs]</a>    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> of </span><span class="si">{}</span><span class="s2"> done </span><span class="si">{:.1%}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">done</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">total</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">done</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">total</span><span class="p">))</span></div></div>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="c1"># noinspection PyUnresolvedReferences</span>
+    <span class="k">if</span> <span class="n">get_ipython</span><span class="p">()</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;ZMQInteractiveShell&#39;</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">tqdm</span> <span class="k">import</span> <span class="n">tqdm_notebook</span> <span class="k">as</span> <span class="n">PBar</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># likely &#39;TerminalInteractiveShell&#39;</span>
+        <span class="kn">from</span> <span class="nn">tqdm</span> <span class="k">import</span> <span class="n">tqdm</span> <span class="k">as</span> <span class="n">PBar</span>
+<span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">tqdm</span> <span class="k">import</span> <span class="n">tqdm</span> <span class="k">as</span> <span class="n">PBar</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="n">PBar</span> <span class="o">=</span> <span class="n">PBarSafe</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">PBar</span> <span class="o">=</span> <span class="n">PBarSafe</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>
