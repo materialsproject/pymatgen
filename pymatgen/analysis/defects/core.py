@@ -12,7 +12,7 @@ from abc import ABCMeta, abstractmethod
 from monty.json import MSONable, MontyDecoder
 from monty.functools import lru_cache
 
-from pymatgen.core import PeriodicSite, Structure
+from pymatgen.core.structure import Structure, PeriodicSite
 from pymatgen.core.composition import Composition
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.defects.utils import kb
@@ -42,8 +42,7 @@ class Defect(six.with_metaclass(ABCMeta, MSONable)):
             defect_site (Site): site for defect within structure
                 must have same lattice as structure
             charge: (int or float) defect charge
-                default is zero, meaning no change to NELECT
-                 after defect is created in the structure
+                default is zero, meaning no change to NELECT after defect is created in the structure
                 (assuming use_structure_charge=True in vasp input set)
         """
         self._structure = structure
@@ -279,25 +278,24 @@ class Interstitial(Defect):
             structure: Pymatgen Structure without any defects
             defect_site (Site): the site for the interstitial
             charge: (int or float) defect charge
-                default is zero, meaning no change to NELECT
-                after defect is created in the structure
+                default is zero, meaning no change to NELECT after defect is created in the structure
                 (assuming use_structure_charge=True in vasp input set)
-            site_name: allows user to give a unique name to
-                defect, since Wyckoff symbol/multiplicity is
-                insufficient to categorize the defect type
-                default is no name.
+            site_name: allows user to give a unique name to defect, since Wyckoff symbol/multiplicity
+                is sometimes insufficient to categorize the defect type.
+                 default is no name beyond multiplicity.
             multiplicity (int): multiplicity of defect within
                 the supercell can be supplied by user. if not
                 specified, then space group symmetry is used
                 to generator interstitial sublattice
-                NOTE: this will not work for complexes,
+
+                NOTE: multiplicity generation will not work for
+                interstitial complexes,
                 where multiplicity may depend on additional
                 factors (ex. orientation etc.)
                 If defect is not a complex, then this
                 process will yield the correct multiplicity,
-                provided that the defect does not relax
-                into a different position
-
+                provided that the defect does not undergo
+                significant relaxation.
         """
         super().__init__(structure=structure, defect_site=defect_site, charge=charge)
         self._multiplicity = multiplicity
@@ -379,18 +377,19 @@ class Interstitial(Defect):
         Returns the multiplicity of a defect site within the structure (needed for concentration analysis)
         """
         if self._multiplicity is None:
-            #generate multiplicity based on space group symmetry operations performed on defect coordinates
+            # generate multiplicity based on space group symmetry operations performed on defect coordinates
             try:
                 d_structure = create_saturated_interstitial_structure(self)
             except:
-                print('WARNING! Multiplicity was not able to be calculated adequately for interstitials... '
-                      'setting this to 1 and skipping for now...')
+                logger.debug('WARNING! Multiplicity was not able to be calculated adequately '
+                             'for interstitials...setting this to 1 and skipping for now...')
                 return 1
 
-            sga = SpacegroupAnalyzer( d_structure)
+            sga = SpacegroupAnalyzer(d_structure)
             periodic_struc = sga.get_symmetrized_structure()
             poss_deflist = sorted(
-                periodic_struc.get_sites_in_sphere(self.site.coords, 2, include_index=True), key=lambda x: x[1])
+                periodic_struc.get_sites_in_sphere(self.site.coords, 2, include_index=True),
+                key=lambda x: x[1])
             defindex = poss_deflist[0][2]
 
             equivalent_sites = periodic_struc.find_equivalent_sites(periodic_struc[defindex])
@@ -415,6 +414,7 @@ def create_saturated_interstitial_structure( interstitial_def, dist_tol=0.1):
     sublattice for it based on the structure's space group.
     Useful for understanding multiplicity of an interstitial
     defect in thermodynamic analysis.
+
     NOTE: if large relaxation happens to interstitial or
         defect involves a complex then there maybe additional
         degrees of freedom that need to be considered for
@@ -506,6 +506,38 @@ class DefectEntry(MSONable):
     @property
     def bulk_structure(self):
         return self.defect.bulk_structure
+
+    def as_dict(self):
+        """
+        Json-serializable dict representation of DefectEntry
+        """
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__,
+             "defect": self.defect.as_dict(),
+             "uncorrected_energy": self.uncorrected_energy,
+             "corrections": self.corrections,
+             "parameters": self.parameters,
+             "entry_id": self.entry_id}
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        """
+        Reconstitute a DefectEntry object from a dict representation created using
+        as_dict().
+         Args:
+            d (dict): dict representation of DefectEntry.
+         Returns:
+            DefectEntry object
+        """
+        defect = MontyDecoder().process_decoded( d["defect"])
+        uncorrected_energy = d["uncorrected_energy"]
+        corrections = d.get("corrections", None)
+        parameters = d.get("parameters", None)
+        entry_id = d.get("entry_id", None)
+
+        return cls(defect, uncorrected_energy, corrections=corrections,
+                   parameters=parameters, entry_id=entry_id)
 
     @property
     def site(self):
@@ -634,7 +666,6 @@ class DefectEntry(MSONable):
 
     def __str__(self):
         return self.__repr__()
-
 
 class DefectCorrection(MSONable):
     """

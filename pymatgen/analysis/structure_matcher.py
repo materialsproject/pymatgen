@@ -1112,26 +1112,24 @@ class StructureMatcher(MSONable):
 
 class PointDefectComparator(MSONable):
     """
-    A class that matches pymatgen
-    Point Defect objects even if their
-    cartesian co-ordinates are different
-    (compares sublattices for the defect)
+    A class that matches pymatgen Point Defect objects even if their
+    cartesian co-ordinates are different (compares sublattices for the defect)
 
-    Note for defect complexes, the interstital sublattice approach
-    breaks down because a sublattice is ill-defined for such a case.
+    NOTE: for defect complexes (more than a single defect),
+    this comparator will break.
 
     Args:
-            check_charge (bool): Gives option to check
-                if charges are identical.
-                Default is False (different charged defects can be same)
-            check_primitive_cell (bool): Gives option to
-                compare different supercells of bulk_structure,
-                rather than directly compare supercell sizes
-                Default is False (requires bulk_structure in each defect to be same size)
-            check_lattice_scale (bool): Gives option to scale volumes of
-                structures to each other identical lattice constants.
-                Default is False (enforces same
-                lattice constants in both structures)
+        check_charge (bool): Gives option to check
+            if charges are identical.
+            Default is False (different charged defects can be same)
+        check_primitive_cell (bool): Gives option to
+            compare different supercells of bulk_structure,
+            rather than directly compare supercell sizes
+            Default is False (requires bulk_structure in each defect to be same size)
+        check_lattice_scale (bool): Gives option to scale volumes of
+            structures to each other identical lattice constants.
+            Default is False (enforces same
+            lattice constants in both structures)
     """
     def __init__(self, check_charge=False, check_primitive_cell=False,
                  check_lattice_scale=False):
@@ -1149,8 +1147,11 @@ class PointDefectComparator(MSONable):
             True if defects are identical in type and sublattice.
         """
         possible_defect_types = [Defect, Vacancy, Substitution, Interstitial]
-        if type(d1) not in possible_defect_types or type(d2) not in possible_defect_types:
-            raise ValueError("Cannot compare non-defect objects...")
+
+        if type(d1) not in possible_defect_types or \
+            type(d2) not in possible_defect_types:
+            raise ValueError("Cannot use PointDefectComparator to " 
+                             "compare non-defect objects...")
 
         if (type(d1) != type(d2)):
             return False
