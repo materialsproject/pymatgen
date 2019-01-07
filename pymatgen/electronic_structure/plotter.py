@@ -2,13 +2,11 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
 import logging
 import math
 import itertools
 import warnings
 from collections import OrderedDict
-import six
 
 import numpy as np
 
@@ -39,7 +37,7 @@ __date__ = "May 1, 2012"
 logger = logging.getLogger(__name__)
 
 
-class DosPlotter(object):
+class DosPlotter:
     """
     Class for plotting DOSs. Note that the interface is extremely flexible
     given that there are many different ways in which people want to view
@@ -242,7 +240,7 @@ class DosPlotter(object):
         plt.show()
 
 
-class BSPlotter(object):
+class BSPlotter:
     """
     Class to plot or get data to facilitate the plot of band structure objects.
 
@@ -1555,7 +1553,7 @@ class BSPlotterProjected(BSPlotter):
                             raise ValueError(
                                 "The dictio[%s] is empty. We cannot do anything" % elt)
                         for orb in dictio[elt]:
-                            if not isinstance(orb, six.string_types):
+                            if not isinstance(orb, str):
                                 raise ValueError(
                                     "The invalid format of orbitals is in 'dictio[%s]': %s. "
                                     "They should be string." % (elt, str(orb)))
@@ -1592,7 +1590,7 @@ class BSPlotterProjected(BSPlotter):
                 if Element.is_valid_symbol(elt):
                     if isinstance(sum_morbs[elt], list):
                         for orb in sum_morbs[elt]:
-                            if not isinstance(orb, six.string_types):
+                            if not isinstance(orb, str):
                                 raise TypeError(
                                     "The invalid format of orbitals is in 'sum_morbs[%s]': %s. "
                                     "They should be string." % (elt, str(orb)))
@@ -2094,7 +2092,7 @@ class BSPlotterProjected(BSPlotter):
         return plt, shift
 
 
-class BSDOSPlotter(object):
+class BSDOSPlotter:
     """
     A joint, aligned band structure and density of states plot. Contributions 
     from Jan Pohls as well as the online example from Germain Salvato-Vallverdu:
@@ -2549,7 +2547,7 @@ class BSDOSPlotter(object):
         inset_ax.get_yaxis().set_visible(False)
 
 
-class BoltztrapPlotter(object):
+class BoltztrapPlotter:
     # TODO: We need a unittest for this. Come on folks.
     """
     class containing methods to plot the data from Boltztrap.
@@ -3456,7 +3454,7 @@ class BoltztrapPlotter(object):
         return plt
 
 
-class CohpPlotter(object):
+class CohpPlotter:
     """
     Class for plotting crystal orbital Hamilton populations (COHPs) or
     crystal orbital overlap populations (COOPs). It is modeled after the

@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals
 
 import unittest
 import tempfile
@@ -41,7 +40,7 @@ class MITMPRelaxSetTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_poscar(self):
         structure = Structure(self.lattice, ["Fe", "Mn"], self.coords)
@@ -368,7 +367,7 @@ class MPStaticSetTest(PymatgenTest):
 
     def tearDown(self):
         shutil.rmtree(self.tmp)
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
 
 class MPNonSCFSetTest(PymatgenTest):
@@ -417,7 +416,7 @@ class MPNonSCFSetTest(PymatgenTest):
 
     def tearDown(self):
         shutil.rmtree(self.tmp)
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
 
 class MagmomLdauTest(PymatgenTest):
@@ -425,7 +424,7 @@ class MagmomLdauTest(PymatgenTest):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_structure_from_prev_run(self):
         vrun = Vasprun(os.path.join(test_dir, "vasprun.xml.magmom_ldau"))
@@ -473,7 +472,7 @@ class MITMDSetTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_params(self):
         param = self.mitmdparam
@@ -504,7 +503,7 @@ class MVLNPTMDSetTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_incar(self):
         npt_set = self.mvl_npt_set
@@ -551,7 +550,7 @@ class MITNEBSetTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_potcar_symbols(self):
         syms = self.vis.potcar_symbols
@@ -597,7 +596,7 @@ class MPSOCSetTest(PymatgenTest):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_from_prev_calc(self):
         prev_run = os.path.join(test_dir, "fe_monomer")
@@ -617,7 +616,7 @@ class MPNMRSetTest(PymatgenTest):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_incar(self):
         filepath = os.path.join(test_dir, 'Li.cif')
@@ -654,7 +653,7 @@ class MVLSlabSetTest(PymatgenTest):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_user_incar_settings(self):
         # Make sure user incar settings properly override AMIX.
@@ -717,7 +716,7 @@ class MVLElasticSetTest(PymatgenTest):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_incar(self):
         mvlparam = MVLElasticSet(self.get_structure("Graphite"))
@@ -735,7 +734,7 @@ class MVLGWSetTest(PymatgenTest):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_static(self):
         mvlgwsc = MVLGWSet(self.s)
@@ -786,7 +785,7 @@ class MPHSEBSTest(PymatgenTest):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_init(self):
         prev_run = os.path.join(test_dir, "static_silicon")
@@ -817,7 +816,7 @@ class MVLScanRelaxSetTest(PymatgenTest):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_incar(self):
         incar = self.mvl_scan_set.incar
@@ -873,7 +872,7 @@ class MVLGBSetTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_bulk(self):
         incar_bulk = self.d_bulk["INCAR"]
@@ -901,7 +900,7 @@ class MVLRelax52SetTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_incar(self):
         incar = self.mvl_rlx_set.incar

@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals
 
 """
 Interface with command line GULP.
@@ -27,8 +26,8 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.bond_valence import BVAnalyzer
-from six.moves import map
-from six.moves import zip
+
+
 
 from monty.tempfile import ScratchDir
 
@@ -80,7 +79,7 @@ _gulp_kw = {
 }
 
 
-class GulpIO(object):
+class GulpIO:
     """
     To generate GULP input and process output
     """
@@ -481,7 +480,7 @@ class GulpIO(object):
         return Structure(latt, sp, coords)
 
 
-class GulpCaller(object):
+class GulpCaller:
     """
     Class to run gulp from commandline
     """
@@ -644,7 +643,7 @@ class GulpConvergenceError(Exception):
         return self.msg
 
 
-class BuckinghamPotential(object):
+class BuckinghamPotential:
     """
     Generate the Buckingham Potential Table from the bush.lib and lewis.lib.
 
@@ -722,7 +721,7 @@ class BuckinghamPotential(object):
             self.spring_dict = spring_dict
 
 
-class TersoffPotential(object):
+class TersoffPotential:
     """
     Generate Tersoff Potential Table from "OxideTersoffPotentialentials" file
     """

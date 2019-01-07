@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """This module provides functions and classes related to Task objects."""
-from __future__ import division, print_function, unicode_literals, absolute_import
 
 import os
 import time
@@ -12,12 +11,12 @@ import collections
 import abc
 import copy
 import ruamel.yaml as yaml
-import six
+from io import StringIO
 import numpy as np
 
 from pprint import pprint
 from itertools import product
-from six.moves import map, zip, StringIO
+
 from monty.string import is_string, list_strings
 from monty.termcolor import colored, cprint
 from monty.collections import AttrDict
@@ -212,7 +211,7 @@ class ParalHintsError(Exception):
     """Base error class for `ParalHints`."""
 
 
-class ParalHintsParser(object):
+class ParalHintsParser:
 
     Error = ParalHintsError
 
@@ -433,7 +432,7 @@ class ParalHints(collections.Iterable):
         return hints
 
 
-class TaskPolicy(object):
+class TaskPolicy:
     """
     This object stores the parameters used by the :class:`TaskManager` to
     create the submission script and/or to modify the ABINIT variables
@@ -1045,7 +1044,7 @@ batch_adapter:
             raise ManagerIncreaseError('manager failed to increase time')
 
 
-class AbinitBuild(object):
+class AbinitBuild:
     """
     This object stores information on the options used to build Abinit
 
@@ -1192,7 +1191,7 @@ class AbinitBuild(object):
         return op(parse_version(self.version), parse_version(version_string))
 
 
-class FakeProcess(object):
+class FakeProcess:
     """
     This object is attached to a :class:`Task` instance if the task has not been submitted
     This trick allows us to simulate a process that is still running so that
@@ -1235,7 +1234,7 @@ class MyTimedelta(datetime.timedelta):
         return cls(delta.days, delta.seconds, delta.microseconds)
 
 
-class TaskDateTimes(object):
+class TaskDateTimes:
     """
     Small object containing useful :class:`datetime.datatime` objects associated to important events.
 
@@ -1305,7 +1304,7 @@ class TaskRestartError(TaskError):
     """Exception raised while trying to restart the :class:`Task`."""
 
 
-class Task(six.with_metaclass(abc.ABCMeta, Node)):
+class Task(Node, metaclass=abc.ABCMeta):
     """
     A Task is a node that performs some kind of calculation.
     This is base class providing low-level methods.
@@ -3166,7 +3165,7 @@ class AbinitTask(Task):
         return None
 
 
-class ProduceHist(object):
+class ProduceHist:
     """
     Mixin class for an :class:`AbinitTask` producing a HIST file.
     Provide the method `open_hist` that reads and return a HIST file.

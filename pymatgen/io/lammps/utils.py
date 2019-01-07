@@ -2,14 +2,12 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, print_function, unicode_literals, absolute_import
 
 """
 This module defines utility classes and functions.
 """
 
 import os
-import six
 import tempfile
 from io import open
 from subprocess import Popen, PIPE
@@ -33,7 +31,7 @@ __author__ = 'Kiran Mathew, Brandon Wood, Michael Humbert'
 __email__ = 'kmathew@lbl.gov'
 
 
-class Polymer(object):
+class Polymer:
     """
     Generate polymer chain via Random walk. At each position there are
     a total of 5 possible moves(excluding the previous direction).
@@ -168,7 +166,7 @@ class Polymer(object):
             self.end += len(self.monomer)
 
 
-class PackmolRunner(object):
+class PackmolRunner:
     """
     Wrapper for the Packmol software that can be used to pack various types of
     molecules into a one single unit.
@@ -261,7 +259,7 @@ class PackmolRunner(object):
             input_dir (string): path to the input directory
         """
         with open(os.path.join(input_dir, self.input_file), 'wt', encoding="utf-8") as inp:
-            for k, v in six.iteritems(self.control_params):
+            for k, v in self.control_params.items():
                 inp.write('{} {}\n'.format(k, self._format_param_val(v)))
             # write the structures of the constituent molecules to file and set
             # the molecule id and the corresponding filename in the packmol
@@ -285,7 +283,7 @@ class PackmolRunner(object):
                     "structure {}.{}\n".format(
                         os.path.join(input_dir, str(idx)),
                         self.control_params["filetype"]))
-                for k, v in six.iteritems(self.param_list[idx]):
+                for k, v in self.param_list[idx].items():
                     inp.write('  {} {}\n'.format(k, self._format_param_val(v)))
                 inp.write('end structure\n')
 
@@ -421,13 +419,14 @@ class PackmolRunner(object):
 
         # only for pdb
         if not self.control_params["filetype"] == "pdb":
-            raise
+            raise ValueError()
 
         filename = filename or self.control_params["output"]
         bma = BabelMolAdaptor.from_file(filename, "pdb")
         pbm = pb.Molecule(bma._obmol)
 
-        assert len(pbm.residues) == sum([x["number"] for x in self.param_list])
+        assert len(pbm.residues) == sum([x["number"]
+                                         for x in self.param_list])
 
         packed_mol = self.convert_obatoms_to_molecule(
             pbm.residues[0].atoms, residue_name=pbm.residues[0].name,
@@ -435,7 +434,8 @@ class PackmolRunner(object):
 
         for resid in pbm.residues[1:]:
             mol = self.convert_obatoms_to_molecule(
-                resid.atoms, residue_name=resid.name, site_property=site_property)
+                resid.atoms, residue_name=resid.name,
+                site_property=site_property)
             for site in mol:
                 packed_mol.append(site.species_and_occu, site.coords,
                                   properties=site.properties)
@@ -443,7 +443,7 @@ class PackmolRunner(object):
         return packed_mol
 
 
-class LammpsRunner(object):
+class LammpsRunner:
     def __init__(self, input_filename="lammps.in", bin="lammps"):
         """
         LAMMPS wrapper

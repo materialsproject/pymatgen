@@ -1,6 +1,5 @@
 # coding: utf-8
 
-from __future__ import division, unicode_literals, print_function
 
 import logging
 import math
@@ -734,7 +733,7 @@ class BoltztrapError(Exception):
         return "BoltztrapError : " + self.msg
 
 
-class BoltztrapAnalyzer(object):
+class BoltztrapAnalyzer:
     """
     Class used to store all the data from a boltztrap run
     """

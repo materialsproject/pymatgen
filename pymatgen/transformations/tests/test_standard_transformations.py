@@ -2,14 +2,12 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import os
 import random
 import unittest
 import json
-import six
 import warnings
-
+import functools
 from monty.os.path import which
 from pymatgen import Lattice, PeriodicSite, Element
 from monty.json import MontyDecoder
@@ -134,7 +132,7 @@ class SupercellTransformationTest(unittest.TestCase):
         t = SupercellTransformation.from_scaling_factors(*scale_factors)
         s = t.apply_transformation(self.struct)
         self.assertEqual(s.num_sites,
-                         4 * six.moves.reduce(lambda a, b: a * b,
+                         4 * functools.reduce(lambda a, b: a * b,
                                               scale_factors))
 
 
@@ -205,7 +203,7 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_apply_transformation(self):
         t = PartialRemoveSpecieTransformation("Li+", 1.0 / 3, 3)

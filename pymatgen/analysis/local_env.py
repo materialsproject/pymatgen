@@ -2,13 +2,11 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import math
 import warnings
 from collections import namedtuple, defaultdict
 
-import six
 import ruamel.yaml as yaml
 import os
 import json
@@ -70,7 +68,7 @@ with open(rad_file, 'r') as fp:
     _ion_radii = json.load(fp)
 
 
-class ValenceIonicRadiusEvaluator(object):
+class ValenceIonicRadiusEvaluator:
     """
     Computes site valences and ionic radii for a structure using bond valence
     analyzer
@@ -222,7 +220,7 @@ class ValenceIonicRadiusEvaluator(object):
         return valences
 
 
-class NearNeighbors(object):
+class NearNeighbors:
     """
     Base class to determine near neighbors that typically include nearest
     neighbors and others that are within some tolerable distance.
@@ -1756,7 +1754,7 @@ def gramschmidt(vin, uin):
     return vin - (vin_uin / uin_uin) * uin
 
 
-class LocalStructOrderParams(object):
+class LocalStructOrderParams:
     """
     This class permits the calculation of various types of local
     structure order parameters.

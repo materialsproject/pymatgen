@@ -1,8 +1,7 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
-from __future__ import unicode_literals
+import warnings
 
 import numpy as np
 from math import pi
@@ -1012,6 +1011,11 @@ class CrystalNNTest(PymatgenTest):
         self.lifepo4.add_oxidation_state_by_guess()
         self.he_bcc = self.get_structure('He_BCC')
         self.he_bcc.add_oxidation_state_by_guess()
+        self.prev_warnings = warnings.filters
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.filters = self.prev_warnings
 
     def test_sanity(self):
         with self.assertRaises(ValueError):

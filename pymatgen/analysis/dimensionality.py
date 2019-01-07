@@ -18,7 +18,6 @@ get_dimensionality_gorai:
     J. Mater. Chem. A 2, 4136 (2016).
 """
 
-from __future__ import division, unicode_literals
 
 import itertools
 import copy

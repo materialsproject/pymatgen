@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals
 
 import unittest
 import os
@@ -56,7 +55,7 @@ class BandStructureSymmLine_test(PymatgenTest):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_basic(self):
         self.assertArrayAlmostEqual(self.bs.projections[Spin.up][10][12][0],
@@ -219,7 +218,7 @@ class ReconstructBandStructureTest(PymatgenTest):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_reconstruct_band_structure(self):
         bs = get_reconstructed_band_structure([self.bs_cu, self.bs_cu2])

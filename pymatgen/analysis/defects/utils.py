@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import math
 
@@ -38,7 +37,7 @@ try:
 except ImportError:
     peak_local_max_found = False
 
-from six.moves import map
+
 
 __author__ = "Danny Broberg, Shyam Dwaraknath, Bharat Medasani, Nils Zimmermann, Geoffroy Hautier"
 __copyright__ = "Copyright 2014, The Materials Project"
@@ -204,7 +203,7 @@ def closestsites(struct_blk, struct_def, pos):
     return blk_close_sites[0], def_close_sites[0]
 
 
-class StructureMotifInterstitial(object):
+class StructureMotifInterstitial:
     """
     Generate interstitial sites at positions
     where the interstitialcy is coordinated by nearest neighbors
@@ -553,7 +552,7 @@ class StructureMotifInterstitial(object):
         return scs
 
 
-class TopographyAnalyzer(object):
+class TopographyAnalyzer:
     """
     This is a generalized module to perform topological analyses of a crystal
     structure using Voronoi tessellations. It can be used for finding potential
@@ -871,7 +870,7 @@ class TopographyAnalyzer(object):
         vis.show()
 
 
-class VoronoiPolyhedron(object):
+class VoronoiPolyhedron:
     """
     Convenience container for a voronoi point in PBC and its associated polyhedron.
     """
@@ -913,7 +912,7 @@ class VoronoiPolyhedron(object):
         return "Voronoi polyhedron %s" % self.name
 
 
-class ChargeDensityAnalyzer(object):
+class ChargeDensityAnalyzer:
     """
     Analyzer to find potential interstitial sites based on charge density. The
     `total` charge density is used.

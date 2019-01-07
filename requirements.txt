@@ -4,10 +4,8 @@ sympy==1.3
 requests==2.20.1
 monty==1.0.4
 ruamel.yaml==0.15.61
-six==1.11.0
 scipy==1.1.0
 tabulate==0.8.2
-enum34==1.1.6; python_version < '3.4'
 matplotlib==3.0.1
 palettable==3.1.1
 spglib==1.10.4.11

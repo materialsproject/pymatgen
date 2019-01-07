@@ -2,10 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import abc
-
-import six
 
 from monty.json import MSONable
 from pymatgen.analysis.ewald import EwaldSummation
@@ -25,7 +22,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "11/19/13"
 
 
-class EnergyModel(six.with_metaclass(abc.ABCMeta, MSONable)):
+class EnergyModel(MSONable, metaclass=abc.ABCMeta):
     """
     Abstract structure filter class.
     """

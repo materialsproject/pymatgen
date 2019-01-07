@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 """
 This module contains the main object used to identify the coordination environments in a given structure.
@@ -65,7 +64,7 @@ debug = False
 DIST_TOLERANCES = [0.02, 0.05, 0.1, 0.2, 0.3]
 
 
-class AbstractGeometry(object):
+class AbstractGeometry:
     """
     Class used to describe a geometry (perfect or distorted)
     """
@@ -289,7 +288,7 @@ def find_scaling_factor(points_distorted, points_perfect, rot):
     return num / denom, rotated_coords, points_perfect
 
 
-class LocalGeometryFinder(object):
+class LocalGeometryFinder:
     """
     Main class used to find the local environments in a structure
     """
