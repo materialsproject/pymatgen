@@ -200,7 +200,6 @@ class create_saturated_interstitial_structureTest(PymatgenTest):
         sub_site = PeriodicSite("Sr", sc_struc[Cs_index].coords, sc_struc.lattice,
                                 coords_are_cartesian=True)
 
-
         sub = Substitution(sc_struc, sub_site)
         decorated_sub = create_saturated_interstitial_structure(sub)
         self.assertEqual(len(decorated_sub), len(sc_struc))

@@ -1105,4 +1105,4 @@ class StructureMatcher(MSONable):
             return None
 
         return match[4]
-    
+
