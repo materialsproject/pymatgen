@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.inputs &#8212; pymatgen 2018.10.18 documentation</title>
+    <title>pymatgen.io.vasp.inputs &#8212; pymatgen 2018.12.12 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.10.18 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -1264,7 +1264,7 @@
             <span class="n">kpts_shift</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">4</span> <span class="ow">and</span> <span class="n">coord_pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">4</span><span class="p">]):</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="n">kpts_shift</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
+                    <span class="n">kpts_shift</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
                 <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                     <span class="k">pass</span>
             <span class="k">return</span> <span class="n">Kpoints</span><span class="o">.</span><span class="n">gamma_automatic</span><span class="p">(</span><span class="n">kpts</span><span class="p">,</span> <span class="n">kpts_shift</span><span class="p">)</span> <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="s2">&quot;g&quot;</span> \
@@ -1600,6 +1600,10 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">electron_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">nelectrons</span><span class="o">.</span><span class="n">is_integer</span><span class="p">():</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;POTCAR has non-integer charge, &quot;</span>
+                          <span class="s2">&quot;electron configuration not well-defined.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
         <span class="n">el</span> <span class="o">=</span> <span class="n">Element</span><span class="o">.</span><span class="n">from_Z</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atomic_no</span><span class="p">)</span>
         <span class="n">full_config</span> <span class="o">=</span> <span class="n">el</span><span class="o">.</span><span class="n">full_electronic_structure</span>
         <span class="n">nelect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nelectrons</span>
@@ -1988,7 +1992,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.10.18 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

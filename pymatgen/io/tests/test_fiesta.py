@@ -1,6 +1,5 @@
 # coding: utf-8
 
-from __future__ import division, unicode_literals
 
 """
 Created on July 2015

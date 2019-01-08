@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.wrappers &#8212; pymatgen 2018.10.18 documentation</title>
+    <title>pymatgen.io.abinit.wrappers &#8212; pymatgen 2018.12.12 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.10.18 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -189,6 +189,9 @@
 
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stdin_fname</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
             <span class="n">fh</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stdin_data</span><span class="p">)</span>
+            <span class="c1"># Force OS to write data to disk.</span>
+            <span class="n">fh</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">fsync</span><span class="p">(</span><span class="n">fh</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">workdir</span><span class="p">)</span></div></div>
 
@@ -246,6 +249,9 @@
 
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stdin_fname</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
             <span class="n">fh</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stdin_data</span><span class="p">)</span>
+            <span class="c1"># Force OS to write data to disk.</span>
+            <span class="n">fh</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">fsync</span><span class="p">(</span><span class="n">fh</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">workdir</span><span class="p">)</span>
 
@@ -290,6 +296,9 @@
 
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stdin_fname</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
             <span class="n">fh</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stdin_data</span><span class="p">)</span>
+            <span class="c1"># Force OS to write data to disk.</span>
+            <span class="n">fh</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">fsync</span><span class="p">(</span><span class="n">fh</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
 
         <span class="n">retcode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">workdir</span><span class="p">,</span> <span class="n">exec_args</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;--nostrict&#39;</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">retcode</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">delete_source_ddbs</span><span class="p">:</span>
@@ -310,6 +319,9 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Merge POT files containing 1st order DFPT potential</span>
 <span class="sd">        return the absolute path of the new database in workdir.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            delete_source: True if POT1 files should be removed after (successful) merge.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># We work with absolute paths.</span>
         <span class="n">pot_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">list_strings</span><span class="p">(</span><span class="n">pot_files</span><span class="p">)]</span>
@@ -332,7 +344,7 @@
             <span class="nb">map</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">workdir</span><span class="p">)],</span> <span class="p">[</span><span class="s2">&quot;mrgdvdb.stdin&quot;</span><span class="p">,</span> <span class="s2">&quot;mrgdvdb.stdout&quot;</span><span class="p">,</span> <span class="s2">&quot;mrgdvdb.stderr&quot;</span><span class="p">])</span>
 
         <span class="n">inp</span> <span class="o">=</span> <span class="n">cStringIO</span><span class="p">()</span>
-        <span class="n">inp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">out_dvdb</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>              <span class="c1"># Name of the output file.</span>
+        <span class="n">inp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">out_dvdb</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>             <span class="c1"># Name of the output file.</span>
         <span class="n">inp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pot_files</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># Number of input POT files.</span>
 
         <span class="c1"># Names of the POT files.</span>
@@ -343,6 +355,9 @@
 
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stdin_fname</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
             <span class="n">fh</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stdin_data</span><span class="p">)</span>
+            <span class="c1"># Force OS to write data to disk.</span>
+            <span class="n">fh</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">fsync</span><span class="p">(</span><span class="n">fh</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
 
         <span class="n">retcode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">workdir</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">retcode</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">delete_source</span><span class="p">:</span>
@@ -459,7 +474,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.10.18 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 """
 This module contains an algorithm to solve the Linear Assignment Problem.
@@ -20,10 +19,8 @@ __date__ = "Jan 28, 2013"
 
 import numpy as np
 
-from six.moves import range
 
-
-class LinearAssignment(object):
+class LinearAssignment:
     """
     This class finds the solution to the Linear Assignment Problem.
     It finds a minimum cost matching between two sets, given a cost

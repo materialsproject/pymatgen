@@ -1,8 +1,7 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
-from __future__ import unicode_literals
+import warnings
 
 import numpy as np
 from math import pi
@@ -1012,6 +1011,11 @@ class CrystalNNTest(PymatgenTest):
         self.lifepo4.add_oxidation_state_by_guess()
         self.he_bcc = self.get_structure('He_BCC')
         self.he_bcc.add_oxidation_state_by_guess()
+        self.prev_warnings = warnings.filters
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.filters = self.prev_warnings
 
     def test_sanity(self):
         with self.assertRaises(ValueError):
@@ -1036,13 +1040,28 @@ class CrystalNNTest(PymatgenTest):
         cnn = CrystalNN(weighted_cn=True)
         cn_array = []
 
+        expected_array = [5.863, 5.8716, 5.863 , 5.8716, 5.7182, 5.7182, 5.719,
+                          5.7181, 3.991 , 3.991 , 3.991 , 3.9907, 3.5997, 3.525,
+                          3.4133, 3.4714, 3.4727, 3.4133, 3.525 , 3.5997,
+                          3.5997, 3.525 , 3.4122, 3.4738, 3.4728, 3.4109,
+                          3.5259, 3.5997]
+        for idx, _ in enumerate(self.lifepo4):
+            cn_array.append(cnn.get_cn(self.lifepo4, idx, use_weights=True))
+
+        self.assertArrayAlmostEqual(expected_array, cn_array, 2)
+
+    def test_weighted_cn_no_oxid(self):
+        cnn = CrystalNN(weighted_cn=True)
+        cn_array = []
         expected_array = [5.8962, 5.8996, 5.8962, 5.8996, 5.7195, 5.7195,
                           5.7202, 5.7194, 4.0012, 4.0012, 4.0012, 4.0009,
                           3.3897, 3.2589, 3.1218, 3.1914, 3.1914, 3.1218,
                           3.2589, 3.3897, 3.3897, 3.2589, 3.1207, 3.1924,
                           3.1915, 3.1207, 3.2598, 3.3897]
-        for idx, _ in enumerate(self.lifepo4):
-            cn_array.append(cnn.get_cn(self.lifepo4, idx, use_weights=True))
+        s = self.lifepo4.copy()
+        s.remove_oxidation_states()
+        for idx, _ in enumerate(s):
+            cn_array.append(cnn.get_cn(s, idx, use_weights=True))
 
         self.assertArrayAlmostEqual(expected_array, cn_array, 2)
 
@@ -1060,7 +1079,7 @@ class CrystalNNTest(PymatgenTest):
     def test_x_diff_weight(self):
         cnn = CrystalNN(weighted_cn=True, x_diff_weight=0)
         self.assertAlmostEqual(cnn.get_cn(self.lifepo4, 0, use_weights=True),
-                               5.9522, 2)
+                               5.8630, 2)
 
     def test_noble_gas_material(self):
         cnn = CrystalNN()

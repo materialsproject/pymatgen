@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.ferroelectricity.polarization module &#8212; pymatgen 2018.10.18 documentation</title>
+    <title>pymatgen.analysis.ferroelectricity.polarization module &#8212; pymatgen 2018.12.12 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.10.18 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -204,9 +204,15 @@ e.g., (3, 56, …) or actual Element or Specie objects.</li>
 disordered structures.</li>
 </ol>
 </li>
-<li><strong>fractional_coords</strong> – list of fractional coordinates of each species.</li>
+<li><strong>coords</strong> (<em>Nx3 array</em>) – list of fractional/cartesian coordinates of
+each species.</li>
+<li><strong>charge</strong> (<em>int</em>) – overall charge of the structure. Defaults to behavior
+in SiteCollection where total charge is the sum of the oxidation
+states.</li>
 <li><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if there are sites
 that are less than 0.01 Ang apart. Defaults to False.</li>
+<li><strong>to_unit_cell</strong> (<em>bool</em>) – Whether to map all sites into the unit cell,
+i.e., fractional coords between 0 and 1. Defaults to False.</li>
 <li><strong>coords_are_cartesian</strong> (<em>bool</em>) – Set to True if you are providing
 coordinates in cartesian coordinates. Defaults to False.</li>
 <li><strong>site_properties</strong> (<em>dict</em>) – Properties associated with the sites as a
@@ -306,7 +312,7 @@ Potcar object</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.10.18 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
       </ul>
     </div>
 

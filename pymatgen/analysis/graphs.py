@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import warnings
 import subprocess
@@ -29,8 +28,9 @@ from networkx.readwrite import json_graph
 from networkx.drawing.nx_agraph import write_dot
 
 import logging
-logging.basicConfig(level=logging.INFO)
+
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 __author__ = "Matthew Horton, Evan Spotte-Smith"
 __version__ = "0.1"
@@ -652,9 +652,9 @@ class StructureGraph(MSONable):
                 u, v = v, u
                 to_jimage = np.multiply(-1, to_jimage)
 
+            to_jimage = tuple(map(int, np.add(to_jimage, jimage)))
             site_d = self.structure[v].as_dict()
             site_d['abc'] = np.add(site_d['abc'], to_jimage).tolist()
-            to_jimage = tuple(map(int, np.add(to_jimage, jimage)))
             site = PeriodicSite.from_dict(site_d)
 
             # from_site if jimage arg != (0, 0, 0)

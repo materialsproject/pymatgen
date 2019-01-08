@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.ext.matproj module &#8212; pymatgen 2018.10.18 documentation</title>
+    <title>pymatgen.ext.matproj module &#8212; pymatgen 2018.12.12 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.10.18 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -55,7 +55,7 @@ Raised when the query has problems, e.g., bad query format.</p>
 
 <dl class="class">
 <dt id="pymatgen.ext.matproj.MPRester">
-<em class="property">class </em><code class="descname">MPRester</code><span class="sig-paren">(</span><em>api_key=None</em>, <em>endpoint=u'https://www.materialsproject.org/rest/v2'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">MPRester</code><span class="sig-paren">(</span><em>api_key=None</em>, <em>endpoint=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A class to conveniently interface with the Materials Project REST
 interface. The recommended way to use MPRester is with the “with” context
@@ -86,8 +86,8 @@ easier for heavy users to simply add this environment variable to
 their setups and MPRester can then be called without any arguments.</li>
 <li><strong>endpoint</strong> (<em>str</em>) – Url of endpoint to access the MaterialsProject REST
 interface. Defaults to the standard Materials Project REST
-address, but can be changed to other urls implementing a similar
-interface.</li>
+address at “<a class="reference external" href="https://www.materialsproject.org/rest/v2">https://www.materialsproject.org/rest/v2</a>”, but
+can be changed to other urls implementing a similar interface.</li>
 </ul>
 </td>
 </tr>
@@ -775,22 +775,24 @@ reduced formula FeO or with materials_id mp-1234.</p>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.query">
-<code class="descname">query</code><span class="sig-paren">(</span><em>criteria</em>, <em>properties</em>, <em>mp_decode=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.query" title="Permalink to this definition">¶</a></dt>
-<dd><p>Performs an advanced query, which is a Mongo-like syntax for directly
-querying the Materials Project database via the query rest interface.
-Please refer to the Materials Project REST wiki
-<a class="reference external" href="https://materialsproject.org/wiki/index.php/The_Materials_API#query">https://materialsproject.org/wiki/index.php/The_Materials_API#query</a>
-on the query language and supported criteria and properties.
-Essentially, any supported properties within MPRester should be
-supported in query.</p>
-<p>Query allows an advanced developer to perform queries which are
-otherwise too cumbersome to perform using the standard convenience
-methods.</p>
-<p>It is highly recommended that you consult the Materials API
-documentation at <a class="reference external" href="http://bit.ly/materialsapi">http://bit.ly/materialsapi</a>, which provides a
-comprehensive explanation of the document schema used in the
-Materials Project and how best to query for the relevant information
-you need.</p>
+<code class="descname">query</code><span class="sig-paren">(</span><em>criteria</em>, <em>properties</em>, <em>chunk_size=500</em>, <em>max_tries_per_chunk=5</em>, <em>mp_decode=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs an advanced query using MongoDB-like syntax for directly
+querying the Materials Project database. This allows one to perform
+queries which are otherwise too cumbersome to perform using the standard
+convenience methods.</p>
+<p>Please consult the Materials API documentation at
+<a class="reference external" href="https://github.com/materialsproject/mapidoc">https://github.com/materialsproject/mapidoc</a>, which provides a
+comprehensive explanation of the document schema used in the Materials
+Project (supported criteria and properties) and guidance on how best to
+query for the relevant information you need.</p>
+<p>For queries that request data on more than CHUNK_SIZE materials at once,
+this method will chunk a query by first retrieving a list of material
+IDs that satisfy CRITERIA, and then merging the criteria with a
+restriction to one chunk of materials at a time of size CHUNK_SIZE. You
+can opt out of this behavior by setting CHUNK_SIZE=0. To guard against
+intermittent server errors in the case of many chunks per query,
+possibly-transient server errors will result in re-trying a give chunk
+up to MAX_TRIES_PER_CHUNK times.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -819,6 +821,12 @@ with band gaps greater than 1 eV.</p>
 <li><strong>properties</strong> (<em>list</em>) – Properties to request for as a list. For
 example, [“formula”, “formation_energy_per_atom”] returns
 the formula and formation energy per atom.</li>
+<li><strong>chunk_size</strong> (<em>int</em>) – Number of materials for which to fetch data at a
+time. More data-intensive properties may require smaller chunk
+sizes. Use chunk_size=0 to force no chunking – this is useful
+when fetching only properties such as ‘material_id’.</li>
+<li><strong>max_tries_per_chunk</strong> (<em>int</em>) – How many times to re-try fetching a given
+chunk when the server gives a 5xx error (e.g. a timeout error).</li>
 <li><strong>mp_decode</strong> (<em>bool</em>) – Whether to do a decoding to a Pymatgen object
 where possible. In some cases, it might be useful to just get
 the raw python dict, i.e., set to False.</li>
@@ -1031,7 +1039,7 @@ assimilate. Defaults to None, which means serial.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.10.18 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
       </ul>
     </div>
 

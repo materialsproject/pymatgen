@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.tasks &#8212; pymatgen 2018.10.18 documentation</title>
+    <title>pymatgen.io.abinit.tasks &#8212; pymatgen 2018.12.12 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.10.18 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -1779,8 +1779,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">start_lockfile</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">qerr_file</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">qout_file</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpiabort_file</span><span class="o">.</span><span class="n">exists</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mpiabort_file</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">set_status</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">S_INIT</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;Reset on </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">time</span><span class="o">.</span><span class="n">asctime</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_restarts</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_qjob</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
 
         <span class="c1"># Reset finalized flags.</span>
@@ -3700,13 +3703,21 @@
                     <span class="n">infile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">indir</span><span class="o">.</span><span class="n">path_in</span><span class="p">(</span><span class="s2">&quot;in_1WF</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ddk_case</span><span class="p">)</span>
                     <span class="n">os</span><span class="o">.</span><span class="n">symlink</span><span class="p">(</span><span class="n">out_ddk</span><span class="p">,</span> <span class="n">infile</span><span class="p">)</span>
 
-                <span class="k">elif</span> <span class="n">d</span> <span class="o">==</span> <span class="s2">&quot;WFK&quot;</span><span class="p">:</span>
+                <span class="k">elif</span> <span class="n">d</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;WFK&quot;</span><span class="p">,</span> <span class="s2">&quot;WFQ&quot;</span><span class="p">):</span>
                     <span class="n">gs_task</span> <span class="o">=</span> <span class="n">dep</span><span class="o">.</span><span class="n">node</span>
-                    <span class="n">out_wfk</span> <span class="o">=</span> <span class="n">gs_task</span><span class="o">.</span><span class="n">outdir</span><span class="o">.</span><span class="n">has_abiext</span><span class="p">(</span><span class="s2">&quot;WFK&quot;</span><span class="p">)</span>
+                    <span class="n">out_wfk</span> <span class="o">=</span> <span class="n">gs_task</span><span class="o">.</span><span class="n">outdir</span><span class="o">.</span><span class="n">has_abiext</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="n">out_wfk</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> didn&#39;t produce the WFK file&quot;</span> <span class="o">%</span> <span class="n">gs_task</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indir</span><span class="o">.</span><span class="n">path_in</span><span class="p">(</span><span class="s2">&quot;in_WFK&quot;</span><span class="p">)):</span>
-                        <span class="n">os</span><span class="o">.</span><span class="n">symlink</span><span class="p">(</span><span class="n">out_wfk</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">indir</span><span class="o">.</span><span class="n">path_in</span><span class="p">(</span><span class="s2">&quot;in_WFK&quot;</span><span class="p">))</span>
+                        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> didn&#39;t produce the </span><span class="si">%s</span><span class="s2"> file&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">gs_task</span><span class="p">,</span> <span class="n">d</span><span class="p">))</span>
+
+                    <span class="k">if</span> <span class="n">d</span> <span class="o">==</span> <span class="s2">&quot;WFK&quot;</span><span class="p">:</span>
+                        <span class="n">bname</span> <span class="o">=</span> <span class="s2">&quot;in_WFK&quot;</span>
+                    <span class="k">elif</span> <span class="n">d</span> <span class="o">==</span> <span class="s2">&quot;WFQ&quot;</span><span class="p">:</span>
+                        <span class="n">bname</span> <span class="o">=</span> <span class="s2">&quot;in_WFQ&quot;</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Don&#39;t know how to handle `</span><span class="si">%s</span><span class="s2">`&quot;</span> <span class="o">%</span> <span class="n">d</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indir</span><span class="o">.</span><span class="n">path_in</span><span class="p">(</span><span class="n">bname</span><span class="p">)):</span>
+                            <span class="n">os</span><span class="o">.</span><span class="n">symlink</span><span class="p">(</span><span class="n">out_wfk</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">indir</span><span class="o">.</span><span class="n">path_in</span><span class="p">(</span><span class="n">bname</span><span class="p">))</span>
 
                 <span class="k">elif</span> <span class="n">d</span> <span class="o">==</span> <span class="s2">&quot;DEN&quot;</span><span class="p">:</span>
                     <span class="n">gs_task</span> <span class="o">=</span> <span class="n">dep</span><span class="o">.</span><span class="n">node</span>
@@ -3736,6 +3747,48 @@
 
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Don&#39;t know how to handle extension: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">dep</span><span class="o">.</span><span class="n">exts</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">restart</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        DFPT calculations can be restarted only if we have the 1WF file or the 1DEN file.</span>
+<span class="sd">        from which we can read the first-order wavefunctions or the first order density.</span>
+<span class="sd">        Prefer 1WF over 1DEN since we can reuse the wavefunctions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Abinit adds the idir-ipert index at the end of the file and this breaks the extension</span>
+        <span class="c1"># e.g. out_1WF4, out_DEN4. find_1wf_files and find_1den_files returns the list of files found</span>
+        <span class="n">restart_file</span><span class="p">,</span> <span class="n">irdvars</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+        <span class="c1"># Highest priority to the 1WF file because restart is more efficient.</span>
+        <span class="n">wf_files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">outdir</span><span class="o">.</span><span class="n">find_1wf_files</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">wf_files</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">restart_file</span> <span class="o">=</span> <span class="n">wf_files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">path</span>
+            <span class="n">irdvars</span> <span class="o">=</span> <span class="n">irdvars_for_ext</span><span class="p">(</span><span class="s2">&quot;1WF&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">wf_files</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">restart_file</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Found more than one 1WF file in outdir. Restart is ambiguous!&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">restart_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">den_files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">outdir</span><span class="o">.</span><span class="n">find_1den_files</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">den_files</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">restart_file</span> <span class="o">=</span> <span class="n">den_files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">path</span>
+                <span class="n">irdvars</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ird1den&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">den_files</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">restart_file</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Found more than one 1DEN file in outdir. Restart is ambiguous!&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">restart_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Raise because otherwise restart is equivalent to a run from scratch --&gt; infinite loop!</span>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">RestartError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: Cannot find the 1WF|1DEN file to restart from.&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="p">)</span>
+
+        <span class="c1"># Move file.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Will restart from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">restart_file</span><span class="p">)</span>
+        <span class="n">restart_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_to_in</span><span class="p">(</span><span class="n">restart_file</span><span class="p">)</span>
+
+        <span class="c1"># Add the appropriate variable for restarting.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">irdvars</span><span class="p">)</span>
+
+        <span class="c1"># Now we can resubmit the job.</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_restart</span><span class="p">()</span>
 
 
 <span class="k">class</span> <span class="nc">DdeTask</span><span class="p">(</span><span class="n">DfptTask</span><span class="p">):</span>
@@ -3797,48 +3850,6 @@
 <span class="sd">    Provide support for in-place restart via (1WF|1DEN) files</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">color_rgb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">250</span><span class="p">))</span> <span class="o">/</span> <span class="mi">255</span>
-
-<div class="viewcode-block" id="PhononTask.restart"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.PhononTask.restart">[docs]</a>    <span class="k">def</span> <span class="nf">restart</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Phonon calculations can be restarted only if we have the 1WF file or the 1DEN file.</span>
-<span class="sd">        from which we can read the first-order wavefunctions or the first order density.</span>
-<span class="sd">        Prefer 1WF over 1DEN since we can reuse the wavefunctions.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Abinit adds the idir-ipert index at the end of the file and this breaks the extension</span>
-        <span class="c1"># e.g. out_1WF4, out_DEN4. find_1wf_files and find_1den_files returns the list of files found</span>
-        <span class="n">restart_file</span><span class="p">,</span> <span class="n">irdvars</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
-
-        <span class="c1"># Highest priority to the 1WF file because restart is more efficient.</span>
-        <span class="n">wf_files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">outdir</span><span class="o">.</span><span class="n">find_1wf_files</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">wf_files</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">restart_file</span> <span class="o">=</span> <span class="n">wf_files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">path</span>
-            <span class="n">irdvars</span> <span class="o">=</span> <span class="n">irdvars_for_ext</span><span class="p">(</span><span class="s2">&quot;1WF&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">wf_files</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">restart_file</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Found more than one 1WF file. Restart is ambiguous!&quot;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">restart_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">den_files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">outdir</span><span class="o">.</span><span class="n">find_1den_files</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">den_files</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">restart_file</span> <span class="o">=</span> <span class="n">den_files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">path</span>
-                <span class="n">irdvars</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ird1den&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">den_files</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="n">restart_file</span> <span class="o">=</span> <span class="kc">None</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Found more than one 1DEN file. Restart is ambiguous!&quot;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">restart_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="c1"># Raise because otherwise restart is equivalent to a run from scratch --&gt; infinite loop!</span>
-            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">RestartError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: Cannot find the 1WF|1DEN file to restart from.&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="p">)</span>
-
-        <span class="c1"># Move file.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Will restart from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">restart_file</span><span class="p">)</span>
-        <span class="n">restart_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_to_in</span><span class="p">(</span><span class="n">restart_file</span><span class="p">)</span>
-
-        <span class="c1"># Add the appropriate variable for restarting.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">irdvars</span><span class="p">)</span>
-
-        <span class="c1"># Now we can resubmit the job.</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_restart</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="PhononTask.inspect"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.PhononTask.inspect">[docs]</a>    <span class="k">def</span> <span class="nf">inspect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -4715,7 +4726,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.10.18 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

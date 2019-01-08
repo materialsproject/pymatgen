@@ -4,7 +4,6 @@
 """
 Objects and helper function used to store the results in a MongoDb database
 """
-from __future__ import division, print_function, unicode_literals
 
 import collections
 import copy
@@ -77,7 +76,7 @@ def scan_nestdict(d, key):
         return None
 
 
-class DBConnector(object):
+class DBConnector:
 
     #DEFAULTS = dict(
     #    database="abinit",

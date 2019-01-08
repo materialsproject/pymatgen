@@ -18,7 +18,6 @@ Tran, R.; Xu, Z.; Radhakrishnan, B.; Winston, D.; Persson, K. A.; Ong, S. P.
 (2016). Surface energies of elemental crystals. Scientific Data.
 """
 
-from __future__ import division, unicode_literals
 from pymatgen.core.structure import Structure
 from pymatgen.core.surface import get_recp_symmetry_operation
 from pymatgen.util.coord import get_angle
@@ -71,7 +70,7 @@ def get_tri_area(pts):
     return area_tri
 
 
-class WulffFacet(object):
+class WulffFacet:
     """
     Helper container for each Wulff plane.
     """
@@ -89,7 +88,7 @@ class WulffFacet(object):
         self.outer_lines = []
 
 
-class WulffShape(object):
+class WulffShape:
     """
     Generate Wulff Shape from list of miller index and surface energies,
     with given conventional unit cell.

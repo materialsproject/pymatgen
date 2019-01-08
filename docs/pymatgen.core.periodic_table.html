@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.periodic_table module &#8212; pymatgen 2018.10.18 documentation</title>
+    <title>pymatgen.core.periodic_table module &#8212; pymatgen 2018.12.12 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.10.18 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -316,6 +316,15 @@ E.g., The electronic structure for Fe is represented as:
 </dd></dl>
 
 <dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.iupac_ordering">
+<code class="descname">iupac_ordering</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.iupac_ordering" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ordering according to Table VI of “Nomenclature of Inorganic Chemistry
+(IUPAC Recommendations 2005)”. This ordering effectively follows the
+groups and rows of the periodic table, except the Lanthanides, Actanides
+and hydrogen.</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.long_name">
 <code class="descname">long_name</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.long_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Long name for element. E.g., “Hydrogen”.</p>
@@ -501,6 +510,20 @@ The LDA values for neutral atoms are used</p>
 <code class="descname">average_ionic_radius</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.average_ionic_radius" title="Permalink to this definition">¶</a></dt>
 <dd><p>Average ionic radius for element in ang. The average is taken over all
 oxidation states of the element for which data is present.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.average_cationic_radius">
+<code class="descname">average_cationic_radius</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.average_cationic_radius" title="Permalink to this definition">¶</a></dt>
+<dd><p>Average cationic radius for element in ang. The average is taken over all
+positive oxidation states of the element for which data is present.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.average_anionic_radius">
+<code class="descname">average_anionic_radius</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.average_anionic_radius" title="Permalink to this definition">¶</a></dt>
+<dd><p>Average ionic radius for element in ang. The average is taken over all
+negative oxidation states of the element for which data is present.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -1039,6 +1062,16 @@ easier serialization.</p>
 
 <dl class="attribute">
 <dt>
+<code class="descname">average_anionic_radius</code></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">average_cationic_radius</code></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt>
 <code class="descname">average_ionic_radius</code></dt>
 <dd></dd></dl>
 
@@ -1185,6 +1218,15 @@ ICSD database AND at least 1% of entries for that element</p>
 <dt id="pymatgen.core.periodic_table.Element.is_valid_symbol">
 <code class="descname">is_valid_symbol</code><em class="property"> = &lt;function is_valid_symbol&gt;</em><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Element.is_valid_symbol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Element.is_valid_symbol" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">iupac_ordering</code></dt>
+<dd><p>Ordering according to Table VI of “Nomenclature of Inorganic Chemistry
+(IUPAC Recommendations 2005)”. This ordering effectively follows the
+groups and rows of the periodic table, except the Lanthanides, Actanides
+and hydrogen.</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt>
@@ -1485,7 +1527,7 @@ that can be determined.</td>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.10.18 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
       </ul>
     </div>
 

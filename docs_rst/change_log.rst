@@ -1,6 +1,29 @@
 Change log
 ==========
 
+v2018.12.12
+-----------
+* Support for IUPAC ordering of elements in Composition formulae (@utf)
+* Various bug fixes including returning integer miller indices, catching negative values in Composition and fixes to graph analysis (@utf), fix to Composition serialization (@jmmshen), defect analysis (@HanmeiTang), removing sites in surfaces (@yiming-xu), and fix to support the new PROCAR format in VASP (@dkorotin)
+* `PMG_MAPI_ENDPOINT` environment variable added to support different endpoints for the Materials Project REST interface (@mkhorton)
+
+v2018.11.30
+-----------
+* MPRester.query now supports bulk queries for large scale requests. 
+  (@dwinston)
+* MVLRelax52Set which uses VASP 52 pseudopotentials. (@HanmeiTang)
+* EPH calculations in ABINIT (@gmatteo)
+* New ScaleToRelaxedTransformation (@richardtran415)
+* New dimensionality finder, and consolidation of existing algorithms (@utf)
+* New dopant predictor built on structure predictor (@utf)
+* Misc bug fixes (@HanmeiTang, @utf, @tamuhey, @mkhorton, @yiming-xu, @richardtran415)
+
+v2018.11.6
+----------
+* Ionic radius based CrystalNN (@computron)
+* InterfacialReactivity (@dbroberg)
+* Misc bug fixes
+
 v2018.10.18
 -----------
 

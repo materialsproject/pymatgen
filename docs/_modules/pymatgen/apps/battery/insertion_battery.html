@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.apps.battery.insertion_battery &#8212; pymatgen 2018.10.18 documentation</title>
+    <title>pymatgen.apps.battery.insertion_battery &#8212; pymatgen 2018.12.12 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.10.18 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -270,9 +270,9 @@
         <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_select_in_voltage_range</span><span class="p">(</span><span class="n">min_voltage</span><span class="p">,</span> <span class="n">max_voltage</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">pair</span><span class="o">.</span><span class="n">muO2_discharge</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pair</span><span class="o">.</span><span class="n">pair</span><span class="o">.</span><span class="n">muO2_discharge</span><span class="p">)</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;chempot&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">pair</span><span class="o">.</span><span class="n">muO2_discharge</span><span class="p">])</span>
             <span class="k">if</span> <span class="n">pair</span><span class="o">.</span><span class="n">muO2_charge</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pair</span><span class="o">.</span><span class="n">muO2_charge</span><span class="p">)</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;chempot&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">pair</span><span class="o">.</span><span class="n">muO2_discharge</span><span class="p">])</span>
         <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="InsertionElectrode.get_min_muO2"><a class="viewcode-back" href="../../../../pymatgen.apps.battery.insertion_battery.html#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_min_muO2">[docs]</a>    <span class="k">def</span> <span class="nf">get_min_muO2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_voltage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_voltage</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -291,10 +291,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_select_in_voltage_range</span><span class="p">(</span><span class="n">min_voltage</span><span class="p">,</span> <span class="n">max_voltage</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">pair</span><span class="o">.</span><span class="n">pair</span><span class="o">.</span><span class="n">muO2_discharge</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pair</span><span class="o">.</span><span class="n">pair</span><span class="o">.</span><span class="n">muO2_discharge</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pair</span><span class="o">.</span><span class="n">muO2_discharge</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;chempot&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">pair</span><span class="o">.</span><span class="n">muO2_discharge</span><span class="p">])</span>
             <span class="k">if</span> <span class="n">pair</span><span class="o">.</span><span class="n">muO2_charge</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pair</span><span class="o">.</span><span class="n">muO2_charge</span><span class="p">)</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;chempot&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">pair</span><span class="o">.</span><span class="n">muO2_discharge</span><span class="p">])</span>
         <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="InsertionElectrode.get_sub_electrodes"><a class="viewcode-back" href="../../../../pymatgen.apps.battery.insertion_battery.html#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_sub_electrodes">[docs]</a>    <span class="k">def</span> <span class="nf">get_sub_electrodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adjacent_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">include_myself</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -373,7 +373,9 @@
              <span class="s2">&quot;nsteps&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_steps</span><span class="p">,</span>
              <span class="s2">&quot;framework&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vpairs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">framework</span><span class="o">.</span><span class="n">to_data_dict</span><span class="p">,</span>
              <span class="s2">&quot;formula_charge&quot;</span><span class="p">:</span> <span class="n">chg_comp</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">,</span>
+             <span class="s2">&quot;id_charge&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fully_charged_entry</span><span class="o">.</span><span class="n">entry_id</span><span class="p">,</span>
              <span class="s2">&quot;formula_discharge&quot;</span><span class="p">:</span> <span class="n">dischg_comp</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">,</span>
+             <span class="s2">&quot;id_discharge&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fully_discharged_entry</span><span class="o">.</span><span class="n">entry_id</span><span class="p">,</span>
              <span class="s2">&quot;fracA_charge&quot;</span><span class="p">:</span> <span class="n">chg_comp</span><span class="o">.</span><span class="n">get_atomic_fraction</span><span class="p">(</span><span class="n">ion</span><span class="p">),</span>
              <span class="s2">&quot;fracA_discharge&quot;</span><span class="p">:</span> <span class="n">dischg_comp</span><span class="o">.</span><span class="n">get_atomic_fraction</span><span class="p">(</span><span class="n">ion</span><span class="p">),</span>
              <span class="s2">&quot;max_instability&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_max_instability</span><span class="p">(),</span>
@@ -605,7 +607,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.10.18 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

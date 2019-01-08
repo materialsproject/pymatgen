@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals
 
 """
 Created on Jan 22, 2013
@@ -23,29 +22,27 @@ gulp_present = which('gulp')
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
 class GulpCallerTest(unittest.TestCase):
-    _multiprocess_shared_ = True
 
-    def setUp(self):
+    def test_run(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
         mgo_specie = ["Mg"]*4 + ["O"]*4
         mgo_frac_cord = [[0,0,0], [0.5,0.5,0], [0.5,0,0.5], [0,0.5,0.5],
                          [0.5,0,0], [0,0.5,0], [0,0,0.5], [0.5,0.5,0.5]]
         mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
-        self.gio = GulpIO()
-        gin = self.gio.keyword_line('optimise', 'conp')
-        gin += self.gio.structure_lines(mgo_uc, symm_flg=False)
+        gio = GulpIO()
+        gin = gio.keyword_line('optimise', 'conp')
+        gin += gio.structure_lines(mgo_uc, symm_flg=False)
         #gin += self.gc.gulp_lib('catlow.lib')
         gin += "species\nMg    core  2.00000\nO core  0.86902\nO shel -2.86902\n"
         gin += "buck\n"
         gin += "Mg core O shel   946.627 0.31813  0.00000 0.0 10.0\n"
         gin += "O  shel O shel 22764.000 0.14900 27.87900 0.0 12.0\n"
-        self.gin = gin
-        self.gc = GulpCaller()
+        gin = gin
+        gc = GulpCaller()
 
-    def test_run(self):
         """Some inherent checks are in the run_gulp function itself.
         They should be suffcient for raising errors."""
-        gout = self.gc.run(self.gin)
+        gout = gc.run(gin)
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
@@ -196,7 +193,6 @@ class GulpIOTest(unittest.TestCase):
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
 class GlobalFunctionsTest(unittest.TestCase):
-    _multiprocess_shared_ = True
 
     def setUp(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]

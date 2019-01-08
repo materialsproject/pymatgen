@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.transformations.standard_transformations module &#8212; pymatgen 2018.10.18 documentation</title>
+    <title>pymatgen.transformations.standard_transformations module &#8212; pymatgen 2018.12.12 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.10.18 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -603,6 +603,62 @@ Else degrees are assumed.</li>
 </dd></dl>
 
 <dl class="class">
+<dt id="pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation">
+<em class="property">class </em><code class="descname">ScaleToRelaxedTransformation</code><span class="sig-paren">(</span><em>unrelaxed_structure</em>, <em>relaxed_structure</em>, <em>species_map=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#ScaleToRelaxedTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
+<p>Takes the unrelaxed and relaxed structure and applies its site and volume
+relaxation to a structurally similar structures (e.g. bulk: NaCl and PbTe
+(rock-salt), slab: Sc(10-10) and Mg(10-10) (hcp), GB: Mo(001) sigma 5 GB,
+Fe(001) sigma 5). Useful for finding an initial guess of a set of similar
+structures closer to its most relaxed state.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>unrelaxed_structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Initial, unrelaxed structure</li>
+<li><strong>relaxed_structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Relaxed structure</li>
+<li><strong>species_map</strong> (<em>dict</em>) – A dict or list of tuples containing the species mapping in
+string-string pairs. The first species corresponds to the relaxed
+structure while the second corresponds to the species in the
+structure to be scaled. E.g., {“Li”:”Na”} or [(“Fe2+”,”Mn2+”)].
+Multiple substitutions can be done. Overloaded to accept
+sp_and_occu dictionary E.g. {“Si: {“Ge”:0.75, “C”:0.25}},
+which substitutes a single species with multiple species to
+generate a disordered structure.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation.apply_transformation">
+<code class="descname">apply_transformation</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#ScaleToRelaxedTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a copy of structure with lattice parameters
+and sites scaled to the same degree as the relaxed_structure.</p>
+<dl class="docutils">
+<dt>Arg:</dt>
+<dd><dl class="first last docutils">
+<dt>structure (Structure): A structurally similar structure in</dt>
+<dd>regards to crystal and site positions.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation.inverse">
+<code class="descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation.is_one_to_many">
+<code class="descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="pymatgen.transformations.standard_transformations.SubstitutionTransformation">
 <em class="property">class </em><code class="descname">SubstitutionTransformation</code><span class="sig-paren">(</span><em>species_map</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#SubstitutionTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.SubstitutionTransformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
@@ -736,7 +792,7 @@ calling the normal with [[scale_a, 0, 0], [0, scale_b, 0],
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.10.18 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
       </ul>
     </div>
 

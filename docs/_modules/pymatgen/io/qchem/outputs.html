@@ -6,14 +6,14 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.qchem.outputs &#8212; pymatgen 2018.9.12 documentation</title>
-    <link rel="stylesheet" href="../../../../_static/basic.css" type="text/css" />
+    <title>pymatgen.io.qchem.outputs &#8212; pymatgen 2018.11.30 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.9.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.11.30 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -42,6 +42,7 @@
 
     <div class="document">
       <div class="documentwrapper">
+        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.io.qchem.outputs</h1><div class="highlight"><pre>
@@ -61,6 +62,7 @@
 <span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="k">import</span> <span class="n">Molecule</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.graphs</span> <span class="k">import</span> <span class="n">MoleculeGraph</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.local_env</span> <span class="k">import</span> <span class="n">OpenBabelNN</span>
 <span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.babel</span> <span class="k">import</span> <span class="n">BabelMolAdaptor</span>
 <span class="k">try</span><span class="p">:</span>
@@ -115,7 +117,7 @@
         <span class="c1"># Parse the molecular details: charge, multiplicity,</span>
         <span class="c1"># species, and initial geometry.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_read_charge_and_multiplicity</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;charge&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;charge&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_read_species_and_inital_geometry</span><span class="p">()</span>
 
         <span class="c1"># Check if calculation finished</span>
@@ -133,12 +135,12 @@
                     <span class="s2">&quot;key&quot;</span><span class="p">:</span>
                     <span class="sa">r</span><span class="s2">&quot;Total job time\:\s*([\d\-\.]+)s\(wall\)\,\s*([\d\-\.]+)s\(cpu\)&quot;</span>
                 <span class="p">})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;key&#39;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">temp_timings</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">temp_timings</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;walltime&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">temp_timings</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;cputime&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">temp_timings</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;walltime&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;nan&#39;</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;cputime&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;nan&#39;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;walltime&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;cputime&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># Check if calculation is unrestricted</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;unrestricted&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">read_pattern</span><span class="p">(</span>
@@ -174,6 +176,9 @@
 
         <span class="c1"># Parse the Mulliken charges</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_read_mulliken</span><span class="p">()</span>
+
+        <span class="c1"># Parse PCM information</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_read_pcm_information</span><span class="p">()</span>
 
         <span class="c1"># Parse the final energy</span>
         <span class="n">temp_final_energy</span> <span class="o">=</span> <span class="n">read_pattern</span><span class="p">(</span>
@@ -224,9 +229,8 @@
                 <span class="c1"># Then, if no optimized geometry or z-matrix is found, and no errors have been previously</span>
                 <span class="c1"># idenfied, check to see if the optimization failed to converge or if Lambda wasn&#39;t able</span>
                 <span class="c1"># to be determined.</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;errors&quot;</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;optimized_geometry&#39;</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;optimized_zmat&#39;</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;errors&quot;</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;optimized_geometry&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> \
+                        <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;optimized_zmat&#39;</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_check_optimization_errors</span><span class="p">()</span>
 
         <span class="c1"># Check if the calculation contains a constraint in an $opt section.</span>
@@ -265,6 +269,14 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;frequency_job&#39;</span><span class="p">,</span> <span class="p">[]):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_read_frequency_data</span><span class="p">()</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;single_point_job&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">read_pattern</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="p">{</span>
+                <span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;(?i)\s*job(?:_)*type\s*(?:=)*\s*sp&quot;</span>
+            <span class="p">},</span>
+            <span class="n">terminate_on_match</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;key&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;single_point_job&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_read_single_point_data</span><span class="p">()</span>
+
         <span class="c1"># If the calculation did not finish and no errors have been identified yet, check for other errors</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;completion&#39;</span><span class="p">,</span>
                              <span class="p">[])</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;errors&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="p">[]:</span>
@@ -282,7 +294,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">to_return</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;rt&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;\s*(?:Running\s+)*Job\s+\d+\s+of\s+\d+\s+&#39;</span><span class="p">,</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\s*(?:Running\s+)*Job\s+\d+\s+of\s+\d+\s+&#39;</span><span class="p">,</span>
                             <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
         <span class="k">if</span> <span class="n">text</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
             <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
@@ -449,7 +461,7 @@
         <span class="n">parsed_optimized_geometry</span> <span class="o">=</span> <span class="n">read_table_pattern</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">header_pattern</span><span class="p">,</span> <span class="n">table_pattern</span><span class="p">,</span> <span class="n">footer_pattern</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">parsed_optimized_geometry</span> <span class="o">==</span> <span class="p">[]</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;optimized_geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;optimized_geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="n">header_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^\s+\*+\s+OPTIMIZATION CONVERGED\s+\*+\s+\*+\s+Z-matrix\s+Print:\s+\$molecule\s+[\d\-]+\s+[\d\-]+\n&quot;</span>
             <span class="n">table_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*(\w+)(?:\s+(\d+)\s+([\d\-\.]+)(?:\s+(\d+)\s+([\d\-\.]+)(?:\s+(\d+)\s+([\d\-\.]+))*)*)*(?:\s+0)*&quot;</span>
             <span class="n">footer_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^\$end\n&quot;</span>
@@ -472,14 +484,14 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">header_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s+Optimization\sCycle:\s+&quot;</span> <span class="o">+</span> \
             <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;energy_trajectory&quot;</span><span class="p">)))</span> <span class="o">+</span> \
-            <span class="s2">&quot;\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z&quot;</span>
+            <span class="sa">r</span><span class="s2">&quot;\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z&quot;</span>
         <span class="n">table_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s+\d+\s+\w+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)&quot;</span>
         <span class="n">footer_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s+Point Group\:\s+[\d\w\*]+\s+Number of degrees of freedom\:\s+\d+&quot;</span>
 
         <span class="n">parsed_last_geometry</span> <span class="o">=</span> <span class="n">read_table_pattern</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">header_pattern</span><span class="p">,</span> <span class="n">table_pattern</span><span class="p">,</span> <span class="n">footer_pattern</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">parsed_last_geometry</span> <span class="o">==</span> <span class="p">[]</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;last_geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;last_geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;last_geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">process_parsed_coords</span><span class="p">(</span>
                 <span class="n">parsed_last_geometry</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -491,14 +503,20 @@
                     <span class="n">spin_multiplicity</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;multiplicity&#39;</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_check_for_structure_changes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">initial_mol_graph</span> <span class="o">=</span> <span class="n">build_MoleculeGraph</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;initial_molecule&quot;</span><span class="p">])</span>
+        <span class="n">initial_mol_graph</span> <span class="o">=</span> <span class="n">MoleculeGraph</span><span class="o">.</span><span class="n">with_local_env_strategy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;initial_molecule&quot;</span><span class="p">],</span>
+                                                                  <span class="n">OpenBabelNN</span><span class="p">(),</span>
+                                                                  <span class="n">reorder</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                                  <span class="n">extend_structure</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">initial_graph</span> <span class="o">=</span> <span class="n">initial_mol_graph</span><span class="o">.</span><span class="n">graph</span>
-        <span class="n">last_mol_graph</span> <span class="o">=</span> <span class="n">build_MoleculeGraph</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;molecule_from_last_geometry&quot;</span><span class="p">])</span>
+        <span class="n">last_mol_graph</span> <span class="o">=</span> <span class="n">MoleculeGraph</span><span class="o">.</span><span class="n">with_local_env_strategy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;molecule_from_last_geometry&quot;</span><span class="p">],</span>
+                                                               <span class="n">OpenBabelNN</span><span class="p">(),</span>
+                                                               <span class="n">reorder</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                               <span class="n">extend_structure</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">last_graph</span> <span class="o">=</span> <span class="n">last_mol_graph</span><span class="o">.</span><span class="n">graph</span>
-        <span class="k">if</span> <span class="n">is_isomorphic</span><span class="p">(</span><span class="n">initial_graph</span><span class="p">,</span> <span class="n">last_graph</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">initial_mol_graph</span><span class="o">.</span><span class="n">isomorphic_to</span><span class="p">(</span><span class="n">last_mol_graph</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;structure_change&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;no_change&quot;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">nx</span><span class="o">.</span><span class="n">is_connected</span><span class="p">(</span><span class="n">initial_graph</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">nx</span><span class="o">.</span><span class="n">is_connected</span><span class="p">(</span><span class="n">last_graph</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">nx</span><span class="o">.</span><span class="n">is_connected</span><span class="p">(</span><span class="n">initial_graph</span><span class="o">.</span><span class="n">to_undirected</span><span class="p">())</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">nx</span><span class="o">.</span><span class="n">is_connected</span><span class="p">(</span><span class="n">last_graph</span><span class="o">.</span><span class="n">to_undirected</span><span class="p">()):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;structure_change&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;unconnected_fragments&quot;</span>
             <span class="k">elif</span> <span class="n">last_graph</span><span class="o">.</span><span class="n">number_of_edges</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">initial_graph</span><span class="o">.</span><span class="n">number_of_edges</span><span class="p">():</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;structure_change&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;fewer_bonds&quot;</span>
@@ -506,7 +524,6 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;structure_change&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;more_bonds&quot;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;structure_change&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;bond_change&quot;</span>
-
 
     <span class="k">def</span> <span class="nf">_read_frequency_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -520,21 +537,35 @@
                 <span class="sa">r</span><span class="s2">&quot;\s*IR Intens:\s+([\d\-\.]+)(?:\s+([\d\-\.]+)(?:\s+([\d\-\.]+))*)*&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;IR_active&quot;</span><span class="p">:</span>
                 <span class="sa">r</span><span class="s2">&quot;\s*IR Active:\s+([YESNO]+)(?:\s+([YESNO]+)(?:\s+([YESNO]+))*)*&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;enthalpy&quot;</span><span class="p">:</span>
+                <span class="s2">&quot;ZPE&quot;</span><span class="p">:</span>
+                <span class="sa">r</span><span class="s2">&quot;\s*Zero point vibrational energy:\s+([\d\-\.]+)\s+kcal/mol&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;trans_enthalpy&quot;</span><span class="p">:</span>
+                <span class="sa">r</span><span class="s2">&quot;\s*Translational Enthalpy:\s+([\d\-\.]+)\s+kcal/mol&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;rot_enthalpy&quot;</span><span class="p">:</span>
+                <span class="sa">r</span><span class="s2">&quot;\s*Rotational Enthalpy:\s+([\d\-\.]+)\s+kcal/mol&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;vib_enthalpy&quot;</span><span class="p">:</span>
+                <span class="sa">r</span><span class="s2">&quot;\s*Vibrational Enthalpy:\s+([\d\-\.]+)\s+kcal/mol&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;gas_constant&quot;</span><span class="p">:</span>
+                <span class="sa">r</span><span class="s2">&quot;\s*gas constant \(RT\):\s+([\d\-\.]+)\s+kcal/mol&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;trans_entropy&quot;</span><span class="p">:</span>
+                <span class="sa">r</span><span class="s2">&quot;\s*Translational Entropy:\s+([\d\-\.]+)\s+cal/mol\.K&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;rot_entropy&quot;</span><span class="p">:</span>
+                <span class="sa">r</span><span class="s2">&quot;\s*Rotational Entropy:\s+([\d\-\.]+)\s+cal/mol\.K&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;vib_entropy&quot;</span><span class="p">:</span>
+                <span class="sa">r</span><span class="s2">&quot;\s*Vibrational Entropy:\s+([\d\-\.]+)\s+cal/mol\.K&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;total_enthalpy&quot;</span><span class="p">:</span>
                 <span class="sa">r</span><span class="s2">&quot;\s*Total Enthalpy:\s+([\d\-\.]+)\s+kcal/mol&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;entropy&quot;</span><span class="p">:</span>
+                <span class="s2">&quot;total_entropy&quot;</span><span class="p">:</span>
                 <span class="sa">r</span><span class="s2">&quot;\s*Total Entropy:\s+([\d\-\.]+)\s+cal/mol\.K&quot;</span>
             <span class="p">})</span>
 
-        <span class="k">if</span> <span class="n">temp_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;enthalpy&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;enthalpy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;enthalpy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">temp_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;enthalpy&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ZPE&quot;</span><span class="p">,</span> <span class="s2">&quot;trans_enthalpy&quot;</span><span class="p">,</span> <span class="s2">&quot;rot_enthalpy&quot;</span><span class="p">,</span> <span class="s2">&quot;vib_enthalpy&quot;</span><span class="p">,</span> <span class="s2">&quot;gas_constant&quot;</span><span class="p">,</span> <span class="s2">&quot;trans_entropy&quot;</span><span class="p">,</span> <span class="s2">&quot;rot_entropy&quot;</span><span class="p">,</span> <span class="s2">&quot;vib_entropy&quot;</span><span class="p">,</span> <span class="s2">&quot;total_enthalpy&quot;</span><span class="p">,</span> <span class="s2">&quot;total_entropy&quot;</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="n">temp_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;entropy&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;entropy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;entropy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">temp_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;entropy&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">temp_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">temp_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
 
         <span class="k">if</span> <span class="n">temp_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;frequencies&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;frequencies&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -583,6 +614,63 @@
                                            <span class="n">jj</span><span class="p">,</span> <span class="n">kk</span> <span class="o">%</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;frequency_mode_vectors&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">freq_mode_vecs</span>
+
+    <span class="k">def</span> <span class="nf">_read_single_point_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parses final free energy information from single-point calculations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">temp_dict</span> <span class="o">=</span> <span class="n">read_pattern</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="p">{</span>
+                <span class="s2">&quot;final_energy&quot;</span><span class="p">:</span>
+                    <span class="sa">r</span><span class="s2">&quot;\s*SCF\s+energy in the final basis set\s+=\s*([\d\-\.]+)&quot;</span>
+            <span class="p">})</span>
+
+        <span class="k">if</span> <span class="n">temp_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;final_energy&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;final_energy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># -1 in case of pcm</span>
+            <span class="c1"># Two lines will match the above; we want final calculation</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;final_energy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">temp_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;final_energy&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">_read_pcm_information</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parses information from PCM solvent calculations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">temp_dict</span> <span class="o">=</span> <span class="n">read_pattern</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="p">{</span>
+                <span class="s2">&quot;g_electrostatic&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;\s*G_electrostatic\s+=\s+([\d\-\.]+)\s+hartree\s+=\s+([\d\-\.]+)\s+kcal/mol\s*&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;g_cavitation&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;\s*G_cavitation\s+=\s+([\d\-\.]+)\s+hartree\s+=\s+([\d\-\.]+)\s+kcal/mol\s*&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;g_dispersion&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;\s*G_dispersion\s+=\s+([\d\-\.]+)\s+hartree\s+=\s+([\d\-\.]+)\s+kcal/mol\s*&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;g_repulsion&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;\s*G_repulsion\s+=\s+([\d\-\.]+)\s+hartree\s+=\s+([\d\-\.]+)\s+kcal/mol\s*&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;total_contribution_pcm&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;\s*Total\s+=\s+([\d\-\.]+)\s+hartree\s+=\s+([\d\-\.]+)\s+kcal/mol\s*&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">temp_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;g_electrostatic&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;g_electrostatic&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;g_electrostatic&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">temp_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;g_electrostatic&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">temp_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;g_cavitation&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;g_cavitation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;g_cavitation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">temp_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;g_cavitation&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">temp_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;g_dispersion&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;g_dispersion&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;g_dispersion&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">temp_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;g_dispersion&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">temp_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;g_repulsion&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;g_repulsion&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;g_repulsion&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">temp_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;g_repulsion&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">temp_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;total_contribution_pcm&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;total_contribution_pcm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;total_contribution_pcm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">temp_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;total_contribution_pcm&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="nf">_check_optimization_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -662,42 +750,26 @@
         <span class="n">d</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span>
         <span class="n">d</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span>
         <span class="k">return</span> <span class="n">jsanitize</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div></div>
-
-
-<div class="viewcode-block" id="edges_from_babel"><a class="viewcode-back" href="../../../../pymatgen.io.qchem.outputs.html#pymatgen.io.qchem.outputs.edges_from_babel">[docs]</a><span class="k">def</span> <span class="nf">edges_from_babel</span><span class="p">(</span><span class="n">molecule</span><span class="p">):</span>
-    <span class="n">babel_mol</span> <span class="o">=</span> <span class="n">BabelMolAdaptor</span><span class="p">(</span><span class="n">molecule</span><span class="p">)</span><span class="o">.</span><span class="n">openbabel_mol</span>
-    <span class="n">edges</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">obbond</span> <span class="ow">in</span> <span class="n">ob</span><span class="o">.</span><span class="n">OBMolBondIter</span><span class="p">(</span><span class="n">babel_mol</span><span class="p">):</span>
-        <span class="n">edges</span> <span class="o">+=</span> <span class="p">[[</span><span class="n">obbond</span><span class="o">.</span><span class="n">GetBeginAtomIdx</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">obbond</span><span class="o">.</span><span class="n">GetEndAtomIdx</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]]</span>
-    <span class="k">return</span> <span class="n">edges</span></div>
-
-
-<div class="viewcode-block" id="build_MoleculeGraph"><a class="viewcode-back" href="../../../../pymatgen.io.qchem.outputs.html#pymatgen.io.qchem.outputs.build_MoleculeGraph">[docs]</a><span class="k">def</span> <span class="nf">build_MoleculeGraph</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">edges</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">edges</span> <span class="o">=</span> <span class="n">edges_from_babel</span><span class="p">(</span><span class="n">molecule</span><span class="p">)</span>
-    <span class="n">mol_graph</span> <span class="o">=</span> <span class="n">MoleculeGraph</span><span class="o">.</span><span class="n">with_empty_graph</span><span class="p">(</span><span class="n">molecule</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">edges</span><span class="p">:</span>
-        <span class="n">mol_graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">edge</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">edge</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-    <span class="n">mol_graph</span><span class="o">.</span><span class="n">graph</span> <span class="o">=</span> <span class="n">mol_graph</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">to_undirected</span><span class="p">()</span>
-    <span class="n">species</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">coords</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">mol_graph</span><span class="o">.</span><span class="n">graph</span><span class="p">:</span>
-        <span class="n">species</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="n">mol_graph</span><span class="o">.</span><span class="n">molecule</span><span class="p">[</span><span class="n">node</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span>
-        <span class="n">coords</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="n">mol_graph</span><span class="o">.</span><span class="n">molecule</span><span class="p">[</span><span class="n">node</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span>
-    <span class="n">nx</span><span class="o">.</span><span class="n">set_node_attributes</span><span class="p">(</span><span class="n">mol_graph</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="s2">&quot;specie&quot;</span><span class="p">)</span>
-    <span class="n">nx</span><span class="o">.</span><span class="n">set_node_attributes</span><span class="p">(</span><span class="n">mol_graph</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="s2">&quot;coords&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">mol_graph</span></div>
-
-
-<span class="k">def</span> <span class="nf">_node_match</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">othernode</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;specie&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">othernode</span><span class="p">[</span><span class="s2">&quot;specie&quot;</span><span class="p">]</span>
-
-
-<div class="viewcode-block" id="is_isomorphic"><a class="viewcode-back" href="../../../../pymatgen.io.qchem.outputs.html#pymatgen.io.qchem.outputs.is_isomorphic">[docs]</a><span class="k">def</span> <span class="nf">is_isomorphic</span><span class="p">(</span><span class="n">graph1</span><span class="p">,</span> <span class="n">graph2</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">nx</span><span class="o">.</span><span class="n">is_isomorphic</span><span class="p">(</span><span class="n">graph1</span><span class="p">,</span> <span class="n">graph2</span><span class="p">,</span> <span class="n">node_match</span><span class="o">=</span><span class="n">_node_match</span><span class="p">)</span></div>
 </pre></div>
 
           </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -710,7 +782,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.9.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.11.30 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -718,7 +790,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.9.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

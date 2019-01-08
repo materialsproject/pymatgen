@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.sets &#8212; pymatgen 2018.10.18 documentation</title>
+    <title>pymatgen.io.vasp.sets &#8212; pymatgen 2018.12.12 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.10.18 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -282,7 +282,8 @@
 <span class="sd">            together.</span>
 <span class="sd">        potcar_functional (str): Functional to use. Default (None) is to use</span>
 <span class="sd">            the functional in Potcar.DEFAULT_FUNCTIONAL. Valid values:</span>
-<span class="sd">            &quot;PBE&quot;, &quot;LDA&quot;, &quot;PW91&quot;, &quot;LDA_US&quot;</span>
+<span class="sd">            &quot;PBE&quot;, &quot;PBE_52&quot;, &quot;PBE_54&quot;, &quot;LDA&quot;, &quot;LDA_52&quot;, &quot;LDA_54&quot;, &quot;PW91&quot;,</span>
+<span class="sd">            &quot;LDA_US&quot;, &quot;PW91_US&quot;.</span>
 <span class="sd">        force_gamma (bool): Force gamma centered kpoint generation. Default</span>
 <span class="sd">            (False) is to use the Automatic Density kpoint scheme, which</span>
 <span class="sd">            will use the Gamma centered generation scheme for hexagonal</span>
@@ -432,14 +433,15 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Gets the default number of electrons for a given structure.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1">#if structure is not sorted this can cause problems, so must take care to</span>
-        <span class="c1">#remove redundant symbols when counting electrons</span>
+        <span class="c1"># if structure is not sorted this can cause problems, so must take care to</span>
+        <span class="c1"># remove redundant symbols when counting electrons</span>
         <span class="n">site_symbols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">poscar</span><span class="o">.</span><span class="n">site_symbols</span><span class="p">))</span>
         <span class="n">nelect</span> <span class="o">=</span> <span class="mf">0.</span>
         <span class="k">for</span> <span class="n">ps</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">potcar</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">ps</span><span class="o">.</span><span class="n">element</span> <span class="ow">in</span> <span class="n">site_symbols</span><span class="p">:</span>
                 <span class="n">site_symbols</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">ps</span><span class="o">.</span><span class="n">element</span><span class="p">)</span>
-                <span class="n">nelect</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">element_composition</span><span class="p">[</span><span class="n">ps</span><span class="o">.</span><span class="n">element</span><span class="p">]</span> <span class="o">*</span> <span class="n">ps</span><span class="o">.</span><span class="n">ZVAL</span>
+                <span class="n">nelect</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">element_composition</span><span class="p">[</span>
+                              <span class="n">ps</span><span class="o">.</span><span class="n">element</span><span class="p">]</span> <span class="o">*</span> <span class="n">ps</span><span class="o">.</span><span class="n">ZVAL</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_structure_charge</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">nelect</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">charge</span>
@@ -535,7 +537,7 @@
 <span class="sd">    The LDAUU parameters are also different due to the different psps used,</span>
 <span class="sd">    which result in different fitted values.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">CONFIG</span> <span class="o">=</span> <span class="n">CONFIG</span> <span class="o">=</span> <span class="n">_load_yaml_config</span><span class="p">(</span><span class="s2">&quot;MPRelaxSet&quot;</span><span class="p">)</span>
+    <span class="n">CONFIG</span> <span class="o">=</span> <span class="n">_load_yaml_config</span><span class="p">(</span><span class="s2">&quot;MPRelaxSet&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">MPRelaxSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -1009,9 +1011,9 @@
                                        <span class="n">small_gap_multiply</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span> <span class="n">prev_incar</span><span class="o">=</span><span class="n">incar</span><span class="p">,</span>
-                           <span class="n">reciprocal_density</span><span class="o">=</span><span class="n">reciprocal_density</span><span class="p">,</span>
-                           <span class="n">kpoints_line_density</span><span class="o">=</span><span class="n">kpoints_line_density</span><span class="p">,</span>
-                           <span class="n">files_to_transfer</span><span class="o">=</span><span class="n">files_to_transfer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+                   <span class="n">reciprocal_density</span><span class="o">=</span><span class="n">reciprocal_density</span><span class="p">,</span>
+                   <span class="n">kpoints_line_density</span><span class="o">=</span><span class="n">kpoints_line_density</span><span class="p">,</span>
+                   <span class="n">files_to_transfer</span><span class="o">=</span><span class="n">files_to_transfer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="MPSOCSet"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MPSOCSet">[docs]</a><span class="k">class</span> <span class="nc">MPSOCSet</span><span class="p">(</span><span class="n">MPStaticSet</span><span class="p">):</span>
@@ -1124,11 +1126,11 @@
                 <span class="n">reciprocal_density</span> <span class="o">=</span> <span class="n">reciprocal_density</span> <span class="o">*</span> <span class="n">small_gap_multiply</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">prev_incar</span><span class="o">=</span><span class="n">incar</span><span class="p">,</span>
-                        <span class="n">files_to_transfer</span><span class="o">=</span><span class="n">files_to_transfer</span><span class="p">,</span>
-                        <span class="n">reciprocal_density</span><span class="o">=</span><span class="n">reciprocal_density</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+                   <span class="n">files_to_transfer</span><span class="o">=</span><span class="n">files_to_transfer</span><span class="p">,</span>
+                   <span class="n">reciprocal_density</span><span class="o">=</span><span class="n">reciprocal_density</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+
 
 <div class="viewcode-block" id="MPNMRSet"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MPNMRSet">[docs]</a><span class="k">class</span> <span class="nc">MPNMRSet</span><span class="p">(</span><span class="n">MPStaticSet</span><span class="p">):</span>
-
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;cs&quot;</span><span class="p">,</span> <span class="n">isotopes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">prev_incar</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reciprocal_density</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1169,7 +1171,9 @@
 
             <span class="n">isotopes</span> <span class="o">=</span> <span class="p">{</span><span class="n">ist</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">ist</span> <span class="k">for</span> <span class="n">ist</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">isotopes</span><span class="p">}</span>
 
-            <span class="n">quad_efg</span> <span class="o">=</span> <span class="p">[</span><span class="n">Specie</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">.</span><span class="n">get_nmr_quadrupole_moment</span><span class="p">(</span><span class="n">isotopes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">poscar</span><span class="o">.</span><span class="n">site_symbols</span><span class="p">]</span>
+            <span class="n">quad_efg</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">Specie</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">.</span><span class="n">get_nmr_quadrupole_moment</span><span class="p">(</span><span class="n">isotopes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span> <span class="k">for</span> <span class="n">p</span>
+                <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">poscar</span><span class="o">.</span><span class="n">site_symbols</span><span class="p">]</span>
 
             <span class="n">incar</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;ALGO&quot;</span><span class="p">:</span> <span class="s2">&quot;FAST&quot;</span><span class="p">,</span>
                           <span class="s2">&quot;EDIFF&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.0e-10</span><span class="p">,</span>
@@ -1362,8 +1366,8 @@
                         <span class="n">files_to_transfer</span><span class="p">[</span><span class="n">fname</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span> <span class="n">prev_incar</span><span class="o">=</span><span class="n">prev_incar</span><span class="p">,</span>
-                        <span class="n">nbands</span><span class="o">=</span><span class="n">nbands</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span>
-                        <span class="n">files_to_transfer</span><span class="o">=</span><span class="n">files_to_transfer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+                   <span class="n">nbands</span><span class="o">=</span><span class="n">nbands</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span>
+                   <span class="n">files_to_transfer</span><span class="o">=</span><span class="n">files_to_transfer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="MVLSlabSet"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MVLSlabSet">[docs]</a><span class="k">class</span> <span class="nc">MVLSlabSet</span><span class="p">(</span><span class="n">MPRelaxSet</span><span class="p">):</span>
@@ -1381,7 +1385,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">k_product</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">bulk</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                 <span class="n">auto_dipole</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">set_mix</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sort_structure</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+                 <span class="n">auto_dipole</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">set_mix</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sort_structure</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">MVLSlabSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">sort_structure</span><span class="p">:</span>
@@ -1407,7 +1412,7 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">auto_dipole</span><span class="p">:</span>
                 <span class="n">weights</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">species_and_occu</span><span class="o">.</span><span class="n">weight</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">structure</span><span class="p">]</span>
                 <span class="n">center_of_mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
-                                            <span class="n">weights</span> <span class="o">=</span> <span class="n">weights</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+                                            <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
                 <span class="n">slab_incar</span><span class="p">[</span><span class="s2">&quot;IDIPOL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
                 <span class="n">slab_incar</span><span class="p">[</span><span class="s2">&quot;LDIPOL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
@@ -1450,7 +1455,6 @@
         <span class="k">if</span> <span class="n">verbosity</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;structure&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">d</span></div></div>
-
 
 
 <div class="viewcode-block" id="MVLGBSet"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MVLGBSet">[docs]</a><span class="k">class</span> <span class="nc">MVLGBSet</span><span class="p">(</span><span class="n">MPRelaxSet</span><span class="p">):</span>
@@ -1542,6 +1546,38 @@
         <span class="k">return</span> <span class="n">incar</span></div>
 
 
+<div class="viewcode-block" id="MVLRelax52Set"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MVLRelax52Set">[docs]</a><span class="k">class</span> <span class="nc">MVLRelax52Set</span><span class="p">(</span><span class="n">DictSet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Implementation of VaspInputSet utilizing the public Materials Project</span>
+<span class="sd">    parameters for INCAR &amp; KPOINTS and VASP&#39;s recommended PAW potentials for</span>
+<span class="sd">    POTCAR.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">CONFIG</span> <span class="o">=</span> <span class="n">_load_yaml_config</span><span class="p">(</span><span class="s2">&quot;MVLRelax52Set&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">potcar_functional</span><span class="o">=</span><span class="s2">&quot;PBE_52&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Keynotes from VASP manual:</span>
+<span class="sd">            1. Recommended potentials for calculations using vasp.5.2+</span>
+<span class="sd">            2. If dimers with short bonds are present in the compound (O2, CO,</span>
+<span class="sd">                N2, F2, P2, S2, Cl2), it is recommended to use the h potentials.</span>
+<span class="sd">                Specifically, C_h, O_h, N_h, F_h, P_h, S_h, Cl_h</span>
+<span class="sd">            3. Released on Oct 28, 2018 by VASP. Please refer to VASP</span>
+<span class="sd">                Manual 1.2, 1.3 &amp; 10.2.1 for more details.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): input structure.</span>
+<span class="sd">            potcar_functional (str): choose from &quot;PBE_52&quot; and &quot;PBE_54&quot;.</span>
+<span class="sd">            \\*\\*kwargs: Other kwargs supported by :class:`DictSet`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">potcar_functional</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;PBE_52&quot;</span><span class="p">,</span> <span class="s2">&quot;PBE_54&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Please select from PBE_52 and PBE_54!&quot;</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">MVLRelax52Set</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">MVLRelax52Set</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">,</span>
+                                            <span class="n">potcar_functional</span><span class="o">=</span><span class="n">potcar_functional</span><span class="p">,</span>
+                                            <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span></div>
+
+
 <div class="viewcode-block" id="MITNEBSet"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MITNEBSet">[docs]</a><span class="k">class</span> <span class="nc">MITNEBSet</span><span class="p">(</span><span class="n">MITRelaxSet</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class for writing NEB inputs. Note that EDIFF is not on a per atom</span>
@@ -1631,14 +1667,18 @@
                 <span class="n">user_incar_settings</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">user_incar_settings</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;00&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)]:</span>
-                <span class="n">end_point_param</span><span class="o">.</span><span class="n">incar</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="s1">&#39;INCAR&#39;</span><span class="p">))</span>
-                <span class="n">end_point_param</span><span class="o">.</span><span class="n">kpoints</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="s1">&#39;KPOINTS&#39;</span><span class="p">))</span>
-                <span class="n">end_point_param</span><span class="o">.</span><span class="n">potcar</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="s1">&#39;POTCAR&#39;</span><span class="p">))</span>
+                <span class="n">end_point_param</span><span class="o">.</span><span class="n">incar</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="s1">&#39;INCAR&#39;</span><span class="p">))</span>
+                <span class="n">end_point_param</span><span class="o">.</span><span class="n">kpoints</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="s1">&#39;KPOINTS&#39;</span><span class="p">))</span>
+                <span class="n">end_point_param</span><span class="o">.</span><span class="n">potcar</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="s1">&#39;POTCAR&#39;</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">write_path_cif</span><span class="p">:</span>
             <span class="n">sites</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
             <span class="n">l</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lattice</span>
             <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">sites</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">)):</span>
-                <span class="n">sites</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">PeriodicSite</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">l</span><span class="p">))</span>
+                <span class="n">sites</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+                    <span class="n">PeriodicSite</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">l</span><span class="p">))</span>
             <span class="n">nebpath</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">sites</span><span class="p">))</span>
             <span class="n">nebpath</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s1">&#39;path.cif&#39;</span><span class="p">))</span></div></div>
 
@@ -1801,7 +1841,8 @@
     <span class="n">vsfile_fullpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;vasprun.xml&quot;</span><span class="p">)</span>
     <span class="n">outcarfile_fullpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;OUTCAR&quot;</span><span class="p">)</span>
     <span class="n">vsfile</span> <span class="o">=</span> <span class="n">vsfile_fullpath</span> <span class="k">if</span> <span class="n">vsfile_fullpath</span> <span class="ow">in</span> <span class="n">vruns</span> <span class="k">else</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">vruns</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">outcarfile</span> <span class="o">=</span> <span class="n">outcarfile_fullpath</span> <span class="k">if</span> <span class="n">outcarfile_fullpath</span> <span class="ow">in</span> <span class="n">outcars</span> <span class="k">else</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">outcars</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">outcarfile</span> <span class="o">=</span> <span class="n">outcarfile_fullpath</span> <span class="k">if</span> <span class="n">outcarfile_fullpath</span> <span class="ow">in</span> <span class="n">outcars</span> <span class="k">else</span> \
+        <span class="nb">sorted</span><span class="p">(</span><span class="n">outcars</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">Vasprun</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">vsfile</span><span class="p">),</span> <span class="n">parse_dos</span><span class="o">=</span><span class="n">parse_dos</span><span class="p">,</span> <span class="n">parse_eigen</span><span class="o">=</span><span class="n">parse_eigen</span><span class="p">),</span> \
            <span class="n">Outcar</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">outcarfile</span><span class="p">))</span></div>
 
@@ -1947,7 +1988,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.10.18 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

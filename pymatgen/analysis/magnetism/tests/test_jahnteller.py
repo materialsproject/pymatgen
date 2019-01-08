@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 from pymatgen.io.cif import CifParser
 from pymatgen.analysis.magnetism.jahnteller import *
 

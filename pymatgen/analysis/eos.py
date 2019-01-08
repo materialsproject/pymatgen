@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals, division, print_function
 
 """
 This module implements various equation of states.
@@ -12,7 +11,6 @@ Note: Most of the code were initially adapted from ASE and deltafactor by
 """
 
 from copy import deepcopy
-import six
 from abc import ABCMeta, abstractmethod
 import logging
 import warnings
@@ -29,7 +27,7 @@ __credits__ = "Cormac Toher"
 logger = logging.getLogger(__file__)
 
 
-class EOSBase(six.with_metaclass(ABCMeta)):
+class EOSBase(metaclass=ABCMeta):
     """
     Abstract class that must be subcalssed by all equation of state
     implementations.
@@ -302,7 +300,7 @@ class BirchMurnaghan(EOSBase):
         BirchMurnaghan equation from PRB 70, 224107
         """
         e0, b0, b1, v0 = tuple(params)
-        eta = (volume / v0) ** (1. / 3.)
+        eta = (v0 / volume) ** (1. / 3.)
         return (e0 +
                 9. * b0 * v0 / 16. * (eta ** 2 - 1)**2 *
                 (6 + b1 * (eta ** 2 - 1.) - 4. * eta ** 2))
@@ -520,7 +518,7 @@ class NumericalEOS(PolynomialEOS):
         self._set_params()
 
 
-class EOS(object):
+class EOS:
     """
     Convenient wrapper. Retained in its original state to ensure backward
     compatibility.
