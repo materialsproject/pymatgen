@@ -726,7 +726,7 @@ class PointDefectComparatorTest(PymatgenTest):
     def test_defect_matching(self):
         # SETUP DEFECTS FOR TESTING
         # symmorphic defect test set
-        s_struc = PymatgenTest.get_mp_structure('mp-616378')  # tetragonal CsSnI3
+        s_struc = Structure.from_file(os.path.join(test_dir, "CsSnI3.cif")) # tetragonal CsSnI3
         identical_Cs_vacs = [Vacancy(s_struc, s_struc[0]),
                              Vacancy(s_struc, s_struc[1])]
         identical_I_vacs_sublattice1 = [Vacancy(s_struc, s_struc[4]),
@@ -809,7 +809,7 @@ class PointDefectComparatorTest(PymatgenTest):
 
         # test non-symmorphic interstitial matching
         # (using set generated from Voronoi generator, with same sublattice given by saturatated_interstitial_structure function)
-        ns_struc = PymatgenTest.get_mp_structure('mp-23287')  # CuCl
+        ns_struc = Structure.from_file(os.path.join(test_dir, "CuCl.cif"))
         ns_inter_H_sublattice1_set1 = PeriodicSite('H', [0.06924513, 0.06308959, 0.86766528], ns_struc.lattice)
         ns_inter_H_sublattice1_set2 = PeriodicSite('H', [0.43691041, 0.36766528, 0.06924513], ns_struc.lattice)
         ns_inter_H_sublattice2 = PeriodicSite('H', [0.06022109, 0.60196031, 0.1621814], ns_struc.lattice)
