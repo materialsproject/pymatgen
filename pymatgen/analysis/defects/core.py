@@ -402,7 +402,7 @@ def create_saturated_interstitial_structure( interstitial_def, dist_tol=0.1):
     sga = SpacegroupAnalyzer( interstitial_def.bulk_structure.copy())
     sg_ops = sga.get_symmetry_operations( cartesian=True)
 
-     # copy bulk structure to make saturated interstitial structure out of
+    # copy bulk structure to make saturated interstitial structure out of
     # artificially lower distance_tolerance to allow for distinct interstitials
     # with lower symmetry to be replicated - This is OK because one would never
     # actually use this structure for a practical calcualtion...
