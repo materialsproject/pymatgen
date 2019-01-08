@@ -67,7 +67,7 @@ class InterstitialGeneratorTest(PymatgenTest):
         self.assertEqual(len(ints), 4)
 
         multiplicities = [i.multiplicity for i in ints]
-        self.assertEqual(multiplicities, [4, 4, 2, 2])
+        self.assertEqual(multiplicities, [8, 8, 4, 4])
 
         self.assertEqual(str(ints[0].site.specie), "Li")
         self.assertEqual(str(ints[1].site.specie), "Li")
