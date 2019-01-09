@@ -160,5 +160,5 @@ def open_ring(mol_graph, bond, opt_steps):
     """
     obmol = BabelMolAdaptor.from_molecule_graph(mol_graph)
     obmol.remove_bond(bond[0][0]+1, bond[0][1]+1)
-    obmol.localopt(steps=opt_steps)
+    obmol.localopt(steps=opt_steps,forcefield='uff')
     return MoleculeGraph.with_local_env_strategy(obmol.pymatgen_mol, OpenBabelNN(), reorder=False, extend_structure=False)

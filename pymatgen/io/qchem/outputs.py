@@ -753,7 +753,7 @@ class QCOutput(MSONable):
                 "frequencies":
                 r"\s*Frequency:\s+([\d\-\.\*]+)(?:\s+([\d\-\.]+)(?:\s+([\d\-\.]+))*)*",
                 "IR_intens":
-                r"\s*IR Intens:\s+([\d\-\.]+)(?:\s+([\d\-\.]+)(?:\s+([\d\-\.]+))*)*",
+                r"\s*IR Intens:\s*([\d\-\.\*]+)(?:\s+([\d\-\.\*]+)(?:\s+([\d\-\.\*]+))*)*",
                 "IR_active":
                 r"\s*IR Active:\s+([YESNO]+)(?:\s+([YESNO]+)(?:\s+([YESNO]+))*)*",
                 "ZPE":
@@ -809,7 +809,7 @@ class QCOutput(MSONable):
             for ii, entry in enumerate(temp_freqs):
                 if entry != 'None':
                     if "*" in entry:
-                        freqs[ii] = -10000000000
+                        freqs[ii] = -float("inf")
                         if "undefined_frequency" not in self.data["errors"]:
                             self.data["errors"] += ["undefined_frequency"]
                     else:
@@ -819,12 +819,15 @@ class QCOutput(MSONable):
             intens = np.zeros(len(temp_intens) - temp_intens.count('None'))
             for ii, entry in enumerate(temp_intens):
                 if entry != 'None':
-                    intens[ii] = float(entry)
+                    if "*" in entry:
+                        intens[ii] = float("inf")
+                    else:
+                        intens[ii] = float(entry)
             self.data['IR_intens'] = intens
 
             header_pattern = r"\s*Raman Active:\s+[YESNO]+\s+(?:[YESNO]+\s+)*X\s+Y\s+Z\s+(?:X\s+Y\s+Z\s+)*"
             table_pattern = r"\s*[a-zA-Z][a-zA-Z\s]\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*(?:([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*(?:([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+))*)*"
-            footer_pattern = r"TransDip\s+[\d\-\.]+\s*[\d\-\.]+\s*[\d\-\.]+\s*(?:[\d\-\.]+\s*[\d\-\.]+\s*[\d\-\.]+\s*)*"
+            footer_pattern = r"TransDip\s+[\d\-\.\*]+\s*[\d\-\.\*]+\s*[\d\-\.\*]+\s*(?:[\d\-\.\*]+\s*[\d\-\.\*]+\s*[\d\-\.\*]+\s*)*"
             temp_freq_mode_vecs = read_table_pattern(
                 self.text, header_pattern, table_pattern, footer_pattern)
             freq_mode_vecs = np.zeros(
@@ -838,6 +841,9 @@ class QCOutput(MSONable):
                                            jj, kk % 3] = float(entry)
 
             self.data["frequency_mode_vectors"] = freq_mode_vecs
+            freq_length = len(self.data["frequencies"])
+            if len(self.data["frequency_mode_vectors"]) != freq_length or len(self.data["IR_intens"]) != freq_length or len(self.data["IR_active"]) != freq_length:
+                self.data["warnings"]["frequency_length_inconsistency"] = True
 
     def _read_single_point_data(self):
         """
@@ -948,7 +954,13 @@ class QCOutput(MSONable):
                     "key": r"FileMan error: End of file reached prematurely"
                 },
                 terminate_on_match=True).get('key') == [[]]:
-            self.data["errors"] += ["premature_end_FileMan_error"]
+            self.data["errors"] += ["premature_end_FileMan_error"]   
+        elif read_pattern(
+                self.text, {
+                    "key": r"method not available"
+                },
+                terminate_on_match=True).get('key') == [[]]:
+            self.data["errors"] += ["method_not_available"] 
         elif read_pattern(
                 self.text, {
                     "key": r"Could not find \$molecule section in ParseQInput"
