@@ -955,6 +955,52 @@ class PourbaixPlotter(object):
         plt.title(title, fontsize=20, fontweight='bold')
         return plt
 
+    def get_plotly_plot(self, limits=None, show=False, filename=None, **kwargs):
+        import plotly as py
+        from plotly import graph_objs as go
+        #if limits is None:
+        #    limits = [[-2, 16], [-3, 3]]
+        objs, centers, centertexts = [], [], []
+        single_color = [[0.0, 'rgb(200,200,200)'], [1.0, 'rgb(200,200,200)']]
+        for entry, vertices in self._pd._stable_domain_vertices.items():
+            xycenter = np.average(vertices, axis=0)
+            zcenter = entry.normalized_energy_at_conditions(*xycenter)
+            centers.append(np.concatenate([xycenter, [zcenter]]))
+            centertexts.append(generate_entry_label(entry))
+            x, y = np.transpose(np.vstack([vertices, vertices[0]]))
+            z = [entry.normalized_energy_at_conditions(pH, V)
+                 for pH, V in zip(x, y)]
+            # objs.append(go.Surface(x=x, y=y, z=z,
+            #                        colorscale=single_color, showscale=False))
+            objs.append(go.Scatter3d(x=x, y=y, z=z,
+                                     mode='lines'))
+
+        xcenters, ycenters, zcenters = np.transpose(centers)
+        objs.append(go.Scatter3d(x=xcenters, y=ycenters, z=zcenters,
+                                 text=centertexts, mode='markers'))
+        all_objs = [objs[-1]] + objs[:-1]
+        layout = go.Layout(
+            title='Pourbaix plot',
+            scene={"xaxis": {'title': 'pH'},
+                   "yaxis": {'title':'E (V)'},
+                   "zaxis": {'title': "G (eV)"}}
+            # autosize=False,
+            # width=500,
+            # height=500,
+            # margin=dict(
+            #     l=65,
+            #     r=50,
+            #     b=65,
+            #     t=90
+            # )
+        )
+        fig = go.Figure(data=all_objs, layout=layout)
+        if show:
+            filename = filename or 'out.html'
+            py.offline.plot(fig, filename=filename, **kwargs)
+            # import nose; nose.tools.set_trace()
+        return fig
+
     def plot_entry_stability(self, entry, pH_range=None, pH_resolution=100,
                              V_range=None, V_resolution=100, e_hull_max=1,
                              cmap='RdYlBu_r', **kwargs):
