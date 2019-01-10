@@ -422,8 +422,8 @@ def create_saturated_interstitial_structure( interstitial_def, dist_tol=0.1):
             saturated_defect_struct.append(
                         poss_new_site.specie, poss_new_site.coords,
                         coords_are_cartesian=True, validate_proximity=True)
-        except:
-            continue
+        except ValueError:
+            pass
 
     # do final space group analysis to make sure symmetry not lowered by saturating defect structure
     saturated_sga = SpacegroupAnalyzer( saturated_defect_struct)
