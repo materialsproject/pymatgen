@@ -327,7 +327,7 @@ class CompleteCohp(Cohp):
 
         return d
 
-    def get_cohp(self, label):
+    def get_cohp_by_label(self, label):
         """
         Get specific COHP object. For older lobster versions: If label is not in the COHP labels,
         try reversing the order of the sites.
@@ -339,7 +339,8 @@ class CompleteCohp(Cohp):
             Returns the COHP object to simplify plotting
         """
         if label.lower() == "average":
-            return Cohp(efermi=self.efermi,energies=self.energies,cohp= self.cohp.get_cohp(spin=None, integrated=False),are_coops=self.are_coops,icohp=self.cohp.get_icohp(spin=None))
+            return Cohp(efermi=self.efermi, energies=self.energies,
+                        cohp=self.cohp, are_coops=self.are_coops, icohp=self.icohp)
         else:
             try:
                 return Cohp(efermi=self.efermi, energies=self.energies,
@@ -347,12 +348,7 @@ class CompleteCohp(Cohp):
                             icohp=self.all_cohps[label].get_icohp(spin=None))
 
             except KeyError:
-                atoms = label.split("-")
-                label = atoms[1] + "-" + atoms[0]
-                return Cohp(efermi=self.efermi, energies=self.energies,
-                            cohp=self.all_cohps[label].get_cohp(spin=None, integrated=False), are_coops=self.are_coops,
-                            icohp=self.all_cohps[label].get_icohp(spin=None))
-
+                print("The label does not exist")
 
     def get_orbital_resolved_cohp(self, label, orbitals):
         """
