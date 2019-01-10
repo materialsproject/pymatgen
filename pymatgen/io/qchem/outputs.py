@@ -168,7 +168,10 @@ class QCOutput(MSONable):
                     "key": r"Unrecognized solvent"
                 },
                 terminate_on_match=True).get('key') == [[]]:
-                self.data["errors"] += ["unrecognized_solvent"]
+                if not self.data.get('completion',[]):
+                    self.data["errors"] += ["unrecognized_solvent"]
+                else:
+                    self.data["warnings"]["unrecognized_solvent"] = True
             self.data["solvent_data"] = {}
             temp_solvent = read_pattern(
                 self.text, {
@@ -177,12 +180,10 @@ class QCOutput(MSONable):
             for val in temp_solvent:
                 if val[0] != temp_solvent[0][0]:
                     if val[0] != "for":
-                        raise ValueError(
-                            "SMD should never find two different solvents! Found both " + str(temp_solvent[0][0]) + " and " + str(val[0])
-                        )
+                        self.data["warnings"]["SMD_two_solvents"] = str(temp_solvent[0][0]) + " and " + str(val[0])
                     else:
-                        if "unrecognized_solvent" not in self.data["errors"]:
-                            raise ValueError("Error in SMD parsing!")
+                        if "unrecognized_solvent" not in self.data["errors"] and "unrecognized_solvent" not in self.data["warnings"]:
+                            self.data["warnings"]["questionable_SMD_parsing"] = True
             self.data["solvent_data"]["SMD_solvent"] = temp_solvent[0][0]
             self._read_smd_information()
 
@@ -605,6 +606,23 @@ class QCOutput(MSONable):
                 terminate_on_match=True).get('key') == [[]]:
             self.data["warnings"]["positive_definiteness_endangered"] = True
 
+        # Check if there were problems with a colinear bend
+        if read_pattern(
+                self.text, {
+                    "key": r"\*\*\*ERROR\*\*\* Angle[\s\d]+is near\-linear\s+But No atom available to define colinear bend"
+                },
+                terminate_on_match=True).get('key') == [[]]:
+            self.data["warnings"]["colinear_bend"] = True
+
+        # Check if there were problems diagonalizing B*B(t)
+        if read_pattern(
+                self.text, {
+                    "key": r"\*\*\*ERROR\*\*\* Unable to Diagonalize B\*B\(t\) in <MakeNIC>"
+                },
+                terminate_on_match=True).get('key') == [[]]:
+            self.data["warnings"]["diagonalizing_BBt"] = True
+
+
     def _read_optimized_geometry(self):
         """
         Parses optimized XYZ coordinates. If not present, parses optimized Z-matrix.
@@ -810,8 +828,12 @@ class QCOutput(MSONable):
                 if entry != 'None':
                     if "*" in entry:
                         freqs[ii] = -float("inf")
-                        if "undefined_frequency" not in self.data["errors"]:
-                            self.data["errors"] += ["undefined_frequency"]
+                        if not self.data.get('completion',[]):
+                            if "undefined_frequency" not in self.data["errors"]:
+                                self.data["errors"] += ["undefined_frequency"]
+                        else:
+                            if "undefined_frequency" not in self.data["warnings"]:
+                                self.data["warnings"] += ["undefined_frequency"]
                     else:
                         freqs[ii] = float(entry)
             self.data['frequencies'] = freqs
