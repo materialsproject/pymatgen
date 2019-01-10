@@ -398,31 +398,49 @@ elements_HO = {Element('H'), Element('O')}
 
 
 # Temporary home to get convex hull in npH-nphi-e0-frac space
-
-def get_hull(entries, comp_dict=None):
+def preprocess_pourbaix_entries(pourbaix_entries, comp_dict=None):
     """
 
     Args:
-        entries ([PourbaixEntry]):
+        entries ([PourbaixEntry]): list of PourbaixEntries to preprocess
+            into MultiEntries
+        comp_dict ({Element: float}): composition dictionary
 
     Returns:
+        ([MultiEntry]) list of stable MultiEntry candidates
 
     """
     # Get non-OH elements
     pbx_elts = set(itertools.chain.from_iterable(
-        [entry.composition.elements for entry in entries]))
+        [entry.composition.elements for entry in pourbaix_entries]))
     pbx_elts = list(pbx_elts - elements_HO)
     dim = len(pbx_elts) - 1
     comp_dict = comp_dict or {k: 1 / (dim + 1) for k in pbx_elts}
-    #elts = pbx_diagram.pourbaix_elements[:-1]
+
+    # Process ions:
+    solid_entries = [entry for entry in pourbaix_entries
+                   if entry.phase_type == "Solid"]
+    ion_entries = [entry for entry in pourbaix_entries
+                   if entry.phase_type == "Ion"]
+
+    # If a conc_dict is specified, override individual entry concentrations
+    for entry in ion_entries:
+        ion_elts = list(set(entry.composition.elements) - elements_HO)
+        # TODO: the logic here for ion concentration setting is in two
+        #       places, in PourbaixEntry and here, should be consolidated
+        if len(ion_elts) == 1:
+            # Just use default concentration for now
+            entry.concentration = 1e-06 * entry.normalization_factor
+        elif len(ion_elts) > 1 and not entry.concentration:
+            raise ValueError("Elemental concentration not compatible "
+                             "with multi-element ions")
+
+    entries = solid_entries + ion_entries
 
     vecs = [[entry.npH, entry.nPhi, entry.energy] +
             [entry.composition.get(elt) for elt in pbx_elts[:-1]]
             for entry in entries]
     vecs = np.array(vecs)
-    # TODO: remove concurrent points at each point in pourbaix space
-
-    # entries = pbx_diagram.unprocessed_entries
     norms = np.transpose([[entry.normalization_factor
                            for entry in entries]])
     vecs *= norms
@@ -431,32 +449,41 @@ def get_hull(entries, comp_dict=None):
 
     # Add padding for extra point
     pad = 1000
-    extra_point[3] += pad
+    extra_point[2] += pad
     points = np.concatenate([vecs, np.array([extra_point])], axis=0)
     hull = ConvexHull(points, qhull_options="QJ i")
 
-    # Create facets and remote top
+    # Create facets and remove top
     facets = [facet for facet in hull.simplices
               if not len(points) - 1 in facet]
-    n = len(pbx_elts)
+    if dim > 1:
+        valid_facets = []
+        for facet in facets:
+            comps = vecs[facet][:, 3:]
+            full_comps = np.concatenate([
+                comps, 1 - np.sum(comps, axis=1).reshape(len(comps), 1)], axis=1)
+            # Ensure an compositional interior point exists in the simplex
+            if np.linalg.matrix_rank(full_comps) > dim:
+                valid_facets.append(facet)
+
+    else:
+        valid_facets = facets
     combos = []
-    for facet in facets:
+    for facet in valid_facets:
         for i in range(1, dim + 2):
            combos.append([
                 frozenset(combo) for combo in itertools.combinations(facet, i)])
 
     all_combos = set(itertools.chain.from_iterable(combos))
-    pbx_entries = []
-    for combo in all_combos:
+    multi_entries = []
+    for combo in tqdm(all_combos):
         these_entries = [entries[i] for i in combo]
-        mentry = PourbaixDiagram.process_multientry(these_entries, Composition(comp_dict))
+        mentry = PourbaixDiagram.process_multientry(
+            these_entries, Composition(comp_dict))
         if mentry:
-            pbx_entries.append(mentry)
-    if dim == 2:
-        import nose; nose.tools.set_trace()
-    return pbx_entries
-    # return all_combos
+            multi_entries.append(mentry)
 
+    return multi_entries
 
 
 # TODO: There's a lot of functionality here that diverges
@@ -795,6 +822,12 @@ class PourbaixDiagram(MSONable):
             pH, V) for e in self.stable_entries])
         base = np.min(all_gs, axis=0)
         return base
+
+    def get_stable_entry(self, pH, V):
+        all_gs = np.array([e.normalized_energy_at_conditions(
+            pH, V) for e in self.stable_entries])
+        return self.stable_entries[np.argmin(all_gs)]
+
 
     @property
     def stable_entries(self):
