@@ -518,7 +518,7 @@ class CompleteCohpTest(PymatgenTest):
                     if bond != "average":
                         self.assertEqual(self.cohp_lmto.as_dict()[key][bond],
                                          self.cohp_lmto_dict.as_dict()[key][bond])
-
+    
     def test_icohp_values(self):
         # icohp_ef are the ICHOP(Ef) values taken from
         # the ICOHPLIST.lobster file.
@@ -546,6 +546,11 @@ class CompleteCohpTest(PymatgenTest):
             icoop_ef = all_coops_lobster[bond].get_interpolated_value(
                 self.coop_lobster.efermi, integrated=True)
             self.assertEqual(icoop_ef_dict[bond], icoop_ef)
+
+    def test_get_cohp(self):
+        #TODO: include test
+        self.assertArrayAlmotEqual([0],[0])
+        print(self.cohp_orb.get_cohp())
 
     def test_orbital_resolved_cohp(self):
         # When read from a COHPCAR file, total COHPs are calculated from
