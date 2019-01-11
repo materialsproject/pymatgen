@@ -329,7 +329,7 @@ class CompleteCohp(Cohp):
 
     def get_cohp_by_label(self, label):
         """
-        Get specific COHP object. 
+        Get specific COHP object.
 
         Args:
             label: string (for newer Lobster versions: a number)
