@@ -350,7 +350,7 @@ class Interstitial(Defect):
             # generate multiplicity based on space group symmetry operations performed on defect coordinates
             try:
                 d_structure = create_saturated_interstitial_structure(self)
-            except:
+            except ValueError:
                 logger.debug('WARNING! Multiplicity was not able to be calculated adequately '
                              'for interstitials...setting this to 1 and skipping for now...')
                 return 1
