@@ -4211,11 +4211,13 @@ class Wavecar:
         wavefunction specified by band and kpoint (and spin, if the WAVECAR
         corresponds to a spin-polarized calculation). The phase tag is a
         feature that is not present in VASP. For a real wavefunction, the phase
-        tag being turn on means that the charge density is multiplied by the
+        tag being turned on means that the charge density is multiplied by the
         sign of the wavefunction at that point in space. A warning is generated
         if the phase tag is on and the chosen kpoint is not Gamma.
 
-        Note: Augmentation from the PAWs is NOT included in this function.
+        Note: Augmentation from the PAWs is NOT included in this function. The
+        maximal charge density will differ from the PARCHG from VASP, but the
+        qualitative shape of the charge density will match.
 
         Args:
             poscar (pymatgen.io.vasp.inputs.Poscar): Poscar object that has the
@@ -4235,9 +4237,6 @@ class Wavecar:
         Returns:
             a pymatgen.io.vasp.outputs.Chgcar object
         """
-        # check to make sure poscar is valid
-        if True:
-            pass
 
         if phase and not np.all(self.kpoints[kpoint] == 0.):
             warnings.warn('phase == True should only be used for the Gamma '
