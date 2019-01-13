@@ -1,6 +1,14 @@
 Change log
 ==========
 
+v2019.1.13
+----------
+* Pymatgen is now Py3 ONLY. If you need Py27 support, please use versions 
+  < 2019.1.1.
+* PARCHG parsing from WAVECAR (@mturiansky)
+* Improvements to defect generation algorithms (@dbroberg)
+* Simplifications to COHP plotting (@JaGeo)
+
 v2018.12.12
 -----------
 * Support for IUPAC ordering of elements in Composition formulae (@utf)
