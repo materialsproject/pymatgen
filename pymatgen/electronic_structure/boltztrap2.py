@@ -150,7 +150,7 @@ class BandstructureLoader:
         upper_band = e_upper*np.ones((1,self.ebands.shape[1]))
 
         self.ebands = np.vstack((lower_band,self.ebands,upper_band))
-        if self.proj:
+        if isinstance(self.proj,np.ndarray):
             proj_lower = self.proj[:,0:1,:,:]
             proj_upper = self.proj[:,-1:,:,:]
             self.proj = np.concatenate((proj_lower,self.proj,proj_upper),axis=1)
