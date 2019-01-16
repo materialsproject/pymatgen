@@ -212,7 +212,7 @@ class DefectPhaseDiagram(MSONable):
                         print("{} is only stable defect out of {}".format( name_stable_below_vbm, name_set))
                         transition_level_map[track_name] = {}
                         stable_entries[track_name] = list([defects[vbm_def_index]])
-                        finished_charges[track_name] = [defects[vbm_def_index].charge]
+                        finished_charges[track_name] = [one_def.charge for one_def in defects]
                 else:
                     transition_level_map[track_name] = {}
 
@@ -281,7 +281,7 @@ class DefectPhaseDiagram(MSONable):
 
     def suggest_charges(self, tolerance=0.1):
         """
-        Suggest possible charges for defects to computee based on proximity
+        Suggest possible charges for defects to compute based on proximity
         of known transitions from entires to VBM and CBM
 
         Args:
