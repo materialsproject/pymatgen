@@ -8,6 +8,7 @@ import unittest
 
 from monty.serialization import loadfn
 
+from pymatgen.analysis.defects.core import DefectEntry
 from pymatgen.analysis.defects.thermodynamics import DefectPhaseDiagram
 from pymatgen.util.testing import PymatgenTest
 
@@ -18,6 +19,13 @@ class DefectsThermodynamicsTest(PymatgenTest):
         self.entries = list(loadfn(os.path.join(os.path.dirname(__file__), "GaAs_test_defentries.json")).values())
         for entry in self.entries:
             entry.parameters.update( {'vbm': 2.6682})
+
+        # extra Vac_As (q= -2) defect with high energy to test single-stable-charge exceptions
+        self.extra_entry = DefectEntry(self.entries[5].defect.copy(), 100.)
+        sep_entries = [ent for ent in self.entries if not (ent.name == 'Vac_As_mult4' and
+                                                           ent.charge in [-2,-1,0,1,2])]
+        sep_entries.append( self.extra_entry.copy())
+        self.sep_pd = DefectPhaseDiagram( sep_entries, 2.6682, 2.0)
 
     def test_good_test_data(self):
         self.assertEqual(len(self.entries), 48)
@@ -42,6 +50,10 @@ class DefectsThermodynamicsTest(PymatgenTest):
                 len(suggested_charges[k]) > 0, "Could not find any suggested charges for {} with band_gap of {}".format(
                     k, pd.band_gap))
 
+        #test again but with only one charge state stable for Vac_As
+        suggested_charges = self.sep_pd.suggest_charges()
+        self.assertEqual( set(suggested_charges['Vac_As_mult4@0-43']), set([-4]))
+
     def test_entries(self):
         pd = DefectPhaseDiagram(self.entries, 2.6682, 2.0)
 
@@ -49,6 +61,11 @@ class DefectsThermodynamicsTest(PymatgenTest):
 
         self.assertEqual(len(pd.defect_types), 8)
         self.assertEqual(len(all_stable_entries), sum([len(v) for v in pd.stable_charges.values()]))
+
+        #test again but with only one charge state stable for Vac_As
+        self.assertEqual( len(self.sep_pd.transition_level_map['Vac_As_mult4@0-43']), 0)
+        self.assertEqual( len(self.sep_pd.stable_entries['Vac_As_mult4@0-43']), 1)
+        self.assertEqual( len(self.sep_pd.finished_charges['Vac_As_mult4@0-43']), 2)
 
 
 if __name__ == "__main__":
