@@ -191,9 +191,6 @@ class DefectsCorrectionsTest(PymatgenTest):
         #test trivial performing bandfilling correction
         bf_corr = bfc.perform_bandfill_corr(eigenvalues, kptweights, potalign, vbm, cbm)
         self.assertAlmostEqual(bf_corr, 0.)
-        self.assertFalse(bfc.metadata['occupied_def_levels'])
-        self.assertFalse(bfc.metadata['unoccupied_def_levels'])
-        self.assertFalse(bfc.metadata['total_occupation_defect_levels'])
         self.assertFalse(bfc.metadata['num_elec_cbm'])
         self.assertFalse(bfc.metadata['num_hole_vbm'])
         self.assertFalse(bfc.metadata['potalign'])
@@ -238,19 +235,6 @@ class DefectsCorrectionsTest(PymatgenTest):
         self.assertAlmostEqual(bfc.metadata['num_elec_cbm'], 0.8541667349)
         self.assertFalse(bfc.metadata['num_hole_vbm'])
 
-        #modify the potalignment and introduce new occupied defect levels from vbm states
-        potalign = -0.1
-
-        bf_corr = bfc.perform_bandfill_corr(eigenvalues, kptweights, potalign, vbm, cbm)
-        self.assertAlmostEqual(bfc.metadata['num_hole_vbm'], 0.)
-        self.assertAlmostEqual(bf_corr, 0.)
-        occu = [[1.457,  0.0833333], [1.5204, 0.0833333], [1.53465, 0.0833333], [1.5498, 0.0416667]]
-        self.assertArrayAlmostEqual(
-            list(sorted(bfc.metadata['occupied_def_levels'], key=lambda x: x[0])), list(
-                sorted(occu, key=lambda x: x[0])))
-        self.assertAlmostEqual(bfc.metadata['total_occupation_defect_levels'], 0.29166669)
-        self.assertFalse(bfc.metadata['unoccupied_def_levels'])
-
     def test_bandedgeshifting(self):
         struc = PymatgenTest.get_structure("VO2")
         struc.make_supercell(3)
@@ -258,28 +242,11 @@ class DefectsCorrectionsTest(PymatgenTest):
         vac = Vacancy(struc, struc.sites[0], charge=-3)
 
         besc = BandEdgeShiftingCorrection()
-        params = {'hybrid_cbm': 1., 'hybrid_vbm': -1., 'vbm': -0.5, 'cbm': 0.6, 'num_hole_vbm': 0., 'num_elec_cbm': 0.}
+        params = {'hybrid_cbm': 1., 'hybrid_vbm': -1., 'vbm': -0.5, 'cbm': 0.6}
         de = DefectEntry(vac, 0., corrections={}, parameters=params, entry_id=None)
 
-        #test with no free carriers
         corr = besc.get_correction(de)
         self.assertEqual(corr['vbm_shift_correction'], 1.5)
-        self.assertEqual(corr['elec_cbm_shift_correction'], 0.)
-        self.assertEqual(corr['hole_vbm_shift_correction'], 0.)
-
-        #test with free holes
-        de.parameters.update({'num_hole_vbm': 1.})
-        corr = besc.get_correction(de)
-        self.assertEqual(corr['vbm_shift_correction'], 1.5)
-        self.assertEqual(corr['elec_cbm_shift_correction'], 0.)
-        self.assertEqual(corr['hole_vbm_shift_correction'], 0.5)
-
-        #test with free electrons
-        de.parameters.update({'num_hole_vbm': 0., 'num_elec_cbm': 1.})
-        corr = besc.get_correction(de)
-        self.assertEqual(corr['vbm_shift_correction'], 1.5)
-        self.assertEqual(corr['elec_cbm_shift_correction'], 0.4)
-        self.assertEqual(corr['hole_vbm_shift_correction'], 0.)
 
 
 if __name__ == "__main__":
