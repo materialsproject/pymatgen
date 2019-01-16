@@ -636,41 +636,17 @@ class BandFillingCorrection(DefectCorrection):
         shifted_cbm = potalign + cbm  # shift cbm with potential alignment
         shifted_vbm = potalign + vbm  # shift vbm with potential alignment
 
-        occupied_midgap = {en: [] for en in np.arange(shifted_vbm, shifted_cbm + resolution, resolution)}
-        occupation = {en: 0. for en in np.arange(shifted_vbm, shifted_cbm + resolution, resolution)}
-        unoccupied_midgap = {en: [] for en in np.arange(shifted_vbm, shifted_cbm + resolution, resolution)}
-
         for spinset in eigenvalues.values():
             for kptset, weight in zip(spinset, kpoint_weights):
                 for eig in kptset:  # eig[0] is eigenvalue and eig[1] is occupation
-                    if (eig[1] and (eig[0] > shifted_cbm)):  # donor MB correction
+                    if (eig[1] and (eig[0] > shifted_cbm - self.resolution)):  # donor MB correction
                         bf_corr += weight * spinfctr * eig[1] * (eig[0] - shifted_cbm)  # "move the electrons down"
                         self.metadata["num_elec_cbm"] += weight * spinfctr * eig[1]
-                    elif (eig[1] != 1.) and (eig[0] <= shifted_vbm):  # acceptor MB correction
+                    elif (eig[1] != 1.) and (eig[0] <= shifted_vbm + self.resolution):  # acceptor MB correction
                         bf_corr += weight * spinfctr * (1. - eig[1]) * (shifted_vbm - eig[0])  # "move the holes up"
                         self.metadata["num_hole_vbm"] += weight * spinfctr * (1. - eig[1])
-                    elif (eig[0] > shifted_vbm) and (eig[0] < shifted_cbm):
-                        for en in np.arange(shifted_vbm, shifted_cbm + resolution, resolution):
-                            if (eig[0] < en + resolution) and (eig[0] > en):
-                                if eig[1]:
-                                    occupied_midgap[en].append(eig[0])
-                                    occupation[en] += eig[1] * weight * spinfctr
-                                else:
-                                    unoccupied_midgap[en].append(eig[0])
-                                continue
 
         bf_corr *= -1  # need to take negative of this shift for energetic correction
-
-        # summarize defect level results
-        self.metadata["total_occupation_defect_levels"] = 0.
-        self.metadata["occupied_def_levels"] = []
-        self.metadata["unoccupied_def_levels"] = []
-        for en in occupied_midgap.keys():
-            if len(occupied_midgap[en]):
-                self.metadata["occupied_def_levels"].append([np.mean(occupied_midgap[en]), occupation[en]])
-                self.metadata["total_occupation_defect_levels"] += occupation[en]
-            elif len(unoccupied_midgap[en]):
-                self.metadata["unoccupied_def_levels"].append(np.mean(unoccupied_midgap[en]))
 
         return bf_corr
 
@@ -694,14 +670,6 @@ class BandEdgeShiftingCorrection(DefectCorrection):
             VBM of bulk calculation (or band structure calculation of bulk);
             calculated on same level of theory as the eigenvalues list (ex. GGA defects -> need GGA vbm
 
-        num_hole_vbm
-            number of free holes that were found in valence band for the defect calculation
-            calculated in the metadata of the BandFilling Correction
-
-        num_elec_cbm
-            number of free electrons that were found in the conduction band for the defect calculation
-            calculated in the metadata of the BandFilling Correction
-
     """
 
     def __init__(self):
@@ -719,22 +687,14 @@ class BandEdgeShiftingCorrection(DefectCorrection):
         hybrid_vbm = entry.parameters["hybrid_vbm"]
         vbm = entry.parameters["vbm"]
         cbm = entry.parameters["cbm"]
-        num_hole_vbm = entry.parameters["num_hole_vbm"]
-        num_elec_cbm = entry.parameters["num_elec_cbm"]
 
         self.metadata["vbmshift"] = hybrid_vbm - vbm  # note vbmshift has UPWARD as positive convention
         self.metadata["cbmshift"] = hybrid_cbm - cbm  # note cbmshift has UPWARD as positive convention
 
         charge = entry.charge
         vbm_shift_correction = charge * self.metadata["vbmshift"]
-        # negative sign has to do with fact that these are holes
-        hole_vbm_shift_correction = -1. * num_hole_vbm * self.metadata["vbmshift"]
-        elec_cbm_shift_correction = num_elec_cbm * self.metadata["cbmshift"]
-
         entry.parameters["bandshift_meta"] = dict(self.metadata)
 
         return {
-            "vbm_shift_correction": vbm_shift_correction,
-            "hole_vbm_shift_correction": hole_vbm_shift_correction,
-            "elec_cbm_shift_correction": elec_cbm_shift_correction
+            "vbm_shift_correction": vbm_shift_correction
         }
