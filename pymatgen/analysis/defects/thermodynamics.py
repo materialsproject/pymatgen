@@ -9,6 +9,8 @@ from scipy.optimize import bisect
 from itertools import groupby, chain
 
 from pymatgen.electronic_structure.dos import FermiDos
+from pymatgen.analysis.defects.core import DefectEntry
+from pymatgen.analysis.structure_matcher import PointDefectComparator
 
 __author__ = "Danny Broberg, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -21,8 +23,9 @@ __date__ = "Mar 15, 2018"
 
 class DefectPhaseDiagram(MSONable):
     """
-    This is similar to a PhaseDiagram object in pymatgen, but has ability to do quick analysis of defect formation energies
-    when fed DefectEntry objects
+    This is similar to a PhaseDiagram object in pymatgen,
+    but has ability to do quick analysis of defect formation energies
+    when fed DefectEntry objects.
 
     uses many of the capabilities from PyCDT's DefectsAnalyzer class...
 
@@ -36,7 +39,7 @@ class DefectPhaseDiagram(MSONable):
         dentries ([DefectEntry]): A list of DefectEntry objects
     """
 
-    def __init__(self, entries, vbm, band_gap, filter_compatible=True):
+    def __init__(self, entries, vbm, band_gap, filter_compatible=True, metadata={}):
         self.vbm = vbm
         self.band_gap = band_gap
         self.filter_compatible = filter_compatible
@@ -46,7 +49,44 @@ class DefectPhaseDiagram(MSONable):
         else:
             self.entries = entries
 
+        self.metadata = metadata
         self.find_stable_charges()
+
+    def as_dict(self):
+        """
+        Json-serializable dict representation of DefectPhaseDiagram
+        """
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__,
+             "entries": [entry.as_dict() for entry in self.entries],
+             "vbm": self.vbm,
+             "band_gap": self.band_gap,
+             "filter_compatible": self.filter_compatible,
+             "metadata": self.metadata}
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        """
+        Reconstitute a DefectPhaseDiagram object from a dict representation created using
+        as_dict().
+
+        Args:
+            d (dict): dict representation of DefectPhaseDiagram.
+
+        Returns:
+            DefectPhaseDiagram object
+        """
+        entries = [DefectEntry.from_dict(entry_dict) for entry_dict in d.get("entries")]
+        vbm = d["vbm"]
+        band_gap = d["band_gap"]
+        filter_compatible = d.get("filter_compatible", True)
+        metadata = d.get("metadata", {})
+        if 'entry_id' in entry_dict.keys() and 'entry_id' not in metadata:
+            metadata['entry_id'] = entry_dict['entry_id']
+
+        return cls(entries, vbm, band_gap, filter_compatible=filter_compatible,
+                   metadata=metadata)
 
     def find_stable_charges(self):
         """
@@ -66,28 +106,49 @@ class DefectPhaseDiagram(MSONable):
         the Pourbaix Diagram
         """
 
-        def similar_defect(a):
+        def similar_defects( entryset):
             """
-            Used to filter out similar defects of different charges which
-            are defined by the same type and location
+            Used for grouping similar defects of different charges
+            Can distinguish identical defects even if they are not in same position
             """
-            return (a.name, a.site)
+            pdc = PointDefectComparator( check_charge=False, check_primitive_cell=True,
+                                         check_lattice_scale=False)
+            grp_def_sets = []
+            grp_def_indices = []
+            for ent_ind, ent in enumerate( entryset):
+                #TODO: more pythonic way of grouping entry sets with PointDefectComparator
+                matched_ind = None
+                for grp_ind, defgrp in enumerate(grp_def_sets):
+                    if pdc.are_equal( ent.defect, defgrp[0].defect):
+                        matched_ind = grp_ind
+                        break
+                if matched_ind is not None:
+                    grp_def_sets[matched_ind].append( ent.copy())
+                    grp_def_indices[matched_ind].append( ent_ind)
+                else:
+                    grp_def_sets.append( [ent.copy()])
+                    grp_def_indices.append( [ent_ind])
+
+            return zip(grp_def_sets, grp_def_indices)
 
         # Limits for search
         # E_fermi = { -1 eV to band gap+1}
-        # the 1 eV padding provides
-        # E_formation. = { -21 eV to 20 eV}
-        limits = [[-1, self.band_gap + 1], [-21, 20]]
+        # E_formation = { (min(Eform) - 30) to (max(Eform) + 30)}
+        all_eform = [one_def.formation_energy(fermi_level=self.band_gap/2.) for one_def in self.entries]
+        min_y_lim = min(all_eform) - 30
+        max_y_lim = max(all_eform) + 30
+        limits = [[-1, self.band_gap + 1], [min_y_lim, max_y_lim]]
 
         stable_entries = {}
         finished_charges = {}
         transition_level_map = {}
 
         # Grouping by defect types
-        for _, defects in groupby(sorted(self.entries, key=similar_defect), similar_defect):
+        # for _, defects in groupby(sorted(self.entries, key=similar_defect), similar_defect):
+        for defects, index_list in similar_defects( self.entries):
             defects = list(defects)
 
-            # prepping coefficient matrix forx half-space intersection
+            # prepping coefficient matrix for half-space intersection
             # [-Q, 1, -1*(E_form+Q*VBM)] -> -Q*E_fermi+E+-1*(E_form+Q*VBM) <= 0  where E_fermi and E are the variables in the hyperplanes
             hyperplanes = np.array(
                 [[-1.0 * entry.charge, 1, -1.0 * (entry.energy + entry.charge * self.vbm)] for entry in defects])
@@ -96,7 +157,7 @@ class DefectPhaseDiagram(MSONable):
                                   [0, 1, -1 * limits[1][1]]]
             hs_hyperplanes = np.vstack([hyperplanes, border_hyperplanes])
 
-            interior_point = [self.band_gap / 2, -20]
+            interior_point = [self.band_gap / 2, min(all_eform) - 1.]
 
             hs_ints = HalfspaceIntersection(hs_hyperplanes, np.array(interior_point))
 
@@ -109,30 +170,55 @@ class DefectPhaseDiagram(MSONable):
             # sort based on transition level
             ints_and_facets = list(sorted(ints_and_facets, key=lambda int_and_facet: int_and_facet[0][0]))
 
+            # log a defect name for tracking (using full index list to avoid naming
+            # in-equivalent defects with same name)
+            str_index_list = [str(ind) for ind in sorted(index_list)]
+            track_name = defects[0].name + "@" + str("-".join(str_index_list))
+
             if len(ints_and_facets):
                 # Unpack into lists
                 _, facets = zip(*ints_and_facets)
                 # Map of transition level: charge states
 
-                transition_level_map[defects[0].name] = {
+                transition_level_map[track_name] = {
                     intersection[0]: [defects[i].charge for i in facet]
                     for intersection, facet in ints_and_facets
                 }
 
-                stable_entries[defects[0].name] = list(set([defects[i] for dual in facets for i in dual]))
+                stable_entries[track_name] = list(set([defects[i] for dual in facets for i in dual]))
 
-                finished_charges[defects[0].name] = [defect.charge for defect in defects]
+                finished_charges[track_name] = [defect.charge for defect in defects]
             else:
                 # if ints_and_facets is empty, then there is likely only one defect...
                 if len(defects) != 1:
-                    raise ValueError("ints and facets was empty but more than one defect exists... why?")
+                    #confirm formation energies dominant for one defect over other identical defects
+                    name_set = [one_def.name+'_chg'+str(one_def.charge) for one_def in defects]
+                    vb_list = [one_def.formation_energy( fermi_level=limits[0][0]) for one_def in defects]
+                    cb_list = [one_def.formation_energy( fermi_level=limits[0][1]) for one_def in defects]
 
-                transition_level_map[defects[0].name] = {}
+                    vbm_def_index = vb_list.index( min(vb_list))
+                    name_stable_below_vbm = name_set[vbm_def_index]
+                    cbm_def_index = cb_list.index( min(cb_list))
+                    name_stable_above_cbm = name_set[cbm_def_index]
 
-                stable_entries[defects[0].name] = list([defects[0]])
+                    if name_stable_below_vbm != name_stable_above_cbm:
+                        raise ValueError("HalfSpace identified only one stable charge out of list: {}\n"
+                                         "But {} is stable below vbm and {} is "
+                                         "stable above cbm.\nList of VBM formation energies: {}\n"
+                                         "List of CBM formation energies: {}"
+                                         "".format(name_set, name_stable_below_vbm, name_stable_above_cbm,
+                                                   vb_list, cb_list))
+                    else:
+                        print("{} is only stable defect out of {}".format( name_stable_below_vbm, name_set))
+                        transition_level_map[track_name] = {}
+                        stable_entries[track_name] = list([defects[vbm_def_index]])
+                        finished_charges[track_name] = [defects[vbm_def_index].charge]
+                else:
+                    transition_level_map[track_name] = {}
 
-                finished_charges[defects[0].name] = [defects[0].charge]
+                    stable_entries[track_name] = list([defects[0]])
 
+                    finished_charges[track_name] = [defects[0].charge]
 
         self.transition_level_map = transition_level_map
         self.transition_levels = {
