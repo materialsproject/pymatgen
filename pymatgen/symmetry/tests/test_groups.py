@@ -5,7 +5,7 @@ import numpy as np
 import warnings
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
-from pymatgen.symmetry.groups import PointGroup, SpaceGroup
+from pymatgen.symmetry.groups import PointGroup, SpaceGroup, get_symm_data
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Virtual Lab"
@@ -61,6 +61,15 @@ class SpaceGroupTest(unittest.TestCase):
         sg = SpaceGroup("Fm-3m")
         self.assertEqual(sg.full_symbol, "F4/m-32/m")
         self.assertEqual(sg.point_group, "m-3m")
+
+    def test_point_group_is_set(self):
+        for i in range(1, 231):
+            sg = SpaceGroup.from_int_number(i)
+            self.assertTrue(hasattr(sg, "point_group"))
+
+        for symbol in get_symm_data("space_group_encoding"):
+            sg = SpaceGroup(symbol)
+            self.assertTrue(hasattr(sg, "point_group"))
 
     def test_full_symbols(self):
         sg = SpaceGroup("P2/m2/m2/m")
