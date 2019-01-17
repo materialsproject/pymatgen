@@ -142,7 +142,6 @@ class DefectsCorrectionsTest(PymatgenTest):
         self.assertAlmostEqual( kcorr['kumagai_electrostatic'], 0.88236299)
         self.assertAlmostEqual( kcorr['kumagai_potential_alignment'], 2.09704862)
 
-
         # test ES correction
         high_diel_es_corr = kc_high_diel.perform_es_corr( gamma, prec, lattice, -3.)
         self.assertAlmostEqual( high_diel_es_corr, 0.25176240)

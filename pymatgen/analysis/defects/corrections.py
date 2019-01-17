@@ -27,6 +27,9 @@ logger = logging.getLogger(__name__)
 class FreysoldtCorrection(DefectCorrection):
     """
     A class for FreysoldtCorrection class. Largely adapated from PyCDT code
+
+    If this correction is used, please reference Freysoldt's original paper.
+    doi: 10.1103/PhysRevLett.102.016402
     """
 
     def __init__(self, dielectric_const, q_model=None, energy_cutoff=520, madetol=0.0001, axis=None):
@@ -287,27 +290,9 @@ class FreysoldtCorrection(DefectCorrection):
 class KumagaiCorrection(DefectCorrection):
     """
     A class for KumagaiCorrection class. Largely adapated from PyCDT code
-    Requires some parameters in the DefectEntry to properly function:
-        bulk_atomic_site_averages:  list of bulk structure"s atomic site averaged ESPs * charge,
-            in same order as indices of bulk structure
-            note this is list given by VASP"s OUTCAR (so it is multiplied by a test charge of -1)
 
-        defect_atomic_site_averages:  list of defect structure"s atomic site averaged ESPs * charge,
-            in same order as indices of defect structure
-            note this is list given by VASP"s OUTCAR (so it is multiplied by a test charge of -1)
-
-        site_matching_indices (list):  list of paids of corresponding index values for bulk and defect site structures
-            EXCLUDING the defect site itself  (ex. [[bulk structure site index, defect structure"s corresponding site index], ... ]
-
-        initial_defect_structure
-
-        defect_frac_sc_coords
-
-        optional:
-            sampling_radius
-            gamma
-            g_sum
-
+    If this correction is used, please reference Kumagai and Oba's original paper.
+    doi: 10.1103/PhysRevB.89.195205
     NOTE that equations 8 and 9 from original reverence are divided by (4 pi) to get SI units
     """
 
@@ -315,6 +300,17 @@ class KumagaiCorrection(DefectCorrection):
                  dielectric_tensor,
                  sampling_radius=None,
                  gamma=None):
+        """
+        Initializes the Kumagai Correction
+        Args:
+            dielectric_tensor (float or 3x3 matrix): Dielectric constant for the structure
+
+            optional data that can be tuned:
+                sampling_radius: radius (in Angstrom) which sites must be outside of to be included in the correction
+                    Publication by Kumagai suggests Wigner-Seitz radius of the supercell
+                gamma (float): convergence parameter for gamma function.
+                    Code will automatically determine this if set to None.
+        """
         self.metadata = {"gamma": gamma, "sampling_radius": sampling_radius}
 
         if isinstance(dielectric_tensor, int) or \
@@ -326,6 +322,26 @@ class KumagaiCorrection(DefectCorrection):
     def get_correction(self, entry):
         """
         Gets the Kumagai correction for a defect entry
+        Args:
+            entry (DefectEntry): defect entry to compute Kumagai correction on.
+                Requires following parameters in the DefectEntry to exist:
+                    bulk_atomic_site_averages (list):  list of bulk structure"s atomic site averaged ESPs * charge,
+                        in same order as indices of bulk structure
+                        note this is list given by VASP's OUTCAR (so it is multiplied by a test charge of -1)
+
+                    defect_atomic_site_averages (list):  list of defect structure"s atomic site averaged ESPs * charge,
+                        in same order as indices of defect structure
+                        note this is list given by VASP's OUTCAR (so it is multiplied by a test charge of -1)
+
+                    site_matching_indices (list):  list of corresponding site index values for
+                        bulk and defect site structures EXCLUDING the defect site itself
+                        (ex. [[bulk structure site index, defect structure"s corresponding site index], ... ]
+
+                    initial_defect_structure (Structure): Pymatgen Structure object representing un-relaxed defect structure
+
+                    defect_frac_sc_coords (array): Defect Position in fractional coordinates of the supercell
+                        given in bulk_structure
+
         """
         bulk_atomic_site_averages = entry.parameters["bulk_atomic_site_averages"]
         defect_atomic_site_averages = entry.parameters["defect_atomic_site_averages"]
@@ -387,8 +403,7 @@ class KumagaiCorrection(DefectCorrection):
 
     def perform_es_corr(self, gamma, prec, lattice, charge):
         """
-        For returning just the es_correction from the
-        :return:
+        Peform Electrostatic Kumagai Correction
         """
         volume = lattice.volume
 
@@ -400,7 +415,6 @@ class KumagaiCorrection(DefectCorrection):
                   self.get_potential_shift( gamma, volume) + \
                   self.get_self_interaction( gamma)
 
-        # es_corr *= charge * ElementaryCharge * 1.0e10 / VacuumPermittivity # [V]
         es_corr *=  -(charge ** 2.) * kumagai_to_V / 2. # [eV]
 
         return es_corr
@@ -409,29 +423,6 @@ class KumagaiCorrection(DefectCorrection):
                          sampling_radius, q, r_vecs, g_vecs, gamma):
         """
         For performing potential alignment in manner described by Kumagai et al.
-        Args:
-            defect_structure: Bulk pymatgen structure type
-
-            defect_frac_coords: Defect Position in fractional coordinates of the supercell
-                given in bulk_structure
-
-            site_list: list of NON-defect site information in form:
-                ex. [[defect_site object (from within defect_structure above),
-                      Vqb for site], ... repeat for all non defective sites]
-                where Vqb is the difference in site averaged electrostatic potentials
-                between defect and bulk
-                    Note: In VASP this is the negative value of what is given
-                    in OUTCAR:  Vqb = -(defect_cell_site - bulk_cell_site)
-
-            sampling_radius: radius (in Angstrom) which sites must be outside of to be included in the correction
-                Publication by Kumagai suggests Wigner-Seitz radius of the supercell
-
-            q: Point charge (in units of e+)
-
-            g_vecs : list of G vectors
-
-            gamma : convergence parameter for gamma function
-
         """
         volume = defect_structure.lattice.volume
         potential_shift = self.get_potential_shift( gamma, volume)
@@ -506,7 +497,7 @@ class KumagaiCorrection(DefectCorrection):
 
     def get_real_summation(self, gamma, real_vectors):
         """
-        Just get real summation term from real_vectors
+        Get real summation term from list of real-space vectors
         """
         real_part = 0
         invepsilon = np.linalg.inv(self.dielectric)
@@ -515,7 +506,6 @@ class KumagaiCorrection(DefectCorrection):
         for r_vec in real_vectors:
             if np.linalg.norm(r_vec) > 1e-8:
                 loc_res = np.sqrt( np.dot(r_vec, np.dot(invepsilon, r_vec)))
-                # nmr = math.erfc(gamma * loc_res)
                 nmr = scipy.special.erfc(gamma * loc_res)
                 real_part += nmr / loc_res
 
@@ -525,7 +515,7 @@ class KumagaiCorrection(DefectCorrection):
 
     def get_recip_summation(self, gamma, recip_vectors, volume, r=[0.,0.,0.]):
         """
-        Just get real summation term from recip_vectors
+        Get Reciprocal summation term from list of reciprocal-space vectors
         """
         recip_part = 0
 
@@ -533,8 +523,6 @@ class KumagaiCorrection(DefectCorrection):
             #dont need to avoid G=0, because it will not be
             # in recip list (if generate_R_and_G_vecs is used)
             Gdotdiel = np.dot(g_vec, np.dot(self.dielectric, g_vec))
-            # summand = math.exp(-Gdotdiel / (4 * (gamma**2)))\
-            #           * np.cos(np.dot(g_vec, r)) / Gdotdiel
             summand = np.exp(-Gdotdiel / (4 * (gamma**2)))\
                       * np.cos(np.dot(g_vec, r)) / Gdotdiel
             recip_part += summand
@@ -554,27 +542,6 @@ class KumagaiCorrection(DefectCorrection):
 class BandFillingCorrection(DefectCorrection):
     """
     A class for BandFillingCorrection class. Largely adapted from PyCDT code
-
-    Requires some parameters in the DefectEntry to properly function:
-        eigenvalues
-            dictionary of defect eigenvalues, as stored in a Vasprun
-
-        kpoint_weights
-            kpoint weights corresponding to the dictionary of eigenvalues
-
-        potalign
-            potential alignment for the defect calculation
-            Only applies to non-zero charge,
-            When using potential alignment Correction (freysoldt or kumagai), need to divide by -q
-
-        cbm
-            CBM of bulk calculation (or band structure calculation of bulk);
-            calculated on same level of theory as the eigenvalues list (ex. GGA defects -> need GGA cbm
-
-        vbm
-            VBM of bulk calculation (or band structure calculation of bulk);
-            calculated on same level of theory as the eigenvalues list (ex. GGA defects -> need GGA vbm
-
     """
 
     def __init__(self, resolution=0.01):
@@ -586,9 +553,6 @@ class BandFillingCorrection(DefectCorrection):
         """
         self.resolution = resolution
         self.metadata = {
-            "occupied_def_levels": [],
-            "unoccupied_def_levels": [],
-            "total_occupation_defect_levels": None,
             "num_hole_vbm": None,
             "num_elec_cbm": None,
             "potalign": None
@@ -597,6 +561,30 @@ class BandFillingCorrection(DefectCorrection):
     def get_correction(self, entry):
         """
         Gets the BandFilling correction for a defect entry
+        Args:
+            entry (DefectEntry): defect entry to compute BandFilling correction on.
+                Requires following parameters in the DefectEntry to exist:
+                    eigenvalues
+                        dictionary of defect eigenvalues, as stored in a Vasprun object
+
+                    kpoint_weights (list of floats)
+                        kpoint weights corresponding to the dictionary of eigenvalues
+
+                    potalign (float)
+                        potential alignment for the defect calculation
+                        Only applies to non-zero charge,
+                        When using potential alignment correction (freysoldt or kumagai), need to divide by -q
+
+                    cbm (float)
+                        CBM of bulk calculation (or band structure calculation of bulk);
+                        calculated on same level of theory as the defect
+                        (ex. GGA defects -> requires GGA cbm)
+
+                    vbm (float)
+                        VBM of bulk calculation (or band structure calculation of bulk);
+                        calculated on same level of theory as the defect
+                        (ex. GGA defects -> requires GGA vbm)
+
         """
         eigenvalues = entry.parameters["eigenvalues"]
         kpoint_weights = entry.parameters["kpoint_weights"]
@@ -616,7 +604,6 @@ class BandFillingCorrection(DefectCorrection):
 
         Note that the total free holes and electrons may also be used for a "shallow donor/acceptor"
                correction with specified band shifts: +num_elec_cbm * Delta E_CBM (or -num_hole_vbm * Delta E_VBM)
-               [this is done in the LevelShiftingCorrection class]
         """
         bf_corr = 0.
 
@@ -632,7 +619,6 @@ class BandFillingCorrection(DefectCorrection):
             raise ValueError("Eigenvalue keys greater than 2")
 
         # for tracking mid gap states...
-        resolution = self.resolution
         shifted_cbm = potalign + cbm  # shift cbm with potential alignment
         shifted_vbm = potalign + vbm  # shift vbm with potential alignment
 
@@ -654,22 +640,6 @@ class BandFillingCorrection(DefectCorrection):
 class BandEdgeShiftingCorrection(DefectCorrection):
     """
     A class for BandEdgeShiftingCorrection class. Largely adapted from PyCDT code
-
-    Requires some parameters in the DefectEntry to properly function:
-        hybrid_cbm
-            CBM of HYBRID bulk calculation
-
-        hybrid_vbm
-            VBM of HYBRID bulk calculation
-
-        cbm
-            CBM of bulk calculation (or band structure calculation of bulk);
-            calculated on same level of theory as the eigenvalues list (ex. GGA defects -> need GGA cbm
-
-        vbm
-            VBM of bulk calculation (or band structure calculation of bulk);
-            calculated on same level of theory as the eigenvalues list (ex. GGA defects -> need GGA vbm
-
     """
 
     def __init__(self):
@@ -681,8 +651,26 @@ class BandEdgeShiftingCorrection(DefectCorrection):
     def get_correction(self, entry):
         """
         Gets the BandEdge correction for a defect entry
+        Args:
+            entry (DefectEntry): defect entry to compute BandFilling correction on.
+                Requires some parameters in the DefectEntry to properly function:
+                    hybrid_cbm (float)
+                        CBM of HYBRID bulk calculation one wishes to shift to
+
+                    hybrid_vbm (float)
+                        VBM of HYBRID bulk calculation one wishes to shift to
+
+                    cbm (float)
+                        CBM of bulk calculation (or band structure calculation of bulk);
+                        calculated on same level of theory as the defect
+                        (ex. GGA defects -> requires GGA cbm)
+
+                    vbm (float)
+                        VBM of bulk calculation (or band structure calculation of bulk);
+                        calculated on same level of theory as the defect
+                        (ex. GGA defects -> requires GGA vbm)
+
         """
-        # TODO: add smarter defect level shifting based on defect level projection onto host bands
         hybrid_cbm = entry.parameters["hybrid_cbm"]
         hybrid_vbm = entry.parameters["hybrid_vbm"]
         vbm = entry.parameters["vbm"]
