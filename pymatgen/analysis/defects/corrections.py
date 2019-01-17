@@ -611,9 +611,9 @@ class BandFillingCorrection(DefectCorrection):
         self.metadata["num_hole_vbm"] = 0.
         self.metadata["num_elec_cbm"] = 0.
 
+        core_occupation_value = list(eigenvalues.values())[0][0][0][1]  # get occupation of a core eigenvalue
         if len(eigenvalues.keys()) == 1:
             # needed because occupation of non-spin calcs is sometimes still 1... should be 2
-            core_occupation_value = list(eigenvalues.values())[0][0][0][1] #get occupation of a core eigenvalue
             spinfctr = 2. if core_occupation_value == 1. else 1.
         elif len(eigenvalues.keys()) == 2:
             spinfctr = 1.
@@ -626,13 +626,13 @@ class BandFillingCorrection(DefectCorrection):
 
         for spinset in eigenvalues.values():
             for kptset, weight in zip(spinset, kpoint_weights):
-                for eig in kptset:  # eig[0] is eigenvalue and eig[1] is occupation
-                    if (eig[1] and (eig[0] > shifted_cbm - self.resolution)):  # donor MB correction
-                        bf_corr += weight * spinfctr * eig[1] * (eig[0] - shifted_cbm)  # "move the electrons down"
-                        self.metadata["num_elec_cbm"] += weight * spinfctr * eig[1]
-                    elif (eig[1] != 1.) and (eig[0] <= shifted_vbm + self.resolution):  # acceptor MB correction
-                        bf_corr += weight * spinfctr * (1. - eig[1]) * (shifted_vbm - eig[0])  # "move the holes up"
-                        self.metadata["num_hole_vbm"] += weight * spinfctr * (1. - eig[1])
+                for eig, occu in kptset:  # eig is eigenvalue and occu is occupation
+                    if (occu and (eig > shifted_cbm - self.resolution)):  # donor MB correction
+                        bf_corr += weight * spinfctr * occu * (eig - shifted_cbm)  # "move the electrons down"
+                        self.metadata["num_elec_cbm"] += weight * spinfctr * occu
+                    elif (occu != core_occupation_value) and (eig <= shifted_vbm + self.resolution):  # acceptor MB correction
+                        bf_corr += weight * spinfctr * (core_occupation_value - occu) * (shifted_vbm - eig)  # "move the holes up"
+                        self.metadata["num_hole_vbm"] += weight * spinfctr * (core_occupation_value - occu)
 
         bf_corr *= -1  # need to take negative of this shift for energetic correction
 
