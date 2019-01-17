@@ -7,6 +7,7 @@ import logging
 import os
 import numpy as np
 import math
+import copy
 
 from monty.io import zopen
 from monty.json import jsanitize
@@ -263,7 +264,9 @@ class QCOutput(MSONable):
                 self.data["energy_trajectory"] = real_energy_trajectory
                 self._read_geometries()
                 if have_babel:
-                    self._check_for_structure_changes()
+                    self.data["structure_change"] = check_for_structure_changes(
+                                                        self.data["initial_molecule"],
+                                                        self.data["molecule_from_last_geometry"])
                 self._read_gradients()
                 # Then, if no optimized geometry or z-matrix is found, and no errors have been previously
                 # idenfied, check to see if the optimization failed to converge or if Lambda wasn't able
@@ -781,29 +784,6 @@ class QCOutput(MSONable):
             self.data["CDS_gradients"] = None
 
 
-    def _check_for_structure_changes(self):
-        initial_mol_graph = MoleculeGraph.with_local_env_strategy(self.data["initial_molecule"],
-                                                                  OpenBabelNN(),
-                                                                  reorder=False,
-                                                                  extend_structure=False)
-        initial_graph = initial_mol_graph.graph
-        last_mol_graph = MoleculeGraph.with_local_env_strategy(self.data["molecule_from_last_geometry"],
-                                                               OpenBabelNN(),
-                                                               reorder=False,
-                                                               extend_structure=False)
-        last_graph = last_mol_graph.graph
-        if initial_mol_graph.isomorphic_to(last_mol_graph):
-            self.data["structure_change"] = "no_change"
-        else:
-            if nx.is_connected(initial_graph.to_undirected()) and not nx.is_connected(last_graph.to_undirected()):
-                self.data["structure_change"] = "unconnected_fragments"
-            elif last_graph.number_of_edges() < initial_graph.number_of_edges():
-                self.data["structure_change"] = "fewer_bonds"
-            elif last_graph.number_of_edges() > initial_graph.number_of_edges():
-                self.data["structure_change"] = "more_bonds"
-            else:
-                self.data["structure_change"] = "bond_change"
-
     def _read_frequency_data(self):
         """
         Parses frequencies, enthalpy, entropy, and mode vectors.
@@ -1055,3 +1035,50 @@ class QCOutput(MSONable):
         d["text"] = self.text
         d["filename"] = self.filename
         return jsanitize(d, strict=True)
+
+
+def check_for_structure_changes(mol1, mol2):
+    special_elements = ["Li", "Na", "Mg", "Ca", "Zn"]
+    mol_list = [copy.deepcopy(mol1), copy.deepcopy(mol2)]
+
+    if mol1.composition != mol2.composition:
+        raise RuntimeError("Molecules have different compositions! Exiting...")
+
+    for ii, site in enumerate(mol1):
+        if site.specie.symbol != mol2[ii].specie.symbol:
+            print("WARNING: Comparing molecules with different atom ordering! Turning off special treatment for coordinating metals.")
+            special_elements = []
+
+    special_sites = [[],[]]
+    for ii, mol in enumerate(mol_list):
+        for jj, site in enumerate(mol):
+            if site.specie.symbol in special_elements:
+                distances = [[kk,site.distance(other_site)] for kk,other_site in enumerate(mol)]
+                special_sites[ii].append([jj,site,distances])
+        for jj, site in enumerate(mol):
+            if site.specie.symbol in special_elements:
+                mol.__delitem__(jj)
+
+    # Can add logic to check the distances in the future if desired
+
+    initial_mol_graph = MoleculeGraph.with_local_env_strategy(mol_list[0],
+                                                              OpenBabelNN(),
+                                                              reorder=False,
+                                                              extend_structure=False)
+    initial_graph = initial_mol_graph.graph
+    last_mol_graph = MoleculeGraph.with_local_env_strategy(mol_list[1],
+                                                           OpenBabelNN(),
+                                                           reorder=False,
+                                                           extend_structure=False)
+    last_graph = last_mol_graph.graph
+    if initial_mol_graph.isomorphic_to(last_mol_graph):
+        return "no_change"
+    else:
+        if nx.is_connected(initial_graph.to_undirected()) and not nx.is_connected(last_graph.to_undirected()):
+            return "unconnected_fragments"
+        elif last_graph.number_of_edges() < initial_graph.number_of_edges():
+            return "fewer_bonds"
+        elif last_graph.number_of_edges() > initial_graph.number_of_edges():
+            return "more_bonds"
+        else:
+            return "bond_change"
