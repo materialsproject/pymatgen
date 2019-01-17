@@ -2,6 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+import logging
 import numpy as np
 from monty.json import MSONable
 from scipy.spatial import HalfspaceIntersection
@@ -20,6 +21,7 @@ __email__ = "shyamd@lbl.gov"
 __status__ = "Development"
 __date__ = "Mar 15, 2018"
 
+logger = logging.getLogger(__name__)
 
 class DefectPhaseDiagram(MSONable):
     """
@@ -208,7 +210,7 @@ class DefectPhaseDiagram(MSONable):
                                          "".format(name_set, name_stable_below_vbm, name_stable_above_cbm,
                                                    vb_list, cb_list))
                     else:
-                        print("{} is only stable defect out of {}".format( name_stable_below_vbm, name_set))
+                        logger.info("{} is only stable defect out of {}".format( name_stable_below_vbm, name_set))
                         transition_level_map[track_name] = {}
                         stable_entries[track_name] = list([defects[vbm_def_index]])
                         finished_charges[track_name] = [one_def.charge for one_def in defects]
