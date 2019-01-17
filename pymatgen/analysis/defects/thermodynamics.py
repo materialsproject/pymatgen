@@ -6,7 +6,7 @@ import numpy as np
 from monty.json import MSONable
 from scipy.spatial import HalfspaceIntersection
 from scipy.optimize import bisect
-from itertools import groupby, chain
+from itertools import chain
 
 from pymatgen.electronic_structure.dos import FermiDos
 from pymatgen.analysis.defects.core import DefectEntry
@@ -144,7 +144,6 @@ class DefectPhaseDiagram(MSONable):
         transition_level_map = {}
 
         # Grouping by defect types
-        # for _, defects in groupby(sorted(self.entries, key=similar_defect), similar_defect):
         for defects, index_list in similar_defects( self.entries):
             defects = list(defects)
 
