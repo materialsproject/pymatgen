@@ -611,8 +611,10 @@ class BandFillingCorrection(DefectCorrection):
         self.metadata["num_hole_vbm"] = 0.
         self.metadata["num_elec_cbm"] = 0.
 
-        if len(eigenvalues.keys()) == 1:  # needed because occupation of non-spin calcs is still 1... should be 2
-            spinfctr = 2.
+        if len(eigenvalues.keys()) == 1:
+            # needed because occupation of non-spin calcs is sometimes still 1... should be 2
+            core_occupation_value = list(eigenvalues.values())[0][0][0][1] #get occupation of a core eigenvalue
+            spinfctr = 2. if core_occupation_value == 1. else 1.
         elif len(eigenvalues.keys()) == 2:
             spinfctr = 1.
         else:
