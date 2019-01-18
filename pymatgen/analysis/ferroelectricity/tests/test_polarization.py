@@ -7,6 +7,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.outputs import Outcar
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.util.testing import PymatgenTest
+import numpy as np
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files/BTO_221_99_polarization')
@@ -26,6 +27,20 @@ ions = np.array([[-44.363484, -44.363484, -44.79259988],
                   [-44.092477, -44.092477, -72.1168782 ],
                   [-44.053768, -44.053768, -72.56736141],
                   [-44.015048, -44.015048, -73.01874336]])
+
+
+class CartToLatt(PymatgenTest):
+   def SetUp(self):
+       lattice_mat = np.array([[0.5, 0., 0.],
+                               [0.5, np.sqrt(3) / 2., 0.],
+                               [0., 0., 1.0]])
+       cart_coord = np.array([0.5, np.sqrt(3)/4., 0.5])
+       direct_coord = np.array([0.5, 0.5, 0.5])
+       latt_coord = np.array([0.25, 0.5, 0.5])
+       test_struct_direct = Structure(lattice_mat, ["C"], [direct_coord])
+       from_direct = (test_struct_direct.frac_coords * test_struct_direct.lattice.lengths_and_angles[0])[0]
+       self.assertArrayAlmostEqual(convert_cart_to_latt(cart_coord, test_struct_direct), latt_coord)
+       self.assertArrayAlmostEqual(convert_cart_to_latt(cart_coord, test_struct_direct), from_direct)
 
 
 class UtilsTest(PymatgenTest):
