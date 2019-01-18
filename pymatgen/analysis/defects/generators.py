@@ -12,6 +12,8 @@ from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.defects.core import Vacancy, Interstitial, Substitution
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.defects.utils import StructureMotifInterstitial, TopographyAnalyzer
+from pymatgen.analysis.structure_matcher import PointDefectComparator
+
 
 __author__ = "Danny Broberg, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -156,16 +158,21 @@ class InterstitialGenerator(DefectGenerator):
         self.structure = structure
         self.element = element
         interstitial_finder = StructureMotifInterstitial(self.structure, self.element)
-        self.defect_sites = list(interstitial_finder.enumerate_defectsites())
 
-        # for multiplicity, neccessary to get prim_structure
-        spa = SpacegroupAnalyzer(self.structure, symprec=1e-2)
-        prim_struct = spa.get_primitive_standard_structure()
-        conv_prim_rat = int(self.structure.num_sites / prim_struct.num_sites)
-        self.multiplicities = [
-            int(interstitial_finder.get_defectsite_multiplicity(def_ind) / conv_prim_rat)
-            for def_ind in range(len(self.defect_sites))
-        ]
+        self.unique_defect_seq = []
+        # eliminate sublattice equivalent defects which may
+        # have slipped through interstitial finder
+        pdc = PointDefectComparator()
+
+        for poss_site in interstitial_finder.enumerate_defectsites():
+            now_defect = Interstitial( self.structure, poss_site)
+            append_defect = True
+            for unique_defect in self.unique_defect_seq:
+                if pdc.are_equal( now_defect, unique_defect):
+                    append_defect = False
+            if append_defect:
+                self.unique_defect_seq.append( now_defect)
+
         self.count_def = 0  # for counting the index of the generated defect
 
     def __next__(self):
@@ -173,12 +180,12 @@ class InterstitialGenerator(DefectGenerator):
         Returns the next interstitial or
         raises StopIteration
         """
-        if len(self.defect_sites) > 0:
-            int_site = self.defect_sites.pop(0)
-            mult = self.multiplicities.pop(0)
+        if len(self.unique_defect_seq) > 0:
+            inter_defect = self.unique_defect_seq.pop(0)
+            inter_site = inter_defect.site
             self.count_def += 1
             site_name = 'InFiT' + str(self.count_def)
-            return Interstitial(self.structure, int_site, site_name=site_name, multiplicity=mult)
+            return Interstitial(self.structure, inter_site, site_name=site_name)
         else:
             raise StopIteration
 
@@ -211,10 +218,20 @@ class VoronoiInterstitialGenerator(DefectGenerator):
         symmetry_finder = SpacegroupAnalyzer(struct_to_trim, symprec=1e-1)
         equiv_sites_list = symmetry_finder.get_symmetrized_structure().equivalent_sites
 
-        self.equiv_site_seq = []
+        # do additional screening for sublattice equivalent
+        # defects which may have slipped through
+        pdc = PointDefectComparator()
+        self.unique_defect_seq = []
         for poss_site_list in equiv_sites_list:
-            if poss_site_list[0] not in self.structure:
-                self.equiv_site_seq.append(poss_site_list)
+            poss_site = poss_site_list[0]
+            if poss_site not in self.structure:
+                now_defect = Interstitial( self.structure, poss_site)
+                append_defect = True
+                for unique_defect in self.unique_defect_seq:
+                    if pdc.are_equal( now_defect, unique_defect):
+                        append_defect = False
+                if append_defect:
+                    self.unique_defect_seq.append( now_defect)
 
         self.count_def = 0  # for counting the index of the generated defect
 
@@ -223,12 +240,12 @@ class VoronoiInterstitialGenerator(DefectGenerator):
         Returns the next interstitial or
         raises StopIteration
         """
-        if len(self.equiv_site_seq) > 0:
-            inter_site_list = self.equiv_site_seq.pop(0)
+        if len(self.unique_defect_seq) > 0:
+            inter_defect = self.unique_defect_seq.pop(0)
+            inter_site = inter_defect.site
             self.count_def += 1
             site_name = 'Voronoi' + str(self.count_def)
-            return Interstitial(
-                self.structure, inter_site_list[0], site_name=site_name, multiplicity=len(inter_site_list))
+            return Interstitial( self.structure, inter_site, site_name=site_name)
         else:
             raise StopIteration
 

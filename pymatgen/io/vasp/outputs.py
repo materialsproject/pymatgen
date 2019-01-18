@@ -4175,8 +4175,8 @@ class Wavecar:
         of this function can be passed directly to numpy's fft function. For
         example:
 
-            mesh = Wavecar().fft_mesh(kpoint, band)
-            evals = np.fft.fft(mesh)
+            mesh = Wavecar('WAVECAR').fft_mesh(kpoint, band)
+            evals = np.fft.ifftn(mesh)
 
         Args:
             kpoint (int): the index of the kpoint where the wavefunction
@@ -4200,6 +4200,77 @@ class Wavecar:
             return np.fft.ifftshift(mesh)
         else:
             return mesh
+
+    def get_parchg(self, poscar, kpoint, band, spin=None, phase=False,
+                   scale=2):
+        """
+        Generates a Chgcar object, which is the charge density of the specified
+        wavefunction.
+
+        This function generates a Chgcar object with the charge density of the
+        wavefunction specified by band and kpoint (and spin, if the WAVECAR
+        corresponds to a spin-polarized calculation). The phase tag is a
+        feature that is not present in VASP. For a real wavefunction, the phase
+        tag being turned on means that the charge density is multiplied by the
+        sign of the wavefunction at that point in space. A warning is generated
+        if the phase tag is on and the chosen kpoint is not Gamma.
+
+        Note: Augmentation from the PAWs is NOT included in this function. The
+        maximal charge density will differ from the PARCHG from VASP, but the
+        qualitative shape of the charge density will match.
+
+        Args:
+            poscar (pymatgen.io.vasp.inputs.Poscar): Poscar object that has the
+                                structure associated with the WAVECAR file
+            kpoint (int):   the index of the kpoint for the wavefunction
+            band (int):     the index of the band for the wavefunction
+            spin (int):     optional argument to specify the spin. If the
+                                Wavecar has ISPIN = 2, spin == None generates a
+                                Chgcar with total spin and magnetization, and
+                                spin == {0, 1} specifies just the spin up or
+                                down component.
+            phase (bool):   flag to determine if the charge density is
+                                multiplied by the sign of the wavefunction.
+                                Only valid for real wavefunctions.
+            scale (int):    scaling for the FFT grid. The default value of 2 is
+                                at least as fine as the VASP default.
+        Returns:
+            a pymatgen.io.vasp.outputs.Chgcar object
+        """
+
+        if phase and not np.all(self.kpoints[kpoint] == 0.):
+            warnings.warn('phase == True should only be used for the Gamma '
+                          'kpoint! I hope you know what you\'re doing!')
+
+        # scaling of ng for the fft grid, need to restore value at the end
+        temp_ng = self.ng
+        self.ng = self.ng * scale
+        N = np.prod(self.ng)
+
+        data = {}
+        if self.spin == 2:
+            if spin is not None:
+                wfr = np.fft.ifftn(self.fft_mesh(kpoint, band, spin=spin)) * N
+                den = np.abs(np.conj(wfr) * wfr)
+                if phase:
+                    den = np.sign(np.real(wfr)) * den
+                data['total'] = den
+            else:
+                wfr = np.fft.ifftn(self.fft_mesh(kpoint, band, spin=0)) * N
+                denup = np.abs(np.conj(wfr) * wfr)
+                wfr = np.fft.ifftn(self.fft_mesh(kpoint, band, spin=1)) * N
+                dendn = np.abs(np.conj(wfr) * wfr)
+                data['total'] = denup + dendn
+                data['diff'] = denup - dendn
+        else:
+            wfr = np.fft.ifftn(self.fft_mesh(kpoint, band)) * N
+            den = np.abs(np.conj(wfr) * wfr)
+            if phase:
+                den = np.sign(np.real(wfr)) * den
+            data['total'] = den
+
+        self.ng = temp_ng
+        return Chgcar(poscar, data)
 
 
 class Wavederf:
