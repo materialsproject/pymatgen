@@ -791,7 +791,9 @@ class QCOutput(MSONable):
         temp_dict = read_pattern(
             self.text, {
                 "frequencies":
-                r"\s*Frequency:\s+([\d\-\.\*]+)(?:\s+([\d\-\.]+)(?:\s+([\d\-\.]+))*)*",
+                r"\s*Frequency:\s+([\d\-\.\*]+)(?:\s+([\d\-\.\*]+)(?:\s+([\d\-\.\*]+))*)*",
+                "trans_dip":
+                r"TransDip\s+([\d\-\.\*]+)\s*([\d\-\.\*]+)\s*([\d\-\.\*]+)\s*(?:([\d\-\.\*]+)\s*([\d\-\.\*]+)\s*([\d\-\.\*]+)(?:\s*([\d\-\.\*]+)\s*([\d\-\.\*]+)\s*([\d\-\.\*]+)))*",
                 "IR_intens":
                 r"\s*IR Intens:\s*([\d\-\.\*]+)(?:\s+([\d\-\.\*]+)(?:\s+([\d\-\.\*]+))*)*",
                 "IR_active":
@@ -830,6 +832,7 @@ class QCOutput(MSONable):
             self.data['frequencies'] = None
             self.data['IR_intens'] = None
             self.data['IR_active'] = None
+            self.data['trans_dip'] = None
         else:
             temp_freqs = [
                 value for entry in temp_dict.get('frequencies')
@@ -849,13 +852,22 @@ class QCOutput(MSONable):
             for ii, entry in enumerate(temp_freqs):
                 if entry != 'None':
                     if "*" in entry:
-                        freqs[ii] = -float("inf")
+                        if ii==0:
+                            freqs[ii] = -float("inf")
+                        elif ii==len(temp_freqs)-1:
+                            freqs[ii] = float("inf")
+                        elif freqs[ii-1]==-float("inf"):
+                            freqs[ii] = -float("inf")
+                        elif freqs[ii+1]==float("inf"):
+                            freqs[ii]=float("inf")
+                        else:
+                            raise RuntimeError("ERROR: Encountered an undefined frequency not at the beginning or end of the frequency list, which makes no sense! Exiting...")
                         if not self.data.get('completion',[]):
                             if "undefined_frequency" not in self.data["errors"]:
                                 self.data["errors"] += ["undefined_frequency"]
                         else:
                             if "undefined_frequency" not in self.data["warnings"]:
-                                self.data["warnings"] += ["undefined_frequency"]
+                                self.data["warnings"]["undefined_frequency"] = True
                     else:
                         freqs[ii] = float(entry)
             self.data['frequencies'] = freqs
