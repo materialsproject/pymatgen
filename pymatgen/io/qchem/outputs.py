@@ -791,11 +791,11 @@ class QCOutput(MSONable):
         temp_dict = read_pattern(
             self.text, {
                 "frequencies":
-                r"\s*Frequency:\s+([\d\-\.\*]+)(?:\s+([\d\-\.\*]+)(?:\s+([\d\-\.\*]+))*)*",
+                r"\s*Frequency:\s+(\-?[\d\.\*]+)(?:\s+(\-?[\d\.\*]+)(?:\s+(\-?[\d\.\*]+))*)*",
                 "trans_dip":
-                r"TransDip\s+([\d\-\.\*]+)\s*([\d\-\.\*]+)\s*([\d\-\.\*]+)\s*(?:([\d\-\.\*]+)\s*([\d\-\.\*]+)\s*([\d\-\.\*]+)(?:\s*([\d\-\.\*]+)\s*([\d\-\.\*]+)\s*([\d\-\.\*]+)))*",
+                r"TransDip\s+(\-?[\d\.\*]+)\s*(\-?[\d\.\*]+)\s*(\-?[\d\.\*]+)\s*(?:(\-?[\d\.\*]+)\s*(\-?[\d\.\*]+)\s*(\-?[\d\.\*]+)(?:\s*(\-?[\d\.\*]{3,})\s*(\-?[\d\.\*]{3,})\s*(\-?[\d\.\*]{3,}))*)*",
                 "IR_intens":
-                r"\s*IR Intens:\s*([\d\-\.\*]+)(?:\s+([\d\-\.\*]+)(?:\s+([\d\-\.\*]+))*)*",
+                r"\s*IR Intens:\s*(\-?[\d\.\*]+)(?:\s+(\-?[\d\.\*]+)(?:\s+(\-?[\d\.\*]+))*)*",
                 "IR_active":
                 r"\s*IR Active:\s+([YESNO]+)(?:\s+([YESNO]+)(?:\s+([YESNO]+))*)*",
                 "ZPE":
@@ -846,7 +846,19 @@ class QCOutput(MSONable):
                 value for entry in temp_dict.get('IR_active')
                 for value in entry
             ]
+            temp_trans_dip = [
+                value for entry in temp_dict.get('trans_dip')
+                for value in entry
+            ]
             self.data['IR_active'] = active
+            trans_dip = np.zeros(shape=(int((len(temp_trans_dip) - temp_trans_dip.count('None'))/3),3))
+            for ii, entry in enumerate(temp_trans_dip):
+                if entry != 'None':
+                    if "*" in entry:
+                        trans_dip[int(ii/3)][ii%3] = float("inf")
+                    else:
+                        trans_dip[int(ii/3)][ii%3] = float(entry)
+            self.data['trans_dip'] = trans_dip
 
             freqs = np.zeros(len(temp_freqs) - temp_freqs.count('None'))
             for ii, entry in enumerate(temp_freqs):
@@ -883,7 +895,7 @@ class QCOutput(MSONable):
 
             header_pattern = r"\s*Raman Active:\s+[YESNO]+\s+(?:[YESNO]+\s+)*X\s+Y\s+Z\s+(?:X\s+Y\s+Z\s+)*"
             table_pattern = r"\s*[a-zA-Z][a-zA-Z\s]\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*(?:([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*(?:([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+))*)*"
-            footer_pattern = r"TransDip\s+[\d\-\.\*]+\s*[\d\-\.\*]+\s*[\d\-\.\*]+\s*(?:[\d\-\.\*]+\s*[\d\-\.\*]+\s*[\d\-\.\*]+\s*)*"
+            footer_pattern = r"TransDip\s+\-?[\d\.\*]+\s*\-?[\d\.\*]+\s*\-?[\d\.\*]+\s*(?:\-?[\d\.\*]+\s*\-?[\d\.\*]+\s*\-?[\d\.\*]+\s*)*"
             temp_freq_mode_vecs = read_table_pattern(
                 self.text, header_pattern, table_pattern, footer_pattern)
             freq_mode_vecs = np.zeros(
