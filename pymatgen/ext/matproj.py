@@ -75,7 +75,7 @@ class MPRester:
             their setups and MPRester can then be called without any arguments.
         endpoint (str): Url of endpoint to access the MaterialsProject REST
             interface. Defaults to the standard Materials Project REST
-            address at "https://www.materialsproject.org/rest/v2", but
+            address at "https://materialsproject.org/rest/v2", but
             can be changed to other urls implementing a similar interface.
     """
 
@@ -106,7 +106,7 @@ class MPRester:
             self.preamble = endpoint
         else:
             self.preamble = SETTINGS.get("PMG_MAPI_ENDPOINT",
-                                         "https://www.materialsproject.org/rest/v2")
+                                         "https://materialsproject.org/rest/v2")
         import requests
         if sys.version_info[0] < 3:
             try:
