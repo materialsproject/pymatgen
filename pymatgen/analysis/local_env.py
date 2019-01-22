@@ -3498,13 +3498,13 @@ class CutOffDictNN(NearNeighbors):
         Initialise a CutOffDictNN according to a preset set of cut-offs.
 
         Args:
-            preset: A preset name. The list of supported presets are:
+            preset (str): A preset name. The list of supported presets are:
 
-                - "vesta_2019": The cut-off dictionary taken from the VESTA
+                - "vesta_2019": The distance cut-offs used by the VESTA
                   visualisation program.
 
         Returns:
-            A CutOffDictNN using the presets cut-off dictionary.
+            A CutOffDictNN using the preset cut-off dictionary.
         """
         if preset == 'vesta_2019':
             cut_offs = loadfn(os.path.join(_directory, 'vesta_cutoffs.yaml'))
