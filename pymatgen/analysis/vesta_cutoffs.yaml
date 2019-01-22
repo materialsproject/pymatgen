@@ -1,0 +1,1828 @@
+? !!python/tuple [Ac, Br]
+: 3.22726
+? !!python/tuple [Ac, Cl]
+: 3.08646
+? !!python/tuple [Ac, F]
+: 2.58646
+? !!python/tuple [Ac, O]
+: 2.7326
+? !!python/tuple [Ag, As]
+: 2.45642
+? !!python/tuple [Ag, Br]
+: 2.37642
+? !!python/tuple [Ag, Cl]
+: 3.05939
+? !!python/tuple [Ag, F]
+: 2.76939
+? !!python/tuple [Ag, H]
+: 1.65642
+? !!python/tuple [Ag, I]
+: 2.53642
+? !!python/tuple [Ag, N]
+: 2.00642
+? !!python/tuple [Ag, O]
+: 2.81139
+? !!python/tuple [Ag, P]
+: 2.37642
+? !!python/tuple [Ag, S]
+: 3.08839
+? !!python/tuple [Ag, Se]
+: 2.41642
+? !!python/tuple [Ag, Te]
+: 2.66642
+? !!python/tuple [Al, As]
+: 2.75646
+? !!python/tuple [Al, Br]
+: 2.65646
+? !!python/tuple [Al, Cl]
+: 2.48846
+? !!python/tuple [Al, F]
+: 2.00146
+? !!python/tuple [Al, H]
+: 1.90646
+? !!python/tuple [Al, I]
+: 2.86646
+? !!python/tuple [Al, N]
+: 2.24646
+? !!python/tuple [Al, O]
+: 2.1074
+? !!python/tuple [Al, P]
+: 2.69646
+? !!python/tuple [Al, S]
+: 2.66646
+? !!python/tuple [Al, Se]
+: 2.72646
+? !!python/tuple [Al, Te]
+: 2.93646
+? !!python/tuple [Am, Br]
+: 3.22944
+? !!python/tuple [Am, Cl]
+: 3.08945
+? !!python/tuple [Am, F]
+: 2.61945
+? !!python/tuple [Am, O]
+: 2.71649
+? !!python/tuple [As, Br]
+: 2.80646
+? !!python/tuple [As, C]
+: 2.38646
+? !!python/tuple [As, Cl]
+: 2.61646
+? !!python/tuple [As, F]
+: 2.15646
+? !!python/tuple [As, I]
+: 3.03646
+? !!python/tuple [As, O]
+: 2.24546
+? !!python/tuple [As, S]
+: 2.84649
+? !!python/tuple [As, Se]
+: 2.98649
+? !!python/tuple [As, Te]
+: 3.10646
+? !!python/tuple [Au, As]
+: 2.26998
+? !!python/tuple [Au, Br]
+: 2.77646
+? !!python/tuple [Au, Cl]
+: 2.88295
+? !!python/tuple [Au, F]
+: 2.34646
+? !!python/tuple [Au, H]
+: 1.41998
+? !!python/tuple [Au, I]
+: 3.21295
+? !!python/tuple [Au, N]
+: 2.3826
+? !!python/tuple [Au, O]
+: 2.34646
+? !!python/tuple [Au, P]
+: 2.18998
+? !!python/tuple [Au, S]
+: 2.8326
+? !!python/tuple [Au, Se]
+: 2.22998
+? !!python/tuple [Au, Te]
+: 2.45998
+? !!python/tuple [B, As]
+: 2.42646
+? !!python/tuple [B, B]
+: 1.85846
+? !!python/tuple [B, Br]
+: 2.33646
+? !!python/tuple [B, Cl]
+: 2.19646
+? !!python/tuple [B, F]
+: 1.76646
+? !!python/tuple [B, H]
+: 1.59646
+? !!python/tuple [B, I]
+: 2.55646
+? !!python/tuple [B, N]
+: 1.93846
+? !!python/tuple [B, O]
+: 1.82746
+? !!python/tuple [B, P]
+: 2.37646
+? !!python/tuple [B, S]
+: 2.27646
+? !!python/tuple [B, Se]
+: 2.40646
+? !!python/tuple [B, Te]
+: 2.65646
+? !!python/tuple [Ba, As]
+: 3.69
+? !!python/tuple [Ba, Br]
+: 3.74295
+? !!python/tuple [Ba, Cl]
+: 3.55295
+? !!python/tuple [Ba, F]
+: 3.05095
+? !!python/tuple [Ba, H]
+: 3.08295
+? !!python/tuple [Ba, I]
+: 3.99295
+? !!python/tuple [Ba, N]
+: 3.33295
+? !!python/tuple [Ba, O]
+: 3.14795
+? !!python/tuple [Ba, P]
+: 3.48295
+? !!python/tuple [Ba, S]
+: 3.66195
+? !!python/tuple [Ba, Se]
+: 3.74295
+? !!python/tuple [Ba, Te]
+: 3.94295
+? !!python/tuple [Be, As]
+: 2.60649
+? !!python/tuple [Be, Br]
+: 2.50649
+? !!python/tuple [Be, Cl]
+: 2.36649
+? !!python/tuple [Be, F]
+: 1.88749
+? !!python/tuple [Be, H]
+: 1.71649
+? !!python/tuple [Be, I]
+: 2.70649
+? !!python/tuple [Be, N]
+: 2.10649
+? !!python/tuple [Be, O]
+: 1.98749
+? !!python/tuple [Be, P]
+: 2.55649
+? !!python/tuple [Be, S]
+: 2.43649
+? !!python/tuple [Be, Se]
+: 2.57649
+? !!python/tuple [Be, Te]
+: 2.81649
+? !!python/tuple [Bi, As]
+: 2.87642
+? !!python/tuple [Bi, Br]
+: 3.17993
+? !!python/tuple [Bi, Cl]
+: 3.04291
+? !!python/tuple [Bi, F]
+: 2.55291
+? !!python/tuple [Bi, H]
+: 2.12642
+? !!python/tuple [Bi, I]
+: 3.38291
+? !!python/tuple [Bi, N]
+: 2.56329
+? !!python/tuple [Bi, O]
+: 2.6608
+? !!python/tuple [Bi, P]
+: 2.78642
+? !!python/tuple [Bi, S]
+: 3.13291
+? !!python/tuple [Bi, Se]
+: 3.24329
+? !!python/tuple [Bi, Te]
+: 3.02642
+? !!python/tuple [Bk, Br]
+: 3.15233
+? !!python/tuple [Bk, Cl]
+: 3.02291
+? !!python/tuple [Bk, F]
+: 2.54233
+? !!python/tuple [Bk, O]
+: 2.64329
+? !!python/tuple [Br, Cl]
+: 2.33296
+? !!python/tuple [Br, F]
+: 2.20646
+? !!python/tuple [Br, O]
+: 2.35646
+? !!python/tuple [C, Br]
+: 2.26002
+? !!python/tuple [C, C]
+: 1.89002
+? !!python/tuple [C, Cl]
+: 2.11002
+? !!python/tuple [C, F]
+: 1.76002
+? !!python/tuple [C, H]
+: 1.2
+? !!python/tuple [C, I]
+: 2.16998
+? !!python/tuple [C, N]
+: 1.79202
+? !!python/tuple [C, O]
+: 1.97249
+? !!python/tuple [C, P]
+: 1.93998
+? !!python/tuple [C, S]
+: 2.15002
+? !!python/tuple [C, Se]
+: 2.01998
+? !!python/tuple [C, Te]
+: 2.25998
+? !!python/tuple [Ca, As]
+: 3.48295
+? !!python/tuple [Ca, Br]
+: 3.36995
+? !!python/tuple [Ca, Cl]
+: 3.23295
+? !!python/tuple [Ca, F]
+: 2.70495
+? !!python/tuple [Ca, H]
+: 2.69295
+? !!python/tuple [Ca, I]
+: 3.58295
+? !!python/tuple [Ca, N]
+: 3.00295
+? !!python/tuple [Ca, O]
+: 2.83062
+? !!python/tuple [Ca, P]
+: 3.41295
+? !!python/tuple [Ca, S]
+: 3.31295
+? !!python/tuple [Ca, Se]
+: 3.42295
+? !!python/tuple [Ca, Te]
+: 3.62295
+? !!python/tuple [Cd, As]
+: 3.29295
+? !!python/tuple [Cd, Br]
+: 3.21295
+? !!python/tuple [Cd, Cl]
+: 3.09295
+? !!python/tuple [Cd, F]
+: 2.67395
+? !!python/tuple [Cd, H]
+: 2.52295
+? !!python/tuple [Cd, I]
+: 3.46295
+? !!python/tuple [Cd, N]
+: 2.82295
+? !!python/tuple [Cd, O]
+: 2.76695
+? !!python/tuple [Cd, P]
+: 3.20295
+? !!python/tuple [Cd, S]
+: 3.16695
+? !!python/tuple [Cd, Se]
+: 3.26295
+? !!python/tuple [Cd, Te]
+: 3.45295
+? !!python/tuple [Ce, As]
+: 3.08644
+? !!python/tuple [Ce, Br]
+: 3.40452
+? !!python/tuple [Ce, Cl]
+: 3.25293
+? !!python/tuple [Ce, F]
+: 2.75452
+? !!python/tuple [Ce, H]
+: 2.34644
+? !!python/tuple [Ce, I]
+: 3.62452
+? !!python/tuple [Ce, N]
+: 2.78549
+? !!python/tuple [Ce, O]
+: 2.86393
+? !!python/tuple [Ce, P]
+: 3.00644
+? !!python/tuple [Ce, S]
+: 3.36293
+? !!python/tuple [Ce, Se]
+: 3.04644
+? !!python/tuple [Ce, Te]
+: 3.22644
+? !!python/tuple [Cf, Br]
+: 3.14233
+? !!python/tuple [Cf, Cl]
+: 3.01291
+? !!python/tuple [Cf, F]
+: 2.53233
+? !!python/tuple [Cf, O]
+: 2.63291
+? !!python/tuple [Cl, Cl]
+: 2.14296
+? !!python/tuple [Cl, F]
+: 2.14646
+? !!python/tuple [Cl, O]
+: 2.16646
+? !!python/tuple [Cm, Cl]
+: 3.18291
+? !!python/tuple [Cm, F]
+: 2.68291
+? !!python/tuple [Cm, O]
+: 2.79291
+? !!python/tuple [Co, As]
+: 2.43642
+? !!python/tuple [Co, Br]
+: 2.33642
+? !!python/tuple [Co, C]
+: 2.19691
+? !!python/tuple [Co, Cl]
+: 2.74593
+? !!python/tuple [Co, F]
+: 2.35293
+? !!python/tuple [Co, H]
+: 1.9278
+? !!python/tuple [Co, I]
+: 2.52878
+? !!python/tuple [Co, N]
+: 2.36293
+? !!python/tuple [Co, O]
+: 2.40493
+? !!python/tuple [Co, P]
+: 2.36642
+? !!python/tuple [Co, S]
+: 2.65293
+? !!python/tuple [Co, Se]
+: 2.39642
+? !!python/tuple [Co, Te]
+: 2.61642
+? !!python/tuple [Cr, As]
+: 2.49642
+? !!python/tuple [Cr, Br]
+: 2.97293
+? !!python/tuple [Cr, Cl]
+: 2.80293
+? !!python/tuple [Cr, F]
+: 2.45293
+? !!python/tuple [Cr, H]
+: 1.67642
+? !!python/tuple [Cr, I]
+: 3.19293
+? !!python/tuple [Cr, N]
+: 2.5152
+? !!python/tuple [Cr, O]
+: 2.44293
+? !!python/tuple [Cr, P]
+: 2.42642
+? !!python/tuple [Cr, S]
+: 2.72491
+? !!python/tuple [Cr, Se]
+: 2.44642
+? !!python/tuple [Cr, Te]
+: 2.67642
+? !!python/tuple [Cs, As]
+: 4.15942
+? !!python/tuple [Cs, Br]
+: 4.06942
+? !!python/tuple [Cs, Cl]
+: 3.91042
+? !!python/tuple [Cs, F]
+: 3.49942
+? !!python/tuple [Cs, H]
+: 3.55942
+? !!python/tuple [Cs, I]
+: 4.40942
+? !!python/tuple [Cs, N]
+: 3.94942
+? !!python/tuple [Cs, O]
+: 3.53642
+? !!python/tuple [Cs, P]
+: 3.64194
+? !!python/tuple [Cs, S]
+: 4.24942
+? !!python/tuple [Cs, Se]
+: 4.21655
+? !!python/tuple [Cs, Te]
+: 4.4631
+? !!python/tuple [Cu, As]
+: 2.71895
+? !!python/tuple [Cu, Br]
+: 2.89295
+? !!python/tuple [Cu, C]
+: 2.32649
+? !!python/tuple [Cu, Cl]
+: 2.75295
+? !!python/tuple [Cu, F]
+: 2.46295
+? !!python/tuple [Cu, H]
+: 1.81649
+? !!python/tuple [Cu, I]
+: 3.01795
+? !!python/tuple [Cu, N]
+: 2.49295
+? !!python/tuple [Cu, O]
+: 2.47295
+? !!python/tuple [Cu, P]
+: 2.65649
+? !!python/tuple [Cu, S]
+: 2.76095
+? !!python/tuple [Cu, Se]
+: 2.76295
+? !!python/tuple [Cu, Te]
+: 2.87649
+? !!python/tuple [D, Cl]
+: 1.5
+? !!python/tuple [D, F]
+: 1.1
+? !!python/tuple [D, N]
+: 1.2
+? !!python/tuple [D, O]
+: 2.1
+? !!python/tuple [Dy, As]
+: 3.14
+? !!python/tuple [Dy, Br]
+: 3.16945
+? !!python/tuple [Dy, Cl]
+: 3.01945
+? !!python/tuple [Dy, F]
+: 2.52944
+? !!python/tuple [Dy, H]
+: 2.09
+? !!python/tuple [Dy, I]
+: 3.39945
+? !!python/tuple [Dy, N]
+: 2.38
+? !!python/tuple [Dy, O]
+: 2.65651
+? !!python/tuple [Dy, P]
+: 2.77
+? !!python/tuple [Dy, S]
+: 2.823
+? !!python/tuple [Dy, Se]
+: 2.81
+? !!python/tuple [Dy, Te]
+: 3.22
+? !!python/tuple [Er, As]
+: 3.18
+? !!python/tuple [Er, Br]
+: 3.14945
+? !!python/tuple [Er, Cl]
+: 2.99944
+? !!python/tuple [Er, F]
+: 2.51049
+? !!python/tuple [Er, H]
+: 2.06
+? !!python/tuple [Er, I]
+: 3.38945
+? !!python/tuple [Er, N]
+: 2.36
+? !!python/tuple [Er, O]
+: 2.63651
+? !!python/tuple [Er, P]
+: 2.75
+? !!python/tuple [Er, S]
+: 3.27651
+? !!python/tuple [Er, Se]
+: 3.18649
+? !!python/tuple [Er, Te]
+: 3.22
+? !!python/tuple [Es, O]
+: 2.70139
+? !!python/tuple [Eu, As]
+: 2.93898
+? !!python/tuple [Eu, Br]
+: 3.46549
+? !!python/tuple [Eu, Cl]
+: 3.32549
+? !!python/tuple [Eu, F]
+: 2.83549
+? !!python/tuple [Eu, H]
+: 2.18898
+? !!python/tuple [Eu, I]
+: 3.69549
+? !!python/tuple [Eu, N]
+: 2.95549
+? !!python/tuple [Eu, O]
+: 2.94249
+? !!python/tuple [Eu, P]
+: 2.85898
+? !!python/tuple [Eu, S]
+: 3.37949
+? !!python/tuple [Eu, Se]
+: 2.89898
+? !!python/tuple [Eu, Te]
+: 3.08898
+? !!python/tuple [Fe, As]
+: 2.50642
+? !!python/tuple [Fe, Br]
+: 2.8952
+? !!python/tuple [Fe, C]
+: 2.25191
+? !!python/tuple [Fe, Cl]
+: 2.86293
+? !!python/tuple [Fe, F]
+: 2.36293
+? !!python/tuple [Fe, H]
+: 1.68642
+? !!python/tuple [Fe, I]
+: 3.1552
+? !!python/tuple [Fe, N]
+: 2.48193
+? !!python/tuple [Fe, O]
+: 2.44693
+? !!python/tuple [Fe, P]
+: 2.42642
+? !!python/tuple [Fe, S]
+: 2.83793
+? !!python/tuple [Fe, Se]
+: 2.43642
+? !!python/tuple [Fe, Te]
+: 2.68642
+? !!python/tuple [Ga, As]
+: 2.38998
+? !!python/tuple [Ga, Br]
+: 2.6426
+? !!python/tuple [Ga, Cl]
+: 2.52646
+? !!python/tuple [Ga, F]
+: 2.14646
+? !!python/tuple [Ga, H]
+: 1.55998
+? !!python/tuple [Ga, I]
+: 2.91646
+? !!python/tuple [Ga, N]
+: 1.96
+? !!python/tuple [Ga, O]
+: 2.18646
+? !!python/tuple [Ga, P]
+: 2.46998
+? !!python/tuple [Ga, S]
+: 2.61946
+? !!python/tuple [Ga, Se]
+: 3.41295
+? !!python/tuple [Ga, Te]
+: 2.58998
+? !!python/tuple [Gd, As]
+: 3.18
+? !!python/tuple [Gd, Br]
+: 3.19945
+? !!python/tuple [Gd, Cl]
+: 3.06349
+? !!python/tuple [Gd, F]
+: 3.15651
+? !!python/tuple [Gd, H]
+: 2.13
+? !!python/tuple [Gd, I]
+: 3.41945
+? !!python/tuple [Gd, N]
+: 2.42
+? !!python/tuple [Gd, O]
+: 2.76651
+? !!python/tuple [Gd, P]
+: 2.81
+? !!python/tuple [Gd, S]
+: 3.13649
+? !!python/tuple [Gd, Se]
+: 2.85
+? !!python/tuple [Gd, Te]
+: 3.24
+? !!python/tuple [Ge, As]
+: 2.47998
+? !!python/tuple [Ge, Br]
+: 2.34998
+? !!python/tuple [Ge, Cl]
+: 2.49002
+? !!python/tuple [Ge, F]
+: 2.01002
+? !!python/tuple [Ge, Ge]
+: 2.6
+? !!python/tuple [Ge, H]
+: 1.59998
+? !!python/tuple [Ge, I]
+: 2.54998
+? !!python/tuple [Ge, N]
+: 1.92998
+? !!python/tuple [Ge, O]
+: 2.09802
+? !!python/tuple [Ge, P]
+: 2.36998
+? !!python/tuple [Ge, S]
+: 2.56702
+? !!python/tuple [Ge, Se]
+: 2.70002
+? !!python/tuple [Ge, Te]
+: 2.60998
+? !!python/tuple [H, Cl]
+: 1.5
+? !!python/tuple [H, F]
+: 1.1
+? !!python/tuple [H, N]
+: 1.2
+? !!python/tuple [H, O]
+: 2.1
+? !!python/tuple [Hf, As]
+: 2.71642
+? !!python/tuple [Hf, Br]
+: 2.62642
+? !!python/tuple [Hf, Cl]
+: 2.75646
+? !!python/tuple [Hf, F]
+: 3.18291
+? !!python/tuple [Hf, H]
+: 1.93642
+? !!python/tuple [Hf, I]
+: 2.83642
+? !!python/tuple [Hf, N]
+: 2.24642
+? !!python/tuple [Hf, O]
+: 2.37946
+? !!python/tuple [Hf, P]
+: 2.63642
+? !!python/tuple [Hf, S]
+: 2.64642
+? !!python/tuple [Hf, Se]
+: 2.67642
+? !!python/tuple [Hf, Te]
+: 2.87642
+? !!python/tuple [Hg, As]
+: 2.65642
+? !!python/tuple [Hg, Br]
+: 3.09293
+? !!python/tuple [Hg, Cl]
+: 3.24939
+? !!python/tuple [Hg, F]
+: 2.88293
+? !!python/tuple [Hg, H]
+: 1.86642
+? !!python/tuple [Hg, Hg]
+: 3.1952
+? !!python/tuple [Hg, I]
+: 3.33293
+? !!python/tuple [Hg, N]
+: 2.17642
+? !!python/tuple [Hg, O]
+: 2.86939
+? !!python/tuple [Hg, P]
+: 2.57642
+? !!python/tuple [Hg, S]
+: 3.42093
+? !!python/tuple [Hg, Se]
+: 2.82642
+? !!python/tuple [Hg, Te]
+: 2.76642
+? !!python/tuple [Ho, As]
+: 2.87898
+? !!python/tuple [Ho, Br]
+: 3.20159
+? !!python/tuple [Ho, Cl]
+: 3.05159
+? !!python/tuple [Ho, F]
+: 2.56159
+? !!python/tuple [Ho, H]
+: 2.11898
+? !!python/tuple [Ho, I]
+: 3.44159
+? !!python/tuple [Ho, N]
+: 2.41898
+? !!python/tuple [Ho, O]
+: 2.67047
+? !!python/tuple [Ho, P]
+: 2.79898
+? !!python/tuple [Ho, S]
+: 3.13547
+? !!python/tuple [Ho, Se]
+: 2.84898
+? !!python/tuple [Ho, Te]
+: 3.03898
+? !!python/tuple [I, Cl]
+: 3.33295
+? !!python/tuple [I, F]
+: 3.18295
+? !!python/tuple [I, I]
+: 2.4
+? !!python/tuple [I, O]
+: 2.47646
+? !!python/tuple [In, As]
+: 2.66642
+? !!python/tuple [In, Br]
+: 3.05329
+? !!python/tuple [In, Cl]
+: 3.52939
+? !!python/tuple [In, Co]
+: 3.13629
+? !!python/tuple [In, F]
+: 2.35491
+? !!python/tuple [In, H]
+: 1.87642
+? !!python/tuple [In, I]
+: 3.19291
+? !!python/tuple [In, Mn]
+: 3.14729
+? !!python/tuple [In, N]
+: 2.18642
+? !!python/tuple [In, O]
+: 2.46491
+? !!python/tuple [In, P]
+: 2.68642
+? !!python/tuple [In, S]
+: 2.93291
+? !!python/tuple [In, Se]
+: 2.62642
+? !!python/tuple [In, Te]
+: 2.84642
+? !!python/tuple [Ir, As]
+: 2.58998
+? !!python/tuple [Ir, Br]
+: 2.49998
+? !!python/tuple [Ir, Cl]
+: 2.56746
+? !!python/tuple [Ir, F]
+: 2.15002
+? !!python/tuple [Ir, H]
+: 1.80998
+? !!python/tuple [Ir, I]
+: 2.70998
+? !!python/tuple [Ir, N]
+: 2.10998
+? !!python/tuple [Ir, O]
+: 2.27746
+? !!python/tuple [Ir, P]
+: 2.50998
+? !!python/tuple [Ir, S]
+: 2.42998
+? !!python/tuple [Ir, Se]
+: 2.55998
+? !!python/tuple [Ir, Te]
+: 2.75998
+? !!python/tuple [K, As]
+: 3.94942
+? !!python/tuple [K, Br]
+: 3.8513
+? !!python/tuple [K, Cl]
+: 3.65976
+? !!python/tuple [K, F]
+: 3.11142
+? !!python/tuple [K, H]
+: 3.21942
+? !!python/tuple [K, I]
+: 4.11717
+? !!python/tuple [K, N]
+: 3.41942
+? !!python/tuple [K, O]
+: 3.25142
+? !!python/tuple [K, P]
+: 3.44942
+? !!python/tuple [K, S]
+: 3.79285
+? !!python/tuple [K, Se]
+: 4.00186
+? !!python/tuple [K, Te]
+: 4.23284
+? !!python/tuple [Kr, F]
+: 2.67549
+? !!python/tuple [La, As]
+: 3.51293
+? !!python/tuple [La, Br]
+: 3.43293
+? !!python/tuple [La, Cl]
+: 3.33452
+? !!python/tuple [La, F]
+: 2.79293
+? !!python/tuple [La, H]
+: 2.77293
+? !!python/tuple [La, I]
+: 3.64293
+? !!python/tuple [La, N]
+: 3.05293
+? !!python/tuple [La, O]
+: 2.90983
+? !!python/tuple [La, P]
+: 3.32293
+? !!python/tuple [La, S]
+: 3.35593
+? !!python/tuple [La, Se]
+: 3.45293
+? !!python/tuple [La, Te]
+: 3.65293
+? !!python/tuple [Li, Br]
+: 3.11654
+? !!python/tuple [Li, Cl]
+: 2.91814
+? !!python/tuple [Li, F]
+: 2.34276
+? !!python/tuple [Li, I]
+: 3.37676
+? !!python/tuple [Li, N]
+: 2.66213
+? !!python/tuple [Li, O]
+: 2.60087
+? !!python/tuple [Li, S]
+: 3.02481
+? !!python/tuple [Li, Se]
+: 3.2433
+? !!python/tuple [Li, Te]
+: 3.42496
+? !!python/tuple [Lu, As]
+: 3.19649
+? !!python/tuple [Lu, Br]
+: 3.11945
+? !!python/tuple [Lu, Cl]
+: 2.96944
+? !!python/tuple [Lu, F]
+: 2.48249
+? !!python/tuple [Lu, H]
+: 2.42649
+? !!python/tuple [Lu, I]
+: 3.36945
+? !!python/tuple [Lu, N]
+: 2.71649
+? !!python/tuple [Lu, O]
+: 2.57749
+? !!python/tuple [Lu, P]
+: 3.11649
+? !!python/tuple [Lu, S]
+: 3.03649
+? !!python/tuple [Lu, Se]
+: 3.16649
+? !!python/tuple [Lu, Te]
+: 3.35649
+? !!python/tuple [Mg, As]
+: 3.09293
+? !!python/tuple [Mg, Br]
+: 2.99293
+? !!python/tuple [Mg, Cl]
+: 2.79293
+? !!python/tuple [Mg, F]
+: 2.29093
+? !!python/tuple [Mg, H]
+: 2.24293
+? !!python/tuple [Mg, I]
+: 3.17293
+? !!python/tuple [Mg, N]
+: 2.56293
+? !!python/tuple [Mg, O]
+: 2.41824
+? !!python/tuple [Mg, P]
+: 3.00293
+? !!python/tuple [Mg, S]
+: 2.89293
+? !!python/tuple [Mg, Se]
+: 3.03293
+? !!python/tuple [Mg, Te]
+: 3.24293
+? !!python/tuple [Mn, As]
+: 2.51642
+? !!python/tuple [Mn, Br]
+: 3.05293
+? !!python/tuple [Mn, Cl]
+: 2.84593
+? !!python/tuple [Mn, F]
+: 2.41093
+? !!python/tuple [Mn, H]
+: 1.70642
+? !!python/tuple [Mn, I]
+: 3.23293
+? !!python/tuple [Mn, N]
+: 2.56193
+? !!python/tuple [Mn, O]
+: 2.51652
+? !!python/tuple [Mn, P]
+: 2.39642
+? !!python/tuple [Mn, S]
+: 2.93293
+? !!python/tuple [Mn, Se]
+: 2.47642
+? !!python/tuple [Mn, Te]
+: 2.70642
+? !!python/tuple [Mo, As]
+: 2.62701
+? !!python/tuple [Mo, Br]
+: 2.8535
+? !!python/tuple [Mo, Cl]
+: 2.80447
+? !!python/tuple [Mo, F]
+: 2.2998
+? !!python/tuple [Mo, H]
+: 1.83701
+? !!python/tuple [Mo, I]
+: 2.74701
+? !!python/tuple [Mo, N]
+: 2.4735
+? !!python/tuple [Mo, O]
+: 2.3475
+? !!python/tuple [Mo, P]
+: 2.54701
+? !!python/tuple [Mo, S]
+: 2.80067
+? !!python/tuple [Mo, Se]
+: 2.59701
+? !!python/tuple [Mo, Te]
+: 2.79701
+? !!python/tuple [N, Cl]
+: 2.20646
+? !!python/tuple [N, F]
+: 1.82646
+? !!python/tuple [N, N]
+: 1.8826
+? !!python/tuple [N, O]
+: 1.81746
+? !!python/tuple [NH, Cl]
+: 3.48195
+? !!python/tuple [NH, F]
+: 2.99195
+? !!python/tuple [NH, O]
+: 3.08895
+? !!python/tuple [Na, As]
+: 3.64942
+? !!python/tuple [Na, Br]
+: 3.57715
+? !!python/tuple [Na, Cl]
+: 3.39412
+? !!python/tuple [Na, F]
+: 2.80398
+? !!python/tuple [Na, H]
+: 2.79942
+? !!python/tuple [Na, I]
+: 3.88251
+? !!python/tuple [Na, N]
+: 3.12942
+? !!python/tuple [Na, O]
+: 2.95693
+? !!python/tuple [Na, P]
+: 3.47942
+? !!python/tuple [Na, S]
+: 3.57685
+? !!python/tuple [Na, Se]
+: 3.71593
+? !!python/tuple [Na, Te]
+: 3.95459
+? !!python/tuple [Nb, As]
+: 2.69642
+? !!python/tuple [Nb, Br]
+: 3.07646
+? !!python/tuple [Nb, Cl]
+: 2.76291
+? !!python/tuple [Nb, F]
+: 2.35646
+? !!python/tuple [Nb, H]
+: 1.90642
+? !!python/tuple [Nb, I]
+: 3.1439
+? !!python/tuple [Nb, N]
+: 2.46046
+? !!python/tuple [Nb, O]
+: 2.45329
+? !!python/tuple [Nb, P]
+: 2.61642
+? !!python/tuple [Nb, S]
+: 2.74
+? !!python/tuple [Nb, Se]
+: 2.66642
+? !!python/tuple [Nb, Te]
+: 2.85642
+? !!python/tuple [Nd, Br]
+: 3.37293
+? !!python/tuple [Nd, Cl]
+: 3.22493
+? !!python/tuple [Nd, F]
+: 2.73452
+? !!python/tuple [Nd, I]
+: 3.59452
+? !!python/tuple [Nd, N]
+: 3.01293
+? !!python/tuple [Nd, O]
+: 2.8587
+? !!python/tuple [Nd, S]
+: 3.42712
+? !!python/tuple [Nd, Se]
+: 3.42293
+? !!python/tuple [Nd, Te]
+: 3.60293
+? !!python/tuple [Ni, As]
+: 2.28998
+? !!python/tuple [Ni, Br]
+: 2.80649
+? !!python/tuple [Ni, Cl]
+: 2.62649
+? !!python/tuple [Ni, F]
+: 2.20249
+? !!python/tuple [Ni, H]
+: 1.44998
+? !!python/tuple [Ni, I]
+: 3.00649
+? !!python/tuple [Ni, N]
+: 2.30649
+? !!python/tuple [Ni, O]
+: 2.28149
+? !!python/tuple [Ni, P]
+: 2.31998
+? !!python/tuple [Ni, S]
+: 2.58649
+? !!python/tuple [Ni, Se]
+: 2.18998
+? !!python/tuple [Ni, Te]
+: 2.47998
+? !!python/tuple [Np, Br]
+: 3.21233
+? !!python/tuple [Np, Cl]
+: 3.07233
+? !!python/tuple [Np, F]
+: 2.59233
+? !!python/tuple [Np, I]
+: 3.44233
+? !!python/tuple [Np, O]
+: 2.63646
+? !!python/tuple [Np, S]
+: 3.2
+? !!python/tuple [O, D]
+: 1.2
+? !!python/tuple [O, H]
+: 1.2
+? !!python/tuple [O, O]
+: 1.7
+? !!python/tuple [Os, Br]
+: 2.72002
+? !!python/tuple [Os, Cl]
+: 2.54002
+? !!python/tuple [Os, F]
+: 2.07746
+? !!python/tuple [Os, O]
+: 2.23
+? !!python/tuple [Os, S]
+: 2.56002
+? !!python/tuple [P, As]
+: 2.29998
+? !!python/tuple [P, Br]
+: 2.44293
+? !!python/tuple [P, Cl]
+: 2.28746
+? !!python/tuple [P, F]
+: 2.01002
+? !!python/tuple [P, H]
+: 1.45998
+? !!python/tuple [P, I]
+: 2.44998
+? !!python/tuple [P, N]
+: 1.97146
+? !!python/tuple [P, O]
+: 2.08646
+? !!python/tuple [P, P]
+: 2.48381
+? !!python/tuple [P, S]
+: 2.57646
+? !!python/tuple [P, Se]
+: 2.69646
+? !!python/tuple [Pa, Br]
+: 3.18437
+? !!python/tuple [Pa, Cl]
+: 3.01437
+? !!python/tuple [Pa, F]
+: 2.54437
+? !!python/tuple [Pa, O]
+: 2.63383
+? !!python/tuple [Pb, As]
+: 3.02644
+? !!python/tuple [Pb, Br]
+: 3.62451
+? !!python/tuple [Pb, Cl]
+: 3.39295
+? !!python/tuple [Pb, F]
+: 2.92045
+? !!python/tuple [Pb, H]
+: 2.27644
+? !!python/tuple [Pb, I]
+: 3.69562
+? !!python/tuple [Pb, N]
+: 3.0967
+? !!python/tuple [Pb, O]
+: 3.04096
+? !!python/tuple [Pb, P]
+: 2.94644
+? !!python/tuple [Pb, S]
+: 3.40395
+? !!python/tuple [Pb, Se]
+: 3.55295
+? !!python/tuple [Pb, Te]
+: 3.14644
+? !!python/tuple [Pd, As]
+: 2.34998
+? !!python/tuple [Pd, Br]
+: 2.80649
+? !!python/tuple [Pd, C]
+: 2.33649
+? !!python/tuple [Pd, Cl]
+: 2.65649
+? !!python/tuple [Pd, F]
+: 2.34649
+? !!python/tuple [Pd, H]
+: 1.51998
+? !!python/tuple [Pd, I]
+: 2.96649
+? !!python/tuple [Pd, N]
+: 2.40451
+? !!python/tuple [Pd, O]
+: 2.39849
+? !!python/tuple [Pd, P]
+: 2.46998
+? !!python/tuple [Pd, S]
+: 2.69649
+? !!python/tuple [Pd, Se]
+: 2.26998
+? !!python/tuple [Pd, Te]
+: 2.52998
+? !!python/tuple [Pm, Br]
+: 3.18233
+? !!python/tuple [Pm, Cl]
+: 3.41233
+? !!python/tuple [Pm, F]
+: 2.55233
+? !!python/tuple [Po, F]
+: 2.83646
+? !!python/tuple [Po, O]
+: 2.64646
+? !!python/tuple [Pr, As]
+: 3.35649
+? !!python/tuple [Pr, Br]
+: 3.27649
+? !!python/tuple [Pr, Cl]
+: 3.12749
+? !!python/tuple [Pr, F]
+: 2.62945
+? !!python/tuple [Pr, H]
+: 2.62649
+? !!python/tuple [Pr, I]
+: 3.49649
+? !!python/tuple [Pr, N]
+: 2.90649
+? !!python/tuple [Pr, O]
+: 2.74449
+? !!python/tuple [Pr, P]
+: 3.28649
+? !!python/tuple [Pr, S]
+: 3.20649
+? !!python/tuple [Pr, Se]
+: 3.32649
+? !!python/tuple [Pr, Te]
+: 3.50649
+? !!python/tuple [Pt, As]
+: 2.30998
+? !!python/tuple [Pt, Br]
+: 2.94191
+? !!python/tuple [Pt, C]
+: 2.36649
+? !!python/tuple [Pt, Cl]
+: 2.75646
+? !!python/tuple [Pt, F]
+: 2.54002
+? !!python/tuple [Pt, H]
+: 1.44998
+? !!python/tuple [Pt, I]
+: 2.41998
+? !!python/tuple [Pt, N]
+: 2.41649
+? !!python/tuple [Pt, O]
+: 2.40649
+? !!python/tuple [Pt, P]
+: 2.23998
+? !!python/tuple [Pt, S]
+: 2.76649
+? !!python/tuple [Pt, Se]
+: 2.23998
+? !!python/tuple [Pt, Te]
+: 2.49998
+? !!python/tuple [Pu, Br]
+: 3.19233
+? !!python/tuple [Pu, Cl]
+: 3.05233
+? !!python/tuple [Pu, F]
+: 2.58233
+? !!python/tuple [Pu, I]
+: 3.43233
+? !!python/tuple [Pu, O]
+: 2.68329
+? !!python/tuple [Pu, S]
+: 3.3
+? !!python/tuple [Rb, As]
+: 4.04645
+? !!python/tuple [Rb, Br]
+: 4.05498
+? !!python/tuple [Rb, Cl]
+: 3.86664
+? !!python/tuple [Rb, F]
+: 3.37645
+? !!python/tuple [Rb, H]
+: 3.43645
+? !!python/tuple [Rb, I]
+: 4.33462
+? !!python/tuple [Rb, N]
+: 3.79645
+? !!python/tuple [Rb, O]
+: 3.43945
+? !!python/tuple [Rb, P]
+: 3.50645
+? !!python/tuple [Rb, S]
+: 3.97645
+? !!python/tuple [Rb, Se]
+: 4.13773
+? !!python/tuple [Rb, Te]
+: 4.28802
+? !!python/tuple [Re, As]
+: 2.61998
+? !!python/tuple [Re, Br]
+: 2.70002
+? !!python/tuple [Re, Cl]
+: 3.44712
+? !!python/tuple [Re, F]
+: 2.16002
+? !!python/tuple [Re, H]
+: 1.79998
+? !!python/tuple [Re, I]
+: 2.65998
+? !!python/tuple [Re, N]
+: 2.10998
+? !!python/tuple [Re, O]
+: 2.3426
+? !!python/tuple [Re, P]
+: 2.50998
+? !!python/tuple [Re, S]
+: 2.61998
+? !!python/tuple [Re, Se]
+: 2.54998
+? !!python/tuple [Re, Te]
+: 2.74998
+? !!python/tuple [Rh, As]
+: 2.41998
+? !!python/tuple [Rh, Br]
+: 2.7126
+? !!python/tuple [Rh, Cl]
+: 2.62646
+? !!python/tuple [Rh, F]
+: 2.16646
+? !!python/tuple [Rh, H]
+: 1.59998
+? !!python/tuple [Rh, I]
+: 2.52998
+? !!python/tuple [Rh, N]
+: 2.2626
+? !!python/tuple [Rh, O]
+: 2.24946
+? !!python/tuple [Rh, P]
+: 2.43998
+? !!python/tuple [Rh, S]
+: 2.19998
+? !!python/tuple [Rh, Se]
+: 2.37998
+? !!python/tuple [Rh, Te]
+: 2.59998
+? !!python/tuple [Ru, As]
+: 2.40998
+? !!python/tuple [Ru, Br]
+: 2.30998
+? !!python/tuple [Ru, Cl]
+: 2.70646
+? !!python/tuple [Ru, F]
+: 2.57646
+? !!python/tuple [Ru, H]
+: 1.65998
+? !!python/tuple [Ru, I]
+: 2.52998
+? !!python/tuple [Ru, N]
+: 2.2626
+? !!python/tuple [Ru, O]
+: 2.22646
+? !!python/tuple [Ru, P]
+: 2.33998
+? !!python/tuple [Ru, S]
+: 2.6426
+? !!python/tuple [Ru, Se]
+: 2.69451
+? !!python/tuple [Ru, Te]
+: 2.58998
+? !!python/tuple [S, Br]
+: 2.21998
+? !!python/tuple [S, Cl]
+: 2.37002
+? !!python/tuple [S, F]
+: 1.95002
+? !!python/tuple [S, H]
+: 1.42998
+? !!python/tuple [S, I]
+: 2.40998
+? !!python/tuple [S, N]
+: 2.28849
+? !!python/tuple [S, O]
+: 1.8
+? !!python/tuple [S, S]
+: 2.2
+? !!python/tuple [Sb, As]
+: 2.64998
+? !!python/tuple [Sb, Br]
+: 2.96646
+? !!python/tuple [Sb, Cl]
+: 2.80646
+? !!python/tuple [Sb, F]
+: 2.35646
+? !!python/tuple [Sb, H]
+: 2.81998
+? !!python/tuple [Sb, I]
+: 3.21646
+? !!python/tuple [Sb, N]
+: 2.56446
+? !!python/tuple [Sb, O]
+: 2.45237
+? !!python/tuple [Sb, P]
+: 2.56998
+? !!python/tuple [Sb, S]
+: 3.05
+? !!python/tuple [Sb, Se]
+: 3.05646
+? !!python/tuple [Sb, Te]
+: 2.82998
+? !!python/tuple [Sc, As]
+: 3.04291
+? !!python/tuple [Sc, Br]
+: 2.94291
+? !!python/tuple [Sc, Cl]
+: 2.92291
+? !!python/tuple [Sc, F]
+: 2.32291
+? !!python/tuple [Sc, H]
+: 2.24291
+? !!python/tuple [Sc, I]
+: 3.15291
+? !!python/tuple [Sc, N]
+: 2.54291
+? !!python/tuple [Sc, O]
+: 2.42029
+? !!python/tuple [Sc, P]
+: 2.96291
+? !!python/tuple [Sc, S]
+: 2.88391
+? !!python/tuple [Sc, Se]
+: 3.00291
+? !!python/tuple [Sc, Te]
+: 3.20291
+? !!python/tuple [Se, Br]
+: 2.78002
+? !!python/tuple [Se, Cl]
+: 2.57002
+? !!python/tuple [Se, F]
+: 2.08002
+? !!python/tuple [Se, H]
+: 1.58998
+? !!python/tuple [Se, I]
+: 2.58998
+? !!python/tuple [Se, N]
+: 2.1
+? !!python/tuple [Se, O]
+: 2.16102
+? !!python/tuple [Se, S]
+: 2.81649
+? !!python/tuple [Se, Se]
+: 2.93649
+? !!python/tuple [Si, As]
+: 2.66002
+? !!python/tuple [Si, Br]
+: 2.55002
+? !!python/tuple [Si, C]
+: 2.23302
+? !!python/tuple [Si, Cl]
+: 2.38002
+? !!python/tuple [Si, F]
+: 1.93002
+? !!python/tuple [Si, H]
+: 1.82002
+? !!python/tuple [Si, I]
+: 2.76002
+? !!python/tuple [Si, N]
+: 2.12002
+? !!python/tuple [Si, O]
+: 1.99002
+? !!python/tuple [Si, P]
+: 2.58002
+? !!python/tuple [Si, S]
+: 2.47602
+? !!python/tuple [Si, Se]
+: 2.61002
+? !!python/tuple [Si, Si]
+: 2.6
+? !!python/tuple [Si, Te]
+: 2.84002
+? !!python/tuple [Sm, As]
+: 3.30649
+? !!python/tuple [Sm, Br]
+: 3.26649
+? !!python/tuple [Sm, Cl]
+: 3.08749
+? !!python/tuple [Sm, F]
+: 2.60649
+? !!python/tuple [Sm, H]
+: 2.56649
+? !!python/tuple [Sm, I]
+: 3.44649
+? !!python/tuple [Sm, N]
+: 3.02351
+? !!python/tuple [Sm, O]
+: 2.88251
+? !!python/tuple [Sm, P]
+: 3.23649
+? !!python/tuple [Sm, S]
+: 3.15649
+? !!python/tuple [Sm, Se]
+: 3.27649
+? !!python/tuple [Sm, Te]
+: 3.46649
+? !!python/tuple [Sn, As]
+: 2.77642
+? !!python/tuple [Sn, Br]
+: 3.2152
+? !!python/tuple [Sn, Cl]
+: 3.13111
+? !!python/tuple [Sn, F]
+: 2.63793
+? !!python/tuple [Sn, H]
+: 2.00642
+? !!python/tuple [Sn, I]
+: 3.52293
+? !!python/tuple [Sn, N]
+: 2.7152
+? !!python/tuple [Sn, O]
+: 2.82146
+? !!python/tuple [Sn, P]
+: 2.60642
+? !!python/tuple [Sn, S]
+: 3.15293
+? !!python/tuple [Sn, Se]
+: 2.96646
+? !!python/tuple [Sn, Te]
+: 2.91642
+? !!python/tuple [Sr, As]
+: 3.62295
+? !!python/tuple [Sr, Br]
+: 3.54295
+? !!python/tuple [Sr, Cl]
+: 3.37295
+? !!python/tuple [Sr, F]
+: 2.88195
+? !!python/tuple [Sr, H]
+: 2.87295
+? !!python/tuple [Sr, I]
+: 3.74295
+? !!python/tuple [Sr, N]
+: 3.09295
+? !!python/tuple [Sr, O]
+: 2.98095
+? !!python/tuple [Sr, P]
+: 3.43295
+? !!python/tuple [Sr, S]
+: 3.51295
+? !!python/tuple [Sr, Se]
+: 3.58295
+? !!python/tuple [Sr, Te]
+: 3.73295
+? !!python/tuple [Ta, As]
+: 2.70642
+? !!python/tuple [Ta, Br]
+: 2.60642
+? !!python/tuple [Ta, Cl]
+: 2.6739
+? !!python/tuple [Ta, F]
+: 2.2539
+? !!python/tuple [Ta, H]
+: 1.91642
+? !!python/tuple [Ta, I]
+: 2.81642
+? !!python/tuple [Ta, N]
+: 2.16642
+? !!python/tuple [Ta, O]
+: 2.74646
+? !!python/tuple [Ta, P]
+: 2.62642
+? !!python/tuple [Ta, S]
+: 2.8439
+? !!python/tuple [Ta, Se]
+: 2.66642
+? !!python/tuple [Ta, Te]
+: 2.85642
+? !!python/tuple [Tb, As]
+: 3.26649
+? !!python/tuple [Tb, Br]
+: 3.18649
+? !!python/tuple [Tb, Cl]
+: 3.04349
+? !!python/tuple [Tb, F]
+: 2.54249
+? !!python/tuple [Tb, H]
+: 2.51649
+? !!python/tuple [Tb, I]
+: 3.40945
+? !!python/tuple [Tb, N]
+: 2.80649
+? !!python/tuple [Tb, O]
+: 2.65549
+? !!python/tuple [Tb, P]
+: 3.19649
+? !!python/tuple [Tb, S]
+: 3.11649
+? !!python/tuple [Tb, Se]
+: 3.23649
+? !!python/tuple [Tb, Te]
+: 3.42649
+? !!python/tuple [Tc, Cl]
+: 2.56002
+? !!python/tuple [Tc, F]
+: 2.24219
+? !!python/tuple [Tc, O]
+: 2.22446
+? !!python/tuple [Te, Br]
+: 2.90002
+? !!python/tuple [Te, Cl]
+: 2.73906
+? !!python/tuple [Te, F]
+: 2.22002
+? !!python/tuple [Te, H]
+: 1.87998
+? !!python/tuple [Te, I]
+: 3.13702
+? !!python/tuple [Te, N]
+: 2.16998
+? !!python/tuple [Te, O]
+: 2.3334
+? !!python/tuple [Te, P]
+: 2.56998
+? !!python/tuple [Te, S]
+: 2.79002
+? !!python/tuple [Te, Se]
+: 2.57998
+? !!python/tuple [Te, Te]
+: 2.80998
+? !!python/tuple [Th, As]
+: 3.40649
+? !!python/tuple [Th, Br]
+: 3.31945
+? !!python/tuple [Th, Cl]
+: 3.15945
+? !!python/tuple [Th, F]
+: 2.68945
+? !!python/tuple [Th, H]
+: 2.67649
+? !!python/tuple [Th, I]
+: 3.56649
+? !!python/tuple [Th, N]
+: 2.94649
+? !!python/tuple [Th, O]
+: 2.77349
+? !!python/tuple [Th, P]
+: 3.33649
+? !!python/tuple [Th, S]
+: 3.24649
+? !!python/tuple [Th, Se]
+: 3.36649
+? !!python/tuple [Th, Te]
+: 3.54649
+? !!python/tuple [Ti, As]
+: 2.87642
+? !!python/tuple [Ti, Br]
+: 3.20293
+? !!python/tuple [Ti, Cl]
+: 3.02293
+? !!python/tuple [Ti, F]
+: 2.86293
+? !!python/tuple [Ti, H]
+: 1.76642
+? !!python/tuple [Ti, I]
+: 3.08291
+? !!python/tuple [Ti, N]
+: 2.08642
+? !!python/tuple [Ti, O]
+: 2.35391
+? !!python/tuple [Ti, P]
+: 2.51642
+? !!python/tuple [Ti, S]
+: 2.74646
+? !!python/tuple [Ti, Se]
+: 2.53642
+? !!python/tuple [Ti, Te]
+: 2.95642
+? !!python/tuple [Tl, As]
+: 3.09644
+? !!python/tuple [Tl, Br]
+: 3.80942
+? !!python/tuple [Tl, Cl]
+: 3.72942
+? !!python/tuple [Tl, F]
+: 3.26942
+? !!python/tuple [Tl, H]
+: 2.35644
+? !!python/tuple [Tl, I]
+: 3.94142
+? !!python/tuple [Tl, N]
+: 2.59644
+? !!python/tuple [Tl, O]
+: 3.36945
+? !!python/tuple [Tl, P]
+: 3.01644
+? !!python/tuple [Tl, S]
+: 3.66442
+? !!python/tuple [Tl, Se]
+: 3.00644
+? !!python/tuple [Tl, Te]
+: 3.23644
+? !!python/tuple [Tm, As]
+: 3.22649
+? !!python/tuple [Tm, Br]
+: 3.13945
+? !!python/tuple [Tm, Cl]
+: 2.98944
+? !!python/tuple [Tm, F]
+: 2.51649
+? !!python/tuple [Tm, H]
+: 2.45649
+? !!python/tuple [Tm, I]
+: 3.37945
+? !!python/tuple [Tm, N]
+: 2.74649
+? !!python/tuple [Tm, O]
+: 2.60649
+? !!python/tuple [Tm, P]
+: 3.13649
+? !!python/tuple [Tm, S]
+: 3.05649
+? !!python/tuple [Tm, Se]
+: 3.18649
+? !!python/tuple [Tm, Te]
+: 3.37649
+? !!python/tuple [U, As]
+: 3.02644
+? !!python/tuple [U, Br]
+: 3.39452
+? !!python/tuple [U, Cl]
+: 3.24452
+? !!python/tuple [U, F]
+: 2.80293
+? !!python/tuple [U, H]
+: 2.27644
+? !!python/tuple [U, I]
+: 3.62452
+? !!python/tuple [U, N]
+: 2.78649
+? !!python/tuple [U, O]
+: 2.94295
+? !!python/tuple [U, P]
+: 2.94644
+? !!python/tuple [U, S]
+: 3.25293
+? !!python/tuple [U, Se]
+: 3.00644
+? !!python/tuple [U, Te]
+: 3.16644
+? !!python/tuple [V, As]
+: 2.54642
+? !!python/tuple [V, Br]
+: 2.87329
+? !!python/tuple [V, Cl]
+: 3.15293
+? !!python/tuple [V, F]
+: 2.87293
+? !!python/tuple [V, H]
+: 1.73642
+? !!python/tuple [V, I]
+: 2.66642
+? !!python/tuple [V, N]
+: 2.38329
+? !!python/tuple [V, O]
+: 2.84939
+? !!python/tuple [V, P]
+: 2.46642
+? !!python/tuple [V, S]
+: 2.82293
+? !!python/tuple [V, Se]
+: 2.48642
+? !!python/tuple [V, Te]
+: 2.72642
+? !!python/tuple [W, As]
+: 2.58998
+? !!python/tuple [W, Br]
+: 2.49998
+? !!python/tuple [W, Cl]
+: 2.47
+? !!python/tuple [W, F]
+: 2.03
+? !!python/tuple [W, H]
+: 1.80998
+? !!python/tuple [W, I]
+: 2.70998
+? !!python/tuple [W, N]
+: 2.10998
+? !!python/tuple [W, O]
+: 2.20102
+? !!python/tuple [W, P]
+: 2.50998
+? !!python/tuple [W, S]
+: 2.43998
+? !!python/tuple [W, Se]
+: 2.55998
+? !!python/tuple [W, Te]
+: 2.75998
+? !!python/tuple [Xe, F]
+: 2.62649
+? !!python/tuple [Xe, O]
+: 2.63451
+? !!python/tuple [Y, As]
+: 3.24649
+? !!python/tuple [Y, Br]
+: 3.15649
+? !!python/tuple [Y, Cl]
+: 3.00649
+? !!python/tuple [Y, F]
+: 2.51049
+? !!python/tuple [Y, H]
+: 2.46649
+? !!python/tuple [Y, I]
+: 3.37649
+? !!python/tuple [Y, N]
+: 2.77649
+? !!python/tuple [Y, O]
+: 2.62549
+? !!python/tuple [Y, P]
+: 3.17649
+? !!python/tuple [Y, S]
+: 3.08649
+? !!python/tuple [Y, Se]
+: 3.21649
+? !!python/tuple [Y, Te]
+: 3.40649
+? !!python/tuple [Yb, As]
+: 3.19649
+? !!python/tuple [Yb, Br]
+: 3.12945
+? !!python/tuple [Yb, Cl]
+: 2.98249
+? !!python/tuple [Yb, F]
+: 2.50649
+? !!python/tuple [Yb, H]
+: 2.42649
+? !!python/tuple [Yb, I]
+: 3.37945
+? !!python/tuple [Yb, N]
+: 2.84851
+? !!python/tuple [Yb, O]
+: 2.74551
+? !!python/tuple [Yb, P]
+: 3.13649
+? !!python/tuple [Yb, S]
+: 3.03649
+? !!python/tuple [Yb, Se]
+: 3.16649
+? !!python/tuple [Yb, Te]
+: 3.36649
+? !!python/tuple [Zn, As]
+: 2.95293
+? !!python/tuple [Zn, Br]
+: 2.86293
+? !!python/tuple [Zn, Cl]
+: 2.72293
+? !!python/tuple [Zn, F]
+: 2.38293
+? !!python/tuple [Zn, H]
+: 2.13293
+? !!python/tuple [Zn, I]
+: 3.07293
+? !!python/tuple [Zn, N]
+: 2.43293
+? !!python/tuple [Zn, O]
+: 2.41693
+? !!python/tuple [Zn, P]
+: 2.86293
+? !!python/tuple [Zn, S]
+: 2.80293
+? !!python/tuple [Zn, Se]
+: 2.93293
+? !!python/tuple [Zn, Te]
+: 3.16293
+? !!python/tuple [Zr, As]
+: 3.07004
+? !!python/tuple [Zr, Br]
+: 2.98004
+? !!python/tuple [Zr, Cl]
+: 3.33651
+? !!python/tuple [Zr, F]
+: 2.99651
+? !!python/tuple [Zr, H]
+: 2.29004
+? !!python/tuple [Zr, I]
+: 3.19004
+? !!python/tuple [Zr, N]
+: 2.65004
+? !!python/tuple [Zr, O]
+: 3.09651
+? !!python/tuple [Zr, P]
+: 3.02004
+? !!python/tuple [Zr, S]
+: 2.91004
+? !!python/tuple [Zr, Se]
+: 3.03004
+? !!python/tuple [Zr, Te]
+: 3.17004
