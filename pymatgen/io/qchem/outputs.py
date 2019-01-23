@@ -725,10 +725,10 @@ class QCOutput(MSONable):
         footer_pattern = r"(?:Max gradient component|Gradient time)"
 
         grad_format_length = self._get_grad_format_length(grad_header_pattern)
-        grad_table_pattern = r"(?:\s+\d+(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?)?\n\s\s\s\s[1-3]\s*([\d\-\.]{2,})"
+        grad_table_pattern = r"(?:\s+\d+(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?)?\n\s\s\s\s[1-3]\s*(\-?[\d\.]{9,12})"
         if grad_format_length > 1:
             for ii in range(1,grad_format_length):
-                grad_table_pattern = grad_table_pattern + r"(?:\s*(-?[\d\.]{2,}))?"
+                grad_table_pattern = grad_table_pattern + r"(?:\s*(\-?[\d\.]{9,12}))?"
 
         parsed_gradients = read_table_pattern(
             self.text, grad_header_pattern, grad_table_pattern, footer_pattern)
