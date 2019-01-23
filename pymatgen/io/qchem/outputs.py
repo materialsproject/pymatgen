@@ -793,7 +793,7 @@ class QCOutput(MSONable):
                 "frequencies":
                 r"\s*Frequency:\s+(\-?[\d\.\*]+)(?:\s+(\-?[\d\.\*]+)(?:\s+(\-?[\d\.\*]+))*)*",
                 "trans_dip":
-                r"TransDip\s+(\-?[\d\.\*]{5,7})\s*(\-?[\d\.\*]{5,7})\s*(\-?[\d\.\*]{5,7})\s*(?:(\-?[\d\.\*]{5,7})\s*(\-?[\d\.\*]{5,7})\s*(\-?[\d\.\*]{5,7})(?:\s*(\-?[\d\.\*]{5,7})\s*(\-?[\d\.\*]{5,7})\s*(\-?[\d\.\*]{5,7}))*)*",
+                r"TransDip\s+(\-?[\d\.]{5,7}|\*{5,7})\s*(\-?[\d\.]{5,7}|\*{5,7})\s*(\-?[\d\.]{5,7}|\*{5,7})\s*(?:(\-?[\d\.]{5,7}|\*{5,7})\s*(\-?[\d\.]{5,7}|\*{5,7})\s*(\-?[\d\.]{5,7}|\*{5,7})\s*(?:(\-?[\d\.]{5,7}|\*{5,7})\s*(\-?[\d\.]{5,7}|\*{5,7})\s*(\-?[\d\.]{5,7}|\*{5,7}))*)*",
                 "IR_intens":
                 r"\s*IR Intens:\s*(\-?[\d\.\*]+)(?:\s+(\-?[\d\.\*]+)(?:\s+(\-?[\d\.\*]+))*)*",
                 "IR_active":
@@ -851,6 +851,7 @@ class QCOutput(MSONable):
                 for value in entry
             ]
             self.data['IR_active'] = active
+
             trans_dip = np.zeros(shape=(int((len(temp_trans_dip) - temp_trans_dip.count('None'))/3),3))
             for ii, entry in enumerate(temp_trans_dip):
                 if entry != 'None':
