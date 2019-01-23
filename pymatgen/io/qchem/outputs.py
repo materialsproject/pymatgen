@@ -867,7 +867,7 @@ class QCOutput(MSONable):
                     if "*" in entry:
                         if ii==0:
                             freqs[ii] = -float("inf")
-                        elif ii==len(temp_freqs)-1:
+                        elif ii==len(freqs)-1:
                             freqs[ii] = float("inf")
                         elif freqs[ii-1]==-float("inf"):
                             freqs[ii] = -float("inf")
