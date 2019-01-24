@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.surface_analysis module &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.analysis.surface_analysis module &#8212; pymatgen 2019.1.24 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.1.24 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -92,7 +92,7 @@ batteries. Nano Letters, 14(2), 1016–1020.
 
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.NanoscaleStability.plot_all_stability_map">
-<code class="descname">plot_all_stability_map</code><span class="sig-paren">(</span><em>max_r</em>, <em>increments=50</em>, <em>delu_dict=None</em>, <em>delu_default=0</em>, <em>plt=None</em>, <em>labels=None</em>, <em>from_sphere_area=False</em>, <em>e_units=u'keV'</em>, <em>r_units=u'nanometers'</em>, <em>normalize=False</em>, <em>scale_per_atom=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#NanoscaleStability.plot_all_stability_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.NanoscaleStability.plot_all_stability_map" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot_all_stability_map</code><span class="sig-paren">(</span><em>max_r</em>, <em>increments=50</em>, <em>delu_dict=None</em>, <em>delu_default=0</em>, <em>plt=None</em>, <em>labels=None</em>, <em>from_sphere_area=False</em>, <em>e_units='keV'</em>, <em>r_units='nanometers'</em>, <em>normalize=False</em>, <em>scale_per_atom=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#NanoscaleStability.plot_all_stability_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.NanoscaleStability.plot_all_stability_map" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
 <dt>Returns the plot of the formation energy of a particles</dt>
 <dd>of different polymorphs against its effect radius</dd>
@@ -123,7 +123,7 @@ area of the particle as a perfect sphere, or as a Wulff shape.</li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.NanoscaleStability.plot_one_stability_map">
-<code class="descname">plot_one_stability_map</code><span class="sig-paren">(</span><em>analyzer</em>, <em>max_r</em>, <em>delu_dict=None</em>, <em>label=u''</em>, <em>increments=50</em>, <em>delu_default=0</em>, <em>plt=None</em>, <em>from_sphere_area=False</em>, <em>e_units=u'keV'</em>, <em>r_units=u'nanometers'</em>, <em>normalize=False</em>, <em>scale_per_atom=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#NanoscaleStability.plot_one_stability_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.NanoscaleStability.plot_one_stability_map" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot_one_stability_map</code><span class="sig-paren">(</span><em>analyzer</em>, <em>max_r</em>, <em>delu_dict=None</em>, <em>label=''</em>, <em>increments=50</em>, <em>delu_default=0</em>, <em>plt=None</em>, <em>from_sphere_area=False</em>, <em>e_units='keV'</em>, <em>r_units='nanometers'</em>, <em>normalize=False</em>, <em>scale_per_atom=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#NanoscaleStability.plot_one_stability_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.NanoscaleStability.plot_one_stability_map" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
 <dt>Returns the plot of the formation energy of a particle against its</dt>
 <dd>effect radius</dd>
@@ -185,7 +185,7 @@ multiplied by the given effective radius.</dd>
 
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.NanoscaleStability.solve_equilibrium_point">
-<code class="descname">solve_equilibrium_point</code><span class="sig-paren">(</span><em>analyzer1</em>, <em>analyzer2</em>, <em>delu_dict={}</em>, <em>delu_default=0</em>, <em>units=u'nanometers'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#NanoscaleStability.solve_equilibrium_point"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.NanoscaleStability.solve_equilibrium_point" title="Permalink to this definition">¶</a></dt>
+<code class="descname">solve_equilibrium_point</code><span class="sig-paren">(</span><em>analyzer1</em>, <em>analyzer2</em>, <em>delu_dict={}</em>, <em>delu_default=0</em>, <em>units='nanometers'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#NanoscaleStability.solve_equilibrium_point"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.NanoscaleStability.solve_equilibrium_point" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
 <dt>Gives the radial size of two particles where equilibrium is reached</dt>
 <dd>between both particles. NOTE: the solution here is not the same
@@ -219,7 +219,7 @@ format: Symbol(“delu_el”) where el is the name of the element.</li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.NanoscaleStability.wulff_gform_and_r">
-<code class="descname">wulff_gform_and_r</code><span class="sig-paren">(</span><em>wulffshape</em>, <em>bulk_entry</em>, <em>r</em>, <em>from_sphere_area=False</em>, <em>r_units=u'nanometers'</em>, <em>e_units=u'keV'</em>, <em>normalize=False</em>, <em>scale_per_atom=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#NanoscaleStability.wulff_gform_and_r"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.NanoscaleStability.wulff_gform_and_r" title="Permalink to this definition">¶</a></dt>
+<code class="descname">wulff_gform_and_r</code><span class="sig-paren">(</span><em>wulffshape</em>, <em>bulk_entry</em>, <em>r</em>, <em>from_sphere_area=False</em>, <em>r_units='nanometers'</em>, <em>e_units='keV'</em>, <em>normalize=False</em>, <em>scale_per_atom=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#NanoscaleStability.wulff_gform_and_r"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.NanoscaleStability.wulff_gform_and_r" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the formation energy of the particle with arbitrary radius r.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -666,7 +666,7 @@ according to their given label in the SlabEntry object.</li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.chempot_vs_gamma_plot_one">
-<code class="descname">chempot_vs_gamma_plot_one</code><span class="sig-paren">(</span><em>plt</em>, <em>entry</em>, <em>ref_delu</em>, <em>chempot_range</em>, <em>delu_dict={}</em>, <em>delu_default=0</em>, <em>label=u''</em>, <em>JPERM2=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.chempot_vs_gamma_plot_one"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.chempot_vs_gamma_plot_one" title="Permalink to this definition">¶</a></dt>
+<code class="descname">chempot_vs_gamma_plot_one</code><span class="sig-paren">(</span><em>plt</em>, <em>entry</em>, <em>ref_delu</em>, <em>chempot_range</em>, <em>delu_dict={}</em>, <em>delu_default=0</em>, <em>label=''</em>, <em>JPERM2=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.chempot_vs_gamma_plot_one"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.chempot_vs_gamma_plot_one" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function to  help plot the surface energy of a
 single SlabEntry as a function of chemical potential.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1206,13 +1206,13 @@ potential (key) in gamma a value</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.1.24 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

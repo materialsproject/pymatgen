@@ -144,7 +144,10 @@ def submit_dash_pr(ctx):
 @task
 def update_doc(ctx):
     make_doc(ctx)
-    contribute_dash(ctx)
+    try:
+        contribute_dash(ctx)
+    except:
+        pass
     ctx.run("git add .")
     ctx.run("git commit -a -m \"Update docs\"")
     ctx.run("git push")

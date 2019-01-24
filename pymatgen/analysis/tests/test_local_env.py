@@ -1107,6 +1107,13 @@ class CutOffDictNNTest(PymatgenTest):
         nn_null = CutOffDictNN()
         self.assertEqual(nn_null.get_cn(self.diamond, 0), 0)
 
+    def test_from_preset(self):
+        nn = CutOffDictNN.from_preset("vesta_2019")
+        self.assertEqual(nn.get_cn(self.diamond, 0), 4)
+
+        # test error thrown on unknown preset
+        self.assertRaises(ValueError, CutOffDictNN.from_preset, "test")
+
 
 @unittest.skipIf(not which('critic2'), "critic2 executable not present")
 class Critic2NNTest(PymatgenTest):

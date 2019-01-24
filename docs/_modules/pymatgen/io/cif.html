@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.cif &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.io.cif &#8212; pymatgen 2019.1.24 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.1.24 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -50,7 +50,6 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span>
 
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">re</span>
@@ -58,17 +57,11 @@
 <span class="kn">import</span> <span class="nn">textwrap</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">deque</span>
-
-<span class="kn">import</span> <span class="nn">six</span>
-<span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">zip</span><span class="p">,</span> <span class="n">cStringIO</span>
-
+<span class="kn">from</span> <span class="nn">io</span> <span class="k">import</span> <span class="n">StringIO</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">partial</span>
 
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">inspect</span> <span class="k">import</span> <span class="n">getfullargspec</span> <span class="k">as</span> <span class="n">getargspec</span>
-<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">inspect</span> <span class="k">import</span> <span class="n">getargspec</span>
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="k">import</span> <span class="n">getfullargspec</span> <span class="k">as</span> <span class="n">getargspec</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">groupby</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">get_el_sp</span><span class="p">,</span> <span class="n">DummySpecie</span>
 <span class="kn">from</span> <span class="nn">monty.io</span> <span class="k">import</span> <span class="n">zopen</span>
@@ -129,7 +122,7 @@
     <span class="k">return</span> <span class="n">_COD_DATA</span>
 
 
-<div class="viewcode-block" id="CifBlock"><a class="viewcode-back" href="../../../pymatgen.io.cif.html#pymatgen.io.cif.CifBlock">[docs]</a><span class="k">class</span> <span class="nc">CifBlock</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="CifBlock"><a class="viewcode-back" href="../../../pymatgen.io.cif.html#pymatgen.io.cif.CifBlock">[docs]</a><span class="k">class</span> <span class="nc">CifBlock</span><span class="p">:</span>
     <span class="n">maxlen</span> <span class="o">=</span> <span class="mi">70</span>  <span class="c1"># not quite 80 so we can deal with semicolons and things</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">loops</span><span class="p">,</span> <span class="n">header</span><span class="p">):</span>
@@ -300,7 +293,7 @@
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">loops</span><span class="p">,</span> <span class="n">header</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="CifFile"><a class="viewcode-back" href="../../../pymatgen.io.cif.html#pymatgen.io.cif.CifFile">[docs]</a><span class="k">class</span> <span class="nc">CifFile</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="CifFile"><a class="viewcode-back" href="../../../pymatgen.io.cif.html#pymatgen.io.cif.CifFile">[docs]</a><span class="k">class</span> <span class="nc">CifFile</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Reads and parses CifBlocks from a .cif file or string</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -343,7 +336,7 @@
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span></div></div>
 
 
-<div class="viewcode-block" id="CifParser"><a class="viewcode-back" href="../../../pymatgen.io.cif.html#pymatgen.io.cif.CifParser">[docs]</a><span class="k">class</span> <span class="nc">CifParser</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="CifParser"><a class="viewcode-back" href="../../../pymatgen.io.cif.html#pymatgen.io.cif.CifParser">[docs]</a><span class="k">class</span> <span class="nc">CifParser</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parses a CIF file. Attempts to fix CIFs that are out-of-spec, but will</span>
 <span class="sd">    issue warnings if corrections applied. These are also stored in the</span>
@@ -361,7 +354,7 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">occupancy_tolerance</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">site_tolerance</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_occupancy_tolerance</span> <span class="o">=</span> <span class="n">occupancy_tolerance</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_site_tolerance</span> <span class="o">=</span> <span class="n">site_tolerance</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_cif</span> <span class="o">=</span> <span class="n">CifFile</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_cif</span> <span class="o">=</span> <span class="n">CifFile</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">filename</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
@@ -426,7 +419,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            CifParser</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">stream</span> <span class="o">=</span> <span class="n">cStringIO</span><span class="p">(</span><span class="n">cif_string</span><span class="p">)</span>
+        <span class="n">stream</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span><span class="n">cif_string</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">CifParser</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">occupancy_tolerance</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_sanitize_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
@@ -721,7 +714,7 @@
                                <span class="s2">&quot;_space_group_symop_operation_xyz_&quot;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">symmetry_label</span><span class="p">):</span>
                 <span class="n">xyz</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">symmetry_label</span><span class="p">)</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">xyz</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">xyz</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                     <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;A 1-line symmetry op P1 CIF is detected!&quot;</span>
                     <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
@@ -815,14 +808,14 @@
         <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;_space_group_symop_magn_operation.xyz&quot;</span><span class="p">):</span>
 
             <span class="n">xyzt</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;_space_group_symop_magn_operation.xyz&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">xyzt</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">xyzt</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="n">xyzt</span> <span class="o">=</span> <span class="p">[</span><span class="n">xyzt</span><span class="p">]</span>
             <span class="n">magsymmops</span> <span class="o">=</span> <span class="p">[</span><span class="n">MagSymmOp</span><span class="o">.</span><span class="n">from_xyzt_string</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">xyzt</span><span class="p">]</span>
 
             <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;_space_group_symop_magn_centering.xyz&quot;</span><span class="p">):</span>
 
                 <span class="n">xyzt</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;_space_group_symop_magn_centering.xyz&quot;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">xyzt</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">xyzt</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                     <span class="n">xyzt</span> <span class="o">=</span> <span class="p">[</span><span class="n">xyzt</span><span class="p">]</span>
                 <span class="n">centering_symops</span> <span class="o">=</span> <span class="p">[</span><span class="n">MagSymmOp</span><span class="o">.</span><span class="n">from_xyzt_string</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">xyzt</span><span class="p">]</span>
 
@@ -1240,7 +1233,7 @@
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span></div>
 
 
-<div class="viewcode-block" id="CifWriter"><a class="viewcode-back" href="../../../pymatgen.io.cif.html#pymatgen.io.cif.CifWriter">[docs]</a><span class="k">class</span> <span class="nc">CifWriter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="CifWriter"><a class="viewcode-back" href="../../../pymatgen.io.cif.html#pymatgen.io.cif.CifWriter">[docs]</a><span class="k">class</span> <span class="nc">CifWriter</span><span class="p">:</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">struct</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">write_magmoms</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A wrapper around CifFile to write CIF files from pymatgen structures.</span>
@@ -1473,7 +1466,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.1.24 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1481,7 +1474,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

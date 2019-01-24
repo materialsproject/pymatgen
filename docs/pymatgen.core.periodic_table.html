@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.periodic_table module &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.core.periodic_table module &#8212; pymatgen 2019.1.24 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.1.24 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -47,7 +47,7 @@
 <span id="pymatgen-core-periodic-table-module"></span><h1>pymatgen.core.periodic_table module<a class="headerlink" href="#module-pymatgen.core.periodic_table" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.core.periodic_table.DummySpecie">
-<em class="property">class </em><code class="descname">DummySpecie</code><span class="sig-paren">(</span><em>symbol=u'X'</em>, <em>oxidation_state=0</em>, <em>properties=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#DummySpecie"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.DummySpecie" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">DummySpecie</code><span class="sig-paren">(</span><em>symbol='X'</em>, <em>oxidation_state=0</em>, <em>properties=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#DummySpecie"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.DummySpecie" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.periodic_table.Specie</span></code></a></p>
 <p>A special specie for representing non-traditional elements or species. For
 example, representation of vacancies (charged or otherwise), or special
@@ -116,7 +116,8 @@ to use atomic numbers for a Dummy specie.</p>
 <dl class="method">
 <dt id="pymatgen.core.periodic_table.DummySpecie.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#DummySpecie.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.DummySpecie.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>A JSON serializable dict representation of an object.</p>
+</dd></dl>
 
 <dl class="classmethod">
 <dt id="pymatgen.core.periodic_table.DummySpecie.from_dict">
@@ -535,492 +536,492 @@ negative oxidation states of the element for which data is present.</p>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Ac">
-<code class="descname">Ac</code><em class="property"> = u'Ac'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ac" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Ac</code><em class="property"> = 'Ac'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ac" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Ag">
-<code class="descname">Ag</code><em class="property"> = u'Ag'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ag" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Ag</code><em class="property"> = 'Ag'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ag" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Al">
-<code class="descname">Al</code><em class="property"> = u'Al'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Al" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Al</code><em class="property"> = 'Al'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Al" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Am">
-<code class="descname">Am</code><em class="property"> = u'Am'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Am" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Am</code><em class="property"> = 'Am'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Am" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Ar">
-<code class="descname">Ar</code><em class="property"> = u'Ar'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ar" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Ar</code><em class="property"> = 'Ar'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ar" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.As">
-<code class="descname">As</code><em class="property"> = u'As'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.As" title="Permalink to this definition">¶</a></dt>
+<code class="descname">As</code><em class="property"> = 'As'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.As" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.At">
-<code class="descname">At</code><em class="property"> = u'At'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.At" title="Permalink to this definition">¶</a></dt>
+<code class="descname">At</code><em class="property"> = 'At'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.At" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Au">
-<code class="descname">Au</code><em class="property"> = u'Au'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Au" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Au</code><em class="property"> = 'Au'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Au" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.B">
-<code class="descname">B</code><em class="property"> = u'B'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.B" title="Permalink to this definition">¶</a></dt>
+<code class="descname">B</code><em class="property"> = 'B'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.B" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Ba">
-<code class="descname">Ba</code><em class="property"> = u'Ba'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ba" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Ba</code><em class="property"> = 'Ba'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ba" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Be">
-<code class="descname">Be</code><em class="property"> = u'Be'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Be" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Be</code><em class="property"> = 'Be'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Be" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Bi">
-<code class="descname">Bi</code><em class="property"> = u'Bi'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Bi" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Bi</code><em class="property"> = 'Bi'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Bi" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Bk">
-<code class="descname">Bk</code><em class="property"> = u'Bk'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Bk" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Bk</code><em class="property"> = 'Bk'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Bk" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Br">
-<code class="descname">Br</code><em class="property"> = u'Br'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Br" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Br</code><em class="property"> = 'Br'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Br" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.C">
-<code class="descname">C</code><em class="property"> = u'C'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.C" title="Permalink to this definition">¶</a></dt>
+<code class="descname">C</code><em class="property"> = 'C'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.C" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Ca">
-<code class="descname">Ca</code><em class="property"> = u'Ca'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ca" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Ca</code><em class="property"> = 'Ca'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ca" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Cd">
-<code class="descname">Cd</code><em class="property"> = u'Cd'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Cd" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Cd</code><em class="property"> = 'Cd'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Cd" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Ce">
-<code class="descname">Ce</code><em class="property"> = u'Ce'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ce" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Ce</code><em class="property"> = 'Ce'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ce" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Cf">
-<code class="descname">Cf</code><em class="property"> = u'Cf'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Cf" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Cf</code><em class="property"> = 'Cf'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Cf" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Cl">
-<code class="descname">Cl</code><em class="property"> = u'Cl'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Cl" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Cl</code><em class="property"> = 'Cl'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Cl" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Cm">
-<code class="descname">Cm</code><em class="property"> = u'Cm'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Cm" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Cm</code><em class="property"> = 'Cm'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Cm" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Co">
-<code class="descname">Co</code><em class="property"> = u'Co'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Co" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Co</code><em class="property"> = 'Co'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Co" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Cr">
-<code class="descname">Cr</code><em class="property"> = u'Cr'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Cr" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Cr</code><em class="property"> = 'Cr'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Cr" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Cs">
-<code class="descname">Cs</code><em class="property"> = u'Cs'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Cs" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Cs</code><em class="property"> = 'Cs'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Cs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Cu">
-<code class="descname">Cu</code><em class="property"> = u'Cu'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Cu" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Cu</code><em class="property"> = 'Cu'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Cu" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Dy">
-<code class="descname">Dy</code><em class="property"> = u'Dy'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Dy" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Dy</code><em class="property"> = 'Dy'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Dy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Er">
-<code class="descname">Er</code><em class="property"> = u'Er'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Er" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Er</code><em class="property"> = 'Er'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Er" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Es">
-<code class="descname">Es</code><em class="property"> = u'Es'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Es" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Es</code><em class="property"> = 'Es'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Es" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Eu">
-<code class="descname">Eu</code><em class="property"> = u'Eu'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Eu" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Eu</code><em class="property"> = 'Eu'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Eu" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.F">
-<code class="descname">F</code><em class="property"> = u'F'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.F" title="Permalink to this definition">¶</a></dt>
+<code class="descname">F</code><em class="property"> = 'F'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.F" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Fe">
-<code class="descname">Fe</code><em class="property"> = u'Fe'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Fe" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Fe</code><em class="property"> = 'Fe'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Fe" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Fm">
-<code class="descname">Fm</code><em class="property"> = u'Fm'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Fm" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Fm</code><em class="property"> = 'Fm'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Fm" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Fr">
-<code class="descname">Fr</code><em class="property"> = u'Fr'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Fr" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Fr</code><em class="property"> = 'Fr'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Fr" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Ga">
-<code class="descname">Ga</code><em class="property"> = u'Ga'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ga" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Ga</code><em class="property"> = 'Ga'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ga" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Gd">
-<code class="descname">Gd</code><em class="property"> = u'Gd'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Gd" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Gd</code><em class="property"> = 'Gd'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Gd" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Ge">
-<code class="descname">Ge</code><em class="property"> = u'Ge'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ge" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Ge</code><em class="property"> = 'Ge'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ge" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.H">
-<code class="descname">H</code><em class="property"> = u'H'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.H" title="Permalink to this definition">¶</a></dt>
+<code class="descname">H</code><em class="property"> = 'H'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.H" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.He">
-<code class="descname">He</code><em class="property"> = u'He'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.He" title="Permalink to this definition">¶</a></dt>
+<code class="descname">He</code><em class="property"> = 'He'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.He" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Hf">
-<code class="descname">Hf</code><em class="property"> = u'Hf'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Hf" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Hf</code><em class="property"> = 'Hf'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Hf" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Hg">
-<code class="descname">Hg</code><em class="property"> = u'Hg'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Hg" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Hg</code><em class="property"> = 'Hg'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Hg" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Ho">
-<code class="descname">Ho</code><em class="property"> = u'Ho'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ho" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Ho</code><em class="property"> = 'Ho'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ho" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.I">
-<code class="descname">I</code><em class="property"> = u'I'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.I" title="Permalink to this definition">¶</a></dt>
+<code class="descname">I</code><em class="property"> = 'I'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.I" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.In">
-<code class="descname">In</code><em class="property"> = u'In'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.In" title="Permalink to this definition">¶</a></dt>
+<code class="descname">In</code><em class="property"> = 'In'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.In" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Ir">
-<code class="descname">Ir</code><em class="property"> = u'Ir'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ir" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Ir</code><em class="property"> = 'Ir'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ir" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.K">
-<code class="descname">K</code><em class="property"> = u'K'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.K" title="Permalink to this definition">¶</a></dt>
+<code class="descname">K</code><em class="property"> = 'K'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.K" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Kr">
-<code class="descname">Kr</code><em class="property"> = u'Kr'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Kr" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Kr</code><em class="property"> = 'Kr'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Kr" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.La">
-<code class="descname">La</code><em class="property"> = u'La'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.La" title="Permalink to this definition">¶</a></dt>
+<code class="descname">La</code><em class="property"> = 'La'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.La" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Li">
-<code class="descname">Li</code><em class="property"> = u'Li'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Li" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Li</code><em class="property"> = 'Li'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Li" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Lr">
-<code class="descname">Lr</code><em class="property"> = u'Lr'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Lr" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Lr</code><em class="property"> = 'Lr'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Lr" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Lu">
-<code class="descname">Lu</code><em class="property"> = u'Lu'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Lu" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Lu</code><em class="property"> = 'Lu'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Lu" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Md">
-<code class="descname">Md</code><em class="property"> = u'Md'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Md" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Md</code><em class="property"> = 'Md'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Md" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Mg">
-<code class="descname">Mg</code><em class="property"> = u'Mg'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Mg" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Mg</code><em class="property"> = 'Mg'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Mg" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Mn">
-<code class="descname">Mn</code><em class="property"> = u'Mn'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Mn" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Mn</code><em class="property"> = 'Mn'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Mn" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Mo">
-<code class="descname">Mo</code><em class="property"> = u'Mo'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Mo" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Mo</code><em class="property"> = 'Mo'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Mo" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.N">
-<code class="descname">N</code><em class="property"> = u'N'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.N" title="Permalink to this definition">¶</a></dt>
+<code class="descname">N</code><em class="property"> = 'N'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.N" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Na">
-<code class="descname">Na</code><em class="property"> = u'Na'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Na" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Na</code><em class="property"> = 'Na'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Na" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Nb">
-<code class="descname">Nb</code><em class="property"> = u'Nb'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Nb" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Nb</code><em class="property"> = 'Nb'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Nb" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Nd">
-<code class="descname">Nd</code><em class="property"> = u'Nd'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Nd" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Nd</code><em class="property"> = 'Nd'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Nd" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Ne">
-<code class="descname">Ne</code><em class="property"> = u'Ne'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ne" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Ne</code><em class="property"> = 'Ne'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ne" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Ni">
-<code class="descname">Ni</code><em class="property"> = u'Ni'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ni" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Ni</code><em class="property"> = 'Ni'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ni" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.No">
-<code class="descname">No</code><em class="property"> = u'No'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.No" title="Permalink to this definition">¶</a></dt>
+<code class="descname">No</code><em class="property"> = 'No'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.No" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Np">
-<code class="descname">Np</code><em class="property"> = u'Np'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Np" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Np</code><em class="property"> = 'Np'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Np" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.O">
-<code class="descname">O</code><em class="property"> = u'O'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.O" title="Permalink to this definition">¶</a></dt>
+<code class="descname">O</code><em class="property"> = 'O'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.O" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Os">
-<code class="descname">Os</code><em class="property"> = u'Os'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Os" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Os</code><em class="property"> = 'Os'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Os" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.P">
-<code class="descname">P</code><em class="property"> = u'P'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.P" title="Permalink to this definition">¶</a></dt>
+<code class="descname">P</code><em class="property"> = 'P'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.P" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Pa">
-<code class="descname">Pa</code><em class="property"> = u'Pa'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Pa" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Pa</code><em class="property"> = 'Pa'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Pa" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Pb">
-<code class="descname">Pb</code><em class="property"> = u'Pb'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Pb" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Pb</code><em class="property"> = 'Pb'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Pb" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Pd">
-<code class="descname">Pd</code><em class="property"> = u'Pd'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Pd" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Pd</code><em class="property"> = 'Pd'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Pd" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Pm">
-<code class="descname">Pm</code><em class="property"> = u'Pm'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Pm" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Pm</code><em class="property"> = 'Pm'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Pm" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Po">
-<code class="descname">Po</code><em class="property"> = u'Po'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Po" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Po</code><em class="property"> = 'Po'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Po" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Pr">
-<code class="descname">Pr</code><em class="property"> = u'Pr'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Pr" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Pr</code><em class="property"> = 'Pr'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Pr" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Pt">
-<code class="descname">Pt</code><em class="property"> = u'Pt'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Pt" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Pt</code><em class="property"> = 'Pt'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Pt" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Pu">
-<code class="descname">Pu</code><em class="property"> = u'Pu'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Pu" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Pu</code><em class="property"> = 'Pu'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Pu" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Ra">
-<code class="descname">Ra</code><em class="property"> = u'Ra'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ra" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Ra</code><em class="property"> = 'Ra'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ra" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Rb">
-<code class="descname">Rb</code><em class="property"> = u'Rb'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Rb" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Rb</code><em class="property"> = 'Rb'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Rb" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Re">
-<code class="descname">Re</code><em class="property"> = u'Re'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Re" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Re</code><em class="property"> = 'Re'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Re" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Rh">
-<code class="descname">Rh</code><em class="property"> = u'Rh'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Rh" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Rh</code><em class="property"> = 'Rh'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Rh" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Rn">
-<code class="descname">Rn</code><em class="property"> = u'Rn'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Rn" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Rn</code><em class="property"> = 'Rn'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Rn" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Ru">
-<code class="descname">Ru</code><em class="property"> = u'Ru'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ru" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Ru</code><em class="property"> = 'Ru'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ru" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.S">
-<code class="descname">S</code><em class="property"> = u'S'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.S" title="Permalink to this definition">¶</a></dt>
+<code class="descname">S</code><em class="property"> = 'S'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.S" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Sb">
-<code class="descname">Sb</code><em class="property"> = u'Sb'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Sb" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Sb</code><em class="property"> = 'Sb'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Sb" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Sc">
-<code class="descname">Sc</code><em class="property"> = u'Sc'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Sc" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Sc</code><em class="property"> = 'Sc'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Sc" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Se">
-<code class="descname">Se</code><em class="property"> = u'Se'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Se" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Se</code><em class="property"> = 'Se'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Se" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Si">
-<code class="descname">Si</code><em class="property"> = u'Si'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Si" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Si</code><em class="property"> = 'Si'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Si" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Sm">
-<code class="descname">Sm</code><em class="property"> = u'Sm'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Sm" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Sm</code><em class="property"> = 'Sm'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Sm" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Sn">
-<code class="descname">Sn</code><em class="property"> = u'Sn'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Sn" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Sn</code><em class="property"> = 'Sn'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Sn" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Sr">
-<code class="descname">Sr</code><em class="property"> = u'Sr'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Sr" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Sr</code><em class="property"> = 'Sr'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Sr" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Ta">
-<code class="descname">Ta</code><em class="property"> = u'Ta'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ta" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Ta</code><em class="property"> = 'Ta'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ta" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Tb">
-<code class="descname">Tb</code><em class="property"> = u'Tb'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Tb" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Tb</code><em class="property"> = 'Tb'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Tb" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Tc">
-<code class="descname">Tc</code><em class="property"> = u'Tc'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Tc" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Tc</code><em class="property"> = 'Tc'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Tc" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Te">
-<code class="descname">Te</code><em class="property"> = u'Te'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Te" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Te</code><em class="property"> = 'Te'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Te" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Th">
-<code class="descname">Th</code><em class="property"> = u'Th'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Th" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Th</code><em class="property"> = 'Th'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Th" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Ti">
-<code class="descname">Ti</code><em class="property"> = u'Ti'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ti" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Ti</code><em class="property"> = 'Ti'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Ti" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Tl">
-<code class="descname">Tl</code><em class="property"> = u'Tl'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Tl" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Tl</code><em class="property"> = 'Tl'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Tl" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Tm">
-<code class="descname">Tm</code><em class="property"> = u'Tm'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Tm" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Tm</code><em class="property"> = 'Tm'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Tm" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.U">
-<code class="descname">U</code><em class="property"> = u'U'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.U" title="Permalink to this definition">¶</a></dt>
+<code class="descname">U</code><em class="property"> = 'U'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.U" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.V">
-<code class="descname">V</code><em class="property"> = u'V'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.V" title="Permalink to this definition">¶</a></dt>
+<code class="descname">V</code><em class="property"> = 'V'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.V" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.W">
-<code class="descname">W</code><em class="property"> = u'W'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.W" title="Permalink to this definition">¶</a></dt>
+<code class="descname">W</code><em class="property"> = 'W'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.W" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -1030,27 +1031,27 @@ negative oxidation states of the element for which data is present.</p>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Xe">
-<code class="descname">Xe</code><em class="property"> = u'Xe'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Xe" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Xe</code><em class="property"> = 'Xe'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Xe" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Y">
-<code class="descname">Y</code><em class="property"> = u'Y'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Y" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Y</code><em class="property"> = 'Y'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Y" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Yb">
-<code class="descname">Yb</code><em class="property"> = u'Yb'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Yb" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Yb</code><em class="property"> = 'Yb'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Yb" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Zn">
-<code class="descname">Zn</code><em class="property"> = u'Zn'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Zn" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Zn</code><em class="property"> = 'Zn'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Zn" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Zr">
-<code class="descname">Zr</code><em class="property"> = u'Zr'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Zr" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Zr</code><em class="property"> = 'Zr'</em><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Zr" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -1095,17 +1096,17 @@ easier serialization.</p>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.from_Z">
-<code class="descname">from_Z</code><em class="property"> = &lt;function from_Z&gt;</em><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Element.from_Z"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Element.from_Z" title="Permalink to this definition">¶</a></dt>
+<code class="descname">from_Z</code><em class="property"> = &lt;function Element.from_Z&gt;</em><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Element.from_Z"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Element.from_Z" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.from_dict">
-<code class="descname">from_dict</code><em class="property"> = &lt;function from_dict&gt;</em><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Element.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Element.from_dict" title="Permalink to this definition">¶</a></dt>
+<code class="descname">from_dict</code><em class="property"> = &lt;function Element.from_dict&gt;</em><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Element.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Element.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.from_row_and_group">
-<code class="descname">from_row_and_group</code><em class="property"> = &lt;function from_row_and_group&gt;</em><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Element.from_row_and_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Element.from_row_and_group" title="Permalink to this definition">¶</a></dt>
+<code class="descname">from_row_and_group</code><em class="property"> = &lt;function Element.from_row_and_group&gt;</em><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Element.from_row_and_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Element.from_row_and_group" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -1216,7 +1217,7 @@ ICSD database AND at least 1% of entries for that element</p>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.is_valid_symbol">
-<code class="descname">is_valid_symbol</code><em class="property"> = &lt;function is_valid_symbol&gt;</em><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Element.is_valid_symbol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Element.is_valid_symbol" title="Permalink to this definition">¶</a></dt>
+<code class="descname">is_valid_symbol</code><em class="property"> = &lt;function Element.is_valid_symbol&gt;</em><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Element.is_valid_symbol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Element.is_valid_symbol" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -1266,7 +1267,7 @@ e*millibarns for various isotopes</p>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.print_periodic_table">
-<code class="descname">print_periodic_table</code><em class="property"> = &lt;function print_periodic_table&gt;</em><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Element.print_periodic_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Element.print_periodic_table" title="Permalink to this definition">¶</a></dt>
+<code class="descname">print_periodic_table</code><em class="property"> = &lt;function Element.print_periodic_table&gt;</em><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Element.print_periodic_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Element.print_periodic_table" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -1337,7 +1338,8 @@ Specie supported_properties.</li>
 <dl class="method">
 <dt id="pymatgen.core.periodic_table.Specie.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Specie.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Specie.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>A JSON serializable dict representation of an object.</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Specie.element">
@@ -1371,7 +1373,7 @@ species, e.g., “Mn2+”, “Fe3+”, “O2-“.</td>
 
 <dl class="method">
 <dt id="pymatgen.core.periodic_table.Specie.get_crystal_field_spin">
-<code class="descname">get_crystal_field_spin</code><span class="sig-paren">(</span><em>coordination=u'oct'</em>, <em>spin_config=u'high'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Specie.get_crystal_field_spin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Specie.get_crystal_field_spin" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_crystal_field_spin</code><span class="sig-paren">(</span><em>coordination='oct'</em>, <em>spin_config='high'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Specie.get_crystal_field_spin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Specie.get_crystal_field_spin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the crystal field spin based on coordination and spin
 configuration. Only works for transition metal species.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1416,7 +1418,7 @@ default is None, which gets the lowest mass isotope</td>
 
 <dl class="method">
 <dt id="pymatgen.core.periodic_table.Specie.get_shannon_radius">
-<code class="descname">get_shannon_radius</code><span class="sig-paren">(</span><em>cn</em>, <em>spin=u''</em>, <em>radius_type=u'ionic'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Specie.get_shannon_radius"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Specie.get_shannon_radius" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_shannon_radius</code><span class="sig-paren">(</span><em>cn</em>, <em>spin=''</em>, <em>radius_type='ionic'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Specie.get_shannon_radius"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Specie.get_shannon_radius" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the local environment specific ionic radius for species.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1455,7 +1457,7 @@ ignored.</li>
 
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Specie.supported_properties">
-<code class="descname">supported_properties</code><em class="property"> = (u'spin',)</em><a class="headerlink" href="#pymatgen.core.periodic_table.Specie.supported_properties" title="Permalink to this definition">¶</a></dt>
+<code class="descname">supported_properties</code><em class="property"> = ('spin',)</em><a class="headerlink" href="#pymatgen.core.periodic_table.Specie.supported_properties" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1527,13 +1529,13 @@ that can be determined.</td>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.1.24 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

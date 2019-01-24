@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.elasticity.strain module &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.analysis.elasticity.strain module &#8212; pymatgen 2019.1.24 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.1.24 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -45,6 +45,9 @@
             
   <div class="section" id="module-pymatgen.analysis.elasticity.strain">
 <span id="pymatgen-analysis-elasticity-strain-module"></span><h1>pymatgen.analysis.elasticity.strain module<a class="headerlink" href="#module-pymatgen.analysis.elasticity.strain" title="Permalink to this headline">¶</a></h1>
+<p>This module provides classes and methods used to describe deformations and
+strains, including applying those deformations to structure objects and
+generating deformed structure sets for further calculations.</p>
 <dl class="class">
 <dt id="pymatgen.analysis.elasticity.strain.Deformation">
 <em class="property">class </em><code class="descname">Deformation</code><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/strain.html#Deformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Deformation" title="Permalink to this definition">¶</a></dt>
@@ -120,7 +123,7 @@ the deformation gradient</p>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.elasticity.strain.Deformation.symbol">
-<code class="descname">symbol</code><em class="property"> = u'd'</em><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Deformation.symbol" title="Permalink to this definition">¶</a></dt>
+<code class="descname">symbol</code><em class="property"> = 'd'</em><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Deformation.symbol" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -128,7 +131,7 @@ the deformation gradient</p>
 <dl class="class">
 <dt id="pymatgen.analysis.elasticity.strain.DeformedStructureSet">
 <em class="property">class </em><code class="descname">DeformedStructureSet</code><span class="sig-paren">(</span><em>structure</em>, <em>norm_strains=None</em>, <em>shear_strains=None</em>, <em>symmetry=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/strain.html#DeformedStructureSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.DeformedStructureSet" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_abcoll.Sequence</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.Sequence</span></code></p>
 <p>class that generates a set of independently deformed structures that
 can be used to calculate linear stress-strain response</p>
 <p>constructs the deformed geometries of a structure.  Generates
@@ -213,13 +216,13 @@ full-tensor notation</li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.elasticity.strain.Strain.get_deformation_matrix">
-<code class="descname">get_deformation_matrix</code><span class="sig-paren">(</span><em>shape=u'upper'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/strain.html#Strain.get_deformation_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Strain.get_deformation_matrix" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_deformation_matrix</code><span class="sig-paren">(</span><em>shape='upper'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/strain.html#Strain.get_deformation_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Strain.get_deformation_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns the deformation matrix</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.elasticity.strain.Strain.symbol">
-<code class="descname">symbol</code><em class="property"> = u'e'</em><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Strain.symbol" title="Permalink to this definition">¶</a></dt>
+<code class="descname">symbol</code><em class="property"> = 'e'</em><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Strain.symbol" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -232,7 +235,7 @@ full-tensor notation</li>
 
 <dl class="function">
 <dt id="pymatgen.analysis.elasticity.strain.convert_strain_to_deformation">
-<code class="descname">convert_strain_to_deformation</code><span class="sig-paren">(</span><em>strain</em>, <em>shape=u'upper'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/strain.html#convert_strain_to_deformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.convert_strain_to_deformation" title="Permalink to this definition">¶</a></dt>
+<code class="descname">convert_strain_to_deformation</code><span class="sig-paren">(</span><em>strain</em>, <em>shape='upper'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/strain.html#convert_strain_to_deformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.convert_strain_to_deformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function converts a strain to a deformation gradient that will
 produce that strain.  Supports three methods:</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -292,13 +295,13 @@ produce that strain.  Supports three methods:</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.1.24 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
