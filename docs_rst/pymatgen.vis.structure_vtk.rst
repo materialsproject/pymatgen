@@ -1,5 +1,5 @@
-pymatgen.vis.structure\_vtk module
-==================================
+pymatgen\.vis\.structure\_vtk module
+====================================
 
 .. automodule:: pymatgen.vis.structure_vtk
     :members:

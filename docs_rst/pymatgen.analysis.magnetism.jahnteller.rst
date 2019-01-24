@@ -1,5 +1,5 @@
-pymatgen.analysis.magnetism.jahnteller module
-=============================================
+pymatgen\.analysis\.magnetism\.jahnteller module
+================================================
 
 .. automodule:: pymatgen.analysis.magnetism.jahnteller
     :members:

@@ -1,5 +1,5 @@
-pymatgen.util.sequence module
-=============================
+pymatgen\.util\.sequence module
+===============================
 
 .. automodule:: pymatgen.util.sequence
     :members:

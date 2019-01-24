@@ -1,5 +1,5 @@
-pymatgen.analysis.dimensionality module
-=======================================
+pymatgen\.analysis\.dimensionality module
+=========================================
 
 .. automodule:: pymatgen.analysis.dimensionality
     :members:

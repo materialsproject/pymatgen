@@ -1,5 +1,5 @@
-pymatgen.ext.matproj module
-===========================
+pymatgen\.ext\.matproj module
+=============================
 
 .. automodule:: pymatgen.ext.matproj
     :members:
