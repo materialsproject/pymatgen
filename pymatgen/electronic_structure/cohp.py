@@ -327,27 +327,38 @@ class CompleteCohp(Cohp):
 
         return d
 
-    def get_cohp_by_label(self, label):
+    def get_cohp(self, label, spin=None, integrated=False):
         """
-        Get specific COHP object.
+        Get specific COHP or ICOHP. If label is not in the COHP labels,
+        try reversing the order of the sites.
 
         Args:
-            label: string (for newer Lobster versions: a number)
+            spin: Spin. Can be parsed as spin object, integer (-1/1)
+                or str ("up"/"down")
+            integrated: Return COHP (False) or ICOHP (True)
 
         Returns:
-            Returns the COHP object to simplify plotting
+            Returns the CHOP or ICOHP for the input spin. If Spin is
+            None and both spins are present, both spins will be returned
+            as a dictionary.
         """
         if label.lower() == "average":
-            return Cohp(efermi=self.efermi, energies=self.energies,
-                        cohp=self.cohp, are_coops=self.are_coops, icohp=self.icohp)
+            return self.cohp.get_cohp(spin=spin, integrated=integrated)
         else:
             try:
-                return Cohp(efermi=self.efermi, energies=self.energies,
-                            cohp=self.all_cohps[label].get_cohp(spin=None, integrated=False), are_coops=self.are_coops,
-                            icohp=self.all_cohps[label].get_icohp(spin=None))
-
+                return self.all_cohps[label].get_cohp(spin=spin,
+                                                      integrated=integrated)
             except KeyError:
-                print("The label does not exist")
+                atoms = label.split("-")
+                label = atoms[1] + "-" + atoms[0]
+                return self.all_cohps[label].get_cohp(spin=spin,
+                                                      integrated=integrated)
+
+    def get_icohp(self, label, spin=None):
+        """
+        Convenient alternative to get a specific ICOHP.
+        """
+        return self.get_cohp(label, spin=spin, integrated=True)
 
     def get_orbital_resolved_cohp(self, label, orbitals):
         """

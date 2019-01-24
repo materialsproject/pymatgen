@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.tensors module &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.core.tensors module &#8212; pymatgen 2019.1.24 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.1.24 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -122,7 +122,7 @@ rotations in the determination of validity</li>
 
 <dl class="method">
 <dt id="pymatgen.core.tensors.SquareTensor.polar_decomposition">
-<code class="descname">polar_decomposition</code><span class="sig-paren">(</span><em>side=u'right'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#SquareTensor.polar_decomposition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.SquareTensor.polar_decomposition" title="Permalink to this definition">¶</a></dt>
+<code class="descname">polar_decomposition</code><span class="sig-paren">(</span><em>side='right'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#SquareTensor.polar_decomposition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.SquareTensor.polar_decomposition" title="Permalink to this definition">¶</a></dt>
 <dd><p>calculates matrices for polar decomposition</p>
 </dd></dl>
 
@@ -600,7 +600,7 @@ corresponds to the new_structure’s basis</p>
 
 <dl class="attribute">
 <dt id="pymatgen.core.tensors.Tensor.symbol">
-<code class="descname">symbol</code><em class="property"> = u'T'</em><a class="headerlink" href="#pymatgen.core.tensors.Tensor.symbol" title="Permalink to this definition">¶</a></dt>
+<code class="descname">symbol</code><em class="property"> = 'T'</em><a class="headerlink" href="#pymatgen.core.tensors.Tensor.symbol" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -650,13 +650,14 @@ tensor such that it is invariant wrt permutation of indices</p>
 <dl class="class">
 <dt id="pymatgen.core.tensors.TensorCollection">
 <em class="property">class </em><code class="descname">TensorCollection</code><span class="sig-paren">(</span><em>tensor_list</em>, <em>base_class=&lt;class 'pymatgen.core.tensors.Tensor'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#TensorCollection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_abcoll.Sequence</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.Sequence</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>A sequence of tensors that can be used for fitting data
 or for having a tensor expansion</p>
 <dl class="method">
 <dt id="pymatgen.core.tensors.TensorCollection.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><em>voigt=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#TensorCollection.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>A JSON serializable dict representation of an object.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.tensors.TensorCollection.convert_to_ieee">
@@ -738,7 +739,7 @@ or for having a tensor expansion</p>
 <dl class="class">
 <dt id="pymatgen.core.tensors.TensorMapping">
 <em class="property">class </em><code class="descname">TensorMapping</code><span class="sig-paren">(</span><em>tensors=None</em>, <em>values=None</em>, <em>tol=1e-05</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#TensorMapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorMapping" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_abcoll.MutableMapping</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.MutableMapping</span></code></p>
 <p>Base class for tensor mappings, which function much like
 a dictionary, but use numpy routines to determine approximate
 equality to keys for getting and setting items.</p>
@@ -763,12 +764,12 @@ items in the mapping</li>
 </table>
 <dl class="method">
 <dt id="pymatgen.core.tensors.TensorMapping.items">
-<code class="descname">items</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; list of D's (key, value) pairs, as 2-tuples<a class="reference internal" href="_modules/pymatgen/core/tensors.html#TensorMapping.items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorMapping.items" title="Permalink to this definition">¶</a></dt>
+<code class="descname">items</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; a set-like object providing a view on D's items<a class="reference internal" href="_modules/pymatgen/core/tensors.html#TensorMapping.items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorMapping.items" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.tensors.TensorMapping.values">
-<code class="descname">values</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; list of D's values<a class="reference internal" href="_modules/pymatgen/core/tensors.html#TensorMapping.values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorMapping.values" title="Permalink to this definition">¶</a></dt>
+<code class="descname">values</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; an object providing a view on D's values<a class="reference internal" href="_modules/pymatgen/core/tensors.html#TensorMapping.values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorMapping.values" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -848,13 +849,13 @@ tensors as values</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.1.24 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

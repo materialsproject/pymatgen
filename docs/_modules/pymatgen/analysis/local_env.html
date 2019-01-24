@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.local_env &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.analysis.local_env &#8212; pymatgen 2019.1.24 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.1.24 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -50,13 +50,11 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
 
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">namedtuple</span><span class="p">,</span> <span class="n">defaultdict</span>
 
-<span class="kn">import</span> <span class="nn">six</span>
 <span class="kn">import</span> <span class="nn">ruamel.yaml</span> <span class="k">as</span> <span class="nn">yaml</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">json</span>
@@ -93,6 +91,7 @@
     <span class="n">ob</span> <span class="o">=</span> <span class="kc">None</span>
 
 <span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">requires</span>
+<span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="k">import</span> <span class="n">loadfn</span>
 
 <span class="kn">from</span> <span class="nn">bisect</span> <span class="k">import</span> <span class="n">bisect_left</span>
 <span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="k">import</span> <span class="n">Voronoi</span>
@@ -100,25 +99,20 @@
 <span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">Element</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.bond_valence</span> <span class="k">import</span> <span class="n">BV_PARAMS</span><span class="p">,</span> <span class="n">BVAnalyzer</span>
 
-<span class="n">default_op_params</span> <span class="o">=</span> <span class="p">{}</span>
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span>
-        <span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;op_params.yaml&#39;</span><span class="p">),</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+
+<span class="n">_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_directory</span><span class="p">,</span> <span class="s1">&#39;op_params.yaml&#39;</span><span class="p">),</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
     <span class="n">default_op_params</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-<span class="n">cn_opt_params</span> <span class="o">=</span> <span class="p">{}</span>
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span>
-        <span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;cn_opt_params.yaml&#39;</span><span class="p">),</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_directory</span><span class="p">,</span> <span class="s1">&#39;cn_opt_params.yaml&#39;</span><span class="p">),</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
     <span class="n">cn_opt_params</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-<span class="n">file_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
-<span class="n">rad_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">file_dir</span><span class="p">,</span> <span class="s1">&#39;ionic_radii.json&#39;</span><span class="p">)</span>
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">rad_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_directory</span><span class="p">,</span> <span class="s1">&#39;ionic_radii.json&#39;</span><span class="p">),</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
     <span class="n">_ion_radii</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="ValenceIonicRadiusEvaluator"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.ValenceIonicRadiusEvaluator">[docs]</a><span class="k">class</span> <span class="nc">ValenceIonicRadiusEvaluator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="ValenceIonicRadiusEvaluator"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.ValenceIonicRadiusEvaluator">[docs]</a><span class="k">class</span> <span class="nc">ValenceIonicRadiusEvaluator</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes site valences and ionic radii for a structure using bond valence</span>
 <span class="sd">    analyzer</span>
@@ -270,7 +264,7 @@
         <span class="k">return</span> <span class="n">valences</span></div>
 
 
-<div class="viewcode-block" id="NearNeighbors"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.NearNeighbors">[docs]</a><span class="k">class</span> <span class="nc">NearNeighbors</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="NearNeighbors"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.NearNeighbors">[docs]</a><span class="k">class</span> <span class="nc">NearNeighbors</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class to determine near neighbors that typically include nearest</span>
 <span class="sd">    neighbors and others that are within some tolerable distance.</span>
@@ -1804,7 +1798,7 @@
     <span class="k">return</span> <span class="n">vin</span> <span class="o">-</span> <span class="p">(</span><span class="n">vin_uin</span> <span class="o">/</span> <span class="n">uin_uin</span><span class="p">)</span> <span class="o">*</span> <span class="n">uin</span></div>
 
 
-<div class="viewcode-block" id="LocalStructOrderParams"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.LocalStructOrderParams">[docs]</a><span class="k">class</span> <span class="nc">LocalStructOrderParams</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="LocalStructOrderParams"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.LocalStructOrderParams">[docs]</a><span class="k">class</span> <span class="nc">LocalStructOrderParams</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class permits the calculation of various types of local</span>
 <span class="sd">    structure order parameters.</span>
@@ -3546,6 +3540,26 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_max_dist</span> <span class="o">=</span> <span class="n">dist</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lookup_dict</span> <span class="o">=</span> <span class="n">lookup_dict</span>
 
+<div class="viewcode-block" id="CutOffDictNN.from_preset"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.CutOffDictNN.from_preset">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_preset</span><span class="p">(</span><span class="n">preset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialise a CutOffDictNN according to a preset set of cut-offs.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            preset (str): A preset name. The list of supported presets are:</span>
+
+<span class="sd">                - &quot;vesta_2019&quot;: The distance cut-offs used by the VESTA</span>
+<span class="sd">                  visualisation program.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A CutOffDictNN using the preset cut-off dictionary.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">preset</span> <span class="o">==</span> <span class="s1">&#39;vesta_2019&#39;</span><span class="p">:</span>
+            <span class="n">cut_offs</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_directory</span><span class="p">,</span> <span class="s1">&#39;vesta_cutoffs.yaml&#39;</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">CutOffDictNN</span><span class="p">(</span><span class="n">cut_off_dict</span><span class="o">=</span><span class="n">cut_offs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unrecognised preset: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">preset</span><span class="p">))</span></div>
+
 <div class="viewcode-block" id="CutOffDictNN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.CutOffDictNN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
 
         <span class="n">site</span> <span class="o">=</span> <span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
@@ -3656,7 +3670,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.1.24 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -3664,7 +3678,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

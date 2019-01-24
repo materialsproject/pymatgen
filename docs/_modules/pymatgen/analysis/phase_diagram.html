@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.phase_diagram &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.analysis.phase_diagram &#8212; pymatgen 2019.1.24 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.1.24 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -50,7 +50,6 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
 
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">csv</span>
@@ -58,7 +57,7 @@
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">from</span> <span class="nn">io</span> <span class="k">import</span> <span class="nb">open</span>
 <span class="kn">import</span> <span class="nn">math</span>
-<span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">zip</span>
+
 <span class="kn">import</span> <span class="nn">logging</span>
 
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span><span class="p">,</span> <span class="n">MontyDecoder</span>
@@ -1209,7 +1208,7 @@
                    <span class="n">d</span><span class="p">[</span><span class="s2">&quot;normalize_terminal_compositions&quot;</span><span class="p">])</span></div></div>
 
 
-<div class="viewcode-block" id="ReactionDiagram"><a class="viewcode-back" href="../../../pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.ReactionDiagram">[docs]</a><span class="k">class</span> <span class="nc">ReactionDiagram</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="ReactionDiagram"><a class="viewcode-back" href="../../../pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.ReactionDiagram">[docs]</a><span class="k">class</span> <span class="nc">ReactionDiagram</span><span class="p">:</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry1</span><span class="p">,</span> <span class="n">entry2</span><span class="p">,</span> <span class="n">all_entries</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span>
                  <span class="n">float_fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%.4f</span><span class="s2">&quot;</span><span class="p">):</span>
@@ -1390,7 +1389,7 @@
         <span class="k">return</span> <span class="n">ConvexHull</span><span class="p">(</span><span class="n">qhull_data</span><span class="p">,</span> <span class="n">qhull_options</span><span class="o">=</span><span class="s2">&quot;Qt i&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">simplices</span></div>
 
 
-<div class="viewcode-block" id="PDPlotter"><a class="viewcode-back" href="../../../pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PDPlotter">[docs]</a><span class="k">class</span> <span class="nc">PDPlotter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="PDPlotter"><a class="viewcode-back" href="../../../pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PDPlotter">[docs]</a><span class="k">class</span> <span class="nc">PDPlotter</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A plotter class for phase diagrams.</span>
 
@@ -2190,7 +2189,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.1.24 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -2198,7 +2197,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -43,6 +43,7 @@ except:
     ob = None
 
 from monty.dev import requires
+from monty.serialization import loadfn
 
 from bisect import bisect_left
 from scipy.spatial import Voronoi
@@ -50,21 +51,16 @@ from scipy.spatial import Voronoi
 from pymatgen import Element
 from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
 
-default_op_params = {}
-with open(os.path.join(os.path.dirname(
-        __file__), 'op_params.yaml'), "rt") as f:
+
+_directory = os.path.join(os.path.dirname(__file__))
+
+with open(os.path.join(_directory, 'op_params.yaml'), "rt") as f:
     default_op_params = yaml.safe_load(f)
-    f.close()
 
-cn_opt_params = {}
-with open(os.path.join(os.path.dirname(
-        __file__), 'cn_opt_params.yaml'), 'r') as f:
+with open(os.path.join(_directory, 'cn_opt_params.yaml'), 'r') as f:
     cn_opt_params = yaml.safe_load(f)
-    f.close()
 
-file_dir = os.path.dirname(__file__)
-rad_file = os.path.join(file_dir, 'ionic_radii.json')
-with open(rad_file, 'r') as fp:
+with open(os.path.join(_directory, 'ionic_radii.json'), 'r') as fp:
     _ion_radii = json.load(fp)
 
 
@@ -3495,6 +3491,26 @@ class CutOffDictNN(NearNeighbors):
             if dist > self._max_dist:
                 self._max_dist = dist
         self._lookup_dict = lookup_dict
+
+    @staticmethod
+    def from_preset(preset):
+        """
+        Initialise a CutOffDictNN according to a preset set of cut-offs.
+
+        Args:
+            preset (str): A preset name. The list of supported presets are:
+
+                - "vesta_2019": The distance cut-offs used by the VESTA
+                  visualisation program.
+
+        Returns:
+            A CutOffDictNN using the preset cut-off dictionary.
+        """
+        if preset == 'vesta_2019':
+            cut_offs = loadfn(os.path.join(_directory, 'vesta_cutoffs.yaml'))
+            return CutOffDictNN(cut_off_dict=cut_offs)
+        else:
+            raise ValueError("Unrecognised preset: {}".format(preset))
 
     def get_nn_info(self, structure, n):
 
