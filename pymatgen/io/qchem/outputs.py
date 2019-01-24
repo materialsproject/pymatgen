@@ -1042,6 +1042,12 @@ class QCOutput(MSONable):
                 },
                 terminate_on_match=True).get('key') != [[]]:
             self.data["errors"] += ["never_called_qchem"]
+        elif read_pattern(
+                self.text, {
+                    "key": r"\*\*\*ERROR\*\*\* Hessian Appears to have all zero or negative eigenvalues"
+                },
+                terminate_on_match=True).get('key') == [[]]:
+            self.data["errors"] += ["hessian_eigenvalue_error"]
         else: 
             tmp_failed_line_searches = read_pattern(
                 self.text, {
