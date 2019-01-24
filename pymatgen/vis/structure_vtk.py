@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 """
 This module contains classes to wrap Python VTK to make nice molecular plots.
@@ -45,7 +44,7 @@ module_dir = os.path.dirname(os.path.abspath(__file__))
 EL_COLORS = loadfn(os.path.join(module_dir, "ElementColorSchemes.yaml"))
 
 
-class StructureVis(object):
+class StructureVis:
     """
     Provides Structure object visualization using VTK.
     """

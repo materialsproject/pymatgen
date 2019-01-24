@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
 
 import json
 import glob
@@ -22,8 +21,8 @@ from monty.json import MSONable
 from monty.json import jsanitize
 from monty.re import regrep
 from monty.os.path import zpath
-from six import string_types
-from six.moves import map, zip
+
+
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
@@ -879,7 +878,7 @@ class Vasprun(MSONable):
             warnings.warn("No POTCAR file with matching TITEL fields"
                           " was found in {}".format(os.path.abspath(p)))
 
-        if isinstance(path, string_types):
+        if isinstance(path, str):
             if "POTCAR" in path:
                 potcar = Potcar.from_file(path)
                 if {d.TITEL for d in potcar} != \
@@ -1356,7 +1355,7 @@ class BSVasprun(Vasprun):
         return jsanitize(d, strict=True)
 
 
-class Outcar(object):
+class Outcar:
     """
     Parser for data in OUTCAR that is not available in Vasprun.xml
 
@@ -1442,6 +1441,14 @@ class Outcar(object):
     .. attribute: electrostatic_potential
         Average electrostatic potential at each atomic position in order
         of the atoms in POSCAR.
+
+    ..attribute: final_energy_contribs
+        Individual contributions to the total final energy as a dictionary.
+        Include contirbutions from keys, e.g.:
+        {'DENC': -505778.5184347, 'EATOM': 15561.06492564, 'EBANDS': -804.53201231,
+        'EENTRO': -0.08932659, 'EXHF': 0.0, 'Ediel_sol': 0.0,
+        'PAW double counting': 664.6726974100002, 'PSCENC': 742.48691646,
+        'TEWEN': 489742.86847338, 'XCENC': -169.64189814}
 
     One can then call a specific reader depending on the type of run being
     performed. These are currently: read_igpar(), read_lepsilon() and
@@ -1656,6 +1663,19 @@ class Outcar(object):
             self.nmr_efg = True
             self.read_nmr_efg()
             self.read_nmr_efg_tensor()
+
+        # Store the individual contributions to the final total energy
+        final_energy_contribs = {}
+        for k in ["PSCENC", "TEWEN", "DENC", "EXHF", "XCENC", "PAW double counting",
+                  "EENTRO", "EBANDS", "EATOM", "Ediel_sol"]:
+            if k == "PAW double counting":
+                self.read_pattern({k: r"%s\s+=\s+([\.\-\d]+)\s+([\.\-\d]+)" % (k)})
+            else:
+                self.read_pattern({k: r"%s\s+=\s+([\d\-\.]+)" % (k)})
+            if not self.data[k]:
+                continue
+            final_energy_contribs[k] = sum([float(f) for f in self.data[k][-1]])
+        self.final_energy_contribs = final_energy_contribs
 
     def read_pattern(self, patterns, reverse=False, terminate_on_match=False,
                      postprocess=str):
@@ -3127,7 +3147,7 @@ class Chgcar(VolumetricData):
             return None
 
 
-class Procar(object):
+class Procar:
     """
     Object for reading a PROCAR file.
 
@@ -3222,13 +3242,22 @@ class Procar(object):
                         data[spin][current_kpoint, current_band,
                                    index, :] = num_data
                     else:
-                        if np.isnan(phase_factors[spin][
-                                current_kpoint, current_band, index, 0]):
-                            phase_factors[spin][current_kpoint, current_band,
-                                                index, :] = num_data
+                        if len(toks) > len(headers):
+                            # new format of PROCAR (vasp 5.4.4)
+                            num_data = np.array([float(t)
+                                                 for t in toks[:2*len(headers)]])
+                            for orb in range(len(headers)):
+                                phase_factors[spin][current_kpoint, current_band,
+                                    index, orb] = complex(num_data[2*orb], num_data[2*orb+1])
                         else:
-                            phase_factors[spin][current_kpoint, current_band,
-                                                index, :] += 1j * num_data
+                            # old format of PROCAR (vasp 5.4.1 and before)
+                            if np.isnan(phase_factors[spin][
+                                    current_kpoint, current_band, index, 0]):
+                                phase_factors[spin][current_kpoint, current_band,
+                                                    index, :] = num_data
+                            else:
+                                phase_factors[spin][current_kpoint, current_band,
+                                                    index, :] += 1j * num_data
                 elif l.startswith("tot"):
                     done = True
                 elif preambleexpr.match(l):
@@ -3295,7 +3324,7 @@ class Procar(object):
                 for spin, d in self.data.items()}
 
 
-class Oszicar(object):
+class Oszicar:
     """
     A basic parser for an OSZICAR output from VASP.  In general, while the
     OSZICAR is useful for a quick look at the output from a VASP run, we
@@ -3479,7 +3508,7 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None,
             return None
 
 
-class Xdatcar(object):
+class Xdatcar:
     """
     Class representing an XDATCAR file. Only tested with VASP 5.x files.
 
@@ -3697,7 +3726,7 @@ class Xdatcar(object):
         return self.get_string()
 
 
-class Dynmat(object):
+class Dynmat:
     """
     Object for reading a DYNMAT file.
 
@@ -4146,8 +4175,8 @@ class Wavecar:
         of this function can be passed directly to numpy's fft function. For
         example:
 
-            mesh = Wavecar().fft_mesh(kpoint, band)
-            evals = np.fft.fft(mesh)
+            mesh = Wavecar('WAVECAR').fft_mesh(kpoint, band)
+            evals = np.fft.ifftn(mesh)
 
         Args:
             kpoint (int): the index of the kpoint where the wavefunction
@@ -4172,8 +4201,79 @@ class Wavecar:
         else:
             return mesh
 
+    def get_parchg(self, poscar, kpoint, band, spin=None, phase=False,
+                   scale=2):
+        """
+        Generates a Chgcar object, which is the charge density of the specified
+        wavefunction.
 
-class Wavederf(object):
+        This function generates a Chgcar object with the charge density of the
+        wavefunction specified by band and kpoint (and spin, if the WAVECAR
+        corresponds to a spin-polarized calculation). The phase tag is a
+        feature that is not present in VASP. For a real wavefunction, the phase
+        tag being turned on means that the charge density is multiplied by the
+        sign of the wavefunction at that point in space. A warning is generated
+        if the phase tag is on and the chosen kpoint is not Gamma.
+
+        Note: Augmentation from the PAWs is NOT included in this function. The
+        maximal charge density will differ from the PARCHG from VASP, but the
+        qualitative shape of the charge density will match.
+
+        Args:
+            poscar (pymatgen.io.vasp.inputs.Poscar): Poscar object that has the
+                                structure associated with the WAVECAR file
+            kpoint (int):   the index of the kpoint for the wavefunction
+            band (int):     the index of the band for the wavefunction
+            spin (int):     optional argument to specify the spin. If the
+                                Wavecar has ISPIN = 2, spin == None generates a
+                                Chgcar with total spin and magnetization, and
+                                spin == {0, 1} specifies just the spin up or
+                                down component.
+            phase (bool):   flag to determine if the charge density is
+                                multiplied by the sign of the wavefunction.
+                                Only valid for real wavefunctions.
+            scale (int):    scaling for the FFT grid. The default value of 2 is
+                                at least as fine as the VASP default.
+        Returns:
+            a pymatgen.io.vasp.outputs.Chgcar object
+        """
+
+        if phase and not np.all(self.kpoints[kpoint] == 0.):
+            warnings.warn('phase == True should only be used for the Gamma '
+                          'kpoint! I hope you know what you\'re doing!')
+
+        # scaling of ng for the fft grid, need to restore value at the end
+        temp_ng = self.ng
+        self.ng = self.ng * scale
+        N = np.prod(self.ng)
+
+        data = {}
+        if self.spin == 2:
+            if spin is not None:
+                wfr = np.fft.ifftn(self.fft_mesh(kpoint, band, spin=spin)) * N
+                den = np.abs(np.conj(wfr) * wfr)
+                if phase:
+                    den = np.sign(np.real(wfr)) * den
+                data['total'] = den
+            else:
+                wfr = np.fft.ifftn(self.fft_mesh(kpoint, band, spin=0)) * N
+                denup = np.abs(np.conj(wfr) * wfr)
+                wfr = np.fft.ifftn(self.fft_mesh(kpoint, band, spin=1)) * N
+                dendn = np.abs(np.conj(wfr) * wfr)
+                data['total'] = denup + dendn
+                data['diff'] = denup - dendn
+        else:
+            wfr = np.fft.ifftn(self.fft_mesh(kpoint, band)) * N
+            den = np.abs(np.conj(wfr) * wfr)
+            if phase:
+                den = np.sign(np.real(wfr)) * den
+            data['total'] = den
+
+        self.ng = temp_ng
+        return Chgcar(poscar, data)
+
+
+class Wavederf:
     """
     Object for reading a WAVEDERF file.
 

@@ -2,9 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
-
-import six
 import warnings
 import numpy as np
 import re
@@ -149,9 +146,9 @@ class Cohp(MSONable):
         elif spin is None:
             return populations
         else:
-            if isinstance(spin, six.integer_types):
+            if isinstance(spin, int):
                 spin = Spin(spin)
-            elif isinstance(spin, six.string_types):
+            elif isinstance(spin, str):
                 s = {"up": 1, "down": -1}[spin.lower()]
                 spin = Spin(s)
             return {spin: populations[spin]}
@@ -330,38 +327,27 @@ class CompleteCohp(Cohp):
 
         return d
 
-    def get_cohp(self, label, spin=None, integrated=False):
+    def get_cohp_by_label(self, label):
         """
-        Get specific COHP or ICOHP. If label is not in the COHP labels,
-        try reversing the order of the sites.
+        Get specific COHP object.
 
         Args:
-            spin: Spin. Can be parsed as spin object, integer (-1/1)
-                or str ("up"/"down")
-            integrated: Return COHP (False) or ICOHP (True)
+            label: string (for newer Lobster versions: a number)
 
         Returns:
-            Returns the CHOP or ICOHP for the input spin. If Spin is
-            None and both spins are present, both spins will be returned
-            as a dictionary.
+            Returns the COHP object to simplify plotting
         """
         if label.lower() == "average":
-            return self.cohp.get_cohp(spin=spin, integrated=integrated)
+            return Cohp(efermi=self.efermi, energies=self.energies,
+                        cohp=self.cohp, are_coops=self.are_coops, icohp=self.icohp)
         else:
             try:
-                return self.all_cohps[label].get_cohp(spin=spin,
-                                                      integrated=integrated)
-            except KeyError:
-                atoms = label.split("-")
-                label = atoms[1] + "-" + atoms[0]
-                return self.all_cohps[label].get_cohp(spin=spin,
-                                                      integrated=integrated)
+                return Cohp(efermi=self.efermi, energies=self.energies,
+                            cohp=self.all_cohps[label].get_cohp(spin=None, integrated=False), are_coops=self.are_coops,
+                            icohp=self.all_cohps[label].get_icohp(spin=None))
 
-    def get_icohp(self, label, spin=None):
-        """
-        Convenient alternative to get a specific ICOHP.
-        """
-        return self.get_cohp(label, spin=spin, integrated=True)
+            except KeyError:
+                print("The label does not exist")
 
     def get_orbital_resolved_cohp(self, label, orbitals):
         """
@@ -393,13 +379,13 @@ class CompleteCohp(Cohp):
                     orbs.append(tuple((orbital[0], Orbital(orbital[1]))))
                 elif isinstance(orbital[1], Orbital):
                     orbs.append(tuple((orbital[0], orbital[1])))
-                elif isinstance(orbital[1], six.string_types):
+                elif isinstance(orbital[1], str):
                     orbs.append(tuple((orbital[0], Orbital[orbital[1]])))
                 else:
                     raise TypeError("Orbital must be str, int, or Orbital.")
             orb_index = cohp_orbs.index(orbs)
             orb_label = list(self.orb_res_cohp[label].keys())[orb_index]
-        elif isinstance(orbitals, six.string_types):
+        elif isinstance(orbitals, str):
             orb_label = orbitals
         else:
             raise TypeError("Orbitals must be str, list, or tuple.")

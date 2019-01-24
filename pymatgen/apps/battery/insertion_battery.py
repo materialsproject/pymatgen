@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 """
 This module is used for analysis of materials with potential application as
@@ -222,9 +221,9 @@ class InsertionElectrode(AbstractElectrode):
         data = []
         for pair in self._select_in_voltage_range(min_voltage, max_voltage):
             if pair.muO2_discharge is not None:
-                data.append(pair.pair.muO2_discharge)
+                data.extend([d['chempot'] for d in pair.muO2_discharge])
             if pair.muO2_charge is not None:
-                data.append(pair.muO2_charge)
+                data.extend([d['chempot'] for d in pair.muO2_discharge])
         return max(data) if len(data) > 0 else None
 
     def get_min_muO2(self, min_voltage=None, max_voltage=None):
@@ -243,10 +242,10 @@ class InsertionElectrode(AbstractElectrode):
         """
         data = []
         for pair in self._select_in_voltage_range(min_voltage, max_voltage):
-            if pair.pair.muO2_discharge is not None:
-                data.append(pair.pair.muO2_discharge)
+            if pair.muO2_discharge is not None:
+                data.extend([d['chempot'] for d in pair.muO2_discharge])
             if pair.muO2_charge is not None:
-                data.append(pair.muO2_charge)
+                data.extend([d['chempot'] for d in pair.muO2_discharge])
         return min(data) if len(data) > 0 else None
 
     def get_sub_electrodes(self, adjacent_only=True, include_myself=True):
@@ -325,17 +324,19 @@ class InsertionElectrode(AbstractElectrode):
              "nsteps": self.num_steps,
              "framework": self._vpairs[0].framework.to_data_dict,
              "formula_charge": chg_comp.reduced_formula,
+             "id_charge": self.fully_charged_entry.entry_id,
              "formula_discharge": dischg_comp.reduced_formula,
+             "id_discharge": self.fully_discharged_entry.entry_id,
              "fracA_charge": chg_comp.get_atomic_fraction(ion),
              "fracA_discharge": dischg_comp.get_atomic_fraction(ion),
              "max_instability": self.get_max_instability(),
              "min_instability": self.get_min_instability()}
         if print_subelectrodes:
             f_dict = lambda c: c.as_dict_summary(print_subelectrodes=False)
-            d["adj_pairs"] = map(f_dict,
-                                 self.get_sub_electrodes(adjacent_only=True))
-            d["all_pairs"] = map(f_dict,
-                                 self.get_sub_electrodes(adjacent_only=False))
+            d["adj_pairs"] = list(map(f_dict,
+                                 self.get_sub_electrodes(adjacent_only=True)))
+            d["all_pairs"] = list(map(f_dict,
+                                 self.get_sub_electrodes(adjacent_only=False)))
         return d
 
     def __str__(self):

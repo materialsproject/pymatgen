@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
 
 import warnings
 from pymatgen.util.testing import PymatgenTest
@@ -363,6 +362,18 @@ class IStructureTest(PymatgenTest):
         s = IStructure(l, ["Ag"] * 6, coords)
         sprim = s.get_primitive_structure(tolerance=0.1)
         self.assertEqual(len(sprim), 6)
+
+    def test_get_miller_index(self):
+        """Test for get miller index convenience method"""
+        struct = Structure(
+            [2.319, -4.01662582, 0., 2.319, 4.01662582, 0., 0., 0., 7.252],
+            ['Sn', 'Sn', 'Sn'],
+            [[2.319, 1.33887527, 6.3455], [1.1595, 0.66943764, 4.5325],
+             [1.1595, 0.66943764, 0.9065]],
+            coords_are_cartesian=True
+        )
+        hkl = struct.get_miller_index_from_site_indexes([0, 1, 2])
+        self.assertEqual(hkl, (2, -1, 0))
 
     def test_get_all_neighbors_and_get_neighbors(self):
         s = self.struct
@@ -1167,7 +1178,7 @@ class MoleculeTest(PymatgenTest):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_mutable_sequence_methods(self):
         s = self.mol

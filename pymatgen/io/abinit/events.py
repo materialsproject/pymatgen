@@ -5,14 +5,12 @@
 This module defines the events signaled by abinit during the execution. It also
 provides a parser to extract these events form the main output file and the log file.
 """
-from __future__ import unicode_literals, division, print_function, absolute_import
 
 import sys
 import os.path
 import datetime
 import collections
 import ruamel.yaml as yaml
-import six
 import abc
 import logging
 import numpy as np
@@ -409,7 +407,7 @@ class EventsParserError(Exception):
     """Base class for the exceptions raised by :class:`EventsParser`."""
 
 
-class EventsParser(object):
+class EventsParser:
     """
     Parses the output or the log file produced by ABINIT and extract the list of events.
     """
@@ -475,7 +473,7 @@ class EventsParser(object):
         return EventReport(filename, events=[event])
 
 
-class EventHandler(six.with_metaclass(abc.ABCMeta, MSONable, object)):
+class EventHandler(MSONable, metaclass=abc.ABCMeta):
     """
     Abstract base class defining the interface for an EventHandler.
 

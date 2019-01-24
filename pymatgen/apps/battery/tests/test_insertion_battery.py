@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals
 
 """
 Created on Jan 25, 2012
@@ -83,10 +82,15 @@ class InsertionElectrodeTest(unittest.TestCase):
         self.assertAlmostEqual(self.ie_MVO.get_capacity_grav(), 281.845548242, 3)
         self.assertAlmostEqual(self.ie_MVO.get_capacity_vol(), 1145.80087994, 3)
 
-
+    def test_get_instability(self):
+        self.assertIsNone(self.ie_LTO.get_max_instability())
+        self.assertAlmostEqual(self.ie_MVO.get_max_instability(), 0.7233711650000014)
+        self.assertAlmostEqual(self.ie_MVO.get_min_instability(), 0.4913575099999994)
 
     def test_get_muO2(self):
         self.assertIsNone(self.ie_LTO.get_max_muO2())
+        self.assertAlmostEqual(self.ie_MVO.get_max_muO2(), -4.93552791875)
+        self.assertAlmostEqual(self.ie_MVO.get_min_muO2(), -11.06599657)
 
     def test_entries(self):
         #test that the proper number of sub-electrodes are returned

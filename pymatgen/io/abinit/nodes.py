@@ -2,14 +2,12 @@
 """
 This module defines the Node class that is inherited by Task, Work and Flow objects.
 """
-from __future__ import division, print_function, unicode_literals
 
 import sys
 import os
 import time
 import collections
 import abc
-import six
 import numpy as np
 
 from pprint import pprint
@@ -103,7 +101,7 @@ class Status(int):
         return colored(str(self), **self.color_opts)
 
 
-class Dependency(object):
+class Dependency:
     """
     This object describes the dependencies among the nodes of a calculation.
 
@@ -210,7 +208,7 @@ class Dependency(object):
         return filepaths, exts
 
 
-class Product(object):
+class Product:
     """
     A product represents an output file produced by ABINIT instance.
     This file is needed to start another `Task` or another `Work`.
@@ -439,7 +437,7 @@ class SpectatorNodeError(NodeError):
     """
 
 
-class Node(six.with_metaclass(abc.ABCMeta, object)):
+class Node(metaclass=abc.ABCMeta):
     """
     Abstract base class defining the interface that must be
     implemented by the nodes of the calculation.
@@ -1020,6 +1018,8 @@ class FileNode(Node):
         return self._abiopen_abiext("_GSR.nc")
 
     def _abiopen_abiext(self, abiext):
+        import glob
+        from abipy import abilab
         if not self.filepath.endswith(abiext):
             msg = """\n
 File type does not match the abinit file extension.
@@ -1029,10 +1029,14 @@ Continuing anyway assuming that the netcdf file provides the API/dims/vars neeed
             logger.warning(msg)
             self.history.warning(msg)
 
+        #try to find file in the same path
+        filepath = os.path.dirname(self.filepath)
+        glob_result = glob.glob(os.path.join(filepath,"*%s"%abiext))
+        if len(glob_result): return abilab.abiopen(glob_result[0])
         return self.abiopen()
 
 
-class HistoryRecord(object):
+class HistoryRecord:
     """
     A `HistoryRecord` instance represents an entry in the :class:`NodeHistory`.
 
@@ -1210,7 +1214,7 @@ class NodeCorrections(list):
     #def _find(self, event_class)
 
 
-class GarbageCollector(object):
+class GarbageCollector:
     """This object stores information on the """
     def __init__(self, exts, policy):
         self.exts, self.policy = set(exts), policy

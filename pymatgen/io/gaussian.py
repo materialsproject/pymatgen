@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import re
 
 import numpy as np
@@ -84,7 +83,7 @@ def read_route_line(route):
     return functional, basis_set, route_params, dieze_tag
 
 
-class GaussianInput(object):
+class GaussianInput:
     """
     An object representing a Gaussian input file.
 
@@ -487,7 +486,7 @@ class GaussianInput(object):
                              link0_parameters=d["link0_parameters"])
 
 
-class GaussianOutput(object):
+class GaussianOutput:
     """
     Parser for Gaussian output files.
 
