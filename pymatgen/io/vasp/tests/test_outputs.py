@@ -17,7 +17,7 @@ import xml.etree.cElementTree as ET
 
 from pymatgen.core.periodic_table import Element
 from pymatgen.electronic_structure.core import OrbitalType
-from pymatgen.io.vasp.inputs import Kpoints
+from pymatgen.io.vasp.inputs import Kpoints, Poscar
 from pymatgen.io.vasp.outputs import Chgcar, Locpot, Oszicar, Outcar, \
     Vasprun, Procar, Xdatcar, Dynmat, BSVasprun, UnconvergedVASPWarning, \
     VaspParserError, Wavecar
@@ -1276,6 +1276,44 @@ class WavecarTest(unittest.TestCase):
         ind = np.argmax(np.abs(mesh))
         self.assertEqual(np.unravel_index(ind, mesh.shape), (6, 8, 8))
         self.assertEqual(mesh[0, 0, 0], 0j)
+
+    def test_get_parchg(self):
+        poscar = Poscar.from_file(os.path.join(test_dir, 'POSCAR'))
+        w = self.w
+        c = w.get_parchg(poscar, 0, 0, spin=0, phase=False)
+        self.assertTrue('total' in c.data)
+        self.assertTrue('diff' not in c.data)
+        self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng * 2))
+        self.assertTrue(np.all(c.data['total'] > 0.))
+        c = w.get_parchg(poscar, 0, 0, spin=0, phase=True)
+        self.assertTrue('total' in c.data)
+        self.assertTrue('diff' not in c.data)
+        self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng * 2))
+        self.assertFalse(np.all(c.data['total'] > 0.))
+        w.kpoints.append([0.2, 0.2, 0.2])
+        with warnings.catch_warnings(record=True) as wrns:
+            try:
+                c = w.get_parchg(poscar, 1, 0, spin=0, phase=True)
+            except IndexError:
+                pass
+            self.assertEqual(len(wrns), 1)
+        w = Wavecar(os.path.join(test_dir, 'WAVECAR.N2.spin'))
+        c = w.get_parchg(poscar, 0, 0, phase=False, scale=1)
+        self.assertTrue('total' in c.data)
+        self.assertTrue('diff' in c.data)
+        self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng))
+        self.assertTrue(np.all(c.data['total'] > 0.))
+        self.assertFalse(np.all(c.data['diff'] > 0.))
+        c = w.get_parchg(poscar, 0, 0, spin=0, phase=False)
+        self.assertTrue('total' in c.data)
+        self.assertTrue('diff' not in c.data)
+        self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng * 2))
+        self.assertTrue(np.all(c.data['total'] > 0.))
+        c = w.get_parchg(poscar, 0, 0, spin=0, phase=True)
+        self.assertTrue('total' in c.data)
+        self.assertTrue('diff' not in c.data)
+        self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng * 2))
+        self.assertFalse(np.all(c.data['total'] > 0.))
 
 
 if __name__ == "__main__":

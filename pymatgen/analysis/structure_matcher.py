@@ -11,6 +11,7 @@ import itertools
 import abc
 
 from monty.json import MSONable
+from pymatgen.core import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.composition import Composition
@@ -19,6 +20,8 @@ from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.optimization.linear_assignment import LinearAssignment
 from pymatgen.util.coord_cython import pbc_shortest_vectors, is_coord_subset_pbc
 from pymatgen.util.coord import lattice_points_in_supercell
+from pymatgen.analysis.defects.core import Interstitial, \
+    Defect, Vacancy, Substitution
 
 __author__ = "William Davidson Richards, Stephen Dacek, Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -1099,4 +1102,81 @@ class StructureMatcher(MSONable):
             return None
 
         return match[4]
-    
+
+
+class PointDefectComparator(MSONable):
+    """
+    A class that matches pymatgen Point Defect objects even if their
+    cartesian co-ordinates are different (compares sublattices for the defect)
+
+    NOTE: for defect complexes (more than a single defect),
+    this comparator will break.
+
+    Args:
+        check_charge (bool): Gives option to check
+            if charges are identical.
+            Default is False (different charged defects can be same)
+        check_primitive_cell (bool): Gives option to
+            compare different supercells of bulk_structure,
+            rather than directly compare supercell sizes
+            Default is False (requires bulk_structure in each defect to be same size)
+        check_lattice_scale (bool): Gives option to scale volumes of
+            structures to each other identical lattice constants.
+            Default is False (enforces same
+            lattice constants in both structures)
+    """
+    def __init__(self, check_charge=False, check_primitive_cell=False,
+                 check_lattice_scale=False):
+        self.check_charge = check_charge
+        self.check_primitive_cell = check_primitive_cell
+        self.check_lattice_scale = check_lattice_scale
+
+    def are_equal(self, d1, d2):
+        """
+        Args:
+            d1: First defect. A pymatgen Defect object.
+            d2: Second defect. A pymatgen Defect object.
+
+        Returns:
+            True if defects are identical in type and sublattice.
+        """
+        possible_defect_types = (Defect, Vacancy, Substitution, Interstitial)
+
+        if not isinstance(d1, possible_defect_types) or \
+            not isinstance(d2, possible_defect_types):
+            raise ValueError("Cannot use PointDefectComparator to" + \
+                             " compare non-defect objects...")
+
+        if not isinstance(d1, d2.__class__):
+            return False
+        elif d1.site.specie != d2.site.specie:
+            return False
+        elif self.check_charge and (d1.charge != d2.charge):
+            return False
+
+        sm = StructureMatcher( ltol=0.01,
+                               primitive_cell=self.check_primitive_cell,
+                               scale=self.check_lattice_scale)
+
+        if not sm.fit(d1.bulk_structure, d2.bulk_structure):
+            return False
+
+        d1 = d1.copy()
+        d2 = d2.copy()
+        if self.check_primitive_cell or self.check_lattice_scale:
+            # if allowing for base structure volume or supercell modifications, then need to
+            # preprocess defect objects to allow for matching
+            d1_mod_bulk_structure, d2_mod_bulk_structure, _, _  = sm._preprocess( d1.bulk_structure, d2.bulk_structure)
+            d1_defect_site = PeriodicSite( d1.site.specie, d1.site.coords,
+                                           d1_mod_bulk_structure.lattice,
+                                           to_unit_cell=True, coords_are_cartesian=True)
+            d2_defect_site = PeriodicSite( d2.site.specie, d2.site.coords,
+                                           d2_mod_bulk_structure.lattice,
+                                           to_unit_cell=True, coords_are_cartesian=True)
+
+            d1._structure = d1_mod_bulk_structure
+            d2._structure = d2_mod_bulk_structure
+            d1._defect_site = d1_defect_site
+            d2._defect_site = d2_defect_site
+
+        return sm.fit( d1.generate_defect_structure(), d2.generate_defect_structure())
