@@ -871,7 +871,7 @@ class QCOutput(MSONable):
                             freqs[ii] = float("inf")
                         elif freqs[ii-1]==-float("inf"):
                             freqs[ii] = -float("inf")
-                        elif freqs[ii+1]==float("inf"):
+                        elif "*" in temp_freqs[ii+1]:
                             freqs[ii]=float("inf")
                         else:
                             raise RuntimeError("ERROR: Encountered an undefined frequency not at the beginning or end of the frequency list, which makes no sense! Exiting...")
