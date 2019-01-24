@@ -157,6 +157,18 @@ class Lattice(MSONable):
         """
         return dot(cart_coords, self.inv_matrix)
 
+    def get_lattice_coords(self, cart_coords):
+        """
+        Returns the coordinates along lattice directions given cartesian coordinates.
+
+        Args:
+            cart_coords (3x1 array): Cartesian coords.
+
+        Returns:
+            Lattice coordinates.
+        """
+        return self.lengths_and_angles[0] * self.get_fractional_coords(cart_coords)
+
     def d_hkl(self, miller_index):
         """
         Returns the distance between the hkl plane and the origin
