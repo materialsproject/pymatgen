@@ -1,5 +1,5 @@
-pymatgen\.analysis\.pourbaix\_diagram module
-============================================
+pymatgen.analysis.pourbaix\_diagram module
+==========================================
 
 .. automodule:: pymatgen.analysis.pourbaix_diagram
     :members:
