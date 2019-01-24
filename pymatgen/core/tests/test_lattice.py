@@ -75,7 +75,6 @@ class LatticeTestCase(PymatgenTest):
                                [0., 0., 1.0]])
        lattice = Lattice(lattice_mat)
        cart_coord = np.array([0.5, np.sqrt(3)/4., 0.5])
-       direct_coord = np.array([0.5, 0.5, 0.5])
        latt_coord = np.array([0.25, 0.5, 0.5])
        from_direct = lattice.get_fractional_coords(cart_coord) * lattice.lengths_and_angles[0]
        self.assertArrayAlmostEqual(lattice.get_lattice_coords(cart_coord), from_direct)
