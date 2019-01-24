@@ -1,184 +1,140 @@
-from pymatgen.core.structure import Structure
+from pymatgen.core.structure import Structure, Lattice
 from monty.json import MSONable
 import numpy as np
+import warnings
 
 
 class Trajectory(MSONable):
-    """
-    This class stores MD trajectories or any series of structures (with the same lattice, number of atoms, etc.).
-    The base structure is stored along with a list of displacements and other site properties. Structures for different
-    timesteps are pulled by fast-forwarding the 'current structure' to the desired time step using the displacements.
-    Stored displacements correspond to the positional differences between the 0th and nth frame.
+    def __init__(self, frac_coords, lattice, species, time_step=2, site_properties=None, constant_lattice=True,
+                 coords_are_displacement=False, base_positions=None):
+        # To support from_dict and as_dict
+        if type(frac_coords) == list:
+            frac_coords = np.array(frac_coords)
 
-    This is preferred to a list of structures, which is memory inefficient.
+        self.frac_coords = frac_coords
+        if coords_are_displacement:
+            if base_positions == None:
+                warnings.warn(
+                    "Without providing an array of starting positions, the positions for each time step will not be available")
+            self.base_positions = base_positions
+        else:
+            self.base_positions = frac_coords[0]
+        self.coords_are_displacement = coords_are_displacement
 
-    This class is a wrapper class for pymatgen.core.structure.Structure.
-    """
-    def __init__(self, base_structure, displacements, site_properties):
-        self.base_structure = base_structure
-        self.displacements = np.array(displacements)
+        self.lattice = lattice
+        self.constant_lattice = constant_lattice
+        self.species = species
         self.site_properties = site_properties
-        self.index = 0
-        self.structure = base_structure
-        self.length = len(displacements)
+        self.time_step = time_step
 
-    def __getattr__(self, attr):
-        if hasattr(self.structure, attr):
-            return getattr(self.structure, attr)
-        else:
-            raise Exception("Neither Trajectory nor structure has attribute: {}".format(attr))
+    def get_structure(self, i):
+        return self[i]
 
-    def change_index(self, index):
+    def to_positions(self):
+        if self.coords_are_displacement:
+            cumulative_displacements = np.cumsum(self.frac_coords, axis=0)
+            positions = self.base_positions + cumulative_displacements
+            self.frac_coords = positions
+            self.coords_are_displacement = False
+        return
+
+    def to_displacements(self):
+        if not self.coords_are_displacement:
+            displacements = np.subtract(self.frac_coords, np.roll(self.frac_coords, 1, axis=0))
+            displacements[0] = np.zeros(np.shape(self.frac_coords[0]))
+            # Deal with PBC
+            displacements = [np.subtract(item, np.round(item)) for item in displacements]
+
+            self.frac_coords = displacements
+            self.coords_are_displacement = True
+        return
+
+    def extend(self, trajectory):
+        if self.time_step != trajectory.time_step:
+            warnings.warn('Trajectory not extended: Time steps of trajectories is incompatible')
+            return
+            # raise Exception('Time steps of trajectories is incompatible')
+
+        if self.species == trajectory.species:
+            warnings.warn('Trajectory not extended: species in trajectory do not match')
+            return
+            # raise Exception('Species in trajectory do not match')
+
+        if self.coords_are_displacement:
+            self.to_positions()
+
+        if trajectory.coords_are_displacement:
+            trajectory.to_positions()
+
+        self.frac_coords = np.concatenate((self.frac_coords, trajectory), axis=0)
+        self.lattice = combine_attribute(self.lattice, trajectory.lattice, self.shape[0], trajectory.size[0])
+        self.site_properties = combine_attribute(self.site_properties, trajectory.site_properties,
+                                                self.frac_coords.shape[0], trajectory.frac_coords.shape[0])
+        return
+
+    def __iter__(self):
+        for i in range(self.frac_coords.shape[0]):
+            yield self[i]
+
+    def __len__(self):
+        return np.shape(self.frac_coords)[0]
+
+    def __getitem__(self, frames):
         """
-        Morphs the structure to the specified timestep
-
-        Args:
-            index: Index of the desired timestep
-        """
-        if index > len(self.displacements):
-            raise Exception
-        else:
-            coords = self.base_structure.frac_coords + self.displacements[index]
-            self.structure = Structure(self.base_structure.lattice, self.base_structure.species,
-                                       coords, site_properties=self.site_properties[index])
-            self.index = index
-
-    def change_next(self):
-        """
-        Increment the structure to the next timestep.
-        """
-        if self.index + 1 < len(self.displacements):
-            self.change_index(self.index+1)
-        else:
-            raise Exception("At the end of the trajectory, no more steps to increment")
-
-    def change_previous(self):
-        """
-        Decrement the structure to the previous timestep.
-        """
-        if self.index > 0:
-            self.change_index(self.index+1)
-        else:
-            raise Exception("At the start of the trajectory, no more steps to decrement")
-
-    def combine(self, trajectory):
-        """
-        Extends self with the given trajectory.
-
-        Trajectory must have same lattice and contain the same number and type of species.
-        """
-        if trajectory.base_structure.lattice != self.base_structure.lattice:
-            raise Exception("Lattices are incompatible")
-        if trajectory.base_structure.species != self.base_structure.species:
-            raise Exception("Elements are not consistent between both trajectories")
-
-        _coords = np.add(trajectory.displacements, trajectory.base_structure.frac_coords)
-        _displacements = np.subtract(_coords, self.base_structure.frac_coords)
-        self.displacements = np.concatenate((self.displacements, _displacements), axis=0)
-        self.site_properties.extend(trajectory.site_properties)
-        self.length = len(_displacements)
-
-    def as_structures(self):
-        """
-        For compatibility with existing codes which use [Structure] inputs..
-
-        :return: A list of structures
-        """
-        structures = [0]*len(self.displacements)
-        for i in range(len(self.displacements)):
-            self.change_index(i)
-            structures[i] = self.structure.copy()
-        return structures
-
-    def sequential_displacements(self, skip=1, wrapped=False, cartesian=True):
-        """
-        Returns the frame(n) to frame(n+1) displacements. Useful for summing to obtain MSD's
-
-        :param skip: (int) Number of time steps to skip between each returned displacement
-        :param wrapped: (bool) Specifies whether the displacements returned will be wrapped or unwrapped
-        :param cartesian: (bool) Specifies whether returned coordinates will be cartesian(True) or fractional(False)
+        Gets a subset of the trajectory if a slice is given, if an int is given, return a structure
+        :param frames:
         :return:
         """
-        seq_displacements = np.subtract(self.displacements[::skip],
-                                        np.roll(self.displacements[::skip], 1, axis=0))
-        seq_displacements[0] = np.zeros(np.shape(seq_displacements[0]))
+        if type(frames) == int and frames < self.frac_coords.shape[0]:
+            lattice = self.lattice if np.shape(self.lattice) == (3, 3) else self.lattice[frames]
+            site_properties = self.site_properties[frames] if self.site_properties else None
+            return Structure(Lattice(lattice), self.species, self.frac_coords[frames], site_properties=site_properties,
+                             to_unit_cell=True)
 
-        if wrapped:
-            seq_displacements = [np.subtract(item, np.round(item)) for item in seq_displacements]
+        if type(frames) == slice:
+            frames = np.arange(frames.start, frames.stop, frames.step)
+        elif type(frames) not in [list, np.ndarray]:
+            try:
+                frames = np.asarray(frames)
+            except:
+                raise Exception('Given accessor is not of type int, slice, tuple, list, or array')
 
-        if cartesian:
-            seq_displacements = np.multiply(seq_displacements, self.structure.lattice.abc)
+        if type(frames) in [list, np.ndarray] and (np.asarray([frames]) < self.frac_coords.shape[0]).all():
+            if np.shape(self.lattice) == (3, 3):
+                lattice = self.lattice
+            else:
+                lattice = self.lattice[frames, :]
+            return Trajectory(self.frac_coords[frames, :], lattice, self.species, self.time_step,
+                              self.site_properties)
+        else:
+            warnings.warn('Some or all selected frames exceed trajectory length')
+        return
 
-        return seq_displacements
-
-    def positions(self, skip=1):
-        """
-        :param skip: (int) Number of time steps to skip between each returned displacement
-        :return:
-        """
-        positions = np.add(self.structure.frac_coords[::skip], self.displacements[::skip])
-        return positions
-
-    @classmethod
-    def from_structures(cls, structures):
-        """
-        Convenience constructor to make a Trajectory from a list of Structures
-        """
-        displacements = [0]*len(structures)
-        site_properties = [0]*len(structures)
-        for i, structure in enumerate(structures):
-            displacements[i] = structure.frac_coords - structures[0].frac_coords
-            site_properties[i] = structure.site_properties
-        return cls(structures[0], displacements, site_properties)
+    def copy(self):
+        return Trajectory(self.frac_coords, self.lattice, self.species, self.time_step, self.site_properties,
+                          self.constant_lattice, self.coords_are_displacement, self.base_positions)
 
     @classmethod
-    def from_ionic_steps(cls, ionic_steps_dict):
+    def from_structures(cls, structures, const_lattice=False, **kwargs):
         """
-        Convenience constructor to make a Trajectory from an the ionic steps dictionary from the parsed vasprun.xml
-        :param ionic_steps_dict:
-        :return:
+        Assumes no atoms removed from simulation
         """
+        frac_coords = [structure.frac_coords for structure in structures]
+        if const_lattice:
+            lattice = structures[0].lattice.matrix
+        else:
+            lattice = [structure.lattice.matrix for structure in structures]
+        site_properties = [structure.site_properties for structure in structures]
+        return cls(frac_coords, lattice, species=structures[0].species, site_properties=site_properties, **kwargs)
 
-        structure = Structure.from_dict(ionic_steps_dict[0]["structure"])
-        positions = [0] * len(ionic_steps_dict)
-        for i, step in enumerate(ionic_steps_dict):
-            _step = [atom['abc'] for atom in step["structure"]["sites"]]
-            positions[i] = _step
 
-        displacements = [[]] * len(ionic_steps_dict)
-        site_properties = [{}] * len(ionic_steps_dict)
-        for i, step in enumerate(positions):
-            displacements[i] = np.subtract(positions[i], positions[0])
-            # TODO: Add site properties from ionic_steps
-
-        return cls(structure, displacements, site_properties)
-
-    def as_dict(self):
-        """
-        Dict representation of Trajectory.
-
-        Returns:
-            JSON serializable dict representation.
-        """
-        d = {"@module": self.__class__.__module__,
-             "@class": self.__class__.__name__}
-        d["structure"] = self.base_structure.as_dict()
-        d["displacements"] = self.displacements.tolist()
-        d["site_properties"] = self.site_properties
-        return d
-
-    @classmethod
-    def from_dict(cls, d):
-        """
-        Reconstitute a Trajectory object from a dict representation of Structure
-        created using as_dict().
-
-        Args:
-            d (dict): Dict representation of structure.
-
-        Returns:
-            Structure object
-        """
-        structure = Structure.from_dict(d["structure"])
-        return cls(structure, np.array(d["displacements"]), d["site_properties"])
-
+def combine_attribute(attr_1, attr_2, len_1, len_2):
+    if type(attr_1) == list or type(attr_2) == list:
+        attribute = np.concatenate((attr_1, attr_2), axis=0)
+    else:
+        if type(attr_1) != list and type(attr_2) != list and attr_1 == attr_2:
+            attribute = attr_1
+        else:
+            attribute = [attr_1.copy()] * len_1 if type(attr_1) != list else attr_1.copy()
+            attribute.extend([attr_2.copy()] * len_2 if type(attr_2 != list) else attr_2.copy())
+    return attribute
