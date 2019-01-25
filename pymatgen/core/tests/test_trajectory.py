@@ -18,7 +18,7 @@ class TrajectoryTest(PymatgenTest):
         self.traj = Trajectory.from_file(os.path.join(test_dir, "Traj_XDATCAR"))
         self.structures = xdatcar.structures
 
-    def test_sngle_index_slice(self):
+    def test_single_index_slice(self):
         self.assertTrue(all([self.traj[i] == self.structures[i] for i in range(0, len(self.structures), 19)]))
 
     def test_slice(self):
@@ -39,7 +39,7 @@ class TrajectoryTest(PymatgenTest):
 
     def test_copy(self):
         traj_copy = self.traj.copy()
-        self.assertTrue(all([i==j for i, j in zip(self.traj, traj_copy)]))
+        self.assertTrue(all([i == j for i, j in zip(self.traj, traj_copy)]))
 
     def test_extend(self):
         traj = self.traj.copy()
@@ -106,7 +106,7 @@ class TrajectoryTest(PymatgenTest):
         if traj_1.species != traj_2.species:
             return False
 
-        return all([i==j for i, j in zip(self.traj, traj_2)])
+        return all([i == j for i, j in zip(self.traj, traj_2)])
 
 
 if __name__ == '__main__':

@@ -55,7 +55,7 @@ class Trajectory(MSONable):
 
         self.frac_coords = frac_coords
         if coords_are_displacement:
-            if base_positions == None:
+            if base_positions is None:
                 warnings.warn(
                     "Without providing an array of starting positions, the positions for each time step will not be available")
             self.base_positions = base_positions
@@ -63,7 +63,7 @@ class Trajectory(MSONable):
             self.base_positions = frac_coords[0]
         self.coords_are_displacement = coords_are_displacement
 
-        if not constant_lattice and np.shape(lattice)==(3, 3):
+        if not constant_lattice and np.shape(lattice) == (3, 3):
             self.lattice = [lattice for i in range(self.frac_coords.shape[0])]
         else:
             self.lattice = lattice
@@ -126,10 +126,11 @@ class Trajectory(MSONable):
         trajectory.to_positions()
 
         self.frac_coords = np.concatenate((self.frac_coords, trajectory.frac_coords), axis=0)
-        self.lattice, self.constant_lattice = self._combine_attribute(self.lattice, trajectory.lattice, self.frac_coords.shape[0],
-                                         trajectory.frac_coords.shape[0])
+        self.lattice, self.constant_lattice = self._combine_attribute(self.lattice, trajectory.lattice,
+                                                                      self.frac_coords.shape[0],
+                                                                      trajectory.frac_coords.shape[0])
         self.site_properties = self._combine_attribute(self.site_properties, trajectory.site_properties,
-                                                self.frac_coords.shape[0], trajectory.frac_coords.shape[0])
+                                                       self.frac_coords.shape[0], trajectory.frac_coords.shape[0])
 
     def __iter__(self):
         for i in range(self.frac_coords.shape[0]):
