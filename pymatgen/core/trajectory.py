@@ -31,7 +31,8 @@ class Trajectory(MSONable):
                 ii. List of dict of elements/species and occupancies, e.g.,
                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
                     disordered structures.
-            frac_coords (MxNx3 array):
+            frac_coords (MxNx3 array): list of fractional coordinates of
+                each species
             time_step (int, float): Timestep of simulation in femtoseconds. Defaults to 2fs.
             site_properties (list): Properties associated with the sites as a list of
                 dicts of sequences, e.g., [{"magmom":[5,5,5,5]}, {"magmom":[5,5,5,5]}]. The sequences
@@ -39,7 +40,6 @@ class Trajectory(MSONable):
                 dicts should match number of frames in trajectory
                 Defaults to None for no properties.
             constant_lattice (bool): Whether the lattice changes during the simulation, such as in an NPT MD simulation.
-                True results in
             coords_are_displacement (bool): Whether supplied coordinates are given in displacements (True) or
                 positions (False)
             base_positions (Nx3 array): The starting positions of all atoms in trajectory. Used to reconstruct positions
