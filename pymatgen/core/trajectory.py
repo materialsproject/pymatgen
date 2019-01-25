@@ -9,8 +9,43 @@ import os
 
 class Trajectory(MSONable):
     """
+    Trajectory object that stores structural information related to a MD simulation.
+    Provides basic functions such as slicing trajectory or obtaining displacements.
+    """
     def __init__(self, lattice, species, frac_coords, time_step=2, site_properties=None, constant_lattice=True,
                  coords_are_displacement=False, base_positions=None):
+        """
+        Create a trajectory object
+
+        Args:
+            lattice: The lattice as any 2D array. Each row should correspond to a lattice
+                vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
+                lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
+            species: List of species on each site. Can take in flexible input,
+                including:
+
+                i.  A sequence of element / specie specified either as string
+                    symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
+                    e.g., (3, 56, ...) or actual Element or Specie objects.
+
+                ii. List of dict of elements/species and occupancies, e.g.,
+                    [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
+                    disordered structures.
+            frac_coords (MxNx3 array):
+            time_step (int, float): Timestep of simulation in femtoseconds. Defaults to 2fs.
+            site_properties (list): Properties associated with the sites as a list of
+                dicts of sequences, e.g., [{"magmom":[5,5,5,5]}, {"magmom":[5,5,5,5]}]. The sequences
+                have to be the same length as the atomic species and fractional_coords. Number of supplied
+                dicts should match number of frames in trajectory
+                Defaults to None for no properties.
+            constant_lattice (bool): Whether the lattice changes during the simulation, such as in an NPT MD simulation.
+                True results in
+            coords_are_displacement (bool): Whether supplied coordinates are given in displacements (True) or
+                positions (False)
+            base_positions (Nx3 array): The starting positions of all atoms in trajectory. Used to reconstruct positions
+                when converting from displacements to positions. Only needs to be specified if
+                coords_are_displacement=True. Defaults to first index of frac_coords if coords_are_displacement=False.
+        """
         # To support from_dict and as_dict
         if isinstance(frac_coords, list):
             frac_coords = np.array(frac_coords)
@@ -35,9 +70,20 @@ class Trajectory(MSONable):
         self.time_step = time_step
 
     def get_structure(self, i):
+        """
+        Returns structure at specified index
+        Args:
+            i (int): Index of structure
+
+        Returns:
+            (Structure) pymatgen structure object
+        """
         return self[i]
 
     def to_positions(self):
+        """
+        Converts fractional coordinates of trajectory into positions
+        """
         if self.coords_are_displacement:
             cumulative_displacements = np.cumsum(self.frac_coords, axis=0)
             positions = self.base_positions + cumulative_displacements
@@ -46,6 +92,9 @@ class Trajectory(MSONable):
         return
 
     def to_displacements(self):
+        """
+        Converts position coordinates of trajectory into displacements between consecutive frames
+        """
         if not self.coords_are_displacement:
             displacements = np.subtract(self.frac_coords, np.roll(self.frac_coords, 1, axis=0))
             displacements[0] = np.zeros(np.shape(self.frac_coords[0]))
@@ -57,6 +106,13 @@ class Trajectory(MSONable):
         return
 
     def extend(self, trajectory):
+        """
+        Concatenate another trajectory
+
+        Args:
+            trajectory (Trajectory): Trajectory to add
+
+        """
         if self.time_step != trajectory.time_step:
             warnings.warn('Trajectory not extended: Time steps of trajectories is incompatible')
             return
@@ -90,8 +146,12 @@ class Trajectory(MSONable):
     def __getitem__(self, frames):
         """
         Gets a subset of the trajectory if a slice is given, if an int is given, return a structure
-        :param frames:
-        :return:
+
+        Args:
+            frames (int, slice): int or slice of trajectory to return
+
+        Return:
+            (Trajectory, Structure) Subset of trajectory
         """
         if isinstance(frames, int) and frames < self.frac_coords.shape[0]:
             lattice = self.lattice if self.constant_lattice else self.lattice[frames]
@@ -126,7 +186,17 @@ class Trajectory(MSONable):
     @classmethod
     def from_structures(cls, structures, constant_lattice=True, **kwargs):
         """
-        Assumes no atoms removed from simulation
+        Convenience constructor to obtain trajectory from a list of structures.
+        Note: Assumes no atoms removed during simulation
+
+        Args:
+            structures (list): list of pymatgen Structure objects.
+            constant_lattice (bool): Whether the lattice changes during the simulation, such as in an NPT MD
+                simulation. True results in
+
+        Returns:
+            (Trajectory)
+
         """
         frac_coords = [structure.frac_coords for structure in structures]
         if constant_lattice:
@@ -138,8 +208,19 @@ class Trajectory(MSONable):
                    constant_lattice=constant_lattice, **kwargs)
 
     @classmethod
-    def from_file(cls, filename, constant_lattice=True):
-        # TODO: Support other non-xdatcar files
+    def from_file(cls, filename, constant_lattice=True, **kwargs):
+        """
+        Convenience constructor to obtain trajectory from XDATCAR or vasprun.xml file
+
+        Args:
+            filename (str): The filename to read from.
+            constant_lattice (bool): Whether the lattice changes during the simulation, such as in an NPT MD
+                simulation. True results in
+
+        Returns:
+            (Trajectory)
+        """
+        # TODO: Support other filetypes
 
         fname = os.path.basename(filename)
         if fnmatch(fname, "*XDATCAR*"):
@@ -149,7 +230,7 @@ class Trajectory(MSONable):
         else:
             raise ValueError("Unsupported file")
 
-        return cls.from_structures(structures, constant_lattice=constant_lattice)
+        return cls.from_structures(structures, constant_lattice=constant_lattice, **kwargs)
 
 
     @staticmethod
