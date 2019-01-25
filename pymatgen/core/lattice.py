@@ -161,6 +161,14 @@ class Lattice(MSONable):
         """
         Returns the coordinates along lattice directions given cartesian coordinates.
 
+        Note, this is different than a projection of the cartesian vector along the
+        lattice parameters. It is simply the fractional coordinates multiplied by the
+        lattice vector magnitudes.
+
+        For example, this method is helpful when analyzing the dipole moment (in 
+        units of electron Angstroms) of a ferroelectric crystal. See the `Polarization`
+        class in `pymatgen.analysis.ferroelectricity.polarization`.
+
         Args:
             cart_coords (3x1 array): Cartesian coords.
 
