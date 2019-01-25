@@ -12,8 +12,11 @@ class Trajectory(MSONable):
     def __init__(self, lattice, species, frac_coords, time_step=2, site_properties=None, constant_lattice=True,
                  coords_are_displacement=False, base_positions=None):
         # To support from_dict and as_dict
-        if type(frac_coords) == list:
+        if isinstance(frac_coords, list):
             frac_coords = np.array(frac_coords)
+
+        if isinstance(lattice, list):
+            lattice = np.array(lattice)
 
         self.frac_coords = frac_coords
         if coords_are_displacement:
@@ -90,21 +93,22 @@ class Trajectory(MSONable):
         :param frames:
         :return:
         """
-        if type(frames) == int and frames < self.frac_coords.shape[0]:
+        if isinstance(frames, int) and frames < self.frac_coords.shape[0]:
             lattice = self.lattice if self.constant_lattice else self.lattice[frames]
             site_properties = self.site_properties[frames] if self.site_properties else None
             return Structure(Lattice(lattice), self.species, self.frac_coords[frames], site_properties=site_properties,
                              to_unit_cell=True)
 
-        if type(frames) == slice:
+        if isinstance(frames, slice):
             frames = np.arange(frames.start, frames.stop, frames.step)
-        elif type(frames) not in [list, np.ndarray]:
+        elif not (isinstance(frames, list) or isinstance(frames, np.ndarray)):
             try:
                 frames = np.asarray(frames)
             except:
                 raise Exception('Given accessor is not of type int, slice, tuple, list, or array')
 
-        if type(frames) in [list, np.ndarray] and (np.asarray([frames]) < self.frac_coords.shape[0]).all():
+        if (isinstance(frames, list) or isinstance(frames, np.ndarray)) and \
+                (np.asarray([frames]) < self.frac_coords.shape[0]).all():
             if self.constant_lattice:
                 lattice = self.lattice
             else:
@@ -148,16 +152,20 @@ class Trajectory(MSONable):
         return cls.from_structures(structures, constant_lattice=constant_lattice)
 
 
-def combine_attribute(attr_1, attr_2, len_1, len_2):
-    if type(attr_1) == list or type(attr_2) == list:
-        attribute = np.concatenate((attr_1, attr_2), axis=0)
-        attribute_changes = True
-    else:
-        if type(attr_1) != list and type(attr_2) != list and np.allclose(attr_1, attr_2):
-            attribute = attr_1
-            attribute_changes = False
-        else:
-            attribute = [attr_1.copy()] * len_1 if type(attr_1) != list else attr_1.copy()
-            attribute.extend([attr_2.copy()] * len_2 if type(attr_2 != list) else attr_2.copy())
+    @staticmethod
+    def _combine_attribute(attr_1, attr_2, len_1, len_2):
+        """
+        Helper function to combine trajectory properties such as site_properties or lattice
+        """
+        if isinstance(attr_1, list) or isinstance(attr_2, list):
+            attribute = np.concatenate((attr_1, attr_2), axis=0)
             attribute_changes = True
-    return attribute, attribute_changes
+        else:
+            if isinstance(attr_1, list) and isinstance(attr_2, list) and np.allclose(attr_1, attr_2):
+                attribute = attr_1
+                attribute_changes = False
+            else:
+                attribute = [attr_1.copy()] * len_1 if type(attr_1) != list else attr_1.copy()
+                attribute.extend([attr_2.copy()] * len_2 if type(attr_2 != list) else attr_2.copy())
+                attribute_changes = True
+        return attribute, attribute_changes
