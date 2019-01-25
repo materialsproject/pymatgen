@@ -1,7 +1,10 @@
 from pymatgen.core.structure import Structure, Lattice
+from pymatgen.io.vasp.outputs import Xdatcar, Vasprun
 from monty.json import MSONable
+from fnmatch import fnmatch
 import numpy as np
 import warnings
+import os
 
 
 class Trajectory(MSONable):
@@ -55,7 +58,7 @@ class Trajectory(MSONable):
             return
             # raise Exception('Time steps of trajectories is incompatible')
 
-        if self.species == trajectory.species:
+        if len(self.species) != len(trajectory.species) and self.species != trajectory.species:
             warnings.warn('Trajectory not extended: species in trajectory do not match')
             return
             # raise Exception('Species in trajectory do not match')
@@ -66,8 +69,9 @@ class Trajectory(MSONable):
         if trajectory.coords_are_displacement:
             trajectory.to_positions()
 
-        self.frac_coords = np.concatenate((self.frac_coords, trajectory), axis=0)
-        self.lattice = combine_attribute(self.lattice, trajectory.lattice, self.shape[0], trajectory.size[0])
+        self.frac_coords = np.concatenate((self.frac_coords, trajectory.frac_coords), axis=0)
+        self.lattice, self.constant_lattice = combine_attribute(self.lattice, trajectory.lattice, self.frac_coords.shape[0],
+                                         trajectory.frac_coords.shape[0])
         self.site_properties = combine_attribute(self.site_properties, trajectory.site_properties,
                                                 self.frac_coords.shape[0], trajectory.frac_coords.shape[0])
         return
@@ -86,7 +90,7 @@ class Trajectory(MSONable):
         :return:
         """
         if type(frames) == int and frames < self.frac_coords.shape[0]:
-            lattice = self.lattice if np.shape(self.lattice) == (3, 3) else self.lattice[frames]
+            lattice = self.lattice if self.constant_lattice else self.lattice[frames]
             site_properties = self.site_properties[frames] if self.site_properties else None
             return Structure(Lattice(lattice), self.species, self.frac_coords[frames], site_properties=site_properties,
                              to_unit_cell=True)
@@ -100,7 +104,7 @@ class Trajectory(MSONable):
                 raise Exception('Given accessor is not of type int, slice, tuple, list, or array')
 
         if type(frames) in [list, np.ndarray] and (np.asarray([frames]) < self.frac_coords.shape[0]).all():
-            if np.shape(self.lattice) == (3, 3):
+            if self.constant_lattice:
                 lattice = self.lattice
             else:
                 lattice = self.lattice[frames, :]
@@ -115,17 +119,19 @@ class Trajectory(MSONable):
                           self.constant_lattice, self.coords_are_displacement, self.base_positions)
 
     @classmethod
-    def from_structures(cls, structures, const_lattice=False, **kwargs):
+    def from_structures(cls, structures, constant_lattice=True, **kwargs):
         """
         Assumes no atoms removed from simulation
         """
         frac_coords = [structure.frac_coords for structure in structures]
-        if const_lattice:
+        if constant_lattice:
             lattice = structures[0].lattice.matrix
         else:
             lattice = [structure.lattice.matrix for structure in structures]
         site_properties = [structure.site_properties for structure in structures]
-        return cls(frac_coords, lattice, species=structures[0].species, site_properties=site_properties, **kwargs)
+        return cls(frac_coords, lattice, species=structures[0].species, site_properties=site_properties,
+                   constant_lattice=constant_lattice, **kwargs)
+
     @classmethod
     def from_file(cls, filename, constant_lattice=True):
         # TODO: Support other non-xdatcar files
@@ -144,10 +150,13 @@ class Trajectory(MSONable):
 def combine_attribute(attr_1, attr_2, len_1, len_2):
     if type(attr_1) == list or type(attr_2) == list:
         attribute = np.concatenate((attr_1, attr_2), axis=0)
+        attribute_changes = True
     else:
-        if type(attr_1) != list and type(attr_2) != list and attr_1 == attr_2:
+        if type(attr_1) != list and type(attr_2) != list and np.allclose(attr_1, attr_2):
             attribute = attr_1
+            attribute_changes = False
         else:
             attribute = [attr_1.copy()] * len_1 if type(attr_1) != list else attr_1.copy()
             attribute.extend([attr_2.copy()] * len_2 if type(attr_2 != list) else attr_2.copy())
-    return attribute
+            attribute_changes = True
+    return attribute, attribute_changes

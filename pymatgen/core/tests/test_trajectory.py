@@ -3,6 +3,7 @@ from pymatgen.io.vasp.outputs import Xdatcar
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.core.trajectory import Trajectory
 from pymatgen.core.structure import Structure
+from pymatgen.core.lattice import Lattice
 import numpy as np
 import os
 
@@ -14,7 +15,8 @@ class TrajectoryTest(PymatgenTest):
 
     def setUp(self):
         xdatcar = Xdatcar(os.path.join(test_dir, "Traj_XDATCAR"))
-        self.traj = Trajectory.from_structures(xdatcar.structures, const_lattice=True)
+        # self.traj = Trajectory.from_structures(xdatcar.structures, const_lattice=True)
+        self.traj = Trajectory.from_file(os.path.join(test_dir, "Traj_XDATCAR"))
         self.structures = xdatcar.structures
 
     def testSingleIndexSlice(self):
@@ -44,18 +46,15 @@ class TrajectoryTest(PymatgenTest):
         traj = self.traj.copy()
 
         # Case of compatible trajectories
-        xdatcar = Xdatcar(os.path.join(test_dir, "Traj_Combine_Test_XDATCAR_1"))
-        compatible_traj = Trajectory.from_structures(xdatcar.structures)
+        compatible_traj = Trajectory.from_file(os.path.join(test_dir, "Traj_Combine_Test_XDATCAR_1"))
         traj.extend(compatible_traj)
 
-        xdatcar = Xdatcar(os.path.join(test_dir, "Traj_Combine_Test_XDATCAR_Full"))
-        full_traj = Trajectory.from_structures(xdatcar.structures)
+        full_traj = Trajectory.from_file(os.path.join(test_dir, "Traj_Combine_Test_XDATCAR_Full"))
         compatible_success = self.check_traj_equality(self.traj, full_traj)
 
-        # Case off incompatible trajectories
+        # Case of incompatible trajectories
         traj = self.traj.copy()
-        xdatcar = Xdatcar(os.path.join(test_dir, "Traj_Combine_Test_XDATCAR_1"))
-        incompatible_traj = Trajectory.from_structures(xdatcar.structures)
+        incompatible_traj = Trajectory.from_file(os.path.join(test_dir, "Traj_Combine_Test_XDATCAR_2"))
         traj.extend(incompatible_traj)
         incompatible_success = self.check_traj_equality(self.traj, traj)
 
@@ -74,10 +73,27 @@ class TrajectoryTest(PymatgenTest):
             structures.append(Structure(structures[-1].lattice, structures[-1].species, new_coords))
             displacements[i+1, :, :] = displacement
 
-        traj = Trajectory.from_structures(structures, const_lattice=True)
+        traj = Trajectory.from_structures(structures, constant_lattice=True)
         traj.to_displacements()
 
         self.assertTrue(np.allclose(traj.frac_coords, displacements))
+
+    def testChangingLattice(self):
+        structure = self.structures[0]
+
+        # Generate structures with different lattices
+        structures = []
+        for i in range(10):
+            new_lattice = np.dot(structure.lattice.matrix, np.diag(1 + np.random.random_sample(3)/20))
+            temp_struct = structure.copy()
+            temp_struct.modify_lattice(Lattice(new_lattice))
+            structures.append(temp_struct)
+
+        traj = Trajectory.from_structures(structures, constant_lattice=False)
+
+        # Check if lattices were properly stored
+        self.assertTrue(
+            all([np.allclose(struct.lattice.matrix, structures[i].lattice.matrix) for i, struct in enumerate(traj)]))
 
     def check_traj_equality(self, traj_1, traj_2):
         if np.sum(np.square(np.subtract(traj_1.lattice, traj_2.lattice))) > 0.0001:
