@@ -126,6 +126,19 @@ class Trajectory(MSONable):
             lattice = [structure.lattice.matrix for structure in structures]
         site_properties = [structure.site_properties for structure in structures]
         return cls(frac_coords, lattice, species=structures[0].species, site_properties=site_properties, **kwargs)
+    @classmethod
+    def from_file(cls, filename, constant_lattice=True):
+        # TODO: Support other non-xdatcar files
+
+        fname = os.path.basename(filename)
+        if fnmatch(fname, "*XDATCAR*"):
+            structures = Xdatcar(filename).structures
+        elif fnmatch(fname, "vasprun*.xml*"):
+            structures = Vasprun(filename).structures
+        else:
+            raise ValueError("Unsupported file")
+
+        return cls.from_structures(structures, constant_lattice=constant_lattice)
 
 
 def combine_attribute(attr_1, attr_2, len_1, len_2):
