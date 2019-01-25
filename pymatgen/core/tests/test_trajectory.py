@@ -19,10 +19,10 @@ class TrajectoryTest(PymatgenTest):
         self.traj = Trajectory.from_file(os.path.join(test_dir, "Traj_XDATCAR"))
         self.structures = xdatcar.structures
 
-    def testSingleIndexSlice(self):
+    def test_sngle_index_slice(self):
         self.assertTrue(all([self.traj[i] == self.structures[i] for i in range(0, len(self.structures), 19)]))
 
-    def testSlice(self):
+    def test_slice(self):
         sliced_traj = self.traj[2:99:3]
         sliced_traj_from_structs = Trajectory.from_structures(self.structures[2:99:3])
 
@@ -31,18 +31,18 @@ class TrajectoryTest(PymatgenTest):
         else:
             self.assertTrue(False)
 
-    def testConversion(self):
+    def test_conversion(self):
         # Convert to displacements and back. Check structures
         self.traj.to_displacements()
         self.traj.to_positions()
 
         self.assertTrue(all([struct == self.structures[i] for i, struct in enumerate(self.traj)]))
 
-    def testCopy(self):
+    def test_copy(self):
         traj_copy = self.traj.copy()
         self.assertTrue(all([i==j for i, j in zip(self.traj, traj_copy)]))
 
-    def testExtend(self):
+    def test_extend(self):
         traj = self.traj.copy()
 
         # Case of compatible trajectories
@@ -50,20 +50,20 @@ class TrajectoryTest(PymatgenTest):
         traj.extend(compatible_traj)
 
         full_traj = Trajectory.from_file(os.path.join(test_dir, "Traj_Combine_Test_XDATCAR_Full"))
-        compatible_success = self.check_traj_equality(self.traj, full_traj)
+        compatible_success = self._check_traj_equality(self.traj, full_traj)
 
         # Case of incompatible trajectories
         traj = self.traj.copy()
         incompatible_traj = Trajectory.from_file(os.path.join(test_dir, "Traj_Combine_Test_XDATCAR_2"))
         traj.extend(incompatible_traj)
-        incompatible_success = self.check_traj_equality(self.traj, traj)
+        incompatible_success = self._check_traj_equality(self.traj, traj)
 
         self.assertTrue(compatible_success and incompatible_success)
 
-    def testLength(self):
+    def test_length(self):
         self.assertTrue(len(self.traj) == len(self.structures))
 
-    def testDisplacements(self):
+    def test_displacements(self):
         poscar = Poscar.from_file(os.path.join(test_dir, "POSCAR"))
         structures = [poscar.structure]
         displacements = np.zeros((11, *np.shape(structures[-1].frac_coords)))
@@ -78,7 +78,7 @@ class TrajectoryTest(PymatgenTest):
 
         self.assertTrue(np.allclose(traj.frac_coords, displacements))
 
-    def testChangingLattice(self):
+    def test_changing_lattice(self):
         structure = self.structures[0]
 
         # Generate structures with different lattices
@@ -95,7 +95,12 @@ class TrajectoryTest(PymatgenTest):
         self.assertTrue(
             all([np.allclose(struct.lattice.matrix, structures[i].lattice.matrix) for i, struct in enumerate(traj)]))
 
-    def check_traj_equality(self, traj_1, traj_2):
+    def test_to_from_dict(self):
+        d = self.traj.as_dict()
+        traj = Trajectory.from_dict(d)
+        self.assertEqual(type(traj), Trajectory)
+
+    def _check_traj_equality(self, traj_1, traj_2):
         if np.sum(np.square(np.subtract(traj_1.lattice, traj_2.lattice))) > 0.0001:
             return False
 
