@@ -229,6 +229,18 @@ class Trajectory(MSONable):
 
         return cls.from_structures(structures, constant_lattice=constant_lattice, **kwargs)
 
+    def as_dict(self):
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__,
+             "species": self.species, "time_step": self.time_step,
+             "site_properties": self.site_properties,
+             "constant_lattice": self.constant_lattice,
+             "coords_are_displacement": self.coords_are_displacement,
+             "base_positions": self.base_positions}
+        d["lattice"] = self.lattice.tolist()
+        d["frac_coords"] = self.frac_coords.tolist()
+
+        return d
 
     @staticmethod
     def _combine_attribute(attr_1, attr_2, len_1, len_2):
