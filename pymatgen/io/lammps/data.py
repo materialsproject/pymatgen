@@ -1,10 +1,6 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
-from __future__ import division, print_function, unicode_literals, \
-    absolute_import
-
 from collections import OrderedDict
 from io import StringIO
 import itertools
@@ -16,7 +12,7 @@ import pandas as pd
 from monty.json import MSONable
 from monty.dev import deprecated
 from ruamel.yaml import YAML
-from six import string_types
+
 
 from pymatgen.util.io_utils import clean_lines
 from pymatgen import Molecule, Element, Lattice, Structure, SymmOp
@@ -1023,7 +1019,7 @@ class ForceField(MSONable):
 
         """
         map_mass = lambda v: v.atomic_mass.real if isinstance(v, Element) \
-            else Element(v).atomic_mass.real if isinstance(v, string_types) \
+            else Element(v).atomic_mass.real if isinstance(v, str) \
             else v
         index, masses, self.mass_info, atoms_map = [], [], [], {}
         for i, m in enumerate(mass_info):

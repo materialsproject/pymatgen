@@ -13,11 +13,14 @@ environment:
       SPLIT_RUN: "FALSE"
   PMG_MAPI_KEY:
     secure: XIbk1W27nucVUHTVpIL2B+FodL9w2Efyw5PqTdnfbHg=
+  PMG_MAPI_ENDPOINT: https://zola.lbl.gov/rest/v2
   PYPIPWD:
     secure: QPpXonUAeLJ8p3f936jh7g==
 install:
   # Add the paths
   - 'set PATH=%PYTHON%;%PYTHON%\Library\bin;%PYTHON%\Scripts;%PATH%'
+  - 'set MPLBACKEND=Agg'
+  - 'set NOSE_EXCLUDE_TESTS="pymatgen.ext.tests.test_matproj.MPResterTest;pymatgen.analysis.tests.test_pourbaix_diagram.PourbaixDiagramTest;pymatgen.tests.test_init.SettingsTestCase"'
   # Check that we have the expected version and architecture for Python
   # - 'python --version'
   # - 'python -c "import struct; print(struct.calcsize(''P'') * 8)"'

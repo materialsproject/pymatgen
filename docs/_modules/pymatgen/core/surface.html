@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.surface &#8212; pymatgen 2018.11.6 documentation</title>
+    <title>pymatgen.core.surface &#8212; pymatgen 2019.1.24 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.11.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.1.24 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -50,14 +50,8 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">reduce</span>
-<span class="k">try</span><span class="p">:</span>
-    <span class="c1"># New Py&gt;=3.5 import</span>
-    <span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">gcd</span>
-<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="c1"># Deprecated import from Py3.5 onwards.</span>
-    <span class="kn">from</span> <span class="nn">fractions</span> <span class="k">import</span> <span class="n">gcd</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">gcd</span>
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">logging</span>
@@ -703,7 +697,8 @@
 
         <span class="n">slabcopy</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span><span class="o">.</span><span class="n">get_symmetrized_structure</span><span class="p">()</span>
         <span class="n">points</span> <span class="o">=</span> <span class="p">[</span><span class="n">slabcopy</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">]</span>
-
+        <span class="n">removal_list</span> <span class="o">=</span> <span class="p">[]</span>
+        
         <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">points</span><span class="p">:</span>
             <span class="c1"># Get the index of the original site on top</span>
             <span class="n">cart_point</span> <span class="o">=</span> <span class="n">slabcopy</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span>
@@ -716,6 +711,7 @@
                     <span class="n">eq_indices</span> <span class="o">=</span> <span class="n">slabcopy</span><span class="o">.</span><span class="n">equivalent_indices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
                     <span class="k">break</span>
             <span class="n">i1</span> <span class="o">=</span> <span class="n">eq_indices</span><span class="p">[</span><span class="n">eq_sites</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">slabcopy</span><span class="p">[</span><span class="n">site1</span><span class="p">])]</span>
+            
             <span class="k">for</span> <span class="n">i2</span> <span class="ow">in</span> <span class="n">eq_indices</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">i2</span> <span class="o">==</span> <span class="n">i1</span><span class="p">:</span>
                     <span class="k">continue</span>
@@ -725,13 +721,17 @@
                 <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
                 <span class="n">s</span><span class="o">.</span><span class="n">remove_sites</span><span class="p">([</span><span class="n">i1</span><span class="p">,</span> <span class="n">i2</span><span class="p">])</span>
                 <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">is_symmetric</span><span class="p">():</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">remove_sites</span><span class="p">([</span><span class="n">i1</span><span class="p">,</span> <span class="n">i2</span><span class="p">])</span>
+                    <span class="n">removal_list</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">i1</span><span class="p">,</span> <span class="n">i2</span><span class="p">])</span>
                     <span class="k">break</span>
-                <span class="k">if</span> <span class="n">eq_indices</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">i2</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">eq_indices</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Equivalent site could not be found for removal&quot;</span><span class="p">)</span></div></div>
+                    
+        <span class="c1"># If expected, 2 atoms are removed per index</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">removal_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_sites</span><span class="p">(</span><span class="n">removal_list</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Equivalent sites could not be found for removal for all indices. Surface unchanged.&quot;</span><span class="p">)</span></div></div>
 
-
-<div class="viewcode-block" id="SlabGenerator"><a class="viewcode-back" href="../../../pymatgen.core.surface.html#pymatgen.core.surface.SlabGenerator">[docs]</a><span class="k">class</span> <span class="nc">SlabGenerator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+            
+<div class="viewcode-block" id="SlabGenerator"><a class="viewcode-back" href="../../../pymatgen.core.surface.html#pymatgen.core.surface.SlabGenerator">[docs]</a><span class="k">class</span> <span class="nc">SlabGenerator</span><span class="p">:</span>
 
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class generates different slabs using shift values determined by where</span>
@@ -1324,7 +1324,7 @@
     <span class="n">reconstructions_archive</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">data_file</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="ReconstructionGenerator"><a class="viewcode-back" href="../../../pymatgen.core.surface.html#pymatgen.core.surface.ReconstructionGenerator">[docs]</a><span class="k">class</span> <span class="nc">ReconstructionGenerator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="ReconstructionGenerator"><a class="viewcode-back" href="../../../pymatgen.core.surface.html#pymatgen.core.surface.ReconstructionGenerator">[docs]</a><span class="k">class</span> <span class="nc">ReconstructionGenerator</span><span class="p">:</span>
 
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class takes in a pre-defined dictionary specifying the parameters</span>
@@ -1899,7 +1899,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.11.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.1.24 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1907,7 +1907,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -2,13 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import os
 import abc
 import warnings
-import six
-from six.moves import filter, map
 
 from collections import defaultdict
 
@@ -50,7 +47,7 @@ class CompatibilityError(Exception):
         return self.msg
 
 
-class Correction(six.with_metaclass(abc.ABCMeta, object)):
+class Correction(metaclass=abc.ABCMeta):
     """
     A Correction class is a pre-defined scheme for correction a computed
     entry based on the type and chemistry of the structure and the

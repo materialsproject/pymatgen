@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import os
 import re
@@ -12,7 +11,6 @@ import logging
 import math
 import glob
 
-import six
 import numpy as np
 from numpy.linalg import det
 from collections import OrderedDict, namedtuple
@@ -638,7 +636,7 @@ class Incar(dict, MSONable):
         """
         super(Incar, self).__setitem__(
             key.strip(), Incar.proc_val(key.strip(), val.strip())
-            if isinstance(val, six.string_types) else val)
+            if isinstance(val, str) else val)
 
     def as_dict(self):
         d = dict(self)
@@ -967,7 +965,7 @@ class Kpoints(MSONable):
 
     @style.setter
     def style(self, style):
-        if isinstance(style, six.string_types):
+        if isinstance(style, str):
             style = Kpoints.supported_modes.from_string(style)
 
         if style in (Kpoints.supported_modes.Automatic,
@@ -1117,7 +1115,7 @@ class Kpoints(MSONable):
     def automatic_density_by_vol(structure, kppvol, force_gamma=False):
         """
         Returns an automatic Kpoint object based on a structure and a kpoint
-        density per inverse Angstrom of reciprocal cell.
+        density per inverse Angstrom^3 of reciprocal cell.
 
         Algorithm:
             Same as automatic_density()
@@ -1399,7 +1397,7 @@ OrbitalDescription = namedtuple('OrbitalDescription',
                                 ['l', 'E', 'Type', "Rcut", "Type2", "Rcut2"])
 
 
-class PotcarSingle(object):
+class PotcarSingle:
     """
     Object for a **single** POTCAR. The builder assumes the complete string is
     the POTCAR contains the complete untouched data in "data" as a string and

@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import unittest
 import json
 import os
@@ -547,6 +546,19 @@ class CompleteCohpTest(PymatgenTest):
             icoop_ef = all_coops_lobster[bond].get_interpolated_value(
                 self.coop_lobster.efermi, integrated=True)
             self.assertEqual(icoop_ef_dict[bond], icoop_ef)
+
+    def test_get_cohp(self):
+        self.assertEqual(self.cohp_orb.get_cohp_by_label("1").energies[0], -11.7225)
+        self.assertEqual(self.cohp_orb.get_cohp_by_label("1").energies[5], -11.47187)
+        self.assertFalse(self.cohp_orb.get_cohp_by_label("1").are_coops)
+        self.assertEqual(self.cohp_orb.get_cohp_by_label("1").cohp[Spin.up][0], 0.0)
+        self.assertEqual(self.cohp_orb.get_cohp_by_label("1").cohp[Spin.up][300], 0.03392)
+        self.assertEqual(self.cohp_orb.get_cohp_by_label("average").cohp[Spin.up][230], -0.08792)
+        self.assertEqual(self.cohp_orb.get_cohp_by_label("average").energies[230], -0.19368000000000007)
+        self.assertFalse(self.cohp_orb.get_cohp_by_label("average").are_coops)
+        # test methods from super class that could be overwritten
+        self.assertEqual(self.cohp_orb.get_icohp()[Spin.up][3], 0.0)
+        self.assertEqual(self.cohp_orb.get_cohp()[Spin.up][3], 0.0)
 
     def test_orbital_resolved_cohp(self):
         # When read from a COHPCAR file, total COHPs are calculated from

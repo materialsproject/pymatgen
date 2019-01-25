@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import re
 
 from monty.io import zopen
@@ -22,7 +21,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Jan 24, 2012"
 
 
-class Cssr(object):
+class Cssr:
     """
     Basic object for working with Cssr file. Right now, only conversion from
     a Structure to a Cssr file is supported.

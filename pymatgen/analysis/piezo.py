@@ -2,8 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, print_function, unicode_literals
-from __future__ import absolute_import
 
 """
 This module provides classes for the Piezoelectric tensor

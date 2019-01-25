@@ -38,7 +38,7 @@ def make_doc(ctx):
     with cd("docs_rst"):
         ctx.run("cp ../CHANGES.rst change_log.rst")
         ctx.run("rm pymatgen.*.rst")
-        ctx.run("sphinx-apidoc --separate -d 6 -o . -f ../pymatgen")
+        ctx.run("sphinx-apidoc --separate -d 7 -o . -f ../pymatgen")
         ctx.run("rm pymatgen*.tests.*rst")
         for f in glob.glob("*.rst"):
             if f.startswith('pymatgen') and f.endswith('rst'):
@@ -144,7 +144,10 @@ def submit_dash_pr(ctx):
 @task
 def update_doc(ctx):
     make_doc(ctx)
-    contribute_dash(ctx)
+    try:
+        contribute_dash(ctx)
+    except:
+        pass
     ctx.run("git add .")
     ctx.run("git commit -a -m \"Update docs\"")
     ctx.run("git push")

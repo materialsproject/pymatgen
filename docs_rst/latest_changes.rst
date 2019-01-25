@@ -1,8 +1,9 @@
 Change log
 ==========
 
-v2018.11.6
+v2019.1.24
 ----------
-* Ionic radius based CrystalNN (@computron)
-* InterfacialReactivity (@dbroberg)
-* Misc bug fixes
+* Python 3 only!
+* Improvements to local environment code (@utf)
+* Update Cohp analysis (@JaGEO)
+* Updates to Boltztrap2 (@fraricci)
