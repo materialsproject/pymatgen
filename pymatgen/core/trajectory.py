@@ -117,12 +117,10 @@ class Trajectory(MSONable):
 
         """
         if self.time_step != trajectory.time_step:
-            warnings.warn('Trajectory not extended: Time steps of trajectories is incompatible')
-            return
+            raise ValueError('Trajectory not extended: Time steps of trajectories is incompatible')
 
         if len(self.species) != len(trajectory.species) and self.species != trajectory.species:
-            warnings.warn('Trajectory not extended: species in trajectory do not match')
-            return
+            raise ValueError('Trajectory not extended: species in trajectory do not match')
 
         self.to_positions()
         trajectory.to_positions()
