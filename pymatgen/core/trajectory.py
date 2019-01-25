@@ -8,7 +8,8 @@ import os
 
 
 class Trajectory(MSONable):
-    def __init__(self, frac_coords, lattice, species, time_step=2, site_properties=None, constant_lattice=True,
+    """
+    def __init__(self, lattice, species, frac_coords, time_step=2, site_properties=None, constant_lattice=True,
                  coords_are_displacement=False, base_positions=None):
         # To support from_dict and as_dict
         if type(frac_coords) == list:
@@ -108,14 +109,14 @@ class Trajectory(MSONable):
                 lattice = self.lattice
             else:
                 lattice = self.lattice[frames, :]
-            return Trajectory(self.frac_coords[frames, :], lattice, self.species, self.time_step,
+            return Trajectory(lattice, self.species, self.frac_coords[frames, :], self.time_step,
                               self.site_properties)
         else:
             warnings.warn('Some or all selected frames exceed trajectory length')
         return
 
     def copy(self):
-        return Trajectory(self.frac_coords, self.lattice, self.species, self.time_step, self.site_properties,
+        return Trajectory(self.lattice, self.species, self.frac_coords, self.time_step, self.site_properties,
                           self.constant_lattice, self.coords_are_displacement, self.base_positions)
 
     @classmethod
@@ -129,7 +130,7 @@ class Trajectory(MSONable):
         else:
             lattice = [structure.lattice.matrix for structure in structures]
         site_properties = [structure.site_properties for structure in structures]
-        return cls(frac_coords, lattice, species=structures[0].species, site_properties=site_properties,
+        return cls(lattice, structures[0].species, frac_coords, site_properties=site_properties,
                    constant_lattice=constant_lattice, **kwargs)
 
     @classmethod
