@@ -63,7 +63,10 @@ class Trajectory(MSONable):
             self.base_positions = frac_coords[0]
         self.coords_are_displacement = coords_are_displacement
 
-        self.lattice = lattice
+        if not constant_lattice and np.shape(lattice)==(3, 3):
+            self.lattice = [lattice for i in range(self.frac_coords.shape[0])]
+        else:
+            self.lattice = lattice
         self.constant_lattice = constant_lattice
         self.species = species
         self.site_properties = site_properties
@@ -116,25 +119,19 @@ class Trajectory(MSONable):
         if self.time_step != trajectory.time_step:
             warnings.warn('Trajectory not extended: Time steps of trajectories is incompatible')
             return
-            # raise Exception('Time steps of trajectories is incompatible')
 
         if len(self.species) != len(trajectory.species) and self.species != trajectory.species:
             warnings.warn('Trajectory not extended: species in trajectory do not match')
             return
-            # raise Exception('Species in trajectory do not match')
 
-        if self.coords_are_displacement:
-            self.to_positions()
-
-        if trajectory.coords_are_displacement:
-            trajectory.to_positions()
+        self.to_positions()
+        trajectory.to_positions()
 
         self.frac_coords = np.concatenate((self.frac_coords, trajectory.frac_coords), axis=0)
-        self.lattice, self.constant_lattice = combine_attribute(self.lattice, trajectory.lattice, self.frac_coords.shape[0],
+        self.lattice, self.constant_lattice = self._combine_attribute(self.lattice, trajectory.lattice, self.frac_coords.shape[0],
                                          trajectory.frac_coords.shape[0])
-        self.site_properties = combine_attribute(self.site_properties, trajectory.site_properties,
+        self.site_properties = self._combine_attribute(self.site_properties, trajectory.site_properties,
                                                 self.frac_coords.shape[0], trajectory.frac_coords.shape[0])
-        return
 
     def __iter__(self):
         for i in range(self.frac_coords.shape[0]):
