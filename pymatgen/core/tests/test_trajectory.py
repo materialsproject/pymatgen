@@ -15,7 +15,6 @@ class TrajectoryTest(PymatgenTest):
 
     def setUp(self):
         xdatcar = Xdatcar(os.path.join(test_dir, "Traj_XDATCAR"))
-        # self.traj = Trajectory.from_structures(xdatcar.structures, const_lattice=True)
         self.traj = Trajectory.from_file(os.path.join(test_dir, "Traj_XDATCAR"))
         self.structures = xdatcar.structures
 
