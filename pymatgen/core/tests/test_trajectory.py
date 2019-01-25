@@ -54,10 +54,13 @@ class TrajectoryTest(PymatgenTest):
         # Case of incompatible trajectories
         traj = self.traj.copy()
         incompatible_traj = Trajectory.from_file(os.path.join(test_dir, "Traj_Combine_Test_XDATCAR_2"))
-        traj.extend(incompatible_traj)
-        incompatible_success = self._check_traj_equality(self.traj, traj)
+        incompatible_test_success=False
+        try:
+            traj.extend(incompatible_traj)
+        except:
+            incompatible_test_success=True
 
-        self.assertTrue(compatible_success and incompatible_success)
+        self.assertTrue(compatible_success and incompatible_test_success)
 
     def test_length(self):
         self.assertTrue(len(self.traj) == len(self.structures))
