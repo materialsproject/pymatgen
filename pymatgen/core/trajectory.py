@@ -1,3 +1,7 @@
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
 from pymatgen.core.structure import Structure, Lattice
 from pymatgen.io.vasp.outputs import Xdatcar, Vasprun
 from monty.json import MSONable
@@ -5,6 +9,14 @@ from fnmatch import fnmatch
 import numpy as np
 import warnings
 import os
+
+"""
+This module provides classes used to define a MD trajectory.
+"""
+
+__author__ = "Eric Sivonxay, Shyam Dwaraknath"
+__version__ = "0.0"
+__date__ = "Jan 25, 2019"
 
 
 class Trajectory(MSONable):
