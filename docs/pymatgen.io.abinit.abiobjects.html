@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.abiobjects module &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.io.abinit.abiobjects module &#8212; pymatgen 2019.1.24 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.1.24 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -68,13 +68,14 @@ that returns a dictionary with the abinit variables.</p>
 <dl class="method">
 <dt id="pymatgen.io.abinit.abiobjects.Constraints.to_abivars">
 <code class="descname">to_abivars</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#Constraints.to_abivars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Constraints.to_abivars" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns a dictionary with the abinit variables.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.abiobjects.Electrons">
-<em class="property">class </em><code class="descname">Electrons</code><span class="sig-paren">(</span><em>spin_mode=u'polarized'</em>, <em>smearing=u'fermi_dirac:0.1 eV'</em>, <em>algorithm=None</em>, <em>nband=None</em>, <em>fband=None</em>, <em>charge=0.0</em>, <em>comment=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#Electrons"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Electrons" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">Electrons</code><span class="sig-paren">(</span><em>spin_mode='polarized'</em>, <em>smearing='fermi_dirac:0.1 eV'</em>, <em>algorithm=None</em>, <em>nband=None</em>, <em>fband=None</em>, <em>charge=0.0</em>, <em>comment=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#Electrons"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Electrons" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="pymatgen.io.abinit.abiobjects.AbivarAble"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.abiobjects.AbivarAble</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>The electronic degrees of freedom</p>
 <p>Constructor for Electrons object.</p>
@@ -119,7 +120,8 @@ that returns a dictionary with the abinit variables.</p>
 <dl class="method">
 <dt id="pymatgen.io.abinit.abiobjects.Electrons.to_abivars">
 <code class="descname">to_abivars</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#Electrons.to_abivars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Electrons.to_abivars" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns a dictionary with the abinit variables.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -130,8 +132,9 @@ that returns a dictionary with the abinit variables.</p>
 <p>Variables controlling the SCF/NSCF algorithm.</p>
 <dl class="method">
 <dt id="pymatgen.io.abinit.abiobjects.ElectronsAlgorithm.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#ElectronsAlgorithm.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.ElectronsAlgorithm.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#ElectronsAlgorithm.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.ElectronsAlgorithm.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>A JSON serializable dict representation of an object.</p>
+</dd></dl>
 
 <dl class="classmethod">
 <dt id="pymatgen.io.abinit.abiobjects.ElectronsAlgorithm.from_dict">
@@ -141,13 +144,14 @@ that returns a dictionary with the abinit variables.</p>
 <dl class="method">
 <dt id="pymatgen.io.abinit.abiobjects.ElectronsAlgorithm.to_abivars">
 <code class="descname">to_abivars</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#ElectronsAlgorithm.to_abivars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.ElectronsAlgorithm.to_abivars" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns a dictionary with the abinit variables.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.abiobjects.ExcHamiltonian">
-<em class="property">class </em><code class="descname">ExcHamiltonian</code><span class="sig-paren">(</span><em>bs_loband</em>, <em>nband</em>, <em>mbpt_sciss</em>, <em>coulomb_mode</em>, <em>ecuteps</em>, <em>spin_mode=u'polarized'</em>, <em>mdf_epsinf=None</em>, <em>exc_type=u'TDA'</em>, <em>algo=u'haydock'</em>, <em>with_lf=True</em>, <em>bs_freq_mesh=None</em>, <em>zcut=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#ExcHamiltonian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.ExcHamiltonian" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">ExcHamiltonian</code><span class="sig-paren">(</span><em>bs_loband</em>, <em>nband</em>, <em>mbpt_sciss</em>, <em>coulomb_mode</em>, <em>ecuteps</em>, <em>spin_mode='polarized'</em>, <em>mdf_epsinf=None</em>, <em>exc_type='TDA'</em>, <em>algo='haydock'</em>, <em>with_lf=True</em>, <em>bs_freq_mesh=None</em>, <em>zcut=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#ExcHamiltonian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.ExcHamiltonian" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="pymatgen.io.abinit.abiobjects.AbivarAble"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.abiobjects.AbivarAble</span></code></a></p>
 <p>This object contains the parameters for the solution of the Bethe-Salpeter equation.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -289,7 +293,8 @@ to reduce the number of independent k-points.</li>
 <dl class="method">
 <dt id="pymatgen.io.abinit.abiobjects.KSampling.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#KSampling.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>A JSON serializable dict representation of an object.</p>
+</dd></dl>
 
 <dl class="classmethod">
 <dt id="pymatgen.io.abinit.abiobjects.KSampling.automatic_density">
@@ -416,7 +421,8 @@ to reduce the number of independent k-points.</li>
 <dl class="method">
 <dt id="pymatgen.io.abinit.abiobjects.KSampling.to_abivars">
 <code class="descname">to_abivars</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#KSampling.to_abivars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling.to_abivars" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns a dictionary with the abinit variables.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -424,6 +430,7 @@ to reduce the number of independent k-points.</li>
 <dt id="pymatgen.io.abinit.abiobjects.KSamplingModes">
 <em class="property">class </em><code class="descname">KSamplingModes</code><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#KSamplingModes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSamplingModes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>An enumeration.</p>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.abiobjects.KSamplingModes.automatic">
 <code class="descname">automatic</code><em class="property"> = 3</em><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSamplingModes.automatic" title="Permalink to this definition">¶</a></dt>
@@ -449,20 +456,22 @@ to reduce the number of independent k-points.</li>
 <dl class="method">
 <dt id="pymatgen.io.abinit.abiobjects.ModelDielectricFunction.to_abivars">
 <code class="descname">to_abivars</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#ModelDielectricFunction.to_abivars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.ModelDielectricFunction.to_abivars" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns a dictionary with the abinit variables.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.abiobjects.PPModel">
-<em class="property">class </em><code class="descname">PPModel</code><span class="sig-paren">(</span><em>mode=u'godby'</em>, <em>plasmon_freq=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#PPModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.PPModel" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">PPModel</code><span class="sig-paren">(</span><em>mode='godby'</em>, <em>plasmon_freq=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#PPModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.PPModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="pymatgen.io.abinit.abiobjects.AbivarAble"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.abiobjects.AbivarAble</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Parameters defining the plasmon-pole technique.
 The common way to instanciate a PPModel object is via the class method PPModel.as_ppmodel(string)</p>
 <dl class="method">
 <dt id="pymatgen.io.abinit.abiobjects.PPModel.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#PPModel.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.PPModel.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>A JSON serializable dict representation of an object.</p>
+</dd></dl>
 
 <dl class="classmethod">
 <dt id="pymatgen.io.abinit.abiobjects.PPModel.as_ppmodel">
@@ -491,7 +500,8 @@ The common way to instanciate a PPModel object is via the class method PPModel.a
 <dl class="method">
 <dt id="pymatgen.io.abinit.abiobjects.PPModel.to_abivars">
 <code class="descname">to_abivars</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#PPModel.to_abivars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.PPModel.to_abivars" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns a dictionary with the abinit variables.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -499,6 +509,7 @@ The common way to instanciate a PPModel object is via the class method PPModel.a
 <dt id="pymatgen.io.abinit.abiobjects.PPModelModes">
 <em class="property">class </em><code class="descname">PPModelModes</code><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#PPModelModes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.PPModelModes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>An enumeration.</p>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.abiobjects.PPModelModes.farid">
 <code class="descname">farid</code><em class="property"> = 4</em><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.PPModelModes.farid" title="Permalink to this definition">¶</a></dt>
@@ -549,7 +560,8 @@ The set of variables are constructed in to_abivars depending on ionmov and optce
 <dl class="method">
 <dt id="pymatgen.io.abinit.abiobjects.RelaxationMethod.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#RelaxationMethod.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.RelaxationMethod.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>A JSON serializable dict representation of an object.</p>
+</dd></dl>
 
 <dl class="classmethod">
 <dt id="pymatgen.io.abinit.abiobjects.RelaxationMethod.atoms_and_cell">
@@ -588,7 +600,7 @@ The set of variables are constructed in to_abivars depending on ionmov and optce
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.abiobjects.Screening">
-<em class="property">class </em><code class="descname">Screening</code><span class="sig-paren">(</span><em>ecuteps</em>, <em>nband</em>, <em>w_type=u'RPA'</em>, <em>sc_mode=u'one_shot'</em>, <em>hilbert=None</em>, <em>ecutwfn=None</em>, <em>inclvkb=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#Screening"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Screening" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">Screening</code><span class="sig-paren">(</span><em>ecuteps</em>, <em>nband</em>, <em>w_type='RPA'</em>, <em>sc_mode='one_shot'</em>, <em>hilbert=None</em>, <em>ecutwfn=None</em>, <em>inclvkb=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#Screening"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Screening" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="pymatgen.io.abinit.abiobjects.AbivarAble"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.abiobjects.AbivarAble</span></code></a></p>
 <p>This object defines the parameters used for the
 computation of the screening function.</p>
@@ -682,7 +694,7 @@ QP energies for all the point in the IBZ and one band above and one band below t
 a <cite>Smearing</cite> object is via the class method Smearing.as_smearing(string)</p>
 <dl class="method">
 <dt id="pymatgen.io.abinit.abiobjects.Smearing.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#Smearing.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Smearing.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#Smearing.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Smearing.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>json friendly dict representation of Smearing</p>
 </dd></dl>
 
@@ -718,7 +730,8 @@ a <cite>Smearing</cite> object is via the class method Smearing.as_smearing(stri
 <dl class="method">
 <dt id="pymatgen.io.abinit.abiobjects.Smearing.to_abivars">
 <code class="descname">to_abivars</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#Smearing.to_abivars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Smearing.to_abivars" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns a dictionary with the abinit variables.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -741,8 +754,9 @@ One can use as_spinmode to construct the object via SpinMode.as_spinmode
 <p>Create new instance of SpinMode(mode, nsppol, nspinor, nspden)</p>
 <dl class="method">
 <dt id="pymatgen.io.abinit.abiobjects.SpinMode.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#SpinMode.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.SpinMode.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#SpinMode.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.SpinMode.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>A JSON serializable dict representation of an object.</p>
+</dd></dl>
 
 <dl class="classmethod">
 <dt id="pymatgen.io.abinit.abiobjects.SpinMode.as_spinmode">
@@ -758,7 +772,8 @@ One can use as_spinmode to construct the object via SpinMode.as_spinmode
 <dl class="method">
 <dt id="pymatgen.io.abinit.abiobjects.SpinMode.to_abivars">
 <code class="descname">to_abivars</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#SpinMode.to_abivars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.SpinMode.to_abivars" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns a dictionary with the abinit variables.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -865,13 +880,13 @@ znucl=13,</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.1.24 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

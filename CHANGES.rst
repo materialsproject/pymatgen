@@ -1,13 +1,12 @@
 Change log
 ==========
 
-v2019.1.13
+v2019.1.24
 ----------
-* Pymatgen is now Py3 ONLY. If you need Py27 support, please use versions 
-  < 2019.1.1.
-* PARCHG parsing from WAVECAR (@mturiansky)
-* Improvements to defect generation algorithms (@dbroberg)
-* Simplifications to COHP plotting (@JaGeo)
+* Python 3 only!
+* Improvements to local environment code (@utf)
+* Update Cohp analysis (@JaGEO)
+* Updates to Boltztrap2 (@fraricci)
 
 v2018.12.12
 -----------

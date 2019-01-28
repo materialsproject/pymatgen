@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.chemenv.utils.func_utils module &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.analysis.chemenv.utils.func_utils module &#8212; pymatgen 2019.1.24 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.1.24 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -45,6 +45,7 @@
             
   <div class="section" id="module-pymatgen.analysis.chemenv.utils.func_utils">
 <span id="pymatgen-analysis-chemenv-utils-func-utils-module"></span><h1>pymatgen.analysis.chemenv.utils.func_utils module<a class="headerlink" href="#module-pymatgen.analysis.chemenv.utils.func_utils" title="Permalink to this headline">¶</a></h1>
+<p>This module contains some utility functions and classes that are used in the chemenv package.</p>
 <dl class="class">
 <dt id="pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction">
 <em class="property">class </em><code class="descname">AbstractRatioFunction</code><span class="sig-paren">(</span><em>function</em>, <em>options_dict=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/utils/func_utils.html#AbstractRatioFunction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction" title="Permalink to this definition">¶</a></dt>
@@ -77,7 +78,7 @@
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction" title="pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction</span></code></a></p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.ALLOWED_FUNCTIONS">
-<code class="descname">ALLOWED_FUNCTIONS</code><em class="property"> = {u'power2_decreasing_exp': [u'max_csm', u'alpha'], u'smootherstep': [u'lower_csm', u'upper_csm'], u'smoothstep': [u'lower_csm', u'upper_csm']}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.ALLOWED_FUNCTIONS" title="Permalink to this definition">¶</a></dt>
+<code class="descname">ALLOWED_FUNCTIONS</code><em class="property"> = {'power2_decreasing_exp': ['max_csm', 'alpha'], 'smootherstep': ['lower_csm', 'upper_csm'], 'smoothstep': ['lower_csm', 'upper_csm']}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.ALLOWED_FUNCTIONS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -118,7 +119,7 @@
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction" title="pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction</span></code></a></p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction.ALLOWED_FUNCTIONS">
-<code class="descname">ALLOWED_FUNCTIONS</code><em class="property"> = {u'power2_inverse_decreasing': [u'max_csm'], u'power2_inverse_power2_decreasing': [u'max_csm']}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction.ALLOWED_FUNCTIONS" title="Permalink to this definition">¶</a></dt>
+<code class="descname">ALLOWED_FUNCTIONS</code><em class="property"> = {'power2_inverse_decreasing': ['max_csm'], 'power2_inverse_power2_decreasing': ['max_csm']}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction.ALLOWED_FUNCTIONS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -154,7 +155,7 @@
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction" title="pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction</span></code></a></p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.utils.func_utils.DeltaCSMRatioFunction.ALLOWED_FUNCTIONS">
-<code class="descname">ALLOWED_FUNCTIONS</code><em class="property"> = {u'smootherstep': [u'delta_csm_min', u'delta_csm_max']}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.DeltaCSMRatioFunction.ALLOWED_FUNCTIONS" title="Permalink to this definition">¶</a></dt>
+<code class="descname">ALLOWED_FUNCTIONS</code><em class="property"> = {'smootherstep': ['delta_csm_min', 'delta_csm_max']}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.DeltaCSMRatioFunction.ALLOWED_FUNCTIONS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -170,7 +171,7 @@
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction" title="pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction</span></code></a></p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.ALLOWED_FUNCTIONS">
-<code class="descname">ALLOWED_FUNCTIONS</code><em class="property"> = {u'inverse_smootherstep': [u'lower', u'upper'], u'inverse_smoothstep': [u'lower', u'upper'], u'power2_decreasing_exp': [u'max', u'alpha'], u'power2_inverse_decreasing': [u'max'], u'power2_inverse_power2_decreasing': [u'max'], u'smootherstep': [u'lower', u'upper'], u'smoothstep': [u'lower', u'upper']}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.ALLOWED_FUNCTIONS" title="Permalink to this definition">¶</a></dt>
+<code class="descname">ALLOWED_FUNCTIONS</code><em class="property"> = {'inverse_smootherstep': ['lower', 'upper'], 'inverse_smoothstep': ['lower', 'upper'], 'power2_decreasing_exp': ['max', 'alpha'], 'power2_inverse_decreasing': ['max'], 'power2_inverse_power2_decreasing': ['max'], 'smootherstep': ['lower', 'upper'], 'smoothstep': ['lower', 'upper']}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.ALLOWED_FUNCTIONS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -250,13 +251,13 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.1.24 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

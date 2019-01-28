@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.magnetism.analyzer module &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.analysis.magnetism.analyzer module &#8212; pymatgen 2019.1.24 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.1.24 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -47,8 +47,9 @@
 <span id="pymatgen-analysis-magnetism-analyzer-module"></span><h1>pymatgen.analysis.magnetism.analyzer module<a class="headerlink" href="#module-pymatgen.analysis.magnetism.analyzer" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer">
-<em class="property">class </em><code class="descname">CollinearMagneticStructureAnalyzer</code><span class="sig-paren">(</span><em>structure</em>, <em>overwrite_magmom_mode=u'none'</em>, <em>round_magmoms=False</em>, <em>detect_valences=False</em>, <em>make_primitive=True</em>, <em>default_magmoms=None</em>, <em>threshold=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/magnetism/analyzer.html#CollinearMagneticStructureAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer" title="Permalink to this definition">¶</a></dt>
-<dd><p>A class which provides a few helpful methods to analyze
+<em class="property">class </em><code class="descname">CollinearMagneticStructureAnalyzer</code><span class="sig-paren">(</span><em>structure</em>, <em>overwrite_magmom_mode='none'</em>, <em>round_magmoms=False</em>, <em>detect_valences=False</em>, <em>make_primitive=True</em>, <em>default_magmoms=None</em>, <em>threshold=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/magnetism/analyzer.html#CollinearMagneticStructureAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class which provides a few helpful methods to analyze
 collinear magnetic structures.</p>
 <p>If magnetic moments are not defined, moments will be
 taken either from default_magmoms.yaml (similar to the
@@ -262,29 +263,30 @@ magnetic species.
 <dt id="pymatgen.analysis.magnetism.analyzer.Ordering">
 <em class="property">class </em><code class="descname">Ordering</code><a class="reference internal" href="_modules/pymatgen/analysis/magnetism/analyzer.html#Ordering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.Ordering" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>An enumeration.</p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.magnetism.analyzer.Ordering.AFM">
-<code class="descname">AFM</code><em class="property"> = u'AFM'</em><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.Ordering.AFM" title="Permalink to this definition">¶</a></dt>
+<code class="descname">AFM</code><em class="property"> = 'AFM'</em><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.Ordering.AFM" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.magnetism.analyzer.Ordering.FM">
-<code class="descname">FM</code><em class="property"> = u'FM'</em><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.Ordering.FM" title="Permalink to this definition">¶</a></dt>
+<code class="descname">FM</code><em class="property"> = 'FM'</em><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.Ordering.FM" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.magnetism.analyzer.Ordering.FiM">
-<code class="descname">FiM</code><em class="property"> = u'FiM'</em><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.Ordering.FiM" title="Permalink to this definition">¶</a></dt>
+<code class="descname">FiM</code><em class="property"> = 'FiM'</em><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.Ordering.FiM" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.magnetism.analyzer.Ordering.NM">
-<code class="descname">NM</code><em class="property"> = u'NM'</em><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.Ordering.NM" title="Permalink to this definition">¶</a></dt>
+<code class="descname">NM</code><em class="property"> = 'NM'</em><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.Ordering.NM" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.magnetism.analyzer.Ordering.Unknown">
-<code class="descname">Unknown</code><em class="property"> = u'Unknown'</em><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.Ordering.Unknown" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Unknown</code><em class="property"> = 'Unknown'</em><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.Ordering.Unknown" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -355,13 +357,13 @@ doi: 10.1021/acs.chemmater.6b04729</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.1.24 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

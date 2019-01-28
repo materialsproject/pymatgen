@@ -157,6 +157,26 @@ class Lattice(MSONable):
         """
         return dot(cart_coords, self.inv_matrix)
 
+    def get_vector_along_lattice_directions(self, cart_coords):
+        """
+        Returns the coordinates along lattice directions given cartesian coordinates.
+
+        Note, this is different than a projection of the cartesian vector along the
+        lattice parameters. It is simply the fractional coordinates multiplied by the
+        lattice vector magnitudes.
+
+        For example, this method is helpful when analyzing the dipole moment (in
+        units of electron Angstroms) of a ferroelectric crystal. See the `Polarization`
+        class in `pymatgen.analysis.ferroelectricity.polarization`.
+
+        Args:
+            cart_coords (3x1 array): Cartesian coords.
+
+        Returns:
+            Lattice coordinates.
+        """
+        return self.lengths_and_angles[0] * self.get_fractional_coords(cart_coords)
+
     def d_hkl(self, miller_index):
         """
         Returns the distance between the hkl plane and the origin

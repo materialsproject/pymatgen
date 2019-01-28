@@ -13,7 +13,6 @@ environment:
       SPLIT_RUN: "FALSE"
   PMG_MAPI_KEY:
     secure: XIbk1W27nucVUHTVpIL2B+FodL9w2Efyw5PqTdnfbHg=
-  PMG_MAPI_ENDPOINT: https://zola.lbl.gov/rest/v2
   PYPIPWD:
     secure: QPpXonUAeLJ8p3f936jh7g==
 install:
