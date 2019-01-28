@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import unittest
 
 from pymatgen.command_line.bader_caller import *
@@ -24,13 +23,14 @@ __date__ = "Jul 22, 2012"
 
 @unittest.skipIf(not which('bader'), "bader executable not present.")
 class BaderAnalysisTest(unittest.TestCase):
+    _multiprocess_shared_ = True
 
     def setUp(self):
         warnings.catch_warnings()
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_init(self):
         test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -44,7 +44,8 @@ class BaderAnalysisTest(unittest.TestCase):
         self.assertAlmostEqual(analysis.data[0]["charge"], 6.6136782, 3)
         self.assertAlmostEqual(analysis.nelectrons, 96)
         self.assertAlmostEqual(analysis.vacuum_charge, 0)
-        ans = [-1.3863218, -1.3812175, -1.3812175, -1.2615902, -1.3812175, -1.3862971, 1.021523, 1.024357, 1.021523, 1.021523, 1.021523, 1.021523, 1.021523, 1.024357]
+        ans = [-1.3863218, -1.3812175, -1.3812175, -1.2615902, -1.3812175, -1.3862971,
+               1.021523, 1.024357, 1.021523, 1.021523, 1.021523, 1.021523, 1.021523, 1.024357]
         for i in range(14):
             self.assertAlmostEqual(ans[i], analysis.get_charge_transfer(i), 3)
         s = analysis.get_oxidation_state_decorated_structure()
@@ -111,7 +112,6 @@ class BaderAnalysisTest(unittest.TestCase):
 
         self.assertAlmostEqual(np.sum(analysis.chgcar.data['total']),
                                np.sum([np.sum(d['data']) for d in analysis.atomic_densities]))
-
 
 
 if __name__ == '__main__':

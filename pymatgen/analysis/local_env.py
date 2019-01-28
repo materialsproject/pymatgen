@@ -2,18 +2,20 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import math
-from collections import namedtuple
+import warnings
+from collections import namedtuple, defaultdict
 
-import six
 import ruamel.yaml as yaml
 import os
 import json
+from copy import deepcopy
+
+from monty.dev import deprecated
 
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
-from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.sites import PeriodicSite, Site
 
 """
 This module provides classes to perform analyses of
@@ -22,7 +24,7 @@ of single sites in molecules and structures.
 """
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Sai Jayaraman,"+\
-    " Nils E. R. Zimmermann, Bharat Medasani"
+    " Nils E. R. Zimmermann, Bharat Medasani, Evan Spotte-Smith"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Nils E. R. Zimmermann"
@@ -30,29 +32,39 @@ __email__ = "nils.e.r.zimmermann@gmail.com"
 __status__ = "Production"
 __date__ = "August 17, 2017"
 
-from math import pow, pi, asin, atan, sqrt, exp, sin, cos, acos, fabs
+from math import pow, pi, asin, atan, sqrt, exp, sin, cos, acos, fabs, atan2
 import numpy as np
+
+try:
+    import openbabel as ob
+    import pybel as pb
+except:
+    pb = None
+    ob = None
+
+from monty.dev import requires
+from monty.serialization import loadfn
 
 from bisect import bisect_left
 from scipy.spatial import Voronoi
+
 from pymatgen import Element
-from pymatgen.core.structure import Structure
-from pymatgen.util.num import abs_cap
 from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
 
-default_op_params = {}
-with open(os.path.join(os.path.dirname(
-        __file__), 'op_params.yaml'), "rt") as f:
-    default_op_params = yaml.safe_load(f)
-    f.close()
 
-file_dir = os.path.dirname(__file__)
-rad_file = os.path.join(file_dir, 'ionic_radii.json')
-with open(rad_file, 'r') as fp:
+_directory = os.path.join(os.path.dirname(__file__))
+
+with open(os.path.join(_directory, 'op_params.yaml'), "rt") as f:
+    default_op_params = yaml.safe_load(f)
+
+with open(os.path.join(_directory, 'cn_opt_params.yaml'), 'r') as f:
+    cn_opt_params = yaml.safe_load(f)
+
+with open(os.path.join(_directory, 'ionic_radii.json'), 'r') as fp:
     _ion_radii = json.load(fp)
 
 
-class ValenceIonicRadiusEvaluator(object):
+class ValenceIonicRadiusEvaluator:
     """
     Computes site valences and ionic radii for a structure using bond valence
     analyzer
@@ -91,7 +103,6 @@ class ValenceIonicRadiusEvaluator(object):
         Returns oxidation state decorated structure.
         """
         return self._structure.copy()
-
 
     def _get_ionic_radii(self):
         """
@@ -205,7 +216,7 @@ class ValenceIonicRadiusEvaluator(object):
         return valences
 
 
-class NearNeighbors(object):
+class NearNeighbors:
     """
     Base class to determine near neighbors that typically include nearest
     neighbors and others that are within some tolerable distance.
@@ -472,16 +483,15 @@ class NearNeighbors(object):
     @staticmethod
     def _get_image(frac_coords):
         """Private convenience method for get_nn_info,
-        gives lattice image from provided PeriodicSite."""
-        images = [0,0,0]
-        for j, f in enumerate(frac_coords):
-            if f >= 0:
-                images[j] = int(f)
-            else:
-                images[j] = int(f - 1)
-                if f % 1 == 0:
-                    images[j] += 1
-        return images
+        gives lattice image from provided PeriodicSite.
+
+        Args:
+            frac_coords ([float]*3): Fraction coordinates
+        Returns:
+            ((int)*3) Lattice image
+        """
+        # TODO: This is not numerically stable. Also, move to PeriodicSite? -WardLT, 23Jun18
+        return tuple(map(int, np.floor(frac_coords)))
 
     @staticmethod
     def _get_original_site(structure, site):
@@ -492,6 +502,77 @@ class NearNeighbors(object):
                 return i
         raise Exception('Site not found!')
 
+    def get_bonded_structure(self, structure, decorate=False):
+        """
+        Obtain a StructureGraph object using this NearNeighbor
+        class. Requires the optional dependency networkx
+        (pip install networkx).
+
+        Args:
+            structure: Structure object.
+            decorate (bool): whether to annotate site properties
+            with order parameters using neighbors determined by
+            this NearNeighbor class
+
+        Returns: a pymatgen.analysis.graphs.BondedStructure object
+        """
+
+        # requires optional dependency which is why it's not a top-level import
+        from pymatgen.analysis.graphs import StructureGraph
+
+        if decorate:
+            # Decorate all sites in the underlying structure
+            # with site properties that provides information on the
+            # coordination number and coordination pattern based
+            # on the (current) structure of this graph.
+            order_parameters = [self.get_local_order_parameters(structure, n)
+                                for n in range(len(structure))]
+            structure.add_site_property('order_parameters', order_parameters)
+
+        sg = StructureGraph.with_local_env_strategy(structure, self)
+
+        return sg
+
+    def get_local_order_parameters(self, structure, n):
+        """
+        Calculate those local structure order parameters for
+        the given site whose ideal CN corresponds to the
+        underlying motif (e.g., CN=4, then calculate the
+        square planar, tetrahedral, see-saw-like,
+        rectangular see-saw-like order paramters).
+
+        Args:
+            structure: Structure object
+            n (int): site index.
+
+        Returns (Dict[str, float]):
+            A dict of order parameters (values) and the
+            underlying motif type (keys; for example, tetrahedral).
+
+        """
+        # code from @nisse3000, moved here from graphs to avoid circular
+        # import, also makes sense to have this as a general NN method
+        cn = self.get_cn(structure, n)
+        if cn in [int(k_cn) for k_cn in cn_opt_params.keys()]:
+            names = [k for k in cn_opt_params[cn].keys()]
+            types = []
+            params = []
+            for name in names:
+                types.append(cn_opt_params[cn][name][0])
+                tmp = cn_opt_params[cn][name][1] \
+                    if len(cn_opt_params[cn][name]) > 1 else None
+                params.append(tmp)
+            lostops = LocalStructOrderParams(types, parameters=params)
+            sites = [structure[n]] + self.get_nn(structure, n)
+            lostop_vals = lostops.get_order_parameters(
+                    sites, 0, indices_neighs=[i for i in range(1, cn+1)])
+            d = {}
+            for i, lostop in enumerate(lostop_vals):
+                d[names[i]] = lostop
+            return d
+        else:
+            return None
+
 
 class VoronoiNN(NearNeighbors):
     """
@@ -499,21 +580,24 @@ class VoronoiNN(NearNeighbors):
     structure.
 
     Args:
-        tol (float): tolerance parameter for near-neighbor finding
+        tol (float): tolerance parameter for near-neighbor finding. Faces that are smaller
+            than `tol` fraction of the largest face are not included in the tessellation.
             (default: 0).
         targets (Element or list of Elements): target element(s).
         cutoff (float): cutoff radius in Angstrom to look for near-neighbor
-            atoms. Defaults to 10.0.
+            atoms. Defaults to 13.0.
         allow_pathological (bool): whether to allow infinite vertices in
             determination of Voronoi coordination.
         weight (string) - Statistic used to weigh neighbors (see the statistics
             available in get_voronoi_polyhedra)
         extra_nn_info (bool) - Add all polyhedron info to `get_nn_info`
+        compute_adj_neighbors (bool) - Whether to compute which neighbors are adjacent. Turn off
+            for faster performance
     """
 
-    def __init__(self, tol=0, targets=None, cutoff=10.0,
+    def __init__(self, tol=0, targets=None, cutoff=13.0,
                  allow_pathological=False, weight='solid_angle',
-                 extra_nn_info=True):
+                 extra_nn_info=True, compute_adj_neighbors=True):
         super(VoronoiNN, self).__init__()
         self.tol = tol
         self.cutoff = cutoff
@@ -521,6 +605,7 @@ class VoronoiNN(NearNeighbors):
         self.targets = targets
         self.weight = weight
         self.extra_nn_info = extra_nn_info
+        self.compute_adj_neighbors = compute_adj_neighbors
 
     def get_voronoi_polyhedra(self, structure, n):
         """
@@ -544,7 +629,6 @@ class VoronoiNN(NearNeighbors):
                 - face_dist - Distance between site n and the facet
                 - volume - Volume of Voronoi cell for this face
                 - n_verts - Number of vertices on the facet
-
         """
 
         # Assemble the list of neighbors used in the tessellation
@@ -554,18 +638,147 @@ class VoronoiNN(NearNeighbors):
         else:
             targets = self.targets
         center = structure[n]
-        neighbors = structure.get_sites_in_sphere(
-            center.coords, self.cutoff)
-        neighbors = [i[0] for i in sorted(neighbors, key=lambda s: s[1])]
 
-        # Run the Voronoi tessellation
-        qvoronoi_input = [s.coords for s in neighbors]
-        voro = Voronoi(qvoronoi_input) # can give a seg fault if cutoff is too small
+        cutoff = self.cutoff
 
-        # Extract data about the site in question
-        return self._extract_cell_info(structure, 0, neighbors, targets, voro)
+        # max cutoff is the longest diagonal of the cell + room for noise
+        corners = [[1, 1, 1], [-1, 1, 1], [1, -1, 1], [1, 1, -1]]
+        d_corners = [np.linalg.norm(structure.lattice.get_cartesian_coords(c))
+                     for c in corners]
+        max_cutoff = max(d_corners) + 0.01
 
-    def _extract_cell_info(self, structure, site_idx, sites, targets, voro):
+        while True:
+            try:
+                neighbors = structure.get_sites_in_sphere(
+                    center.coords, cutoff)
+                neighbors = [i[0] for i in
+                             sorted(neighbors, key=lambda s: s[1])]
+
+                # Run the Voronoi tessellation
+                qvoronoi_input = [s.coords for s in neighbors]
+
+                voro = Voronoi(
+                    qvoronoi_input)  # can give seg fault if cutoff is too small
+
+                # Extract data about the site in question
+                cell_info = self._extract_cell_info(
+                    structure, 0, neighbors, targets, voro,
+                    self.compute_adj_neighbors)
+                break
+
+            except RuntimeError as e:
+                if cutoff >= max_cutoff:
+                    if e.args and "vertex" in e.args[0]:
+                        # pass through the error raised by _extract_cell_info
+                        raise e
+                    else:
+                        raise RuntimeError("Error in Voronoi neighbor finding; "
+                                           "max cutoff exceeded")
+                cutoff = min(cutoff * 2, max_cutoff + 0.001)
+        return cell_info
+
+
+    def get_all_voronoi_polyhedra(self, structure):
+        """Get the Voronoi polyhedra for all site in a simulation cell
+
+        Args:
+            structure (Structure): Structure to be evaluated
+        Returns:
+            A dict of sites sharing a common Voronoi facet with the site
+            n mapped to a directory containing statistics about the facet:
+                - solid_angle - Solid angle subtended by face
+                - angle_normalized - Solid angle normalized such that the
+                    faces with the largest
+                - area - Area of the facet
+                - face_dist - Distance between site n and the facet
+                - volume - Volume of Voronoi cell for this face
+                - n_verts - Number of vertices on the facet
+        """
+
+        # Special case: For atoms with 1 site, the atom in the root image is not included
+        #   in the get_all_neighbors output. Rather than creating logic to add that atom
+        #   to the neighbor list, which requires detecting whether it will be translated
+        #   to reside within the unit cell before neighbor detection, it is less complex
+        #   to just call the one-by-one operation
+        if len(structure) == 1:
+            return [self.get_voronoi_polyhedra(structure, 0)]
+
+        # Assemble the list of neighbors used in the tessellation
+        if self.targets is None:
+            targets = structure.composition.elements
+        else:
+            targets = self.targets
+
+        # Initialize the list of sites with the atoms in the origin unit cell
+        #  The `get_all_neighbors` function returns neighbors for each site's image in the
+        #   original unit cell. We start off with these central atoms to ensure they are
+        #   included in the tessellation
+        sites = [x.to_unit_cell for x in structure]
+        indices = [(i, 0, 0, 0) for i, _ in enumerate(structure)]
+
+        # Get all neighbors within a certain cutoff
+        #   Record both the list of these neighbors, and the site indices
+        all_neighs = structure.get_all_neighbors(self.cutoff,
+                                                 include_index=True,
+                                                 include_image=True)
+        for neighs in all_neighs:
+            sites.extend([x[0] for x in neighs])
+            indices.extend([(x[2],) + x[3] for x in neighs])
+
+        # Get the non-duplicates (using the site indices for performance/numerical stability)
+        indices = np.array(indices, dtype=np.int)
+        indices, uniq_inds = np.unique(indices, return_index=True, axis=0)
+        sites = np.array(sites)[uniq_inds]
+
+        # Sort array such that atoms in the root image are first
+        #   Exploit the fact that the array is sorted by the unique operation such that
+        #   the images associated with atom 0 are first, followed by atom 1, etc.
+        root_images, = np.nonzero(np.abs(indices[:, 1:]).max(axis=1) == 0)
+
+        del indices  # Save memory (tessellations can be costly)
+
+        # Run the tessellation
+        qvoronoi_input = [s.coords for s in sites]
+        voro = Voronoi(qvoronoi_input)
+
+        # Get the information for each neighbor
+        return [self._extract_cell_info(structure, i, sites, targets,
+                                        voro, self.compute_adj_neighbors)
+                for i in root_images.tolist()]
+
+    def _get_elements(self, site):
+        """
+        Get the list of elements for a Site
+
+        Args:
+             site (Site): Site to assess
+        Returns:
+            [Element]: List of elements
+        """
+        try:
+            if isinstance(site.specie, Element):
+                return [site.specie]
+            return [Element(site.specie)]
+        except:
+            return site.species_and_occu.elements
+
+    def _is_in_targets(self, site, targets):
+        """
+        Test whether a site contains elements in the target list
+
+        Args:
+            site (Site): Site to assess
+            targets ([Element]) List of elements
+        Returns:
+             (boolean) Whether this site contains a certain list of elements
+        """
+        elems = self._get_elements(site)
+        for elem in elems:
+            if elem not in targets:
+                return False
+        return True
+
+    def _extract_cell_info(self, structure, site_idx, sites, targets, voro, compute_adj_neighbors=False):
         """Get the information about a certain atom from the results of a tessellation
 
         Args:
@@ -574,6 +787,7 @@ class VoronoiNN(NearNeighbors):
             sites ([Site]) - List of all sites in the tessellation
             targets ([Element]) - Target elements
             voro - Output of qvoronoi
+            compute_adj_neighbors (boolean) - Whether to compute which neighbors are adjacent
         Returns:
             A dict of sites sharing a common Voronoi facet. Key is facet id
              (not useful) and values are dictionaries containing statistics
@@ -586,6 +800,7 @@ class VoronoiNN(NearNeighbors):
                 - face_dist - Distance between site n and the facet
                 - volume - Volume of Voronoi cell for this face
                 - n_verts - Number of vertices on the facet
+                - adj_neighbors - Facet id's for the adjacent neighbors
         """
         # Get the coordinates of every vertex
         all_vertices = voro.vertices
@@ -631,15 +846,24 @@ class VoronoiNN(NearNeighbors):
                 # Compute the area of the face (knowing V=Ad/3)
                 face_area = 3 * volume / face_dist
 
+                # Compute the normal of the facet
+                normal = np.subtract(sites[other_site].coords, center_coords)
+                normal /= np.linalg.norm(normal)
+
                 # Store by face index
                 results[other_site] = {
                     'site': sites[other_site],
+                    'normal': normal,
                     'solid_angle': angle,
                     'volume': volume,
                     'face_dist': face_dist,
                     'area': face_area,
                     'n_verts': len(vind)
                 }
+
+                # If we are computing which neighbors are adjacent, store the vertices
+                if compute_adj_neighbors:
+                    results[other_site]['verts'] = vind
 
         # Get only target elements
         resultweighted = {}
@@ -653,6 +877,32 @@ class VoronoiNN(NearNeighbors):
                 for disordered_sp in nn.species_and_occu.keys():
                     if disordered_sp in targets:
                         resultweighted[nn_index] = nstats
+
+        # If desired, determine which neighbors are adjacent
+        if compute_adj_neighbors:
+            # Initialize storage for the adjacent neighbors
+            adj_neighbors = dict((i, []) for i in resultweighted.keys())
+
+            # Find the neighbors that are adjacent by finding those
+            #  that contain exactly two vertices
+            for a_ind, a_nninfo in resultweighted.items():
+                # Get the indices for this site
+                a_verts = set(a_nninfo['verts'])
+
+                # Loop over all neighbors that have an index lower that this one
+                #  The goal here is to exploit the fact that neighbor adjacency is symmetric
+                #  (if A is adj to B, B is adj to A)
+                for b_ind, b_nninfo in resultweighted.items():
+                    if b_ind > a_ind:
+                        continue
+                    if len(a_verts.intersection(b_nninfo['verts'])) == 2:
+                        adj_neighbors[a_ind].append(b_ind)
+                        adj_neighbors[b_ind].append(a_ind)
+
+            # Store the results in the nn_info
+            for key, neighbors in adj_neighbors.items():
+                resultweighted[key]['adj_neighbors'] = neighbors
+
         return resultweighted
 
     def get_nn_info(self, structure, n):
@@ -672,21 +922,39 @@ class VoronoiNN(NearNeighbors):
                 and its weight.
         """
 
+        # Run the tessellation
+        nns = self.get_voronoi_polyhedra(structure, n)
+
+        # Extract the NN info
+        return self._extract_nn_info(structure, nns)
+
+    def get_all_nn_info(self, structure):
+        all_voro_cells = self.get_all_voronoi_polyhedra(structure)
+        return [self._extract_nn_info(structure, cell) for cell in all_voro_cells]
+
+    def _extract_nn_info(self, structure, nns):
+        """Given Voronoi NNs, extract the NN info in the form needed by NearestNeighbors
+
+        Args:
+            structure (Structure): Structure being evaluated
+            nns ([dicts]): Nearest neighbor information for a structure
+        Returns:
+            (list of tuples (Site, array, float)): See nn_info
+        """
+
+        # Get the target information
         if self.targets is None:
             targets = structure.composition.elements
         else:
             targets = self.targets
+
+        # Extract the NN info
         siw = []
-
-        # Run the tessellation
-        nns = self.get_voronoi_polyhedra(structure, n)
-
-        # Determine the maximum weight
         max_weight = max(nn[self.weight] for nn in nns.values())
         for nstats in nns.values():
             site = nstats['site']
             if nstats[self.weight] > self.tol * max_weight \
-                    and site.specie in targets:
+                    and self._is_in_targets(site, targets):
                 nn_info = {'site': site,
                            'image': self._get_image(site.frac_coords),
                            'weight': nstats[self.weight] / max_weight,
@@ -702,34 +970,48 @@ class VoronoiNN(NearNeighbors):
         return siw
 
 
+@deprecated(replacement=VoronoiNN,
+            message='Use VoronoiNN instead, and set "tol" to 0.5')
 class VoronoiNN_modified(VoronoiNN):
     """
-    Modified VoronoiNN that only considers neighbors
-    with at least 50% weight of max(weight).
+    Modified VoronoiNN that only considers neighbors with more than 50% of the maximum weight
     """
 
-    def get_nn_info(self, structure, n):
-        result = super(VoronoiNN_modified, self).get_nn_info(structure, n)
-        max_weight = max(i['weight'] for i in result)
-        return [i for i in result if i['weight'] > 0.5 * max_weight]
+    def __init__(self, targets=None, cutoff=10.0,
+                 allow_pathological=False, weight='solid_angle',
+                 extra_nn_info=True):
+        """
+        Args:
+            targets (Element or list of Elements): target element(s).
+            cutoff (float): cutoff radius in Angstrom to look for near-neighbor
+                atoms. Defaults to 10.0.
+            allow_pathological (bool): whether to allow infinite vertices in
+                determination of Voronoi coordination.
+            weight (string) - Statistic used to weigh neighbors (see the statistics
+                available in get_voronoi_polyhedra)
+            extra_nn_info (bool) - Add all polyhedron info to `get_nn_info`
+        """
+        super(VoronoiNN_modified, self).__init__(0.5, targets, cutoff, allow_pathological,
+                                                 weight, extra_nn_info)
 
 
-class JMolNN(NearNeighbors):
+class JmolNN(NearNeighbors):
     """
     Determine near-neighbor sites and coordination number using an emulation
-    of JMol's default autoBond() algorithm. This version of the algorithm
+    of Jmol's default autoBond() algorithm. This version of the algorithm
     does not take into account any information regarding known charge
     states.
 
     Args:
         tol (float): tolerance parameter for bond determination
-            (default: 1E-3).
+            (default: 0.56).
         el_radius_updates: (dict) symbol->float to override default atomic 
             radii table values 
     """
 
-    def __init__(self, tol=1E-3, el_radius_updates=None):
+    def __init__(self, tol=0.56, min_bond_distance=0.4, el_radius_updates=None):
         self.tol = tol
+        self.min_bond_distance = min_bond_distance
 
         # Load elemental radii table
         bonds_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -741,25 +1023,25 @@ class JMolNN(NearNeighbors):
         if el_radius_updates:
             self.el_radius.update(el_radius_updates)
 
-    def get_max_bond_distance(self, el1_sym, el2_sym, constant=0.56):
+    def get_max_bond_distance(self, el1_sym, el2_sym):
         """
-        Use JMol algorithm to determine bond length from atomic parameters
+        Use Jmol algorithm to determine bond length from atomic parameters
         Args:
             el1_sym: (str) symbol of atom 1
             el2_sym: (str) symbol of atom 2
-            constant: (float) factor to tune model
 
         Returns: (float) max bond length
 
         """
         return sqrt(
-            (self.el_radius[el1_sym] + self.el_radius[el2_sym] + constant) ** 2)
+            (self.el_radius[el1_sym] + self.el_radius[el2_sym] + self.tol) ** 2)
+
 
     def get_nn_info(self, structure, n):
         """
         Get all near-neighbor sites as well as the associated image locations
         and weights of the site with index n using the bond identification
-        algorithm underlying JMol.
+        algorithm underlying Jmol.
 
         Args:
             structure (Structure): input structure.
@@ -787,7 +1069,7 @@ class JMolNN(NearNeighbors):
         siw = []
         for neighb, dist in structure.get_neighbors(site, max_rad):
             # Confirm neighbor based on bond length specific to atom pair
-            if dist <= bonds[(site.specie, neighb.specie)] + self.tol:
+            if dist <= (bonds[(site.specie, neighb.specie)]) and (dist > self.min_bond_distance):
                 weight = min_rad / dist
                 siw.append({'site': neighb,
                             'image': self._get_image(neighb.frac_coords),
@@ -844,6 +1126,271 @@ class MinimumDistanceNN(NearNeighbors):
                             'weight': w,
                             'site_index': self._get_original_site(structure, s)})
         return siw
+
+
+class OpenBabelNN(NearNeighbors):
+    """
+    Determine near-neighbor sites and bond orders using OpenBabel API.
+
+    NOTE: This strategy is only appropriate for molecules, and not for
+    structures.
+
+    Args:
+        order (bool): True if bond order should be returned as a weight, False
+        if bond length should be used as a weight.
+
+    """
+
+    @requires(pb and ob,
+              "OpenBabelNN requires openbabel to be installed with "
+              "Python bindings. Please get it at http://openbabel.org.")
+    def __init__(self, order=True):
+        self.order = order
+
+    def get_nn_info(self, structure, n):
+        """
+        Get all near-neighbor sites and weights (orders) of bonds for a given
+        atom.
+
+        :param molecule: input Molecule.
+        :param n: index of site for which to determine near neighbors.
+        :return: [dict] representing a neighboring site and the type of
+        bond present between site n and the neighboring site.
+        """
+
+        from pymatgen.io.babel import BabelMolAdaptor
+
+        obmol = BabelMolAdaptor(structure).openbabel_mol
+
+        siw = []
+
+        # Get only the atom of interest
+        site_atom = [a for i, a in enumerate(ob.OBMolAtomDFSIter(obmol))
+                     if [a.GetX(), a.GetY(), a.GetZ()] == list(structure[n].coords)][0]
+
+        for neighbor in ob.OBAtomAtomIter(site_atom):
+            coords = [neighbor.GetX(), neighbor.GetY(), neighbor.GetZ()]
+            site = [a for a in structure if list(a.coords) == coords][0]
+            index = structure.index(site)
+
+            bond = site_atom.GetBond(neighbor)
+
+            if self.order:
+                obmol.PerceiveBondOrders()
+                weight = bond.GetBondOrder()
+            else:
+                weight = bond.GetLength()
+
+            siw.append({"site": site,
+                        "image": (0, 0, 0),
+                        "weight": weight,
+                        "site_index": index})
+
+        return siw
+
+    def get_bonded_structure(self, structure, decorate=False):
+        """
+        Obtain a MoleculeGraph object using this NearNeighbor
+        class. Requires the optional dependency networkx
+        (pip install networkx).
+
+        Args:
+            structure: Molecule object.
+            decorate (bool): whether to annotate site properties
+            with order parameters using neighbors determined by
+            this NearNeighbor class
+
+        Returns: a pymatgen.analysis.graphs.MoleculeGraph object
+        """
+
+        # requires optional dependency which is why it's not a top-level import
+        from pymatgen.analysis.graphs import MoleculeGraph
+
+        if decorate:
+            # Decorate all sites in the underlying structure
+            # with site properties that provides information on the
+            # coordination number and coordination pattern based
+            # on the (current) structure of this graph.
+            order_parameters = [self.get_local_order_parameters(structure, n)
+                                for n in range(len(structure))]
+            structure.add_site_property('order_parameters', order_parameters)
+
+        mg = MoleculeGraph.with_local_env_strategy(structure, self)
+
+        return mg
+
+    def get_nn_shell_info(self, structure, site_idx, shell):
+        """Get a certain nearest neighbor shell for a certain site.
+
+        Determines all non-backtracking paths through the neighbor network
+        computed by `get_nn_info`. The weight is determined by multiplying
+        the weight of the neighbor at each hop through the network. For
+        example, a 2nd-nearest-neighbor that has a weight of 1 from its
+        1st-nearest-neighbor and weight 0.5 from the original site will
+        be assigned a weight of 0.5.
+
+        As this calculation may involve computing the nearest neighbors of
+        atoms multiple times, the calculation starts by computing all of the
+        neighbor info and then calling `_get_nn_shell_info`. If you are likely
+        to call this method for more than one site, consider calling `get_all_nn`
+        first and then calling this protected method yourself.
+
+        Args:
+            structure (Molecule): Input structure
+            site_idx (int): index of site for which to determine neighbor
+                information.
+            shell (int): Which neighbor shell to retrieve (1 == 1st NN shell)
+        Returns:
+            list of dictionaries. Each entry in the list is information about
+                a certain neighbor in the structure, in the same format as
+                `get_nn_info`.
+        """
+
+        all_nn_info = self.get_all_nn_info(structure)
+        sites = self._get_nn_shell_info(structure, all_nn_info, site_idx, shell)
+
+        # Update the site positions
+        #   Did not do this during NN options because that can be slower
+        output = []
+        for info in sites:
+            orig_site = structure[info['site_index']]
+            info['site'] = Site(orig_site.species_and_occu,
+                                orig_site._coords,
+                                properties=orig_site.properties)
+            output.append(info)
+        return output
+
+
+class CovalentBondNN(NearNeighbors):
+    """
+    Determine near-neighbor sites and bond orders using built-in
+    pymatgen.Molecule CovalentBond functionality.
+
+    NOTE: This strategy is only appropriate for molecules, and not for
+    structures.
+
+    Args:
+        tol (float): Tolerance for covalent bond checking.
+        order (bool): If True (default), this class will compute bond orders. If
+        False, bond lengths will be computed
+    """
+
+    def __init__(self, tol=0.2, order=True):
+        self.tol = tol
+        self.order = order
+
+        self.bonds = None
+
+    def get_nn_info(self, structure, n):
+        """
+        Get all near-neighbor sites and weights (orders) of bonds for a given
+        atom.
+
+        :param structure: input Molecule.
+        :param n: index of site for which to determine near neighbors.
+        :return: [dict] representing a neighboring site and the type of
+        bond present between site n and the neighboring site.
+        """
+
+        # This is unfortunately inefficient, but is the best way to fit the
+        # current NearNeighbors scheme
+        self.bonds = structure.get_covalent_bonds(tol=self.tol)
+
+        siw = []
+
+        for bond in self.bonds:
+            capture_bond = False
+            if bond.site1 == structure[n]:
+                site = bond.site2
+                capture_bond = True
+            elif bond.site2 == structure[n]:
+                site = bond.site1
+                capture_bond = True
+
+            if capture_bond:
+                index = structure.index(site)
+                if self.order:
+                    weight = bond.get_bond_order()
+                else:
+                    weight = bond.length
+
+                siw.append({"site": site,
+                            "image": (0, 0, 0),
+                            "weight": weight,
+                            "site_index": index})
+
+        return siw
+
+    def get_bonded_structure(self, structure, decorate=False):
+        """
+        Obtain a MoleculeGraph object using this NearNeighbor
+        class.
+
+        Args:
+            structure: Molecule object.
+            decorate (bool): whether to annotate site properties
+            with order parameters using neighbors determined by
+            this NearNeighbor class
+
+        Returns: a pymatgen.analysis.graphs.MoleculeGraph object
+        """
+
+        # requires optional dependency which is why it's not a top-level import
+        from pymatgen.analysis.graphs import MoleculeGraph
+
+        if decorate:
+            # Decorate all sites in the underlying structure
+            # with site properties that provides information on the
+            # coordination number and coordination pattern based
+            # on the (current) structure of this graph.
+            order_parameters = [self.get_local_order_parameters(structure, n)
+                                for n in range(len(structure))]
+            structure.add_site_property('order_parameters', order_parameters)
+
+        mg = MoleculeGraph.with_local_env_strategy(structure, self)
+
+        return mg
+
+    def get_nn_shell_info(self, structure, site_idx, shell):
+        """Get a certain nearest neighbor shell for a certain site.
+
+        Determines all non-backtracking paths through the neighbor network
+        computed by `get_nn_info`. The weight is determined by multiplying
+        the weight of the neighbor at each hop through the network. For
+        example, a 2nd-nearest-neighbor that has a weight of 1 from its
+        1st-nearest-neighbor and weight 0.5 from the original site will
+        be assigned a weight of 0.5.
+
+        As this calculation may involve computing the nearest neighbors of
+        atoms multiple times, the calculation starts by computing all of the
+        neighbor info and then calling `_get_nn_shell_info`. If you are likely
+        to call this method for more than one site, consider calling `get_all_nn`
+        first and then calling this protected method yourself.
+
+        Args:
+            structure (Molecule): Input structure
+            site_idx (int): index of site for which to determine neighbor
+                information.
+            shell (int): Which neighbor shell to retrieve (1 == 1st NN shell)
+        Returns:
+            list of dictionaries. Each entry in the list is information about
+                a certain neighbor in the structure, in the same format as
+                `get_nn_info`.
+        """
+
+        all_nn_info = self.get_all_nn_info(structure)
+        sites = self._get_nn_shell_info(structure, all_nn_info, site_idx, shell)
+
+        # Update the site positions
+        #   Did not do this during NN options because that can be slower
+        output = []
+        for info in sites:
+            orig_site = structure[info['site_index']]
+            info['site'] = Site(orig_site.species_and_occu,
+                                orig_site._coords,
+                                properties=orig_site.properties)
+            output.append(info)
+        return output
 
 
 class MinimumOKeeffeNN(NearNeighbors):
@@ -999,7 +1546,10 @@ def solid_angle(center, coords):
             r_norm[j] * np.dot(r[0], r[i]) + \
             r_norm[i] * np.dot(r[0], r[j]) + \
             r_norm[0] * np.dot(r[i], r[j])
-        my_angle = np.arctan(tp / de)
+        if de == 0:
+            my_angle = 0.5 * pi if tp > 0 else -0.5 * pi
+        else:
+            my_angle = np.arctan(tp / de)
         angle += (my_angle if my_angle > 0 else my_angle + np.pi) * 2
 
     return angle
@@ -1200,7 +1750,7 @@ def gramschmidt(vin, uin):
     return vin - (vin_uin / uin_uin) * uin
 
 
-class LocalStructOrderParams(object):
+class LocalStructOrderParams:
     """
     This class permits the calculation of various types of local
     structure order parameters.
@@ -1211,7 +1761,8 @@ class LocalStructOrderParams(object):
         "sq_plan_max", "pent_plan", "pent_plan_max", "sq", "tet", "tet_max", "tri_pyr", \
         "sq_pyr", "sq_pyr_legacy", "tri_bipyr", "sq_bipyr", "oct", \
         "oct_legacy", "pent_pyr", "hex_pyr", "pent_bipyr", "hex_bipyr", \
-        "T", "cuboct", "cuboct_max", "see_saw_rect", "bcc", "q2", "q4", "q6", "oct_max", "hex_plan_max")
+        "T", "cuboct", "cuboct_max", "see_saw_rect", "bcc", "q2", "q4", "q6", "oct_max", \
+        "hex_plan_max", "sq_face_cap_trig_pris")
 
     def __init__(self, types, parameters=None, cutoff=-10.0):
         """
@@ -1322,16 +1873,17 @@ class LocalStructOrderParams(object):
                                  t + ")!")
         self._types = tuple(types)
 
+        self._comp_azi = False
         self._params = []
         for i, t in enumerate(self._types):
-            d = default_op_params[t].copy() if default_op_params[t] is not None \
+            d = deepcopy(default_op_params[t]) if default_op_params[t] is not None \
                 else None
             if parameters is None:
                 self._params.append(d)
             elif parameters[i] is None:
                 self._params.append(d)
             else:
-                self._params.append(parameters[i].copy())
+                self._params.append(deepcopy(parameters[i]))
 
         self._computerijs = self._computerjks = self._geomops = False
         self._geomops2 = self._boops = False
@@ -1346,8 +1898,11 @@ class LocalStructOrderParams(object):
                  "sq_plan", "pent_plan",  "tri_pyr", "pent_pyr", "hex_pyr",
                  "pent_bipyr", "hex_bipyr", "T", "cuboct", "oct_max", "tet_max",
                  "tri_plan_max", "sq_plan_max", "pent_plan_max", "cuboct_max",
-                 "bent", "see_saw_rect", "hex_plan_max"]):
+                 "bent", "see_saw_rect", "hex_plan_max",
+                 "sq_face_cap_trig_pris"]):
             self._computerijs = self._geomops = True
+        if "sq_face_cap_trig_pris" in self._types:
+            self._comp_azi = True
         if not set(self._types).isdisjoint(["reg_tri", "sq"]):
             self._computerijs = self._computerjks = self._geomops2 = True
         if not set(self._types).isdisjoint(["q2", "q4", "q6"]):
@@ -2025,12 +2580,18 @@ class LocalStructOrderParams(object):
                         tmp = max(
                             -1.0, min(np.inner(zaxis, rijnorm[k]), 1.0))
                         thetak = acos(tmp)
-                        xaxistmp = gramschmidt(rijnorm[k], zaxis)
-                        if np.linalg.norm(xaxistmp) < very_small:
+                        xaxis = gramschmidt(rijnorm[k], zaxis)
+                        if np.linalg.norm(xaxis) < very_small:
                             flag_xaxis = True
                         else:
-                            xaxis = xaxistmp / np.linalg.norm(xaxistmp)
+                            xaxis = xaxis / np.linalg.norm(xaxis)
                             flag_xaxis = False
+                        if self._comp_azi:
+                            flag_yaxis = True
+                            yaxis = np.cross(zaxis, xaxis)
+                            if np.linalg.norm(yaxis) > very_small:
+                                yaxis = yaxis / np.linalg.norm(yaxis)
+                                flag_yaxis = False
 
                         # Contributions of j-i-k angles, where i represents the
                         # central atom and j and k two of the neighbors.
@@ -2087,6 +2648,12 @@ class LocalStructOrderParams(object):
                                     qsptheta[i][j][kc] += (self._params[i]['w_SPP'] *
                                                        exp(-0.5 * tmp * tmp))
                                     norms[i][j][kc] += self._params[i]['w_SPP']
+                            elif t == "sq_face_cap_trig_pris":
+                                if thetak < self._params[i]['TA3']:
+                                    tmp = self._params[i]['IGW_TA1'] * (
+                                        thetak * ipi - self._params[i]['TA1'])
+                                    qsptheta[i][j][kc] += exp(-0.5 * tmp * tmp)
+                                    norms[i][j][kc] += 1
 
                         for m in range(nneigh):
                             if (m != j) and (m != k) and (not flag_xaxis):
@@ -2103,7 +2670,11 @@ class LocalStructOrderParams(object):
                                         -1.0,
                                         min(np.inner(xtwoaxis, xaxis), 1.0)))
                                     flag_xtwoaxis = False
-
+                                    if self._comp_azi:
+                                        phi2 = atan2(
+                                            np.dot(xtwoaxis, yaxis),
+                                            np.dot(xtwoaxis, xaxis))
+                                        #print('{} {}'.format(180*phi/pi, 180*phi2/pi))
                                 # South pole contributions of m.
                                 if t in ["tri_bipyr", "sq_bipyr", "pent_bipyr",
                                          "hex_bipyr", "oct_max", "sq_plan_max",
@@ -2225,13 +2796,27 @@ class LocalStructOrderParams(object):
                                                     qsptheta[i][j][kc] += exp(-0.5 * tmp * tmp) * \
                                                             exp(-0.5 * tmp2 * tmp2)
                                                     norms[i][j][kc] += 1.0
+                                        elif t == "sq_face_cap_trig_pris" and not flag_yaxis:
+                                            if thetak < self._params[i]['TA3']:
+                                                if thetam < self._params[i]['TA3']:
+                                                    tmp = cos(self._params[i]['fac_AA1'] * \
+                                                        phi2) ** self._params[i]['exp_cos_AA1']
+                                                    tmp2 = self._params[i]['IGW_TA1'] * (
+                                                        thetam * ipi - self._params[i]['TA1'])
+                                                else:
+                                                    tmp = cos(self._params[i]['fac_AA2'] * \
+                                                        (phi2 + self._params[i]['shift_AA2'])) ** \
+                                                        self._params[i]['exp_cos_AA2']
+                                                    tmp2 = self._params[i]['IGW_TA2'] * (
+                                                        thetam * ipi - self._params[i]['TA2'])
+                                                    #print("phi2 {}   phi2+shift {}   tmp {}  ".format(phi2*180/pi, 180*(phi2 + self._params[i]['shift_AA2'])/pi, tmp))
+                                                qsptheta[i][j][kc] += tmp * exp(-0.5 * tmp2 * tmp2)
+                                                norms[i][j][kc] += 1
+
                         kc += 1
 
             # Normalize Peters-style OPs.
             for i, t in enumerate(self._types):
-                #if t == "pent_plan":
-                #    ops[i] = ops[i] / sum(norms[i]) \
-                #        if sum(norms[i]) > 1.0e-12 else None
                 if t in ["tri_plan", "tet", "bent", "sq_plan",
                            "oct", "oct_legacy", "cuboct", "pent_plan"]:
                     ops[i] = tmp_norm = 0.0
@@ -2242,7 +2827,8 @@ class LocalStructOrderParams(object):
                 elif t in ["T", "tri_pyr", "see_saw_rect", "sq_pyr", "tri_bipyr",
                         "sq_bipyr", "pent_pyr", "hex_pyr", "pent_bipyr",
                         "hex_bipyr", "oct_max", "tri_plan_max", "tet_max",
-                        "sq_plan_max", "pent_plan_max", "cuboct_max", "hex_plan_max"]:
+                        "sq_plan_max", "pent_plan_max", "cuboct_max", "hex_plan_max",
+                        "sq_face_cap_trig_pris"]:
                     ops[i] = None
                     if nneigh > 1:
                         for j in range(nneigh):
@@ -2251,7 +2837,6 @@ class LocalStructOrderParams(object):
                                     if norms[i][j][k] > 1.0e-12 else 0.0
                             ops[i] = max(qsptheta[i][j]) if j == 0 \
                                     else max(ops[i], max(qsptheta[i][j]))
-                    #ops[i] = max(qsptheta[i]) if len(qsptheta[i]) > 0 else None
                 elif t == "bcc":
                     ops[i] = 0.0
                     for j in range(nneigh):
@@ -2489,10 +3074,16 @@ class CrystalNN(NearNeighbors):
     NNData = namedtuple("nn_data", ["all_nninfo", "cn_weights", "cn_nninfo"])
 
     def __init__(self, weighted_cn=False, cation_anion=False,
-                 distance_cutoffs=(1.25, 2.5), x_diff_weight=1.0,
-                 search_cutoff=7.0, fingerprint_length=None):
+                 distance_cutoffs=(0.5, 1), x_diff_weight=3.0,
+                 porous_adjustment=True, search_cutoff=7,
+                 fingerprint_length=None):
         """
-        Initialize CrystalNN with desired paramters.
+        Initialize CrystalNN with desired parameters. Default parameters assume
+        "chemical bond" type behavior is desired. For geometric neighbor
+        finding (e.g., structural framework), set (i) distance_cutoffs=None,
+        (ii) x_diff_weight=0.0 and (optionally) (iii) porous_adjustment=False
+        which will disregard the atomic identities and perform best for a purely
+        geometric match.
 
         Args:
             weighted_cn: (bool) if set to True, will return fractional weights
@@ -2500,13 +3091,17 @@ class CrystalNN(NearNeighbors):
             cation_anion: (bool) if set True, will restrict bonding targets to
                 sites with opposite or zero charge. Requires an oxidation states
                 on all sites in the structure.
-            distance_cutoffs: ([float, float]) - min and max cutoff for smooth
-                distance filtering. Set to None to turn off.
+            distance_cutoffs: ([float, float]) - if not None, penalizes neighbor
+                distances greater than sum of covalent radii plus
+                distance_cutoffs[0]. Distances greater than covalent radii sum
+                plus distance_cutoffs[1] are enforced to have zero weight.
             x_diff_weight: (float) - if multiple types of neighbor elements are
                 possible, this sets preferences for targets with higher
                 electronegativity difference.
+            porous_adjustment: (bool) - if True, readjusts Voronoi weights to
+                better describe layered / porous structures
             search_cutoff: (float) cutoff in Angstroms for initial neighbor
-                search
+                search; this will be adjusted if needed internally
             fingerprint_length: (int) if a fixed_length CN "fingerprint" is
                 desired from get_nn_data(), set this parameter
         """
@@ -2515,6 +3110,7 @@ class CrystalNN(NearNeighbors):
         self.distance_cutoffs = distance_cutoffs
         self.x_diff_weight = x_diff_weight if x_diff_weight is not None else 0
         self.search_cutoff = search_cutoff
+        self.porous_adjustment = porous_adjustment
         self.fingerprint_length = fingerprint_length
 
     def get_nn_info(self, structure, n):
@@ -2587,28 +3183,16 @@ class CrystalNN(NearNeighbors):
                     "No valid targets for site within cation_anion constraint!")
 
         # get base VoronoiNN targets
-        vnn = VoronoiNN(weight="solid_angle", targets=target,
-                        cutoff=self.search_cutoff)
+        cutoff = self.search_cutoff
+        vnn = VoronoiNN(weight="solid_angle", targets=target, cutoff=cutoff)
         nn = vnn.get_nn_info(structure, n)
 
-        # adjust solid angle weights based on distance
-        if self.distance_cutoffs:
-            r1 = self._get_radius(structure[n])
-            for entry in nn:
-                r2 = self._get_radius(entry["site"])
-                dist = np.linalg.norm(
-                    structure[n].coords - entry["site"].coords)
-                dist_ratio = dist / (r1 + r2)
-                dist_weight = 0
-                cutoff_low = self.distance_cutoffs[0]
-                cutoff_high = self.distance_cutoffs[1]
-                if dist_ratio <= cutoff_low:
-                    dist_weight = 1
-                elif dist_ratio < cutoff_high:
-                    dist_weight = (math.cos((dist_ratio - cutoff_low) / (
-                                cutoff_high - cutoff_low) * math.pi) + 1) * 0.5
-
-                entry["weight"] = entry["weight"] * dist_weight
+        # solid angle weights can be misleading in open / porous structures
+        # adjust weights to correct for this behavior
+        if self.porous_adjustment:
+            for x in nn:
+                x["weight"] *= x["poly_info"][
+                                   "solid_angle"]/x["poly_info"]["area"]
 
         # adjust solid angle weight based on electronegativity difference
         if self.x_diff_weight > 0:
@@ -2619,20 +3203,59 @@ class CrystalNN(NearNeighbors):
                 if math.isnan(X1) or math.isnan(X2):
                     chemical_weight = 1
                 else:
+                    # note: 3.3 is max deltaX between 2 elements
                     chemical_weight = 1 + self.x_diff_weight * \
-                                      abs(X1 - X2)/3.3  # 3.3 is max deltaX
+                                      math.sqrt(abs(X1 - X2)/3.3)
 
                 entry["weight"] = entry["weight"] * chemical_weight
 
         # sort nearest neighbors from highest to lowest weight
         nn = sorted(nn, key=lambda x: x["weight"], reverse=True)
         if nn[0]["weight"] == 0:
-            raise RuntimeError("no neighbors with nonzero weight (increase search cutoff and/or distance cutoff)")
+            return self.transform_to_length(self.NNData([], {0: 1.0}, {0: []}),
+                                            length)
 
-        # renormalize & round weights, remove unneeded data
+        # renormalize weights so the highest weight is 1.0
         highest_weight = nn[0]["weight"]
         for entry in nn:
             entry["weight"] = entry["weight"] / highest_weight
+
+        # adjust solid angle weights based on distance
+        if self.distance_cutoffs:
+            r1 = self._get_radius(structure[n])
+            for entry in nn:
+                r2 = self._get_radius(entry["site"])
+                if r1 > 0 and r2 > 0:
+                    d = r1 + r2
+                else:
+                    warnings.warn(
+                        "CrystalNN: cannot locate an appropriate radius, "
+                        "covalent or atomic radii will be used, this can lead "
+                        "to non-optimal results.")
+                    d = CrystalNN._get_default_radius(structure[n]) + \
+                        CrystalNN._get_default_radius(entry["site"])
+
+                dist = np.linalg.norm(
+                    structure[n].coords - entry["site"].coords)
+                dist_weight = 0
+
+                cutoff_low = d + self.distance_cutoffs[0]
+                cutoff_high = d + self.distance_cutoffs[1]
+
+                if dist <= cutoff_low:
+                    dist_weight = 1
+                elif dist < cutoff_high:
+                    dist_weight = (math.cos((dist - cutoff_low) / (
+                                cutoff_high - cutoff_low) * math.pi) + 1) * 0.5
+                entry["weight"] = entry["weight"] * dist_weight
+
+        # sort nearest neighbors from highest to lowest weight
+        nn = sorted(nn, key=lambda x: x["weight"], reverse=True)
+        if nn[0]["weight"] == 0:
+            return self.transform_to_length(self.NNData([], {0: 1.0}, {0: []}),
+                                            length)
+
+        for entry in nn:
             entry["weight"] = round(entry["weight"], 3)
             del entry["poly_info"]  # trim
 
@@ -2647,8 +3270,8 @@ class CrystalNN(NearNeighbors):
         dist_bins.append(0)
 
         # main algorithm to determine fingerprint from bond weights
-        cn_scores = {}  # CN -> score for that CN
-        cn_info = {}  # CN -> list of nearneighbor info for that CN
+        cn_weights = {}  # CN -> score for that CN
+        cn_nninfo = {}  # CN -> list of nearneighbor info for that CN
         for idx, val in enumerate(dist_bins):
             if val != 0:
                 nn_info = []
@@ -2656,17 +3279,17 @@ class CrystalNN(NearNeighbors):
                     if entry["weight"] >= val:
                         nn_info.append(entry)
                 cn = len(nn_info)
-                cn_info[cn] = nn_info
-                cn_scores[cn] = self._semicircle_integral(dist_bins, idx)
+                cn_nninfo[cn] = nn_info
+                cn_weights[cn] = self._semicircle_integral(dist_bins, idx)
 
-        if length:
-            for i in range(length):
-                cn = i+1
-                if cn not in cn_scores:
-                    cn_scores[cn] = 0
-                    cn_info[cn] = []
+        # add zero coord
+        cn0_weight = 1.0 - sum(cn_weights.values())
+        if cn0_weight > 0:
+            cn_nninfo[0] = []
+            cn_weights[0] = cn0_weight
 
-        return self.NNData(nn, cn_scores, cn_info)
+        return self.transform_to_length(self.NNData(nn, cn_weights, cn_nninfo),
+                                        length)
 
     def get_cn(self, structure, n, use_weights=False):
         """
@@ -2739,11 +3362,11 @@ class CrystalNN(NearNeighbors):
 
         return (area1 - area2) / (0.25 * math.pi * r ** 2)
 
-
     @staticmethod
-    def _get_radius(site):
+    def _get_default_radius(site):
         """
-        An internal method to get the expected radius for a site.
+        An internal method to get a "default" covalent/element radius
+
         Args:
             site: (Site)
 
@@ -2754,6 +3377,69 @@ class CrystalNN(NearNeighbors):
             return CovalentRadius.radius[site.specie.symbol]
         except:
             return site.specie.atomic_radius
+
+
+    @staticmethod
+    def _get_radius(site):
+        """
+        An internal method to get the expected radius for a site with
+        oxidation state.
+        Args:
+            site: (Site)
+
+        Returns:
+            Oxidation-state dependent radius: ionic, covalent, or atomic.
+            Returns 0 if no oxidation state or appropriate radius is found.
+        """
+        if hasattr(site.specie, 'oxi_state'):
+            el = site.specie.element
+            oxi = site.specie.oxi_state
+
+            if oxi == 0:
+                return CrystalNN._get_default_radius(site)
+
+            elif oxi in el.ionic_radii:
+                return el.ionic_radii[oxi]
+
+            # e.g., oxi = 2.667, average together 2+ and 3+ radii
+            elif int(math.floor(oxi)) in el.ionic_radii and \
+                    int(math.ceil(oxi)) in el.ionic_radii:
+                oxi_low = el.ionic_radii[int(math.floor(oxi))]
+                oxi_high = el.ionic_radii[int(math.ceil(oxi))]
+                x = oxi - int(math.floor(oxi))
+                return (1-x) * oxi_low + x * oxi_high
+
+            elif oxi > 0 and el.average_cationic_radius > 0:
+                return el.average_cationic_radius
+
+            elif oxi < 0 and el.average_anionic_radius > 0:
+                return el.average_anionic_radius
+
+        else:
+            warnings.warn("CrystalNN: distance cutoffs set but no oxidation "
+                          "states specified on sites! For better results, set "
+                          "the site oxidation states in the structure.")
+        return 0
+
+    @staticmethod
+    def transform_to_length(nndata, length):
+        """
+        Given NNData, transforms data to the specified fingerprint length
+        Args:
+            nndata: (NNData)
+            length: (int) desired length of NNData
+        """
+
+        if length is None:
+            return nndata
+
+        if length:
+            for cn in range(length):
+                if cn not in nndata.cn_weights:
+                    nndata.cn_weights[cn] = 0
+                    nndata.cn_nninfo[cn] = []
+
+        return nndata
 
 
 def calculate_weighted_avg(bonds):
@@ -2774,3 +3460,133 @@ def calculate_weighted_avg(bonds):
         total_sum += exp(1-(entry/minimum_bond)**6)
     return weighted_sum/total_sum
 
+
+class CutOffDictNN(NearNeighbors):
+    """
+    A very basic NN class using a dictionary of fixed
+    cut-off distances. Can also be used with no dictionary
+    defined for a Null/Empty NN class.
+    """
+
+    def __init__(self, cut_off_dict=None):
+        """
+        Args:
+            cut_off_dict (Dict[str, float]): a dictionary
+            of cut-off distances, e.g. {('Fe','O'): 2.0} for
+            a maximum Fe-O bond length of 2.0 Angstroms.
+            Note that if your structure is oxidation state
+            decorated, the cut-off distances will have to
+            explicitly include the oxidation state, e.g.
+            {('Fe2+', 'O2-'): 2.0}
+        """
+
+        self.cut_off_dict = cut_off_dict or {}
+
+        # for convenience
+        self._max_dist = 0.0
+        lookup_dict = defaultdict(dict)
+        for (sp1, sp2), dist in self.cut_off_dict.items():
+            lookup_dict[sp1][sp2] = dist
+            lookup_dict[sp2][sp1] = dist
+            if dist > self._max_dist:
+                self._max_dist = dist
+        self._lookup_dict = lookup_dict
+
+    @staticmethod
+    def from_preset(preset):
+        """
+        Initialise a CutOffDictNN according to a preset set of cut-offs.
+
+        Args:
+            preset (str): A preset name. The list of supported presets are:
+
+                - "vesta_2019": The distance cut-offs used by the VESTA
+                  visualisation program.
+
+        Returns:
+            A CutOffDictNN using the preset cut-off dictionary.
+        """
+        if preset == 'vesta_2019':
+            cut_offs = loadfn(os.path.join(_directory, 'vesta_cutoffs.yaml'))
+            return CutOffDictNN(cut_off_dict=cut_offs)
+        else:
+            raise ValueError("Unrecognised preset: {}".format(preset))
+
+    def get_nn_info(self, structure, n):
+
+        site = structure[n]
+
+        neighs_dists = structure.get_neighbors(site, self._max_dist)
+
+        nn_info = []
+        for n_site, dist in neighs_dists:
+
+            neigh_cut_off_dist = self._lookup_dict\
+                .get(site.species_string, {})\
+                .get(n_site.species_string, 0.0)
+
+            if dist < neigh_cut_off_dist:
+
+                nn_info.append({
+                    'site': n_site,
+                    'image': self._get_image(n_site.frac_coords),
+                    'weight': dist,
+                    'site_index': self._get_original_site(structure, n_site)
+                })
+
+        return nn_info
+
+
+class Critic2NN(NearNeighbors):
+    """
+    Performs a topological analysis using critic2 to obtain
+    neighbor information, using a sum of atomic charge
+    densities. If an actual charge density is available
+    (e.g. from a VASP CHGCAR), see Critic2Caller directly
+    instead.
+    """
+
+    def __init__(self):
+
+        # we cache the last-used structure, in case user
+        # calls get_nn_info() repeatedly for different
+        # sites in the same structure to save redundant
+        # computations
+        self.__last_structure = None
+        self.__last_bonded_structure = None
+
+    def get_bonded_structure(self, structure, decorate=False):
+        
+        # not a top-level import because critic2 is an optional
+        # dependency, only want to raise an import error if
+        # Critic2NN() is used
+        from pymatgen.command_line.critic2_caller import Critic2Caller
+
+        if structure == self.__last_structure:
+            sg = self.__last_bonded_structure
+        else:
+            c2_output = Critic2Caller(structure).output
+            sg = c2_output.structure_graph()
+
+            self.__last_structure = structure
+            self.__last_bonded_structure = sg
+
+        if decorate:
+            order_parameters = [self.get_local_order_parameters(structure, n)
+                                for n in range(len(structure))]
+            sg.structure.add_site_property('order_parameters', order_parameters)
+
+        return sg
+
+    def get_nn_info(self, structure, n):
+
+        sg = self.get_bonded_structure(structure)
+
+        return [
+            {
+                'site': connected_site.site,
+                'image': connected_site.jimage,
+                'weight': connected_site.weight,
+                'site_index': connected_site.index
+            } for connected_site in sg.get_connected_sites(n)
+        ]

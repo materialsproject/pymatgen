@@ -6,7 +6,6 @@ provided by the resource manager  (qsub, qdel and qstat for PBS, sinfo, squeue..
 The main goal indeed is providing a simplified common interface for different resource managers without
 having to rely on external libraries.
 """
-from __future__ import print_function, division, unicode_literals
 
 import shlex
 
@@ -79,7 +78,7 @@ class JobStatus(int):
             return cls.from_string("UNKNOWN")
 
 
-class QueueJob(object):
+class QueueJob:
     """
     This object provides methods to contact the resource manager to get info on the status
     of the job and useful statistics. This is an abstract class.

@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import unittest
 import os
@@ -44,13 +43,14 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
 
 @unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY"), "PMG_MAPI_KEY environment variable not set.")
 class MPResterTest(unittest.TestCase):
+    _multiprocess_shared_ = True
 
     def setUp(self):
         self.rester = MPRester()
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_get_all_materials_ids_doc(self):
         mids = self.rester.get_materials_ids("Al2O3")
@@ -65,28 +65,28 @@ class MPResterTest(unittest.TestCase):
                  "is_compatible", "task_ids",
                  "density", "icsd_ids", "total_magnetization"]
         # unicode literals have been reintroduced in py>3.2
-        expected_vals = [-191.33812137, -6.833504334642858, -2.551358929370749,
-                         28, {k: v for k, v in {'P': 4, 'Fe': 4, 'O': 16, 'Li': 4}.items()},
+
+        expected_vals = [-191.3359011, -6.833425039285714, -2.5515769497278913,
+                         28, {'P': 4, 'Fe': 4, 'O': 16, 'Li': 4},
                          "LiFePO4", True, ['Li', 'O', 'P', 'Fe'], 4, 0.0,
-                         {k: v for k, v in {'Fe': 5.3, 'Li': 0.0, 'O': 0.0, 'P': 0.0}.items()}, True,
-                         [u'mp-601412', u'mp-19017', u'mp-796535', u'mp-797820',
-                          u'mp-540081', u'mp-797269'],
-                         3.4662026991351147,
+                         {'Fe': 5.3, 'Li': 0.0, 'O': 0.0, 'P': 0.0}, True,
+                         {'mp-19017', 'mp-540081', 'mp-601412'},
+                         3.464840709092822,
                          [159107, 154117, 160776, 99860, 181272, 166815,
                           260571, 92198, 165000, 155580, 38209, 161479, 153699,
                           260569, 260570, 200155, 260572, 181341, 181342,
                           72545, 56291, 97764, 162282, 155635],
-                         16.0002716]
+                         15.9996841]
 
         for (i, prop) in enumerate(props):
             if prop not in ['hubbards', 'unit_cell_formula', 'elements',
                             'icsd_ids', 'task_ids']:
                 val = self.rester.get_data("mp-19017", prop=prop)[0][prop]
-                self.assertAlmostEqual(expected_vals[i], val)
+                self.assertAlmostEqual(expected_vals[i], val, places=2)
             elif prop in ["elements", "icsd_ids", "task_ids"]:
-                self.assertEqual(set(expected_vals[i]),
-                                 set(self.rester.get_data("mp-19017",
-                                                          prop=prop)[0][prop]))
+                upstream_vals = set(
+                    self.rester.get_data("mp-19017", prop=prop)[0][prop])
+                self.assertLessEqual(set(expected_vals[i]), upstream_vals)
             else:
                 self.assertEqual(expected_vals[i],
                                  self.rester.get_data("mp-19017",
@@ -112,6 +112,13 @@ class MPResterTest(unittest.TestCase):
 
         self.assertRaises(MPRestError, self.rester.get_data, "Fe2O3",
                           "badmethod")
+
+    def test_get_data(self):
+        # Test getting supported properties
+        self.assertNotEqual(self.rester.get_task_data("mp-30"), [])
+        # Test aliasing
+        data = self.rester.get_task_data("mp-30", "energy")
+        self.assertAlmostEqual(data[0]["energy"], -4.09929227, places=2)
 
     def test_get_materials_id_from_task_id(self):
         self.assertEqual(self.rester.get_materials_id_from_task_id(
@@ -153,11 +160,24 @@ class MPResterTest(unittest.TestCase):
     def test_query(self):
         criteria = {'elements': {'$in': ['Li', 'Na', 'K'], '$all': ['O']}}
         props = ['pretty_formula', 'energy']
-        data = self.rester.query(criteria=criteria, properties=props)
+        data = self.rester.query(
+            criteria=criteria, properties=props, chunk_size=0)
         self.assertTrue(len(data) > 6)
-        data = self.rester.query(criteria="*2O", properties=props)
+        data = self.rester.query(
+            criteria="*2O", properties=props, chunk_size=0)
         self.assertGreaterEqual(len(data), 52)
         self.assertIn("Li2O", (d["pretty_formula"] for d in data))
+
+    def test_query_chunk_size(self):
+        criteria = {"nelements": 2, "elements": "O"}
+        props = ['pretty_formula']
+        data1 = self.rester.query(
+            criteria=criteria, properties=props, chunk_size=0)
+        data2 = self.rester.query(
+            criteria=criteria, properties=props, chunk_size=500)
+        self.assertEqual({d['pretty_formula'] for d in data1},
+                         {d['pretty_formula'] for d in data2})
+        self.assertIn("Al2O3", {d['pretty_formula'] for d in data1})
 
     def test_get_exp_thermo_data(self):
         data = self.rester.get_exp_thermo_data("Fe2O3")
@@ -245,20 +265,28 @@ class MPResterTest(unittest.TestCase):
         self.assertEqual(len(th_entry.structure), 4)
         self.assertEqual(len(th_entry_initial.structure), 2)
 
+        # Test if the polymorphs of Fe are properly sorted
+        # by e_above_hull when sort_by_e_above_hull=True
+        Fe_entries = self.rester.get_entries("Fe", sort_by_e_above_hull=True)
+        self.assertEqual(Fe_entries[0].data["e_above_hull"], 0)
 
     def test_get_pourbaix_entries(self):
-        pbx_entries = self.rester.get_pourbaix_entries(["Fe"])
+        pbx_entries = self.rester.get_pourbaix_entries(["Fe", "Cr"])
         for pbx_entry in pbx_entries:
             self.assertTrue(isinstance(pbx_entry, PourbaixEntry))
         # Ensure entries are pourbaix compatible
         pbx = PourbaixDiagram(pbx_entries)
 
         # Try binary system
-        pbx_entries = self.rester.get_pourbaix_entries(["Fe", "Cr"])
-        pbx = PourbaixDiagram(pbx_entries)
+        #pbx_entries = self.rester.get_pourbaix_entries(["Fe", "Cr"])
+        #pbx = PourbaixDiagram(pbx_entries)
+
+        # TODO: Shyue Ping: I do not understand this test. You seem to
+        # be grabbing Zn-S system, but I don't see proper test for anything,
+        # including Na ref. This test also takes a long time.
 
         # Test Zn-S, which has Na in reference solids
-        pbx_entries = self.rester.get_pourbaix_entries(["Zn", "S"])
+        # pbx_entries = self.rester.get_pourbaix_entries(["Zn", "S"])
 
     def test_get_exp_entry(self):
         entry = self.rester.get_exp_entry("Fe2O3")
@@ -328,6 +356,10 @@ class MPResterTest(unittest.TestCase):
         ws = self.rester.get_wulff_shape("mp-126")
         self.assertTrue(isinstance(ws, WulffShape))
 
+    def test_get_cohesive_energy(self):
+        ecoh = self.rester.get_cohesive_energy("mp-13")
+        self.assertTrue(ecoh, 5.04543279)
+
     def test_get_interface_reactions(self):
         kinks = self.rester.get_interface_reactions("LiCoO2", "Li3PS4")
         self.assertTrue(len(kinks) > 0)
@@ -341,7 +373,7 @@ class MPResterTest(unittest.TestCase):
         self.assertTrue(len(kinks_open_O) > 0)
         with warnings.catch_warnings(record=True) as w:
             warnings.filterwarnings("always", message="The reactant.+")
-            self.rester.get_interface_reactions("LiCoO2", "MnO3")
+            self.rester.get_interface_reactions("LiCoO2", "MnO9")
             self.assertTrue("The reactant" in str(w[-1].message))
 
     def test_parse_criteria(self):

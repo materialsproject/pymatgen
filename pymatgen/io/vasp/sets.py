@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
 
 import abc
 import re
@@ -12,8 +11,6 @@ import shutil
 import warnings
 from itertools import chain
 from copy import deepcopy
-
-import six
 import numpy as np
 
 from monty.serialization import loadfn
@@ -74,7 +71,7 @@ __date__ = "May 28 2016"
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
+class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
     """
     Base class representing a set of Vasp input parameters with a structure
     supplied as init parameters. Typically, you should not inherit from this
@@ -234,7 +231,8 @@ class DictSet(VaspInputSet):
             together.
         potcar_functional (str): Functional to use. Default (None) is to use
             the functional in Potcar.DEFAULT_FUNCTIONAL. Valid values:
-            "PBE", "LDA", "PW91", "LDA_US"
+            "PBE", "PBE_52", "PBE_54", "LDA", "LDA_52", "LDA_54", "PW91",
+            "LDA_US", "PW91_US".
         force_gamma (bool): Force gamma centered kpoint generation. Default
             (False) is to use the Automatic Density kpoint scheme, which
             will use the Gamma centered generation scheme for hexagonal
@@ -248,6 +246,11 @@ class DictSet(VaspInputSet):
             Tkatchenko-Scheffler with iterative Hirshfeld partitioning,
             MBD@rSC, dDsC, Dion's vdW-DF, DF2, optPBE, optB88, optB86b and
             rVV10.
+        use_structure_charge (bool): If set to True, then the public
+            variable used for setting the overall charge of the
+            structure (structure.charge) is used to set the NELECT
+            variable in the INCAR
+            Default is False (structure's overall charge is not used)
     """
 
     def __init__(self, structure, config_dict,
@@ -255,7 +258,8 @@ class DictSet(VaspInputSet):
                  user_kpoints_settings=None, user_potcar_settings=None,
                  constrain_total_magmom=False, sort_structure=True,
                  potcar_functional="PBE", force_gamma=False,
-                 reduce_structure=None, vdw=None):
+                 reduce_structure=None, vdw=None,
+                 use_structure_charge=False):
         if reduce_structure:
             structure = structure.get_reduced_structure(reduce_structure)
         if sort_structure:
@@ -272,6 +276,7 @@ class DictSet(VaspInputSet):
         self.user_kpoints_settings = user_kpoints_settings
         self.user_potcar_settings = user_potcar_settings
         self.vdw = vdw.lower() if vdw is not None else None
+        self.use_structure_charge = use_structure_charge
         if self.vdw:
             vdw_par = loadfn(os.path.join(MODULE_DIR, "vdW_parameters.yaml"))
             try:
@@ -363,8 +368,8 @@ class DictSet(VaspInputSet):
                            for mag in incar['MAGMOM']])
             incar['NUPDOWN'] = nupdown
 
-        if self.structure._charge:
-            incar["NELECT"] = self.nelect + self.structure._charge
+        if self.use_structure_charge:
+            incar["NELECT"] = self.nelect
 
         return incar
 
@@ -377,10 +382,20 @@ class DictSet(VaspInputSet):
         """
         Gets the default number of electrons for a given structure.
         """
-        return int(round(
-            sum([self.structure.composition.element_composition[ps.element]
-                 * ps.ZVAL
-                 for ps in self.potcar])))
+        # if structure is not sorted this can cause problems, so must take care to
+        # remove redundant symbols when counting electrons
+        site_symbols = list(set(self.poscar.site_symbols))
+        nelect = 0.
+        for ps in self.potcar:
+            if ps.element in site_symbols:
+                site_symbols.remove(ps.element)
+                nelect += self.structure.composition.element_composition[
+                              ps.element] * ps.ZVAL
+
+        if self.use_structure_charge:
+            return nelect - self.structure.charge
+        else:
+            return nelect
 
     @property
     def kpoints(self):
@@ -471,7 +486,7 @@ class MPRelaxSet(DictSet):
     The LDAUU parameters are also different due to the different psps used,
     which result in different fitted values.
     """
-    CONFIG = CONFIG = _load_yaml_config("MPRelaxSet")
+    CONFIG = _load_yaml_config("MPRelaxSet")
 
     def __init__(self, structure, **kwargs):
         super(MPRelaxSet, self).__init__(
@@ -511,9 +526,9 @@ class MPStaticSet(MPRelaxSet):
             \\*\\*kwargs: kwargs supported by MPRelaxSet.
         """
         super(MPStaticSet, self).__init__(structure, **kwargs)
-        if isinstance(prev_incar, six.string_types):
+        if isinstance(prev_incar, str):
             prev_incar = Incar.from_file(prev_incar)
-        if isinstance(prev_kpoints, six.string_types):
+        if isinstance(prev_kpoints, str):
             prev_kpoints = Kpoints.from_file(prev_kpoints)
 
         self.prev_incar = prev_incar
@@ -583,9 +598,12 @@ class MPStaticSet(MPRelaxSet):
         self._config_dict["KPOINTS"]["reciprocal_density"] = \
             self.reciprocal_density
         kpoints = super(MPStaticSet, self).kpoints
+
         # Prefer to use k-point scheme from previous run
+        # except for when lepsilon = True is specified
         if self.prev_kpoints and self.prev_kpoints.style != kpoints.style:
-            if self.prev_kpoints.style == Kpoints.supported_modes.Monkhorst:
+            if (self.prev_kpoints.style == Kpoints.supported_modes.Monkhorst) \
+                    and (not self.lepsilon):
                 k_div = [kp + 1 if kp % 2 == 1 else kp
                          for kp in kpoints.kpts[0]]
                 kpoints = Kpoints.monkhorst_automatic(k_div)
@@ -801,7 +819,7 @@ class MPNonSCFSet(MPRelaxSet):
             \\*\\*kwargs: kwargs supported by MPVaspInputSet.
         """
         super(MPNonSCFSet, self).__init__(structure, **kwargs)
-        if isinstance(prev_incar, six.string_types):
+        if isinstance(prev_incar, str):
             prev_incar = Incar.from_file(prev_incar)
         self.prev_incar = prev_incar
         self.kwargs = kwargs
@@ -942,9 +960,9 @@ class MPNonSCFSet(MPRelaxSet):
                                        small_gap_multiply[1]
 
         return cls(structure=structure, prev_incar=incar,
-                           reciprocal_density=reciprocal_density,
-                           kpoints_line_density=kpoints_line_density,
-                           files_to_transfer=files_to_transfer, **kwargs)
+                   reciprocal_density=reciprocal_density,
+                   kpoints_line_density=kpoints_line_density,
+                   files_to_transfer=files_to_transfer, **kwargs)
 
 
 class MPSOCSet(MPStaticSet):
@@ -1057,11 +1075,11 @@ class MPSOCSet(MPStaticSet):
                 reciprocal_density = reciprocal_density * small_gap_multiply[1]
 
         return cls(structure, prev_incar=incar,
-                        files_to_transfer=files_to_transfer,
-                        reciprocal_density=reciprocal_density, **kwargs)
+                   files_to_transfer=files_to_transfer,
+                   reciprocal_density=reciprocal_density, **kwargs)
+
 
 class MPNMRSet(MPStaticSet):
-
     def __init__(self, structure, mode="cs", isotopes=None,
                  prev_incar=None, reciprocal_density=100, **kwargs):
         """
@@ -1102,7 +1120,9 @@ class MPNMRSet(MPStaticSet):
 
             isotopes = {ist.split("-")[0]: ist for ist in self.isotopes}
 
-            quad_efg = [Specie(p).get_nmr_quadrupole_moment(isotopes.get(p, None)) for p in self.poscar.site_symbols]
+            quad_efg = [
+                Specie(p).get_nmr_quadrupole_moment(isotopes.get(p, None)) for p
+                in self.poscar.site_symbols]
 
             incar.update({"ALGO": "FAST",
                           "EDIFF": -1.0e-10,
@@ -1295,8 +1315,8 @@ class MVLGWSet(DictSet):
                         files_to_transfer[fname] = str(w[-1])
 
         return cls(structure=structure, prev_incar=prev_incar,
-                        nbands=nbands, mode=mode,
-                        files_to_transfer=files_to_transfer, **kwargs)
+                   nbands=nbands, mode=mode,
+                   files_to_transfer=files_to_transfer, **kwargs)
 
 
 class MVLSlabSet(MPRelaxSet):
@@ -1309,21 +1329,22 @@ class MVLSlabSet(MPRelaxSet):
         k_product: default to 50, kpoint number * length for a & b directions,
             also for c direction in bulk calculations
         bulk (bool): Set to True for bulk calculation. Defaults to False.
-        get_locpot (bool): For calculating the electrostatic potential across the
-            slab. Use this if you want to calculate the work function. Will
-            set if slab calculation only.
         **kwargs:
             Other kwargs supported by :class:`DictSet`.
     """
 
     def __init__(self, structure, k_product=50, bulk=False,
-                 auto_dipole=False, get_locpot=False, set_mix=True, **kwargs):
+                 auto_dipole=False, set_mix=True, sort_structure=True,
+                 **kwargs):
         super(MVLSlabSet, self).__init__(structure, **kwargs)
+
+        if sort_structure:
+            structure = structure.get_sorted_structure()
+
         self.structure = structure
         self.k_product = k_product
         self.bulk = bulk
         self.auto_dipole = auto_dipole
-        self.get_locpot = get_locpot
         self.kwargs = kwargs
         self.set_mix = set_mix
 
@@ -1331,17 +1352,21 @@ class MVLSlabSet(MPRelaxSet):
                       "ISMEAR": 0, "SIGMA": 0.05, "ISIF": 3}
         if not self.bulk:
             slab_incar["ISIF"] = 2
+            slab_incar["LVTOT"] = True
             if self.set_mix:
                 slab_incar["AMIN"] = 0.01
                 slab_incar["AMIX"] = 0.2
                 slab_incar["BMIX"] = 0.001
             slab_incar["NELMIN"] = 8
             if self.auto_dipole:
+                weights = [s.species_and_occu.weight for s in structure]
+                center_of_mass = np.average(structure.frac_coords,
+                                            weights=weights, axis=0)
+
                 slab_incar["IDIPOL"] = 3
                 slab_incar["LDIPOL"] = True
-                slab_incar["DIPOL"] = structure.center_of_mass
-            if self.get_locpot:
-                slab_incar["LVTOT"] = True
+                slab_incar["DIPOL"] = center_of_mass
+
         self._config_dict["INCAR"].update(slab_incar)
 
     @property
@@ -1379,7 +1404,6 @@ class MVLSlabSet(MPRelaxSet):
         if verbosity == 1:
             d.pop("structure", None)
         return d
-
 
 
 class MVLGBSet(MPRelaxSet):
@@ -1471,6 +1495,38 @@ class MVLGBSet(MPRelaxSet):
         return incar
 
 
+class MVLRelax52Set(DictSet):
+    """
+    Implementation of VaspInputSet utilizing the public Materials Project
+    parameters for INCAR & KPOINTS and VASP's recommended PAW potentials for
+    POTCAR.
+    """
+    CONFIG = _load_yaml_config("MVLRelax52Set")
+
+    def __init__(self, structure, potcar_functional="PBE_52", **kwargs):
+        """
+        Keynotes from VASP manual:
+            1. Recommended potentials for calculations using vasp.5.2+
+            2. If dimers with short bonds are present in the compound (O2, CO,
+                N2, F2, P2, S2, Cl2), it is recommended to use the h potentials.
+                Specifically, C_h, O_h, N_h, F_h, P_h, S_h, Cl_h
+            3. Released on Oct 28, 2018 by VASP. Please refer to VASP
+                Manual 1.2, 1.3 & 10.2.1 for more details.
+
+        Args:
+            structure (Structure): input structure.
+            potcar_functional (str): choose from "PBE_52" and "PBE_54".
+            \\*\\*kwargs: Other kwargs supported by :class:`DictSet`.
+        """
+        if potcar_functional not in ["PBE_52", "PBE_54"]:
+            raise ValueError("Please select from PBE_52 and PBE_54!")
+
+        super(MVLRelax52Set, self).__init__(structure, MVLRelax52Set.CONFIG,
+                                            potcar_functional=potcar_functional,
+                                            **kwargs)
+        self.kwargs = kwargs
+
+
 class MITNEBSet(MITRelaxSet):
     """
     Class for writing NEB inputs. Note that EDIFF is not on a per atom
@@ -1560,14 +1616,18 @@ class MITNEBSet(MITRelaxSet):
                 user_incar_settings=self.user_incar_settings)
 
             for image in ['00', str(len(self.structures) - 1).zfill(2)]:
-                end_point_param.incar.write_file(os.path.join(output_dir, image, 'INCAR'))
-                end_point_param.kpoints.write_file(os.path.join(output_dir, image, 'KPOINTS'))
-                end_point_param.potcar.write_file(os.path.join(output_dir, image, 'POTCAR'))
+                end_point_param.incar.write_file(
+                    os.path.join(output_dir, image, 'INCAR'))
+                end_point_param.kpoints.write_file(
+                    os.path.join(output_dir, image, 'KPOINTS'))
+                end_point_param.potcar.write_file(
+                    os.path.join(output_dir, image, 'POTCAR'))
         if write_path_cif:
             sites = set()
             l = self.structures[0].lattice
             for site in chain(*(s.sites for s in self.structures)):
-                sites.add(PeriodicSite(site.species_and_occu, site.frac_coords, l))
+                sites.add(
+                    PeriodicSite(site.species_and_occu, site.frac_coords, l))
             nebpath = Structure.from_sites(sorted(sites))
             nebpath.to(filename=os.path.join(output_dir, 'path.cif'))
 
@@ -1730,7 +1790,8 @@ def get_vasprun_outcar(path, parse_dos=True, parse_eigen=True):
     vsfile_fullpath = os.path.join(path, "vasprun.xml")
     outcarfile_fullpath = os.path.join(path, "OUTCAR")
     vsfile = vsfile_fullpath if vsfile_fullpath in vruns else sorted(vruns)[-1]
-    outcarfile = outcarfile_fullpath if outcarfile_fullpath in outcars else sorted(outcars)[-1]
+    outcarfile = outcarfile_fullpath if outcarfile_fullpath in outcars else \
+        sorted(outcars)[-1]
     return Vasprun(str(vsfile), parse_dos=parse_dos, parse_eigen=parse_eigen), \
            Outcar(str(outcarfile))
 

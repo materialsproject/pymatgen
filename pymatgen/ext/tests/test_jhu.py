@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import unittest
 import os
 
@@ -22,6 +21,7 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
 
 
 class JhuTest(PymatgenTest):
+    _multiprocess_shared_ = True
     def test_get_kpoints(self):
         si = PymatgenTest.get_structure("Si")
         input_set = MPRelaxSet(si)

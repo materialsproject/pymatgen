@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
 
 import os
 import re
@@ -111,6 +110,10 @@ class Element(Enum):
 
         True if element is a transition metal.
 
+    .. attribute:: is_post_transition_metal
+
+        True if element is a post transition metal.
+
     .. attribute:: is_rare_earth_metal
 
         True if element is a rare earth metal.
@@ -138,6 +141,13 @@ class Element(Enum):
     .. attribute:: is_actinoid
 
         True if element is a actinoid.
+
+    .. attribute:: iupac_ordering
+
+        Ordering according to Table VI of "Nomenclature of Inorganic Chemistry
+        (IUPAC Recommendations 2005)". This ordering effectively follows the
+        groups and rows of the periodic table, except the Lanthanides, Actanides
+        and hydrogen.
 
     .. attribute:: long_name
 
@@ -268,6 +278,16 @@ class Element(Enum):
 
         Average ionic radius for element in ang. The average is taken over all
         oxidation states of the element for which data is present.
+
+    .. attribute:: average_cationic_radius
+
+        Average cationic radius for element in ang. The average is taken over all
+        positive oxidation states of the element for which data is present.
+
+    .. attribute:: average_anionic_radius
+
+        Average ionic radius for element in ang. The average is taken over all
+        negative oxidation states of the element for which data is present.
 
     .. attribute:: ionic_radii
 
@@ -462,7 +482,7 @@ class Element(Enum):
                             # Ignore error. val will just remain a string.
                             pass
             return val
-        raise AttributeError
+        raise AttributeError("Element has no attribute %s!" % item)
 
     @property
     def data(self):
@@ -483,6 +503,36 @@ class Element(Enum):
             return sum(radii.values()) / len(radii)
         else:
             return 0
+
+    @property
+    @unitized("ang")
+    def average_cationic_radius(self):
+        """
+        Average cationic radius for element (with units). The average is
+        taken over all positive oxidation states of the element for which
+        data is present.
+        """
+        if "Ionic radii" in self._data:
+            radii = [v for k, v in self._data["Ionic radii"].items()
+                     if int(k) > 0]
+            if radii:
+                return sum(radii) / len(radii)
+        return 0
+
+    @property
+    @unitized("ang")
+    def average_anionic_radius(self):
+        """
+        Average anionic radius for element (with units). The average is
+        taken over all negative oxidation states of the element for which
+        data is present.
+        """
+        if "Ionic radii" in self._data:
+            radii = [v for k, v in self._data["Ionic radii"].items()
+                     if int(k) < 0]
+            if radii:
+                return sum(radii) / len(radii)
+        return 0
 
     @property
     @unitized("ang")
@@ -532,6 +582,14 @@ class Element(Enum):
         return tuple(self._data.get("ICSD oxidation states", list()))
 
     @property
+    @unitized("ang")
+    def metallic_radius(self):
+        """
+        Metallic radius of the element. Radius is given in ang.
+        """
+        return self._data["Metallic radius"]
+
+    @property
     def full_electronic_structure(self):
         """
         Full electronic structure as tuple.
@@ -560,6 +618,10 @@ class Element(Enum):
         # angular moment (L) and number of valence e- (v_e)
 
         """
+        # the number of valence of noble gas is 0
+        if self.group == 18:
+            return (np.nan, 0)
+
         L_symbols = 'SPDFGHIKLMNOQRTUVWXYZ'
         valence = []
         full_electron_config = self.full_electronic_structure
@@ -831,6 +893,13 @@ class Element(Enum):
         return self.Z in ns
 
     @property
+    def is_post_transition_metal(self):
+        """
+        True if element is a post-transition or poor metal.
+        """
+        return self.symbol in ("Al", "Ga", "In", "Tl", "Sn", "Pb", "Bi")
+
+    @property
     def is_rare_earth_metal(self):
         """
         True if element is a rare earth metal.
@@ -901,6 +970,16 @@ class Element(Enum):
         """
         return {k: FloatWithUnit(v, "mbarn")
                 for k, v in self.data.get("NMR Quadrupole Moment", {}).items()}
+
+    @property
+    def iupac_ordering(self):
+        """
+        Ordering according to Table VI of "Nomenclature of Inorganic Chemistry
+        (IUPAC Recommendations 2005)". This ordering effectively follows the
+        groups and rows of the periodic table, except the Lanthanides, Actanides
+        and hydrogen.
+        """
+        return self._data["IUPAC ordering"]
 
     def __deepcopy__(self, memo):
         return Element(self.symbol)

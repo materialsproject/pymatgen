@@ -1,6 +1,134 @@
 Change log
 ==========
 
+v2019.1.24
+----------
+* Python 3 only!
+* Improvements to local environment code (@utf)
+* Update Cohp analysis (@JaGEO)
+* Updates to Boltztrap2 (@fraricci)
+
+v2018.12.12
+-----------
+* Support for IUPAC ordering of elements in Composition formulae (@utf)
+* Various bug fixes including returning integer miller indices, catching negative values in Composition and fixes to graph analysis (@utf), fix to Composition serialization (@jmmshen), defect analysis (@HanmeiTang), removing sites in surfaces (@yiming-xu), and fix to support the new PROCAR format in VASP (@dkorotin)
+* `PMG_MAPI_ENDPOINT` environment variable added to support different endpoints for the Materials Project REST interface (@mkhorton)
+
+v2018.11.30
+-----------
+* MPRester.query now supports bulk queries for large scale requests. 
+  (@dwinston)
+* MVLRelax52Set which uses VASP 52 pseudopotentials. (@HanmeiTang)
+* EPH calculations in ABINIT (@gmatteo)
+* New ScaleToRelaxedTransformation (@richardtran415)
+* New dimensionality finder, and consolidation of existing algorithms (@utf)
+* New dopant predictor built on structure predictor (@utf)
+* Misc bug fixes (@HanmeiTang, @utf, @tamuhey, @mkhorton, @yiming-xu, @richardtran415)
+
+v2018.11.6
+----------
+* Ionic radius based CrystalNN (@computron)
+* InterfacialReactivity (@dbroberg)
+* Misc bug fixes
+
+v2018.10.18
+-----------
+
+* New bond fragmenter and bond dissociation analysis modules (@samblau)
+* Improvements to MoleculeGraph (@espottesmith)
+* Fix: bug in triclinic tensor conversion to IEEE standard (@montoyjh)
+* Fix: insertion battery summary dictionary format (@jmmshn)
+* Speed improvements to certain tests (@shyuep, @samblau)
+
+v2018.9.30
+----------
+
+* Fix: increased cut-off to VoronoiNN to avoid scipy crash (@utf)
+* Fix: Outcar parsing issues with certain values of electrostatic potential (@sivonxay)
+* Fix: bug in EnumlibAdaptor/EnumerateStructureTransformation involving incorrect
+  stoichiometries in some instances (#1286) (@shyuep)
+* Fix: fractional co-ordinate finite precision errors in CifParser, now
+  also includes additional warnings for implicit hydrogens (@mkhorton)
+* New features and improvements to GBGenerator (@ucsdlxg, @shyuep)
+* New analysis options in StructureGraph, speed up tests (@mkhorton)
+* New utility function to pretty print disordered formulae, along with a
+  ordered-to-disordered structure transformation (@mkhorton)
+* Ability to use pymatgen's StructureMatcher against AFLOW's library of
+  crystallographic prototypes (@mkhorton)
+* Make Chgcar serializable to/from dict for database insertion (@jmmshn)
+
+v2018.9.19
+----------
+* Fix to composition handling in `MolecularOrbitals` (@dyllamt)
+* Fix to allow mixed compressed/uncompressed loading of VASP band structures (@ajjackson)
+* New features and fixes to `chemenv` analysis module (@davidwaroquiers)
+* Fix to include structure predictor data with pip/conda-installed pymatgen (@shyamd)
+* Fixes to `Defect` objects, icluding allowing rotational supercell transformations (@dbroberg)
+* Fix to `BSDOSPlotter` to correctly fill in parts of DOS (@fraricci)
+* Added '@' notation parsing in `Composition` (@tamuhey)
+* BibTex reference extraction updated in `CifParser` to support ICSD CIFs (@shyamd)
+* Various updates to speed up and fix test suite (@shyuep, @fraricci)
+* Improvements to BoltzTraP 2 support (@shyuep, @fraricci)
+
+v2018.9.12
+----------
+* Use boltztrap2 (@fraricci)
+* Refactoring of tensor code to core (@montoyjh)
+* Support for new Lobster version (@JaGeo)
+* Misc bug fixes
+
+v2018.8.10
+----------
+* Bug fix for pymatgen.analysis.gb and pymatgen.io.lammps.
+
+v2018.8.7
+---------
+* Massive refactoring of LAMMPS support. (@adengz)
+* Allow kwargs passthrough for Structure.to.
+* Updates to ABINIT support (@gmatteo)
+* GrainBoundaryTransformation class. (@Tinaatucsd)
+
+v2018.7.15
+----------
+* Grain boundary generator (Xiangguo Li @ucsdlxg)
+* Massive updates to defect code and new DefectTransformation  
+  (@shyamd)
+* Bug fix for OUTCAR parsing with more than one space in 
+  electrostatic potential. 
+* get_fermi_interextrapolated to support wider range of 
+  input doping (@albalu)
+* Update to cython compile to support Py3.7.
+* Update VoronoiNN cutoff dynamically (@computron)
+
+v2018.6.27
+----------
+* Improved local_env and MoleculeGraph (@WardLT, @espottesmith) 
+* Improve BabelMolAdaptor with conformer search and other functions (@Qi-Max)
+* Improved surface analysis (@richardtran415)
+
+v2018.6.11
+----------
+* Updates to ABINIT support for 8.1.3
+* Updates to Interface analyzer.
+* Fix bug in deserialization of ComputedStructureEntry.
+* Misc bug fixes.
+
+v2018.5.22
+----------
+* Misc bug fixes.
+
+v2018.5.21
+----------
+* Bug-fix for missing HHI data file.
+* Misc bug fixes.
+
+v2018.5.14
+----------
+* Dash docs now avaiable for pymatgen. See pymatgen.org "Offline docs" section
+  for details.
+* Better CrystalNN. (Anubhav Jain)
+* Fixes for elastic module. (Joseph Montoya)
+
 v2018.5.3
 ---------
 * Improvements to qchem (@samblau).

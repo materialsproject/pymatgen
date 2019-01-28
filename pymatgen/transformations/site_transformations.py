@@ -2,10 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
-
-from six.moves import map
-from six.moves import zip
 
 import math
 import itertools

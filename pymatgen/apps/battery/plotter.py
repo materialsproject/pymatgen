@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 """
 This module provides plotting capabilities for battery related applications.
@@ -21,7 +20,7 @@ from collections import OrderedDict
 from pymatgen.util.plotting import pretty_plot
 
 
-class VoltageProfilePlotter(object):
+class VoltageProfilePlotter:
     """
     A plotter to make voltage profile plots for batteries.
 

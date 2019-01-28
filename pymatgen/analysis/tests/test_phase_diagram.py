@@ -2,15 +2,11 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals
 
 import unittest
 import os
 from numbers import Number
-import matplotlib
 import warnings
-
-matplotlib.use("pdf")
 
 from pymatgen.analysis.phase_diagram import *
 from pymatgen.core.periodic_table import Element, DummySpecie
@@ -135,7 +131,7 @@ class PhaseDiagramTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_init(self):
         # Ensure that a bad set of entries raises a PD error. Remove all Li
@@ -379,6 +375,25 @@ class PhaseDiagramTest(unittest.TestCase):
         calc_e2 = e1 + sum(cp[k] * v for k, v in (c2 - c1).items())
         self.assertAlmostEqual(e2, calc_e2)
 
+    def test_get_all_chempots(self):
+        c1 = Composition('Fe3.1O4')
+        c2 = Composition('FeO')
+
+        cp1 = self.pd.get_all_chempots(c1)
+        cpresult = {Element("Li"): -4.077061954999998,
+                    Element("Fe"): -6.741593864999999,
+                    Element("O"): -6.969907375000003}
+
+        for elem, energy in cpresult.items():
+            self.assertAlmostEqual(cp1['FeO-LiFeO2-Fe3O4'][elem],energy)
+
+        cp2 = self.pd.get_all_chempots(c2)
+        cpresult = {Element("O"): -7.115354140000001,
+                    Element("Fe"): -6.5961471,
+                    Element("Li"): -3.9316151899999987}
+
+        for elem, energy in cpresult.items():
+            self.assertAlmostEqual(cp2['FeO-LiFeO2-Fe'][elem],energy)
 
 class GrandPotentialPhaseDiagramTest(unittest.TestCase):
     def setUp(self):

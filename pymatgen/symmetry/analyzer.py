@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
 import itertools
 import logging
 from collections import defaultdict
@@ -15,7 +14,6 @@ from fractions import Fraction
 
 import numpy as np
 
-from six.moves import filter, map, zip
 import spglib
 
 from pymatgen.core.structure import Structure, Molecule
@@ -47,14 +45,14 @@ __date__ = "May 14, 2016"
 logger = logging.getLogger(__name__)
 
 
-class SpacegroupAnalyzer(object):
+class SpacegroupAnalyzer:
     """
     Takes a pymatgen.core.structure.Structure object and a symprec.
     Uses pyspglib to perform various symmetry finding operations.
 
     Args:
         structure (Structure/IStructure): Structure to find symmetry
-        symprec (float): Tolerance for symmetry finding. Defaults to 1e-3,
+        symprec (float): Tolerance for symmetry finding. Defaults to 0.01,
             which is fairly strict and works well for properly refined
             structures with atoms in the proper symmetry coordinates. For
             structures with slight deviations from their proper atomic
@@ -380,23 +378,24 @@ class SpacegroupAnalyzer(object):
                             tmp_map.count(i)))
         return results
 
-    def get_primitive_standard_structure(self, international_monoclinic=True):
+    def get_conventional_to_primitive_transformation_matrix(self, international_monoclinic=True):
         """
-        Gives a structure with a primitive cell according to certain standards
+        Gives the transformation matrix to transform a conventional
+        unit cell to a primitive cell according to certain standards
         the standards are defined in Setyawan, W., & Curtarolo, S. (2010).
         High-throughput electronic band structure calculations:
         Challenges and tools. Computational Materials Science,
         49(2), 299-312. doi:10.1016/j.commatsci.2010.05.010
 
         Returns:
-            The structure in a primitive standardized cell
+            Transformation matrix to go from conventional to primitive cell
         """
         conv = self.get_conventional_standard_structure(
             international_monoclinic=international_monoclinic)
         lattice = self.get_lattice_type()
 
         if "P" in self.get_space_group_symbol() or lattice == "hexagonal":
-            return conv
+            return np.eye(3)
 
         if lattice == "rhombohedral":
             # check if the conventional representation is hexagonal or
@@ -423,6 +422,29 @@ class SpacegroupAnalyzer(object):
                                   dtype=np.float) / 2
         else:
             transf = np.eye(3)
+
+        return transf
+
+    def get_primitive_standard_structure(self, international_monoclinic=True):
+        """
+        Gives a structure with a primitive cell according to certain standards
+        the standards are defined in Setyawan, W., & Curtarolo, S. (2010).
+        High-throughput electronic band structure calculations:
+        Challenges and tools. Computational Materials Science,
+        49(2), 299-312. doi:10.1016/j.commatsci.2010.05.010
+
+        Returns:
+            The structure in a primitive standardized cell
+        """
+        conv = self.get_conventional_standard_structure(
+            international_monoclinic=international_monoclinic)
+        lattice = self.get_lattice_type()
+
+        if "P" in self.get_space_group_symbol() or lattice == "hexagonal":
+            return conv
+
+        transf = self.get_conventional_to_primitive_transformation_matrix(\
+            international_monoclinic=international_monoclinic)
 
         new_sites = []
         latt = Lattice(np.dot(transf, conv.lattice.matrix))
@@ -798,7 +820,7 @@ class SpacegroupAnalyzer(object):
         return str(self.get_point_group_symbol()) in laue
 
 
-class PointGroupAnalyzer(object):
+class PointGroupAnalyzer:
     """
     A class to analyze the point group of a molecule. The general outline of
     the algorithm is as follows:

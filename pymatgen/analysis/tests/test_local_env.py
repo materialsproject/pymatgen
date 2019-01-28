@@ -1,22 +1,31 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
-from __future__ import unicode_literals
+import warnings
 
 import numpy as np
+from math import pi
 import unittest
 import os
 
+from monty.os.path import which
+
 from pymatgen.analysis.local_env import ValenceIonicRadiusEvaluator, \
-    VoronoiNN, VoronoiNN_modified, JMolNN, \
-    MinimumDistanceNN, MinimumOKeeffeNN, MinimumVIRENN, \
+    VoronoiNN, JmolNN, MinimumDistanceNN, OpenBabelNN, CovalentBondNN,\
+    MinimumOKeeffeNN, MinimumVIRENN, \
     get_neighbors_of_site_with_index, site_is_of_motif_type, \
     NearNeighbors, LocalStructOrderParams, BrunnerNN_reciprocal, \
-    BrunnerNN_real, BrunnerNN_relative, EconNN, CrystalNN
-from pymatgen import Element, Structure, Lattice
+    BrunnerNN_real, BrunnerNN_relative, EconNN, CrystalNN, CutOffDictNN, \
+    Critic2NN, solid_angle
+from pymatgen import Element, Molecule, Structure, Lattice
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.cif import CifParser
+
+try:
+    import openbabel as ob
+    import pybel as pb
+except ImportError:
+    pb = None
+    ob = None
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -54,6 +63,9 @@ class VoronoiNNTest(PymatgenTest):
     def setUp(self):
         self.s = self.get_structure('LiFePO4')
         self.nn = VoronoiNN(targets=[Element("O")])
+        self.s_sic = self.get_structure('Si')
+        self.s_sic["Si"] =  {'Si': 0.5, 'C': 0.5}
+        self.nn_sic = VoronoiNN()
 
     def test_get_voronoi_polyhedra(self):
         self.assertEqual(len(self.nn.get_voronoi_polyhedra(self.s, 0).items()), 8)
@@ -61,6 +73,8 @@ class VoronoiNNTest(PymatgenTest):
     def test_get_cn(self):
         self.assertAlmostEqual(self.nn.get_cn(
                 self.s, 0, use_weights=True), 5.809265748999465, 7)
+        self.assertAlmostEqual(self.nn_sic.get_cn(
+                self.s_sic, 0, use_weights=True), 4.5381161643940668, 7)
 
     def test_get_coordinated_sites(self):
         self.assertEqual(len(self.nn.get_nn(self.s, 0)), 8)
@@ -80,6 +94,7 @@ class VoronoiNNTest(PymatgenTest):
             for nn in self.nn.get_voronoi_polyhedra(self.s, n).values():
                 angle += nn['solid_angle']
             self.assertAlmostEqual(4 * np.pi, angle)
+        self.assertEqual(solid_angle([0,0,0], [[1,0,0],[-1,0,0],[0,1,0]]), pi)
 
     def test_nn_shell(self):
         # First, make a SC lattice. Make my math easier
@@ -126,16 +141,96 @@ class VoronoiNNTest(PymatgenTest):
                                np.sum([x['weight'] for x in nns if x['site_index'] == 0]),
                                places=3)
 
+    def test_adj_neighbors(self):
+        # Make a simple cubic structure
+        s = Structure([[1, 0, 0], [0, 1, 0], [0, 0, 1]], ['Cu'], [[0, 0, 0]])
+
+        # Compute the NNs with adjacency
+        self.nn.targets = None
+        neighbors = self.nn.get_voronoi_polyhedra(s, 0)
+
+        # Each neighbor has 4 adjacent neighbors, all orthogonal
+        for nn_key, nn_info in neighbors.items():
+            self.assertEqual(4, len(nn_info['adj_neighbors']))
+
+            for adj_key in nn_info['adj_neighbors']:
+                self.assertEqual(0, np.dot(nn_info['normal'], neighbors[adj_key]['normal']))
+
+    def test_all_at_once(self):
+        # Get all of the sites for LiFePO4
+        all_sites = self.nn.get_all_voronoi_polyhedra(self.s)
+
+        # Make sure they are the same as the single-atom ones
+        for i, site in enumerate(all_sites):
+            # Compute the tessellation using only one site
+            by_one = self.nn.get_voronoi_polyhedra(self.s, i)
+
+            # Match the coordinates the of the neighbors, as site matching does not seem to work?
+            all_coords = np.sort([x['site'].coords for x in site.values()], axis=0)
+            by_one_coords = np.sort([x['site'].coords for x in by_one.values()], axis=0)
+
+            self.assertArrayAlmostEqual(all_coords, by_one_coords)
+
+        # Test the nn_info operation
+        all_nn_info = self.nn.get_all_nn_info(self.s)
+        for i, info in enumerate(all_nn_info):
+            # Compute using the by-one method
+            by_one = self.nn.get_nn_info(self.s, i)
+
+            # Get the weights
+            all_weights = sorted([x['weight'] for x in info])
+            by_one_weights = sorted([x['weight'] for x in by_one])
+
+            self.assertArrayAlmostEqual(all_weights, by_one_weights)
+
+    def test_Cs2O(self):
+        """A problematic structure in the Materials Project"""
+        strc = Structure([[4.358219, 0.192833, 6.406960], [2.114414, 3.815824, 6.406960],
+                          [0.311360, 0.192833, 7.742498]],
+                         ['O', 'Cs', 'Cs'],
+                         [[0, 0, 0], [0.264318, 0.264318, 0.264318], [0.735682, 0.735682, 0.735682]],
+                         coords_are_cartesian=False)
+
+        # Compute the voronoi tessellation
+        result = VoronoiNN().get_all_voronoi_polyhedra(strc)
+        self.assertEqual(3, len(result))
+
+    def test_filtered(self):
+        nn = VoronoiNN(weight='area')
+
+        # Make a bcc crystal
+        bcc = Structure([[1, 0, 0], [0, 1, 0], [0, 0, 1]], ['Cu', 'Cu'],
+                        [[0, 0, 0], [0.5, 0.5, 0.5]], coords_are_cartesian=False)
+
+        # Compute the weight of the little face
+        big_face_area = np.sqrt(3) * 3 / 2 * (2 / 4 / 4)
+        small_face_area = 0.125
+        little_weight = small_face_area / big_face_area
+
+        # Run one test where you get the small neighbors
+        nn.tol = little_weight * 0.99
+        nns = nn.get_nn_info(bcc, 0)
+        self.assertEqual(14, len(nns))
+
+        # Run a second test where we screen out little faces
+        nn.tol = little_weight * 1.01
+        nns = nn.get_nn_info(bcc, 0)
+        self.assertEqual(8, len(nns))
+
+        # Make sure it works for the `get_all` operation
+        all_nns = nn.get_all_nn_info(bcc * [2, 2, 2])
+        self.assertEqual([8,]*16, [len(x) for x in all_nns])
+
     def tearDown(self):
         del self.s
         del self.nn
 
 
-class JMolNNTest(PymatgenTest):
+class JmolNNTest(PymatgenTest):
 
     def setUp(self):
-        self.jmol = JMolNN()
-        self.jmol_update = JMolNN(el_radius_updates={"Li": 1})
+        self.jmol = JmolNN()
+        self.jmol_update = JmolNN(el_radius_updates={"Li": 1})
 
     def test_get_nn(self):
         s = self.get_structure('LiFePO4')
@@ -164,6 +259,85 @@ class JMolNNTest(PymatgenTest):
     def tearDown(self):
         del self.jmol
         del self.jmol_update
+
+
+class OpenBabelNNTest(PymatgenTest):
+
+    def setUp(self):
+        self.benzene = Molecule.from_file(os.path.join(test_dir, "benzene.xyz"))
+        self.acetylene = Molecule.from_file(os.path.join(test_dir, "acetylene.xyz"))
+
+    @unittest.skipIf((not (ob and pb)) or (not which("babel")),
+                     "OpenBabel not installed.")
+    def test_nn_orders(self):
+        strat = OpenBabelNN()
+
+        acetylene = strat.get_nn_info(self.acetylene, 0)
+        self.assertEqual(acetylene[0]["weight"], 3)
+        self.assertEqual(acetylene[1]["weight"], 1)
+
+        # Currently, benzene bonds register either as double or single,
+        # not aromatic
+        # Instead of searching for aromatic bonds, we check that bonds are
+        # detected in the same way from both sides
+        self.assertEqual(strat.get_nn_info(self.benzene, 0)[0]["weight"],
+                         strat.get_nn_info(self.benzene, 1)[0]["weight"])
+
+    @unittest.skipIf((not (ob and pb)) or (not which("babel")),
+                     "OpenBabel not installed.")
+    def test_nn_length(self):
+        strat = OpenBabelNN(order=False)
+
+        benzene_bonds = strat.get_nn_info(self.benzene, 0)
+
+        c_bonds = [b for b in benzene_bonds if str(b["site"].specie) == "C"]
+        h_bonds = [b for b in benzene_bonds if str(b["site"].specie) == "H"]
+
+        self.assertAlmostEqual(c_bonds[0]["weight"], 1.41, 2)
+        self.assertAlmostEqual(h_bonds[0]["weight"], 1.02, 2)
+
+        self.assertAlmostEqual(strat.get_nn_info(self.acetylene, 0)[0]["weight"],
+                               1.19,
+                               2)
+
+    def tearDown(self):
+        del self.benzene
+        del self.acetylene
+
+
+class CovalentBondNNTest(PymatgenTest):
+
+    def setUp(self):
+        self.benzene = Molecule.from_file(os.path.join(test_dir, "benzene.xyz"))
+        self.acetylene = Molecule.from_file(os.path.join(test_dir, "acetylene.xyz"))
+
+    def test_nn_orders(self):
+        strat = CovalentBondNN()
+
+        acetylene = strat.get_nn_info(self.acetylene, 0)
+        self.assertEqual(acetylene[0]["weight"], 3)
+        self.assertEqual(acetylene[1]["weight"], 1)
+
+        benzene = strat.get_nn_info(self.benzene, 0)
+        self.assertAlmostEqual(benzene[0]["weight"], 1.6596, places=4)
+
+    def test_nn_length(self):
+        strat = CovalentBondNN(order=False)
+
+        benzene_bonds = strat.get_nn_info(self.benzene, 0)
+
+        c_bonds = [b for b in benzene_bonds if str(b["site"].specie) == "C"]
+        h_bonds = [b for b in benzene_bonds if str(b["site"].specie) == "H"]
+
+        self.assertAlmostEqual(c_bonds[0]["weight"], 1.41, 2)
+        self.assertAlmostEqual(h_bonds[0]["weight"], 1.02, 2)
+
+        acetylene = strat.get_nn_info(self.acetylene, 0)
+        self.assertAlmostEqual(acetylene[0]["weight"], 1.19, places=2)
+
+    def tearDown(self):
+        del self.benzene
+        del self.acetylene
 
 
 class MiniDistNNTest(PymatgenTest):
@@ -203,8 +377,8 @@ class MiniDistNNTest(PymatgenTest):
         self.assertAlmostEqual(MinimumDistanceNN(tol=0.1).get_cn(
             self.mos2, 0), 6)
         for image in MinimumDistanceNN(tol=0.1).get_nn_images(self.mos2, 0):
-            self.assertTrue(image in [[0, 0, 0], [0, 1, 0], [-1, 0, 0], \
-                    [0, 0, 0], [0, 1, 0], [-1, 0, 0]])
+            self.assertTrue(image in [(0, 0, 0), (0, 1, 0), (-1, 0, 0),
+                                      (0, 0, 0), (0, 1, 0), (-1, 0, 0)])
 
         self.assertAlmostEqual(MinimumOKeeffeNN(tol=0.01).get_cn(
             self.diamond, 0), 4)
@@ -248,12 +422,21 @@ class MiniDistNNTest(PymatgenTest):
         self.assertAlmostEqual(EconNN(tol=0.01).get_cn(
             self.cscl, 0), 14)
 
-        self.assertAlmostEqual(VoronoiNN_modified().get_cn(
+        self.assertAlmostEqual(VoronoiNN(tol=0.5).get_cn(
             self.diamond, 0), 4)
-        self.assertAlmostEqual(VoronoiNN_modified().get_cn(
+        self.assertAlmostEqual(VoronoiNN(tol=0.5).get_cn(
             self.nacl, 0), 6)
-        self.assertAlmostEqual(VoronoiNN_modified().get_cn(
+        self.assertAlmostEqual(VoronoiNN(tol=0.5).get_cn(
             self.cscl, 0), 8)
+
+    def test_get_local_order_params(self):
+
+        nn = MinimumDistanceNN()
+        ops = nn.get_local_order_parameters(self.diamond, 0)
+        self.assertAlmostEqual(ops['tetrahedral'], 0.9999934389036574)
+
+        ops = nn.get_local_order_parameters(self.nacl, 0)
+        self.assertAlmostEqual(ops['octahedral'], 0.9999995266669)
 
     def tearDown(self):
         del self.diamond
@@ -378,9 +561,11 @@ class NearNeighborTest(PymatgenTest):
         # can't there are probably bigger problems
         subclasses = NearNeighbors.__subclasses__()
         for subclass in subclasses:
-            nn_info = subclass().get_nn_info(self.diamond, 0)
-            self.assertEqual(nn_info[0]['site_index'], 1)
-            self.assertEqual(nn_info[0]['image'][0], 1)
+            # Critic2NN has external dependency, is tested separately
+            if 'Critic2' not in str(subclass):
+                nn_info = subclass().get_nn_info(self.diamond, 0)
+                self.assertEqual(nn_info[0]['site_index'], 1)
+                self.assertEqual(nn_info[0]['image'][0], 1)
 
     def tearDown(self):
         del self.diamond
@@ -572,10 +757,28 @@ class LocalStructOrderParamsTest(PymatgenTest):
             [0.0, 0.0, -1.0], [-1.0, 0.0, 0.0]],
             validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=True, site_properties=None)
+        self.sq_face_capped_trig_pris = Structure(
+            Lattice.from_lengths_and_angles(
+            [30, 30, 30], [90, 90, 90]),
+            ["H", "H", "H", "H", "H", "H", "H", "H"],
+            [[0, 0, 0], [-0.6546536707079771, -0.37796447300922725, 0.6546536707079771],
+            [0.6546536707079771, -0.37796447300922725, 0.6546536707079771],
+            [0.0, 0.7559289460184545, 0.6546536707079771],
+            [-0.6546536707079771, -0.37796447300922725, -0.6546536707079771],
+            [0.6546536707079771, -0.37796447300922725, -0.6546536707079771],
+            [0.0, 0.7559289460184545, -0.6546536707079771], [0.0, -1.0, 0.0]],
+            validate_proximity=False, to_unit_cell=False,
+            coords_are_cartesian=True, site_properties=None)
 
     def test_init(self):
         self.assertIsNotNone(
             LocalStructOrderParams(["cn"], parameters=None, cutoff=0.99))
+
+        parameters = [{'norm': 2}]
+        lostops = LocalStructOrderParams(["cn"], parameters=parameters)
+        tmp = lostops.get_parameters(0)
+        parameters[0]['norm'] = 3
+        self.assertEqual(tmp, lostops.get_parameters(0))
 
     def test_get_order_parameters(self):
         # Set up everything.
@@ -584,7 +787,7 @@ class LocalStructOrderParamsTest(PymatgenTest):
             "tri_plan", "sq_plan", "pent_plan", "sq_pyr", "tri_pyr", \
             "pent_pyr", "hex_pyr", "pent_bipyr", "hex_bipyr", "T", "cuboct", \
             "see_saw_rect", "hex_plan_max", "tet_max", "oct_max", "tri_plan_max", "sq_plan_max", \
-            "pent_plan_max", "cuboct_max", "tet_max"]
+            "pent_plan_max", "cuboct_max", "tet_max", "sq_face_cap_trig_pris"]
         op_params = [None for i in range(len(op_types))]
         op_params[1] = {'TA': 1, 'IGW_TA': 1./0.0667}
         op_params[2] = {'TA': 45./180, 'IGW_TA': 1./0.0667}
@@ -763,6 +966,12 @@ class LocalStructOrderParamsTest(PymatgenTest):
             self.hexagonal_planar, 0, indices_neighs=[1,2,3,4,5,6])
         self.assertAlmostEqual(int(op_vals[26] * 1000 + 0.5), 1000)
 
+        # Square face capped trigonal prism.
+        op_vals = ops_101.get_order_parameters(
+            self.sq_face_capped_trig_pris, 0,
+            indices_neighs=[i for i in range(1, 8)])
+        self.assertAlmostEqual(int(op_vals[34] * 1000 + 0.5), 1000)
+
         # Test providing explicit neighbor lists.
         op_vals = ops_101.get_order_parameters(self.bcc, 0, indices_neighs=[1])
         self.assertIsNotNone(op_vals[0])
@@ -802,6 +1011,11 @@ class CrystalNNTest(PymatgenTest):
         self.lifepo4.add_oxidation_state_by_guess()
         self.he_bcc = self.get_structure('He_BCC')
         self.he_bcc.add_oxidation_state_by_guess()
+        self.prev_warnings = warnings.filters
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.filters = self.prev_warnings
 
     def test_sanity(self):
         with self.assertRaises(ValueError):
@@ -825,13 +1039,29 @@ class CrystalNNTest(PymatgenTest):
     def test_weighted_cn(self):
         cnn = CrystalNN(weighted_cn=True)
         cn_array = []
-        expected_array = [6.0449, 6.0431, 6.0449, 6.0431, 5.6262, 5.6253,
-                          5.6258, 5.6258, 3.9936, 3.9936, 3.9936, 3.9936,
-                          3.9183, 3.7318, 3.7259, 3.781, 3.781, 3.7259,
-                          3.7318, 3.9183, 3.9183, 3.7318, 3.7248, 3.7819,
-                          3.7819, 3.7248, 3.7318, 3.9183]
+
+        expected_array = [5.863, 5.8716, 5.863 , 5.8716, 5.7182, 5.7182, 5.719,
+                          5.7181, 3.991 , 3.991 , 3.991 , 3.9907, 3.5997, 3.525,
+                          3.4133, 3.4714, 3.4727, 3.4133, 3.525 , 3.5997,
+                          3.5997, 3.525 , 3.4122, 3.4738, 3.4728, 3.4109,
+                          3.5259, 3.5997]
         for idx, _ in enumerate(self.lifepo4):
             cn_array.append(cnn.get_cn(self.lifepo4, idx, use_weights=True))
+
+        self.assertArrayAlmostEqual(expected_array, cn_array, 2)
+
+    def test_weighted_cn_no_oxid(self):
+        cnn = CrystalNN(weighted_cn=True)
+        cn_array = []
+        expected_array = [5.8962, 5.8996, 5.8962, 5.8996, 5.7195, 5.7195,
+                          5.7202, 5.7194, 4.0012, 4.0012, 4.0012, 4.0009,
+                          3.3897, 3.2589, 3.1218, 3.1914, 3.1914, 3.1218,
+                          3.2589, 3.3897, 3.3897, 3.2589, 3.1207, 3.1924,
+                          3.1915, 3.1207, 3.2598, 3.3897]
+        s = self.lifepo4.copy()
+        s.remove_oxidation_states()
+        for idx, _ in enumerate(s):
+            cn_array.append(cnn.get_cn(s, idx, use_weights=True))
 
         self.assertArrayAlmostEqual(expected_array, cn_array, 2)
 
@@ -844,21 +1074,61 @@ class CrystalNNTest(PymatgenTest):
     def test_cation_anion(self):
         cnn = CrystalNN(weighted_cn=True, cation_anion=True)
         self.assertAlmostEqual(cnn.get_cn(self.lifepo4, 0, use_weights=True),
-                               5.95829, 2)
+                               5.8630, 2)
 
     def test_x_diff_weight(self):
         cnn = CrystalNN(weighted_cn=True, x_diff_weight=0)
         self.assertAlmostEqual(cnn.get_cn(self.lifepo4, 0, use_weights=True),
-                               6.09831, 2)
+                               5.8630, 2)
 
     def test_noble_gas_material(self):
         cnn = CrystalNN()
-        with self.assertRaises(RuntimeError):
-            cnn.get_cn(self.he_bcc, 0, use_weights=False)
+
+        self.assertEqual(cnn.get_cn(self.he_bcc, 0, use_weights=False), 0)
 
         cnn = CrystalNN(distance_cutoffs=(1.25, 5))
-        self.assertAlmostEqual(cnn.get_cn(self.he_bcc, 0, use_weights=False),
-                               8)
+        self.assertEqual(cnn.get_cn(self.he_bcc, 0, use_weights=False), 8)
+
+
+class CutOffDictNNTest(PymatgenTest):
+
+    def setUp(self):
+        self.diamond = Structure(
+            Lattice([[2.189, 0, 1.264], [0.73, 2.064, 1.264], [0, 0, 2.528]]),
+            ["C", "C"], [[2.554, 1.806, 4.423], [0.365, 0.258, 0.632]],
+            coords_are_cartesian=True
+        )
+
+    def test_cn(self):
+
+        nn = CutOffDictNN({('C', 'C'): 2})
+        self.assertEqual(nn.get_cn(self.diamond, 0), 4)
+
+        nn_null = CutOffDictNN()
+        self.assertEqual(nn_null.get_cn(self.diamond, 0), 0)
+
+    def test_from_preset(self):
+        nn = CutOffDictNN.from_preset("vesta_2019")
+        self.assertEqual(nn.get_cn(self.diamond, 0), 4)
+
+        # test error thrown on unknown preset
+        self.assertRaises(ValueError, CutOffDictNN.from_preset, "test")
+
+
+@unittest.skipIf(not which('critic2'), "critic2 executable not present")
+class Critic2NNTest(PymatgenTest):
+
+    def setUp(self):
+        self.diamond = Structure(
+            Lattice([[2.189, 0, 1.264], [0.73, 2.064, 1.264], [0, 0, 2.528]]),
+            ["C", "C"], [[2.554, 1.806, 4.423], [0.365, 0.258, 0.632]],
+            coords_are_cartesian=True
+        )
+
+    def test_cn(self):
+
+        nn = Critic2NN()
+        #self.assertEqual(nn.get_cn(self.diamond, 0), 4)
 
 
 if __name__ == '__main__':

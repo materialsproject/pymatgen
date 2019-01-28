@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """Tools for the submission of Tasks."""
-from __future__ import unicode_literals, division, print_function
 
 import os
 import time
@@ -11,7 +10,7 @@ import pickle
 
 from collections import deque
 from datetime import timedelta
-from six.moves import cStringIO
+
 from monty.io import get_open_fds
 from monty.string import boxed, is_string
 from monty.os.path import which
@@ -44,7 +43,7 @@ def straceback():
     return traceback.format_exc()
 
 
-class ScriptEditor(object):
+class ScriptEditor:
     """Simple editor that simplifies the writing of shell scripts"""
     _shell = '/bin/bash'
 
@@ -130,7 +129,7 @@ class PyLauncherError(Exception):
     """Error class for PyLauncher."""
 
 
-class PyLauncher(object):
+class PyLauncher:
     """This object handle the submission of the tasks contained in a :class:`Flow`"""
     Error = PyLauncherError
 
@@ -247,7 +246,7 @@ class PyFlowSchedulerError(Exception):
     """Exceptions raised by `PyFlowScheduler`."""
 
 
-class PyFlowScheduler(object):
+class PyFlowScheduler:
     """
     This object schedules the submission of the tasks in a :class:`Flow`.
     There are two types of errors that might occur during the execution of the jobs:
@@ -296,8 +295,9 @@ class PyFlowScheduler(object):
             use_dynamic_manager: "yes" if the :class:`TaskManager` must be re-initialized from
                 file before launching the jobs. (DEFAULT: "no")
             max_njobs_inqueue: Limit on the number of jobs that can be present in the queue. (DEFAULT: 200)
-            remindme_s: The scheduler will send an email to the user specified by `mailto` every `remindme_s` seconds.
-                (int, DEFAULT: 1 day).
+            max_ncores_used: Maximum number of cores that can be used by the scheduler.
+            remindme_s: The scheduler will send an email to the user specified
+                by `mailto` every `remindme_s` seconds. (int, DEFAULT: 1 day).
             max_num_pyexcs: The scheduler will exit if the number of python exceptions is > max_num_pyexcs
                 (int, DEFAULT: 0)
             max_num_abierrs: The scheduler will exit if the number of errored tasks is > max_num_abierrs
@@ -307,7 +307,7 @@ class PyFlowScheduler(object):
             max_nlaunches: Maximum number of tasks launched in a single iteration of the scheduler.
                 (DEFAULT: -1 i.e. no limit)
             debug: Debug level. Use 0 for production (int, DEFAULT: 0)
-            fix_qcritical: "yes" if the launcher should try to fix QCritical Errors (DEFAULT: "yes")
+            fix_qcritical: "yes" if the launcher should try to fix QCritical Errors (DEFAULT: "no")
             rmflow: If "yes", the scheduler will remove the flow directory if the calculation
                 completed successfully. (DEFAULT: "no")
             killjobs_if_errors: "yes" if the scheduler should try to kill all the runnnig jobs
@@ -339,7 +339,7 @@ class PyFlowScheduler(object):
         #self.max_etime_s = kwargs.pop("max_etime_s", )
         self.max_nlaunches = kwargs.pop("max_nlaunches", -1)
         self.debug = kwargs.pop("debug", 0)
-        self.fix_qcritical = as_bool(kwargs.pop("fix_qcritical", True))
+        self.fix_qcritical = as_bool(kwargs.pop("fix_qcritical", False))
         self.rmflow = as_bool(kwargs.pop("rmflow", False))
         self.killjobs_if_errors = as_bool(kwargs.pop("killjobs_if_errors", True))
 
@@ -707,8 +707,9 @@ class PyFlowScheduler(object):
             if retcode:
                 # Cannot send mail, shutdown now!
                 msg += ("\nThe scheduler tried to send an e-mail to remind the user\n" +
-                        " but send_email returned %d. Aborting now" % retcode)
-                err_lines.append(msg)
+                        " but send_email returned %d. Error is not critical though!" % retcode)
+                print(msg)
+                #err_lines.append(msg)
 
         #if delta_etime.total_seconds() > self.max_etime_s:
         #    err_lines.append("\nExceeded max_etime_s %s. Will shutdown the scheduler and exit" % self.max_etime_s)
@@ -740,7 +741,8 @@ class PyFlowScheduler(object):
             self.flow.check_status()
 
             g = self.flow.find_deadlocks()
-            print("deadlocked:\n", g.deadlocked, "\nrunnables:\n", g.runnables, "\nrunning\n", g.running)
+            #print("deadlocked:\n", g.deadlocked, "\nrunnables:\n", g.runnables, "\nrunning\n", g.running)
+            print("deadlocked:", len(g.deadlocked), ", runnables:", len(g.runnables), ", running:", len(g.running))
             if g.deadlocked and not g.runnables and not g.running:
                 err_lines.append("No runnable job with deadlocked tasks:\n%s." % str(g.deadlocked))
 
@@ -946,7 +948,7 @@ class BatchLauncherError(Exception):
     """Exceptions raised by :class:`BatchLauncher`."""
 
 
-class BatchLauncher(object):
+class BatchLauncher:
     """
     This object automates the execution of multiple flow. It generates a job script
     that uses abirun.py to run each flow stored in self with a scheduler.

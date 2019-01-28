@@ -2,7 +2,6 @@
 # Copyright (c) AiiDA Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import absolute_import
 
 """
 This module provides conversion between AiiDA StructureData object and
@@ -32,7 +31,7 @@ except ImportError:
 
 @requires(aiida_loaded, "To use the AiidaStructureAdaptor, you need to have "
                         "aiida installed.")
-class AiidaStructureAdaptor(object):
+class AiidaStructureAdaptor:
     """
     Adaptor serves as a bridge between AiiDA StructureData and pymatgen
     Molecule/Structure objects.

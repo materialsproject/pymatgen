@@ -2,13 +2,11 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
 import logging
 import math
 import itertools
 import warnings
 from collections import OrderedDict
-import six
 
 import numpy as np
 
@@ -39,7 +37,7 @@ __date__ = "May 1, 2012"
 logger = logging.getLogger(__name__)
 
 
-class DosPlotter(object):
+class DosPlotter:
     """
     Class for plotting DOSs. Note that the interface is extremely flexible
     given that there are many different ways in which people want to view
@@ -242,7 +240,7 @@ class DosPlotter(object):
         plt.show()
 
 
-class BSPlotter(object):
+class BSPlotter:
     """
     Class to plot or get data to facilitate the plot of band structure objects.
 
@@ -1555,7 +1553,7 @@ class BSPlotterProjected(BSPlotter):
                             raise ValueError(
                                 "The dictio[%s] is empty. We cannot do anything" % elt)
                         for orb in dictio[elt]:
-                            if not isinstance(orb, six.string_types):
+                            if not isinstance(orb, str):
                                 raise ValueError(
                                     "The invalid format of orbitals is in 'dictio[%s]': %s. "
                                     "They should be string." % (elt, str(orb)))
@@ -1592,7 +1590,7 @@ class BSPlotterProjected(BSPlotter):
                 if Element.is_valid_symbol(elt):
                     if isinstance(sum_morbs[elt], list):
                         for orb in sum_morbs[elt]:
-                            if not isinstance(orb, six.string_types):
+                            if not isinstance(orb, str):
                                 raise TypeError(
                                     "The invalid format of orbitals is in 'sum_morbs[%s]': %s. "
                                     "They should be string." % (elt, str(orb)))
@@ -1917,7 +1915,7 @@ class BSPlotterProjected(BSPlotter):
                     _sites = self._bs.structure.sites
                     indices = []
                     for i in range(0, len(_sites)):
-                        if _sites[i]._species.keys()[0].__eq__(Element(elt)):
+                        if list(_sites[i]._species.keys())[0].__eq__(Element(elt)):
                             indices.append(i + 1)
                     flag_1 = len(set(dictpa[elt]).intersection(indices))
                     flag_2 = len(set(sum_atoms[elt]).intersection(indices))
@@ -1967,7 +1965,7 @@ class BSPlotterProjected(BSPlotter):
                     _sites = self._bs.structure.sites
                     indices = []
                     for i in range(0, len(_sites)):
-                        if _sites[i]._species.keys()[0].__eq__(Element(elt)):
+                        if list(_sites[i]._species.keys())[0].__eq__(Element(elt)):
                             indices.append(i + 1)
                     flag_1 = len(set(dictpa[elt]).intersection(indices))
                     flag_2 = len(set(sum_atoms[elt]).intersection(indices))
@@ -2094,7 +2092,7 @@ class BSPlotterProjected(BSPlotter):
         return plt, shift
 
 
-class BSDOSPlotter(object):
+class BSDOSPlotter:
     """
     A joint, aligned band structure and density of states plot. Contributions 
     from Jan Pohls as well as the online example from Germain Salvato-Vallverdu:
@@ -2296,12 +2294,15 @@ class BSDOSPlotter(object):
                     label = "total" if spin == Spin.up else None
                     dos_ax.plot(dos_densities, dos_energies,
                                 color=(0.6, 0.6, 0.6), label=label)
-                    dos_ax.fill_between(dos_densities, 0, dos_energies,
+                    dos_ax.fill_betweenx(dos_energies, 0,dos_densities,
                                         color=(0.7, 0.7, 0.7),
                                         facecolor=(0.7, 0.7, 0.7))
 
-                    # plot the atom-projected DOS
-                    if self.dos_projection.lower() == "elements":
+                    if self.dos_projection is None:
+                        pass
+
+                    elif self.dos_projection.lower() == "elements":
+                        # plot the atom-projected DOS
                         colors = ['b', 'r', 'g', 'm', 'y', 'c', 'k', 'w']
                         el_dos = dos.get_element_dos()
                         for idx, el in enumerate(elements):
@@ -2473,7 +2474,7 @@ class BSDOSPlotter(object):
         if not loc in range(1, 11):
             loc = 2
 
-        from mpl_toolkits.axes_grid.inset_locator import inset_axes
+        from mpl_toolkits.axes_grid1.inset_locator import inset_axes
         inset_ax = inset_axes(ax, width=1, height=1, loc=loc)
         mesh = 35
         x = []
@@ -2520,7 +2521,7 @@ class BSDOSPlotter(object):
 
         if not loc in range(1, 11):
             loc = 2
-        from mpl_toolkits.axes_grid.inset_locator import inset_axes
+        from mpl_toolkits.axes_grid1.inset_locator import inset_axes
         inset_ax = inset_axes(ax, width=1.2, height=0.4, loc=loc)
 
         x = []
@@ -2546,7 +2547,7 @@ class BSDOSPlotter(object):
         inset_ax.get_yaxis().set_visible(False)
 
 
-class BoltztrapPlotter(object):
+class BoltztrapPlotter:
     # TODO: We need a unittest for this. Come on folks.
     """
     class containing methods to plot the data from Boltztrap.
@@ -2880,7 +2881,7 @@ class BoltztrapPlotter(object):
             sbk = self._bz.get_seebeck(output='eigs')
 
         plt.figure(figsize=(22, 14))
-        tlist = np.sort(sbk['n'].keys())
+        tlist = sorted(sbk['n'].keys())
         doping = self._bz.doping['n'] if doping == 'all' else doping
         for i, dt in enumerate(['n', 'p']):
             plt.subplot(121 + i)
@@ -2937,7 +2938,7 @@ class BoltztrapPlotter(object):
                                              output='eigs')
 
         plt.figure(figsize=(22, 14))
-        tlist = np.sort(cond['n'].keys())
+        tlist = sorted(cond['n'].keys())
         doping = self._bz.doping['n'] if doping == 'all' else doping
         for i, dt in enumerate(['n', 'p']):
             plt.subplot(121 + i)
@@ -2995,7 +2996,7 @@ class BoltztrapPlotter(object):
                                            output='eigs')
 
         plt.figure(figsize=(22, 14))
-        tlist = np.sort(pf['n'].keys())
+        tlist = sorted(pf['n'].keys())
         doping = self._bz.doping['n'] if doping == 'all' else doping
         for i, dt in enumerate(['n', 'p']):
             plt.subplot(121 + i)
@@ -3050,7 +3051,7 @@ class BoltztrapPlotter(object):
             zt = self._bz.get_zt(relaxation_time=relaxation_time, output='eigs')
 
         plt.figure(figsize=(22, 14))
-        tlist = np.sort(zt['n'].keys())
+        tlist = sorted(zt['n'].keys())
         doping = self._bz.doping['n'] if doping == 'all' else doping
         for i, dt in enumerate(['n', 'p']):
             plt.subplot(121 + i)
@@ -3102,7 +3103,7 @@ class BoltztrapPlotter(object):
             em = self._bz.get_average_eff_mass(output='eigs')
 
         plt.figure(figsize=(22, 14))
-        tlist = np.sort(em['n'].keys())
+        tlist = sorted(em['n'].keys())
         doping = self._bz.doping['n'] if doping == 'all' else doping
         for i, dt in enumerate(['n', 'p']):
             plt.subplot(121 + i)
@@ -3152,7 +3153,7 @@ class BoltztrapPlotter(object):
         elif output == 'eigs':
             sbk = self._bz.get_seebeck(output='eigs')
 
-        tlist = np.sort(sbk['n'].keys()) if temps == 'all' else temps
+        tlist = sorted(sbk['n'].keys()) if temps == 'all' else temps
         plt.figure(figsize=(22, 14))
         for i, dt in enumerate(['n', 'p']):
             plt.subplot(121 + i)
@@ -3205,7 +3206,7 @@ class BoltztrapPlotter(object):
             cond = self._bz.get_conductivity(relaxation_time=relaxation_time,
                                              output='eigs')
 
-        tlist = np.sort(cond['n'].keys()) if temps == 'all' else temps
+        tlist = sorted(cond['n'].keys()) if temps == 'all' else temps
         plt.figure(figsize=(22, 14))
         for i, dt in enumerate(['n', 'p']):
             plt.subplot(121 + i)
@@ -3257,7 +3258,7 @@ class BoltztrapPlotter(object):
             pf = self._bz.get_power_factor(relaxation_time=relaxation_time,
                                            output='eigs')
 
-        tlist = np.sort(pf['n'].keys()) if temps == 'all' else temps
+        tlist = sorted(pf['n'].keys()) if temps == 'all' else temps
         plt.figure(figsize=(22, 14))
         for i, dt in enumerate(['n', 'p']):
             plt.subplot(121 + i)
@@ -3308,7 +3309,7 @@ class BoltztrapPlotter(object):
         elif output == 'eigs':
             zt = self._bz.get_zt(relaxation_time=relaxation_time, output='eigs')
 
-        tlist = np.sort(zt['n'].keys()) if temps == 'all' else temps
+        tlist = sorted(zt['n'].keys()) if temps == 'all' else temps
         plt.figure(figsize=(22, 14))
         for i, dt in enumerate(['n', 'p']):
             plt.subplot(121 + i)
@@ -3359,7 +3360,7 @@ class BoltztrapPlotter(object):
         elif output == 'eigs':
             em = self._bz.get_average_eff_mass(output='eigs')
 
-        tlist = np.sort(em['n'].keys()) if temps == 'all' else temps
+        tlist = sorted(em['n'].keys()) if temps == 'all' else temps
         plt.figure(figsize=(22, 14))
         for i, dt in enumerate(['n', 'p']):
             plt.subplot(121 + i)
@@ -3414,7 +3415,7 @@ class BoltztrapPlotter(object):
         """
         import matplotlib.pyplot as plt
         plt.semilogy(self._bz.mu_steps,
-                     abs(self._bz.carrier_conc[temp] / (self._bz.vol * 1e-24)),
+                     abs(self._bz._carrier_conc[temp] / (self._bz.vol * 1e-24)),
                      linewidth=3.0, color='r')
         self._plot_bg_limits()
         self._plot_doping(temp)
@@ -3453,7 +3454,7 @@ class BoltztrapPlotter(object):
         return plt
 
 
-class CohpPlotter(object):
+class CohpPlotter:
     """
     Class for plotting crystal orbital Hamilton populations (COHPs) or
     crystal orbital overlap populations (COOPs). It is modeled after the
@@ -3755,7 +3756,7 @@ def plot_fermi_surface(data, structure, cbm, energy_levels=[],
                                 for x in bz[jface]):
                         mlab.plot3d(*zip(line[0], line[1]), color=(0, 0, 0),
                                     tube_radius=None, figure=fig)
-        for label, coords in kpoints_dict.iteritems():
+        for label, coords in kpoints_dict.items():
             label_coords = structure.lattice.reciprocal_lattice \
                 .get_cartesian_coords(coords)
             mlab.points3d(*label_coords, scale_factor=points_scale_factor,
@@ -3777,7 +3778,7 @@ def plot_fermi_surface(data, structure, cbm, energy_levels=[],
                             mlab.plot3d(*zip(line[0], line[1]), color=(0, 0, 0),
                                         tube_radius=None, figure=fig)
 
-            for label, coords in kpoints_dict.iteritems():
+            for label, coords in kpoints_dict.items():
                 label_coords = structure.lattice.reciprocal_lattice \
                     .get_cartesian_coords(coords)
                 mlab.points3d(*label_coords, scale_factor=points_scale_factor,
@@ -3800,7 +3801,8 @@ def plot_fermi_surface(data, structure, cbm, energy_levels=[],
 
         polydata.points = (np.array(polydata.points) - [cx, cy, cz]) * 2
 
-        mlab.view(distance='auto')
+        #mlab.view(distance='auto')
+        fig.scene.isometric_view() 
     if interative == True:
         mlab.show()
 

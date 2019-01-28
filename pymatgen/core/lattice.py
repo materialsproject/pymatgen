@@ -2,11 +2,16 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import math
 import itertools
+import warnings
 
-from six.moves import map, zip
+from functools import reduce
+from math import gcd
+
+from fractions import Fraction
+
+
 
 import numpy as np
 from numpy.linalg import inv
@@ -30,7 +35,6 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 
-
 class Lattice(MSONable):
     """
     A lattice object.  Essentially a matrix with conversion matrices. In
@@ -39,7 +43,6 @@ class Lattice(MSONable):
     """
 
     # Properties lazily generated for efficiency.
-
 
     def __init__(self, matrix):
         """
@@ -165,10 +168,9 @@ class Lattice(MSONable):
             d_hkl (float)
         """
 
-        g = 0
-        for i, gi in enumerate(self.reciprocal_lattice.matrix):
-            g += (gi / (2 * np.pi)) * miller_index[i]
-        return 1 / (np.dot(g, g) ** (1 / 2))
+        gstar = self.reciprocal_lattice_crystallographic.metric_tensor
+        hkl = np.array(miller_index)
+        return 1 / ((np.dot(np.dot(hkl, gstar), hkl.T)) ** (1 / 2))
 
     @staticmethod
     def cubic(a):
@@ -358,7 +360,7 @@ class Lattice(MSONable):
     @property
     def a(self):
         """
-        *a* lattice parameter.ATATClusterExpansion
+        *a* lattice parameter.
         """
         return self._lengths[0]
 
@@ -550,7 +552,7 @@ class Lattice(MSONable):
         (lengths, angles) = other_lattice.lengths_and_angles
         (alpha, beta, gamma) = angles
 
-        frac, dist, _ = self.get_points_in_sphere([[0, 0, 0]], [0, 0, 0],
+        frac, dist, _, _ = self.get_points_in_sphere([[0, 0, 0]], [0, 0, 0],
                                                   max(lengths) * (1 + ltol),
                                                   zip_results=False)
         cart = self.get_cartesian_coords(frac)
@@ -991,36 +993,43 @@ class Lattice(MSONable):
 
         Returns:
             if zip_results:
-                [(fcoord, dist, index) ...] since most of the time, subsequent
-                processing requires the distance.
+                [(fcoord, dist, index, supercell_image) ...] since most of the time, subsequent
+                processing requires the distance, index number of the atom, or index of the image
             else:
-                fcoords, dists, inds
+                fcoords, dists, inds, image
         """
         # TODO: refactor to use lll matrix (nmax will be smaller)
+        # Determine the maximum number of supercells in each direction
+        #  required to contain a sphere of radius n
         recp_len = np.array(self.reciprocal_lattice.abc) / (2 * pi)
         nmax = float(r) * recp_len + 0.01
 
+        # Get the fractional coordinates of the center of the sphere
         pcoords = self.get_fractional_coords(center)
         center = np.array(center)
 
+        # Prepare the list of output atoms
         n = len(frac_points)
         fcoords = np.array(frac_points) % 1
         indices = np.arange(n)
 
+        # Generate all possible images that could be within `r` of `center`
         mins = np.floor(pcoords - nmax)
         maxes = np.ceil(pcoords + nmax)
-        arange = np.arange(start=mins[0], stop=maxes[0])
-        brange = np.arange(start=mins[1], stop=maxes[1])
-        crange = np.arange(start=mins[2], stop=maxes[2])
-        arange = arange[:, None] * np.array([1, 0, 0])[None, :]
-        brange = brange[:, None] * np.array([0, 1, 0])[None, :]
-        crange = crange[:, None] * np.array([0, 0, 1])[None, :]
+        arange = np.arange(start=mins[0], stop=maxes[0], dtype=np.int)
+        brange = np.arange(start=mins[1], stop=maxes[1], dtype=np.int)
+        crange = np.arange(start=mins[2], stop=maxes[2], dtype=np.int)
+        arange = arange[:, None] * np.array([1, 0, 0], dtype=np.int)[None, :]
+        brange = brange[:, None] * np.array([0, 1, 0], dtype=np.int)[None, :]
+        crange = crange[:, None] * np.array([0, 0, 1], dtype=np.int)[None, :]
         images = arange[:, None, None] + brange[None, :, None] +\
             crange[None, None, :]
 
+        # Generate the coordinates of all atoms within these images
         shifted_coords = fcoords[:, None, None, None, :] + \
             images[None, :, :, :, :]
 
+        # Determine distance from `center`
         cart_coords = self.get_cartesian_coords(fcoords)
         cart_images = self.get_cartesian_coords(images)
         coords = cart_coords[:, None, None, None, :] + \
@@ -1029,13 +1038,19 @@ class Lattice(MSONable):
         coords **= 2
         d_2 = np.sum(coords, axis=4)
 
+        # Determine which points are within `r` of `center`
         within_r = np.where(d_2 <= r ** 2)
+        #  `within_r` now contains the coordinates of each image that is
+        #    inside of the cutoff distance. It has 4 coordinates:
+        #   0 - index of the image within `frac_points`
+        #   1,2,3 - index of the supercell which holds the images in the x, y, z directions
+
         if zip_results:
             return list(zip(shifted_coords[within_r], np.sqrt(d_2[within_r]),
-                            indices[within_r[0]]))
+                            indices[within_r[0]], images[within_r[1:]]))
         else:
             return shifted_coords[within_r], np.sqrt(d_2[within_r]), \
-                indices[within_r[0]]
+                indices[within_r[0]], images[within_r[1:]]
 
     def get_all_distances(self, fcoords1, fcoords2):
         """
@@ -1102,6 +1117,99 @@ class Lattice(MSONable):
             fc = np.array(np.round(fc), dtype=np.int)
             return np.sqrt(d2[0, 0]), fc
 
+        jimage = np.array(jimage)
         mapped_vec = self.get_cartesian_coords(jimage + frac_coords2
                                                - frac_coords1)
         return np.linalg.norm(mapped_vec), jimage
+
+    def get_miller_index_from_coords(self, coords, coords_are_cartesian=True,
+                                     round_dp=4, verbose=True):
+        """
+        Get the Miller index of a plane from a list of site coordinates.
+
+        A minimum of 3 sets of coordinates are required. If more than 3 sets of
+        coordinates are given, the best plane that minimises the distance to all
+        points will be calculated.
+
+        Args:
+            coords (iterable): A list or numpy array of coordinates. Can be
+                cartesian or fractional coordinates. If more than three sets of
+                coordinates are provided, the best plane that minimises the
+                distance to all sites will be calculated.
+            coords_are_cartesian (bool, optional): Whether the coordinates are
+                in cartesian space. If using fractional coordinates set to
+                False.
+            round_dp (int, optional): The number of decimal places to round the
+                miller index to.
+            verbose (bool, optional): Whether to print warnings.
+
+        Returns:
+            (tuple): The Miller index.
+        """
+        if coords_are_cartesian:
+            coords = [self.get_fractional_coords(c) for c in coords]
+
+        coords = np.asarray(coords)
+        g = coords.sum(axis=0) / coords.shape[0]
+
+        # run singular value decomposition
+        _, _, vh = np.linalg.svd(coords - g)
+
+        # get unitary normal vector
+        u_norm = vh[2, :]
+        return get_integer_index(u_norm, round_dp=round_dp, verbose=verbose)
+
+
+def get_integer_index(miller_index, round_dp=4, verbose=True):
+    """
+    Attempt to convert a vector of floats to whole numbers.
+
+    Args:
+        miller_index (list of float): A list miller indexes.
+        round_dp (int, optional): The number of decimal places to round the
+            miller index to.
+        verbose (bool, optional): Whether to print warnings.
+
+    Returns:
+        (tuple): The Miller index.
+    """
+    miller_index = np.asarray(miller_index)
+
+    # deal with the case we have small irregular floats
+    # that are all equal or factors of each other
+    miller_index /= min([m for m in miller_index if m != 0])
+    miller_index /= np.max(np.abs(miller_index))
+
+    # deal with the case we have nice fractions
+    md = [Fraction(n).limit_denominator(12).denominator for n in miller_index]
+    miller_index *= reduce(lambda x, y: x * y, md)
+    int_miller_index = np.int_(np.round(miller_index, 1))
+    miller_index /= np.abs(reduce(gcd, int_miller_index))
+
+    # round to a reasonable precision
+    miller_index = np.array([round(h, round_dp) for h in miller_index])
+
+    # need to recalculate this after rounding as values may have changed
+    int_miller_index = np.int_(np.round(miller_index, 1))
+    if (np.any(np.abs(miller_index - int_miller_index) > 1e-6) and
+            verbose):
+        warnings.warn("Non-integer encountered in Miller index")
+    else:
+        miller_index = int_miller_index
+
+    # minimise the number of negative indexes
+    miller_index += 0  # converts -0 to 0
+
+    def n_minus(index):
+        return len([h for h in index if h < 0])
+
+    if n_minus(miller_index) > n_minus(miller_index * -1):
+        miller_index *= -1
+
+    # if only one index is negative, make sure it is the smallest
+    # e.g. (-2 1 0) -> (2 -1 0)
+    if (sum(miller_index != 0) == 2 and n_minus(miller_index) == 1
+            and abs(min(miller_index)) > max(miller_index)):
+        miller_index *= -1
+
+    return tuple(miller_index)

@@ -6,14 +6,14 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.alchemy.transmuters module &#8212; pymatgen 2018.5.3 documentation</title>
+    <title>pymatgen.alchemy.transmuters module &#8212; pymatgen 2019.1.24 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.5.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.1.24 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -45,6 +45,12 @@
             
   <div class="section" id="module-pymatgen.alchemy.transmuters">
 <span id="pymatgen-alchemy-transmuters-module"></span><h1>pymatgen.alchemy.transmuters module<a class="headerlink" href="#module-pymatgen.alchemy.transmuters" title="Permalink to this headline">¶</a></h1>
+<p>This module implements various transmuter classes.
+Transmuters are essentially classes that generate TransformedStructures from
+various data sources. They enable the high-throughput generation of new
+structures and input files.</p>
+<p>It also includes the helper function, batch_write_vasp_input to generate an
+entire directory of vasp input files for running.</p>
 <dl class="class">
 <dt id="pymatgen.alchemy.transmuters.CifTransmuter">
 <em class="property">class </em><code class="descname">CifTransmuter</code><span class="sig-paren">(</span><em>cif_string</em>, <em>transformations=None</em>, <em>primitive=True</em>, <em>extend_collection=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/alchemy/transmuters.html#CifTransmuter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.CifTransmuter" title="Permalink to this definition">¶</a></dt>
@@ -420,13 +426,13 @@ programs.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.5.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.1.24 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -2,8 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
-from pymatgen.analysis.elasticity.tensors import SquareTensor
+from pymatgen.core.tensors import SquareTensor
 from collections import namedtuple
 
 from pymatgen.core.units import FloatWithUnit

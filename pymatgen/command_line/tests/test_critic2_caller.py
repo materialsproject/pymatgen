@@ -2,10 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import unittest
 
-from pymatgen import Structure
+from pymatgen.core.structure import Structure
 from pymatgen.command_line.critic2_caller import *
 from monty.os.path import which
 
@@ -42,6 +41,7 @@ class Critic2CallerTest(unittest.TestCase):
 
 
 class Critic2OutputTest(unittest.TestCase):
+    _multiprocess_shared_ = True
 
     def setUp(self):
         stdout_file = os.path.join(os.path.dirname(__file__), "..", "..", "..",

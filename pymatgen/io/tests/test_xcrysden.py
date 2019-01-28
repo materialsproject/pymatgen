@@ -1,7 +1,6 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-from __future__ import unicode_literals, division, print_function
 
 
 from pymatgen.util.testing import PymatgenTest
@@ -20,7 +19,7 @@ class XSFTest(PymatgenTest):
                            [0.00, -2.2171384943, 3.1355090603]])
         structure = Structure(lattice, ["Si", "Si"], coords)
         xsf = XSF(structure)
-        self.assertTrue(structure, xsf.from_string(xsf.to_string()))
+        self.assertTrue(structure, XSF.from_string(xsf.to_string()))
 
 
 if __name__ == "__main__":

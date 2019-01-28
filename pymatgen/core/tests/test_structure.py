@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
 
 import warnings
 from pymatgen.util.testing import PymatgenTest
@@ -252,6 +251,15 @@ class IStructureTest(PymatgenTest):
             self.assertArrayAlmostEqual(s1[2].frac_coords, s[2].frac_coords)
             self.assertArrayAlmostEqual(s1[3].frac_coords, s[3].frac_coords)
 
+        # Test non-hexagonal setting.
+        lattice = Lattice.rhombohedral(4.0718, 89.459)
+        species = [{'S': 1.0}, {'Ni': 1.0}]
+        coordinate = [(0.252100, 0.252100, 0.252100),
+                      (0.500000, 0.244900, -0.244900)]
+        s = Structure.from_spacegroup('R32:R', lattice, species, coordinate)
+        self.assertEqual(s.formula, "Ni3 S2")
+
+
     def test_interpolate_lattice(self):
         coords = list()
         coords.append([0, 0, 0])
@@ -355,16 +363,29 @@ class IStructureTest(PymatgenTest):
         sprim = s.get_primitive_structure(tolerance=0.1)
         self.assertEqual(len(sprim), 6)
 
+    def test_get_miller_index(self):
+        """Test for get miller index convenience method"""
+        struct = Structure(
+            [2.319, -4.01662582, 0., 2.319, 4.01662582, 0., 0., 0., 7.252],
+            ['Sn', 'Sn', 'Sn'],
+            [[2.319, 1.33887527, 6.3455], [1.1595, 0.66943764, 4.5325],
+             [1.1595, 0.66943764, 0.9065]],
+            coords_are_cartesian=True
+        )
+        hkl = struct.get_miller_index_from_site_indexes([0, 1, 2])
+        self.assertEqual(hkl, (2, -1, 0))
+
     def test_get_all_neighbors_and_get_neighbors(self):
         s = self.struct
         nn = s.get_neighbors_in_shell(s[0].frac_coords, 2, 4,
-                                       include_index=True)
+                                      include_index=True, include_image=True)
         self.assertEqual(len(nn), 47)
-        self.assertEqual(nn[0][-1], 0)
+        self.assertEqual(nn[0][-2], 0)
 
         r = random.uniform(3, 6)
-        all_nn = s.get_all_neighbors(r, True)
+        all_nn = s.get_all_neighbors(r, True, True)
         for i in range(len(s)):
+            self.assertEqual(4, len(all_nn[i][0]))
             self.assertEqual(len(all_nn[i]), len(s.get_neighbors(s[i], r)))
 
         for site, nns in zip(s, all_nn):
@@ -376,7 +397,6 @@ class IStructureTest(PymatgenTest):
         s = Structure(Lattice.cubic(1), ['Li'], [[0,0,0]])
         s.make_supercell([2,2,2])
         self.assertEqual(sum(map(len, s.get_all_neighbors(3))), 976)
-
 
     def test_get_all_neighbors_outside_cell(self):
         s = Structure(Lattice.cubic(2), ['Li', 'Li', 'Li', 'Si'],
@@ -404,6 +424,8 @@ class IStructureTest(PymatgenTest):
                 self.struct.lattice.lengths_and_angles, decimal=5)
             self.assertArrayAlmostEqual(ss.frac_coords, self.struct.frac_coords)
             self.assertIsInstance(ss, IStructure)
+
+        self.assertTrue("Fd-3m" in self.struct.to(fmt="CIF", symprec=0.1))
 
         self.struct.to(filename="POSCAR.testing")
         self.assertTrue(os.path.exists("POSCAR.testing"))
@@ -475,7 +497,7 @@ class StructureTest(PymatgenTest):
         self.assertEqual(s[0].species_string, "Si")
         self.assertEqual(s[1].species_string, "F")
 
-    def test_append_insert_remove_replace(self):
+    def test_append_insert_remove_replace_substitute(self):
         s = self.structure
         s.insert(1, "O", [0.5, 0.5, 0.5])
         self.assertEqual(s.formula, "Si2 O1")
@@ -508,15 +530,24 @@ class StructureTest(PymatgenTest):
         self.assertEqual(s.formula, "Si0.75 Ge0.25 N1 O1")
 
         # In this case, s.ntypesp is ambiguous.
-        # for the time being, we raise AttributeError.
-        with self.assertRaises(AttributeError):
+        # code should raise AttributeError.
+        with self.assertRaises(TypeError):
             s.ntypesp
 
-        s.remove_species(["Si"])
-        self.assertEqual(s.formula, "Ge0.25 N1 O1")
+        s.replace_species({"Ge": "Si"})
+        s.substitute(1, "hydroxyl")
+        self.assertEqual(s.formula, "Si1 H1 N1 O1")
+        self.assertTrue(s.symbol_set == ("Si", "N", "O", "H"))
+        # Distance between O and H
+        self.assertAlmostEqual(s.get_distance(2, 3), 0.96)
+        # Distance between Si and H
+        self.assertAlmostEqual(s.get_distance(0, 3), 2.09840889)
+
+        s.remove_species(["H"])
+        self.assertEqual(s.formula, "Si1 N1 O1")
 
         s.remove_sites([1, 2])
-        self.assertEqual(s.formula, "Ge0.25")
+        self.assertEqual(s.formula, "Si1")
 
     def test_add_remove_site_property(self):
         s = self.structure
@@ -904,6 +935,9 @@ class StructureTest(PymatgenTest):
         self.assertIn("Overall Charge: +1", str(s),"String representation not adding charge")
         sorted_s = super_cell.get_sorted_structure()
         self.assertEqual(sorted_s.charge,27,"Overall charge is not properly copied during structure sorting")
+        super_cell.set_charge(25)
+        self.assertEqual(super_cell.charge,25,"Set charge not properly modifying _charge")
+
 
     def test_vesta_lattice_matrix(self):
         silica_zeolite = Molecule.from_file(os.path.join(test_dir, "CON_vesta.xyz"))
@@ -1144,7 +1178,7 @@ class MoleculeTest(PymatgenTest):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_mutable_sequence_methods(self):
         s = self.mol

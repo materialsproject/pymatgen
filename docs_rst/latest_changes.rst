@@ -1,9 +1,9 @@
 Change log
 ==========
 
-v2018.5.3
----------
-* Improvements to qchem (@samblau).
-* Improvements to nwchem to support tddft input and parsing (@shyuep).
-* Improvements to CrystalNN (@computron).
-* Add methods for getting phonon BS, DOS, and DDB output (@dwinston).
+v2019.1.24
+----------
+* Python 3 only!
+* Improvements to local environment code (@utf)
+* Update Cohp analysis (@JaGEO)
+* Updates to Boltztrap2 (@fraricci)
