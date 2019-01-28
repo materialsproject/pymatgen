@@ -16,7 +16,7 @@ import numpy as np
 from monty.serialization import loadfn
 from monty.io import zopen
 
-from pymatgen.core.periodic_table import Specie
+from pymatgen.core.periodic_table import Specie, Element
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints
 from pymatgen.io.vasp.outputs import Vasprun, Outcar
@@ -1671,6 +1671,68 @@ class MITMDSet(MITRelaxSet):
         self.end_temp = end_temp
         self.nsteps = nsteps
         self.time_step = time_step
+        self.spin_polarized = spin_polarized
+        self.kwargs = kwargs
+
+        # use VASP default ENCUT
+        self._config_dict["INCAR"].pop('ENCUT', None)
+
+        if defaults['ISPIN'] == 1:
+            self._config_dict["INCAR"].pop('MAGMOM', None)
+        self._config_dict["INCAR"].update(defaults)
+
+    @property
+    def kpoints(self):
+        return Kpoints.gamma_automatic()
+
+
+class MPMDSet(MPRelaxSet):
+    """
+    This a modified version of the old MITMDSet pre 2018/03/12.
+    This set serves as the basis for the amorphous skyline paper.
+    (1) Aykol, M.; Dwaraknath, S. S.; Sun, W.; Persson, K. A.
+    Thermodynamic Limit for Synthesis of Metastable Inorganic Materials. Sci. Adv. 2018, 4 (4).
+     Class for writing a vasp md run. This DOES NOT do multiple stage
+    runs.
+     Precision remains normal, to increase accuracy of stress tensor.
+    """
+
+    def __init__(self, structure, start_temp, end_temp, nsteps,
+                 spin_polarized=False, **kwargs):
+        """
+        Args:
+            structure (Structure): Input structure.
+            start_temp (int): Starting temperature.
+            end_temp (int): Final temperature.
+            nsteps (int): Number of time steps for simulations. The NSW parameter.
+            time_step (int): The time step for the simulation. The POTIM
+                parameter. Defaults to 2fs.
+            spin_polarized (bool): Whether to do spin polarized calculations.
+                The ISPIN parameter. Defaults to False.
+            \\*\\*kwargs: Other kwargs supported by :class:`DictSet`.
+        """
+
+        # MD default settings
+        defaults = {'TEBEG': start_temp, 'TEEND': end_temp, 'NSW': nsteps,
+                    'EDIFF_PER_ATOM': 0.00001, 'LSCALU': False,
+                    'LCHARG': False,
+                    'LPLANE': False, 'LWAVE': True, 'ISMEAR': 0,
+                    'NELMIN': 4, 'LREAL': True, 'BMIX': 1,
+                    'MAXMIX': 20, 'NELM': 500, 'NSIM': 4, 'ISYM': 0,
+                    'ISIF': 0, 'IBRION': 0, 'NBLOCK': 1, 'KBLOCK': 100,
+                    'SMASS': 0, 'POTIM': 2, 'PREC': 'Normal',
+                    'ISPIN': 2 if spin_polarized else 1,
+                    "LDAU": False, 'ADDGRID': True}
+
+        if Element('H') in structure.species:
+            defaults['POTIM'] = 0.5
+        defaults['NSW'] = defaults['NSW'] * 4
+
+        super(MPMDSet, self).__init__(structure, **kwargs)
+
+        self.start_temp = start_temp
+        self.end_temp = end_temp
+        self.nsteps = nsteps
         self.spin_polarized = spin_polarized
         self.kwargs = kwargs
 
