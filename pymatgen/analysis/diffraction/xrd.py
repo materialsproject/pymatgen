@@ -11,7 +11,7 @@ import numpy as np
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-from .core import DiffractionPattern, DiffractionPatternCalculator, \
+from .core import DiffractionPattern, AbstractDiffractionPatternCalculator, \
     get_unique_families
 
 """
@@ -59,7 +59,7 @@ with open(os.path.join(os.path.dirname(__file__),
     ATOMIC_SCATTERING_PARAMS = json.load(f)
 
 
-class XRDCalculator(DiffractionPatternCalculator):
+class XRDCalculator(AbstractDiffractionPatternCalculator):
     """
     Computes the XRD pattern of a crystal structure.
 
@@ -268,7 +268,7 @@ class XRDCalculator(DiffractionPatternCalculator):
                     hkl = (hkl[0], hkl[1], - hkl[0] - hkl[1], hkl[2])
                 # Deal with floating point precision issues.
                 ind = np.where(np.abs(np.subtract(two_thetas, two_theta)) <
-                               DiffractionPatternCalculator.TWO_THETA_TOL)
+                               AbstractDiffractionPatternCalculator.TWO_THETA_TOL)
                 if len(ind[0]) > 0:
                     peaks[two_thetas[ind[0][0]]][0] += i_hkl * lorentz_factor
                     peaks[two_thetas[ind[0][0]]][1].append(tuple(hkl))
@@ -286,10 +286,11 @@ class XRDCalculator(DiffractionPatternCalculator):
         for k in sorted(peaks.keys()):
             v = peaks[k]
             fam = get_unique_families(v[1])
-            if v[0] / max_intensity * 100 > DiffractionPatternCalculator.SCALED_INTENSITY_TOL:
+            if v[0] / max_intensity * 100 > AbstractDiffractionPatternCalculator.SCALED_INTENSITY_TOL:
                 x.append(k)
                 y.append(v[0])
-                hkls.append(fam)
+                hkls.append([{"hkl": hkl, "multiplicity": mult}
+                             for hkl, mult in fam.items()])
                 d_hkls.append(v[2])
         xrd = DiffractionPattern(x, y, hkls, d_hkls)
         if scaled:
