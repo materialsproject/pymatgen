@@ -165,7 +165,7 @@ class Lattice(MSONable):
         lattice parameters. It is simply the fractional coordinates multiplied by the
         lattice vector magnitudes.
 
-        For example, this method is helpful when analyzing the dipole moment (in 
+        For example, this method is helpful when analyzing the dipole moment (in
         units of electron Angstroms) of a ferroelectric crystal. See the `Polarization`
         class in `pymatgen.analysis.ferroelectricity.polarization`.
 
