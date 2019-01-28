@@ -165,10 +165,10 @@ class Polarization:
                 "The number of electronic polarization and ionic polarization values must be equal.")
         if p_elecs_in_cartesian:
             p_elecs = np.array(
-                [struct.lattice.get_lattice_coords(p_elecs[i]) for i, struct in enumerate(structures)])
+                [struct.lattice.get_vector_along_lattice_directions(p_elecs[i]) for i, struct in enumerate(structures)])
         if p_ions_in_cartesian:
             p_ions = np.array(
-                [struct.lattice.get_lattice_coords(p_ions[i]) for i, struct in enumerate(structures)])
+                [struct.lattice.get_vector_along_lattice_directions(p_ions[i]) for i, struct in enumerate(structures)])
         self.p_elecs = np.array(p_elecs)
         self.p_ions = np.array(p_ions)
         self.structures = structures

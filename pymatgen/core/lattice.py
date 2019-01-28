@@ -157,7 +157,7 @@ class Lattice(MSONable):
         """
         return dot(cart_coords, self.inv_matrix)
 
-    def get_lattice_coords(self, cart_coords):
+    def get_vector_along_lattice_directions(self, cart_coords):
         """
         Returns the coordinates along lattice directions given cartesian coordinates.
 
