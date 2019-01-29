@@ -318,6 +318,69 @@ class DefectPhaseDiagram(MSONable):
 
         return recommendations
 
+
+    def suggest_larger_supercells(self, tolerance=0.1, max_atoms=800):
+        """
+        Suggest larger suppercells for defect+chg combinations.
+        This is done by considering compatibility of all entries along with whether the
+        charge becomes stable outside of the given tolerance distance from the band edges.
+        NOTE: Requires self.filter_compatible = False
+        Args:
+            tolerance (float): tolerance with respect to the VBM and CBM for considering
+                               larger supercells for a given charge
+            max_atoms (int): maximum number of atoms one is willing to consider re-running
+                             for a given charge (uses atomate supercell creation scheme to
+                             consider next supercell size)
+        """
+        if self.filter_compatible:
+            raise ValueError("Cannot suggest larger supercells if filter_compatible is True.")
+
+        recommendations = {}
+        pdc = PointDefectComparator(check_charge=True, check_primitive_cell=True,
+                                    check_lattice_scale=False)
+
+        for def_type in self.defect_types:
+            test_charges = []
+            defect = self.stable_entries[def_type][0].copy()
+
+            for charge in self.finished_charges[def_type]:
+                chg_defect = defect.copy()
+                chg_defect.charge = charge
+            #     for entry in self.entries:
+            #         if not entry.parameters.get("is_compatible", True):
+            #             if pdc.are_equal( entry.defect, chg_defect):
+            #
+            # """"""
+            #
+            # test_charges = np.arange(
+            #     np.min(self.stable_charges[def_type]) - 1,
+            #     np.max(self.stable_charges[def_type]) + 2)
+            # test_charges = [charge for charge in test_charges if charge not in self.finished_charges[def_type]]
+            #
+            # if len(self.transition_level_map[def_type].keys()):
+            #     # More positive charges will shift the minimum transition level down
+            #     # Max charge is limited by this if its transition level is close to VBM
+            #     min_tl = min(self.transition_level_map[def_type].keys())
+            #     if min_tl < tolerance:
+            #         max_charge = max(self.transition_level_map[def_type][min_tl])
+            #         test_charges = [charge for charge in test_charges if charge < max_charge]
+            #
+            #     # More negative charges will shift the maximum transition level up
+            #     # Minimum charge is limited by this if transition level is near CBM
+            #     max_tl = max(self.transition_level_map[def_type].keys())
+            #     if max_tl > (self.band_gap - tolerance):
+            #         min_charge = min(self.transition_level_map[def_type][max_tl])
+            #         test_charges = [charge for charge in test_charges if charge > min_charge]
+            # else:
+            #     test_charges = [charge for charge in test_charges if charge not in self.stable_charges[def_type]]
+            #
+            # recommendations[def_type] = test_charges
+
+
+
+        return
+
+
     def solve_for_fermi_energy(self, temperature, chemical_potentials, bulk_dos):
         """
         Solve for the Fermi energy self-consistently as a function of T

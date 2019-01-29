@@ -6,7 +6,7 @@ import logging
 import numpy as np
 
 from abc import ABCMeta, abstractmethod
-from monty.json import MSONable, MontyDecoder
+from monty.json import MSONable, MontyDecoder, jsanitize
 from monty.functools import lru_cache
 
 from pymatgen.core.structure import Structure, PeriodicSite
@@ -43,7 +43,7 @@ class Defect(MSONable, metaclass=ABCMeta):
                 (assuming use_structure_charge=True in vasp input set)
         """
         self._structure = structure
-        self._charge = charge
+        self._charge = int(charge)
         self._defect_site = defect_site
         if structure.lattice != defect_site.lattice:
             raise ValueError("defect_site lattice must be same as structure lattice.")
@@ -117,7 +117,7 @@ class Defect(MSONable, metaclass=ABCMeta):
         Args:
             charge (float): new charge to set
         """
-        self._charge = new_charge
+        self._charge = int(new_charge)
 
 
 class Vacancy(Defect):
@@ -485,7 +485,7 @@ class DefectEntry(MSONable):
              "defect": self.defect.as_dict(),
              "uncorrected_energy": self.uncorrected_energy,
              "corrections": self.corrections,
-             "parameters": self.parameters,
+             "parameters": jsanitize(self.parameters, strict=True),
              "entry_id": self.entry_id}
         return d
 
