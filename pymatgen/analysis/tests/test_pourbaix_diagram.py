@@ -258,6 +258,15 @@ class PourbaixDiagramTest(unittest.TestCase):
         self.assertEqual(len(pd_binary.stable_entries),
                          len(new_binary.stable_entries))
 
+    def test_heavy(self):
+        from pymatgen import MPRester
+        mpr = MPRester()
+        # entries = mpr.get_pourbaix_entries(["Li", "Mg", "Sn", "Pd"])
+        # entries = mpr.get_pourbaix_entries(["Ba", "Ca", "V", "Cu", "F"])
+        entries = mpr.get_pourbaix_entries(["Ba", "Ca", "V", "Cu", "F", "Fe"])
+        # entries = mpr.get_pourbaix_entries(["Na", "Ca", "Nd", "Y", "Ho", "F"])
+        pbx = PourbaixDiagram(entries, nproc=4, filter_solids=False)
+
     def test_get_hull(self):
         # Find some facets on
         # pd_binary = PourbaixDiagram(self.test_data['Ag-Te'], filter_solids=True,

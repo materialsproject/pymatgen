@@ -397,6 +397,54 @@ def ion_or_solid_comp_object(formula):
 elements_HO = {Element('H'), Element('O')}
 
 
+def get_hull_in_nph_nphi_space(pourbaix_entries, comp_dict=None):
+    # Get non-OH elements
+    pbx_elts = set(itertools.chain.from_iterable(
+        [entry.composition.elements for entry in pourbaix_entries]))
+    pbx_elts = list(pbx_elts - elements_HO)
+    dim = len(pbx_elts) - 1
+    comp_dict = comp_dict or {k: 1 / (dim + 1) for k in pbx_elts}
+
+    # Process ions:
+    solid_entries = [entry for entry in pourbaix_entries
+                     if entry.phase_type == "Solid"]
+    ion_entries = [entry for entry in pourbaix_entries
+                   if entry.phase_type == "Ion"]
+
+    # If a conc_dict is specified, override individual entry concentrations
+    for entry in ion_entries:
+        ion_elts = list(set(entry.composition.elements) - elements_HO)
+        # TODO: the logic here for ion concentration setting is in two
+        #       places, in PourbaixEntry and here, should be consolidated
+        if len(ion_elts) == 1:
+            # Just use default concentration for now
+            entry.concentration = 1e-06 * entry.normalization_factor
+        elif len(ion_elts) > 1 and not entry.concentration:
+            raise ValueError("Elemental concentration not compatible "
+                             "with multi-element ions")
+
+    entries = solid_entries + ion_entries
+
+    vecs = [[entry.npH, entry.nPhi, entry.energy] +
+            [entry.composition.get(elt) for elt in pbx_elts[:-1]]
+            for entry in entries]
+    vecs = np.array(vecs)
+    norms = np.transpose([[entry.normalization_factor
+                           for entry in entries]])
+    vecs *= norms
+    maxes = np.max(vecs[:, :3], axis=0)
+    extra_point = np.concatenate([maxes, np.ones(dim) / dim], axis=0)
+
+    # Add padding for extra point
+    pad = 1000
+    extra_point[2] += pad
+    points = np.concatenate([vecs, np.array([extra_point])], axis=0)
+    hull = ConvexHull(points, qhull_options="QJ i")
+    # Create facets and remove top
+    facets = [facet for facet in hull.simplices
+              if not len(points) - 1 in facet]
+    return facets
+
 # Temporary home to get convex hull in npH-nphi-e0-frac space
 def preprocess_pourbaix_entries(pourbaix_entries, comp_dict=None):
     """
@@ -955,11 +1003,14 @@ class PourbaixPlotter(object):
         plt.title(title, fontsize=20, fontweight='bold')
         return plt
 
-    def get_plotly_plot(self, limits=None, show=False, filename=None, **kwargs):
-        import plotly as py
-        from plotly import graph_objs as go
-        #if limits is None:
-        #    limits = [[-2, 16], [-3, 3]]
+    def get_plotly_plot(self, limits=None, show=False, filename=None,
+                        plot_3d=False, **kwargs):
+        try:
+            import plotly as py
+            from plotly import graph_objs as go
+        except ImportError:
+            raise ImportError("plotly must be installed to render "
+                              "plotly pourbaix plots")
         objs, centers, centertexts = [], [], []
         single_color = [[0.0, 'rgb(200,200,200)'], [1.0, 'rgb(200,200,200)']]
         for entry, vertices in self._pd._stable_domain_vertices.items():
@@ -972,18 +1023,47 @@ class PourbaixPlotter(object):
                  for pH, V in zip(x, y)]
             # objs.append(go.Surface(x=x, y=y, z=z,
             #                        colorscale=single_color, showscale=False))
-            objs.append(go.Scatter3d(x=x, y=y, z=z,
-                                     mode='lines'))
+            if plot_3d:
+                objs.append(go.Scatter3d(x=x, y=y, z=z,
+                                         mode='lines'))
+            else:
+                objs.append(
+                    go.Scatter(
+                        x=x, y=y, mode='lines',
+                        line={'color': 'black'},
+                        showlegend=False,
+                        hoverinfo='none'
+                        # text={"pointer-events": None}
+                    )
+                )
 
         xcenters, ycenters, zcenters = np.transpose(centers)
-        objs.append(go.Scatter3d(x=xcenters, y=ycenters, z=zcenters,
-                                 text=centertexts, mode='markers'))
+        if plot_3d:
+            objs.append(go.Scatter3d(x=xcenters, y=ycenters, z=zcenters,
+                                     text=centertexts, mode='markers'))
+        else:
+            objs.append(go.Scatter(x=xcenters, y=ycenters, text=centertexts,
+                                   mode='markers', showlegend=False,
+                                   hoverinfo='text'))
         all_objs = [objs[-1]] + objs[:-1]
+
+        scene={"xaxis": {'title': 'pH'},
+               "yaxis": {'title': 'E (V)'}}
+        if plot_3d:
+            # scene.update({"zaxis": {'title': "G (eV)"}})
+            layout_kwargs = {"scene": {"xaxis": {'title': 'pH'},
+                                       "yaxis": {'title':'E (V)'},
+                                       "zaxis": {'title': "G (eV)"}}}
+        else:
+            layout_kwargs = {"xaxis": {'title': 'pH'},
+                             "yaxis": {'title': 'E (V)'}}
         layout = go.Layout(
-            title='Pourbaix plot',
-            scene={"xaxis": {'title': 'pH'},
-                   "yaxis": {'title':'E (V)'},
-                   "zaxis": {'title': "G (eV)"}}
+            title='Pourbaix plot $\\alpha$',
+            **layout_kwargs
+            # scene=scene
+            # scene={"xaxis": {'title': 'pH'},
+            #        "yaxis": {'title':'E (V)'},
+            #        "zaxis": {'title': "G (eV)"}}
             # autosize=False,
             # width=500,
             # height=500,
@@ -997,7 +1077,8 @@ class PourbaixPlotter(object):
         fig = go.Figure(data=all_objs, layout=layout)
         if show:
             filename = filename or 'out.html'
-            py.offline.plot(fig, filename=filename, **kwargs)
+            py.offline.plot(fig, filename=filename, include_mathjax='cdn',
+                            **kwargs)
             # import nose; nose.tools.set_trace()
         return fig
 
@@ -1021,9 +1102,9 @@ class PourbaixPlotter(object):
             generate_entry_label(entry)))
 
         # Set ticklabels
-        ticklabels = [t.get_text() for t in cbar.ax.get_yticklabels()]
-        ticklabels[-1] = '>={}'.format(ticklabels[-1])
-        cbar.ax.set_yticklabels(ticklabels)
+        # ticklabels = [t.get_text() for t in cbar.ax.get_yticklabels()]
+        # ticklabels[-1] = '>={}'.format(ticklabels[-1])
+        # cbar.ax.set_yticklabels(ticklabels)
 
         return plt
 
@@ -1048,7 +1129,7 @@ def generate_entry_label(entry):
         entry (PourbaixEntry or MultiEntry): entry to get a label for
     """
     if isinstance(entry, MultiEntry):
-        return " + ".join([latexify_ion(e.name) for e in entry.entry_list])
+        return " + ".join([latexify_ion(latexify(e.name)) for e in entry.entry_list])
     else:
         return latexify_ion(latexify(entry.name))
 
