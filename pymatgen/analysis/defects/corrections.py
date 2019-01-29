@@ -219,7 +219,7 @@ class FreysoldtCorrection(DefectCorrection):
         v_R = np.real(v_R) * hart_to_ev
 
         # get correction
-        short = (defavg - pureavg - v_R)
+        short = (np.array(defavg) - np.array(pureavg) - np.array(v_R))
         checkdis = int((widthsample / 2) / (axis_grid[1] - axis_grid[0]))
         mid = int(len(short) / 2)
 
@@ -240,7 +240,7 @@ class FreysoldtCorrection(DefectCorrection):
         self.metadata["pot_plot_data"][axis] = {
             "Vr": v_R,
             "x": axis_grid,
-            "dft_diff": defavg - pureavg,
+            "dft_diff": np.array(defavg) - np.array(pureavg),
             "final_shift": final_shift,
             "check": [mid - checkdis, mid + checkdis + 1]
         }

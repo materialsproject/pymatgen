@@ -3328,6 +3328,26 @@ class Procar:
         return {spin: np.sum(d[:, :, atom_index, orbital_index] * self.weights[:, None])
                 for spin, d in self.data.items()}
 
+    def perc_contained_in_radius_from_site(self, structure, site, radius,
+                                           spinkey, kptindex, bandindex, return_rad_dat=True):
+        if spinkey not in self.data.keys():
+            raise ValueError("{} not in {}".format(spinkey, self.data.keys()))
+
+        tot_occu = 0.
+        in_radius_occu = 0.
+        rad_dat = []
+        for listsite, prodat in zip(structure, self.data[spinkey][kptindex][bandindex]):
+            dist, jimage = site.distance_and_image_from_frac_coords(listsite.frac_coords)
+            tot_occu += np.sum(prodat)
+            rad_dat.append([dist, np.sum(prodat)])
+            if dist <= radius:
+                in_radius_occu += np.sum(prodat)
+
+        if return_rad_dat:
+            rad_dat.sort()
+            return in_radius_occu / tot_occu, rad_dat
+        else:
+            return in_radius_occu / tot_occu
 
 class Oszicar:
     """
@@ -4277,6 +4297,228 @@ class Wavecar:
         self.ng = temp_ng
         return Chgcar(poscar, data)
 
+    def prob_density(self, kpoint, band, spin):
+        psi = np.fft.fftn( self.fft_mesh( kpoint, band, spin=spin, shift=False)) #TODO: should this always be shift False
+        n = np.abs(np.conj(psi)*psi) # magnitude squared of wavefunction
+        n /= np.sum(n) #normalize the single particle wavefunction to 1
+        return n
+
+    def get_charge_center(self, kpoint, band, spin, guess_site):
+        """Get defect center, accounting for periodic boundary conditions
+         needs smart guess for position (i.e. defect site)"""
+        from pymatgen.core import PeriodicSite
+        from itertools import product
+        lattice = Lattice( self.a)
+
+        den = self.prob_density( kpoint, band, spin)
+
+        def get_shortest_dist_vec(index):
+            frac_coords = [index[ax]/den.shape[ax] for ax in range(3)]
+            dist, jimage = guess_site.distance_and_image_from_frac_coords( frac_coords)
+            vec_defect_to_site = lattice.get_cartesian_coords(jimage + frac_coords - guess_site.frac_coords)
+            if abs(np.linalg.norm(vec_defect_to_site) - dist) > 0.001:
+                raise ValueError("Error in computing vector to defect")
+            return vec_defect_to_site
+
+        avg = np.zeros(3)
+        for p in product(range(den.shape[0]), range(den.shape[1]), range(den.shape[2])):
+            parray = get_shortest_dist_vec(p)
+            avg += parray*den[p]
+        center_coords = guess_site.coords + avg/np.sum(den)
+        site_chg_center = PeriodicSite( 'H', center_coords, lattice,
+                                        to_unit_cell=True, coords_are_cartesian=True)
+
+        return site_chg_center
+
+    def get_total_radial_distrib_from_coords(self, kpt_weights, band, spin, coords,
+                                             coords_are_cartesian=False, reduce_size=False,
+                                             find_charge_center = True):
+        #return radial distrib
+        from pymatgen.core import PeriodicSite, Lattice
+        from itertools import product
+        lattice = Lattice( self.a)
+
+        #store charge centers, if desired
+        test_site = PeriodicSite('H', coords, lattice, to_unit_cell=True, coords_are_cartesian=coords_are_cartesian)
+        if not find_charge_center:
+            chg_center_kpts = {kpt: test_site for kpt in range(len(kpt_weights))}
+        else:
+            chg_center_kpts = {}
+            for kpt in range(self.nk):
+                site = self.get_charge_center( kpt, band, spin, test_site)
+                chg_center_kpts[kpt] = site
+
+        store_kpt = {}
+        for kpt in range(self.nk):
+            n = self.prob_density( kpt, band, spin)
+            store_kpt[kpt] = n
+
+        xy = {kpt:[] for kpt in range(self.nk)}
+        xy['tot'] = []
+        for p in product(range(n.shape[0]), range(n.shape[1]), range(n.shape[2])):
+            frac_coords = [p[ax]/n.shape[ax] for ax in range(3)]
+            store_dist = []
+            for kpt in range(self.nk):
+                dist, jimage = chg_center_kpts[kpt].distance_and_image_from_frac_coords( frac_coords)
+                store_dist.append(dist)
+            pset = [store_kpt[kpt][p] for kpt in range(self.nk)]
+            for kpt in range(self.nk):
+                xy[kpt].append([store_dist[kpt], pset[kpt]])
+
+            tot_p = np.dot( kpt_weights, pset)
+            tot_dist = np.dot( kpt_weights, store_dist) #weight the distance???
+            xy['tot'].append([tot_dist, tot_p])
+
+        if reduce_size:
+            output = {}
+            for kpoint in range(self.nk):
+                reduced_x, reduced_y, percentage_y = self._reduce_rad_data(xy[kpoint])
+                output[kpoint] = [ reduced_x, reduced_y, percentage_y]
+            reduced_x, reduced_y, percentage_y = self._reduce_rad_data(xy['tot'])
+            output['tot'] = [ reduced_x, reduced_y, percentage_y]
+            return output
+        else:
+            for kpoint in range(self.nk):
+                xy[kpoint].sort()
+            xy['tot'].sort()
+            return xy
+
+    def _reduce_rad_data(self, dat):
+        H, xedges, yedges = np.histogram2d( np.array(dat)[:,0], np.array(dat)[:,1], bins=(100., 20))
+        reduced_x, reduced_y, percentage_y = ([], [], [])
+        redyedge = list(yedges[:])
+        redyedge.pop(-1)
+        for xind, xset in enumerate(H):
+            maxy = 0.
+            for yind, yval in enumerate(xset):
+                if yval:
+                    maxy = yedges[yind]
+            reduced_x.append( xedges[xind])
+            reduced_y.append( maxy)
+            previous_tot = percentage_y[-1] if xind else 0.
+            sumset = np.dot(xset, redyedge)
+            percentage_y.append( previous_tot + sumset)
+
+        percentage_y /= percentage_y[-1]
+
+        return reduced_x, reduced_y, percentage_y
+
+
+def parse_defect_states(structure, defect_site, wavecar, procar):
+    """
+    This module parses Procar and Wavecar for defect localization.
+     Algorithm:
+        i) find 'interesting bands" from wavecar data
+        ii) store global eigenvalue data for each band and find ws-radius for sampling
+        iii) calculate procar percentage contained within radius to find interesting bands
+        iv) caluclate wavecar percentage contained within radius
+            (with charge center as starting point)
+     """
+
+    # find interesting bands
+    fermi_band_set = []
+    if wavecar.spin == 1:
+        for kpt_ind in range(wavecar.nk):
+            for band_ind in range(wavecar.nb):
+                if not wavecar.band_energy[kpt_ind][band_ind][2]:
+                    fermi_band_set.append(band_ind)
+                    break
+    elif wavecar.spin == 2:
+        for spin_ind in range(len(wavecar.band_energy)):
+            for kpt_ind in range(wavecar.nk):
+                for band_ind in range(wavecar.nb):
+                    if not wavecar.band_energy[spin_ind][kpt_ind][band_ind][2]:
+                        fermi_band_set.append(band_ind)
+                        break
+    fermi_band_set = list(set(fermi_band_set))
+    sample_bands = np.arange(min(fermi_band_set) - 10, max(fermi_band_set) + 11)
+    logger.info('sampling {} bands'.format(len(sample_bands)))
+
+     # store global energy data about these bands
+    store_eigen_dat = {spin_ind: {band_ind: [] for band_ind in sample_bands} for spin_ind in range(wavecar.spin)}
+    if wavecar.spin == 1:
+        for kpt_ind in range(wavecar.nk):
+            for band_ind in sample_bands:
+                occu = [wavecar.band_energy[kpt_ind][band_ind][0], wavecar.band_energy[kpt_ind][band_ind][2]]
+                store_eigen_dat[0][band_ind].append(occu)
+    elif wavecar.spin == 2:
+        for spin_ind in range(wavecar.spin):
+            for kpt_ind in range(wavecar.nk):
+                for band_ind in sample_bands:
+                    occu = [wavecar.band_energy[spin_ind][kpt_ind][band_ind][0],
+                            wavecar.band_energy[spin_ind][kpt_ind][band_ind][2]]
+                    store_eigen_dat[spin_ind][band_ind].append(occu)
+
+    # get ws radius
+    wz = structure.lattice.get_wigner_seitz_cell()
+    dist = []
+    for facet in wz:
+        midpt = np.mean(np.array(facet), axis=0)
+        dist.append(np.linalg.norm(midpt))
+    sampling_radius = min(dist)
+    logger.info('sampling radius = {}'.format(sampling_radius))
+
+     # check procar to see bands which may be of interest
+    followup_bands = []
+    stored_procar_dat = {}
+    for spinind, spinkey in enumerate(procar.data.keys()):
+        stored_procar_dat[spinind] = []
+        for kptindex in range(procar.nkpoints):
+            stored_procar_dat[spinind].append({})
+            for band_ind in sample_bands:
+                perc, rad_dat = procar.perc_contained_in_radius_from_site(structure, defect_site, sampling_radius,
+                                                                 spinkey, kptindex, band_ind)
+                stored_procar_dat[spinind][kptindex].update(
+                    {band_ind: {'perc': perc, 'rad_dat': rad_dat, 'eigen': store_eigen_dat[spinind][band_ind]}})
+
+     # now use weighting to find bands with 70% localization overall
+    for band_ind in sample_bands:
+        for spinind in range(wavecar.spin):
+            perc = 0.
+            for kwt, kptindex in zip(procar.weights, range(procar.nkpoints)):
+                perc += stored_procar_dat[spinind][kptindex][band_ind]['perc'] * kwt
+
+             if perc >= 0.7:
+                followup_bands.append(band_ind)
+
+     followup_bands = list(set(followup_bands))
+    followup_bands.sort()
+
+     # run wavecar analysis on follow up bands
+    followup_wf_parse_md = {}  # bandindex as key, spin as second key,
+    perc90_local = {spin: [] for spin in range(wavecar.spin)}
+    if len(followup_bands):
+        logger.info('found {} bands for follow up\n\t{}'.format(len(followup_bands), followup_bands))
+        for band_ind in followup_bands:
+            followup_wf_parse_md[band_ind] = {}
+            for spin in range(wavecar.spin):
+                print(band_ind, spin)
+                dat = wavecar.get_total_radial_distrib_from_coords(procar.weights, band_ind, spin, defect_site.coords,
+                                                             coords_are_cartesian=True, reduce_size=True)
+
+                 # #quick check if this is 90% localized within the sampling radius
+                x = dat['tot'][0]  # [ reduced_x, reduced_y, percentage_y]
+                y = dat['tot'][2]
+                cont90rad = None
+                for yind, yval in enumerate(y):
+                    if yval >= 0.9 and cont90rad is None:
+                        cont90rad = x[yind]
+
+                 followup_wf_parse_md[band_ind][spin] = {'rad_dist_data': dat,
+                                                          'eigen': store_eigen_dat[spin][band_ind],
+                                                          'cont90rad': cont90rad}
+                if cont90rad <= sampling_radius:
+                    perc90_local[spin].append(band_ind)
+
+     else:
+         logger.info('found NO bands for follow up...')
+
+     defect_out = {'localized_band_indices': perc90_local,
+                  'stored_procar_dat': stored_procar_dat,
+                  'sampling_radius': sampling_radius,
+                  'followup_wf_parse': followup_wf_parse_md}
+
+     return defect_out
 
 class Wavederf:
     """
