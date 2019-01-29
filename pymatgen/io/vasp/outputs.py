@@ -4473,13 +4473,13 @@ def parse_defect_states(structure, defect_site, wavecar, procar):
             for kwt, kptindex in zip(procar.weights, range(procar.nkpoints)):
                 perc += stored_procar_dat[spinind][kptindex][band_ind]['perc'] * kwt
 
-             if perc >= 0.7:
+            if perc >= 0.7:
                 followup_bands.append(band_ind)
 
-     followup_bands = list(set(followup_bands))
+    followup_bands = list(set(followup_bands))
     followup_bands.sort()
 
-     # run wavecar analysis on follow up bands
+    # run wavecar analysis on follow up bands
     followup_wf_parse_md = {}  # bandindex as key, spin as second key,
     perc90_local = {spin: [] for spin in range(wavecar.spin)}
     if len(followup_bands):
@@ -4491,7 +4491,7 @@ def parse_defect_states(structure, defect_site, wavecar, procar):
                 dat = wavecar.get_total_radial_distrib_from_coords(procar.weights, band_ind, spin, defect_site.coords,
                                                              coords_are_cartesian=True, reduce_size=True)
 
-                 # #quick check if this is 90% localized within the sampling radius
+                # quick check if this is 90% localized within the sampling radius
                 x = dat['tot'][0]  # [ reduced_x, reduced_y, percentage_y]
                 y = dat['tot'][2]
                 cont90rad = None
@@ -4499,21 +4499,21 @@ def parse_defect_states(structure, defect_site, wavecar, procar):
                     if yval >= 0.9 and cont90rad is None:
                         cont90rad = x[yind]
 
-                 followup_wf_parse_md[band_ind][spin] = {'rad_dist_data': dat,
-                                                          'eigen': store_eigen_dat[spin][band_ind],
-                                                          'cont90rad': cont90rad}
+                followup_wf_parse_md[band_ind][spin] = {'rad_dist_data': dat,
+                                                        'eigen': store_eigen_dat[spin][band_ind],
+                                                        'cont90rad': cont90rad}
                 if cont90rad <= sampling_radius:
                     perc90_local[spin].append(band_ind)
 
-     else:
-         logger.info('found NO bands for follow up...')
+    else:
+        logger.info('found NO bands for follow up...')
 
-     defect_out = {'localized_band_indices': perc90_local,
+    defect_out = {'localized_band_indices': perc90_local,
                   'stored_procar_dat': stored_procar_dat,
                   'sampling_radius': sampling_radius,
                   'followup_wf_parse': followup_wf_parse_md}
 
-     return defect_out
+    return defect_out
 
 class Wavederf:
     """
