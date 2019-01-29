@@ -17,6 +17,7 @@ jobs:
             if [ ! -d "/root/miniconda3/envs/test_env" ]; then conda create --quiet --yes --name test_env python=3.6; fi
             source activate test_env
             conda install --quiet --yes numpy scipy matplotlib sympy pandas cython
+            conda install --yes -f pandas
             conda install --quiet --yes -c openbabel openbabel
             conda install --quiet --yes -c clinicalgraphics vtk
             conda install --quiet --yes cmake
@@ -24,12 +25,9 @@ jobs:
             mkdir coverage_reports
             pip install --upgrade pip
             pip install --quiet --ignore-installed -r requirements.txt -r requirements-optional.txt
-            pip install pandas --upgrade
             export CFLAGS=$CFLAGS" -std=gnu++11"
             pip install BoltzTraP2
             export CFLAGS=${CFLAGS%% -std=gnu++11}
-            export LC_ALL=en_US.UTF-8
-            export LANG=en_US.UTF-8
             rm -r coverage_reports
       - save_cache: # special step to save dependency cache
           key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
