@@ -800,7 +800,7 @@ class MPHSEBSSet(MPHSERelaxSet):
 
 class MPNonSCFSet(MPRelaxSet):
     def __init__(self, structure, prev_incar=None,
-                 mode="line", nedos=601, reciprocal_density=100, sym_prec=0.1,
+                 mode="line", nedos=2001, reciprocal_density=100, sym_prec=0.1,
                  kpoints_line_density=20, optics=False, **kwargs):
         """
         Init a MPNonSCFSet. Typically, you would use the classmethod
@@ -810,7 +810,7 @@ class MPNonSCFSet(MPRelaxSet):
             structure (Structure): Structure to compute
             prev_incar (Incar/string): Incar file from previous run.
             mode (str): Line or Uniform mode supported.
-            nedos (int): nedos parameter. Default to 601.
+            nedos (int): nedos parameter. Default to 2001.
             reciprocal_density (int): density of k-mesh by reciprocal
                                     volume (defaults to 100)
             sym_prec (float): Symmetry precision (for Uniform mode).
@@ -844,14 +844,21 @@ class MPNonSCFSet(MPRelaxSet):
             incar.update({k: v for k, v in self.prev_incar.items()})
 
         # Overwrite necessary INCAR parameters from previous runs
-        incar.update({"IBRION": -1, "ISMEAR": 0, "SIGMA": 0.001,
-                      "LCHARG": False, "LORBIT": 11, "LWAVE": False,
-                      "NSW": 0, "ISYM": 0, "ICHARG": 11})
+        incar.update({"IBRION": -1,  "LCHARG": False, "LORBIT": 11,
+                      "LWAVE": False, "NSW": 0, "ISYM": 0, "ICHARG": 11})
+
+        if self.mode.lower() == 'uniform':
+            # use tetrahedron method for DOS and optics calculations
+            incar.update({"ISMEAR": -5})
+        else:
+            # if line mode, can't use ISMEAR=-5; also use small sigma to avoid
+            # partial occupancies for small band gap materials
+            incar.update({"ISMEAR": 0, "SIGMA": 0.01})
 
         incar.update(self.kwargs.get("user_incar_settings", {}))
 
         if self.mode.lower() == "uniform":
-            # Set smaller steps for DOS output
+            # Set smaller steps for DOS and optics output
             incar["NEDOS"] = self.nedos
 
         if self.optics:
