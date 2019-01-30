@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.util.serialization module &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.util.serialization module &#8212; pymatgen 2019.1.24 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.1.24 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -47,27 +47,10 @@
 <span id="pymatgen-util-serialization-module"></span><h1>pymatgen.util.serialization module<a class="headerlink" href="#module-pymatgen.util.serialization" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.util.serialization.PmgPickler">
-<em class="property">class </em><code class="descname">PmgPickler</code><span class="sig-paren">(</span><em>file</em>, <em>protocol=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/serialization.html#PmgPickler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.PmgPickler" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pickle.Pickler</span></code></p>
+<em class="property">class </em><code class="descname">PmgPickler</code><a class="reference internal" href="_modules/pymatgen/util/serialization.html#PmgPickler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.PmgPickler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_pickle.Pickler</span></code></p>
 <p>Persistence of External Objects as described in section 12.1.5.1 of
 <a class="reference external" href="https://docs.python.org/3/library/pickle.html">https://docs.python.org/3/library/pickle.html</a></p>
-<p>This takes a file-like object for writing a pickle data stream.</p>
-<p>The optional protocol argument tells the pickler to use the
-given protocol; supported protocols are 0, 1, 2.  The default
-protocol is 0, to be backwards compatible.  (Protocol 0 is the
-only protocol that can be written to a file opened in text
-mode and read back successfully.  When using a protocol higher
-than 0, make sure the file is opened in binary mode, both when
-pickling and unpickling.)</p>
-<p>Protocol 1 is more efficient than protocol 0; protocol 2 is
-more efficient than protocol 1.</p>
-<p>Specifying a negative protocol version selects the highest
-protocol version supported.  The higher the protocol used, the
-more recent the version of Python needed to read the pickle
-produced.</p>
-<p>The file parameter must have a write() method that accepts a single
-string argument.  It can thus be an open file object, a StringIO
-object, or any other custom object that meets this interface.</p>
 <dl class="method">
 <dt id="pymatgen.util.serialization.PmgPickler.persistent_id">
 <code class="descname">persistent_id</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/serialization.html#PmgPickler.persistent_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.PmgPickler.persistent_id" title="Permalink to this definition">¶</a></dt>
@@ -79,18 +62,10 @@ persistent ID.</p>
 
 <dl class="class">
 <dt id="pymatgen.util.serialization.PmgUnpickler">
-<em class="property">class </em><code class="descname">PmgUnpickler</code><span class="sig-paren">(</span><em>file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/serialization.html#PmgUnpickler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.PmgUnpickler" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pickle.Unpickler</span></code></p>
+<em class="property">class </em><code class="descname">PmgUnpickler</code><a class="reference internal" href="_modules/pymatgen/util/serialization.html#PmgUnpickler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.PmgUnpickler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_pickle.Unpickler</span></code></p>
 <p>Persistence of External Objects as described in section 12.1.5.1 of
 <a class="reference external" href="https://docs.python.org/3/library/pickle.html">https://docs.python.org/3/library/pickle.html</a></p>
-<p>This takes a file-like object for reading a pickle data stream.</p>
-<p>The protocol version of the pickle is detected automatically, so no
-proto argument is needed.</p>
-<p>The file-like object must have two methods, a read() method that
-takes an integer argument, and a readline() method that requires no
-arguments.  Both methods should return a string.  Thus file-like
-object can be a file object opened for reading, a StringIO object,
-or any other custom object that meets this interface.</p>
 <dl class="method">
 <dt id="pymatgen.util.serialization.PmgUnpickler.persistent_load">
 <code class="descname">persistent_load</code><span class="sig-paren">(</span><em>pid</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/serialization.html#PmgUnpickler.persistent_load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.PmgUnpickler.persistent_load" title="Permalink to this definition">¶</a></dt>
@@ -124,7 +99,7 @@ pretty printing version)</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>obj</strong> (<em>object</em>) – Object to dump.</li>
+<li><strong>obj</strong> – Object to dump.</li>
 <li><strong>fileobj</strong> – File-like object</li>
 <li><strong>**kwargs</strong> – Any of the keyword arguments supported by PmgPickler</li>
 </ul>
@@ -202,13 +177,13 @@ to the dictionary. See documentation of MSON for more details</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.1.24 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

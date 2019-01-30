@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.fiesta module &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.io.fiesta module &#8212; pymatgen 2019.1.24 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.1.24 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -91,7 +91,7 @@
 
 <dl class="class">
 <dt id="pymatgen.io.fiesta.FiestaInput">
-<em class="property">class </em><code class="descname">FiestaInput</code><span class="sig-paren">(</span><em>mol</em>, <em>correlation_grid={u'dE_grid': u'0.500'</em>, <em>u'n_grid': u'14'}</em>, <em>Exc_DFT_option={u'rdVxcpsi': u'1'}</em>, <em>COHSEX_options={u'eigMethod': u'C'</em>, <em>u'mix_cohsex': u'0.500'</em>, <em>u'nc_cohsex': u'0'</em>, <em>u'nit_cohsex': u'0'</em>, <em>u'nv_cohsex': u'0'</em>, <em>u'resMethod': u'V'</em>, <em>u'scf_cohsex_wf': u'0'}</em>, <em>GW_options={u'nc_corr': u'10'</em>, <em>u'nit_gw': u'3'</em>, <em>u'nv_corr': u'10'}</em>, <em>BSE_TDDFT_options={u'do_bse': u'1'</em>, <em>u'do_tddft': u'0'</em>, <em>u'nc_bse': u'382'</em>, <em>u'nit_bse': u'50'</em>, <em>u'npsi_bse': u'1'</em>, <em>u'nv_bse': u'21'}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/fiesta.html#FiestaInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">FiestaInput</code><span class="sig-paren">(</span><em>mol</em>, <em>correlation_grid={'dE_grid': '0.500'</em>, <em>'n_grid': '14'}</em>, <em>Exc_DFT_option={'rdVxcpsi': '1'}</em>, <em>COHSEX_options={'eigMethod': 'C'</em>, <em>'mix_cohsex': '0.500'</em>, <em>'nc_cohsex': '0'</em>, <em>'nit_cohsex': '0'</em>, <em>'nv_cohsex': '0'</em>, <em>'resMethod': 'V'</em>, <em>'scf_cohsex_wf': '0'}</em>, <em>GW_options={'nc_corr': '10'</em>, <em>'nit_gw': '3'</em>, <em>'nv_corr': '10'}</em>, <em>BSE_TDDFT_options={'do_bse': '1'</em>, <em>'do_tddft': '0'</em>, <em>'nc_bse': '382'</em>, <em>'nit_bse': '50'</em>, <em>'npsi_bse': '1'</em>, <em>'nv_bse': '21'}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/fiesta.html#FiestaInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Input File for Fiesta called “cell.in” by default (mandatory in Fiesta for now)</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -113,7 +113,8 @@
 <dl class="method">
 <dt id="pymatgen.io.fiesta.FiestaInput.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/fiesta.html#FiestaInput.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>A JSON serializable dict representation of an object.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.fiesta.FiestaInput.dump_BSE_data_in_GW_run">
@@ -224,7 +225,7 @@ files generated from this class itself.</p>
 
 <dl class="method">
 <dt id="pymatgen.io.fiesta.FiestaInput.set_auxiliary_basis_set">
-<code class="descname">set_auxiliary_basis_set</code><span class="sig-paren">(</span><em>folder</em>, <em>auxiliary_folder</em>, <em>auxiliary_basis_set_type=u'aug_cc_pvtz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/fiesta.html#FiestaInput.set_auxiliary_basis_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.set_auxiliary_basis_set" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_auxiliary_basis_set</code><span class="sig-paren">(</span><em>folder</em>, <em>auxiliary_folder</em>, <em>auxiliary_basis_set_type='aug_cc_pvtz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/fiesta.html#FiestaInput.set_auxiliary_basis_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.set_auxiliary_basis_set" title="Permalink to this definition">¶</a></dt>
 <dd><p>copy in the desired folder the needed auxiliary basis set “X2.ion” where X is a specie.
 :param auxiliary_folder: folder where the auxiliary basis sets are stored
 :param auxiliary_basis_set_type: type of basis set (string to be found in the extension of the file name; must be in lower case)</p>
@@ -257,7 +258,7 @@ files generated from this class itself.</p>
 
 <dl class="class">
 <dt id="pymatgen.io.fiesta.Fiesta_run">
-<em class="property">class </em><code class="descname">Fiesta_run</code><span class="sig-paren">(</span><em>folder='/Users/work/git/pymatgen-release/pymatgen/docs_rst', grid=[2, 2, 2], log_file=u'log'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/fiesta.html#Fiesta_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.fiesta.Fiesta_run" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">Fiesta_run</code><span class="sig-paren">(</span><em>folder='/Users/shyue/repos/pymatgen/docs_rst', grid=[2, 2, 2], log_file='log'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/fiesta.html#Fiesta_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.fiesta.Fiesta_run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <dl class="docutils">
 <dt>To run FIESTA inside python:</dt>
@@ -270,7 +271,8 @@ logfile: logfile of Fiesta</p>
 <dl class="method">
 <dt id="pymatgen.io.fiesta.Fiesta_run.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/fiesta.html#Fiesta_run.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.fiesta.Fiesta_run.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>A JSON serializable dict representation of an object.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.fiesta.Fiesta_run.bse_run">
@@ -298,7 +300,7 @@ logfile: logfile of Fiesta</p>
 
 <dl class="class">
 <dt id="pymatgen.io.fiesta.Nwchem2Fiesta">
-<em class="property">class </em><code class="descname">Nwchem2Fiesta</code><span class="sig-paren">(</span><em>folder</em>, <em>filename=u'nwchem'</em>, <em>log_file=u'log_n2f'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/fiesta.html#Nwchem2Fiesta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.fiesta.Nwchem2Fiesta" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">Nwchem2Fiesta</code><span class="sig-paren">(</span><em>folder</em>, <em>filename='nwchem'</em>, <em>log_file='log_n2f'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/fiesta.html#Nwchem2Fiesta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.fiesta.Nwchem2Fiesta" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>To run NWCHEM2FIESTA inside python:</p>
 <p>If nwchem.nw is the input, nwchem.out the output, and structure.movecs the
@@ -311,7 +313,8 @@ logfile: logfile of NWCHEM2FIESTA</p>
 <dl class="method">
 <dt id="pymatgen.io.fiesta.Nwchem2Fiesta.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/fiesta.html#Nwchem2Fiesta.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.fiesta.Nwchem2Fiesta.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>A JSON serializable dict representation of an object.</p>
+</dd></dl>
 
 <dl class="classmethod">
 <dt id="pymatgen.io.fiesta.Nwchem2Fiesta.from_dict">
@@ -366,13 +369,13 @@ logfile: logfile of NWCHEM2FIESTA</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.1.24 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

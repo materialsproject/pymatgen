@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.nwchem module &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.io.nwchem module &#8212; pymatgen 2019.1.24 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.1.24 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -47,7 +47,7 @@
 <span id="pymatgen-io-nwchem-module"></span><h1>pymatgen.io.nwchem module<a class="headerlink" href="#module-pymatgen.io.nwchem" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.io.nwchem.NwInput">
-<em class="property">class </em><code class="descname">NwInput</code><span class="sig-paren">(</span><em>mol</em>, <em>tasks</em>, <em>directives=None</em>, <em>geometry_options=(u'units'</em>, <em>u'angstroms')</em>, <em>symmetry_options=None</em>, <em>memory_options=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInput" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">NwInput</code><span class="sig-paren">(</span><em>mol</em>, <em>tasks</em>, <em>directives=None</em>, <em>geometry_options=('units'</em>, <em>'angstroms')</em>, <em>symmetry_options=None</em>, <em>memory_options=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInput" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>An object representing a Nwchem input file, which is essentially a list
 of tasks on a particular molecule.</p>
@@ -77,7 +77,8 @@ E.g “total 1000 mb stack 400 mb”</li>
 <dl class="method">
 <dt id="pymatgen.io.nwchem.NwInput.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwInput.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInput.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>A JSON serializable dict representation of an object.</p>
+</dd></dl>
 
 <dl class="classmethod">
 <dt id="pymatgen.io.nwchem.NwInput.from_dict">
@@ -134,7 +135,7 @@ files generated from this class itself.</p>
 <dl class="exception">
 <dt id="pymatgen.io.nwchem.NwInputError">
 <em class="property">exception </em><code class="descname">NwInputError</code><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwInputError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInputError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">exceptions.Exception</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Error class for NwInput.</p>
 </dd></dl>
 
@@ -225,7 +226,7 @@ curve.</li>
 
 <dl class="class">
 <dt id="pymatgen.io.nwchem.NwTask">
-<em class="property">class </em><code class="descname">NwTask</code><span class="sig-paren">(</span><em>charge</em>, <em>spin_multiplicity</em>, <em>basis_set</em>, <em>basis_set_option=u'cartesian'</em>, <em>title=None</em>, <em>theory=u'dft'</em>, <em>operation=u'optimize'</em>, <em>theory_directives=None</em>, <em>alternate_directives=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">NwTask</code><span class="sig-paren">(</span><em>charge</em>, <em>spin_multiplicity</em>, <em>basis_set</em>, <em>basis_set_option='cartesian'</em>, <em>title=None</em>, <em>theory='dft'</em>, <em>operation='optimize'</em>, <em>theory_directives=None</em>, <em>alternate_directives=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Base task for Nwchem.</p>
 <p>Very flexible arguments to support many types of potential setups.
@@ -265,11 +266,12 @@ constant of 78, you’d supply {‘cosmo’: {“dielectric”: 78}}.</li>
 <dl class="method">
 <dt id="pymatgen.io.nwchem.NwTask.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwTask.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>A JSON serializable dict representation of an object.</p>
+</dd></dl>
 
 <dl class="classmethod">
 <dt id="pymatgen.io.nwchem.NwTask.dft_task">
-<em class="property">classmethod </em><code class="descname">dft_task</code><span class="sig-paren">(</span><em>mol</em>, <em>xc=u'b3lyp'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwTask.dft_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.dft_task" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">dft_task</code><span class="sig-paren">(</span><em>mol</em>, <em>xc='b3lyp'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwTask.dft_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.dft_task" title="Permalink to this definition">¶</a></dt>
 <dd><p>A class method for quickly creating DFT tasks with optional
 cosmo parameter .</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -315,7 +317,7 @@ theory is always “dft” for a dft task.</li>
 
 <dl class="classmethod">
 <dt id="pymatgen.io.nwchem.NwTask.from_molecule">
-<em class="property">classmethod </em><code class="descname">from_molecule</code><span class="sig-paren">(</span><em>mol</em>, <em>theory</em>, <em>charge=None</em>, <em>spin_multiplicity=None</em>, <em>basis_set=u'6-31g'</em>, <em>basis_set_option=u'cartesian'</em>, <em>title=None</em>, <em>operation=u'optimize'</em>, <em>theory_directives=None</em>, <em>alternate_directives=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwTask.from_molecule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.from_molecule" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">from_molecule</code><span class="sig-paren">(</span><em>mol</em>, <em>theory</em>, <em>charge=None</em>, <em>spin_multiplicity=None</em>, <em>basis_set='6-31g'</em>, <em>basis_set_option='cartesian'</em>, <em>title=None</em>, <em>operation='optimize'</em>, <em>theory_directives=None</em>, <em>alternate_directives=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwTask.from_molecule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.from_molecule" title="Permalink to this definition">¶</a></dt>
 <dd><p>Very flexible arguments to support many types of potential setups.
 Users should use more friendly static methods unless they need the
 flexibility.</p>
@@ -356,12 +358,12 @@ example, to perform cosmo calculations with DFT, you’d supply
 
 <dl class="attribute">
 <dt id="pymatgen.io.nwchem.NwTask.operations">
-<code class="descname">operations</code><em class="property"> = {u'': u'dummy', u'dynamics': u'Perform classical molecular dynamics.', u'energy': u'Evaluate the single point energy.', u'freq': u'Same as frequencies.', u'frequencies': u'Compute second derivatives and print out an analysis of molecular vibrations.', u'gradient': u'Evaluate the derivative of the energy with respect to nuclear coordinates.', u'hessian': u'Compute second derivatives.', u'optimize': u'Minimize the energy by varying the molecular structure.', u'property': u'Calculate the properties for the wave function.', u'saddle': u'Conduct a search for a transition state (or saddle point).', u'thermodynamics': u'Perform multi-configuration thermodynamic integration using classical MD.', u'vscf': u'Compute anharmonic contributions to the vibrational modes.'}</em><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.operations" title="Permalink to this definition">¶</a></dt>
+<code class="descname">operations</code><em class="property"> = {'': 'dummy', 'dynamics': 'Perform classical molecular dynamics.', 'energy': 'Evaluate the single point energy.', 'freq': 'Same as frequencies.', 'frequencies': 'Compute second derivatives and print out an analysis of molecular vibrations.', 'gradient': 'Evaluate the derivative of the energy with respect to nuclear coordinates.', 'hessian': 'Compute second derivatives.', 'optimize': 'Minimize the energy by varying the molecular structure.', 'property': 'Calculate the properties for the wave function.', 'saddle': 'Conduct a search for a transition state (or saddle point).', 'thermodynamics': 'Perform multi-configuration thermodynamic integration using classical MD.', 'vscf': 'Compute anharmonic contributions to the vibrational modes.'}</em><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.operations" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.nwchem.NwTask.theories">
-<code class="descname">theories</code><em class="property"> = {u'band': u'Pseudopotential plane-wave DFT for solids using NWPW', u'ccsd': u'Coupled-cluster single and double excitations', u'ccsd(t)': u'Coupled-cluster linearized triples approximation', u'ccsd+t(ccsd)': u'Fourth order triples contribution', u'dft': u'DFT', u'direct_mp2': u'MP2 using a full-direct algorithm', u'esp': u'ESP', u'g3gn': u'some description', u'mcscf': u'Multiconfiguration SCF', u'md': u'Classical molecular dynamics simulation', u'mp2': u'MP2 using a semi-direct algorithm', u'pspw': u'Pseudopotential plane-wave DFT for molecules and insulating solids using NWPW', u'rimp2': u'MP2 using the RI approximation', u'scf': u'Hartree-Fock', u'selci': u'Selected CI with perturbation correction', u'sodft': u'Spin-Orbit DFT', u'tce': u'Tensor Contraction Engine', u'tddft': u'Time Dependent DFT'}</em><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.theories" title="Permalink to this definition">¶</a></dt>
+<code class="descname">theories</code><em class="property"> = {'band': 'Pseudopotential plane-wave DFT for solids using NWPW', 'ccsd': 'Coupled-cluster single and double excitations', 'ccsd(t)': 'Coupled-cluster linearized triples approximation', 'ccsd+t(ccsd)': 'Fourth order triples contribution', 'dft': 'DFT', 'direct_mp2': 'MP2 using a full-direct algorithm', 'esp': 'ESP', 'g3gn': 'some description', 'mcscf': 'Multiconfiguration SCF', 'md': 'Classical molecular dynamics simulation', 'mp2': 'MP2 using a semi-direct algorithm', 'pspw': 'Pseudopotential plane-wave DFT for molecules and insulating solids using NWPW', 'rimp2': 'MP2 using the RI approximation', 'scf': 'Hartree-Fock', 'selci': 'Selected CI with perturbation correction', 'sodft': 'Spin-Orbit DFT', 'tce': 'Tensor Contraction Engine', 'tddft': 'Time Dependent DFT'}</em><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.theories" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -406,13 +408,13 @@ example, to perform cosmo calculations with DFT, you’d supply
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.1.24 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

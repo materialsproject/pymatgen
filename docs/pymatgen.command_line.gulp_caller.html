@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.command_line.gulp_caller module &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.command_line.gulp_caller module &#8212; pymatgen 2019.1.24 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.1.24 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -45,6 +45,9 @@
             
   <div class="section" id="module-pymatgen.command_line.gulp_caller">
 <span id="pymatgen-command-line-gulp-caller-module"></span><h1>pymatgen.command_line.gulp_caller module<a class="headerlink" href="#module-pymatgen.command_line.gulp_caller" title="Permalink to this headline">¶</a></h1>
+<p>Interface with command line GULP.
+<a class="reference external" href="http://projects.ivec.org">http://projects.ivec.org</a>
+WARNING: you need to have GULP installed on your system.</p>
 <dl class="class">
 <dt id="pymatgen.command_line.gulp_caller.BuckinghamPotential">
 <em class="property">class </em><code class="descname">BuckinghamPotential</code><span class="sig-paren">(</span><em>bush_lewis_flag</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#BuckinghamPotential"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.BuckinghamPotential" title="Permalink to this definition">¶</a></dt>
@@ -59,7 +62,7 @@ G.V. Lewis and C.R.A. Catlow, J. Phys. C: Solid State Phys., 18,
 
 <dl class="class">
 <dt id="pymatgen.command_line.gulp_caller.GulpCaller">
-<em class="property">class </em><code class="descname">GulpCaller</code><span class="sig-paren">(</span><em>cmd=u'gulp'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#GulpCaller"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpCaller" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">GulpCaller</code><span class="sig-paren">(</span><em>cmd='gulp'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#GulpCaller"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpCaller" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to run gulp from commandline</p>
 <p>Initialize with the executable if not in the standard path</p>
@@ -93,8 +96,8 @@ G.V. Lewis and C.R.A. Catlow, J. Phys. C: Solid State Phys., 18,
 
 <dl class="exception">
 <dt id="pymatgen.command_line.gulp_caller.GulpConvergenceError">
-<em class="property">exception </em><code class="descname">GulpConvergenceError</code><span class="sig-paren">(</span><em>msg=u''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#GulpConvergenceError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpConvergenceError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">exceptions.Exception</span></code></p>
+<em class="property">exception </em><code class="descname">GulpConvergenceError</code><span class="sig-paren">(</span><em>msg=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#GulpConvergenceError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpConvergenceError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Exception class for GULP.
 Raised when proper convergence is not reached in Mott-Littleton
 defect energy optimisation procedure in GULP</p>
@@ -103,7 +106,7 @@ defect energy optimisation procedure in GULP</p>
 <dl class="exception">
 <dt id="pymatgen.command_line.gulp_caller.GulpError">
 <em class="property">exception </em><code class="descname">GulpError</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#GulpError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">exceptions.Exception</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Exception class for GULP.
 Raised when the GULP gives an error</p>
 </dd></dl>
@@ -323,7 +326,7 @@ boundary conditions are used</li>
 
 <dl class="function">
 <dt id="pymatgen.command_line.gulp_caller.get_energy_buckingham">
-<code class="descname">get_energy_buckingham</code><span class="sig-paren">(</span><em>structure</em>, <em>gulp_cmd=u'gulp'</em>, <em>keywords=(u'optimise'</em>, <em>u'conp'</em>, <em>u'qok')</em>, <em>valence_dict=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#get_energy_buckingham"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.get_energy_buckingham" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_energy_buckingham</code><span class="sig-paren">(</span><em>structure</em>, <em>gulp_cmd='gulp'</em>, <em>keywords=('optimise'</em>, <em>'conp'</em>, <em>'qok')</em>, <em>valence_dict=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#get_energy_buckingham"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.get_energy_buckingham" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the energy of a structure using Buckingham potential.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -344,7 +347,7 @@ neutral.</li>
 
 <dl class="function">
 <dt id="pymatgen.command_line.gulp_caller.get_energy_relax_structure_buckingham">
-<code class="descname">get_energy_relax_structure_buckingham</code><span class="sig-paren">(</span><em>structure</em>, <em>gulp_cmd=u'gulp'</em>, <em>keywords=(u'optimise'</em>, <em>u'conp')</em>, <em>valence_dict=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#get_energy_relax_structure_buckingham"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.get_energy_relax_structure_buckingham" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_energy_relax_structure_buckingham</code><span class="sig-paren">(</span><em>structure</em>, <em>gulp_cmd='gulp'</em>, <em>keywords=('optimise'</em>, <em>'conp')</em>, <em>valence_dict=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#get_energy_relax_structure_buckingham"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.get_energy_relax_structure_buckingham" title="Permalink to this definition">¶</a></dt>
 <dd><p>Relax a structure and compute the energy using Buckingham potential.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -365,7 +368,7 @@ neutral.</li>
 
 <dl class="function">
 <dt id="pymatgen.command_line.gulp_caller.get_energy_tersoff">
-<code class="descname">get_energy_tersoff</code><span class="sig-paren">(</span><em>structure</em>, <em>gulp_cmd=u'gulp'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#get_energy_tersoff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.get_energy_tersoff" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_energy_tersoff</code><span class="sig-paren">(</span><em>structure</em>, <em>gulp_cmd='gulp'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#get_energy_tersoff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.get_energy_tersoff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the energy of a structure using Tersoff potential.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -421,13 +424,13 @@ neutral.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.1.24 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

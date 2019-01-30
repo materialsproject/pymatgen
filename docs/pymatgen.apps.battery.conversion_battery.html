@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.apps.battery.conversion_battery module &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.apps.battery.conversion_battery module &#8212; pymatgen 2019.1.24 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.1.24 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -72,7 +72,8 @@ battery, e.g. Li.</li>
 <dl class="method">
 <dt id="pymatgen.apps.battery.conversion_battery.ConversionElectrode.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/conversion_battery.html#ConversionElectrode.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionElectrode.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>A JSON serializable dict representation of an object.</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.apps.battery.conversion_battery.ConversionElectrode.composition">
@@ -81,7 +82,7 @@ battery, e.g. Li.</li>
 
 <dl class="staticmethod">
 <dt id="pymatgen.apps.battery.conversion_battery.ConversionElectrode.from_composition_and_entries">
-<em class="property">static </em><code class="descname">from_composition_and_entries</code><span class="sig-paren">(</span><em>comp</em>, <em>entries_in_chemsys</em>, <em>working_ion_symbol=u'Li'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/conversion_battery.html#ConversionElectrode.from_composition_and_entries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionElectrode.from_composition_and_entries" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">from_composition_and_entries</code><span class="sig-paren">(</span><em>comp</em>, <em>entries_in_chemsys</em>, <em>working_ion_symbol='Li'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/conversion_battery.html#ConversionElectrode.from_composition_and_entries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionElectrode.from_composition_and_entries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience constructor to make a ConversionElectrode from a
 composition and all entries in a chemical system.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -103,7 +104,7 @@ chemical system. E.g., all Li-Fe-F containing entries.</li>
 
 <dl class="staticmethod">
 <dt id="pymatgen.apps.battery.conversion_battery.ConversionElectrode.from_composition_and_pd">
-<em class="property">static </em><code class="descname">from_composition_and_pd</code><span class="sig-paren">(</span><em>comp</em>, <em>pd</em>, <em>working_ion_symbol=u'Li'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/conversion_battery.html#ConversionElectrode.from_composition_and_pd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionElectrode.from_composition_and_pd" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">from_composition_and_pd</code><span class="sig-paren">(</span><em>comp</em>, <em>pd</em>, <em>working_ion_symbol='Li'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/conversion_battery.html#ConversionElectrode.from_composition_and_pd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionElectrode.from_composition_and_pd" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience constructor to make a ConversionElectrode from a
 composition and a phase diagram.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -179,7 +180,8 @@ composition.</p>
 <dl class="attribute">
 <dt id="pymatgen.apps.battery.conversion_battery.ConversionElectrode.voltage_pairs">
 <code class="descname">voltage_pairs</code><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionElectrode.voltage_pairs" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns all the VoltagePairs</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.apps.battery.conversion_battery.ConversionElectrode.working_ion">
@@ -190,7 +192,8 @@ composition.</p>
 <dl class="attribute">
 <dt id="pymatgen.apps.battery.conversion_battery.ConversionElectrode.working_ion_entry">
 <code class="descname">working_ion_entry</code><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionElectrode.working_ion_entry" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>The working ion as an Entry object</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -360,13 +363,13 @@ ensure correct capacities.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.1.24 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

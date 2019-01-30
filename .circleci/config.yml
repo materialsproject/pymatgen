@@ -16,10 +16,11 @@ jobs:
             export PATH=$HOME/miniconda3/bin:$PATH
             if [ ! -d "/root/miniconda3/envs/test_env" ]; then conda create --quiet --yes --name test_env python=3.6; fi
             source activate test_env
-            conda install --quiet --yes numpy scipy matplotlib sympy pandas cython
+            conda install --quiet --yes numpy scipy matplotlib sympy cython
             conda install --quiet --yes -c openbabel openbabel
             conda install --quiet --yes -c clinicalgraphics vtk
             conda install --quiet --yes cmake
+            conda uninstall --yes pandas
             # conda update --quiet --all
             mkdir coverage_reports
             pip install --upgrade pip
@@ -39,6 +40,8 @@ jobs:
             export PATH=$HOME/miniconda3/bin:$PATH
             export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
             export MPLBACKEND=Agg
+            export LC_ALL=en_US.UTF-8
+            export LANG=en_US.UTF-8
             # Only do matproj and other ext API tests once every five random runs or so.
             # The parallelism is 4. If 1/20 we have to run, that measn the probability of a matproj test running is 1-(1-0.05)**4 = 0.18.
             if [ "$(( RANDOM % 20 ))" -ne "0" ]; then export NOSE_EXCLUDE_TESTS="pymatgen.ext.tests.test_matproj.MPResterTest;pymatgen.analysis.tests.test_pourbaix_diagram.PourbaixDiagramTest;pymatgen.tests.test_init.SettingsTestCase"; fi

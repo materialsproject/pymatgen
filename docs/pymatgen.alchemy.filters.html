@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.alchemy.filters module &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.alchemy.filters module &#8212; pymatgen 2019.1.24 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.1.24 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -80,7 +80,17 @@ assumed to have net charge of 0.</p>
 <dl class="method">
 <dt id="pymatgen.alchemy.filters.ChargeBalanceFilter.test">
 <code class="descname">test</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/alchemy/filters.html#ChargeBalanceFilter.test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.filters.ChargeBalanceFilter.test" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Method to execute the test.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(bool) Structures that return true are kept in the Transmuter
+object during filtering.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
@@ -109,7 +119,8 @@ object if false, compares atomic number</li>
 <dl class="method">
 <dt id="pymatgen.alchemy.filters.ContainsSpecieFilter.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/alchemy/filters.html#ContainsSpecieFilter.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.filters.ContainsSpecieFilter.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>A JSON serializable dict representation of an object.</p>
+</dd></dl>
 
 <dl class="classmethod">
 <dt id="pymatgen.alchemy.filters.ContainsSpecieFilter.from_dict">
@@ -119,7 +130,17 @@ object if false, compares atomic number</li>
 <dl class="method">
 <dt id="pymatgen.alchemy.filters.ContainsSpecieFilter.test">
 <code class="descname">test</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/alchemy/filters.html#ContainsSpecieFilter.test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.filters.ContainsSpecieFilter.test" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Method to execute the test.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(bool) Structures that return true are kept in the Transmuter
+object during filtering.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
@@ -148,7 +169,17 @@ structure matcher is used. A recommended value is 1e-5.</li>
 <dl class="method">
 <dt id="pymatgen.alchemy.filters.RemoveDuplicatesFilter.test">
 <code class="descname">test</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/alchemy/filters.html#RemoveDuplicatesFilter.test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.filters.RemoveDuplicatesFilter.test" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Method to execute the test.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(bool) Structures that return true are kept in the Transmuter
+object during filtering.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
@@ -178,12 +209,23 @@ structure matcher is used. A recommended value is 1e-5.</li>
 <dl class="method">
 <dt id="pymatgen.alchemy.filters.RemoveExistingFilter.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/alchemy/filters.html#RemoveExistingFilter.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.filters.RemoveExistingFilter.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>A JSON serializable dict representation of an object.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.alchemy.filters.RemoveExistingFilter.test">
 <code class="descname">test</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/alchemy/filters.html#RemoveExistingFilter.test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.filters.RemoveExistingFilter.test" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Method to execute the test.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(bool) Structures that return true are kept in the Transmuter
+object during filtering.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
@@ -209,7 +251,8 @@ instead to filter based on Element and not Specie.</td>
 <dl class="method">
 <dt id="pymatgen.alchemy.filters.SpecieProximityFilter.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/alchemy/filters.html#SpecieProximityFilter.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.filters.SpecieProximityFilter.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>A JSON serializable dict representation of an object.</p>
+</dd></dl>
 
 <dl class="classmethod">
 <dt id="pymatgen.alchemy.filters.SpecieProximityFilter.from_dict">
@@ -219,7 +262,17 @@ instead to filter based on Element and not Specie.</td>
 <dl class="method">
 <dt id="pymatgen.alchemy.filters.SpecieProximityFilter.test">
 <code class="descname">test</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/alchemy/filters.html#SpecieProximityFilter.test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.filters.SpecieProximityFilter.test" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Method to execute the test.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(bool) Structures that return true are kept in the Transmuter
+object during filtering.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
@@ -237,7 +290,17 @@ assumed to have net charge of 0.</p>
 <dl class="method">
 <dt id="pymatgen.alchemy.filters.SpeciesMaxDistFilter.test">
 <code class="descname">test</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/alchemy/filters.html#SpeciesMaxDistFilter.test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.filters.SpeciesMaxDistFilter.test" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Method to execute the test.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(bool) Structures that return true are kept in the Transmuter
+object during filtering.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
@@ -281,13 +344,13 @@ assumed to have net charge of 0.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.1.24 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

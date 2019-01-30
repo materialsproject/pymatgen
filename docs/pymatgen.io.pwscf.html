@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.pwscf module &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.io.pwscf module &#8212; pymatgen 2019.1.24 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.1.24 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -47,7 +47,7 @@
 <span id="pymatgen-io-pwscf-module"></span><h1>pymatgen.io.pwscf module<a class="headerlink" href="#module-pymatgen.io.pwscf" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.io.pwscf.PWInput">
-<em class="property">class </em><code class="descname">PWInput</code><span class="sig-paren">(</span><em>structure</em>, <em>pseudo=None</em>, <em>control=None</em>, <em>system=None</em>, <em>electrons=None</em>, <em>ions=None</em>, <em>cell=None</em>, <em>kpoints_mode=u'automatic'</em>, <em>kpoints_grid=(1</em>, <em>1</em>, <em>1)</em>, <em>kpoints_shift=(0</em>, <em>0</em>, <em>0)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/pwscf.html#PWInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWInput" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">PWInput</code><span class="sig-paren">(</span><em>structure</em>, <em>pseudo=None</em>, <em>control=None</em>, <em>system=None</em>, <em>electrons=None</em>, <em>ions=None</em>, <em>cell=None</em>, <em>kpoints_mode='automatic'</em>, <em>kpoints_grid=(1</em>, <em>1</em>, <em>1)</em>, <em>kpoints_shift=(0</em>, <em>0</em>, <em>0)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/pwscf.html#PWInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWInput" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Base input file class. Right now, only supports no symmetry and is
 very basic.</p>
@@ -181,7 +181,7 @@ integers, floats, etc.</p>
 <dl class="exception">
 <dt id="pymatgen.io.pwscf.PWInputError">
 <em class="property">exception </em><code class="descname">PWInputError</code><a class="reference internal" href="_modules/pymatgen/io/pwscf.html#PWInputError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWInputError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">exceptions.BaseException</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseException</span></code></p>
 </dd></dl>
 
 <dl class="class">
@@ -205,12 +205,12 @@ integers, floats, etc.</p>
 
 <dl class="attribute">
 <dt id="pymatgen.io.pwscf.PWOutput.patterns">
-<code class="descname">patterns</code><em class="property"> = {u'celldm1': u'celldm\\(1\\)=\\s+([\\d\\.]+)\\s', u'celldm2': u'celldm\\(2\\)=\\s+([\\d\\.]+)\\s', u'celldm3': u'celldm\\(3\\)=\\s+([\\d\\.]+)\\s', u'celldm4': u'celldm\\(4\\)=\\s+([\\d\\.]+)\\s', u'celldm5': u'celldm\\(5\\)=\\s+([\\d\\.]+)\\s', u'celldm6': u'celldm\\(6\\)=\\s+([\\d\\.]+)\\s', u'ecut': u'kinetic\\-energy cutoff\\s+=\\s+([\\d\\.\\-]+)\\s+Ry', u'energies': u'total energy\\s+=\\s+([\\d\\.\\-]+)\\sRy', u'lattice_type': u'bravais\\-lattice index\\s+=\\s+(\\d+)', u'nkpts': u'number of k points=\\s+([\\d]+)'}</em><a class="headerlink" href="#pymatgen.io.pwscf.PWOutput.patterns" title="Permalink to this definition">¶</a></dt>
+<code class="descname">patterns</code><em class="property"> = {'celldm1': 'celldm\\(1\\)=\\s+([\\d\\.]+)\\s', 'celldm2': 'celldm\\(2\\)=\\s+([\\d\\.]+)\\s', 'celldm3': 'celldm\\(3\\)=\\s+([\\d\\.]+)\\s', 'celldm4': 'celldm\\(4\\)=\\s+([\\d\\.]+)\\s', 'celldm5': 'celldm\\(5\\)=\\s+([\\d\\.]+)\\s', 'celldm6': 'celldm\\(6\\)=\\s+([\\d\\.]+)\\s', 'ecut': 'kinetic\\-energy cutoff\\s+=\\s+([\\d\\.\\-]+)\\s+Ry', 'energies': 'total energy\\s+=\\s+([\\d\\.\\-]+)\\sRy', 'lattice_type': 'bravais\\-lattice index\\s+=\\s+(\\d+)', 'nkpts': 'number of k points=\\s+([\\d]+)'}</em><a class="headerlink" href="#pymatgen.io.pwscf.PWOutput.patterns" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.pwscf.PWOutput.read_pattern">
-<code class="descname">read_pattern</code><span class="sig-paren">(</span><em>patterns</em>, <em>reverse=False</em>, <em>terminate_on_match=False</em>, <em>postprocess=&lt;type 'str'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/pwscf.html#PWOutput.read_pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWOutput.read_pattern" title="Permalink to this definition">¶</a></dt>
+<code class="descname">read_pattern</code><span class="sig-paren">(</span><em>patterns</em>, <em>reverse=False</em>, <em>terminate_on_match=False</em>, <em>postprocess=&lt;class 'str'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/pwscf.html#PWOutput.read_pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWOutput.read_pattern" title="Permalink to this definition">¶</a></dt>
 <dd><p>General pattern reading. Uses monty’s regrep method. Takes the same
 arguments.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -285,13 +285,13 @@ items on one line.</dd>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.1.24 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
