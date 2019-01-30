@@ -411,6 +411,11 @@ class MPNonSCFSetTest(PymatgenTest):
         self.assertEqual(vis.incar["NSW"], 0)
         # Check that the ENCUT has been inherited.
         self.assertEqual(vis.incar["ENCUT"], 600)
+
+        # check NEDOS and ISMEAR set correctly
+        self.assertEqual(vis.incar["NEDOS"], 2001)
+        self.assertEqual(vis.incar["ISMEAR"], -5)
+
         self.assertTrue(vis.incar["LOPTICS"])
         self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Reciprocal)
 
