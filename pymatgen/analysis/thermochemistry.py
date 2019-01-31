@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 """
 A module to perform experimental thermochemical data analysis.
@@ -23,7 +22,7 @@ from pymatgen.core.composition import Composition
 STANDARD_TEMP = 298.0
 
 
-class ThermoData(object):
+class ThermoData:
     """
     A object container for an experimental Thermochemical Data.
 

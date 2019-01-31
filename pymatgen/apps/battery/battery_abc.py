@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 from collections import Sequence
 import abc
@@ -29,7 +28,7 @@ __date__ = "Feb 1, 2012"
 __status__ = "Beta"
 
 
-class AbstractVoltagePair(object):
+class AbstractVoltagePair:
     """
     An Abstract Base Class for a Voltage Pair.
     """

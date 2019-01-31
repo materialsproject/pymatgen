@@ -4,27 +4,16 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.analysis.defects.utils &#8212; pymatgen 2018.11.30 documentation</title>
-    
+    <title>pymatgen.analysis.defects.utils &#8212; pymatgen 2019.1.24 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../../',
-        VERSION:     '2018.11.30',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -35,8 +24,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +34,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.11.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.1.24 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -62,7 +50,6 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
 
 <span class="kn">import</span> <span class="nn">math</span>
 
@@ -98,7 +85,7 @@
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="n">peak_local_max_found</span> <span class="o">=</span> <span class="kc">False</span>
 
-<span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">map</span>
+
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Danny Broberg, Shyam Dwaraknath, Bharat Medasani, Nils Zimmermann, Geoffroy Hautier&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2014, The Materials Project&quot;</span>
@@ -261,7 +248,7 @@
     <span class="k">return</span> <span class="n">blk_close_sites</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">def_close_sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="StructureMotifInterstitial"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.StructureMotifInterstitial">[docs]</a><span class="k">class</span> <span class="nc">StructureMotifInterstitial</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureMotifInterstitial"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.StructureMotifInterstitial">[docs]</a><span class="k">class</span> <span class="nc">StructureMotifInterstitial</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generate interstitial sites at positions</span>
 <span class="sd">    where the interstitialcy is coordinated by nearest neighbors</span>
@@ -610,7 +597,7 @@
         <span class="k">return</span> <span class="n">scs</span></div></div>
 
 
-<div class="viewcode-block" id="TopographyAnalyzer"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.TopographyAnalyzer">[docs]</a><span class="k">class</span> <span class="nc">TopographyAnalyzer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="TopographyAnalyzer"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.TopographyAnalyzer">[docs]</a><span class="k">class</span> <span class="nc">TopographyAnalyzer</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This is a generalized module to perform topological analyses of a crystal</span>
 <span class="sd">    structure using Voronoi tessellations. It can be used for finding potential</span>
@@ -928,7 +915,7 @@
         <span class="n">vis</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div></div>
 
 
-<div class="viewcode-block" id="VoronoiPolyhedron"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.VoronoiPolyhedron">[docs]</a><span class="k">class</span> <span class="nc">VoronoiPolyhedron</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="VoronoiPolyhedron"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.VoronoiPolyhedron">[docs]</a><span class="k">class</span> <span class="nc">VoronoiPolyhedron</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convenience container for a voronoi point in PBC and its associated polyhedron.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -970,7 +957,7 @@
         <span class="k">return</span> <span class="s2">&quot;Voronoi polyhedron </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span></div>
 
 
-<div class="viewcode-block" id="ChargeDensityAnalyzer"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.ChargeDensityAnalyzer">[docs]</a><span class="k">class</span> <span class="nc">ChargeDensityAnalyzer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="ChargeDensityAnalyzer"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.ChargeDensityAnalyzer">[docs]</a><span class="k">class</span> <span class="nc">ChargeDensityAnalyzer</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Analyzer to find potential interstitial sites based on charge density. The</span>
 <span class="sd">    `total` charge density is used.</span>
@@ -1187,6 +1174,11 @@
                     <span class="n">frac_coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f_coords</span> <span class="o">+</span> <span class="n">image</span><span class="p">)</span>
             <span class="n">merged_fcoords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
 
+        <span class="n">merged_fcoords</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">merged_fcoords</span><span class="p">]</span>
+        <span class="n">merged_fcoords</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">f</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1E-15</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">merged_fcoords</span><span class="p">]</span>
+        <span class="c1"># the second line for fringe cases like </span>
+        <span class="c1"># np.array([ 5.0000000e-01 -4.4408921e-17  5.0000000e-01])</span>
+        <span class="c1"># where the shift to [0,1) does not work due to float precision</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_extrema</span><span class="p">(</span><span class="n">merged_fcoords</span><span class="p">,</span> <span class="n">extrema_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">extrema_type</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
             <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> vertices after combination.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extrema_coords</span><span class="p">)))</span></div>
@@ -1277,10 +1269,10 @@
 
 <div class="viewcode-block" id="ChargeDensityAnalyzer.sort_sites_by_integrated_chg"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.ChargeDensityAnalyzer.sort_sites_by_integrated_chg">[docs]</a>    <span class="k">def</span> <span class="nf">sort_sites_by_integrated_chg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mf">0.4</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get the integrated charge density around each site in a given radius</span>
-<span class="sd">        Note that</span>
+<span class="sd">        Get the average charge density around each local minima in the charge density</span>
+<span class="sd">        and store the result in _extrema_df</span>
 <span class="sd">        Args:</span>
-<span class="sd">            r (float): radius of sphere around each site to integrate</span>
+<span class="sd">            r (float): radius of sphere around each site to evaluate the average</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extrema_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1288,10 +1280,11 @@
         <span class="n">int_den</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">isite</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">extrema_coords</span><span class="p">:</span>
             <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dist_mat</span><span class="p">(</span><span class="n">isite</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">r</span>
-            <span class="n">chg_in_sphere</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chgcar</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">mask</span><span class="p">)</span> <span class="o">/</span> <span class="n">mask</span><span class="o">.</span><span class="n">size</span>
+            <span class="n">vol_sphere</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">chgcar</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">volume</span> <span class="o">*</span> <span class="p">(</span><span class="n">mask</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">chgcar</span><span class="o">.</span><span class="n">ngridpts</span><span class="p">)</span>
+            <span class="n">chg_in_sphere</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chgcar</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">mask</span><span class="p">)</span> <span class="o">/</span> <span class="n">mask</span><span class="o">.</span><span class="n">size</span> <span class="o">/</span> <span class="n">vol_sphere</span>
             <span class="n">int_den</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">chg_in_sphere</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_extrema_df</span><span class="p">[</span><span class="s1">&#39;Int. Charge Density&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">int_den</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_extrema_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Int. Charge Density&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_extrema_df</span><span class="p">[</span><span class="s1">&#39;avg_charge_den&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">int_den</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_extrema_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;avg_charge_den&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_extrema_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_dist_mat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos_frac</span><span class="p">):</span>
@@ -1350,12 +1343,14 @@
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../../../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -1371,7 +1366,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.11.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.1.24 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1379,7 +1374,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

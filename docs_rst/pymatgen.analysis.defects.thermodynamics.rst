@@ -1,5 +1,5 @@
-pymatgen\.analysis\.defects\.thermodynamics module
-==================================================
+pymatgen.analysis.defects.thermodynamics module
+===============================================
 
 .. automodule:: pymatgen.analysis.defects.thermodynamics
     :members:

@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import math
 
@@ -38,7 +37,7 @@ try:
 except ImportError:
     peak_local_max_found = False
 
-from six.moves import map
+
 
 __author__ = "Danny Broberg, Shyam Dwaraknath, Bharat Medasani, Nils Zimmermann, Geoffroy Hautier"
 __copyright__ = "Copyright 2014, The Materials Project"
@@ -201,7 +200,7 @@ def closestsites(struct_blk, struct_def, pos):
     return blk_close_sites[0], def_close_sites[0]
 
 
-class StructureMotifInterstitial(object):
+class StructureMotifInterstitial:
     """
     Generate interstitial sites at positions
     where the interstitialcy is coordinated by nearest neighbors
@@ -550,7 +549,7 @@ class StructureMotifInterstitial(object):
         return scs
 
 
-class TopographyAnalyzer(object):
+class TopographyAnalyzer:
     """
     This is a generalized module to perform topological analyses of a crystal
     structure using Voronoi tessellations. It can be used for finding potential
@@ -868,7 +867,7 @@ class TopographyAnalyzer(object):
         vis.show()
 
 
-class VoronoiPolyhedron(object):
+class VoronoiPolyhedron:
     """
     Convenience container for a voronoi point in PBC and its associated polyhedron.
     """
@@ -910,7 +909,7 @@ class VoronoiPolyhedron(object):
         return "Voronoi polyhedron %s" % self.name
 
 
-class ChargeDensityAnalyzer(object):
+class ChargeDensityAnalyzer:
     """
     Analyzer to find potential interstitial sites based on charge density. The
     `total` charge density is used.
@@ -1128,6 +1127,10 @@ class ChargeDensityAnalyzer(object):
             merged_fcoords.append(np.average(frac_coords, axis=0))
 
         merged_fcoords = [f - np.floor(f) for f in merged_fcoords]
+        merged_fcoords = [f * (np.abs(f - 1) > 1E-15) for f in merged_fcoords]
+        # the second line for fringe cases like 
+        # np.array([ 5.0000000e-01 -4.4408921e-17  5.0000000e-01])
+        # where the shift to [0,1) does not work due to float precision
         self._update_extrema(merged_fcoords, extrema_type=self.extrema_type)
         logger.debug(
             "{} vertices after combination.".format(len(self.extrema_coords)))
@@ -1218,10 +1221,10 @@ class ChargeDensityAnalyzer(object):
 
     def sort_sites_by_integrated_chg(self, r=0.4):
         """
-        Get the integrated charge density around each site in a given radius
-        Note that
+        Get the average charge density around each local minima in the charge density
+        and store the result in _extrema_df
         Args:
-            r (float): radius of sphere around each site to integrate
+            r (float): radius of sphere around each site to evaluate the average
         """
 
         if self.extrema_type is None:
@@ -1229,10 +1232,11 @@ class ChargeDensityAnalyzer(object):
         int_den = []
         for isite in self.extrema_coords:
             mask = self._dist_mat(isite) < r
-            chg_in_sphere = np.sum(self.chgcar.data['total'] * mask) / mask.size
+            vol_sphere = self.chgcar.structure.volume * (mask.sum()/self.chgcar.ngridpts)
+            chg_in_sphere = np.sum(self.chgcar.data['total'] * mask) / mask.size / vol_sphere
             int_den.append(chg_in_sphere)
-        self._extrema_df['Int. Charge Density'] = int_den
-        self._extrema_df.sort_values(by=['Int. Charge Density'], inplace=True)
+        self._extrema_df['avg_charge_den'] = int_den
+        self._extrema_df.sort_values(by=['avg_charge_den'], inplace=True)
         self._extrema_df.reset_index(drop=True, inplace=True)
 
     def _dist_mat(self, pos_frac):

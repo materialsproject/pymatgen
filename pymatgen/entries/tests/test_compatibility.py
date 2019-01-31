@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import warnings
 """
 Created on Mar 19, 2012
@@ -70,7 +69,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_process_entry(self):
         #Correct parameters
@@ -242,7 +241,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
 
 class MITCompatibilityTest(unittest.TestCase):
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def setUp(self):
         warnings.simplefilter("ignore")

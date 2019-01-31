@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import unittest
 import pickle
@@ -137,11 +136,12 @@ class ElementTestCase(PymatgenTest):
                 "superconduction_temperature",
                 "bulk_modulus", "youngs_modulus", "brinell_hardness",
                 "rigidity_modulus", "mineral_hardness",
-                "vickers_hardness", "density_of_solid", "atomic_orbitals"
-                                                        "coefficient_of_linear_thermal_expansion", "oxidation_states",
+                "vickers_hardness", "density_of_solid",
+                "atomic_orbitals", "coefficient_of_linear_thermal_expansion",
+                "oxidation_states",
                 "common_oxidation_states", "average_ionic_radius",
                 "average_cationic_radius", "average_anionic_radius",
-                "ionic_radii", "long_name", "metallic_radius"]
+                "ionic_radii", "long_name", "metallic_radius", "iupac_ordering"]
 
         # Test all elements up to Uranium
         for i in range(1, 104):
@@ -153,6 +153,9 @@ class ElementTestCase(PymatgenTest):
                     self.assertIsNotNone(getattr(el, k))
                 elif k == "long_name":
                     self.assertEqual(getattr(el, "long_name"), d["Name"])
+                elif k == "iupac_ordering":
+                    self.assertTrue("IUPAC ordering" in d)
+                    self.assertIsNotNone(getattr(el, k))
             el = Element.from_Z(i)
             if len(el.oxidation_states) > 0:
                 self.assertEqual(max(el.oxidation_states),

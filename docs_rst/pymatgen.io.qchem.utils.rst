@@ -1,5 +1,5 @@
-pymatgen\.io\.qchem\.utils module
-=================================
+pymatgen.io.qchem.utils module
+==============================
 
 .. automodule:: pymatgen.io.qchem.utils
     :members:

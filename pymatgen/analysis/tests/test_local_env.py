@@ -1,8 +1,7 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
-from __future__ import unicode_literals
+import warnings
 
 import numpy as np
 from math import pi
@@ -1012,6 +1011,11 @@ class CrystalNNTest(PymatgenTest):
         self.lifepo4.add_oxidation_state_by_guess()
         self.he_bcc = self.get_structure('He_BCC')
         self.he_bcc.add_oxidation_state_by_guess()
+        self.prev_warnings = warnings.filters
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.filters = self.prev_warnings
 
     def test_sanity(self):
         with self.assertRaises(ValueError):
@@ -1102,6 +1106,13 @@ class CutOffDictNNTest(PymatgenTest):
 
         nn_null = CutOffDictNN()
         self.assertEqual(nn_null.get_cn(self.diamond, 0), 0)
+
+    def test_from_preset(self):
+        nn = CutOffDictNN.from_preset("vesta_2019")
+        self.assertEqual(nn.get_cn(self.diamond, 0), 4)
+
+        # test error thrown on unknown preset
+        self.assertRaises(ValueError, CutOffDictNN.from_preset, "test")
 
 
 @unittest.skipIf(not which('critic2'), "critic2 executable not present")

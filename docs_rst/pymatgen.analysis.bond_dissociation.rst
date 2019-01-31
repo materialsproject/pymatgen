@@ -1,5 +1,5 @@
-pymatgen\.analysis\.bond\_dissociation module
-=============================================
+pymatgen.analysis.bond\_dissociation module
+===========================================
 
 .. automodule:: pymatgen.analysis.bond_dissociation
     :members:

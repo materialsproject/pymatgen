@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
 
 import abc
 import re
@@ -12,14 +11,12 @@ import shutil
 import warnings
 from itertools import chain
 from copy import deepcopy
-
-import six
 import numpy as np
 
 from monty.serialization import loadfn
 from monty.io import zopen
 
-from pymatgen.core.periodic_table import Specie
+from pymatgen.core.periodic_table import Specie, Element
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints
 from pymatgen.io.vasp.outputs import Vasprun, Outcar
@@ -74,7 +71,7 @@ __date__ = "May 28 2016"
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-class VaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
+class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
     """
     Base class representing a set of Vasp input parameters with a structure
     supplied as init parameters. Typically, you should not inherit from this
@@ -529,9 +526,9 @@ class MPStaticSet(MPRelaxSet):
             \\*\\*kwargs: kwargs supported by MPRelaxSet.
         """
         super(MPStaticSet, self).__init__(structure, **kwargs)
-        if isinstance(prev_incar, six.string_types):
+        if isinstance(prev_incar, str):
             prev_incar = Incar.from_file(prev_incar)
-        if isinstance(prev_kpoints, six.string_types):
+        if isinstance(prev_kpoints, str):
             prev_kpoints = Kpoints.from_file(prev_kpoints)
 
         self.prev_incar = prev_incar
@@ -803,7 +800,7 @@ class MPHSEBSSet(MPHSERelaxSet):
 
 class MPNonSCFSet(MPRelaxSet):
     def __init__(self, structure, prev_incar=None,
-                 mode="line", nedos=601, reciprocal_density=100, sym_prec=0.1,
+                 mode="line", nedos=2001, reciprocal_density=100, sym_prec=0.1,
                  kpoints_line_density=20, optics=False, **kwargs):
         """
         Init a MPNonSCFSet. Typically, you would use the classmethod
@@ -813,7 +810,7 @@ class MPNonSCFSet(MPRelaxSet):
             structure (Structure): Structure to compute
             prev_incar (Incar/string): Incar file from previous run.
             mode (str): Line or Uniform mode supported.
-            nedos (int): nedos parameter. Default to 601.
+            nedos (int): nedos parameter. Default to 2001.
             reciprocal_density (int): density of k-mesh by reciprocal
                                     volume (defaults to 100)
             sym_prec (float): Symmetry precision (for Uniform mode).
@@ -822,7 +819,7 @@ class MPNonSCFSet(MPRelaxSet):
             \\*\\*kwargs: kwargs supported by MPVaspInputSet.
         """
         super(MPNonSCFSet, self).__init__(structure, **kwargs)
-        if isinstance(prev_incar, six.string_types):
+        if isinstance(prev_incar, str):
             prev_incar = Incar.from_file(prev_incar)
         self.prev_incar = prev_incar
         self.kwargs = kwargs
@@ -847,14 +844,21 @@ class MPNonSCFSet(MPRelaxSet):
             incar.update({k: v for k, v in self.prev_incar.items()})
 
         # Overwrite necessary INCAR parameters from previous runs
-        incar.update({"IBRION": -1, "ISMEAR": 0, "SIGMA": 0.001,
-                      "LCHARG": False, "LORBIT": 11, "LWAVE": False,
-                      "NSW": 0, "ISYM": 0, "ICHARG": 11})
+        incar.update({"IBRION": -1,  "LCHARG": False, "LORBIT": 11,
+                      "LWAVE": False, "NSW": 0, "ISYM": 0, "ICHARG": 11})
+
+        if self.mode.lower() == 'uniform':
+            # use tetrahedron method for DOS and optics calculations
+            incar.update({"ISMEAR": -5})
+        else:
+            # if line mode, can't use ISMEAR=-5; also use small sigma to avoid
+            # partial occupancies for small band gap materials
+            incar.update({"ISMEAR": 0, "SIGMA": 0.01})
 
         incar.update(self.kwargs.get("user_incar_settings", {}))
 
         if self.mode.lower() == "uniform":
-            # Set smaller steps for DOS output
+            # Set smaller steps for DOS and optics output
             incar["NEDOS"] = self.nedos
 
         if self.optics:
@@ -1674,6 +1678,68 @@ class MITMDSet(MITRelaxSet):
         self.end_temp = end_temp
         self.nsteps = nsteps
         self.time_step = time_step
+        self.spin_polarized = spin_polarized
+        self.kwargs = kwargs
+
+        # use VASP default ENCUT
+        self._config_dict["INCAR"].pop('ENCUT', None)
+
+        if defaults['ISPIN'] == 1:
+            self._config_dict["INCAR"].pop('MAGMOM', None)
+        self._config_dict["INCAR"].update(defaults)
+
+    @property
+    def kpoints(self):
+        return Kpoints.gamma_automatic()
+
+
+class MPMDSet(MPRelaxSet):
+    """
+    This a modified version of the old MITMDSet pre 2018/03/12.
+    This set serves as the basis for the amorphous skyline paper.
+    (1) Aykol, M.; Dwaraknath, S. S.; Sun, W.; Persson, K. A.
+    Thermodynamic Limit for Synthesis of Metastable Inorganic Materials. Sci. Adv. 2018, 4 (4).
+     Class for writing a vasp md run. This DOES NOT do multiple stage
+    runs.
+     Precision remains normal, to increase accuracy of stress tensor.
+    """
+
+    def __init__(self, structure, start_temp, end_temp, nsteps,
+                 spin_polarized=False, **kwargs):
+        """
+        Args:
+            structure (Structure): Input structure.
+            start_temp (int): Starting temperature.
+            end_temp (int): Final temperature.
+            nsteps (int): Number of time steps for simulations. The NSW parameter.
+            time_step (int): The time step for the simulation. The POTIM
+                parameter. Defaults to 2fs.
+            spin_polarized (bool): Whether to do spin polarized calculations.
+                The ISPIN parameter. Defaults to False.
+            \\*\\*kwargs: Other kwargs supported by :class:`DictSet`.
+        """
+
+        # MD default settings
+        defaults = {'TEBEG': start_temp, 'TEEND': end_temp, 'NSW': nsteps,
+                    'EDIFF_PER_ATOM': 0.00001, 'LSCALU': False,
+                    'LCHARG': False,
+                    'LPLANE': False, 'LWAVE': True, 'ISMEAR': 0,
+                    'NELMIN': 4, 'LREAL': True, 'BMIX': 1,
+                    'MAXMIX': 20, 'NELM': 500, 'NSIM': 4, 'ISYM': 0,
+                    'ISIF': 0, 'IBRION': 0, 'NBLOCK': 1, 'KBLOCK': 100,
+                    'SMASS': 0, 'POTIM': 2, 'PREC': 'Normal',
+                    'ISPIN': 2 if spin_polarized else 1,
+                    "LDAU": False, 'ADDGRID': True}
+
+        if Element('H') in structure.species:
+            defaults['POTIM'] = 0.5
+        defaults['NSW'] = defaults['NSW'] * 4
+
+        super(MPMDSet, self).__init__(structure, **kwargs)
+
+        self.start_temp = start_temp
+        self.end_temp = end_temp
+        self.nsteps = nsteps
         self.spin_polarized = spin_polarized
         self.kwargs = kwargs
 

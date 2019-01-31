@@ -1,5 +1,5 @@
-pymatgen\.analysis\.transition\_state module
-============================================
+pymatgen.analysis.transition\_state module
+==========================================
 
 .. automodule:: pymatgen.analysis.transition_state
     :members:

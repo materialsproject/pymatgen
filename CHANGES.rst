@@ -1,6 +1,27 @@
 Change log
 ==========
 
+v2019.1.24
+----------
+* Python 3 only!
+* Improvements to local environment code including VESTA bond emulation (@utf)
+* Update Cohp analysis (@JaGEO)
+* Updates to Boltztrap2 (@fraricci)
+
+v2019.1.13
+----------
+* Pymatgen is now Py3 ONLY. If you need Py27 support, please use versions 
+  < 2019.1.1.
+* PARCHG parsing from WAVECAR (@mturiansky)
+* Improvements to defect generation algorithms (@dbroberg)
+* Simplifications to COHP plotting (@JaGeo)
+
+v2018.12.12
+-----------
+* Support for IUPAC ordering of elements in Composition formulae (@utf)
+* Various bug fixes including returning integer miller indices, catching negative values in Composition and fixes to graph analysis (@utf), fix to Composition serialization (@jmmshen), defect analysis (@HanmeiTang), removing sites in surfaces (@yiming-xu), and fix to support the new PROCAR format in VASP (@dkorotin)
+* `PMG_MAPI_ENDPOINT` environment variable added to support different endpoints for the Materials Project REST interface (@mkhorton)
+
 v2018.11.30
 -----------
 * MPRester.query now supports bulk queries for large scale requests. 

@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import math
 import os
@@ -14,15 +13,9 @@ import random
 import warnings
 from fnmatch import fnmatch
 import re
+import functools
 
-try:
-    # New Py>=3.5 import
-    from math import gcd
-except ImportError:
-    # Deprecated import from Py3.5 onwards.
-    from fractions import gcd
-
-import six
+from math import gcd
 
 import numpy as np
 
@@ -53,7 +46,7 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 
-class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
+class SiteCollection(collections.Sequence, metaclass=ABCMeta):
     """
     Basic SiteCollection. Essentially a sequence of Sites or PeriodicSites.
     This serves as a base class for Molecule (a collection of Site, i.e., no
@@ -1340,7 +1333,7 @@ class IStructure(SiteCollection, MSONable):
             np.fill_diagonal(non_nbrs, True)
             grouped_non_nbrs.append(non_nbrs)
 
-        num_fu = six.moves.reduce(gcd, map(len, grouped_sites))
+        num_fu = functools.reduce(gcd, map(len, grouped_sites))
         for size, ms in get_hnf(num_fu):
             inv_ms = np.linalg.inv(ms)
 
@@ -2446,7 +2439,7 @@ class Structure(IStructure, collections.MutableSequence):
 
         if isinstance(i, int):
             indices = [i]
-        elif isinstance(i, six.string_types + (Element, Specie)):
+        elif isinstance(i, (str, Element, Specie)):
             self.replace_species({i: site})
             return
         elif isinstance(i, slice):
@@ -2466,7 +2459,7 @@ class Structure(IStructure, collections.MutableSequence):
                                      "single int indices!")
                 self._sites[ii] = site
             else:
-                if isinstance(site, six.string_types) or (
+                if isinstance(site, str) or (
                         not isinstance(site, collections.Sequence)):
                     sp = site
                     frac_coords = self._sites[ii].frac_coords
@@ -3171,8 +3164,8 @@ class Structure(IStructure, collections.MutableSequence):
                 for key in props.keys():
                     if props[key] is not None and self[i].properties[key] != props[key]:
                         props[key] = None
-                        warnings.warn("Sites with different site property %s are merged."
-                                      "so property is set to none" % key)
+                        warnings.warn("Sites with different site property %s are merged. "
+                                      "So property is set to none" % key)
             sites.append(PeriodicSite(species, coords, self.lattice, properties=props))
 
         self._sites = sites
@@ -3239,7 +3232,7 @@ class Molecule(IMolecule, collections.MutableSequence):
 
         if isinstance(i, int):
             indices = [i]
-        elif isinstance(i, six.string_types + (Element, Specie)):
+        elif isinstance(i, (str, Element, Specie)):
             self.replace_species({i: site})
             return
         elif isinstance(i, slice):
@@ -3253,7 +3246,7 @@ class Molecule(IMolecule, collections.MutableSequence):
             if isinstance(site, Site):
                 self._sites[ii] = site
             else:
-                if isinstance(site, six.string_types) or (
+                if isinstance(site, str) or (
                         not isinstance(site, collections.Sequence)):
                     sp = site
                     coords = self._sites[ii].coords

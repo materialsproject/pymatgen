@@ -4,7 +4,6 @@
 """
 Works for Abinit
 """
-from __future__ import unicode_literals, division, print_function
 
 import os
 import shutil
@@ -12,15 +11,12 @@ import time
 import abc
 import collections
 import numpy as np
-import six
 import copy
 
-from six.moves import filter
 from monty.collections import AttrDict
 from monty.itertools import chunks
 from monty.functools import lazy_property
 from monty.fnmatch import WildCard
-#from monty.dev import deprecated
 from pydispatch import dispatcher
 from pymatgen.core.units import EnergyArray
 from . import wrappers
@@ -78,7 +74,7 @@ class WorkError(NodeError):
     """Base class for the exceptions raised by Work objects."""
 
 
-class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
+class BaseWork(Node, metaclass=abc.ABCMeta):
     Error = WorkError
 
     Results = WorkResults
@@ -359,7 +355,7 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
         return fg
 
 
-class NodeContainer(six.with_metaclass(abc.ABCMeta)):
+class NodeContainer(metaclass=abc.ABCMeta):
     """
     Mixin classes for `Work` and `Flow` objects providing helper functions
     to register tasks in the container. The helper function call the
@@ -1271,7 +1267,7 @@ class QptdmWork(Work):
 
 # TODO: MergeDdb --> DfptWork(Work) postpone it because it may break pickle.
 
-class MergeDdb(object):
+class MergeDdb:
     """Mixin class for Works that have to merge the DDB files produced by the tasks."""
 
     def add_becs_from_scf_task(self, scf_task, ddk_tolerance, ph_tolerance):

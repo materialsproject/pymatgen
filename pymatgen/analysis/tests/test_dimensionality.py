@@ -1,6 +1,7 @@
 import os
 import networkx as nx
 
+from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.core.structure import Structure
 from pymatgen.analysis.local_env import CrystalNN
 from pymatgen.analysis.dimensionality import (
@@ -56,17 +57,25 @@ class LarsenDimensionalityTest(PymatgenTest):
         components = get_structure_components(self.tricky_structure)
         self.assertEqual(len(components), 1)
         self.assertEqual(components[0]['dimensionality'], 3)
-        self.assertTrue(isinstance(components[0]['structure'], Structure))
-        self.assertEqual(components[0]['structure'].num_sites, 10)
+        self.assertTrue(
+            isinstance(components[0]['structure_graph'], StructureGraph))
+        self.assertEqual(components[0]['structure_graph'].structure.num_sites,
+                         10)
 
         # test 2D structure and get orientation information
         components = get_structure_components(
             self.graphite, inc_orientation=True)
         self.assertEqual(len(components), 2)
         self.assertEqual(components[0]['dimensionality'], 2)
-        self.assertTrue(isinstance(components[0]['structure'], Structure))
-        self.assertEqual(components[0]['structure'].num_sites, 2)
+        self.assertTrue(
+            isinstance(components[0]['structure_graph'], StructureGraph))
+        self.assertEqual(components[0]['structure_graph'].structure.num_sites,
+                         2)
         self.assertEqual(components[0]['orientation'], (0, 0, 1))
+
+        # test getting component graphs
+        self.assertEqual(list(components[0]['structure_graph'].graph.nodes()),
+                         [0, 1])
 
     def test_calculate_dimensionality_of_site(self):
         dimen = calculate_dimensionality_of_site(self.tricky_structure, 0)
@@ -129,8 +138,11 @@ class CheonDimensionalityTest(PymatgenTest):
              [0.726, 0.726, 0.726], [0.274, 0.726, 0.274],
              [0.274, 0.274, 0.726], [0.726, 0.274, 0.274], [0.5, 0.5, 0.5]])
 
-        # cheon dimensionality gets wrong structure
+        # cheon dimensionality gets wrong structure using default parameters
         self.assertEqual(get_dimensionality_cheon(tricky_structure), '2D')
+        # cheon dimensionality gets tricky structure right using a
+        # bigger supercell
+        self.assertEqual(get_dimensionality_cheon(tricky_structure, larger_cell=True), '3D')
 
 
 class GoraiDimensionalityTest(PymatgenTest):

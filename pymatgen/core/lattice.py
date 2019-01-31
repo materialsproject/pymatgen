@@ -2,22 +2,16 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import math
 import itertools
 import warnings
 
 from functools import reduce
-try:
-    # New Py>=3.5 import
-    from math import gcd
-except ImportError:
-    # Deprecated import from Py3.5 onwards.
-    from fractions import gcd
+from math import gcd
 
 from fractions import Fraction
 
-from six.moves import map, zip
+
 
 import numpy as np
 from numpy.linalg import inv
@@ -162,6 +156,26 @@ class Lattice(MSONable):
             Fractional coordinates.
         """
         return dot(cart_coords, self.inv_matrix)
+
+    def get_vector_along_lattice_directions(self, cart_coords):
+        """
+        Returns the coordinates along lattice directions given cartesian coordinates.
+
+        Note, this is different than a projection of the cartesian vector along the
+        lattice parameters. It is simply the fractional coordinates multiplied by the
+        lattice vector magnitudes.
+
+        For example, this method is helpful when analyzing the dipole moment (in
+        units of electron Angstroms) of a ferroelectric crystal. See the `Polarization`
+        class in `pymatgen.analysis.ferroelectricity.polarization`.
+
+        Args:
+            cart_coords (3x1 array): Cartesian coords.
+
+        Returns:
+            Lattice coordinates.
+        """
+        return self.lengths_and_angles[0] * self.get_fractional_coords(cart_coords)
 
     def d_hkl(self, miller_index):
         """
@@ -1189,17 +1203,19 @@ def get_integer_index(miller_index, round_dp=4, verbose=True):
     # deal with the case we have nice fractions
     md = [Fraction(n).limit_denominator(12).denominator for n in miller_index]
     miller_index *= reduce(lambda x, y: x * y, md)
-    round_miller_index = np.int_(np.round(miller_index, 1))
-    miller_index /= np.abs(reduce(gcd, round_miller_index))
+    int_miller_index = np.int_(np.round(miller_index, 1))
+    miller_index /= np.abs(reduce(gcd, int_miller_index))
 
     # round to a reasonable precision
     miller_index = np.array([round(h, round_dp) for h in miller_index])
 
     # need to recalculate this after rounding as values may have changed
-    round_miller_index = np.int_(np.round(miller_index, 1))
-    if (np.any(np.abs(miller_index - round_miller_index) > 1e-6) and
+    int_miller_index = np.int_(np.round(miller_index, 1))
+    if (np.any(np.abs(miller_index - int_miller_index) > 1e-6) and
             verbose):
         warnings.warn("Non-integer encountered in Miller index")
+    else:
+        miller_index = int_miller_index
 
     # minimise the number of negative indexes
     miller_index += 0  # converts -0 to 0

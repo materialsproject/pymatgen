@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
 
 import warnings
 from pymatgen.util.testing import PymatgenTest
@@ -1179,7 +1178,7 @@ class MoleculeTest(PymatgenTest):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_mutable_sequence_methods(self):
         s = self.mol

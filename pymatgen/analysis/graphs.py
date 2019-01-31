@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import warnings
 import subprocess
@@ -29,8 +28,9 @@ from networkx.readwrite import json_graph
 from networkx.drawing.nx_agraph import write_dot
 
 import logging
-logging.basicConfig(level=logging.INFO)
+
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 __author__ = "Matthew Horton, Evan Spotte-Smith"
 __version__ = "0.1"

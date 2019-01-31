@@ -1,5 +1,5 @@
-pymatgen\.transformations package
-=================================
+pymatgen.transformations package
+================================
 
 Subpackages
 -----------

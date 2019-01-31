@@ -1,5 +1,5 @@
-pymatgen\.analysis\.defects\.generators module
-==============================================
+pymatgen.analysis.defects.generators module
+===========================================
 
 .. automodule:: pymatgen.analysis.defects.generators
     :members:
