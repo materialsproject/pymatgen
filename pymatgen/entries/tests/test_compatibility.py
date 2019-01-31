@@ -753,7 +753,7 @@ class TestMITAqueousCompatibility(unittest.TestCase):
         temp_compat = decoder.process_decoded(compat_dict)
         self.assertIsInstance(temp_compat,MITAqueousCompatibility)
 
-    def test_dont_error_on_weird_els(self):
+    def test_dont_error_on_weird_elements(self):
     entry = ComputedEntry('AmSi',-1,0.0,
         parameters={
             "potcar_spec": [{
