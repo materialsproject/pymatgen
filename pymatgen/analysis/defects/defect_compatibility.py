@@ -25,17 +25,11 @@ __date__ = "Mar 15, 2018"
 
 class DefectCompatibility(MSONable):
     """
-    The DefectCompatibility class combines a list of DefectEntries for a
-    given system and applies corrections / suggests failed jobs that
-    should not be considered
-    Args:
+    The DefectCompatibility class evaluates corrections and delocalization
+    metrics on a DefectEntry. It can only parse based on the available
+    parameters already exist in the parameters of the DefectEntry.
 
-        defect_entries: List of defect_entries to consider.
-        user_defect_qualifiers: a dictionary for specifying the dictionary of qualifiers
-                                for corrections and delocalization analysis.
-                                Defaults are in dictionary above
-
-    required settings for defect_entry.parameters:
+    required settings in defect_entry.parameters for various types of analysis/correction:
         freysoldt: ["axis_grid", "bulk_planar_averages", "defect_planar_averages", "dielectric"]
         kumagai: ["dim", "bulk_atomic_site_averages", "defect_atomic_site_averages", "site_matching_indices",
                     "dielectric]
@@ -78,7 +72,6 @@ class DefectCompatibility(MSONable):
             2) consider delocalization analyses based on qualifier metrics
             given initialization of class. If delocalized, flag entry as delocalized
             3) update corrections to defect entry and flag as del
-
 
         Corrections are applied based on:
             i) if free charges are more than free_chg_cutoff then will not apply charge correction,
