@@ -384,20 +384,22 @@ class DefectCompatibility(MSONable):
                                            [defect_entry.defect.site.specie],
                                            [defect_entry.defect.site.frac_coords],
                                            to_unit_cell=True)
-        defect_site_coords = struct_for_defect_site[0].coords
+        sc_scale = defect_entry.parameters.get("scaling_matrix", (1,1,1))
+        struct_for_defect_site.make_supercell(sc_scale)
+        defect_site_coords = struct_for_defect_site.sites[0].coords
 
         #determine the defect index within the structure and append fractional_coordinates
         if not isinstance(defect_entry.defect, Vacancy):
             poss_deflist = sorted(
                 initial_defect_structure.get_sites_in_sphere(defect_site_coords,
                                                              2, include_index=True), key=lambda x: x[1])
-            defindex = int(poss_deflist[0][2])
+            defindex = poss_deflist[0][2]
             def_frac_coords = poss_deflist[0][0].frac_coords
         else:
             #if vacancy than create periodic site for finding distance from other atoms to defect
             defindex = None
             vac_site = PeriodicSite('H', defect_site_coords,
-                                    initial_defect_structure.lattice, to_unit_cell=True,
+                                    struct_for_defect_site.lattice, to_unit_cell=True,
                                     coords_are_cartesian=True)
             def_frac_coords = vac_site.frac_coords
 
