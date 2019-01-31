@@ -399,6 +399,10 @@ class DefectCompatibility(MSONable):
                 distance_to_defect = initial_defect_structure.lattice.get_distance_and_image( def_frac_coords, initsites[ind])[0]
                 distdata.append([ distance_to_defect, distmatrix[ind, ind], int(ind)])
 
+        if defindex is None and not isinstance(defect_entry.defect, Vacancy):
+            raise ValueError("fractional coordinate for defect could not be "
+                             "identified in initial_defect_structure")
+
         distdata.sort()
         tot_relax_outside_rad = 0.
         perc_relax_outside_rad = 0.
@@ -432,7 +436,6 @@ class DefectCompatibility(MSONable):
                                                   'defect_tot_relax_tol': self.defect_tot_relax_tol})
         else:
             defect_relax_amount = distmatrix[defindex, defindex]
-            print('---> defect_relax_amount for {}:\n{}, {}'.format(defindex, defect_relax_amount, self.defect_tot_relax_tol))
             defectsite_relax_allows_compatible = True if defect_relax_amount <= self.defect_tot_relax_tol else False
             defectsite_relax_analyze_meta.update({'relax_amount': defect_relax_amount,
                                                   'defect_tot_relax_tol': self.defect_tot_relax_tol})
