@@ -45,6 +45,7 @@ jobs:
             # Only do matproj and other ext API tests once every five random runs or so.
             # The parallelism is 4. If 1/20 we have to run, that measn the probability of a matproj test running is 1-(1-0.05)**4 = 0.18.
             if [ "$(( RANDOM % 20 ))" -ne "0" ]; then export NOSE_EXCLUDE_TESTS="pymatgen.ext.tests.test_matproj.MPResterTest;pymatgen.analysis.tests.test_pourbaix_diagram.PourbaixDiagramTest;pymatgen.tests.test_init.SettingsTestCase"; fi
+            export NOSE_EXCLUDE_TESTS="pymatgen.ext.tests.test_matproj.MPResterTest;pymatgen.analysis.tests.test_pourbaix_diagram.PourbaixDiagramTest;pymatgen.tests.test_init.SettingsTestCase"
             echo "NOSE_EXCLUDE_TESTS=$NOSE_EXCLUDE_TESTS"
             source activate test_env
             pip install --quiet -e .
