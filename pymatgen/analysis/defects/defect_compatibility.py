@@ -391,7 +391,7 @@ class DefectCompatibility(MSONable):
             poss_deflist = sorted(
                 initial_defect_structure.get_sites_in_sphere(defect_site_coords,
                                                              2, include_index=True), key=lambda x: x[1])
-            defindex = poss_deflist[0][2]
+            defindex = int(poss_deflist[0][2])
             def_frac_coords = poss_deflist[0][0].frac_coords
         else:
             #if vacancy than create periodic site for finding distance from other atoms to defect
@@ -415,7 +415,7 @@ class DefectCompatibility(MSONable):
                 totpert += distmatrix[ind, ind]
                 # append [distance to defect, distance traveled, index in structure]
                 distance_to_defect = initial_defect_structure.lattice.get_distance_and_image( def_frac_coords, initsites[ind])[0]
-                distdata.append([ distance_to_defect, distmatrix[ind, ind], ind])
+                distdata.append([ distance_to_defect, distmatrix[ind, ind], int(ind)])
 
         distdata.sort()
         tot_relax_outside_rad = 0.
