@@ -432,6 +432,7 @@ class DefectCompatibility(MSONable):
                                                   'defect_tot_relax_tol': self.defect_tot_relax_tol})
         else:
             defect_relax_amount = distmatrix[defindex, defindex]
+            print('---> defect_relax_amount: {}, {}'.format(defect_relax_amount, self.defect_tot_relax_tol))
             defectsite_relax_allows_compatible = True if defect_relax_amount <= self.defect_tot_relax_tol else False
             defectsite_relax_analyze_meta.update({'relax_amount': defect_relax_amount,
                                                   'defect_tot_relax_tol': self.defect_tot_relax_tol})
