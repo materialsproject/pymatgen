@@ -455,7 +455,7 @@ class MITCompatibilityTest(unittest.TestCase):
         decoder = MontyDecoder()
         temp_compat = decoder.process_decoded(compat_dict)
         self.assertIsInstance(temp_compat,MITCompatibility)
-        
+
 
 class OxideTypeCorrectionTest(unittest.TestCase):
 
@@ -752,6 +752,21 @@ class TestMITAqueousCompatibility(unittest.TestCase):
         decoder = MontyDecoder()
         temp_compat = decoder.process_decoded(compat_dict)
         self.assertIsInstance(temp_compat,MITAqueousCompatibility)
+
+    def test_dont_error_on_weird_elements(self):
+        entry = ComputedEntry('AmSi',-1, 0.0,
+            parameters={
+                "potcar_spec": [{
+                    "titel": "PAW_PBE Am 08May2007",
+                    "hash": "ed5eebd8a143e35a0c19e9f8a2c42a93"
+                }, {
+                    "titel": "PAW_PBE Si 05Jan2001",
+                    "hash": "b2b0ea6feb62e7cde209616683b8f7f5"
+                }]
+            })
+        self.assertIsNone(self.compat.process_entry(entry))
+
+
 
 
 if __name__ == "__main__":
