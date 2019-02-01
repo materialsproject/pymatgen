@@ -334,12 +334,13 @@ class DefectPhaseDiagram(MSONable):
         recommendations = {}
 
         for def_type in self.defect_types:
-            defect = self.stable_entries[def_type][0].copy()
+            template_entry = self.stable_entries[def_type][0].copy()
             defect_indices = [int(def_ind) for def_ind in def_type.split('@')[-1].split('-')]
 
             for charge in self.finished_charges[def_type]:
-                chg_defect = defect.copy()
+                chg_defect = template_entry.defect.copy()
                 chg_defect.set_charge ( charge)
+
                 for entry_index in defect_indices:
                     entry = self.entries[entry_index]
                     if entry.charge == charge:
@@ -361,7 +362,7 @@ class DefectPhaseDiagram(MSONable):
                         recommendations[def_type] = []
                     recommendations[def_type].append( charge)
 
-        return
+        return recommendations
 
     def solve_for_fermi_energy(self, temperature, chemical_potentials, bulk_dos):
         """
