@@ -100,9 +100,11 @@ class FreysoldtCorrection(DefectCorrection):
                 list_bulk_plnr_avg_esp.append(np.array(entry.parameters["bulk_planar_averages"][ax]))
                 list_defect_plnr_avg_esp.append(np.array(entry.parameters["defect_planar_averages"][ax]))
 
-        bulk_struct = entry.defect.bulk_structure.copy()
-        if "scaling_matrix" in entry.parameters.keys():
-            bulk_struct.make_supercell(entry.parameters["scaling_matrix"])
+        bulk_struct = entry.parameters["bulk_sc_structure"].copy()
+        # bulk_struct = entry.defect.bulk_structure.copy()
+        # if "scaling_matrix" in entry.parameters.keys():
+        #     bulk_struct.make_supercell(entry.parameters["scaling_matrix"])
+        defect_frac_coords = entry.parameters["defect_frac_sc_coords"]
 
         lattice = bulk_struct.lattice
         q = entry.defect.charge
@@ -114,7 +116,9 @@ class FreysoldtCorrection(DefectCorrection):
         for x, pureavg, defavg, axis in zip(list_axis_grid, list_bulk_plnr_avg_esp, list_defect_plnr_avg_esp,
                                             list_axes):
             tmp_pot_corr = self.perform_pot_corr(
-                x, pureavg, defavg, lattice, entry.charge, entry.site.coords, axis, widthsample=1.0)
+                x, pureavg, defavg, lattice, entry.charge, defect_frac_coords,
+                # entry.site.coords,
+                axis, widthsample=1.0)
             pot_corr_tracker.append(tmp_pot_corr)
 
         pot_corr = np.mean(pot_corr_tracker)
@@ -167,7 +171,7 @@ class FreysoldtCorrection(DefectCorrection):
                          defavg,
                          lattice,
                          q,
-                         defect_position,
+                         defect_frac_position,
                          axis,
                          madetol=0.0001,
                          widthsample=1.0):
@@ -181,7 +185,8 @@ class FreysoldtCorrection(DefectCorrection):
         nx = len(axis_grid)
 
         # shift these planar averages to have defect at origin
-        axfracval = lattice.get_fractional_coords(defect_position)[axis]
+        # axfracval = lattice.get_fractional_coords(defect_position)[axis]
+        axfracval = defect_frac_position[axis]
         axbulkval = axfracval * lattice.abc[axis]
         if axbulkval < 0:
             axbulkval += lattice.abc[axis]
