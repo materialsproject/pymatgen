@@ -36,7 +36,7 @@ if sys.platform.startswith('win') and platform.machine().endswith('64'):
     extra_link_args.append('-Wl,--allow-multiple-definition')
 
 long_desc = """
-Official docs: `http://pymatgen.org <http://pymatgen.org/>`_
+Official docs: [http://pymatgen.org](http://pymatgen.org/)
 
 Pymatgen (Python Materials Genomics) is a robust, open-source Python library
 for materials analysis. These are some of the main features:
@@ -54,10 +54,10 @@ for materials analysis. These are some of the main features:
 Pymatgen is free to use. However, we also welcome your help to improve this
 library by making your own contributions.  These contributions can be in the
 form of additional tools or modules you develop, or feature requests and bug
-reports. Please report any bugs and issues at pymatgen's `Github page
-<https://github.com/materialsproject/pymatgen>`_. If you wish to be notified
-of pymatgen releases, you may become a member of `pymatgen's Google Groups page
-<https://groups.google.com/forum/?fromgroups#!forum/pymatgen/>`_.
+reports. Please report any bugs and issues at pymatgen's [Github page]
+(https://github.com/materialsproject/pymatgen). If you wish to be notified
+of pymatgen releases, you may become a member of 
+[pymatgen's Google Groups page](https://groups.google.com/forum/?fromgroups#!forum/pymatgen/).
 
 Why use pymatgen?
 =================
@@ -66,14 +66,13 @@ There are many materials analysis codes out there, both commerical and free,
 but pymatgen offer several advantages:
 
 1. **It is (fairly) robust.** Pymatgen is used by thousands of researchers,
-   and is the analysis code powering the `Materials Project`_. The analysis it
-   produces survives rigorous scrutiny every single day. Bugs tend to be
-   found and corrected quickly. Pymatgen also uses
-   `CircleCI <https://circleci.com>`_ and `Appveyor <https://www.appveyor.com/>`_
+   and is the analysis code powering the [Materials Project](https://www.materialsproject.org). 
+   The analysis it produces survives rigorous scrutiny every single day. Bugs 
+   tend to be found and corrected quickly. Pymatgen also uses
+   [CircleCI](https://circleci.com) and [Appveyor](https://www.appveyor.com/)
    for continuous integration on the Linux and Windows platforms,
    respectively, which ensures that every commit passes a comprehensive suite
-   of unittests. The coverage of the unittests can be seen at
-   `here <coverage/index.html>`_.
+   of unittests.
 2. **It is well documented.** A fairly comprehensive documentation has been
    written to help you get to grips with it quickly.
 3. **It is open.** You are free to use and contribute to pymatgen. It also means
@@ -87,11 +86,11 @@ but pymatgen offer several advantages:
    handling periodic boundary conditions.
 5. **It will be around.** Pymatgen is not a pet research project. It is used in
    the well-established Materials Project. It is also actively being developed
-   and maintained by the `Materials Virtual Lab`_, the ABINIT group and many
-   other research groups.
+   and maintained by the [Materials Virtual Lab](https://www.materialsvirtuallab.org), 
+   the ABINIT group and many other research groups.
 
-With effect from version 3.0, pymatgen now supports both Python 2.7 as well
-as Python 3.x.
+With effect from version 2019.1.1, pymatgen only supports Python 3.x. Users
+who require Python 2.7 should install pymatgen v2018.x.
 """
 
 setup(
@@ -139,6 +138,7 @@ setup(
                 "powering the Materials Project "
                 "(https://www.materialsproject.org).",
     long_description=long_desc,
+    long_description_content_type='text/markdown',
     keywords=["VASP", "gaussian", "ABINIT", "nwchem", "qchem", "materials", "science",
               "project", "electronic", "structure", "analysis", "phase", "diagrams",
               "crystal"],
