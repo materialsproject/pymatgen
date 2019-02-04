@@ -6,8 +6,8 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.sets &#8212; pymatgen 2019.1.24 documentation</title>
-    <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
+    <title>pymatgen.io.vasp.sets &#8212; pymatgen 2019.2.4 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.1.24 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.2.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -42,7 +42,6 @@
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.io.vasp.sets</h1><div class="highlight"><pre>
@@ -64,7 +63,7 @@
 <span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="k">import</span> <span class="n">loadfn</span>
 <span class="kn">from</span> <span class="nn">monty.io</span> <span class="k">import</span> <span class="n">zopen</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Specie</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">Element</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="k">import</span> <span class="n">Incar</span><span class="p">,</span> <span class="n">Poscar</span><span class="p">,</span> <span class="n">Potcar</span><span class="p">,</span> <span class="n">Kpoints</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.vasp.outputs</span> <span class="k">import</span> <span class="n">Vasprun</span><span class="p">,</span> <span class="n">Outcar</span>
@@ -848,7 +847,7 @@
 
 <div class="viewcode-block" id="MPNonSCFSet"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MPNonSCFSet">[docs]</a><span class="k">class</span> <span class="nc">MPNonSCFSet</span><span class="p">(</span><span class="n">MPRelaxSet</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">prev_incar</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;line&quot;</span><span class="p">,</span> <span class="n">nedos</span><span class="o">=</span><span class="mi">601</span><span class="p">,</span> <span class="n">reciprocal_density</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">sym_prec</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+                 <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;line&quot;</span><span class="p">,</span> <span class="n">nedos</span><span class="o">=</span><span class="mi">2001</span><span class="p">,</span> <span class="n">reciprocal_density</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">sym_prec</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
                  <span class="n">kpoints_line_density</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">optics</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Init a MPNonSCFSet. Typically, you would use the classmethod</span>
@@ -858,7 +857,7 @@
 <span class="sd">            structure (Structure): Structure to compute</span>
 <span class="sd">            prev_incar (Incar/string): Incar file from previous run.</span>
 <span class="sd">            mode (str): Line or Uniform mode supported.</span>
-<span class="sd">            nedos (int): nedos parameter. Default to 601.</span>
+<span class="sd">            nedos (int): nedos parameter. Default to 2001.</span>
 <span class="sd">            reciprocal_density (int): density of k-mesh by reciprocal</span>
 <span class="sd">                                    volume (defaults to 100)</span>
 <span class="sd">            sym_prec (float): Symmetry precision (for Uniform mode).</span>
@@ -892,14 +891,21 @@
             <span class="n">incar</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_incar</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
 
         <span class="c1"># Overwrite necessary INCAR parameters from previous runs</span>
-        <span class="n">incar</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;IBRION&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;ISMEAR&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;SIGMA&quot;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>
-                      <span class="s2">&quot;LCHARG&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;LORBIT&quot;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="s2">&quot;LWAVE&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                      <span class="s2">&quot;NSW&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;ISYM&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;ICHARG&quot;</span><span class="p">:</span> <span class="mi">11</span><span class="p">})</span>
+        <span class="n">incar</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;IBRION&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>  <span class="s2">&quot;LCHARG&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;LORBIT&quot;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span>
+                      <span class="s2">&quot;LWAVE&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;NSW&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;ISYM&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;ICHARG&quot;</span><span class="p">:</span> <span class="mi">11</span><span class="p">})</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;uniform&#39;</span><span class="p">:</span>
+            <span class="c1"># use tetrahedron method for DOS and optics calculations</span>
+            <span class="n">incar</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;ISMEAR&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">5</span><span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># if line mode, can&#39;t use ISMEAR=-5; also use small sigma to avoid</span>
+            <span class="c1"># partial occupancies for small band gap materials</span>
+            <span class="n">incar</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;ISMEAR&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;SIGMA&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">})</span>
 
         <span class="n">incar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;user_incar_settings&quot;</span><span class="p">,</span> <span class="p">{}))</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;uniform&quot;</span><span class="p">:</span>
-            <span class="c1"># Set smaller steps for DOS output</span>
+            <span class="c1"># Set smaller steps for DOS and optics output</span>
             <span class="n">incar</span><span class="p">[</span><span class="s2">&quot;NEDOS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nedos</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">optics</span><span class="p">:</span>
@@ -1734,6 +1740,68 @@
         <span class="k">return</span> <span class="n">Kpoints</span><span class="o">.</span><span class="n">gamma_automatic</span><span class="p">()</span></div>
 
 
+<div class="viewcode-block" id="MPMDSet"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MPMDSet">[docs]</a><span class="k">class</span> <span class="nc">MPMDSet</span><span class="p">(</span><span class="n">MPRelaxSet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This a modified version of the old MITMDSet pre 2018/03/12.</span>
+<span class="sd">    This set serves as the basis for the amorphous skyline paper.</span>
+<span class="sd">    (1) Aykol, M.; Dwaraknath, S. S.; Sun, W.; Persson, K. A.</span>
+<span class="sd">    Thermodynamic Limit for Synthesis of Metastable Inorganic Materials. Sci. Adv. 2018, 4 (4).</span>
+<span class="sd">     Class for writing a vasp md run. This DOES NOT do multiple stage</span>
+<span class="sd">    runs.</span>
+<span class="sd">     Precision remains normal, to increase accuracy of stress tensor.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">start_temp</span><span class="p">,</span> <span class="n">end_temp</span><span class="p">,</span> <span class="n">nsteps</span><span class="p">,</span>
+                 <span class="n">spin_polarized</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): Input structure.</span>
+<span class="sd">            start_temp (int): Starting temperature.</span>
+<span class="sd">            end_temp (int): Final temperature.</span>
+<span class="sd">            nsteps (int): Number of time steps for simulations. The NSW parameter.</span>
+<span class="sd">            time_step (int): The time step for the simulation. The POTIM</span>
+<span class="sd">                parameter. Defaults to 2fs.</span>
+<span class="sd">            spin_polarized (bool): Whether to do spin polarized calculations.</span>
+<span class="sd">                The ISPIN parameter. Defaults to False.</span>
+<span class="sd">            \\*\\*kwargs: Other kwargs supported by :class:`DictSet`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># MD default settings</span>
+        <span class="n">defaults</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;TEBEG&#39;</span><span class="p">:</span> <span class="n">start_temp</span><span class="p">,</span> <span class="s1">&#39;TEEND&#39;</span><span class="p">:</span> <span class="n">end_temp</span><span class="p">,</span> <span class="s1">&#39;NSW&#39;</span><span class="p">:</span> <span class="n">nsteps</span><span class="p">,</span>
+                    <span class="s1">&#39;EDIFF_PER_ATOM&#39;</span><span class="p">:</span> <span class="mf">0.00001</span><span class="p">,</span> <span class="s1">&#39;LSCALU&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                    <span class="s1">&#39;LCHARG&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                    <span class="s1">&#39;LPLANE&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;LWAVE&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;ISMEAR&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                    <span class="s1">&#39;NELMIN&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;LREAL&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;BMIX&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="s1">&#39;MAXMIX&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s1">&#39;NELM&#39;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span> <span class="s1">&#39;NSIM&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;ISYM&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                    <span class="s1">&#39;ISIF&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;IBRION&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;NBLOCK&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;KBLOCK&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+                    <span class="s1">&#39;SMASS&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;POTIM&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;PREC&#39;</span><span class="p">:</span> <span class="s1">&#39;Normal&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;ISPIN&#39;</span><span class="p">:</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">spin_polarized</span> <span class="k">else</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="s2">&quot;LDAU&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;ADDGRID&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">Element</span><span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">)</span> <span class="ow">in</span> <span class="n">structure</span><span class="o">.</span><span class="n">species</span><span class="p">:</span>
+            <span class="n">defaults</span><span class="p">[</span><span class="s1">&#39;POTIM&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span>
+        <span class="n">defaults</span><span class="p">[</span><span class="s1">&#39;NSW&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">defaults</span><span class="p">[</span><span class="s1">&#39;NSW&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">MPMDSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_temp</span> <span class="o">=</span> <span class="n">start_temp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end_temp</span> <span class="o">=</span> <span class="n">end_temp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nsteps</span> <span class="o">=</span> <span class="n">nsteps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spin_polarized</span> <span class="o">=</span> <span class="n">spin_polarized</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
+
+        <span class="c1"># use VASP default ENCUT</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config_dict</span><span class="p">[</span><span class="s2">&quot;INCAR&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;ENCUT&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">defaults</span><span class="p">[</span><span class="s1">&#39;ISPIN&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_config_dict</span><span class="p">[</span><span class="s2">&quot;INCAR&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;MAGMOM&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config_dict</span><span class="p">[</span><span class="s2">&quot;INCAR&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">defaults</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">kpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Kpoints</span><span class="o">.</span><span class="n">gamma_automatic</span><span class="p">()</span></div>
+
+
 <div class="viewcode-block" id="MVLNPTMDSet"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MVLNPTMDSet">[docs]</a><span class="k">class</span> <span class="nc">MVLNPTMDSet</span><span class="p">(</span><span class="n">MITMDSet</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class for writing a vasp md run in NPT ensemble.</span>
@@ -1956,23 +2024,6 @@
 </pre></div>
 
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -1985,7 +2036,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.1.24 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.2.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
