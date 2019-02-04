@@ -640,6 +640,7 @@ class StructureGraph(MSONable):
         """
 
         connected_sites = set()
+        connected_site_images = set()
 
         out_edges = [(u, v, d, 'out') for u, v, d in self.graph.out_edges(n, data=True)]
         in_edges = [(u, v, d, 'in') for u, v, d in self.graph.in_edges(n, data=True)]
@@ -663,13 +664,16 @@ class StructureGraph(MSONable):
 
             weight = d.get('weight', None)
 
-            connected_site = ConnectedSite(site=site,
-                                           jimage=to_jimage,
-                                           index=v,
-                                           weight=weight,
-                                           dist=dist)
+            if (v, to_jimage) not in connected_site_images:
 
-            connected_sites.add(connected_site)
+                connected_site = ConnectedSite(site=site,
+                                               jimage=to_jimage,
+                                               index=v,
+                                               weight=weight,
+                                               dist=dist)
+
+                connected_sites.add(connected_site)
+                connected_site_images.add((v, to_jimage))
 
         # return list sorted by closest sites first
         connected_sites = list(connected_sites)
