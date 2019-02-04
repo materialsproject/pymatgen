@@ -56,7 +56,7 @@ library by making your own contributions.  These contributions can be in the
 form of additional tools or modules you develop, or feature requests and bug
 reports. Please report any bugs and issues at pymatgen's [Github page]
 (https://github.com/materialsproject/pymatgen). If you wish to be notified
-of pymatgen releases, you may become a member of 
+of pymatgen releases, you may become a member of
 [pymatgen's Google Groups page](https://groups.google.com/forum/?fromgroups#!forum/pymatgen/).
 
 Why use pymatgen?
@@ -66,8 +66,8 @@ There are many materials analysis codes out there, both commerical and free,
 but pymatgen offer several advantages:
 
 1. **It is (fairly) robust.** Pymatgen is used by thousands of researchers,
-   and is the analysis code powering the [Materials Project](https://www.materialsproject.org). 
-   The analysis it produces survives rigorous scrutiny every single day. Bugs 
+   and is the analysis code powering the [Materials Project](https://www.materialsproject.org).
+   The analysis it produces survives rigorous scrutiny every single day. Bugs
    tend to be found and corrected quickly. Pymatgen also uses
    [CircleCI](https://circleci.com) and [Appveyor](https://www.appveyor.com/)
    for continuous integration on the Linux and Windows platforms,
@@ -86,7 +86,7 @@ but pymatgen offer several advantages:
    handling periodic boundary conditions.
 5. **It will be around.** Pymatgen is not a pet research project. It is used in
    the well-established Materials Project. It is also actively being developed
-   and maintained by the [Materials Virtual Lab](https://www.materialsvirtuallab.org), 
+   and maintained by the [Materials Virtual Lab](https://www.materialsvirtuallab.org),
    the ABINIT group and many other research groups.
 
 With effect from version 2019.1.1, pymatgen only supports Python 3.x. Users
@@ -96,7 +96,7 @@ who require Python 2.7 should install pymatgen v2018.x.
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2019.1.24",
+    version="2019.2.4",
     cmdclass={'build_ext': build_ext},
     setup_requires=['numpy>=1.14.3', 'setuptools>=18.0'],
     install_requires=["numpy>=1.14.3", "requests", "ruamel.yaml>=0.15.6",
