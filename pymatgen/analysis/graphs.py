@@ -523,7 +523,7 @@ class StructureGraph(MSONable):
         for correct, current in enumerate(self.graph.nodes):
             mapping[current] = correct
 
-        nx.relabel_nodes(self.graph, mapping)
+        nx.relabel_nodes(self.graph, mapping, copy=False)
         self.set_node_attributes()
 
     def substitute_group(self, index, func_grp, strategy, bond_order=1,
@@ -1893,7 +1893,7 @@ class MoleculeGraph(MSONable):
         for correct, current in enumerate(self.graph.nodes):
             mapping[current] = correct
 
-        nx.relabel_nodes(self.graph, mapping)
+        nx.relabel_nodes(self.graph, mapping, copy=False)
         self.set_node_attributes()
 
     def split_molecule_subgraphs(self, bonds, allow_reverse=False,
