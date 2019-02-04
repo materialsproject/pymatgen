@@ -108,7 +108,7 @@ setup(
         "provenance": ["pybtex"],
         "ase": ["ase>=3.3"],
         "vis": ["vtk>=6.0.0"],
-        "abinit": ["apscheduler==2.1.0"]},
+        "abinit": ["apscheduler==2.1.0", "netcdf4"]},
     package_data={"pymatgen.core": ["*.json"],
                   "pymatgen.analysis": ["*.yaml", "*.json"],
                   "pymatgen.analysis.cost": ["*.csv"],
