@@ -154,7 +154,7 @@ class PotcarCorrection(Correction):
                                     for sym in entry.parameters[
                                     "potcar_symbols"] if sym])
 
-        if {self.valid_potcars[str(el)] for el in
+        if {self.valid_potcars.get(str(el)) for el in
                 entry.composition.elements} != psp_settings:
             raise CompatibilityError('Incompatible potcar')
         return 0
