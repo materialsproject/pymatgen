@@ -161,32 +161,14 @@ class StructureGraphTest(unittest.TestCase):
 
         # known example where this bug occurred due to edge weights not being
         # bit-for-bit identical in otherwise identical edges
-        nacl = Structure.from_dict(
-            {
-                "@module": "pymatgen.core.structure",
-                "@class": "Structure",
-                "charge": None,
-                "lattice": {
-                    "matrix": [
-                        [3.48543625, 0.0, 2.01231756],
-                        [1.16181208, 3.28610081, 2.01231756],
-                        [0.0, 0.0, 4.02463512],
-                    ]
-                },
-                "sites": [
-                    {
-                        "species": [{"element": "Na", "occu": 1}],
-                        "abc": [0.0, 0.0, 0.0],
-                        "properties": {"magmom": 0.0},
-                    },
-                    {
-                        "species": [{"element": "Cl", "occu": 1}],
-                        "abc": [0.5, 0.5, 0.5],
-                        "properties": {"magmom": 0.0},
-                    },
-                ],
-            }
+        nacl_lattice = Lattice(
+            [
+                [3.48543625, 0.0, 2.01231756],
+                [1.16181208, 3.28610081, 2.01231756],
+                [0.0, 0.0, 4.02463512],
+            ]
         )
+        nacl = Structure(nacl_lattice, ["Na", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
 
         nacl_graph = StructureGraph.with_local_env_strategy(
             nacl, CutOffDictNN({("Cl", "Cl"): 5.0})
