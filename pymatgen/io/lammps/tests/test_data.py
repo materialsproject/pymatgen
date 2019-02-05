@@ -595,6 +595,7 @@ class TopologyTest(unittest.TestCase):
                           [6, 0, 1, 2], [6, 0, 1, 7], [6, 0, 1, 8],
                           [0, 1, 2, 3], [7, 1, 2, 3], [8, 1, 2, 3]]
         np.testing.assert_array_equal(tp_etoh["Dihedrals"], etoh_dihedrals)
+        self.assertIsNotNone(json.dumps(topo_etoh.as_dict()))
         # bond flag to off
         topo_etoh0 = Topology.from_bonding(molecule=etoh, bond=False,
                                            angle=True, dihedral=True)
@@ -741,9 +742,16 @@ class FuncTest(unittest.TestCase):
         tetra_latt = Lattice.tetragonal(5, 5)
         tetra_box, _ = lattice_2_lmpbox(tetra_latt)
         self.assertIsNone(tetra_box.tilt)
-        orthorhombic_latt = Lattice.orthorhombic(5, 5, 5)
-        orthorhombic_box, _ = lattice_2_lmpbox(orthorhombic_latt)
-        self.assertIsNone(orthorhombic_box.tilt)
+        ortho_latt = Lattice.orthorhombic(5, 5, 5)
+        ortho_box, _ = lattice_2_lmpbox(ortho_latt)
+        self.assertIsNone(ortho_box.tilt)
+        rot_tetra_latt = Lattice([[5, 0, 0], [0, 2, 2], [0, -2, 2]])
+        _, rotop = lattice_2_lmpbox(rot_tetra_latt)
+        np.testing.\
+            assert_array_almost_equal(rotop.rotation_matrix,
+                                      [[1, 0, 0],
+                                       [0, 2 ** 0.5 / 2, 2 ** 0.5 / 2],
+                                       [0, -2 ** 0.5 / 2, 2 ** 0.5 / 2]])
 
     @unittest.skip("The function is deprecated")
     def test_structure_2_lmpdata(self):
