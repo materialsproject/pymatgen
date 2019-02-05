@@ -595,6 +595,7 @@ class TopologyTest(unittest.TestCase):
                           [6, 0, 1, 2], [6, 0, 1, 7], [6, 0, 1, 8],
                           [0, 1, 2, 3], [7, 1, 2, 3], [8, 1, 2, 3]]
         np.testing.assert_array_equal(tp_etoh["Dihedrals"], etoh_dihedrals)
+        self.assertIsNotNone(json.dumps(topo_etoh.as_dict()))
         # bond flag to off
         topo_etoh0 = Topology.from_bonding(molecule=etoh, bond=False,
                                            angle=True, dihedral=True)

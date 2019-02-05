@@ -920,13 +920,13 @@ class Topology(MSONable):
         else:
             angle_list, dihedral_list = [], []
             dests, freq = np.unique(bond_list, return_counts=True)
-            hubs = dests[np.where(freq > 1)]
+            hubs = dests[np.where(freq > 1)].tolist()
             bond_arr = np.array(bond_list)
             if len(hubs) > 0:
                 hub_spokes = {}
                 for hub in hubs:
                     ix = np.any(np.isin(bond_arr, hub), axis=1)
-                    bonds = list(np.unique(bond_arr[ix]))
+                    bonds = np.unique(bond_arr[ix]).tolist()
                     bonds.remove(hub)
                     hub_spokes[hub] = bonds
             # skip angle or dihedral searching if too few bonds or hubs
@@ -940,7 +940,7 @@ class Topology(MSONable):
                                        itertools.combinations(v, 2)])
             if dihedral:
                 hub_cons = bond_arr[np.all(np.isin(bond_arr, hubs), axis=1)]
-                for i, j in hub_cons:
+                for i, j in hub_cons.tolist():
                     ks = [k for k in hub_spokes[i] if k != j]
                     ls = [l for l in hub_spokes[j] if l != i]
                     dihedral_list.extend([[k, i, j, l] for k, l in
