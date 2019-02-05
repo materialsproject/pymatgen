@@ -80,6 +80,10 @@ class DefectCompatibility(MSONable):
             iii) only use BandFilling correction if use_bandfilling is set to True
             iv) only use BandEdgeShift correction if use_bandedgeshift is set to True
         """
+        for struct_key in ["bulk_sc_structure", "initial_defect_structure", "final_defect_structure"]:
+            if struct_key in defect_entry.parameters.keys() and isinstance(defect_entry.parameters[struct_key], dict):
+                defect_entry.parameters[struct_key] = Structure.from_dict(defect_entry.parameters[struct_key])
+
         self.perform_all_corrections(defect_entry)
 
         self.delocalization_analysis(defect_entry)

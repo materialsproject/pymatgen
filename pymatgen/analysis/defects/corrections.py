@@ -394,8 +394,8 @@ class KumagaiCorrection(DefectCorrection):
         # [[defect_site object, Vqb for site], .. repeat for all non defective sites]
         site_list = []
         for bs_ind, ds_ind in site_matching_indices:
-            Vqb = -(defect_atomic_site_averages[ds_ind] - bulk_atomic_site_averages[bs_ind])
-            site_list.append([defect_sc_structure[ds_ind], Vqb])
+            Vqb = -(defect_atomic_site_averages[int(ds_ind)] - bulk_atomic_site_averages[int(bs_ind)])
+            site_list.append([defect_sc_structure[int(ds_ind)], Vqb])
 
         pot_corr = self.perform_pot_corr(defect_sc_structure, defect_frac_sc_coords, site_list,
                                          self.metadata["sampling_radius"], q, r_vecs[0],
