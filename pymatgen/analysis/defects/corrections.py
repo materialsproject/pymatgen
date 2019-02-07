@@ -81,13 +81,16 @@ class FreysoldtCorrection(DefectCorrection):
                         A list of 3 numpy arrays which contain the planar averaged
                         electrostatic potential for the defective supercell.
 
-                    scaling_matrix (3 x 1 matrix): scaling matrix required to convert the
-                        entry.defect.bulk_structure object into the lattice which is used by
-                        the bulk_planar_average and defect_planar_average
+                    bulk_sc_structure (Structure) bulk structure corresponding to
+                        defect supercell structure (uses Lattice for charge correction)
+
+                    defect_frac_sc_coords (3 x 1 array) Fracitional co-ordinates of
+                        defect location in supercell structure
+
 
         """
 
-        if not self.axis:
+        if self.axis is None:
             list_axis_grid = np.array(entry.parameters["axis_grid"])
             list_bulk_plnr_avg_esp = np.array(entry.parameters["bulk_planar_averages"])
             list_defect_plnr_avg_esp = np.array(entry.parameters["defect_planar_averages"])
@@ -100,13 +103,9 @@ class FreysoldtCorrection(DefectCorrection):
                 list_bulk_plnr_avg_esp.append(np.array(entry.parameters["bulk_planar_averages"][ax]))
                 list_defect_plnr_avg_esp.append(np.array(entry.parameters["defect_planar_averages"][ax]))
 
-        bulk_struct = entry.parameters["bulk_sc_structure"].copy()
-        # bulk_struct = entry.defect.bulk_structure.copy()
-        # if "scaling_matrix" in entry.parameters.keys():
-        #     bulk_struct.make_supercell(entry.parameters["scaling_matrix"])
+        lattice = entry.parameters["bulk_sc_structure"].lattice.copy()
         defect_frac_coords = entry.parameters["defect_frac_sc_coords"]
 
-        lattice = bulk_struct.lattice
         q = entry.defect.charge
 
         es_corr = self.perform_es_corr(lattice, entry.charge)
