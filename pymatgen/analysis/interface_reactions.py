@@ -255,7 +255,6 @@ class InterfacialReactivity:
         Returns:
             Total number of atoms for non_reservoir elements.
         """
-        # print(self.pd.elements)
         return sum([rxt.get_el_amount(e) for e in self.pd.elements])
 
     def get_products(self):
@@ -374,14 +373,14 @@ class InterfacialReactivity:
 
     def get_critical_original_kink_ratio(self):
         """
-        Returns a list of mixing ratio for each kink between ORIGINAL
+        Returns a list of molar mixing ratio for each kink between ORIGINAL
         (instead of processed) reactant compositions. This is the
         same list as mixing ratio obtained from get_kinks method
         if self.norm = False.
 
         Returns:
-            A list of floats representing mixing ratios between original
-            reactant compositions for each kink.
+            A list of floats representing molar mixing ratios between
+            the original reactant compositions for each kink.
         """
         ratios = []
         if self.c1_original == self.c2_original:
@@ -393,15 +392,16 @@ class InterfacialReactivity:
 
     def _get_original_composition_ratio(self, reaction):
         """
-        Returns the fraction of first reactant with original (instead of
-        processed) composition in a reaction.
+        Returns the molar mixing ratio between the reactants with ORIGINAL (
+        instead of processed) compositions for a reaction.
 
         Args:
-            reaction (Reaction): Reaction object that contains original
+            reaction (Reaction): Reaction object that contains the original
                 reactant compositions.
 
         Returns:
-            The fraction of first reactant in the reaction.
+            The molar mixing ratio between the original reactant
+            compositions for a reaction.
         """
         if self.c1_original == self.c2_original:
             return 1
