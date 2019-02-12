@@ -4,9 +4,10 @@
 
 import re
 
+import numpy as np
 from monty.io import zopen
 
-from monty.re import regrep
+# from monty.re import regrep
 from collections import defaultdict
 
 from pymatgen.core.periodic_table import Element
@@ -403,70 +404,420 @@ class PWInputError(BaseException):
     pass
 
 
+
+def _stress_post(match):
+    lines = match.strip().split('\n')
+    matrix = np.array([[float(stress)
+                        for stress in line.strip().split()]
+                       for line in lines])
+    stress_kbar = matrix[:,[3,4,5]].tolist()
+    return stress_kbar
+
+def _atomic_positions_post(match):
+    lines = match.strip().split('\n')
+    positions = []
+    for line in lines:
+        line = line.strip()
+        if len(line.split()) == 4:
+            specie, x, y, z = line.strip().split()
+            position = (specie, [float(pos)
+                                 for pos in [x, y, z]])
+            positions.append(position)
+    return positions
+
+def _cell_parameters_post(match):
+    lines = match.strip().split('\n')
+    matrix = [[float(param)
+               for param in line.strip().split()]
+              for line in lines]
+    return matrix
+
+def _force_post(match):
+    atom = int(match[0])
+    type_ = int(match[1])
+    force = [float(f) for f in match[2].strip().split()]
+    return {'atom': atom, 'type': type_, 'force': force}
+
+def _bands_post(match):
+    k_re = re.compile('k\s+=\s+([\s\d\.\-]+)')
+    bands_re = re.compile('bands\s+\(ev\)\:\n+([\s\d\-\.]+)', re.MULTILINE)
+    occupations_re = re.compile('occupation numbers\s+\n([\s\d\.]+)', re.MULTILINE)
+
+    k = k_re.findall(match)
+    k = [[float(j) for j in i.replace('-', ' -').strip().split()] for i in k]
+    bands = bands_re.findall(match)
+    bands = [[float(j) for j in i.strip().split()] for i in bands]
+    occupations = occupations_re.findall(match)
+    occupations = [[float(j) for j in i.strip().split()] for i in occupations]
+
+    return {'kpoints': k, 'bands': bands, 'occupations': occupations}
+
+def _kpoints_post(match):
+    lines = match.strip().split('\n')
+
+    kpoints = []
+    for line in lines:
+        line = line.strip().split()
+        index = int(line[1].strip(')'))
+        x, y, z = [float(i.strip('),')) for i in line[4:7]]
+        weight = float(line[-1])
+        kpoints.append({'index': index,
+                        'coords': [x, y, z],
+                        'weight': weight})
+    return kpoints
+
+def _initial_atomic_positions_post(match):
+    lines = match.strip().split('\n')
+    positions = []
+    for line in lines:
+        line = line.split()
+        site = int(line[0])
+        specie = line[1]
+        coords = [float(i) for i in [6, 7, 8]]
+        positions.append((specie, coords))
+
+    return positions
+
+
+
 class PWOutput:
-
+    
     patterns = {
-        "energies": r'total energy\s+=\s+([\d\.\-]+)\sRy',
-        "ecut": r'kinetic\-energy cutoff\s+=\s+([\d\.\-]+)\s+Ry',
-        "lattice_type": r'bravais\-lattice index\s+=\s+(\d+)',
-        "celldm1": r"celldm\(1\)=\s+([\d\.]+)\s",
-        "celldm2": r"celldm\(2\)=\s+([\d\.]+)\s",
-        "celldm3": r"celldm\(3\)=\s+([\d\.]+)\s",
-        "celldm4": r"celldm\(4\)=\s+([\d\.]+)\s",
-        "celldm5": r"celldm\(5\)=\s+([\d\.]+)\s",
-        "celldm6": r"celldm\(6\)=\s+([\d\.]+)\s",
-        "nkpts": r"number of k points=\s+([\d]+)"
+        'energy': {
+            'pattern': r'total energy\s+=\s+([\d\.\-]+)\s+Ry',
+            'flags': [],
+            'postprocess': float,
+        },
+        'final_energy': {
+            'pattern': r'!\s+total energy\s+=\s+([\d\.\-]+)\s+Ry',
+            'flags': [],
+            'postprocess': float,
+        },
+        'enthalpy': {
+            'pattern': r'enthalpy new\s+=\s+([\d\.\-]+)\s+Ry',
+            'flags': [],
+            'postprocess': float,
+        },
+        'final_enthalpy': {
+            'pattern': r'Final enthalpy\s+=\s+([\d\.\-]+)\s+Ry',
+            'flags': [],
+            'postprocess': float,
+        },
+        'density': {
+            'pattern': r'density\s+=\s+([\d\.]+)\s+g\/cm\^3',
+            'flags': [],
+            'postprocess': float,
+        },
+        'warning': {
+            'pattern': r'Warning:\s+([\w\s\/\&]+)$',
+            'flags': [re.MULTILINE],
+            'postprocess': lambda x: str(x).strip(),
+        },
+        'total_stress': {
+            'pattern': r'total\s+stress\s+\(Ry\/bohr\*\*3\)\s+\(kbar\)\s+P=\s+([\d\.\-]+)',
+            'flags': [],
+            'postprocess': float,
+        },
+        'stress': {
+            'pattern': r'total\s+stress\s+\(Ry\/bohr\*\*3\)\s+\(kbar\)\s+P=\s+[\d\.\-]+\n([\s\d\.\-]+)\n',
+            'flags': [re.MULTILINE],
+            'postprocess': _stress_post,
+        },
+        'total_force': {
+            'pattern': r'Total force\s+=\s+([\d\.\-]+)',
+            'flags': [],
+            'postprocess': float,
+        },
+        'force': {
+            'pattern': r'Forces acting on atoms \(cartesian axes, Ry\/au\)\:\n\n\s+atom\s+([\d]+)\s+type\s+([\d]+)\s+force\s+=\s+([\s\d\.\-]+)',
+            'flags': [re.MULTILINE],
+            'postprocess': _force_post,
+        },
+        'bands_data': {
+            'pattern': r'End of self\-consistent calculation\n\n(.*?)the Fermi energy is',
+            'flags': [re.DOTALL],
+            'postprocess': _bands_post,
+        },
+        'fermi_energy': {
+            'pattern': r'the Fermi energy is\s+([\d\.]+) ev',
+            'flags': [],
+            'postprocess': float,
+        },
+        'conv_iters': {
+            'pattern': r'convergence has been achieved in\s+([\d+]) iterations',
+            'flags': [],
+            'postprocess': int,
+        },
+        'cell_parameters': {
+            'pattern': r'CELL\_PARAMETERS\s+\(angstrom\)\s+([\s\d\.\-]+)^$',
+            'flags': [re.MULTILINE],
+            'postprocess': _cell_parameters_post,
+        },
+        'atomic_positions': {
+            'pattern': r'ATOMIC_POSITIONS\s+\(crystal\)\s+([\w\s\d\.\-\n]+)^$',
+            'flags': [re.MULTILINE],
+            'postprocess': _atomic_positions_post,
+        },
+        'version': {
+            'pattern': r'Program PWSCF v.([\d\.]+)',
+            'flags': [],
+            'postprocess': float,
+        },
+        'date': {
+            'pattern': r'Program PWSCF v.[\d\.]+ starts on\s+([\S]+)',
+            'flags': [],
+            'postprocess': lambda x: str(x).strip(),
+        },
+        'time': {
+            'pattern': r'Program PWSCF v.[\d\.]+ starts on\s+\S+\s+at\s+([\d\:\s]+)$',
+            'flags': [re.MULTILINE],
+            'postprocess': lambda x: str(x).strip(),
+        },
+        'lattice_type': {
+            'pattern': r'bravais\-lattice index\s+=\s+(\d+)',
+            'flags': [],
+            'postprocess': int,
+        },
+        'lattice_parameter': {
+            'pattern': r'lattice parameter \(alat\)\s+=\s+([\d\.]+)',
+            'flags': [],
+            'postprocess': float,
+        },
+        'unit_cell_volume': {
+            'pattern': r'unit-cell volume\s+=\s+([\d\.]+)',
+            'flags': [],
+            'postprocess': float,
+        },
+        'nat': {
+            'pattern': r'number of atoms\/cell\s+=\s+(\d+)',
+            'flags': [],
+            'postprocess': int,
+        },
+        'ntype': {
+            'pattern': r'number of atomic types\s+=\s+(\d+)',
+            'flags': [],
+            'postprocess': int,
+        },
+        'nelectrons': {
+            'pattern': r'number of electrons\s+=\s+([\d\.]+)',
+            'flags': [],
+            'postprocess': float,
+        },
+        'nks_states': {
+            'pattern': r'number of Kohn\-Sham states=\s+(\d+)',
+            'flags': [],
+            'postprocess': int,
+        },
+        'ecutwfc': {
+            'pattern': r'kinetic\-energy cutoff\s+=\s+([\d\.\-]+)\s+Ry',
+            'flags': [],
+            'postprocess': float,
+        },
+        'echutrho': {
+            'pattern': r'charge density cutoff\s+=\s+([\d\.\-]+)\s+Ry',
+            'flags': [],
+            'postprocess': float,
+        },
+        'conv_thr': {
+            'pattern': r'convergence threshold\s+=\s+([\d\.\-E]+)',
+            'flags': [],
+            'postprocess': float,
+        },
+        'mixing_beta': {
+            'pattern': r'mixing beta\s+=\s+([\d\.]+)',
+            'flags': [],
+            'postprocess': float,
+        },
+        'niter': {
+            'pattern': r'number of iterations used\s+=\s+([\d\w\s]+)$',
+            'flags': [re.MULTILINE],
+            'postprocess': lambda x: str(x).strip(),
+        },
+        'exc': {
+            'pattern': r'Exchange\-correlation\s+=\s+([\d\w\s\(\)]+)$',
+            'flags': [re.MULTILINE],
+            'postprocess': lambda x: str(x).strip(),
+        },
+        'celldm1': {
+            'pattern': r'celldm\(1\)=\s+([\d\.]+)\s',
+            'flags': [],
+            'postprocess': float,
+        },
+        'celldm2': {
+            'pattern': r'celldm\(2\)=\s+([\d\.]+)\s',
+            'flags': [],
+            'postprocess': float,
+        },
+        'celldm3': {
+            'pattern': r'celldm\(3\)=\s+([\d\.]+)\s',
+            'flags': [],
+            'postprocess': float,
+        },
+        'celldm4': {
+            'pattern': r'celldm\(4\)=\s+([\d\.]+)\s',
+            'flags': [],
+            'postprocess': float,
+        },
+        'celldm5': {
+            'pattern': r'celldm\(5\)=\s+([\d\.]+)\s',
+            'flags': [],
+            'postprocess': float,
+        },
+        'celldm6': {
+            'pattern': r'celldm\(6\)=\s+([\d\.]+)\s',
+            'flags': [],
+            'postprocess': float,
+        },
+        'a1': {
+            'pattern': r'a\(1\)\s+=\s+\(\s+([\d\s\.\-]+)\s+\)',
+            'flags': [],
+            'postprocess': lambda x: [float(i) for i in str(x).split()],
+        },
+        'a2': {
+            'pattern': r'a\(2\)\s+=\s+\(\s+([\d\s\.\-]+)\s+\)',
+            'flags': [],
+            'postprocess': lambda x: [float(i) for i in str(x).split()],
+        },
+        'a3': {
+            'pattern': r'a\(3\)\s+=\s+\(\s+([\d\s\.\-]+)\s+\)',
+            'flags': [],
+            'postprocess': lambda x: [float(i) for i in str(x).split()],
+        },
+        'b1': {
+            'pattern': r'b\(1\)\s+=\s+\(\s+([\d\s\.\-]+)\s+\)',
+            'flags': [],
+            'postprocess': lambda x: [float(i) for i in str(x).split()],
+        },
+        'b2': {
+            'pattern': r'b\(2\)\s+=\s+\(\s+([\d\s\.\-]+)\s+\)',
+            'flags': [],
+            'postprocess': lambda x: [float(i) for i in str(x).split()],
+        },
+        'b3': {
+            'pattern': r'b\(3\)\s+=\s+\(\s+([\d\s\.\-]+)\s+\)',
+            'flags': [],
+            'postprocess': lambda x: [float(i) for i in str(x).split()],
+        },
+        'nsymop': {
+            'pattern': r'^\s+([\d]+)\s+Sym\. Ops\.',
+            'flags': [re.MULTILINE],
+            'postprocess': int,
+        },
+        # TODO: symmetry operations (frac)
+        # TODO: symmetry operations (cart)
+        'initial_atomic_positions_cart': {
+            'pattern': r'Cartesian axes[\s\n]+site n\.\s+atom\s+positions \(alat units\)\n(.*?)Crystallographic',
+            'flags': [re.DOTALL],
+            'postprocess': _initial_atomic_positions_post,
+        },
+        'initial_atomic_positions_frac': {
+            'pattern': r'Crystallographic axes[\s\n]+site n\.\s+atom\s+positions \(cryst\. coord\.\)\n(.*?)number',
+            'flags': [re.DOTALL],
+            'postprocess': _initial_atomic_positions_post,
+        },
+        'nkpts': {
+            'pattern': r'number of k points=\s+([\d]+)',
+            'flags': [],
+            'postprocess': int,
+        },
+        'smearing': {
+            'pattern': r'number of k points=\s+[\d]+\s+([\S]+) smearing',
+            'flags': [],
+            'postprocess': lambda x:x,
+        },
+        'degauss': {
+            'pattern': r'number of k points=\s+\d+\s+\S+ smearing, width\s+\(Ry\)=\s+([\d\.]+)',
+            'flags': [],
+            'postprocess': float,
+        },
+        'kpoints_cart': {
+            'pattern': r'cart\. coord\. in units 2pi\/alat(.*?)cryst\. coord\.',
+            'flags': [re.DOTALL],
+            'postprocess': _kpoints_post,
+        },
+        'kpoints_frac': {
+            'pattern': r'k\( .*?cryst\.\s+coord\.(.*?)Dense\s+grid',
+            'flags': [re.DOTALL],
+            'postprocess': _kpoints_post,
+        },
+        'job_done': {
+            'pattern': r'JOB DONE\.',
+            'flags': [],
+            'postprocess': lambda x:x,
+        },
     }
-
-    def __init__(self, filename):
+    
+    def __init__(self, filename, data=defaultdict(list)):
         self.filename = filename
-        self.data = defaultdict(list)
+        self.data = data
         self.read_pattern(PWOutput.patterns)
-        for k, v in self.data.items():
-            if k == "energies":
-                self.data[k] = [float(i[0][0]) for i in v]
-            elif k in ["lattice_type", "nkpts"]:
-                self.data[k] = int(v[0][0][0])
-            else:
-                self.data[k] = float(v[0][0][0])
-
-    def read_pattern(self, patterns, reverse=False,
-                     terminate_on_match=False, postprocess=str):
-        """
-        General pattern reading. Uses monty's regrep method. Takes the same
-        arguments.
-
+        
+    def read_pattern(self, patterns):
+        '''
+        General pattern reading uses stdlib's re module.
+        
         Args:
             patterns (dict): A dict of patterns, e.g.,
-                {"energy": r"energy\\(sigma->0\\)\\s+=\\s+([\\d\\-.]+)"}.
-            reverse (bool): Read files in reverse. Defaults to false. Useful for
-                large files, esp OUTCARs, especially when used with
-                terminate_on_match.
-            terminate_on_match (bool): Whether to terminate when there is at
-                least one match in each key in pattern.
-            postprocess (callable): A post processing function to convert all
-                matches. Defaults to str, i.e., no change.
-
+                {"energy": {
+                    "pattern": r"energy\\(sigma->0\\)\\s+=\\s+([\\d\\-.]+)",
+                    "flags": [],
+                    "postprocess": str}
+                }
+                
         Renders accessible:
-            Any attribute in patterns. For example,
-            {"energy": r"energy\\(sigma->0\\)\\s+=\\s+([\\d\\-.]+)"} will set the
-            value of self.data["energy"] = [[-1234], [-3453], ...], to the
-            results from regex and postprocess. Note that the returned
-            values are lists of lists, because you can grep multiple
-            items on one line.
-        """
-        matches = regrep(self.filename, patterns, reverse=reverse,
-                         terminate_on_match=terminate_on_match,
-                         postprocess=postprocess)
-        self.data.update(matches)
-
+            Any attribute in patterns. For example, the energy example above
+            will set the value of self.data["energy"] = [-1234, -3453, ...],
+            to the results from regex and postprocess
+        '''
+        with zopen(self.filename, 'rt') as file_:
+            out = file_.read()
+        all_matches = {}
+        for key, value in patterns.items():
+            pattern = re.compile(value['pattern'], *value['flags'])
+            matches = pattern.findall(out)
+            matches = [value['postprocess'](match) for match in matches]
+            all_matches[key] = matches
+        self.data.update(all_matches)
+    
     def get_celldm(self, i):
-        return self.data["celldm%d" % i]
+        return self.data['celldm%d' % i]
+    
+    # FIXME: add initial structures which are
+    #    printed in a different format at the beginning
+    #    of the calculation and the final scf step
+    @property
+    def structures(self):
+        cells = self.data['cell_parameters']
+        atpos = self.data['atomic_positions']
 
+        structures = []
+        for cell, at in zip(cells, atpos):
+            species = [a[0] for a in at]
+            coords = [a[1] for a in at]
+            structure = Structure(cell, species, coords)
+            structures.append(structure)
+
+        return structures
+    
+    # TODO: band structure
+    
+    # TODO: symmetry operations
+    
     @property
     def final_energy(self):
-        return self.data["energies"][-1]
-
+        return self.data['final_energy'][-1]
+    
     @property
     def lattice_type(self):
-        return self.data["lattice_type"]
+        return self.data['lattice_type']
+    
+    def as_dict(self):
+        dict_ = {
+            'filename': self.filename,
+            'data': self.data,
+        }
+        return dict_
+    
+    @classmethod
+    def from_dict(cls, dict_):
+        return cls(**dict_)
