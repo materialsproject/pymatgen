@@ -345,7 +345,7 @@ class InterfaceReactionTest(unittest.TestCase):
                                       for x, e in points]
                 relative_vectors = zip(relative_vectors_1, relative_vectors_2)
                 positions = [np.cross(v1, v2) for v1, v2 in relative_vectors]
-                test1 = np.all(positions >= 0)
+                test1 = np.all(np.array(positions) <= 0)
 
                 hull = ConvexHull(points)
                 test2 = len(hull.vertices) == len(points)
