@@ -73,8 +73,6 @@ class VoronoiConnectivityTest(PymatgenTest):
     def test_connectivity_array(self):
         vc = VoronoiConnectivity(self.get_structure("LiFePO4"))
         ca = vc.connectivity_array
-        np.set_printoptions(threshold=np.NAN, linewidth=np.NAN, suppress=np.NAN)
-
         expected = np.array([0, 1.96338392, 0, 0.04594495])
         self.assertTrue(np.allclose(ca[15, :4, ca.shape[2] // 2], expected))
 
