@@ -350,21 +350,21 @@ class CompleteCohp(Cohp):
             except KeyError:
                 print("The label does not exist")
 
-    def get_summed_cohp_by_labellist(self, labellist, divisor=1):
+    def get_summed_cohp_by_label_list(self, label_list, divisor=1):
         """
         Returns a COHP object that includes a summed COHP divided by divisor
 
         Args:
-            labellist: list of labels for the COHP that should be included in the summed cohp
+            label_list: list of labels for the COHP that should be included in the summed cohp
             divisor: float/int, the summed cohp will be divided by this divisor
         Returns:
             Returns a COHP object including a summed COHP
         """
         # check if cohps are spinpolarized or not
-        first_cohpobject = self.get_cohp_by_label(labellist[0])
+        first_cohpobject = self.get_cohp_by_label(label_list[0])
         summed_cohp = first_cohpobject.cohp.copy()
         summed_icohp = first_cohpobject.icohp.copy()
-        for label in labellist[1:]:
+        for label in label_list[1:]:
             cohp_here = self.get_cohp_by_label(label)
             summed_cohp[Spin.up] = np.sum([summed_cohp[Spin.up], cohp_here.cohp[Spin.up]], axis=0)
             if Spin.down in summed_cohp:
@@ -838,20 +838,20 @@ class IcohpCollection(MSONable):
         else:
             return icohp_here.icohpvalue(spin)
 
-    def get_summed_icohp_by_labellist(self, labellist, divisor=1.0, summed_spin_channels=True, spin=Spin.up):
+    def get_summed_icohp_by_label_list(self, label_list, divisor=1.0, summed_spin_channels=True, spin=Spin.up):
         """
         get the sum of several ICOHP values that are indicated by a list of labels (labels of the bonds are the same as in ICOHPLIST/ICOOPLIST)
         Args:
-            labellist: list of labels of the ICOHPs/ICOOPs that should be summed
+            label_list: list of labels of the ICOHPs/ICOOPs that should be summed
             divisor: is used to divide the sum
             summed_spin_channels: Boolean to indicate whether the ICOHPs/ICOOPs of both spin channels should be summed
             spin: if summed_spin_channels is equal to False, this spin indicates which spin channel should be returned
 
         Returns:
-             float that is a sum of all ICOHPs/ICOOPs as indicated with labellist
+             float that is a sum of all ICOHPs/ICOOPs as indicated with label_list
         """
         sum_icohp = 0
-        for label in labellist:
+        for label in label_list:
             icohp_here = self._icohplist[label]
             if icohp_here.num_bonds != 1:
                 warnings.warn("One of the ICOHP values is an average over bonds. This is currently not considered.")
@@ -880,8 +880,8 @@ class IcohpCollection(MSONable):
                 newicohp_dict[value._label] = value
         return newicohp_dict
 
-    def get_icohp_dict_of_certain_site(self, site, minsummedicohp=None, maxsummedicohp=None, minbondlength=0.0,
-                                       maxbondlength=8.0, only_bonds_to=None):
+    def get_icohp_dict_of_site(self, site, minsummedicohp=None, maxsummedicohp=None, minbondlength=0.0,
+                               maxbondlength=8.0, only_bonds_to=None):
         """
         get a dict of IcohpValue for a certain site (indicated by integer)
         Args:
