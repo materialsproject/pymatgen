@@ -338,14 +338,14 @@ class CompleteCohp(Cohp):
             Returns the COHP object to simplify plotting
         """
         if label.lower() == "average":
-            return Cohp(efermi=self.efermi, energies=self.energies.copy(),
-                        cohp=self.cohp.copy(), are_coops=self.are_coops, icohp=self.icohp.copy())
+            return Cohp(efermi=self.efermi, energies=self.energies,
+                        cohp=self.cohp, are_coops=self.are_coops, icohp=self.icohp)
         else:
             try:
-                return Cohp(efermi=self.efermi, energies=self.energies.copy(),
-                            cohp=self.all_cohps[label].get_cohp(spin=None, integrated=False).copy(),
+                return Cohp(efermi=self.efermi, energies=self.energies,
+                            cohp=self.all_cohps[label].get_cohp(spin=None, integrated=False),
                             are_coops=self.are_coops,
-                            icohp=self.all_cohps[label].get_icohp(spin=None).copy())
+                            icohp=self.all_cohps[label].get_icohp(spin=None))
 
             except KeyError:
                 print("The label does not exist")
