@@ -900,7 +900,6 @@ class IcohpCollection(MSONable):
             atomnumber1 = int(re.split(r'(\d+)', value._atom1)[1]) - 1
             atomnumber2 = int(re.split(r'(\d+)', value._atom2)[1]) - 1
             if site == atomnumber1 or site == atomnumber2:
-
                 # manipulate order of atoms so that searched one is always atom1
                 if site == atomnumber2:
                     save = value._atom1
@@ -918,9 +917,7 @@ class IcohpCollection(MSONable):
                                 if value.summed_icohp <= maxsummedicohp:
                                     newicohp_dict[key] = value
                             else:
-
                                 newicohp_dict[key] = value
-
                     else:
                         if maxsummedicohp is not None:
                             if value.summed_icohp <= maxsummedicohp:
