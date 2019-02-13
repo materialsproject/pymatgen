@@ -13,7 +13,8 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -318,7 +319,7 @@ implemented by the nodes of the calculation.</p>
 <p>Nodes are hashable and can be tested for equality</p>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.ALL_STATUS">
-<code class="descname">ALL_STATUS</code><em class="property"> = [&lt;Status: Initialized, at 112178951496&gt;, &lt;Status: Locked, at 120795562440&gt;, &lt;Status: Ready, at 120795562952&gt;, &lt;Status: Submitted, at 120795562760&gt;, &lt;Status: Running, at 120795563336&gt;, &lt;Status: Done, at 120795562632&gt;, &lt;Status: AbiCritical, at 120795562696&gt;, &lt;Status: QCritical, at 120795563464&gt;, &lt;Status: Unconverged, at 120795563080&gt;, &lt;Status: Error, at 120795563528&gt;, &lt;Status: Completed, at 120795562120&gt;]</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.ALL_STATUS" title="Permalink to this definition">¶</a></dt>
+<code class="descname">ALL_STATUS</code><em class="property"> = [&lt;Status: Initialized, at 120937736008&gt;, &lt;Status: Locked, at 120944442440&gt;, &lt;Status: Ready, at 112345855816&gt;, &lt;Status: Submitted, at 120965918472&gt;, &lt;Status: Running, at 120965918600&gt;, &lt;Status: Done, at 120965918408&gt;, &lt;Status: AbiCritical, at 120965918344&gt;, &lt;Status: QCritical, at 120965918280&gt;, &lt;Status: Unconverged, at 120965918216&gt;, &lt;Status: Error, at 120965918152&gt;, &lt;Status: Completed, at 120965918088&gt;]</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.ALL_STATUS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -335,57 +336,57 @@ implemented by the nodes of the calculation.</p>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.S_ABICRITICAL">
-<code class="descname">S_ABICRITICAL</code><em class="property"> = &lt;Status: AbiCritical, at 120795562696&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_ABICRITICAL" title="Permalink to this definition">¶</a></dt>
+<code class="descname">S_ABICRITICAL</code><em class="property"> = &lt;Status: AbiCritical, at 120965918344&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_ABICRITICAL" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.S_DONE">
-<code class="descname">S_DONE</code><em class="property"> = &lt;Status: Done, at 120795562632&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_DONE" title="Permalink to this definition">¶</a></dt>
+<code class="descname">S_DONE</code><em class="property"> = &lt;Status: Done, at 120965918408&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_DONE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.S_ERROR">
-<code class="descname">S_ERROR</code><em class="property"> = &lt;Status: Error, at 120795563528&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_ERROR" title="Permalink to this definition">¶</a></dt>
+<code class="descname">S_ERROR</code><em class="property"> = &lt;Status: Error, at 120965918152&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_ERROR" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.S_INIT">
-<code class="descname">S_INIT</code><em class="property"> = &lt;Status: Initialized, at 112178951496&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_INIT" title="Permalink to this definition">¶</a></dt>
+<code class="descname">S_INIT</code><em class="property"> = &lt;Status: Initialized, at 120937736008&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_INIT" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.S_LOCKED">
-<code class="descname">S_LOCKED</code><em class="property"> = &lt;Status: Locked, at 120795562440&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_LOCKED" title="Permalink to this definition">¶</a></dt>
+<code class="descname">S_LOCKED</code><em class="property"> = &lt;Status: Locked, at 120944442440&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_LOCKED" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.S_OK">
-<code class="descname">S_OK</code><em class="property"> = &lt;Status: Completed, at 120795562120&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_OK" title="Permalink to this definition">¶</a></dt>
+<code class="descname">S_OK</code><em class="property"> = &lt;Status: Completed, at 120965918088&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_OK" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.S_QCRITICAL">
-<code class="descname">S_QCRITICAL</code><em class="property"> = &lt;Status: QCritical, at 120795563464&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_QCRITICAL" title="Permalink to this definition">¶</a></dt>
+<code class="descname">S_QCRITICAL</code><em class="property"> = &lt;Status: QCritical, at 120965918280&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_QCRITICAL" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.S_READY">
-<code class="descname">S_READY</code><em class="property"> = &lt;Status: Ready, at 120795562952&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_READY" title="Permalink to this definition">¶</a></dt>
+<code class="descname">S_READY</code><em class="property"> = &lt;Status: Ready, at 112345855816&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_READY" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.S_RUN">
-<code class="descname">S_RUN</code><em class="property"> = &lt;Status: Running, at 120795563336&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_RUN" title="Permalink to this definition">¶</a></dt>
+<code class="descname">S_RUN</code><em class="property"> = &lt;Status: Running, at 120965918600&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_RUN" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.S_SUB">
-<code class="descname">S_SUB</code><em class="property"> = &lt;Status: Submitted, at 120795562760&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_SUB" title="Permalink to this definition">¶</a></dt>
+<code class="descname">S_SUB</code><em class="property"> = &lt;Status: Submitted, at 120965918472&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_SUB" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.S_UNCONVERGED">
-<code class="descname">S_UNCONVERGED</code><em class="property"> = &lt;Status: Unconverged, at 120795563080&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_UNCONVERGED" title="Permalink to this definition">¶</a></dt>
+<code class="descname">S_UNCONVERGED</code><em class="property"> = &lt;Status: Unconverged, at 120965918216&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_UNCONVERGED" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -984,7 +985,7 @@ and we are calling a method with side effects.</p>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
