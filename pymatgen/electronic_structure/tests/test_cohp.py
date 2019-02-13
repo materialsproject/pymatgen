@@ -303,7 +303,7 @@ class CombinedIcohpTest(unittest.TestCase):
         for key, value in sorted(dict_KF.items()):
             self.assertDictEqual(value.as_dict(), icohpvalue[key])
 
-        # compare number of results dependent on minsummedicohp, maxsummedicohp,minbondlength, maxbondlength
+        # compare number of results dependent on minsummedicohp, maxsummedicohp,minbondlength, maxbondlength, and only_bonds_to
         dict_KF_2 = self.icohpcollection_KF.get_icohp_dict_of_certain_site(site=0, minsummedicohp=None,
                                                                            maxsummedicohp=-0.0, minbondlength=0.0,
                                                                            maxbondlength=8.0)
@@ -319,12 +319,18 @@ class CombinedIcohpTest(unittest.TestCase):
         dict_KF_6 = self.icohpcollection_KF.get_icohp_dict_of_certain_site(site=0, minsummedicohp=None,
                                                                            maxsummedicohp=None, minbondlength=3.0,
                                                                            maxbondlength=8.0)
+        dict_KF_7 = self.icohpcollection_KF.get_icohp_dict_of_certain_site(site=0, only_bonds_to=['K'])
+        dict_KF_8 = self.icohpcollection_KF.get_icohp_dict_of_certain_site(site=1, only_bonds_to=['K'])
+        dict_KF_9 = self.icohpcollection_KF.get_icohp_dict_of_certain_site(site=1, only_bonds_to=['F'])
 
         self.assertEqual(len(dict_KF_2), 6)
         self.assertEqual(len(dict_KF_3), 0)
         self.assertEqual(len(dict_KF_4), 0)
         self.assertEqual(len(dict_KF_5), 0)
         self.assertEqual(len(dict_KF_6), 0)
+        self.assertEqual(len(dict_KF_7), 6)
+        self.assertEqual(len(dict_KF_8), 0)
+        self.assertEqual(len(dict_KF_9), 6)
 
         # spin polarization
 
@@ -547,7 +553,7 @@ class CompleteCohpTest(PymatgenTest):
                 self.coop_lobster.efermi, integrated=True)
             self.assertEqual(icoop_ef_dict[bond], icoop_ef)
 
-    def test_get_cohp(self):
+    def test_get_cohp_by_label(self):
         self.assertEqual(self.cohp_orb.get_cohp_by_label("1").energies[0], -11.7225)
         self.assertEqual(self.cohp_orb.get_cohp_by_label("1").energies[5], -11.47187)
         self.assertFalse(self.cohp_orb.get_cohp_by_label("1").are_coops)
@@ -559,6 +565,16 @@ class CompleteCohpTest(PymatgenTest):
         # test methods from super class that could be overwritten
         self.assertEqual(self.cohp_orb.get_icohp()[Spin.up][3], 0.0)
         self.assertEqual(self.cohp_orb.get_cohp()[Spin.up][3], 0.0)
+
+    def test_get_summed_cohp_by_label_list(self):
+        self.assertEqual(self.cohp_orb.get_summed_cohp_by_labellist(["1"]).energies[0], -11.7225)
+        self.assertEqual(self.cohp_orb.get_summed_cohp_by_labellist(["1", "1"]).energies[0], -11.7225)
+        self.assertEqual(self.cohp_orb.get_summed_cohp_by_labellist(["1"]).energies[5], -11.47187)
+        self.assertFalse(self.cohp_orb.get_summed_cohp_by_labellist(["1"]).are_coops)
+        self.assertEqual(self.cohp_orb.get_summed_cohp_by_labellist(["1"]).cohp[Spin.up][0], 0.0)
+        self.assertEqual(self.cohp_orb.get_summed_cohp_by_labellist(["1", "1"]).cohp[Spin.up][0], 0.0)
+        self.assertEqual(self.cohp_orb.get_summed_cohp_by_labellist(["1", "1"]).cohp[Spin.up][300], 0.03392 * 2.0)
+        self.assertEqual(self.cohp_orb.get_summed_cohp_by_labellist(["1", "1"], divisor=2).cohp[Spin.up][300], 0.03392)
 
     def test_orbital_resolved_cohp(self):
         # When read from a COHPCAR file, total COHPs are calculated from

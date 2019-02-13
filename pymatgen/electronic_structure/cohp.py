@@ -338,16 +338,52 @@ class CompleteCohp(Cohp):
             Returns the COHP object to simplify plotting
         """
         if label.lower() == "average":
-            return Cohp(efermi=self.efermi, energies=self.energies,
-                        cohp=self.cohp, are_coops=self.are_coops, icohp=self.icohp)
+            return Cohp(efermi=self.efermi, energies=self.energies.copy(),
+                        cohp=self.cohp.copy(), are_coops=self.are_coops, icohp=self.icohp.copy())
         else:
             try:
-                return Cohp(efermi=self.efermi, energies=self.energies,
-                            cohp=self.all_cohps[label].get_cohp(spin=None, integrated=False), are_coops=self.are_coops,
-                            icohp=self.all_cohps[label].get_icohp(spin=None))
+                return Cohp(efermi=self.efermi, energies=self.energies.copy(),
+                            cohp=self.all_cohps[label].get_cohp(spin=None, integrated=False).copy(),
+                            are_coops=self.are_coops,
+                            icohp=self.all_cohps[label].get_icohp(spin=None).copy())
 
             except KeyError:
                 print("The label does not exist")
+
+    def get_summed_cohp_by_labellist(self, labellist, divisor=1):
+        """
+        Returns a COHP object that includes a summed COHP divided by divisor
+
+        Args:
+            labellist: list of labels for the COHP that should be included in the summed cohp
+            divisor: float/int, the summed cohp will be divided by this divisor
+        Returns:
+            Returns a COHP object including a summed COHP
+        """
+        # check if cohps are spinpolarized or not
+        first_cohpobject = self.get_cohp_by_label(labellist[0])
+        summed_cohp = first_cohpobject.cohp.copy()
+        summed_icohp = first_cohpobject.icohp.copy()
+        for label in labellist[1:]:
+            cohp_here = self.get_cohp_by_label(label)
+            summed_cohp[Spin.up] = np.sum([summed_cohp[Spin.up], cohp_here.cohp[Spin.up]], axis=0)
+            if Spin.down in summed_cohp:
+                summed_cohp[Spin.down] = np.sum([summed_cohp[Spin.down], cohp_here.cohp[Spin.down]], axis=0)
+            summed_icohp[Spin.up] = np.sum([summed_icohp[Spin.up], cohp_here.icohp[Spin.up]], axis=0)
+            if Spin.down in summed_icohp:
+                summed_icohp[Spin.down] = np.sum([summed_icohp[Spin.down], cohp_here.icohp[Spin.down]], axis=0)
+
+        divided_cohp = {}
+        divided_icohp = {}
+        divided_cohp[Spin.up] = np.divide(summed_cohp[Spin.up], divisor)
+        divided_icohp[Spin.up] = np.divide(summed_icohp[Spin.up], divisor)
+        if Spin.down in summed_cohp:
+            divided_cohp[Spin.down] = np.divide(summed_cohp[Spin.down], divisor)
+            divided_icohp[Spin.down] = np.divide(summed_icohp[Spin.down], divisor)
+
+        return Cohp(efermi=first_cohpobject.efermi, energies=first_cohpobject.energies, cohp=divided_cohp,
+                    are_coops=first_cohpobject.are_coops,
+                    icohp=divided_icohp)
 
     def get_orbital_resolved_cohp(self, label, orbitals):
         """
@@ -845,18 +881,20 @@ class IcohpCollection(MSONable):
         return newicohp_dict
 
     def get_icohp_dict_of_certain_site(self, site, minsummedicohp=None, maxsummedicohp=None, minbondlength=0.0,
-                                       maxbondlength=8.0):
+                                       maxbondlength=8.0, only_bonds_to=None):
         """
         get a dict of IcohpValue for a certain site (indicated by integer)
         Args:
             site: integer describing the site of interest, order as in Icohplist.lobster/Icooplist.lobster, starts at 0
-            minsummedicohp: minimal icohp/icoop of the bonds that are considered. It is the summed ICOHP value from both spin channels for spin polarized cases
-            maxsummedicohp: maximal icohp/icoop of the bonds that are considered. It is the summed ICOHP value from both spin channels for spin polarized cases
-            minbondlength: defines the minimum of the bond lengths of the bonds
-            maxbondlength: defines the maximum of the bond lengths of the bonds
+            minsummedicohp: float, minimal icohp/icoop of the bonds that are considered. It is the summed ICOHP value from both spin channels for spin polarized cases
+            maxsummedicohp: float, maximal icohp/icoop of the bonds that are considered. It is the summed ICOHP value from both spin channels for spin polarized cases
+            minbondlength: float, defines the minimum of the bond lengths of the bonds
+            maxbondlength: float, defines the maximum of the bond lengths of the bonds
+            only_bonds_to: list of strings describing the bonding partners that are allowed, e.g. ['O']
         Returns:
              dict of IcohpValues, the keys correspond to the values from the initial list_labels
         """
+
         newicohp_dict = {}
         for key, value in self._icohplist.items():
             atomnumber1 = int(re.split(r'(\d+)', value._atom1)[1]) - 1
@@ -869,13 +907,18 @@ class IcohpCollection(MSONable):
                     value._atom1 = value._atom2
                     value._atom2 = save
 
-                if value._length >= minbondlength and value._length <= maxbondlength:
+                if only_bonds_to is None:
+                    second_test = True
+                else:
+                    second_test = (re.split(r'(\d+)', value._atom2)[0] in only_bonds_to)
+                if value._length >= minbondlength and value._length <= maxbondlength and second_test:
                     if minsummedicohp is not None:
                         if value.summed_icohp >= minsummedicohp:
                             if maxsummedicohp is not None:
                                 if value.summed_icohp <= maxsummedicohp:
                                     newicohp_dict[key] = value
                             else:
+
                                 newicohp_dict[key] = value
 
                     else:
