@@ -6,14 +6,15 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.interface_reactions &#8212; pymatgen 2019.1.24 documentation</title>
+    <title>pymatgen.analysis.interface_reactions &#8212; pymatgen 2019.2.4 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -34,7 +35,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.1.24 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.2.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -50,6 +51,7 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span>
 
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -283,10 +285,11 @@
         <span class="n">product</span> <span class="o">=</span> <span class="p">[</span><span class="n">Composition</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">decomp</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
         <span class="n">reaction</span> <span class="o">=</span> <span class="n">Reaction</span><span class="p">(</span><span class="n">reactant</span><span class="p">,</span> <span class="n">product</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="n">reaction</span><span class="o">.</span><span class="n">normalize_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">c1_original</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">x_original</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_composition_ratio</span><span class="p">(</span><span class="n">reaction</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">x_original</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">reaction</span><span class="o">.</span><span class="n">normalize_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">c1_original</span><span class="p">,</span> <span class="n">x_original</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">reaction</span><span class="o">.</span><span class="n">normalize_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">c2_original</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">reaction</span><span class="o">.</span><span class="n">normalize_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">c2_original</span><span class="p">,</span> <span class="mi">1</span><span class="o">-</span><span class="n">x_original</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">reaction</span>
 
     <span class="k">def</span> <span class="nf">_get_elmt_amt_in_rxt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rxt</span><span class="p">):</span>
@@ -419,26 +422,43 @@
 
 <div class="viewcode-block" id="InterfacialReactivity.get_critical_original_kink_ratio"><a class="viewcode-back" href="../../../pymatgen.analysis.interface_reactions.html#pymatgen.analysis.interface_reactions.InterfacialReactivity.get_critical_original_kink_ratio">[docs]</a>    <span class="k">def</span> <span class="nf">get_critical_original_kink_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns a list of mixing ratio for each kink between ORIGINAL</span>
+<span class="sd">        Returns a list of molar mixing ratio for each kink between ORIGINAL</span>
 <span class="sd">        (instead of processed) reactant compositions. This is the</span>
 <span class="sd">        same list as mixing ratio obtained from get_kinks method</span>
 <span class="sd">        if self.norm = False.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            A list of floats representing mixing ratios between original</span>
-<span class="sd">            reactant compositions for each kink.</span>
+<span class="sd">            A list of floats representing molar mixing ratios between</span>
+<span class="sd">            the original reactant compositions for each kink.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ratios</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">c1_original</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">c2_original</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
         <span class="n">reaction_kink</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_kinks</span><span class="p">()]</span>
         <span class="k">for</span> <span class="n">rxt</span> <span class="ow">in</span> <span class="n">reaction_kink</span><span class="p">:</span>
-            <span class="n">c1_coeff</span> <span class="o">=</span> <span class="n">rxt</span><span class="o">.</span><span class="n">get_coeff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">c1_original</span><span class="p">)</span> \
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">c1_original</span> <span class="ow">in</span> <span class="n">rxt</span><span class="o">.</span><span class="n">reactants</span> <span class="k">else</span> <span class="mi">0</span>
-            <span class="n">c2_coeff</span> <span class="o">=</span> <span class="n">rxt</span><span class="o">.</span><span class="n">get_coeff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">c2_original</span><span class="p">)</span> \
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">c2_original</span> <span class="ow">in</span> <span class="n">rxt</span><span class="o">.</span><span class="n">reactants</span> <span class="k">else</span> <span class="mi">0</span>
-            <span class="n">ratios</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">c1_coeff</span> <span class="o">/</span> <span class="p">(</span><span class="n">c1_coeff</span> <span class="o">+</span> <span class="n">c2_coeff</span><span class="p">)))</span>
+            <span class="n">ratios</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_original_composition_ratio</span><span class="p">(</span><span class="n">rxt</span><span class="p">)))</span>
         <span class="k">return</span> <span class="n">ratios</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_original_composition_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reaction</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the molar mixing ratio between the reactants with ORIGINAL (</span>
+<span class="sd">        instead of processed) compositions for a reaction.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            reaction (Reaction): Reaction object that contains the original</span>
+<span class="sd">                reactant compositions.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The molar mixing ratio between the original reactant</span>
+<span class="sd">            compositions for a reaction.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">c1_original</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">c2_original</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">1</span>
+        <span class="n">c1_coeff</span> <span class="o">=</span> <span class="n">reaction</span><span class="o">.</span><span class="n">get_coeff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">c1_original</span><span class="p">)</span> \
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">c1_original</span> <span class="ow">in</span> <span class="n">reaction</span><span class="o">.</span><span class="n">reactants</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="n">c2_coeff</span> <span class="o">=</span> <span class="n">reaction</span><span class="o">.</span><span class="n">get_coeff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">c2_original</span><span class="p">)</span> \
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">c2_original</span> <span class="ow">in</span> <span class="n">reaction</span><span class="o">.</span><span class="n">reactants</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="n">c1_coeff</span> <span class="o">*</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">c1_coeff</span> <span class="o">+</span> <span class="n">c2_coeff</span><span class="p">)</span>
 
 <div class="viewcode-block" id="InterfacialReactivity.labels"><a class="viewcode-back" href="../../../pymatgen.analysis.interface_reactions.html#pymatgen.analysis.interface_reactions.InterfacialReactivity.labels">[docs]</a>    <span class="k">def</span> <span class="nf">labels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -580,7 +600,8 @@
         <span class="n">PV_correction</span> <span class="o">=</span> <span class="n">ideal_gas_const</span> <span class="o">*</span> <span class="n">temp</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">pres</span> <span class="o">/</span> <span class="n">std_pres</span><span class="p">)</span>
         <span class="n">TS_correction</span> <span class="o">=</span> <span class="o">-</span> <span class="n">Cp_std</span> <span class="o">*</span> <span class="p">(</span><span class="n">temp</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
                                     <span class="o">-</span> <span class="n">std_temp</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">std_temp</span><span class="p">))</span> \
-                        <span class="o">+</span> <span class="n">Cp_std</span> <span class="o">*</span> <span class="p">(</span><span class="n">temp</span> <span class="o">-</span> <span class="n">std_temp</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">std_temp</span><span class="p">))</span> \
+                        <span class="o">+</span> <span class="n">Cp_std</span> <span class="o">*</span> <span class="p">(</span><span class="n">temp</span> <span class="o">-</span> <span class="n">std_temp</span><span class="p">)</span> \
+                                 <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">std_temp</span><span class="p">))</span> \
                         <span class="o">-</span> <span class="n">S_std</span> <span class="o">*</span> <span class="p">(</span><span class="n">temp</span> <span class="o">-</span> <span class="n">std_temp</span><span class="p">)</span>
 
         <span class="n">dG</span> <span class="o">=</span> <span class="n">PV_correction</span> <span class="o">+</span> <span class="n">TS_correction</span>
@@ -622,7 +643,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.1.24 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.2.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -630,7 +651,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

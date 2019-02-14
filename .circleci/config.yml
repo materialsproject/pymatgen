@@ -20,10 +20,10 @@ jobs:
             conda install --quiet --yes -c openbabel openbabel
             conda install --quiet --yes -c clinicalgraphics vtk
             conda install --quiet --yes cmake
-            conda uninstall --yes pandas
             # conda update --quiet --all
             mkdir coverage_reports
             pip install --upgrade pip
+            pip install --upgrade numpy
             pip install --quiet --ignore-installed -r requirements.txt -r requirements-optional.txt
             export CFLAGS=$CFLAGS" -std=gnu++11"
             pip install BoltzTraP2

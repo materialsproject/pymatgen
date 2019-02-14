@@ -1,9 +1,8 @@
 Change log
 ==========
 
-v2019.1.24
-----------
-* Python 3 only!
-* Improvements to local environment code (@utf)
-* Update Cohp analysis (@JaGEO)
-* Updates to Boltztrap2 (@fraricci)
+v2019.2.4
+---------
+* New Trajectory class for MD simulations (@sivonxay)
+* Lattice.get_vector_along_lattice_directions (@blondgeek)
+* Misc bug fixes.

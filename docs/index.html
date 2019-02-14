@@ -6,14 +6,15 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Introduction &#8212; pymatgen 2019.1.24 documentation</title>
+    <title>Introduction &#8212; pymatgen 2019.2.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -38,7 +39,7 @@
         <li class="right" >
           <a href="installation.html" title="Requirements"
              accesskey="N">next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">pymatgen 2019.1.24 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">pymatgen 2019.2.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -75,10 +76,8 @@ reports. The following are resources for pymatgen:</p>
 <li><p class="first">Please report any bugs and issues at pymatgen’s <a class="reference external" href="https://github.com/materialsproject/pymatgen/issues">Github Issues
 page</a>.</p>
 </li>
-<li><p class="first">For help with any pymatgen issue, consult <a class="reference external" href="https://stackoverflow.com/questions/tagged/pymatgen">Stack Overflow</a> and if
-you cannot find an answer, please post a question with the tag “pymatgen”.
-Please note that the pymatgen Google group has been deprecated in
-favor of Stack Overflow.</p>
+<li><p class="first">For help with any pymatgen issue, please use the pymatgen <a class="reference external" href="https://pymatgen.discourse.group">Discourse page</a>. Please note that the pymatgen Google
+group has been deprecated in favor of Discourse.</p>
 </li>
 <li><p class="first"><a class="reference external" href="http://twitter.com/pymatgen">Twitter</a>. Follow to get news and tips.</p>
 </li>
@@ -128,7 +127,7 @@ pymatgen examples page in favor of this more sustainable approach going forward.
 One of the ways you can contribute is to fork the matgenb repo and add your own
 examples.</p>
 <p>Below are a quick look at some of the graphical output possible.</p>
-<div class="figure align-center" id="id4">
+<div class="figure align-center" id="id3">
 <a class="reference internal image-reference" href="_images/examples.png"><img alt="Examples" src="_images/examples.png" style="width: 100%;" /></a>
 <p class="caption"><span class="caption-text">Top: (left) Phase and (right) Pourbaix diagram from the Materials API.
 Bottom left: Calculated bandstructure plot using pymatgen’s parsing and
@@ -172,10 +171,9 @@ other research groups.</li>
 <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
-<li>Python 3 only!</li>
-<li>Improvements to local environment code (&#64;utf)</li>
-<li>Update Cohp analysis (&#64;JaGEO)</li>
-<li>Updates to Boltztrap2 (&#64;fraricci)</li>
+<li>New Trajectory class for MD simulations (&#64;sivonxay)</li>
+<li>Lattice.get_vector_along_lattice_directions (&#64;blondgeek)</li>
+<li>Misc bug fixes.</li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </div>
@@ -303,7 +301,7 @@ conda install --yes --channel matsci pymatgen
 </div>
 <div class="section" id="usage">
 <h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
-<div class="figure align-center" id="id5">
+<div class="figure align-center" id="id4">
 <a class="reference internal image-reference" href="_images/overview.jpg"><img alt="pymatgen overview" src="_images/overview.jpg" style="width: 100%;" /></a>
 <p class="caption"><span class="caption-text">Overview of a typical workflow for pymatgen.</span></p>
 </div>
@@ -736,13 +734,13 @@ to indicate the copyright and license terms:</p>
         <li class="right" >
           <a href="installation.html" title="Requirements"
              >next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">pymatgen 2019.1.24 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">pymatgen 2019.2.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -6,14 +6,15 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.sets module &#8212; pymatgen 2019.1.24 documentation</title>
+    <title>pymatgen.io.vasp.sets module &#8212; pymatgen 2019.2.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -34,7 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.1.24 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -386,6 +387,53 @@ reciprocal lattice vector proportional to its length.</dd>
 </dd></dl>
 
 <dl class="class">
+<dt id="pymatgen.io.vasp.sets.MPMDSet">
+<em class="property">class </em><code class="descname">MPMDSet</code><span class="sig-paren">(</span><em>structure</em>, <em>start_temp</em>, <em>end_temp</em>, <em>nsteps</em>, <em>spin_polarized=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MPMDSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MPMDSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vasp.sets.MPRelaxSet" title="pymatgen.io.vasp.sets.MPRelaxSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.vasp.sets.MPRelaxSet</span></code></a></p>
+<p>This a modified version of the old MITMDSet pre 2018/03/12.
+This set serves as the basis for the amorphous skyline paper.
+(1) Aykol, M.; Dwaraknath, S. S.; Sun, W.; Persson, K. A.
+Thermodynamic Limit for Synthesis of Metastable Inorganic Materials. Sci. Adv. 2018, 4 (4).</p>
+<blockquote>
+<div>Class for writing a vasp md run. This DOES NOT do multiple stage</div></blockquote>
+<dl class="docutils">
+<dt>runs.</dt>
+<dd>Precision remains normal, to increase accuracy of stress tensor.</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure.</li>
+<li><strong>start_temp</strong> (<em>int</em>) – Starting temperature.</li>
+<li><strong>end_temp</strong> (<em>int</em>) – Final temperature.</li>
+<li><strong>nsteps</strong> (<em>int</em>) – Number of time steps for simulations. The NSW parameter.</li>
+<li><strong>time_step</strong> (<em>int</em>) – The time step for the simulation. The POTIM
+parameter. Defaults to 2fs.</li>
+<li><strong>spin_polarized</strong> (<em>bool</em>) – Whether to do spin polarized calculations.
+The ISPIN parameter. Defaults to False.</li>
+<li><strong>**kwargs</strong> – Other kwargs supported by <a class="reference internal" href="#pymatgen.io.vasp.sets.DictSet" title="pymatgen.io.vasp.sets.DictSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DictSet</span></code></a>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.sets.MPMDSet.kpoints">
+<code class="descname">kpoints</code><a class="headerlink" href="#pymatgen.io.vasp.sets.MPMDSet.kpoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes out a KPOINTS file using the fully automated grid method. Uses
+Gamma centered meshes for hexagonal cells and Monk grids otherwise.</p>
+<dl class="docutils">
+<dt>Algorithm:</dt>
+<dd>Uses a simple approach scaling the number of divisions along each
+reciprocal lattice vector proportional to its length.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="pymatgen.io.vasp.sets.MPNMRSet">
 <em class="property">class </em><code class="descname">MPNMRSet</code><span class="sig-paren">(</span><em>structure</em>, <em>mode='cs'</em>, <em>isotopes=None</em>, <em>prev_incar=None</em>, <em>reciprocal_density=100</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MPNMRSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MPNMRSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vasp.sets.MPStaticSet" title="pymatgen.io.vasp.sets.MPStaticSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.vasp.sets.MPStaticSet</span></code></a></p>
@@ -419,7 +467,7 @@ volume (defaults to 100)</li>
 
 <dl class="class">
 <dt id="pymatgen.io.vasp.sets.MPNonSCFSet">
-<em class="property">class </em><code class="descname">MPNonSCFSet</code><span class="sig-paren">(</span><em>structure</em>, <em>prev_incar=None</em>, <em>mode='line'</em>, <em>nedos=601</em>, <em>reciprocal_density=100</em>, <em>sym_prec=0.1</em>, <em>kpoints_line_density=20</em>, <em>optics=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MPNonSCFSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MPNonSCFSet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">MPNonSCFSet</code><span class="sig-paren">(</span><em>structure</em>, <em>prev_incar=None</em>, <em>mode='line'</em>, <em>nedos=2001</em>, <em>reciprocal_density=100</em>, <em>sym_prec=0.1</em>, <em>kpoints_line_density=20</em>, <em>optics=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MPNonSCFSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MPNonSCFSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vasp.sets.MPRelaxSet" title="pymatgen.io.vasp.sets.MPRelaxSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.vasp.sets.MPRelaxSet</span></code></a></p>
 <p>Init a MPNonSCFSet. Typically, you would use the classmethod
 from_prev_calc to initialize from a previous SCF run.</p>
@@ -431,7 +479,7 @@ from_prev_calc to initialize from a previous SCF run.</p>
 <li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Structure to compute</li>
 <li><strong>prev_incar</strong> (<em>Incar/string</em>) – Incar file from previous run.</li>
 <li><strong>mode</strong> (<em>str</em>) – Line or Uniform mode supported.</li>
-<li><strong>nedos</strong> (<em>int</em>) – nedos parameter. Default to 601.</li>
+<li><strong>nedos</strong> (<em>int</em>) – nedos parameter. Default to 2001.</li>
 <li><strong>reciprocal_density</strong> (<em>int</em>) – density of k-mesh by reciprocal
 volume (defaults to 100)</li>
 <li><strong>sym_prec</strong> (<em>float</em>) – Symmetry precision (for Uniform mode).</li>
@@ -1180,13 +1228,13 @@ Vasp input files, e.g. get_kpoints.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.1.24 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

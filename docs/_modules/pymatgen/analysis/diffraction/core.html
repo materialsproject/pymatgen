@@ -6,14 +6,15 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.diffraction.core &#8212; pymatgen 2019.1.24 documentation</title>
+    <title>pymatgen.analysis.diffraction.core &#8212; pymatgen 2019.2.4 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -34,7 +35,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.1.24 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.2.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -84,17 +85,19 @@
 <span class="sd">        Args:</span>
 <span class="sd">            x: Two theta angles.</span>
 <span class="sd">            y: Intensities</span>
-<span class="sd">            hkls: [{(h, k, l): mult}] {(h, k, l): mult} is a dict of Miller</span>
+<span class="sd">            hkls: [{&quot;hkl&quot;: (h, k, l), &quot;multiplicity&quot;: mult}],</span>
+<span class="sd">                where {&quot;hkl&quot;: (h, k, l), &quot;multiplicity&quot;: mult}</span>
+<span class="sd">                is a dict of Miller</span>
 <span class="sd">                indices for all diffracted lattice facets contributing to each</span>
 <span class="sd">                intensity.</span>
 <span class="sd">            d_hkls: List of interplanar spacings.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">DiffractionPattern</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">hkls</span><span class="p">,</span><span class="n">d_hkls</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DiffractionPattern</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">hkls</span><span class="p">,</span> <span class="n">d_hkls</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">hkls</span> <span class="o">=</span> <span class="n">hkls</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">d_hkls</span> <span class="o">=</span> <span class="n">d_hkls</span></div>
 
 
-<div class="viewcode-block" id="DiffractionPatternCalculator"><a class="viewcode-back" href="../../../../pymatgen.analysis.diffraction.core.html#pymatgen.analysis.diffraction.core.DiffractionPatternCalculator">[docs]</a><span class="k">class</span> <span class="nc">DiffractionPatternCalculator</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+<div class="viewcode-block" id="AbstractDiffractionPatternCalculator"><a class="viewcode-back" href="../../../../pymatgen.analysis.diffraction.core.html#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator">[docs]</a><span class="k">class</span> <span class="nc">AbstractDiffractionPatternCalculator</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Abstract base class for computing the diffraction pattern of a crystal.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -108,7 +111,7 @@
     <span class="c1"># absences do not cancel exactly to zero.</span>
     <span class="n">SCALED_INTENSITY_TOL</span> <span class="o">=</span> <span class="mf">1e-3</span>
 
-<div class="viewcode-block" id="DiffractionPatternCalculator.get_pattern"><a class="viewcode-back" href="../../../../pymatgen.analysis.diffraction.core.html#pymatgen.analysis.diffraction.core.DiffractionPatternCalculator.get_pattern">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+<div class="viewcode-block" id="AbstractDiffractionPatternCalculator.get_pattern"><a class="viewcode-back" href="../../../../pymatgen.analysis.diffraction.core.html#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.get_pattern">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">get_pattern</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">scaled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">two_theta_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">)):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculates the diffraction pattern for a structure.</span>
@@ -128,7 +131,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="DiffractionPatternCalculator.get_plot"><a class="viewcode-back" href="../../../../pymatgen.analysis.diffraction.core.html#pymatgen.analysis.diffraction.core.DiffractionPatternCalculator.get_plot">[docs]</a>    <span class="k">def</span> <span class="nf">get_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">two_theta_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">),</span>
+<div class="viewcode-block" id="AbstractDiffractionPatternCalculator.get_plot"><a class="viewcode-back" href="../../../../pymatgen.analysis.diffraction.core.html#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.get_plot">[docs]</a>    <span class="k">def</span> <span class="nf">get_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">two_theta_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">),</span>
                  <span class="n">annotate_peaks</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">with_labels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -161,7 +164,8 @@
 
         <span class="k">for</span> <span class="n">two_theta</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">hkls</span><span class="p">,</span> <span class="n">d_hkl</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">xrd</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">xrd</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">xrd</span><span class="o">.</span><span class="n">hkls</span><span class="p">,</span> <span class="n">xrd</span><span class="o">.</span><span class="n">d_hkls</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">two_theta_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">two_theta</span> <span class="o">&lt;=</span> <span class="n">two_theta_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
-                <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">hkl</span><span class="p">)</span> <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="n">hkls</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">hkls</span><span class="p">)</span>
+                <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">hkl</span><span class="p">[</span><span class="s2">&quot;hkl&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="n">hkls</span><span class="p">])</span>
                 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">two_theta</span><span class="p">,</span> <span class="n">two_theta</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span>
                          <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">annotate_peaks</span><span class="p">:</span>
@@ -177,7 +181,7 @@
 
         <span class="k">return</span> <span class="n">plt</span></div>
 
-<div class="viewcode-block" id="DiffractionPatternCalculator.show_plot"><a class="viewcode-back" href="../../../../pymatgen.analysis.diffraction.core.html#pymatgen.analysis.diffraction.core.DiffractionPatternCalculator.show_plot">[docs]</a>    <span class="k">def</span> <span class="nf">show_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="AbstractDiffractionPatternCalculator.show_plot"><a class="viewcode-back" href="../../../../pymatgen.analysis.diffraction.core.html#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.show_plot">[docs]</a>    <span class="k">def</span> <span class="nf">show_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Shows the diffraction plot.</span>
 
@@ -192,7 +196,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">get_plot</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="DiffractionPatternCalculator.plot_structures"><a class="viewcode-back" href="../../../../pymatgen.analysis.diffraction.core.html#pymatgen.analysis.diffraction.core.DiffractionPatternCalculator.plot_structures">[docs]</a>    <span class="nd">@add_fig_kwargs</span>
+<div class="viewcode-block" id="AbstractDiffractionPatternCalculator.plot_structures"><a class="viewcode-back" href="../../../../pymatgen.analysis.diffraction.core.html#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.plot_structures">[docs]</a>    <span class="nd">@add_fig_kwargs</span>
     <span class="k">def</span> <span class="nf">plot_structures</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structures</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot diffraction patterns for multiple structures on the same figure.</span>
@@ -288,7 +292,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.1.24 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.2.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -296,7 +300,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

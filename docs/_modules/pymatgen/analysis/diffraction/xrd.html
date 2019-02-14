@@ -6,14 +6,15 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.diffraction.xrd &#8212; pymatgen 2019.1.24 documentation</title>
+    <title>pymatgen.analysis.diffraction.xrd &#8212; pymatgen 2019.2.4 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -34,7 +35,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.1.24 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.2.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -59,7 +60,7 @@
 
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
 
-<span class="kn">from</span> <span class="nn">.core</span> <span class="k">import</span> <span class="n">DiffractionPattern</span><span class="p">,</span> <span class="n">DiffractionPatternCalculator</span><span class="p">,</span> \
+<span class="kn">from</span> <span class="nn">.core</span> <span class="k">import</span> <span class="n">DiffractionPattern</span><span class="p">,</span> <span class="n">AbstractDiffractionPatternCalculator</span><span class="p">,</span> \
     <span class="n">get_unique_families</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
@@ -107,7 +108,7 @@
     <span class="n">ATOMIC_SCATTERING_PARAMS</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="XRDCalculator"><a class="viewcode-back" href="../../../../pymatgen.analysis.diffraction.xrd.html#pymatgen.analysis.diffraction.xrd.XRDCalculator">[docs]</a><span class="k">class</span> <span class="nc">XRDCalculator</span><span class="p">(</span><span class="n">DiffractionPatternCalculator</span><span class="p">):</span>
+<div class="viewcode-block" id="XRDCalculator"><a class="viewcode-back" href="../../../../pymatgen.analysis.diffraction.xrd.html#pymatgen.analysis.diffraction.xrd.XRDCalculator">[docs]</a><span class="k">class</span> <span class="nc">XRDCalculator</span><span class="p">(</span><span class="n">AbstractDiffractionPatternCalculator</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the XRD pattern of a crystal structure.</span>
 
@@ -316,7 +317,7 @@
                     <span class="n">hkl</span> <span class="o">=</span> <span class="p">(</span><span class="n">hkl</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">hkl</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="o">-</span> <span class="n">hkl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">hkl</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">hkl</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
                 <span class="c1"># Deal with floating point precision issues.</span>
                 <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">two_thetas</span><span class="p">,</span> <span class="n">two_theta</span><span class="p">))</span> <span class="o">&lt;</span>
-                               <span class="n">DiffractionPatternCalculator</span><span class="o">.</span><span class="n">TWO_THETA_TOL</span><span class="p">)</span>
+                               <span class="n">AbstractDiffractionPatternCalculator</span><span class="o">.</span><span class="n">TWO_THETA_TOL</span><span class="p">)</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ind</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">peaks</span><span class="p">[</span><span class="n">two_thetas</span><span class="p">[</span><span class="n">ind</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]]][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">i_hkl</span> <span class="o">*</span> <span class="n">lorentz_factor</span>
                     <span class="n">peaks</span><span class="p">[</span><span class="n">two_thetas</span><span class="p">[</span><span class="n">ind</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]]][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">hkl</span><span class="p">))</span>
@@ -334,10 +335,11 @@
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">peaks</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
             <span class="n">v</span> <span class="o">=</span> <span class="n">peaks</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
             <span class="n">fam</span> <span class="o">=</span> <span class="n">get_unique_families</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-            <span class="k">if</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">max_intensity</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">&gt;</span> <span class="n">DiffractionPatternCalculator</span><span class="o">.</span><span class="n">SCALED_INTENSITY_TOL</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">max_intensity</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">&gt;</span> <span class="n">AbstractDiffractionPatternCalculator</span><span class="o">.</span><span class="n">SCALED_INTENSITY_TOL</span><span class="p">:</span>
                 <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
                 <span class="n">y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-                <span class="n">hkls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fam</span><span class="p">)</span>
+                <span class="n">hkls</span><span class="o">.</span><span class="n">append</span><span class="p">([{</span><span class="s2">&quot;hkl&quot;</span><span class="p">:</span> <span class="n">hkl</span><span class="p">,</span> <span class="s2">&quot;multiplicity&quot;</span><span class="p">:</span> <span class="n">mult</span><span class="p">}</span>
+                             <span class="k">for</span> <span class="n">hkl</span><span class="p">,</span> <span class="n">mult</span> <span class="ow">in</span> <span class="n">fam</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
                 <span class="n">d_hkls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
         <span class="n">xrd</span> <span class="o">=</span> <span class="n">DiffractionPattern</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">hkls</span><span class="p">,</span> <span class="n">d_hkls</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">scaled</span><span class="p">:</span>
@@ -375,7 +377,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.1.24 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.2.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -383,7 +385,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

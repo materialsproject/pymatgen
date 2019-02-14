@@ -6,14 +6,15 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.electronic_structure.cohp &#8212; pymatgen 2019.1.24 documentation</title>
+    <title>pymatgen.electronic_structure.cohp &#8212; pymatgen 2019.2.4 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -34,7 +35,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.1.24 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.2.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -391,11 +392,47 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">Cohp</span><span class="p">(</span><span class="n">efermi</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">efermi</span><span class="p">,</span> <span class="n">energies</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">,</span>
-                            <span class="n">cohp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">all_cohps</span><span class="p">[</span><span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">get_cohp</span><span class="p">(</span><span class="n">spin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">integrated</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">are_coops</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">are_coops</span><span class="p">,</span>
+                            <span class="n">cohp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">all_cohps</span><span class="p">[</span><span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">get_cohp</span><span class="p">(</span><span class="n">spin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">integrated</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+                            <span class="n">are_coops</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">are_coops</span><span class="p">,</span>
                             <span class="n">icohp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">all_cohps</span><span class="p">[</span><span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">get_icohp</span><span class="p">(</span><span class="n">spin</span><span class="o">=</span><span class="kc">None</span><span class="p">))</span>
 
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The label does not exist&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CompleteCohp.get_summed_cohp_by_label_list"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.cohp.html#pymatgen.electronic_structure.cohp.CompleteCohp.get_summed_cohp_by_label_list">[docs]</a>    <span class="k">def</span> <span class="nf">get_summed_cohp_by_label_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label_list</span><span class="p">,</span> <span class="n">divisor</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a COHP object that includes a summed COHP divided by divisor</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            label_list: list of labels for the COHP that should be included in the summed cohp</span>
+<span class="sd">            divisor: float/int, the summed cohp will be divided by this divisor</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Returns a COHP object including a summed COHP</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># check if cohps are spinpolarized or not</span>
+        <span class="n">first_cohpobject</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cohp_by_label</span><span class="p">(</span><span class="n">label_list</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">summed_cohp</span> <span class="o">=</span> <span class="n">first_cohpobject</span><span class="o">.</span><span class="n">cohp</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">summed_icohp</span> <span class="o">=</span> <span class="n">first_cohpobject</span><span class="o">.</span><span class="n">icohp</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">label_list</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">cohp_here</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cohp_by_label</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+            <span class="n">summed_cohp</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="n">summed_cohp</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">],</span> <span class="n">cohp_here</span><span class="o">.</span><span class="n">cohp</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">Spin</span><span class="o">.</span><span class="n">down</span> <span class="ow">in</span> <span class="n">summed_cohp</span><span class="p">:</span>
+                <span class="n">summed_cohp</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="n">summed_cohp</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">],</span> <span class="n">cohp_here</span><span class="o">.</span><span class="n">cohp</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">summed_icohp</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="n">summed_icohp</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">],</span> <span class="n">cohp_here</span><span class="o">.</span><span class="n">icohp</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">Spin</span><span class="o">.</span><span class="n">down</span> <span class="ow">in</span> <span class="n">summed_icohp</span><span class="p">:</span>
+                <span class="n">summed_icohp</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="n">summed_icohp</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">],</span> <span class="n">cohp_here</span><span class="o">.</span><span class="n">icohp</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">divided_cohp</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">divided_icohp</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">divided_cohp</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">summed_cohp</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">],</span> <span class="n">divisor</span><span class="p">)</span>
+        <span class="n">divided_icohp</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">summed_icohp</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">],</span> <span class="n">divisor</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">Spin</span><span class="o">.</span><span class="n">down</span> <span class="ow">in</span> <span class="n">summed_cohp</span><span class="p">:</span>
+            <span class="n">divided_cohp</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">summed_cohp</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">],</span> <span class="n">divisor</span><span class="p">)</span>
+            <span class="n">divided_icohp</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">summed_icohp</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">],</span> <span class="n">divisor</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">Cohp</span><span class="p">(</span><span class="n">efermi</span><span class="o">=</span><span class="n">first_cohpobject</span><span class="o">.</span><span class="n">efermi</span><span class="p">,</span> <span class="n">energies</span><span class="o">=</span><span class="n">first_cohpobject</span><span class="o">.</span><span class="n">energies</span><span class="p">,</span> <span class="n">cohp</span><span class="o">=</span><span class="n">divided_cohp</span><span class="p">,</span>
+                    <span class="n">are_coops</span><span class="o">=</span><span class="n">first_cohpobject</span><span class="o">.</span><span class="n">are_coops</span><span class="p">,</span>
+                    <span class="n">icohp</span><span class="o">=</span><span class="n">divided_icohp</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="CompleteCohp.get_orbital_resolved_cohp"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.cohp.html#pymatgen.electronic_structure.cohp.CompleteCohp.get_orbital_resolved_cohp">[docs]</a>    <span class="k">def</span> <span class="nf">get_orbital_resolved_cohp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">orbitals</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -850,20 +887,20 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">icohp_here</span><span class="o">.</span><span class="n">icohpvalue</span><span class="p">(</span><span class="n">spin</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="IcohpCollection.get_summed_icohp_by_labellist"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.cohp.html#pymatgen.electronic_structure.cohp.IcohpCollection.get_summed_icohp_by_labellist">[docs]</a>    <span class="k">def</span> <span class="nf">get_summed_icohp_by_labellist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labellist</span><span class="p">,</span> <span class="n">divisor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">summed_spin_channels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">):</span>
+<div class="viewcode-block" id="IcohpCollection.get_summed_icohp_by_label_list"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.cohp.html#pymatgen.electronic_structure.cohp.IcohpCollection.get_summed_icohp_by_label_list">[docs]</a>    <span class="k">def</span> <span class="nf">get_summed_icohp_by_label_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label_list</span><span class="p">,</span> <span class="n">divisor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">summed_spin_channels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        get the sum of several ICOHP values that are indicated by a list of labels (labels of the bonds are the same as in ICOHPLIST/ICOOPLIST)</span>
 <span class="sd">        Args:</span>
-<span class="sd">            labellist: list of labels of the ICOHPs/ICOOPs that should be summed</span>
+<span class="sd">            label_list: list of labels of the ICOHPs/ICOOPs that should be summed</span>
 <span class="sd">            divisor: is used to divide the sum</span>
 <span class="sd">            summed_spin_channels: Boolean to indicate whether the ICOHPs/ICOOPs of both spin channels should be summed</span>
 <span class="sd">            spin: if summed_spin_channels is equal to False, this spin indicates which spin channel should be returned</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">             float that is a sum of all ICOHPs/ICOOPs as indicated with labellist</span>
+<span class="sd">             float that is a sum of all ICOHPs/ICOOPs as indicated with label_list</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">sum_icohp</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labellist</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">label_list</span><span class="p">:</span>
             <span class="n">icohp_here</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_icohplist</span><span class="p">[</span><span class="n">label</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">icohp_here</span><span class="o">.</span><span class="n">num_bonds</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;One of the ICOHP values is an average over bonds. This is currently not considered.&quot;</span><span class="p">)</span>
@@ -892,32 +929,37 @@
                 <span class="n">newicohp_dict</span><span class="p">[</span><span class="n">value</span><span class="o">.</span><span class="n">_label</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">return</span> <span class="n">newicohp_dict</span></div>
 
-<div class="viewcode-block" id="IcohpCollection.get_icohp_dict_of_certain_site"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.cohp.html#pymatgen.electronic_structure.cohp.IcohpCollection.get_icohp_dict_of_certain_site">[docs]</a>    <span class="k">def</span> <span class="nf">get_icohp_dict_of_certain_site</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">minsummedicohp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">maxsummedicohp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">minbondlength</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
-                                       <span class="n">maxbondlength</span><span class="o">=</span><span class="mf">8.0</span><span class="p">):</span>
+<div class="viewcode-block" id="IcohpCollection.get_icohp_dict_of_site"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.cohp.html#pymatgen.electronic_structure.cohp.IcohpCollection.get_icohp_dict_of_site">[docs]</a>    <span class="k">def</span> <span class="nf">get_icohp_dict_of_site</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">minsummedicohp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">maxsummedicohp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">minbondlength</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                               <span class="n">maxbondlength</span><span class="o">=</span><span class="mf">8.0</span><span class="p">,</span> <span class="n">only_bonds_to</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        get a dict of IcohpValue for a certain site (indicated by integer)</span>
 <span class="sd">        Args:</span>
 <span class="sd">            site: integer describing the site of interest, order as in Icohplist.lobster/Icooplist.lobster, starts at 0</span>
-<span class="sd">            minsummedicohp: minimal icohp/icoop of the bonds that are considered. It is the summed ICOHP value from both spin channels for spin polarized cases</span>
-<span class="sd">            maxsummedicohp: maximal icohp/icoop of the bonds that are considered. It is the summed ICOHP value from both spin channels for spin polarized cases</span>
-<span class="sd">            minbondlength: defines the minimum of the bond lengths of the bonds</span>
-<span class="sd">            maxbondlength: defines the maximum of the bond lengths of the bonds</span>
+<span class="sd">            minsummedicohp: float, minimal icohp/icoop of the bonds that are considered. It is the summed ICOHP value from both spin channels for spin polarized cases</span>
+<span class="sd">            maxsummedicohp: float, maximal icohp/icoop of the bonds that are considered. It is the summed ICOHP value from both spin channels for spin polarized cases</span>
+<span class="sd">            minbondlength: float, defines the minimum of the bond lengths of the bonds</span>
+<span class="sd">            maxbondlength: float, defines the maximum of the bond lengths of the bonds</span>
+<span class="sd">            only_bonds_to: list of strings describing the bonding partners that are allowed, e.g. [&#39;O&#39;]</span>
 <span class="sd">        Returns:</span>
 <span class="sd">             dict of IcohpValues, the keys correspond to the values from the initial list_labels</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">newicohp_dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_icohplist</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">atomnumber1</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\d+)&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">_atom1</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span>
             <span class="n">atomnumber2</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\d+)&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">_atom2</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span>
             <span class="k">if</span> <span class="n">site</span> <span class="o">==</span> <span class="n">atomnumber1</span> <span class="ow">or</span> <span class="n">site</span> <span class="o">==</span> <span class="n">atomnumber2</span><span class="p">:</span>
-
                 <span class="c1"># manipulate order of atoms so that searched one is always atom1</span>
                 <span class="k">if</span> <span class="n">site</span> <span class="o">==</span> <span class="n">atomnumber2</span><span class="p">:</span>
                     <span class="n">save</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">_atom1</span>
                     <span class="n">value</span><span class="o">.</span><span class="n">_atom1</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">_atom2</span>
                     <span class="n">value</span><span class="o">.</span><span class="n">_atom2</span> <span class="o">=</span> <span class="n">save</span>
 
-                <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">_length</span> <span class="o">&gt;=</span> <span class="n">minbondlength</span> <span class="ow">and</span> <span class="n">value</span><span class="o">.</span><span class="n">_length</span> <span class="o">&lt;=</span> <span class="n">maxbondlength</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">only_bonds_to</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">second_test</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">second_test</span> <span class="o">=</span> <span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\d+)&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">_atom2</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">only_bonds_to</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">_length</span> <span class="o">&gt;=</span> <span class="n">minbondlength</span> <span class="ow">and</span> <span class="n">value</span><span class="o">.</span><span class="n">_length</span> <span class="o">&lt;=</span> <span class="n">maxbondlength</span> <span class="ow">and</span> <span class="n">second_test</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">minsummedicohp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">summed_icohp</span> <span class="o">&gt;=</span> <span class="n">minsummedicohp</span><span class="p">:</span>
                             <span class="k">if</span> <span class="n">maxsummedicohp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -925,7 +967,6 @@
                                     <span class="n">newicohp_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
                             <span class="k">else</span><span class="p">:</span>
                                 <span class="n">newicohp_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-
                     <span class="k">else</span><span class="p">:</span>
                         <span class="k">if</span> <span class="n">maxsummedicohp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                             <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">summed_icohp</span> <span class="o">&lt;=</span> <span class="n">maxsummedicohp</span><span class="p">:</span>
@@ -1015,7 +1056,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.1.24 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.2.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1023,7 +1064,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

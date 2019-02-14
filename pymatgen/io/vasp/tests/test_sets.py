@@ -4,6 +4,7 @@
 
 
 import unittest
+import os
 import tempfile
 from monty.json import MontyDecoder
 from pymatgen import SETTINGS

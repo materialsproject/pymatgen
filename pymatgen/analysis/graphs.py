@@ -380,12 +380,12 @@ class StructureGraph(MSONable):
                               properties=site_properties)
 
         mapping = {}
-        for j in range(len(self.structure)):
+        for j in range(len(self.structure) - 1):
             if j < i:
                 mapping[j] = j
             else:
                 mapping[j] = j + 1
-        nx.relabel_nodes(self.graph, mapping)
+        nx.relabel_nodes(self.graph, mapping, copy=False)
 
         self.graph.add_node(i)
         self.set_node_attributes()
@@ -520,10 +520,10 @@ class StructureGraph(MSONable):
         self.graph.remove_nodes_from(indices)
 
         mapping = {}
-        for correct, current in enumerate(self.graph.nodes):
+        for correct, current in enumerate(sorted(self.graph.nodes)):
             mapping[current] = correct
 
-        nx.relabel_nodes(self.graph, mapping)
+        nx.relabel_nodes(self.graph, mapping, copy=False)
         self.set_node_attributes()
 
     def substitute_group(self, index, func_grp, strategy, bond_order=1,
@@ -1770,12 +1770,12 @@ class MoleculeGraph(MSONable):
                              properties=site_properties)
 
         mapping = {}
-        for j in range(len(self.molecule)):
+        for j in range(len(self.molecule) - 1):
             if j < i:
                 mapping[j] = j
             else:
                 mapping[j] = j + 1
-        nx.relabel_nodes(self.graph, mapping)
+        nx.relabel_nodes(self.graph, mapping, copy=False)
 
         self.graph.add_node(i)
         self.set_node_attributes()
@@ -1890,10 +1890,10 @@ class MoleculeGraph(MSONable):
         self.graph.remove_nodes_from(indices)
 
         mapping = {}
-        for correct, current in enumerate(self.graph.nodes):
+        for correct, current in enumerate(sorted(self.graph.nodes)):
             mapping[current] = correct
 
-        nx.relabel_nodes(self.graph, mapping)
+        nx.relabel_nodes(self.graph, mapping, copy=False)
         self.set_node_attributes()
 
     def split_molecule_subgraphs(self, bonds, allow_reverse=False,

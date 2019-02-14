@@ -1,0 +1,379 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pymatgen.core.trajectory &#8212; pymatgen 2019.2.4 documentation</title>
+    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.2.4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.core.trajectory</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.outputs</span> <span class="k">import</span> <span class="n">Xdatcar</span><span class="p">,</span> <span class="n">Vasprun</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">fnmatch</span> <span class="k">import</span> <span class="n">fnmatch</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides classes used to define a MD trajectory.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Eric Sivonxay, Shyam Dwaraknath&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.0&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Jan 25, 2019&quot;</span>
+
+
+<div class="viewcode-block" id="Trajectory"><a class="viewcode-back" href="../../../pymatgen.core.trajectory.html#pymatgen.core.trajectory.Trajectory">[docs]</a><span class="k">class</span> <span class="nc">Trajectory</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Trajectory object that stores structural information related to a MD simulation.</span>
+<span class="sd">    Provides basic functions such as slicing trajectory or obtaining displacements.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">frac_coords</span><span class="p">,</span> <span class="n">time_step</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">site_properties</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">constant_lattice</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">coords_are_displacement</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">base_positions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a trajectory object</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            lattice: The lattice as any 2D array. Each row should correspond to a lattice</span>
+<span class="sd">                vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a</span>
+<span class="sd">                lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].</span>
+<span class="sd">            species: List of species on each site. Can take in flexible input,</span>
+<span class="sd">                including:</span>
+
+<span class="sd">                i.  A sequence of element / specie specified either as string</span>
+<span class="sd">                    symbols, e.g. [&quot;Li&quot;, &quot;Fe2+&quot;, &quot;P&quot;, ...] or atomic numbers,</span>
+<span class="sd">                    e.g., (3, 56, ...) or actual Element or Specie objects.</span>
+
+<span class="sd">                ii. List of dict of elements/species and occupancies, e.g.,</span>
+<span class="sd">                    [{&quot;Fe&quot; : 0.5, &quot;Mn&quot;:0.5}, ...]. This allows the setup of</span>
+<span class="sd">                    disordered structures.</span>
+<span class="sd">            frac_coords (MxNx3 array): list of fractional coordinates of</span>
+<span class="sd">                each species</span>
+<span class="sd">            time_step (int, float): Timestep of simulation in femtoseconds. Defaults to 2fs.</span>
+<span class="sd">            site_properties (list): Properties associated with the sites as a list of</span>
+<span class="sd">                dicts of sequences, e.g., [{&quot;magmom&quot;:[5,5,5,5]}, {&quot;magmom&quot;:[5,5,5,5]}]. The sequences</span>
+<span class="sd">                have to be the same length as the atomic species and fractional_coords. Number of supplied</span>
+<span class="sd">                dicts should match number of frames in trajectory</span>
+<span class="sd">                Defaults to None for no properties.</span>
+<span class="sd">            constant_lattice (bool): Whether the lattice changes during the simulation, such as in an NPT MD simulation.</span>
+<span class="sd">            coords_are_displacement (bool): Whether supplied coordinates are given in displacements (True) or</span>
+<span class="sd">                positions (False)</span>
+<span class="sd">            base_positions (Nx3 array): The starting positions of all atoms in trajectory. Used to reconstruct positions</span>
+<span class="sd">                when converting from displacements to positions. Only needs to be specified if</span>
+<span class="sd">                coords_are_displacement=True. Defaults to first index of frac_coords if coords_are_displacement=False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># To support from_dict and as_dict</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">frac_coords</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">frac_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">frac_coords</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">lattice</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">lattice</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span> <span class="o">=</span> <span class="n">frac_coords</span>
+        <span class="k">if</span> <span class="n">coords_are_displacement</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">base_positions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">&quot;Without providing an array of starting positions, the positions for each time step will not be available&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">base_positions</span> <span class="o">=</span> <span class="n">base_positions</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">base_positions</span> <span class="o">=</span> <span class="n">frac_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coords_are_displacement</span> <span class="o">=</span> <span class="n">coords_are_displacement</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">constant_lattice</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">lattice</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="p">[</span><span class="n">lattice</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="n">lattice</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constant_lattice</span> <span class="o">=</span> <span class="n">constant_lattice</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">species</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">site_properties</span> <span class="o">=</span> <span class="n">site_properties</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">=</span> <span class="n">time_step</span>
+
+<div class="viewcode-block" id="Trajectory.get_structure"><a class="viewcode-back" href="../../../pymatgen.core.trajectory.html#pymatgen.core.trajectory.Trajectory.get_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns structure at specified index</span>
+<span class="sd">        Args:</span>
+<span class="sd">            i (int): Index of structure</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (Structure) pymatgen structure object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Trajectory.to_positions"><a class="viewcode-back" href="../../../pymatgen.core.trajectory.html#pymatgen.core.trajectory.Trajectory.to_positions">[docs]</a>    <span class="k">def</span> <span class="nf">to_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts fractional coordinates of trajectory into positions</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords_are_displacement</span><span class="p">:</span>
+            <span class="n">cumulative_displacements</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">positions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_positions</span> <span class="o">+</span> <span class="n">cumulative_displacements</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span> <span class="o">=</span> <span class="n">positions</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">coords_are_displacement</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="Trajectory.to_displacements"><a class="viewcode-back" href="../../../pymatgen.core.trajectory.html#pymatgen.core.trajectory.Trajectory.to_displacements">[docs]</a>    <span class="k">def</span> <span class="nf">to_displacements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts position coordinates of trajectory into displacements between consecutive frames</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords_are_displacement</span><span class="p">:</span>
+            <span class="n">displacements</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+            <span class="n">displacements</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="c1"># Deal with PBC</span>
+            <span class="n">displacements</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">item</span><span class="p">))</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">displacements</span><span class="p">]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span> <span class="o">=</span> <span class="n">displacements</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">coords_are_displacement</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="Trajectory.extend"><a class="viewcode-back" href="../../../pymatgen.core.trajectory.html#pymatgen.core.trajectory.Trajectory.extend">[docs]</a>    <span class="k">def</span> <span class="nf">extend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trajectory</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Concatenate another trajectory</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            trajectory (Trajectory): Trajectory to add</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">!=</span> <span class="n">trajectory</span><span class="o">.</span><span class="n">time_step</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Trajectory not extended: Time steps of trajectories is incompatible&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">trajectory</span><span class="o">.</span><span class="n">species</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">!=</span> <span class="n">trajectory</span><span class="o">.</span><span class="n">species</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Trajectory not extended: species in trajectory do not match&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_positions</span><span class="p">()</span>
+        <span class="n">trajectory</span><span class="o">.</span><span class="n">to_positions</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">trajectory</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">constant_lattice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_combine_attribute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span> <span class="n">trajectory</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span>
+                                                                      <span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                                                      <span class="n">trajectory</span><span class="o">.</span><span class="n">frac_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">site_properties</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_combine_attribute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site_properties</span><span class="p">,</span> <span class="n">trajectory</span><span class="o">.</span><span class="n">site_properties</span><span class="p">,</span>
+                                                       <span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">trajectory</span><span class="o">.</span><span class="n">frac_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="k">yield</span> <span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frames</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets a subset of the trajectory if a slice is given, if an int is given, return a structure</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            frames (int, slice): int or slice of trajectory to return</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            (Trajectory, Structure) Subset of trajectory</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">frames</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">frames</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">lattice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">constant_lattice</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="p">[</span><span class="n">frames</span><span class="p">]</span>
+            <span class="n">site_properties</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_properties</span><span class="p">[</span><span class="n">frames</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_properties</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="n">Structure</span><span class="p">(</span><span class="n">Lattice</span><span class="p">(</span><span class="n">lattice</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="n">frames</span><span class="p">],</span> <span class="n">site_properties</span><span class="o">=</span><span class="n">site_properties</span><span class="p">,</span>
+                             <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">frames</span><span class="p">,</span> <span class="nb">slice</span><span class="p">):</span>
+            <span class="n">frames</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">frames</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">frames</span><span class="o">.</span><span class="n">stop</span><span class="p">,</span> <span class="n">frames</span><span class="o">.</span><span class="n">step</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">frames</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">frames</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">frames</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Given accessor is not of type int, slice, tuple, list, or array&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">frames</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">frames</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">))</span> <span class="ow">and</span> \
+                <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">frames</span><span class="p">])</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">constant_lattice</span><span class="p">:</span>
+                <span class="n">lattice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">lattice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="p">[</span><span class="n">frames</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="k">return</span> <span class="n">Trajectory</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="n">frames</span><span class="p">,</span> <span class="p">:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">,</span>
+                              <span class="bp">self</span><span class="o">.</span><span class="n">site_properties</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Some or all selected frames exceed trajectory length&#39;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+<div class="viewcode-block" id="Trajectory.copy"><a class="viewcode-back" href="../../../pymatgen.core.trajectory.html#pymatgen.core.trajectory.Trajectory.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Trajectory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_properties</span><span class="p">,</span>
+                          <span class="bp">self</span><span class="o">.</span><span class="n">constant_lattice</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords_are_displacement</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_positions</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Trajectory.from_structures"><a class="viewcode-back" href="../../../pymatgen.core.trajectory.html#pymatgen.core.trajectory.Trajectory.from_structures">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_structures</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">structures</span><span class="p">,</span> <span class="n">constant_lattice</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convenience constructor to obtain trajectory from a list of structures.</span>
+<span class="sd">        Note: Assumes no atoms removed during simulation</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structures (list): list of pymatgen Structure objects.</span>
+<span class="sd">            constant_lattice (bool): Whether the lattice changes during the simulation, such as in an NPT MD</span>
+<span class="sd">                simulation. True results in</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (Trajectory)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">frac_coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">structure</span><span class="o">.</span><span class="n">frac_coords</span> <span class="k">for</span> <span class="n">structure</span> <span class="ow">in</span> <span class="n">structures</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">constant_lattice</span><span class="p">:</span>
+            <span class="n">lattice</span> <span class="o">=</span> <span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lattice</span> <span class="o">=</span> <span class="p">[</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span> <span class="k">for</span> <span class="n">structure</span> <span class="ow">in</span> <span class="n">structures</span><span class="p">]</span>
+        <span class="n">site_properties</span> <span class="o">=</span> <span class="p">[</span><span class="n">structure</span><span class="o">.</span><span class="n">site_properties</span> <span class="k">for</span> <span class="n">structure</span> <span class="ow">in</span> <span class="n">structures</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">species</span><span class="p">,</span> <span class="n">frac_coords</span><span class="p">,</span> <span class="n">site_properties</span><span class="o">=</span><span class="n">site_properties</span><span class="p">,</span>
+                   <span class="n">constant_lattice</span><span class="o">=</span><span class="n">constant_lattice</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Trajectory.from_file"><a class="viewcode-back" href="../../../pymatgen.core.trajectory.html#pymatgen.core.trajectory.Trajectory.from_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">constant_lattice</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convenience constructor to obtain trajectory from XDATCAR or vasprun.xml file</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename (str): The filename to read from.</span>
+<span class="sd">            constant_lattice (bool): Whether the lattice changes during the simulation, such as in an NPT MD</span>
+<span class="sd">                simulation. True results in</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (Trajectory)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO: Support other filetypes</span>
+
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;*XDATCAR*&quot;</span><span class="p">):</span>
+            <span class="n">structures</span> <span class="o">=</span> <span class="n">Xdatcar</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">structures</span>
+        <span class="k">elif</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;vasprun*.xml*&quot;</span><span class="p">):</span>
+            <span class="n">structures</span> <span class="o">=</span> <span class="n">Vasprun</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">structures</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported file&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_structures</span><span class="p">(</span><span class="n">structures</span><span class="p">,</span> <span class="n">constant_lattice</span><span class="o">=</span><span class="n">constant_lattice</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Trajectory.as_dict"><a class="viewcode-back" href="../../../pymatgen.core.trajectory.html#pymatgen.core.trajectory.Trajectory.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+             <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+             <span class="s2">&quot;species&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">,</span> <span class="s2">&quot;time_step&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">,</span>
+             <span class="s2">&quot;site_properties&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_properties</span><span class="p">,</span>
+             <span class="s2">&quot;constant_lattice&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">constant_lattice</span><span class="p">,</span>
+             <span class="s2">&quot;coords_are_displacement&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords_are_displacement</span><span class="p">,</span>
+             <span class="s2">&quot;base_positions&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_positions</span><span class="p">}</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;lattice&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;frac_coords&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">d</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_combine_attribute</span><span class="p">(</span><span class="n">attr_1</span><span class="p">,</span> <span class="n">attr_2</span><span class="p">,</span> <span class="n">len_1</span><span class="p">,</span> <span class="n">len_2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper function to combine trajectory properties such as site_properties or lattice</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attr_1</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attr_2</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">attribute</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">attr_1</span><span class="p">,</span> <span class="n">attr_2</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">attribute_changes</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attr_1</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attr_2</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">attr_1</span><span class="p">,</span> <span class="n">attr_2</span><span class="p">):</span>
+                <span class="n">attribute</span> <span class="o">=</span> <span class="n">attr_1</span>
+                <span class="n">attribute_changes</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">attribute</span> <span class="o">=</span> <span class="p">[</span><span class="n">attr_1</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span> <span class="o">*</span> <span class="n">len_1</span> <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">attr_1</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">list</span> <span class="k">else</span> <span class="n">attr_1</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">attribute</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">attr_2</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span> <span class="o">*</span> <span class="n">len_2</span> <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">attr_2</span> <span class="o">!=</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">attr_2</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+                <span class="n">attribute_changes</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">attribute_changes</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.2.4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>
