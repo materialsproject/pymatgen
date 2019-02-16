@@ -1996,23 +1996,10 @@ class IMolecule(SiteCollection, MSONable):
         Returns:
             Molecule object
         """
-        species = []
-        coords = []
-        props = collections.defaultdict(list)
-
-        for site_dict in d["sites"]:
-            species.append({Specie(sp["element"], sp["oxidation_state"])
-                            if "oxidation_state" in sp else
-                            Element(sp["element"]): sp["occu"]
-                            for sp in site_dict["species"]})
-            coords.append(site_dict["xyz"])
-            siteprops = site_dict.get("properties", {})
-            for k, v in siteprops.items():
-                props[k].append(v)
-
-        return cls(species, coords, charge=d.get("charge", 0),
-                   spin_multiplicity=d.get("spin_multiplicity"),
-                   site_properties=props)
+        sites = [Site.from_dict(sd) for sd in d["sites"]]
+        charge = d.get("charge", 0)
+        spin_multiplicity = d.get("spin_multiplicity")
+        return cls.from_sites(sites, charge=charge, spin_multiplicity=spin_multiplicity)
 
     def get_distance(self, i, j):
         """
