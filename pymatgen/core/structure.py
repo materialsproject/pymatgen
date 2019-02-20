@@ -1789,7 +1789,8 @@ class IMolecule(SiteCollection, MSONable):
         nelectrons = 0
         for site in sites:
             for sp, amt in site.species_and_occu.items():
-                nelectrons += sp.Z * amt
+                if not isinstance(sp, DummySpecie):
+                    nelectrons += sp.Z * amt
         nelectrons -= charge
         self._nelectrons = nelectrons
         if spin_multiplicity:
