@@ -1667,6 +1667,7 @@ class IStructure(SiteCollection, MSONable):
         Returns:
             Structure.
         """
+        filename = str(filename)
         if filename.endswith(".nc"):
             # Read Structure from a netcdf file.
             from pymatgen.io.abinit.netcdf import structure_from_ncdata
@@ -2280,6 +2281,7 @@ class IMolecule(SiteCollection, MSONable):
         Returns:
             Molecule
         """
+        filename = str(filename)
         from pymatgen.io.gaussian import GaussianOutput
         with zopen(filename) as f:
             contents = f.read()

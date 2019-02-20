@@ -2,7 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
+from pathlib import Path
 import warnings
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.periodic_table import Element, Specie
@@ -433,6 +433,10 @@ class IStructureTest(PymatgenTest):
         self.struct.to(filename="Si_testing.yaml")
         self.assertTrue(os.path.exists("Si_testing.yaml"))
         s = Structure.from_file("Si_testing.yaml")
+        self.assertEqual(s, self.struct)
+
+        # Test Path support.
+        s = Structure.from_file(Path("Si_testing.yaml"))
         self.assertEqual(s, self.struct)
         os.remove("Si_testing.yaml")
 
