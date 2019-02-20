@@ -478,6 +478,23 @@ class PointGroupAnalyzerTest(PymatgenTest):
         mol = Molecule(["C", "H", "N"], coords)
         a = PointGroupAnalyzer(mol)
         self.assertEqual(a.sch_symbol, "C*v")
+        coords = [[ 7.19818282e-02, -5.13850399e+00,-2.78587036e-02],
+                  [ 5.43328572e-02, -3.92940670e+00,-1.66248333e-02],
+                  [ 3.58450624e-02, -2.57656810e+00,-7.91702010e-03],
+                  [ 1.97902488e-02, -1.35920654e+00,-8.21484300e-04],
+                  [ 2.15564240e-03, -6.33514200e-03, 3.49187570e-03],
+                  [-1.37242873e-02,  1.20283596e+00, 6.03167840e-03],
+                  [ 8.86138290e-02, -6.19975876e+00,-4.19759731e-02],
+                  [-2.73483707e-02,  2.26422268e+00, 5.41551030e-03]]
+        species = [6, 6, 6, 6, 6, 6, 1, 1]
+        mol = Molecule(species, coords)
+        # This molecule is classified as linear only with increased tolerance
+        a = PointGroupAnalyzer(mol, eigen_tolerance=2e-2)
+        self.assertEqual(a.sch_symbol, "D*h")
+        # This molecule is classified as only having inversion symmetry if the zero eigenvalue check fails
+        a = PointGroupAnalyzer(mol, eigen_tolerance=1e-2)
+        self.assertEqual(a.sch_symbol, "Ci")
+
 
     def test_asym_top(self):
         coords = [[0.000000, 0.000000, 0.000000],

@@ -1076,7 +1076,7 @@ class PointGroupAnalyzer:
             if len(valid_set) > 0:
                 valid_sets.append(valid_set)
 
-        return min(valid_sets, key=lambda s: len(s))
+        return min(valid_sets, key=lambda s: len(s)) if len(valid_sets) > 0 else []
 
     def _check_rot_sym(self, axis):
         """
