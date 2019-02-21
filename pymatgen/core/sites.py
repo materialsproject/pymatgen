@@ -75,7 +75,8 @@ class Site(collections.Hashable, MSONable):
                     raise ValueError("Species occupancies sum to more than 1!")
                 self._is_ordered = totaloccu == 1 and len(self._species) == 1
 
-        self._coords = coords
+        self._coords = np.array(coords)
+        self._coords.setflags(write=False)
         self._properties = properties if properties else {}
 
     @property
@@ -157,7 +158,7 @@ class Site(collections.Hashable, MSONable):
         """
         A copy of the cartesian coordinates of the site as a numpy array.
         """
-        return np.copy(self._coords)
+        return self._coords
 
     @property
     def is_ordered(self):
@@ -318,8 +319,9 @@ class PeriodicSite(Site, MSONable):
             self._fcoords = self._lattice.get_fractional_coords(coords)
             c_coords = coords
         else:
-            self._fcoords = coords
+            self._fcoords = np.array(coords)
             c_coords = lattice.get_cartesian_coords(coords)
+        self._fcoords.setflags(write=False)
 
         if to_unit_cell:
             self._fcoords = np.mod(self._fcoords, 1)
@@ -345,7 +347,7 @@ class PeriodicSite(Site, MSONable):
         """
         A copy of the fractional coordinates of the site.
         """
-        return np.copy(self._fcoords)
+        return self._fcoords
 
     @property
     def a(self):

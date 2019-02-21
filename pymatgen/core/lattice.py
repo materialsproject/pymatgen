@@ -71,7 +71,10 @@ class Lattice(MSONable):
 
         self._angles = np.arccos(angles) * 180. / pi
         self._lengths = lengths
+
+        m.setflags(write=False)
         self._matrix = m
+
         self._inv_matrix = None
         self._metric_tensor = None
         self._diags = None
@@ -113,7 +116,7 @@ class Lattice(MSONable):
     @property
     def matrix(self):
         """Copy of matrix representing the Lattice"""
-        return np.copy(self._matrix)
+        return self._matrix
 
     @property
     def inv_matrix(self):
@@ -122,6 +125,7 @@ class Lattice(MSONable):
         """
         if self._inv_matrix is None:
             self._inv_matrix = inv(self._matrix)
+            self._inv_matrix.setflags(write=False)
         return self._inv_matrix
 
     @property

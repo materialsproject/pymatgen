@@ -3149,7 +3149,7 @@ class Structure(IStructure, collections.MutableSequence):
                 if mode == "s":
                     species += sp
                 offset = self[i].frac_coords - coords
-                coords += ((offset - np.round(offset)) / (n + 2)).astype(
+                coords = coords + ((offset - np.round(offset)) / (n + 2)).astype(
                     coords.dtype)
                 for key in props.keys():
                     if props[key] is not None and self[i].properties[key] != props[key]:
