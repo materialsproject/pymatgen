@@ -979,7 +979,6 @@ class LocalStructOrderParamsTest(PymatgenTest):
         with self.assertRaises(ValueError):
             ops_101.get_order_parameters(self.bcc, 0, indices_neighs=[2])
 
-
     def tearDown(self):
         del self.single_bond
         del self.linear
@@ -1098,7 +1097,12 @@ class CutOffDictNNTest(PymatgenTest):
             ["C", "C"], [[2.554, 1.806, 4.423], [0.365, 0.258, 0.632]],
             coords_are_cartesian=True
         )
+        self.prev_warnings = warnings.filters
+        warnings.simplefilter("ignore")
 
+    def tearDown(self):
+        warnings.filters = self.prev_warnings
+        
     def test_cn(self):
 
         nn = CutOffDictNN({('C', 'C'): 2})
@@ -1124,6 +1128,11 @@ class Critic2NNTest(PymatgenTest):
             ["C", "C"], [[2.554, 1.806, 4.423], [0.365, 0.258, 0.632]],
             coords_are_cartesian=True
         )
+        self.prev_warnings = warnings.filters
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.filters = self.prev_warnings
 
     def test_cn(self):
 
