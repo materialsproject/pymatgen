@@ -1088,6 +1088,21 @@ class CrystalNNTest(PymatgenTest):
         cnn = CrystalNN(distance_cutoffs=(1.25, 5))
         self.assertEqual(cnn.get_cn(self.he_bcc, 0, use_weights=False), 8)
 
+    def test_shifted_sites(self):
+        cnn = CrystalNN()
+
+        sites =  [[0., 0.2, 0.2], [0, 0, 0]]
+        struct = Structure([7, 0, 0, 0, 7, 0, 0, 0, 7], ['I'] * len(sites), sites)
+        bonded_struct = cnn.get_bonded_structure(struct)
+
+        sites_shifted =  [[1., 0.2, 0.2], [0, 0, 0]]
+        struct_shifted = Structure([7, 0, 0, 0, 7, 0, 0, 0, 7], ['I'] * len(sites_shifted),
+                                   sites_shifted)
+        bonded_struct_shifted = cnn.get_bonded_structure(struct_shifted)
+
+        self.assertEqual(len(bonded_struct.get_connected_sites(0)),
+                         len(bonded_struct_shifted.get_connected_sites(0)))
+
 
 class CutOffDictNNTest(PymatgenTest):
 
