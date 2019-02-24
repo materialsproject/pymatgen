@@ -44,10 +44,14 @@ class EntrySetTest(unittest.TestCase):
         entries = loadfn(str(test_dir / "Li-Fe-P-O_entries.json"))
         self.entry_set = EntrySet(entries)
 
+    def test_chemsys(self):
+        self.assertEqual(self.entry_set.chemsys, {'Fe', 'Li', 'O', 'P'})
+
     def test_get_subset(self):
         entries = self.entry_set.get_subset_in_chemsys(["Li", "O"])
         for e in entries:
             self.assertTrue(set([Element.Li, Element.O]).issuperset(e.composition.keys()))
+        self.assertRaises(ValueError, self.entry_set.get_subset_in_chemsys, ["Fe", "F"])
 
     def test_remove_non_ground_states(self):
         l = len(self.entry_set)

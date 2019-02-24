@@ -145,7 +145,7 @@ class EntrySet(collections.MutableSet, MSONable):
     subsets, dumping into files, etc.
     """
 
-    def __init__(self, entries):
+    def __init__(self, entries: "list"):
         """
         Args:
             entries: All the entries.
@@ -167,6 +167,17 @@ class EntrySet(collections.MutableSet, MSONable):
     def discard(self, element):
         self.entries.discard(element)
 
+    @property
+    def chemsys(self) -> set:
+        """
+        Returns:
+            set representing the chemical system, e.g., {"Li", "Fe", "P", "O"}
+        """
+        chemsys = []
+        for e in self.entries:
+            chemsys.extend([el.symbol for el in e.composition.keys()])
+        return set(chemsys)
+
     def remove_non_ground_states(self):
         """
         Removes all non-ground state entries, i.e., only keep the lowest energy
@@ -179,7 +190,7 @@ class EntrySet(collections.MutableSet, MSONable):
             ground_states.add(min(g, key=lambda e: e.energy_per_atom))
         self.entries = ground_states
 
-    def get_subset_in_chemsys(self, chemsys):
+    def get_subset_in_chemsys(self, chemsys: "list"):
         """
         Returns an EntrySet containing only the set of entries belonging to
         a particular chemical system (in this definition, it includes all sub
@@ -187,11 +198,17 @@ class EntrySet(collections.MutableSet, MSONable):
         Li-Fe-P-O system, and chemsys=["Li", "O"], only the Li, O,
         and Li-O entries are returned.
 
-        :param chemsys: Chemical system specified as list of elements. E.g.,
-            ["Li", "O"]
-        :return: EntrySet
+        Args:
+            chemsys: Chemical system specified as list of elements. E.g.,
+                ["Li", "O"]
+
+        Returns:
+            EntrySet
         """
         chemsys = set(chemsys)
+        if not chemsys.issubset(self.chemsys):
+            raise ValueError("%s is not a subset of %s" % (chemsys,
+                                                           self.chemsys))
         subset = set()
         for e in self.entries:
             elements = [sp.symbol for sp in e.composition.keys()]
