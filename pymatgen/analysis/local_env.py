@@ -481,17 +481,25 @@ class NearNeighbors:
         return list(all_sites.values())
 
     @staticmethod
-    def _get_image(frac_coords):
+    def _get_image(structure, site):
         """Private convenience method for get_nn_info,
-        gives lattice image from provided PeriodicSite.
+        gives lattice image from provided PeriodicSite and Structure.
+
+        Image is defined as displacement from original site in structure to a given site.
+        i.e. if structure has a site at (-0.1, 1.0, 0.3), then (0.9, 0, 2.3) -> jimage = (1, -1, 2).
+        Note that this method takes O(number of sites) due to searching an original site.
 
         Args:
-            frac_coords ([float]*3): Fraction coordinates
+            structure: Structure Object
+            site: PeriodicSite Object
+
         Returns:
-            ((int)*3) Lattice image
+            image: ((int)*3) Lattice image
         """
-        # TODO: This is not numerically stable. Also, move to PeriodicSite? -WardLT, 23Jun18
-        return tuple(map(int, np.floor(frac_coords)))
+        original_site = structure[NearNeighbors._get_original_site(structure, site)]
+        image = np.around(np.subtract(site.frac_coords, original_site.frac_coords))
+        image = tuple(image.astype(int))
+        return image
 
     @staticmethod
     def _get_original_site(structure, site):
@@ -956,7 +964,7 @@ class VoronoiNN(NearNeighbors):
             if nstats[self.weight] > self.tol * max_weight \
                     and self._is_in_targets(site, targets):
                 nn_info = {'site': site,
-                           'image': self._get_image(site.frac_coords),
+                           'image': self._get_image(structure, site),
                            'weight': nstats[self.weight] / max_weight,
                            'site_index': self._get_original_site(
                                structure, site)}
@@ -1072,7 +1080,7 @@ class JmolNN(NearNeighbors):
             if dist <= (bonds[(site.specie, neighb.specie)]) and (dist > self.min_bond_distance):
                 weight = min_rad / dist
                 siw.append({'site': neighb,
-                            'image': self._get_image(neighb.frac_coords),
+                            'image': self._get_image(structure, neighb),
                             'weight': weight,
                             'site_index': self._get_original_site(structure, neighb)})
         return siw
@@ -1122,7 +1130,7 @@ class MinimumDistanceNN(NearNeighbors):
             if dist < (1.0 + self.tol) * min_dist:
                 w = min_dist / dist
                 siw.append({'site': s,
-                            'image': self._get_image(s.frac_coords),
+                            'image': self._get_image(structure, s),
                             'weight': w,
                             'site_index': self._get_original_site(structure, s)})
         return siw
@@ -1451,7 +1459,7 @@ class MinimumOKeeffeNN(NearNeighbors):
             if reldist < (1.0 + self.tol) * min_reldist:
                 w = min_reldist / reldist
                 siw.append({'site': s,
-                            'image': self._get_image(s.frac_coords),
+                            'image': self._get_image(structure, s),
                             'weight': w,
                             'site_index': self._get_original_site(structure, s)})
 
@@ -1510,7 +1518,7 @@ class MinimumVIRENN(NearNeighbors):
             if reldist < (1.0 + self.tol) * min_reldist:
                 w = min_reldist / reldist
                 siw.append({'site': s,
-                            'image': self._get_image(s.frac_coords),
+                            'image': self._get_image(vire.structure, s),
                             'weight': w,
                             'site_index': self._get_original_site(vire.structure, s)})
 
@@ -2935,7 +2943,7 @@ class BrunnerNN_reciprocal(NearNeighbors):
             if dist < d_max + self.tol:
                 w = ds[0] / dist
                 siw.append({'site': s,
-                            'image': self._get_image(s.frac_coords),
+                            'image': self._get_image(structure, s),
                             'weight': w,
                             'site_index': self._get_original_site(structure, s)})
         return siw
@@ -2974,7 +2982,7 @@ class BrunnerNN_relative(NearNeighbors):
             if dist < d_max + self.tol:
                 w = ds[0] / dist
                 siw.append({'site': s,
-                            'image': self._get_image(s.frac_coords),
+                            'image': self._get_image(structure, s),
                             'weight': w,
                             'site_index': self._get_original_site(structure, s)})
         return siw
@@ -3013,7 +3021,7 @@ class BrunnerNN_real(NearNeighbors):
             if dist < d_max + self.tol:
                 w = ds[0] / dist
                 siw.append({'site': s,
-                            'image': self._get_image(s.frac_coords),
+                            'image': self._get_image(structure, s),
                             'weight': w,
                             'site_index': self._get_original_site(structure, s)})
         return siw
@@ -3054,7 +3062,7 @@ class EconNN(NearNeighbors):
                 w = exp(1 - (dist / weighted_avg)**6)
                 if w > self.tol:
                     siw.append({'site': s,
-                                'image': self._get_image(s.frac_coords),
+                                'image': self._get_image(structure, s),
                                 'weight': w,
                                 'site_index': self._get_original_site(structure, s)})
         return siw
@@ -3529,7 +3537,7 @@ class CutOffDictNN(NearNeighbors):
 
                 nn_info.append({
                     'site': n_site,
-                    'image': self._get_image(n_site.frac_coords),
+                    'image': self._get_image(structure, n_site),
                     'weight': dist,
                     'site_index': self._get_original_site(structure, n_site)
                 })
