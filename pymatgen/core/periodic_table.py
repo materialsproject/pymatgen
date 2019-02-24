@@ -2,13 +2,12 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
-import os
 import re
 import json
 import warnings
 import numpy as np
 from io import open
+from pathlib import Path
 from enum import Enum
 
 from pymatgen.core.units import Mass, Length, unitized, FloatWithUnit, Unit, \
@@ -32,8 +31,7 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 # Loads element data from json file
-with open(os.path.join(os.path.dirname(__file__),
-                       "periodic_table.json"), "rt") as f:
+with open(Path(__file__).absolute().parent / "periodic_table.json", "rt") as f:
     _pt_data = json.load(f)
 
 _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)

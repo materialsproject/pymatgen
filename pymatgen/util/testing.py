@@ -6,7 +6,7 @@ import unittest
 import tempfile
 import numpy.testing.utils as nptu
 from io import open
-import os
+from pathlib import Path
 import json
 
 from monty.json import MontyDecoder
@@ -31,16 +31,15 @@ class PymatgenTest(unittest.TestCase):
     that support the comparison of arrays.
     """
     _multiprocess_shared_ = True
-    MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-    STRUCTURES_DIR = os.path.join(MODULE_DIR, "structures")
+    MODULE_DIR = Path(__file__).absolute().parent
+    STRUCTURES_DIR = MODULE_DIR / "structures"
 
     """
     Dict for test structures to aid testing.
     """
     TEST_STRUCTURES = {}
-    for fn in os.listdir(STRUCTURES_DIR):
-        TEST_STRUCTURES[fn.rsplit(".", 1)[0]] = loadfn(os.path.join(
-            STRUCTURES_DIR, fn), cls=MontyDecoder)
+    for fn in STRUCTURES_DIR.iterdir():
+        TEST_STRUCTURES[fn.name.rsplit(".", 1)[0]] = loadfn(str(fn))
 
     @classmethod
     def get_structure(cls, name):
