@@ -117,7 +117,7 @@ def group_entries_by_structure(entries, species_to_remove=None,
         manager = mp.Manager()
         groups = manager.list()
         p = mp.Pool(ncpus)
-        #Parallel processing only supports Python primitives and not objects.
+        # Parallel processing only supports Python primitives and not objects.
         p.map(_perform_grouping,
               [(json.dumps([e[0] for e in eh], cls=MontyEncoder),
                 json.dumps([e[1] for e in eh], cls=MontyEncoder),
@@ -141,13 +141,14 @@ def group_entries_by_structure(entries, species_to_remove=None,
 
 class EntrySet(collections.MutableSet, MSONable):
     """
-    A convenient container for mainpulating entries. Allows for generating
+    A convenient container for manipulating entries. Allows for generating
     subsets, dumping into files, etc.
     """
 
     def __init__(self, entries):
         """
-        :param entries: All the entries.
+        Args:
+            entries: All the entries.
         """
         self.entries = set(entries)
 
@@ -181,8 +182,9 @@ class EntrySet(collections.MutableSet, MSONable):
     def get_subset_in_chemsys(self, chemsys):
         """
         Returns an EntrySet containing only the set of entries belonging to
-        a particular chemsys. For example, if the entries are from the
-        Li-Fe-P-O system, and chemsys of ["Li", "O"] is given, only the Li, O,
+        a particular chemical system (in this definition, it includes all sub
+        systems). For example, if the entries are from the
+        Li-Fe-P-O system, and chemsys=["Li", "O"], only the Li, O,
         and Li-O entries are returned.
 
         :param chemsys: Chemical system specified as list of elements. E.g.,
