@@ -173,10 +173,10 @@ class EntrySet(collections.MutableSet, MSONable):
         Returns:
             set representing the chemical system, e.g., {"Li", "Fe", "P", "O"}
         """
-        chemsys = []
+        chemsys = set()
         for e in self.entries:
-            chemsys.extend([el.symbol for el in e.composition.keys()])
-        return set(chemsys)
+            chemsys.update([el.symbol for el in e.composition.keys()])
+        return chemsys
 
     def remove_non_ground_states(self):
         """
