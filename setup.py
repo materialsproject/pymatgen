@@ -43,8 +43,8 @@ for materials analysis. These are some of the main features:
 
 1. Highly flexible classes for the representation of Element, Site, Molecule,
    Structure objects.
-2. Extensive input/output support, including support for 
-   [VASP](http://cms.mpi.univie.ac.at/vasp/), [ABINIT](http://www.abinit.org/), 
+2. Extensive input/output support, including support for
+   [VASP](http://cms.mpi.univie.ac.at/vasp/), [ABINIT](http://www.abinit.org/),
    CIF, Gaussian, XYZ, and many other file formats.
 3. Powerful analysis tools, including generation of phase diagrams, Pourbaix
    diagrams, diffusion analyses, reactions, etc.
@@ -96,7 +96,7 @@ who require Python 2.7 should install pymatgen v2018.x.
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2019.2.4",
+    version="2019.2.24",
     cmdclass={'build_ext': build_ext},
     setup_requires=['numpy>=1.14.3', 'setuptools>=18.0'],
     install_requires=["numpy>=1.14.3", "requests", "ruamel.yaml>=0.15.6",
