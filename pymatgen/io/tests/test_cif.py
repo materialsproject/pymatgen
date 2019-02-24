@@ -549,8 +549,14 @@ loop_
   O  O3  8  0.165710  0.546072  0.714616  1
   O  O4  4  0.043372  0.250000  0.292862  1
   O  O5  4  0.096642  0.750000  0.258680  1"""
-        for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
-            self.assertEqual(l1.strip(), l2.strip())
+
+        cif = CifParser.from_string(str(writer))
+        m = StructureMatcher()
+
+        self.assertTrue(m.fit(cif.get_structures()[0], poscar.structure))
+
+        # for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
+        #     self.assertEqual(l1.strip(), l2.strip())
 
         ans = """# generated using pymatgen
 data_LiFePO4
@@ -595,7 +601,7 @@ loop_
         s = Structure.from_file(os.path.join(test_dir, 'LiFePO4.cif'))
         writer = CifWriter(s, symprec=0.1)
         s2 = CifParser.from_string(str(writer)).get_structures()[0]
-        m = StructureMatcher()
+
         self.assertTrue(m.fit(s, s2))
 
         s = self.get_structure("Li2O")

@@ -241,7 +241,7 @@ class LammpsDataTest(unittest.TestCase):
         virus = self.virus.get_string()
         virus_lines = virus.split("\n")
         pairij_coeff = virus_lines[virus_lines.index("PairIJ Coeffs") + 5]
-        self.assertEqual(pairij_coeff, "1  4  1  1.000  1.12250")
+        self.assertEqual(pairij_coeff.strip(), "1  4  1  1.000  1.12250")
 
     def test_write_file(self):
         filename1 = "test1.data"
