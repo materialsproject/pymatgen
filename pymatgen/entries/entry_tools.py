@@ -171,9 +171,10 @@ class EntrySet(collections.MutableSet, MSONable):
         Removes all non-ground state entries, i.e., only keep the lowest energy
         per atom entry at each composition.
         """
-        entries = sorted(self.entries, key=lambda e: e.composition.reduced_formula)
+        group_func = lambda e: e.composition.reduced_formula
+        entries = sorted(self.entries, key=group_func)
         ground_states = set()
-        for k, g in itertools.groupby(entries, key=lambda e: e.composition.reduced_formula):
+        for _, g in itertools.groupby(entries, key=group_func):
             ground_states.add(min(g, key=lambda e: e.energy_per_atom))
         self.entries = ground_states
 
