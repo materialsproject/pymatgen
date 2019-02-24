@@ -9,6 +9,7 @@ from numbers import Number
 import warnings
 
 from pymatgen.analysis.phase_diagram import *
+from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.core.periodic_table import Element, DummySpecie
 from pymatgen.core.composition import Composition
 
@@ -394,6 +395,16 @@ class PhaseDiagramTest(unittest.TestCase):
 
         for elem, energy in cpresult.items():
             self.assertAlmostEqual(cp2['FeO-LiFeO2-Fe'][elem],energy)
+
+    def test_to_from_dict(self):
+
+        # test round-trip for other entry types such as ComputedEntry
+        entry = ComputedEntry('H', 0.0, 0.0, entry_id="test")
+        pd = PhaseDiagram([entry])
+        d = pd.as_dict()
+        pd_roundtrip = PhaseDiagram.from_dict(d)
+        self.assertEqual(pd.all_entries[0].entry_id,
+                         pd_roundtrip.all_entries[0].entry_id)
 
 class GrandPotentialPhaseDiagramTest(unittest.TestCase):
     def setUp(self):
