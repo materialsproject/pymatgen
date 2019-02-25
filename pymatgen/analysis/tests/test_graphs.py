@@ -231,6 +231,14 @@ class StructureGraphTest(unittest.TestCase):
         )
         self.assertEqual(square_copy.get_coordination_of_site(1), 1)
 
+        # Test that StructureGraph.graph is correctly updated
+        square_copy.insert_node(1, "H", [0.5, 0.5, 0.75], edges=[{"from_index": 1,
+                                                                 "to_index": 2,
+                                                                 "to_jimage": (0, 0, 0)}])
+        square_copy.remove_nodes([1])
+        self.assertEqual(square_copy.graph.number_of_nodes(), 2)
+        self.assertEqual(square_copy.graph.number_of_edges(), 5)
+
     def test_substitute(self):
         structure = Structure.from_file(
             os.path.join(
@@ -792,6 +800,11 @@ class MoleculeGraphTest(unittest.TestCase):
             edges=[{"from_index": 1, "to_index": 2}, {"from_index": 1, "to_index": 3}],
         )
         self.assertEqual(eth_copy.get_coordination_of_site(1), 2)
+
+        # Test that MoleculeGraph.graph is correctly updated
+        eth_copy.remove_nodes([1, 2])
+        self.assertEqual(eth_copy.graph.number_of_nodes(), 5)
+        self.assertEqual(eth_copy.graph.number_of_edges(), 2)
 
     @unittest.skipIf(not nx, "NetworkX not present. Skipping...")
     def test_split(self):

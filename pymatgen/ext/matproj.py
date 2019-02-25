@@ -59,11 +59,8 @@ class MPRester:
     MPRester uses the "requests" package, which provides for HTTP connection
     pooling. All connections are made via https for security.
 
-    .. note::
-
-        The Materials Project recently switched to using string ids with a
-        "mp-" prefix for greater flexibility going forward. The MPRester
-        should still work as intended if you provide the proper string ids.
+    For more advanced uses of the Materials API, please consult the API
+    documentation at https://github.com/materialsproject/mapidoc.
 
     Args:
         api_key (str): A String API key for accessing the MaterialsProject
@@ -196,6 +193,10 @@ class MPRester:
 
         [{"material_id": material_id, "property_name" : value}, ...]
 
+        This is generally a call to
+        https://www.materialsproject.org/rest/v2/materials/vasp/<prop>.
+        See https://github.com/materialsproject/mapidoc for details.
+
         Args:
             chemsys_formula_id (str): A chemical system (e.g., Li-Fe-O),
                 or formula (e.g., Fe2O3) or materials_id (e.g., mp-1234).
@@ -227,6 +228,8 @@ class MPRester:
     def get_doc(self, materials_id):
         """
         Get the entire data document for one materials id. Use this judiciously.
+
+        REST Endpoint: https://www.materialsproject.org/materials/<mp-id>/doc.
 
         Args:
             materials_id (str): E.g., mp-1143 for Al2O3
@@ -538,6 +541,8 @@ class MPRester:
         """
         Get a Dos corresponding to a material_id.
 
+        REST Endpoint: https://www.materialsproject.org/rest/v2/materials/<mp-id>/vasp/dos
+
         Args:
             material_id (str): Materials Project material_id (a string,
                 e.g., mp-1234).
@@ -551,6 +556,9 @@ class MPRester:
     def get_bandstructure_by_material_id(self, material_id, line_mode=True):
         """
         Get a BandStructure corresponding to a material_id.
+
+        REST Endpoint: https://www.materialsproject.org/rest/v2/materials/<mp-id>/vasp/bandstructure or
+        https://www.materialsproject.org/rest/v2/materials/<mp-id>/vasp/bandstructure_uniform
 
         Args:
             material_id (str): Materials Project material_id.

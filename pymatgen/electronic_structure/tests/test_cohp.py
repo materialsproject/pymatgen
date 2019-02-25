@@ -195,23 +195,23 @@ class CombinedIcohpTest(unittest.TestCase):
         self.assertEqual(self.icohpcollection_Fe.get_icohp_by_label("2", summed_spin_channels=False, spin=Spin.down),
                          -0.58279)
 
-    def test_get_summed_icohp_by_labellist(self):
+    def test_get_summed_icohp_by_label_list(self):
         # without spin polarization
         self.assertAlmostEqual(
-            self.icohpcollection_KF.get_summed_icohp_by_labellist(["1", "2", "3", "4", "5", "6"], divisor=6.0),
+            self.icohpcollection_KF.get_summed_icohp_by_label_list(["1", "2", "3", "4", "5", "6"], divisor=6.0),
             -0.40076)
 
         # with spin polarization
         sum1 = (-0.10218 - 0.19701 - 0.28485 - 0.58279) / 2.0
         sum2 = (-0.10218 - 0.28485) / 2.0
         sum3 = (-0.19701 - 0.58279) / 2.0
-        self.assertAlmostEqual(self.icohpcollection_Fe.get_summed_icohp_by_labellist(["1", "2"], divisor=2.0), sum1)
+        self.assertAlmostEqual(self.icohpcollection_Fe.get_summed_icohp_by_label_list(["1", "2"], divisor=2.0), sum1)
         self.assertAlmostEqual(
-            self.icohpcollection_Fe.get_summed_icohp_by_labellist(["1", "2"], summed_spin_channels=False, divisor=2.0),
+            self.icohpcollection_Fe.get_summed_icohp_by_label_list(["1", "2"], summed_spin_channels=False, divisor=2.0),
             sum2)
         self.assertAlmostEqual(
-            self.icohpcollection_Fe.get_summed_icohp_by_labellist(["1", "2"], summed_spin_channels=False,
-                                                                  spin=Spin.down, divisor=2.0), sum3)
+            self.icohpcollection_Fe.get_summed_icohp_by_label_list(["1", "2"], summed_spin_channels=False,
+                                                                   spin=Spin.down, divisor=2.0), sum3)
 
     def test_get_icohp_dict_by_bondlengths(self):
         # without spin polarization
@@ -270,7 +270,7 @@ class CombinedIcohpTest(unittest.TestCase):
         for key, value in sorted(dict_Fe2.items()):
             self.assertDictEqual(value.as_dict(), icohpvalue_spin[key])
 
-    def test_get_icohp_dict_of_certain_site(self):
+    def test_get_icohp_dict_of_site(self):
         # without spin polarization
         icohpvalue = {}
         icohpvalue["1"] = {'translation': [0, -1, -1], 'are_coops': False,
@@ -298,41 +298,47 @@ class CombinedIcohpTest(unittest.TestCase):
                            'atom2': 'K2',
                            '@class': 'IcohpValue', 'atom1': 'F1', 'num': 1, 'label': '6', 'icohp': {Spin.up: -0.40075}}
 
-        dict_KF = self.icohpcollection_KF.get_icohp_dict_of_certain_site(site=0)
+        dict_KF = self.icohpcollection_KF.get_icohp_dict_of_site(site=0)
 
         for key, value in sorted(dict_KF.items()):
             self.assertDictEqual(value.as_dict(), icohpvalue[key])
 
-        # compare number of results dependent on minsummedicohp, maxsummedicohp,minbondlength, maxbondlength
-        dict_KF_2 = self.icohpcollection_KF.get_icohp_dict_of_certain_site(site=0, minsummedicohp=None,
-                                                                           maxsummedicohp=-0.0, minbondlength=0.0,
-                                                                           maxbondlength=8.0)
-        dict_KF_3 = self.icohpcollection_KF.get_icohp_dict_of_certain_site(site=0, minsummedicohp=None,
-                                                                           maxsummedicohp=-0.5, minbondlength=0.0,
-                                                                           maxbondlength=8.0)
-        dict_KF_4 = self.icohpcollection_KF.get_icohp_dict_of_certain_site(site=0, minsummedicohp=0.0,
-                                                                           maxsummedicohp=None, minbondlength=0.0,
-                                                                           maxbondlength=8.0)
-        dict_KF_5 = self.icohpcollection_KF.get_icohp_dict_of_certain_site(site=0, minsummedicohp=None,
-                                                                           maxsummedicohp=None, minbondlength=0.0,
-                                                                           maxbondlength=2.0)
-        dict_KF_6 = self.icohpcollection_KF.get_icohp_dict_of_certain_site(site=0, minsummedicohp=None,
-                                                                           maxsummedicohp=None, minbondlength=3.0,
-                                                                           maxbondlength=8.0)
+        # compare number of results dependent on minsummedicohp, maxsummedicohp,minbondlength, maxbondlength, and only_bonds_to
+        dict_KF_2 = self.icohpcollection_KF.get_icohp_dict_of_site(site=0, minsummedicohp=None,
+                                                                   maxsummedicohp=-0.0, minbondlength=0.0,
+                                                                   maxbondlength=8.0)
+        dict_KF_3 = self.icohpcollection_KF.get_icohp_dict_of_site(site=0, minsummedicohp=None,
+                                                                   maxsummedicohp=-0.5, minbondlength=0.0,
+                                                                   maxbondlength=8.0)
+        dict_KF_4 = self.icohpcollection_KF.get_icohp_dict_of_site(site=0, minsummedicohp=0.0,
+                                                                   maxsummedicohp=None, minbondlength=0.0,
+                                                                   maxbondlength=8.0)
+        dict_KF_5 = self.icohpcollection_KF.get_icohp_dict_of_site(site=0, minsummedicohp=None,
+                                                                   maxsummedicohp=None, minbondlength=0.0,
+                                                                   maxbondlength=2.0)
+        dict_KF_6 = self.icohpcollection_KF.get_icohp_dict_of_site(site=0, minsummedicohp=None,
+                                                                   maxsummedicohp=None, minbondlength=3.0,
+                                                                   maxbondlength=8.0)
+        dict_KF_7 = self.icohpcollection_KF.get_icohp_dict_of_site(site=0, only_bonds_to=['K'])
+        dict_KF_8 = self.icohpcollection_KF.get_icohp_dict_of_site(site=1, only_bonds_to=['K'])
+        dict_KF_9 = self.icohpcollection_KF.get_icohp_dict_of_site(site=1, only_bonds_to=['F'])
 
         self.assertEqual(len(dict_KF_2), 6)
         self.assertEqual(len(dict_KF_3), 0)
         self.assertEqual(len(dict_KF_4), 0)
         self.assertEqual(len(dict_KF_5), 0)
         self.assertEqual(len(dict_KF_6), 0)
+        self.assertEqual(len(dict_KF_7), 6)
+        self.assertEqual(len(dict_KF_8), 0)
+        self.assertEqual(len(dict_KF_9), 6)
 
         # spin polarization
 
-        dict_Fe = self.icohpcollection_Fe.get_icohp_dict_of_certain_site(site=0)
+        dict_Fe = self.icohpcollection_Fe.get_icohp_dict_of_site(site=0)
         self.assertEqual(len(dict_Fe), 0)
 
         # Fe8
-        dict_Fe2 = self.icohpcollection_Fe.get_icohp_dict_of_certain_site(site=7)
+        dict_Fe2 = self.icohpcollection_Fe.get_icohp_dict_of_site(site=7)
         self.assertEqual(len(dict_Fe2), 2)
         # Test the values
 
@@ -352,32 +358,32 @@ class CombinedIcohpTest(unittest.TestCase):
             self.assertEqual(value.as_dict(), icohplist_Fe[key])
 
         # Fe9
-        dict_Fe3 = self.icohpcollection_Fe.get_icohp_dict_of_certain_site(site=8)
+        dict_Fe3 = self.icohpcollection_Fe.get_icohp_dict_of_site(site=8)
         self.assertEqual(len(dict_Fe3), 1)
 
         # compare number of results dependent on minsummedicohp, maxsummedicohp,minbondlength, maxbondlength
         # Fe8
-        dict_Fe4 = self.icohpcollection_Fe.get_icohp_dict_of_certain_site(site=7, minsummedicohp=-0.3,
-                                                                          maxsummedicohp=None, minbondlength=0.0,
-                                                                          maxbondlength=8.0)
+        dict_Fe4 = self.icohpcollection_Fe.get_icohp_dict_of_site(site=7, minsummedicohp=-0.3,
+                                                                  maxsummedicohp=None, minbondlength=0.0,
+                                                                  maxbondlength=8.0)
         self.assertEqual(len(dict_Fe4), 1)
         values = []
         for key, value in dict_Fe4.items():
             values.append(value)
         self.assertDictEqual(values[0].as_dict(), icohplist_Fe["1"])
 
-        dict_Fe5 = self.icohpcollection_Fe.get_icohp_dict_of_certain_site(site=7, minsummedicohp=None,
-                                                                          maxsummedicohp=-0.3, minbondlength=0.0,
-                                                                          maxbondlength=8.0)
+        dict_Fe5 = self.icohpcollection_Fe.get_icohp_dict_of_site(site=7, minsummedicohp=None,
+                                                                  maxsummedicohp=-0.3, minbondlength=0.0,
+                                                                  maxbondlength=8.0)
         self.assertEqual(len(dict_Fe5), 1)
         values = []
         for key, value in dict_Fe5.items():
             values.append(value)
         self.assertDictEqual(values[0].as_dict(), icohplist_Fe["2"])
 
-        dict_Fe6 = self.icohpcollection_Fe.get_icohp_dict_of_certain_site(site=7, minsummedicohp=None,
-                                                                          maxsummedicohp=None, minbondlength=0.0,
-                                                                          maxbondlength=2.5)
+        dict_Fe6 = self.icohpcollection_Fe.get_icohp_dict_of_site(site=7, minsummedicohp=None,
+                                                                  maxsummedicohp=None, minbondlength=0.0,
+                                                                  maxbondlength=2.5)
 
         self.assertEqual(len(dict_Fe6), 1)
         values = []
@@ -385,9 +391,9 @@ class CombinedIcohpTest(unittest.TestCase):
             values.append(value)
         self.assertDictEqual(values[0].as_dict(), icohplist_Fe["2"])
 
-        dict_Fe7 = self.icohpcollection_Fe.get_icohp_dict_of_certain_site(site=7, minsummedicohp=None,
-                                                                          maxsummedicohp=None, minbondlength=2.5,
-                                                                          maxbondlength=8.0)
+        dict_Fe7 = self.icohpcollection_Fe.get_icohp_dict_of_site(site=7, minsummedicohp=None,
+                                                                  maxsummedicohp=None, minbondlength=2.5,
+                                                                  maxbondlength=8.0)
         self.assertEqual(len(dict_Fe7), 1)
         values = []
         for key, value in dict_Fe7.items():
@@ -547,7 +553,7 @@ class CompleteCohpTest(PymatgenTest):
                 self.coop_lobster.efermi, integrated=True)
             self.assertEqual(icoop_ef_dict[bond], icoop_ef)
 
-    def test_get_cohp(self):
+    def test_get_cohp_by_label(self):
         self.assertEqual(self.cohp_orb.get_cohp_by_label("1").energies[0], -11.7225)
         self.assertEqual(self.cohp_orb.get_cohp_by_label("1").energies[5], -11.47187)
         self.assertFalse(self.cohp_orb.get_cohp_by_label("1").are_coops)
@@ -559,6 +565,16 @@ class CompleteCohpTest(PymatgenTest):
         # test methods from super class that could be overwritten
         self.assertEqual(self.cohp_orb.get_icohp()[Spin.up][3], 0.0)
         self.assertEqual(self.cohp_orb.get_cohp()[Spin.up][3], 0.0)
+
+    def test_get_summed_cohp_by_label_list(self):
+        self.assertEqual(self.cohp_orb.get_summed_cohp_by_label_list(["1"]).energies[0], -11.7225)
+        self.assertEqual(self.cohp_orb.get_summed_cohp_by_label_list(["1", "1"]).energies[0], -11.7225)
+        self.assertEqual(self.cohp_orb.get_summed_cohp_by_label_list(["1"]).energies[5], -11.47187)
+        self.assertFalse(self.cohp_orb.get_summed_cohp_by_label_list(["1"]).are_coops)
+        self.assertEqual(self.cohp_orb.get_summed_cohp_by_label_list(["1"]).cohp[Spin.up][0], 0.0)
+        self.assertEqual(self.cohp_orb.get_summed_cohp_by_label_list(["1", "1"]).cohp[Spin.up][0], 0.0)
+        self.assertEqual(self.cohp_orb.get_summed_cohp_by_label_list(["1", "1"]).cohp[Spin.up][300], 0.03392 * 2.0)
+        self.assertEqual(self.cohp_orb.get_summed_cohp_by_label_list(["1", "1"], divisor=2).cohp[Spin.up][300], 0.03392)
 
     def test_orbital_resolved_cohp(self):
         # When read from a COHPCAR file, total COHPs are calculated from

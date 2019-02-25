@@ -5,14 +5,13 @@
 
 import abc
 import re
-import os
 import glob
 import shutil
 import warnings
 from itertools import chain
 from copy import deepcopy
 import numpy as np
-
+from pathlib import Path
 from monty.serialization import loadfn
 from monty.io import zopen
 
@@ -68,7 +67,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "May 28 2016"
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODULE_DIR = Path(__file__).resolve().parent
 
 
 class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
@@ -153,14 +152,14 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
             include_cif (bool): Whether to write a CIF file in the output
                 directory for easier opening by VESTA.
         """
-        if make_dir_if_not_present and not os.path.exists(output_dir):
-            os.makedirs(output_dir)
+        output_dir = Path(output_dir)
+        if make_dir_if_not_present and not output_dir.exists():
+            output_dir.mkdir(parents=True)
         for k, v in self.all_input.items():
-            v.write_file(os.path.join(output_dir, k))
+            v.write_file(str(output_dir / k))
         if include_cif:
             s = self.all_input["POSCAR"].structure
-            fname = os.path.join(output_dir, "%s.cif" % re.sub(r'\s', "",
-                                                               s.formula))
+            fname = str(output_dir / ("%s.cif" % re.sub(r'\s', "", s.formula)))
             s.to(filename=fname)
 
     def as_dict(self, verbosity=2):
@@ -171,9 +170,8 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
 
 
 def _load_yaml_config(fname):
-    config = loadfn(os.path.join(MODULE_DIR, "%s.yaml" % fname))
-    config["INCAR"].update(loadfn(os.path.join(MODULE_DIR,
-                                               "VASPIncarBase.yaml")))
+    config = loadfn(str(MODULE_DIR / ("%s.yaml" % fname)))
+    config["INCAR"].update(loadfn(str(MODULE_DIR / "VASPIncarBase.yaml")))
     return config
 
 
@@ -278,7 +276,7 @@ class DictSet(VaspInputSet):
         self.vdw = vdw.lower() if vdw is not None else None
         self.use_structure_charge = use_structure_charge
         if self.vdw:
-            vdw_par = loadfn(os.path.join(MODULE_DIR, "vdW_parameters.yaml"))
+            vdw_par = loadfn(str(MODULE_DIR / "vdW_parameters.yaml"))
             try:
                 self._config_dict["INCAR"].update(vdw_par[self.vdw])
             except KeyError:
@@ -451,8 +449,7 @@ class DictSet(VaspInputSet):
             make_dir_if_not_present=make_dir_if_not_present,
             include_cif=include_cif)
         for k, v in self.files_to_transfer.items():
-            with zopen(v, "rb") as fin, \
-                    zopen(os.path.join(output_dir, k), "wb") as fout:
+            with zopen(v, "rb") as fin, zopen(str(Path(output_dir) / k), "wb") as fout:
                 shutil.copyfileobj(fin, fout)
 
 
@@ -788,7 +785,7 @@ class MPHSEBSSet(MPHSERelaxSet):
 
         files_to_transfer = {}
         if copy_chgcar:
-            chgcars = sorted(glob.glob(os.path.join(prev_calc_dir, "CHGCAR*")))
+            chgcars = sorted(glob.glob(str(Path(prev_calc_dir) / "CHGCAR*")))
             if chgcars:
                 files_to_transfer["CHGCAR"] = str(chgcars[-1])
 
@@ -954,7 +951,7 @@ class MPNonSCFSet(MPRelaxSet):
 
         files_to_transfer = {}
         if copy_chgcar:
-            chgcars = sorted(glob.glob(os.path.join(prev_calc_dir, "CHGCAR*")))
+            chgcars = sorted(glob.glob(str(Path(prev_calc_dir) / "CHGCAR*")))
             if chgcars:
                 files_to_transfer["CHGCAR"] = str(chgcars[-1])
 
@@ -1071,7 +1068,7 @@ class MPSOCSet(MPStaticSet):
 
         files_to_transfer = {}
         if copy_chgcar:
-            chgcars = sorted(glob.glob(os.path.join(prev_calc_dir, "CHGCAR*")))
+            chgcars = sorted(glob.glob(str(Path(prev_calc_dir) / "CHGCAR*")))
             if chgcars:
                 files_to_transfer["CHGCAR"] = str(chgcars[-1])
 
@@ -1311,11 +1308,11 @@ class MVLGWSet(DictSet):
         files_to_transfer = {}
         if copy_wavecar:
             for fname in ("WAVECAR", "WAVEDER", "WFULL"):
-                w = sorted(glob.glob(os.path.join(prev_calc_dir, fname + "*")))
+                w = sorted(glob.glob(str(Path(prev_calc_dir) / (fname + "*"))))
                 if w:
                     if fname == "WFULL":
                         for f in w:
-                            fname = os.path.basename(f)
+                            fname = Path(f).name
                             fname = fname.split(".")[0]
                             files_to_transfer[fname] = f
                     else:
@@ -1603,20 +1600,20 @@ class MITNEBSet(MITRelaxSet):
             write_endpoint_inputs (bool): If true, writes input files for
                 running endpoint calculations.
         """
-
-        if make_dir_if_not_present and not os.path.exists(output_dir):
-            os.makedirs(output_dir)
-        self.incar.write_file(os.path.join(output_dir, 'INCAR'))
-        self.kpoints.write_file(os.path.join(output_dir, 'KPOINTS'))
-        self.potcar.write_file(os.path.join(output_dir, 'POTCAR'))
+        output_dir = Path(output_dir)
+        if make_dir_if_not_present and not output_dir.exists():
+            output_dir.mkdir(parents=True)
+        self.incar.write_file(str(output_dir / 'INCAR'))
+        self.kpoints.write_file(str(output_dir / 'KPOINTS'))
+        self.potcar.write_file(str(output_dir / 'POTCAR'))
 
         for i, p in enumerate(self.poscars):
-            d = os.path.join(output_dir, str(i).zfill(2))
-            if not os.path.exists(d):
-                os.makedirs(d)
-            p.write_file(os.path.join(d, 'POSCAR'))
+            d = output_dir / str(i).zfill(2)
+            if not d.exists():
+                d.mkdir(parents=True)
+            p.write_file(str(d / 'POSCAR'))
             if write_cif:
-                p.structure.to(filename=os.path.join(d, '{}.cif'.format(i)))
+                p.structure.to(filename=str(d / '{}.cif'.format(i)))
         if write_endpoint_inputs:
             end_point_param = MITRelaxSet(
                 self.structures[0],
@@ -1624,11 +1621,11 @@ class MITNEBSet(MITRelaxSet):
 
             for image in ['00', str(len(self.structures) - 1).zfill(2)]:
                 end_point_param.incar.write_file(
-                    os.path.join(output_dir, image, 'INCAR'))
+                    str(output_dir / image / 'INCAR'))
                 end_point_param.kpoints.write_file(
-                    os.path.join(output_dir, image, 'KPOINTS'))
+                    str(output_dir / image / 'KPOINTS'))
                 end_point_param.potcar.write_file(
-                    os.path.join(output_dir, image, 'POTCAR'))
+                    str(output_dir / image / 'POTCAR'))
         if write_path_cif:
             sites = set()
             l = self.structures[0].lattice
@@ -1636,7 +1633,7 @@ class MITNEBSet(MITRelaxSet):
                 sites.add(
                     PeriodicSite(site.species_and_occu, site.frac_coords, l))
             nebpath = Structure.from_sites(sorted(sites))
-            nebpath.to(filename=os.path.join(output_dir, 'path.cif'))
+            nebpath.to(filename=str(output_dir / 'path.cif'))
 
 
 class MITMDSet(MITRelaxSet):
@@ -1849,15 +1846,16 @@ class MVLScanRelaxSet(MPRelaxSet):
 
 
 def get_vasprun_outcar(path, parse_dos=True, parse_eigen=True):
-    vruns = list(glob.glob(os.path.join(path, "vasprun.xml*")))
-    outcars = list(glob.glob(os.path.join(path, "OUTCAR*")))
+    path = Path(path)
+    vruns = list(glob.glob(str(path / "vasprun.xml*")))
+    outcars = list(glob.glob(str(path / "OUTCAR*")))
 
     if len(vruns) == 0 or len(outcars) == 0:
         raise ValueError(
             "Unable to get vasprun.xml/OUTCAR from prev calculation in %s" %
             path)
-    vsfile_fullpath = os.path.join(path, "vasprun.xml")
-    outcarfile_fullpath = os.path.join(path, "OUTCAR")
+    vsfile_fullpath = str(path / "vasprun.xml")
+    outcarfile_fullpath = str(path / "OUTCAR")
     vsfile = vsfile_fullpath if vsfile_fullpath in vruns else sorted(vruns)[-1]
     outcarfile = outcarfile_fullpath if outcarfile_fullpath in outcars else \
         sorted(outcars)[-1]
@@ -1962,15 +1960,16 @@ def batch_write_input(structures, vasp_input_set=MPRelaxSet, output_dir=".",
         \\*\\*kwargs: Additional kwargs are passed to the vasp_input_set class
             in addition to structure.
     """
+    output_dir = Path(output_dir)
     for i, s in enumerate(structures):
         formula = re.sub(r'\s+', "", s.formula)
         if subfolder is not None:
             subdir = subfolder(s)
-            d = os.path.join(output_dir, subdir)
+            d = output_dir / subdir
         else:
-            d = os.path.join(output_dir, '{}_{}'.format(formula, i))
+            d = output_dir / '{}_{}'.format(formula, i)
         if sanitize:
             s = s.copy(sanitize=True)
         v = vasp_input_set(s, **kwargs)
-        v.write_input(d, make_dir_if_not_present=make_dir_if_not_present,
+        v.write_input(str(d), make_dir_if_not_present=make_dir_if_not_present,
                       include_cif=include_cif)

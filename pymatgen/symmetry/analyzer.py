@@ -893,7 +893,7 @@ class PointGroupAnalyzer:
             self.principal_axes = eigvecs.T
             self.eigvals = eigvals
             v1, v2, v3 = eigvals
-            eig_zero = abs(v1 * v2 * v3) < self.eig_tol ** 3
+            eig_zero = abs(v1 * v2 * v3) < self.eig_tol
             eig_all_same = abs(v1 - v2) < self.eig_tol and abs(
                 v1 - v3) < self.eig_tol
             eig_all_diff = abs(v1 - v2) > self.eig_tol and abs(
