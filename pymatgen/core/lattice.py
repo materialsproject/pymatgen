@@ -1239,7 +1239,7 @@ class Lattice(MSONable):
         coords_are_cartesian: bool = True,
         round_dp: int = 4,
         verbose: bool = True,
-    ) -> Tuple[int, int, int]:
+    ) -> Tuple[int]:
         """
         Get the Miller index of a plane from a list of site coordinates.
 
@@ -1278,7 +1278,7 @@ class Lattice(MSONable):
 
 def get_integer_index(
     miller_index: bool, round_dp: bool = 4, verbose: bool = True
-) -> Tuple[int, int, int]:
+) -> Tuple[int]:
     """
     Attempt to convert a vector of floats to whole numbers.
 
