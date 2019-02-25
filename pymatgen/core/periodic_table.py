@@ -400,7 +400,7 @@ class Element(Enum):
     No = "No"
     Lr = "Lr"
 
-    def __init__(self, symbol):
+    def __init__(self, symbol: str):
         self.symbol = "%s" % symbol
         d = _pt_data[symbol]
 
@@ -753,7 +753,7 @@ class Element(Enum):
             return self.symbol < other.symbol
 
     @staticmethod
-    def from_Z(z):
+    def from_Z(z: int):
         """
         Get an element from an atomic number.
 
@@ -769,7 +769,7 @@ class Element(Enum):
         raise ValueError("No element with this atomic number %s" % z)
 
     @staticmethod
-    def from_row_and_group(row, group):
+    def from_row_and_group(row: int, group: int):
         """
         Returns an element from a row and group number.
 
@@ -787,7 +787,7 @@ class Element(Enum):
         raise ValueError("No element with this row and group!")
 
     @staticmethod
-    def is_valid_symbol(symbol):
+    def is_valid_symbol(symbol: str):
         """
         Returns true if symbol is a valid element symbol.
 
@@ -1000,7 +1000,7 @@ class Element(Enum):
                 "element": self.symbol}
 
     @staticmethod
-    def print_periodic_table(filter_function=None):
+    def print_periodic_table(filter_function: callable = None):
         """
         A pretty ASCII printer for the periodic table, based on some
         filter_function.
@@ -1056,7 +1056,9 @@ class Specie(MSONable):
 
     supported_properties = ("spin",)
 
-    def __init__(self, symbol, oxidation_state=None, properties=None):
+    def __init__(self, symbol: str,
+                 oxidation_state: float = None,
+                 properties: dict = None):
         self._el = Element(symbol)
         self._oxi_state = oxidation_state
         self._properties = properties if properties else {}
@@ -1154,7 +1156,7 @@ class Specie(MSONable):
         return self._oxi_state
 
     @staticmethod
-    def from_string(species_string):
+    def from_string(species_string: str):
         """
         Returns a Specie from a string representation.
 
@@ -1220,7 +1222,8 @@ class Specie(MSONable):
                     isotope))
             return quad_mom.get(isotope, 0.0)
 
-    def get_shannon_radius(self, cn, spin="", radius_type="ionic"):
+    def get_shannon_radius(self, cn: str, spin: str = "",
+                           radius_type: str = "ionic"):
         """
         Get the local environment specific ionic radius for species.
 
@@ -1271,7 +1274,8 @@ class Specie(MSONable):
             data = radii[str(int(self._oxi_state))][cn][spin]
         return data["%s_radius" % radius_type]
 
-    def get_crystal_field_spin(self, coordination="oct", spin_config="high"):
+    def get_crystal_field_spin(self, coordination: str = "oct",
+                               spin_config: str = "high"):
         """
         Calculate the crystal field spin based on coordination and spin
         configuration. Only works for transition metal species.
@@ -1378,7 +1382,8 @@ class DummySpecie(Specie):
         DummySpecie is always assigned an electronegativity of 0.
     """
 
-    def __init__(self, symbol="X", oxidation_state=0, properties=None):
+    def __init__(self, symbol: str = "X",
+                 oxidation_state: float = 0, properties: dict = None):
         for i in range(1, min(2, len(symbol)) + 1):
             if Element.is_valid_symbol(symbol[:i]):
                 raise ValueError("{} contains {}, which is a valid element "
@@ -1465,7 +1470,7 @@ class DummySpecie(Specie):
         return DummySpecie(self.symbol, self._oxi_state)
 
     @staticmethod
-    def from_string(species_string):
+    def from_string(species_string: str):
         """
         Returns a Dummy from a string representation.
 
@@ -1495,7 +1500,8 @@ class DummySpecie(Specie):
         raise ValueError("Invalid DummySpecies String")
 
     @classmethod
-    def safe_from_composition(cls, comp, oxidation_state=0):
+    def safe_from_composition(cls, comp: "Composition",
+                              oxidation_state: float = 0):
         """
         Returns a DummySpecie object that can be safely used
         with (i.e. not present in) a given composition
