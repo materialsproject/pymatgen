@@ -201,7 +201,7 @@ class PourbaixDiagramTest(unittest.TestCase):
                               conc_dict={"Ag": 1e-8, "Te": 1e-8})
         self.assertEqual(len(pbx.stable_entries), 30)
         test_entry = pbx.find_stable_entry(8, 2)
-        self.assertAlmostEqual(test_entry.energy, 2.3936747835000016, 3)
+        self.assertAlmostEqual(test_entry.energy, 2.3894017960000009, 3)
 
         # Test custom ions
         entries = mpr.get_pourbaix_entries(["Sn", "C", "Na"])

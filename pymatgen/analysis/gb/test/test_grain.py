@@ -6,6 +6,7 @@ __date__ = '07/30/18'
 
 from pymatgen.util.testing import PymatgenTest
 import os
+import unittest
 import numpy as np
 import warnings
 from pymatgen import Structure
@@ -321,3 +322,7 @@ class GrainBoundaryGeneratorTest(PymatgenTest):
         close_angle = [36.86989764584403, 143.13010235415598]
         angle = GrainBoundaryGenerator.get_rotation_angle_from_sigma(6, [1, 0, 0], lat_type='o', ratio=[270, 30, 29])
         self.assertArrayAlmostEqual(close_angle, angle)
+
+
+if __name__ == "__main__":
+    unittest.main()

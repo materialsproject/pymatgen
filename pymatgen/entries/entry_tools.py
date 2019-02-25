@@ -9,7 +9,6 @@ entries, such as grouping entries by structure.
 """
 
 
-
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
@@ -21,10 +20,10 @@ import logging
 import json
 import datetime
 import collections
+import itertools
 
-from monty.json import MontyEncoder, MontyDecoder
+from monty.json import MontyEncoder, MontyDecoder, MSONable
 
-from pymatgen.core.structure import Structure
 from pymatgen.analysis.structure_matcher import StructureMatcher, \
     SpeciesComparator
 
@@ -118,7 +117,7 @@ def group_entries_by_structure(entries, species_to_remove=None,
         manager = mp.Manager()
         groups = manager.list()
         p = mp.Pool(ncpus)
-        #Parallel processing only supports Python primitives and not objects.
+        # Parallel processing only supports Python primitives and not objects.
         p.map(_perform_grouping,
               [(json.dumps([e[0] for e in eh], cls=MontyEncoder),
                 json.dumps([e[1] for e in eh], cls=MontyEncoder),
@@ -138,3 +137,86 @@ def group_entries_by_structure(entries, species_to_remove=None,
     logging.info("Finished at {}".format(datetime.datetime.now()))
     logging.info("Took {}".format(datetime.datetime.now() - start))
     return entry_groups
+
+
+class EntrySet(collections.MutableSet, MSONable):
+    """
+    A convenient container for manipulating entries. Allows for generating
+    subsets, dumping into files, etc.
+    """
+
+    def __init__(self, entries: 'list[PDEntry/ComputedEntry]'):
+        """
+        Args:
+            entries: All the entries.
+        """
+        self.entries = set(entries)
+
+    def __contains__(self, item):
+        return item in self.entries
+
+    def __iter__(self):
+        return self.entries.__iter__()
+
+    def __len__(self):
+        return len(self.entries)
+
+    def add(self, element):
+        self.entries.add(element)
+
+    def discard(self, element):
+        self.entries.discard(element)
+
+    @property
+    def chemsys(self) -> set:
+        """
+        Returns:
+            set representing the chemical system, e.g., {"Li", "Fe", "P", "O"}
+        """
+        chemsys = set()
+        for e in self.entries:
+            chemsys.update([el.symbol for el in e.composition.keys()])
+        return chemsys
+
+    def remove_non_ground_states(self):
+        """
+        Removes all non-ground state entries, i.e., only keep the lowest energy
+        per atom entry at each composition.
+        """
+        group_func = lambda e: e.composition.reduced_formula
+        entries = sorted(self.entries, key=group_func)
+        ground_states = set()
+        for _, g in itertools.groupby(entries, key=group_func):
+            ground_states.add(min(g, key=lambda e: e.energy_per_atom))
+        self.entries = ground_states
+
+    def get_subset_in_chemsys(self, chemsys: 'list[str]'):
+        """
+        Returns an EntrySet containing only the set of entries belonging to
+        a particular chemical system (in this definition, it includes all sub
+        systems). For example, if the entries are from the
+        Li-Fe-P-O system, and chemsys=["Li", "O"], only the Li, O,
+        and Li-O entries are returned.
+
+        Args:
+            chemsys: Chemical system specified as list of elements. E.g.,
+                ["Li", "O"]
+
+        Returns:
+            EntrySet
+        """
+        chemsys = set(chemsys)
+        if not chemsys.issubset(self.chemsys):
+            raise ValueError("%s is not a subset of %s" % (chemsys,
+                                                           self.chemsys))
+        subset = set()
+        for e in self.entries:
+            elements = [sp.symbol for sp in e.composition.keys()]
+            if chemsys.issuperset(elements):
+                subset.add(e)
+        return EntrySet(subset)
+
+    def as_dict(self):
+        return {
+            "entries": list(self.entries)
+        }
