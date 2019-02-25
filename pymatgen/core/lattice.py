@@ -44,7 +44,7 @@ class Lattice(MSONable):
 
     # Properties lazily generated for efficiency.
 
-    def __init__(self, matrix):
+    def __init__(self, matrix: 'list/np.array'):
         """
         Create a lattice from any sequence of 9 numbers. Note that the sequence
         is assumed to be read one row at a time. Each row represents one

@@ -66,7 +66,7 @@ class SiteCollection(collections.Sequence, metaclass=ABCMeta):
         return
 
     @abstractmethod
-    def get_distance(self, i, j):
+    def get_distance(self, i: int, j: int):
         """
         Returns distance between sites at index i and j.
 
@@ -137,7 +137,7 @@ to build an appropriate supercell from partial occupancies.""")
                 if site.specie == t:
                     yield site
 
-    def indices_from_symbol(self, symbol):
+    def indices_from_symbol(self, symbol: str):
         """
         Returns a tuple with the sequential indices of the sites
         that contain an element with the given chemical symbol.
@@ -242,7 +242,7 @@ to build an appropriate supercell from partial occupancies.""")
         """
         return all((site.is_ordered for site in self))
 
-    def get_angle(self, i, j, k):
+    def get_angle(self, i: int, j: int, k: int):
         """
         Returns angle specified by three sites.
 
@@ -258,7 +258,7 @@ to build an appropriate supercell from partial occupancies.""")
         v2 = self[k].coords - self[j].coords
         return get_angle(v1, v2, units="degrees")
 
-    def get_dihedral(self, i, j, k, l):
+    def get_dihedral(self, i: int, j: int, k: int, l: int):
         """
         Returns dihedral angle specified by four sites.
 
@@ -279,7 +279,7 @@ to build an appropriate supercell from partial occupancies.""")
         return math.degrees(math.atan2(np.linalg.norm(v2) * np.dot(v1, v23),
                                        np.dot(v12, v23)))
 
-    def is_valid(self, tol=DISTANCE_TOLERANCE):
+    def is_valid(self, tol: float = DISTANCE_TOLERANCE):
         """
         True if SiteCollection does not contain atoms that are too close
         together. Note that the distance definition is based on type of
@@ -299,7 +299,7 @@ to build an appropriate supercell from partial occupancies.""")
         return bool(np.min(all_dists) > tol)
 
     @abstractmethod
-    def to(self, fmt=None, filename=None):
+    def to(self, fmt: str = None, filename: str = None):
         """
         Generates well-known string representations of SiteCollections (e.g.,
         molecules / structures). Should return a string type or write to a file.
@@ -308,7 +308,7 @@ to build an appropriate supercell from partial occupancies.""")
 
     @classmethod
     @abstractmethod
-    def from_str(cls, input_string, fmt):
+    def from_str(cls, input_string: str, fmt: str):
         """
         Reads in SiteCollection from a string.
         """
@@ -316,7 +316,7 @@ to build an appropriate supercell from partial occupancies.""")
 
     @classmethod
     @abstractmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename: str):
         """
         Reads in SiteCollection from a filename.
         """
@@ -334,9 +334,11 @@ class IStructure(SiteCollection, MSONable):
     structure is equivalent to going through the sites in sequence.
     """
 
-    def __init__(self, lattice, species, coords, charge=None,
-                 validate_proximity=False, to_unit_cell=False,
-                 coords_are_cartesian=False, site_properties=None):
+    def __init__(self, lattice: Lattice, species: list, coords: list,
+                 charge: float = None, validate_proximity: bool = False,
+                 to_unit_cell: bool = False,
+                 coords_are_cartesian: bool = False,
+                 site_properties: dict = None):
         """
         Create a periodic structure.
 
@@ -1745,9 +1747,10 @@ class IMolecule(SiteCollection, MSONable):
     equivalent to going through the sites in sequence.
     """
 
-    def __init__(self, species, coords, charge=0,
-                 spin_multiplicity=None, validate_proximity=False,
-                 site_properties=None):
+    def __init__(self, species: list, coords: list, charge: float = 0,
+                 spin_multiplicity: float = None,
+                 validate_proximity: bool = False,
+                 site_properties: dict = None):
         """
         Creates a Molecule.
 
@@ -2344,9 +2347,11 @@ class Structure(IStructure, collections.MutableSequence):
     """
     __hash__ = None
 
-    def __init__(self, lattice, species, coords, charge=None,
-                 validate_proximity=False, to_unit_cell=False,
-                 coords_are_cartesian=False, site_properties=None):
+    def __init__(self, lattice: Lattice, species: list, coords: list,
+                 charge: float = None, validate_proximity: bool = False,
+                 to_unit_cell: bool = False,
+                 coords_are_cartesian: bool = False,
+                 site_properties: dict = None):
         """
         Create a periodic structure.
 
@@ -3176,9 +3181,10 @@ class Molecule(IMolecule, collections.MutableSequence):
     """
     __hash__ = None
 
-    def __init__(self, species, coords, charge=0,
-                 spin_multiplicity=None, validate_proximity=False,
-                 site_properties=None):
+    def __init__(self, species: list, coords: list, charge: float = 0,
+                 spin_multiplicity: float = None,
+                 validate_proximity: bool = False,
+                 site_properties: dict = None):
         """
         Creates a MutableMolecule.
 

@@ -145,7 +145,7 @@ class EntrySet(collections.MutableSet, MSONable):
     subsets, dumping into files, etc.
     """
 
-    def __init__(self, entries: "list"):
+    def __init__(self, entries: 'list[PDEntry/ComputedEntry]'):
         """
         Args:
             entries: All the entries.
@@ -190,7 +190,7 @@ class EntrySet(collections.MutableSet, MSONable):
             ground_states.add(min(g, key=lambda e: e.energy_per_atom))
         self.entries = ground_states
 
-    def get_subset_in_chemsys(self, chemsys: "list"):
+    def get_subset_in_chemsys(self, chemsys: 'list[str]'):
         """
         Returns an EntrySet containing only the set of entries belonging to
         a particular chemical system (in this definition, it includes all sub
