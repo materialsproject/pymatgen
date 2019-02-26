@@ -469,7 +469,7 @@ class PhaseDiagram(MSONable):
 
     @classmethod
     def from_dict(cls, d):
-        entries = [PDEntry.from_dict(dd) for dd in d["all_entries"]]
+        entries = [MontyDecoder().process_decoded(dd) for dd in d["all_entries"]]
         elements = [Element.from_dict(dd) for dd in d["elements"]]
         return cls(entries, elements)
 

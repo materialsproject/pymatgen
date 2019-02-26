@@ -402,6 +402,22 @@ class PrimitiveCellTransformationTest(unittest.TestCase):
                          PrimitiveCellTransformation)
 
 
+class ConventionalCellTransformationTest(unittest.TestCase):
+    def test_apply_transformation(self):
+        t = ConventionalCellTransformation()
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0.75, 0.75, 0.75])
+        coords.append([0.5, 0.5, 0.5])
+        coords.append([0.25, 0.25, 0.25])
+        lattice = Lattice([[3.8401979337, 0.00, 0.00],
+                           [1.9200989668, 3.3257101909, 0.00],
+                           [0.00, -2.2171384943, 3.1355090603]])
+        struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
+        conventional_struct = t.apply_transformation(struct)
+        self.assertEqual(conventional_struct.lattice.alpha, 90)
+
+
 class PerturbStructureTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
         t = PerturbStructureTransformation(0.05)
