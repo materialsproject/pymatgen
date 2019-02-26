@@ -21,11 +21,16 @@ import json
 import datetime
 import collections
 import itertools
+import csv
+import re
 
 from typing import List, Union
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.composition import Composition
 from pymatgen.analysis.phase_diagram import PDEntry
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 from monty.json import MontyEncoder, MontyDecoder, MSONable
+from monty.string import unicode2str
 
 from pymatgen.analysis.structure_matcher import StructureMatcher, \
     SpeciesComparator
@@ -223,3 +228,62 @@ class EntrySet(collections.MutableSet, MSONable):
         return {
             "entries": list(self.entries)
         }
+
+    def to_csv(self, filename: str, latexify_names: bool = False):
+        """
+        Exports PDEntries to a csv
+
+        Args:
+            filename: Filename to write to.
+            entries: PDEntries to export.
+            latexify_names: Format entry names to be LaTex compatible,
+                e.g., Li_{2}O
+        """
+
+        elements = set()
+        for entry in self.entries:
+            elements.update(entry.composition.elements)
+        elements = sorted(list(elements), key=lambda a: a.X)
+        writer = csv.writer(open(filename, "w"), delimiter=unicode2str(","),
+                            quotechar=unicode2str("\""),
+                            quoting=csv.QUOTE_MINIMAL)
+        writer.writerow(["Name"] + elements + ["Energy"])
+        for entry in self.entries:
+            row = [entry.name if not latexify_names
+                   else re.sub(r"([0-9]+)", r"_{\1}", entry.name)]
+            row.extend([entry.composition[el] for el in elements])
+            row.append(entry.energy)
+            writer.writerow(row)
+
+    @classmethod
+    def from_csv(cls, filename: str):
+        """
+        Imports PDEntries from a csv.
+
+        Args:
+            filename: Filename to import from.
+
+        Returns:
+            List of Elements, List of PDEntries
+        """
+        with open(filename, "r", encoding="utf-8") as f:
+            reader = csv.reader(f, delimiter=unicode2str(","),
+                                quotechar=unicode2str("\""),
+                                quoting=csv.QUOTE_MINIMAL)
+            entries = list()
+            header_read = False
+            elements = None
+            for row in reader:
+                if not header_read:
+                    elements = row[1:(len(row) - 1)]
+                    header_read = True
+                else:
+                    name = row[0]
+                    energy = float(row[-1])
+                    comp = dict()
+                    for ind in range(1, len(row) - 1):
+                        if float(row[ind]) > 0:
+                            comp[Element(elements[ind - 1])] = float(row[ind])
+                    entries.append(PDEntry(Composition(comp), energy, name))
+        return cls(entries)
+
