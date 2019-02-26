@@ -66,16 +66,16 @@ class SiteCollection(collections.Sequence, metaclass=ABCMeta):
         return
 
     @abstractmethod
-    def get_distance(self, i: int, j: int):
+    def get_distance(self, i: int, j: int) -> float:
         """
         Returns distance between sites at index i and j.
 
         Args:
-            i (int): Index of first site
-            j (int): Index of second site
+            i: Index of first site
+            j: Index of second site
 
         Returns:
-            (float) Distance between sites at index i and index j.
+            Distance between sites at index i and index j.
         """
         return
 
@@ -137,7 +137,7 @@ to build an appropriate supercell from partial occupancies.""")
                 if site.specie == t:
                     yield site
 
-    def indices_from_symbol(self, symbol: str):
+    def indices_from_symbol(self, symbol: str) -> tuple:
         """
         Returns a tuple with the sequential indices of the sites
         that contain an element with the given chemical symbol.
@@ -242,34 +242,34 @@ to build an appropriate supercell from partial occupancies.""")
         """
         return all((site.is_ordered for site in self))
 
-    def get_angle(self, i: int, j: int, k: int):
+    def get_angle(self, i: int, j: int, k: int) -> float:
         """
         Returns angle specified by three sites.
 
         Args:
-            i (int): Index of first site.
-            j (int): Index of second site.
-            k (int): Index of third site.
+            i: Index of first site.
+            j: Index of second site.
+            k: Index of third site.
 
         Returns:
-            (float) Angle in degrees.
+            Angle in degrees.
         """
         v1 = self[i].coords - self[j].coords
         v2 = self[k].coords - self[j].coords
         return get_angle(v1, v2, units="degrees")
 
-    def get_dihedral(self, i: int, j: int, k: int, l: int):
+    def get_dihedral(self, i: int, j: int, k: int, l: int) -> float:
         """
         Returns dihedral angle specified by four sites.
 
         Args:
-            i (int): Index of first site
-            j (int): Index of second site
-            k (int): Index of third site
-            l (int): Index of fourth site
+            i: Index of first site
+            j: Index of second site
+            k: Index of third site
+            l: Index of fourth site
 
         Returns:
-            (float) Dihedral angle in degrees.
+            Dihedral angle in degrees.
         """
         v1 = self[k].coords - self[l].coords
         v2 = self[j].coords - self[k].coords
@@ -279,7 +279,7 @@ to build an appropriate supercell from partial occupancies.""")
         return math.degrees(math.atan2(np.linalg.norm(v2) * np.dot(v1, v23),
                                        np.dot(v12, v23)))
 
-    def is_valid(self, tol: float = DISTANCE_TOLERANCE):
+    def is_valid(self, tol: float = DISTANCE_TOLERANCE) -> bool:
         """
         True if SiteCollection does not contain atoms that are too close
         together. Note that the distance definition is based on type of
