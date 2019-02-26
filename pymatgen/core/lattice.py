@@ -34,6 +34,9 @@ __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
+
+# TODO: as we standardize on type hints, we may want to move convenience hints
+# to a common location
 VectorLike = Union[List[float], np.ndarray]
 
 
@@ -452,14 +455,14 @@ class Lattice(MSONable):
         return abs(np.dot(np.cross(m[0], m[1]), m[2]))
 
     @property
-    def lengths_and_angles(self) -> Tuple[np.ndarray]:
+    def lengths_and_angles(self) -> Tuple[Tuple[float, float, float], Tuple[float, float, float]]:
         """
         Returns (lattice lengths, lattice angles).
         """
         return tuple(self._lengths), tuple(self._angles)
 
     @property
-    def reciprocal_lattice(self) -> np.ndarray:
+    def reciprocal_lattice(self) -> "Lattice":
         """
         Return the reciprocal lattice. Note that this is the standard
         reciprocal lattice used for solid state physics with a factor of 2 *
@@ -1243,7 +1246,7 @@ class Lattice(MSONable):
         coords_are_cartesian: bool = True,
         round_dp: int = 4,
         verbose: bool = True,
-    ) -> Tuple[int]:
+    ) -> Tuple[int, int, int]:
         """
         Get the Miller index of a plane from a list of site coordinates.
 
@@ -1281,8 +1284,8 @@ class Lattice(MSONable):
 
 
 def get_integer_index(
-    miller_index: bool, round_dp: bool = 4, verbose: bool = True
-) -> Tuple[int]:
+    miller_index: bool, round_dp: int = 4, verbose: bool = True
+) -> Tuple[int, int, int]:
     """
     Attempt to convert a vector of floats to whole numbers.
 
