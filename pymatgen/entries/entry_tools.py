@@ -22,6 +22,9 @@ import datetime
 import collections
 import itertools
 
+from typing import List, Union
+from pymatgen.analysis.phase_diagram import PDEntry
+from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 from monty.json import MontyEncoder, MontyDecoder, MSONable
 
 from pymatgen.analysis.structure_matcher import StructureMatcher, \
@@ -145,7 +148,7 @@ class EntrySet(collections.MutableSet, MSONable):
     subsets, dumping into files, etc.
     """
 
-    def __init__(self, entries: 'list[PDEntry/ComputedEntry]'):
+    def __init__(self, entries: List[Union[PDEntry,ComputedEntry,ComputedStructureEntry]]):
         """
         Args:
             entries: All the entries.
@@ -190,7 +193,7 @@ class EntrySet(collections.MutableSet, MSONable):
             ground_states.add(min(g, key=lambda e: e.energy_per_atom))
         self.entries = ground_states
 
-    def get_subset_in_chemsys(self, chemsys: 'list[str]'):
+    def get_subset_in_chemsys(self, chemsys: List[str]):
         """
         Returns an EntrySet containing only the set of entries belonging to
         a particular chemical system (in this definition, it includes all sub
