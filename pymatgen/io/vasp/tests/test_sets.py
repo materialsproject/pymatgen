@@ -163,6 +163,9 @@ class MITMPRelaxSetTest(unittest.TestCase):
                              )
         self.assertEqual(userset.incar['MAGMOM'], [100, 0.6])
 
+        noencutset = MPRelaxSet(struct, user_incar_settings={'ENCUT': None})
+        self.assertNotIn("ENCUT", noencutset.incar)
+
         # sulfide vs sulfate test
 
         coords = list()
