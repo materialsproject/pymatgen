@@ -12,6 +12,7 @@ from math import gcd
 from fractions import Fraction
 
 from typing import List, Union, Dict, Tuple, Iterator, Optional
+from pymatgen.util.typing import Vector3Like
 
 import numpy as np
 from numpy.linalg import inv
@@ -33,11 +34,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
-
-
-# TODO: as we standardize on type hints, we may want to move convenience hints
-# to a common location
-VectorLike = Union[List[float], np.ndarray]
 
 
 class Lattice(MSONable):
@@ -141,7 +137,7 @@ class Lattice(MSONable):
             self._metric_tensor = np.dot(self._matrix, self._matrix.T)
         return self._metric_tensor
 
-    def get_cartesian_coords(self, fractional_coords: VectorLike) -> np.ndarray:
+    def get_cartesian_coords(self, fractional_coords: Vector3Like) -> np.ndarray:
         """
         Returns the cartesian coordinates given fractional coordinates.
 
@@ -153,7 +149,7 @@ class Lattice(MSONable):
         """
         return dot(fractional_coords, self._matrix)
 
-    def get_fractional_coords(self, cart_coords: VectorLike) -> np.ndarray:
+    def get_fractional_coords(self, cart_coords: Vector3Like) -> np.ndarray:
         """
         Returns the fractional coordinates given cartesian coordinates.
 
@@ -165,7 +161,7 @@ class Lattice(MSONable):
         """
         return dot(cart_coords, self.inv_matrix)
 
-    def get_vector_along_lattice_directions(self, cart_coords: VectorLike):
+    def get_vector_along_lattice_directions(self, cart_coords: Vector3Like):
         """
         Returns the coordinates along lattice directions given cartesian coordinates.
 
@@ -185,7 +181,7 @@ class Lattice(MSONable):
         """
         return self.lengths_and_angles[0] * self.get_fractional_coords(cart_coords)
 
-    def d_hkl(self, miller_index: VectorLike) -> float:
+    def d_hkl(self, miller_index: Vector3Like) -> float:
         """
         Returns the distance between the hkl plane and the origin
 
@@ -774,14 +770,14 @@ class Lattice(MSONable):
 
         return a.T, mapping.T
 
-    def get_lll_frac_coords(self, frac_coords: VectorLike) -> np.ndarray:
+    def get_lll_frac_coords(self, frac_coords: Vector3Like) -> np.ndarray:
         """
         Given fractional coordinates in the lattice basis, returns corresponding
         fractional coordinates in the lll basis.
         """
         return np.dot(frac_coords, self.lll_inverse)
 
-    def get_frac_coords_from_lll(self, lll_frac_coords: VectorLike) -> np.ndarray:
+    def get_frac_coords_from_lll(self, lll_frac_coords: Vector3Like) -> np.ndarray:
         """
         Given fractional coordinates in the lll basis, returns corresponding
         fractional coordinates in the lattice basis.
@@ -1001,7 +997,7 @@ class Lattice(MSONable):
         return self.reciprocal_lattice.get_wigner_seitz_cell()
 
     def dot(
-        self, coords_a: VectorLike, coords_b: VectorLike, frac_coords: bool = False
+        self, coords_a: Vector3Like, coords_b: Vector3Like, frac_coords: bool = False
     ) -> np.ndarray:
         """
         Compute the scalar product of vector(s).
@@ -1037,7 +1033,7 @@ class Lattice(MSONable):
 
         return np.array([np.dot(a, b) for a, b in zip(cart_a, cart_b)])
 
-    def norm(self, coords: VectorLike, frac_coords: bool = True) -> float:
+    def norm(self, coords: Vector3Like, frac_coords: bool = True) -> float:
         """
         Compute the norm of vector(s).
 
@@ -1055,8 +1051,8 @@ class Lattice(MSONable):
 
     def get_points_in_sphere(
         self,
-        frac_points: List[VectorLike],
-        center: VectorLike,
+        frac_points: List[Vector3Like],
+        center: Vector3Like,
         r: float,
         zip_results=True,
     ) -> Union[
@@ -1157,8 +1153,8 @@ class Lattice(MSONable):
 
     def get_all_distances(
         self,
-        fcoords1: Union[VectorLike, List[VectorLike]],
-        fcoords2: Union[VectorLike, List[VectorLike]],
+        fcoords1: Union[Vector3Like, List[Vector3Like]],
+        fcoords2: Union[Vector3Like, List[Vector3Like]],
     ) -> np.ndarray:
         """
         Returns the distances between two lists of coordinates taking into
@@ -1201,8 +1197,8 @@ class Lattice(MSONable):
 
     def get_distance_and_image(
         self,
-        frac_coords1: VectorLike,
-        frac_coords2: VectorLike,
+        frac_coords1: Vector3Like,
+        frac_coords2: Vector3Like,
         jimage: Optional[Union[List[int], np.ndarray]] = None,
     ) -> Tuple[float, np.ndarray]:
         """
@@ -1242,7 +1238,7 @@ class Lattice(MSONable):
 
     def get_miller_index_from_coords(
         self,
-        coords: VectorLike,
+        coords: Vector3Like,
         coords_are_cartesian: bool = True,
         round_dp: int = 4,
         verbose: bool = True,
