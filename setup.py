@@ -114,6 +114,7 @@ setup(
                   "pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files": ["*.txt", "*.json"],
                   "pymatgen.analysis.chemenv.coordination_environments.strategy_files": ["*.json"],
                   "pymatgen.analysis.hhi": ["*.csv"],
+                  "pymatgen.analysis.magnetism": ["*.json", "*.yaml"],
                   "pymatgen.analysis.structure_predictor": ["data/*.json", "*.yaml"],
                   "pymatgen.io.vasp": ["*.yaml"],
                   "pymatgen.io.lammps": ["templates/*.*"],
