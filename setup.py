@@ -56,7 +56,7 @@ library by making your own contributions.  These contributions can be in the
 form of additional tools or modules you develop, or feature requests and bug
 reports. Please report any bugs and issues at pymatgen's [Github page]
 (https://github.com/materialsproject/pymatgen). For help with any pymatgen
-issues, please use the [Discourse page](https://pymatgen.discourse.group). 
+issues, please use the [Discourse page](https://pymatgen.discourse.group).
 
 Why use pymatgen?
 =================
@@ -95,7 +95,7 @@ who require Python 2.7 should install pymatgen v2018.x.
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2019.2.24",
+    version="2019.2.28",
     cmdclass={'build_ext': build_ext},
     setup_requires=['numpy>=1.14.3', 'setuptools>=18.0'],
     install_requires=["numpy>=1.14.3", "requests", "ruamel.yaml>=0.15.6",
