@@ -1,6 +1,12 @@
 Change log
 ==========
 
+v2019.2.28
+----------
+* Type hints now available for core classes.
+* New pymatgen.util.typing module for useful types.
+* Misc bug fixes.
+
 v2019.2.24
 ----------
 * New EntrySet class for easy manipulation of entries to grab subsets, 
