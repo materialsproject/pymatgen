@@ -169,7 +169,10 @@ class DefectCompatibility(MSONable):
         if not run_kumagai:
             print('Insufficient DefectEntry parameters exist for Kumagai Correction.')
         else:
-            defect_entry = self.perform_kumagai( defect_entry)
+            try:
+                defect_entry = self.perform_kumagai( defect_entry)
+            except:
+                print("Kumagai correction error occured! Wont perform correction.")
 
         # add potalign based on preferred correction setting if it does not already exist in defect entry
         if self.preferred_cc == 'freysoldt':
