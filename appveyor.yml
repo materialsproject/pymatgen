@@ -25,8 +25,7 @@ install:
   # - 'python -c "import struct; print(struct.calcsize(''P'') * 8)"'
 
   # Install the build dependencies of the project via conda and pip
-  - 'pip install --upgrade numpy'
-  - 'conda install --yes --quiet scipy matplotlib setuptools wheel pip'
+  - 'conda install --yes --quiet numpy scipy matplotlib setuptools wheel pip'
   - 'conda install --yes --quiet --channel matsci spglib netcdf4 h5py'
   # - 'conda update --yes --all'
   - 'pip install -r requirements.txt'
