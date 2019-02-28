@@ -7,7 +7,7 @@ import numpy as np
 
 from abc import ABCMeta, abstractmethod
 from monty.json import MSONable, MontyDecoder
-from monty.functools import lru_cache
+from functools import lru_cache
 
 from pymatgen.core.structure import Structure, PeriodicSite
 from pymatgen.core.composition import Composition

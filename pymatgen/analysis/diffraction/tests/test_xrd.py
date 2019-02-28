@@ -82,7 +82,6 @@ class XRDCalculatorTest(PymatgenTest):
         self.assertAlmostEqual(xrd.x[0], 40.294828554672264)
         self.assertAlmostEqual(xrd.y[0], 2377745.2296686019)
         self.assertAlmostEqual(xrd.d_hkls[0], 2.2382050944897789)
-        c.get_plot(tungsten).show()
 
 
 if __name__ == '__main__':

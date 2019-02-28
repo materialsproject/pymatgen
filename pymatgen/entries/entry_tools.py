@@ -9,7 +9,6 @@ entries, such as grouping entries by structure.
 """
 
 
-
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
@@ -21,10 +20,18 @@ import logging
 import json
 import datetime
 import collections
+import itertools
+import csv
+import re
 
-from monty.json import MontyEncoder, MontyDecoder
+from typing import List, Union
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.composition import Composition
+from pymatgen.analysis.phase_diagram import PDEntry
+from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
+from monty.json import MontyEncoder, MontyDecoder, MSONable
+from monty.string import unicode2str
 
-from pymatgen.core.structure import Structure
 from pymatgen.analysis.structure_matcher import StructureMatcher, \
     SpeciesComparator
 
@@ -118,7 +125,7 @@ def group_entries_by_structure(entries, species_to_remove=None,
         manager = mp.Manager()
         groups = manager.list()
         p = mp.Pool(ncpus)
-        #Parallel processing only supports Python primitives and not objects.
+        # Parallel processing only supports Python primitives and not objects.
         p.map(_perform_grouping,
               [(json.dumps([e[0] for e in eh], cls=MontyEncoder),
                 json.dumps([e[1] for e in eh], cls=MontyEncoder),
@@ -138,3 +145,145 @@ def group_entries_by_structure(entries, species_to_remove=None,
     logging.info("Finished at {}".format(datetime.datetime.now()))
     logging.info("Took {}".format(datetime.datetime.now() - start))
     return entry_groups
+
+
+class EntrySet(collections.MutableSet, MSONable):
+    """
+    A convenient container for manipulating entries. Allows for generating
+    subsets, dumping into files, etc.
+    """
+
+    def __init__(self, entries: List[Union[PDEntry,ComputedEntry,ComputedStructureEntry]]):
+        """
+        Args:
+            entries: All the entries.
+        """
+        self.entries = set(entries)
+
+    def __contains__(self, item):
+        return item in self.entries
+
+    def __iter__(self):
+        return self.entries.__iter__()
+
+    def __len__(self):
+        return len(self.entries)
+
+    def add(self, element):
+        self.entries.add(element)
+
+    def discard(self, element):
+        self.entries.discard(element)
+
+    @property
+    def chemsys(self) -> set:
+        """
+        Returns:
+            set representing the chemical system, e.g., {"Li", "Fe", "P", "O"}
+        """
+        chemsys = set()
+        for e in self.entries:
+            chemsys.update([el.symbol for el in e.composition.keys()])
+        return chemsys
+
+    def remove_non_ground_states(self):
+        """
+        Removes all non-ground state entries, i.e., only keep the lowest energy
+        per atom entry at each composition.
+        """
+        group_func = lambda e: e.composition.reduced_formula
+        entries = sorted(self.entries, key=group_func)
+        ground_states = set()
+        for _, g in itertools.groupby(entries, key=group_func):
+            ground_states.add(min(g, key=lambda e: e.energy_per_atom))
+        self.entries = ground_states
+
+    def get_subset_in_chemsys(self, chemsys: List[str]):
+        """
+        Returns an EntrySet containing only the set of entries belonging to
+        a particular chemical system (in this definition, it includes all sub
+        systems). For example, if the entries are from the
+        Li-Fe-P-O system, and chemsys=["Li", "O"], only the Li, O,
+        and Li-O entries are returned.
+
+        Args:
+            chemsys: Chemical system specified as list of elements. E.g.,
+                ["Li", "O"]
+
+        Returns:
+            EntrySet
+        """
+        chemsys = set(chemsys)
+        if not chemsys.issubset(self.chemsys):
+            raise ValueError("%s is not a subset of %s" % (chemsys,
+                                                           self.chemsys))
+        subset = set()
+        for e in self.entries:
+            elements = [sp.symbol for sp in e.composition.keys()]
+            if chemsys.issuperset(elements):
+                subset.add(e)
+        return EntrySet(subset)
+
+    def as_dict(self):
+        return {
+            "entries": list(self.entries)
+        }
+
+    def to_csv(self, filename: str, latexify_names: bool = False):
+        """
+        Exports PDEntries to a csv
+
+        Args:
+            filename: Filename to write to.
+            entries: PDEntries to export.
+            latexify_names: Format entry names to be LaTex compatible,
+                e.g., Li_{2}O
+        """
+
+        elements = set()
+        for entry in self.entries:
+            elements.update(entry.composition.elements)
+        elements = sorted(list(elements), key=lambda a: a.X)
+        writer = csv.writer(open(filename, "w"), delimiter=unicode2str(","),
+                            quotechar=unicode2str("\""),
+                            quoting=csv.QUOTE_MINIMAL)
+        writer.writerow(["Name"] + elements + ["Energy"])
+        for entry in self.entries:
+            row = [entry.name if not latexify_names
+                   else re.sub(r"([0-9]+)", r"_{\1}", entry.name)]
+            row.extend([entry.composition[el] for el in elements])
+            row.append(entry.energy)
+            writer.writerow(row)
+
+    @classmethod
+    def from_csv(cls, filename: str):
+        """
+        Imports PDEntries from a csv.
+
+        Args:
+            filename: Filename to import from.
+
+        Returns:
+            List of Elements, List of PDEntries
+        """
+        with open(filename, "r", encoding="utf-8") as f:
+            reader = csv.reader(f, delimiter=unicode2str(","),
+                                quotechar=unicode2str("\""),
+                                quoting=csv.QUOTE_MINIMAL)
+            entries = list()
+            header_read = False
+            elements = None
+            for row in reader:
+                if not header_read:
+                    elements = row[1:(len(row) - 1)]
+                    header_read = True
+                else:
+                    name = row[0]
+                    energy = float(row[-1])
+                    comp = dict()
+                    for ind in range(1, len(row) - 1):
+                        if float(row[ind]) > 0:
+                            comp[Element(elements[ind - 1])] = float(row[ind])
+                    entries.append(PDEntry(Composition(comp), energy, name))
+        return cls(entries)
+
