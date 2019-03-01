@@ -2347,7 +2347,7 @@ class Structure(IStructure, collections.MutableSequence):
     """
     __hash__ = None
 
-    def __init__(self, lattice: Lattice, species: list, coords: list,
+    def __init__(self, lattice: Lattice, species: list, coords: np.ndarray,
                  charge: float = None, validate_proximity: bool = False,
                  to_unit_cell: bool = False,
                  coords_are_cartesian: bool = False,
