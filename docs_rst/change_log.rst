@@ -1,12 +1,39 @@
 Change log
 ==========
 
+v2019.2.28
+----------
+* Type hints now available for core classes.
+* New pymatgen.util.typing module for useful types.
+* Misc bug fixes.
+
+v2019.2.24
+----------
+* New EntrySet class for easy manipulation of entries to grab subsets, 
+  remove non-ground-states, etc. Makes it easier to grab a large set of entries and work with sub chemical systems. Also MSONable for caching.
+* Performance improvements in core classes and Poscar (@ExpHP).
+* New/changed methods for IcohpCollection and Completecohp
+
+v2019.2.4
+---------
+* New Trajectory class for MD simulations (@sivonxay)
+* Lattice.get_vector_along_lattice_directions (@blondgeek)
+* Misc bug fixes.
+
 v2019.1.24
 ----------
 * Python 3 only!
-* Improvements to local environment code (@utf)
+* Improvements to local environment code including VESTA bond emulation (@utf)
 * Update Cohp analysis (@JaGEO)
 * Updates to Boltztrap2 (@fraricci)
+
+v2019.1.13
+----------
+* Pymatgen is now Py3 ONLY. If you need Py27 support, please use versions 
+  < 2019.1.1.
+* PARCHG parsing from WAVECAR (@mturiansky)
+* Improvements to defect generation algorithms (@dbroberg)
+* Simplifications to COHP plotting (@JaGeo)
 
 v2018.12.12
 -----------

@@ -478,11 +478,12 @@ class Poscar(MSONable):
             lines.append("Selective dynamics")
         lines.append("direct" if direct else "cartesian")
 
+        selective_dynamics = self.selective_dynamics
         for (i, site) in enumerate(self.structure):
             coords = site.frac_coords if direct else site.coords
             line = " ".join([format_str.format(c) for c in coords])
-            if self.selective_dynamics is not None:
-                sd = ["T" if j else "F" for j in self.selective_dynamics[i]]
+            if selective_dynamics is not None:
+                sd = ["T" if j else "F" for j in selective_dynamics[i]]
                 line += " %s %s %s" % (sd[0], sd[1], sd[2])
             line += " " + site.species_string
             lines.append(line)

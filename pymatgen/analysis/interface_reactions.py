@@ -2,6 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+from __future__ import division
 
 import warnings
 import numpy as np
@@ -235,10 +236,11 @@ class InterfacialReactivity:
         product = [Composition(k.name) for k, v in decomp.items()]
         reaction = Reaction(reactant, product)
 
-        if np.isclose(x, 1):
-            reaction.normalize_to(self.c1_original, 1)
+        x_original = self._get_original_composition_ratio(reaction)
+        if np.isclose(x_original, 1):
+            reaction.normalize_to(self.c1_original, x_original)
         else:
-            reaction.normalize_to(self.c2_original, 1)
+            reaction.normalize_to(self.c2_original, 1-x_original)
         return reaction
 
     def _get_elmt_amt_in_rxt(self, rxt):
@@ -371,26 +373,43 @@ class InterfacialReactivity:
 
     def get_critical_original_kink_ratio(self):
         """
-        Returns a list of mixing ratio for each kink between ORIGINAL
+        Returns a list of molar mixing ratio for each kink between ORIGINAL
         (instead of processed) reactant compositions. This is the
         same list as mixing ratio obtained from get_kinks method
         if self.norm = False.
 
         Returns:
-            A list of floats representing mixing ratios between original
-            reactant compositions for each kink.
+            A list of floats representing molar mixing ratios between
+            the original reactant compositions for each kink.
         """
         ratios = []
         if self.c1_original == self.c2_original:
             return [0, 1]
         reaction_kink = [k[3] for k in self.get_kinks()]
         for rxt in reaction_kink:
-            c1_coeff = rxt.get_coeff(self.c1_original) \
-                if self.c1_original in rxt.reactants else 0
-            c2_coeff = rxt.get_coeff(self.c2_original) \
-                if self.c2_original in rxt.reactants else 0
-            ratios.append(abs(c1_coeff / (c1_coeff + c2_coeff)))
+            ratios.append(abs(self._get_original_composition_ratio(rxt)))
         return ratios
+
+    def _get_original_composition_ratio(self, reaction):
+        """
+        Returns the molar mixing ratio between the reactants with ORIGINAL (
+        instead of processed) compositions for a reaction.
+
+        Args:
+            reaction (Reaction): Reaction object that contains the original
+                reactant compositions.
+
+        Returns:
+            The molar mixing ratio between the original reactant
+            compositions for a reaction.
+        """
+        if self.c1_original == self.c2_original:
+            return 1
+        c1_coeff = reaction.get_coeff(self.c1_original) \
+            if self.c1_original in reaction.reactants else 0
+        c2_coeff = reaction.get_coeff(self.c2_original) \
+            if self.c2_original in reaction.reactants else 0
+        return c1_coeff * 1.0 / (c1_coeff + c2_coeff)
 
     def labels(self):
         """
@@ -532,7 +551,8 @@ class InterfacialReactivity:
         PV_correction = ideal_gas_const * temp * np.log(pres / std_pres)
         TS_correction = - Cp_std * (temp * np.log(temp)
                                     - std_temp * np.log(std_temp)) \
-                        + Cp_std * (temp - std_temp) * (1 + np.log(std_temp)) \
+                        + Cp_std * (temp - std_temp) \
+                                 * (1 + np.log(std_temp)) \
                         - S_std * (temp - std_temp)
 
         dG = PV_correction + TS_correction

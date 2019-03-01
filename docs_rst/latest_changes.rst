@@ -1,9 +1,8 @@
 Change log
 ==========
 
-v2019.1.24
+v2019.2.28
 ----------
-* Python 3 only!
-* Improvements to local environment code (@utf)
-* Update Cohp analysis (@JaGEO)
-* Updates to Boltztrap2 (@fraricci)
+* Type hints now available for core classes.
+* New pymatgen.util.typing module for useful types.
+* Misc bug fixes.

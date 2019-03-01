@@ -191,8 +191,8 @@ class SlabTest(PymatgenTest):
         for slab in all_Ti_slabs:
             sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
             site = sorted_sites[-1]
-            point = site.frac_coords
-            point[2] = point[2]+0.1
+            point = np.array(site.frac_coords)
+            point[2] = point[2] + 0.1
             point2 = slab.get_symmetric_site(point)
             slab.append("O", point)
             slab.append("O", point2)
