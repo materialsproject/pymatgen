@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.structure module &#8212; pymatgen 2019.2.4 documentation</title>
+    <title>pymatgen.core.structure module &#8212; pymatgen 2019.2.28 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -48,7 +48,7 @@
 <span id="pymatgen-core-structure-module"></span><h1>pymatgen.core.structure module<a class="headerlink" href="#module-pymatgen.core.structure" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.core.structure.IMolecule">
-<em class="property">class </em><code class="descname">IMolecule</code><span class="sig-paren">(</span><em>species</em>, <em>coords</em>, <em>charge=0</em>, <em>spin_multiplicity=None</em>, <em>validate_proximity=False</em>, <em>site_properties=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IMolecule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IMolecule" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">IMolecule</code><span class="sig-paren">(</span><em>species: list</em>, <em>coords: list</em>, <em>charge: float = 0</em>, <em>spin_multiplicity: float = None</em>, <em>validate_proximity: bool = False</em>, <em>site_properties: dict = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IMolecule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IMolecule" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.core.structure.SiteCollection" title="pymatgen.core.structure.SiteCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.structure.SiteCollection</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Basic immutable Molecule object without periodicity. Essentially a
 sequence of sites. IMolecule is made to be immutable so that they can
@@ -443,7 +443,7 @@ filename. Defaults is None, i.e. string output.</li>
 
 <dl class="class">
 <dt id="pymatgen.core.structure.IStructure">
-<em class="property">class </em><code class="descname">IStructure</code><span class="sig-paren">(</span><em>lattice</em>, <em>species</em>, <em>coords</em>, <em>charge=None</em>, <em>validate_proximity=False</em>, <em>to_unit_cell=False</em>, <em>coords_are_cartesian=False</em>, <em>site_properties=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">IStructure</code><span class="sig-paren">(</span><em>lattice: pymatgen.core.lattice.Lattice</em>, <em>species: list</em>, <em>coords: list</em>, <em>charge: float = None</em>, <em>validate_proximity: bool = False</em>, <em>to_unit_cell: bool = False</em>, <em>coords_are_cartesian: bool = False</em>, <em>site_properties: dict = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.core.structure.SiteCollection" title="pymatgen.core.structure.SiteCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.structure.SiteCollection</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Basic immutable Structure object with periodicity. Essentially a sequence
 of PeriodicSites having a common lattice. IStructure is made to be
@@ -1196,7 +1196,7 @@ CifWriter.__init__ method for generation of symmetric cifs.</li>
 
 <dl class="class">
 <dt id="pymatgen.core.structure.Molecule">
-<em class="property">class </em><code class="descname">Molecule</code><span class="sig-paren">(</span><em>species</em>, <em>coords</em>, <em>charge=0</em>, <em>spin_multiplicity=None</em>, <em>validate_proximity=False</em>, <em>site_properties=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#Molecule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Molecule" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">Molecule</code><span class="sig-paren">(</span><em>species: list</em>, <em>coords: list</em>, <em>charge: float = 0</em>, <em>spin_multiplicity: float = None</em>, <em>validate_proximity: bool = False</em>, <em>site_properties: dict = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#Molecule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Molecule" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.core.structure.IMolecule" title="pymatgen.core.structure.IMolecule"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.structure.IMolecule</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.MutableSequence</span></code></p>
 <p>Mutable Molecule. It has all the methods in IMolecule, but in addition,
 it allows a user to perform edits on the molecule.</p>
@@ -1569,32 +1569,32 @@ distance.</p>
 
 <dl class="classmethod">
 <dt id="pymatgen.core.structure.SiteCollection.from_file">
-<em class="property">classmethod </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#SiteCollection.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#SiteCollection.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads in SiteCollection from a filename.</p>
 </dd></dl>
 
 <dl class="classmethod">
 <dt id="pymatgen.core.structure.SiteCollection.from_str">
-<em class="property">classmethod </em><code class="descname">from_str</code><span class="sig-paren">(</span><em>input_string</em>, <em>fmt</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#SiteCollection.from_str"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.from_str" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">from_str</code><span class="sig-paren">(</span><em>input_string: str</em>, <em>fmt: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#SiteCollection.from_str"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.from_str" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads in SiteCollection from a string.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.structure.SiteCollection.get_angle">
-<code class="descname">get_angle</code><span class="sig-paren">(</span><em>i</em>, <em>j</em>, <em>k</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#SiteCollection.get_angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.get_angle" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_angle</code><span class="sig-paren">(</span><em>i: int</em>, <em>j: int</em>, <em>k: int</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/pymatgen/core/structure.html#SiteCollection.get_angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.get_angle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns angle specified by three sites.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>i</strong> (<em>int</em>) – Index of first site.</li>
-<li><strong>j</strong> (<em>int</em>) – Index of second site.</li>
-<li><strong>k</strong> (<em>int</em>) – Index of third site.</li>
+<li><strong>i</strong> – Index of first site.</li>
+<li><strong>j</strong> – Index of second site.</li>
+<li><strong>k</strong> – Index of third site.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(float) Angle in degrees.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Angle in degrees.</p>
 </td>
 </tr>
 </tbody>
@@ -1603,21 +1603,21 @@ distance.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.structure.SiteCollection.get_dihedral">
-<code class="descname">get_dihedral</code><span class="sig-paren">(</span><em>i</em>, <em>j</em>, <em>k</em>, <em>l</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#SiteCollection.get_dihedral"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.get_dihedral" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_dihedral</code><span class="sig-paren">(</span><em>i: int</em>, <em>j: int</em>, <em>k: int</em>, <em>l: int</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/pymatgen/core/structure.html#SiteCollection.get_dihedral"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.get_dihedral" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns dihedral angle specified by four sites.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>i</strong> (<em>int</em>) – Index of first site</li>
-<li><strong>j</strong> (<em>int</em>) – Index of second site</li>
-<li><strong>k</strong> (<em>int</em>) – Index of third site</li>
-<li><strong>l</strong> (<em>int</em>) – Index of fourth site</li>
+<li><strong>i</strong> – Index of first site</li>
+<li><strong>j</strong> – Index of second site</li>
+<li><strong>k</strong> – Index of third site</li>
+<li><strong>l</strong> – Index of fourth site</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(float) Dihedral angle in degrees.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Dihedral angle in degrees.</p>
 </td>
 </tr>
 </tbody>
@@ -1626,19 +1626,19 @@ distance.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.structure.SiteCollection.get_distance">
-<code class="descname">get_distance</code><span class="sig-paren">(</span><em>i</em>, <em>j</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#SiteCollection.get_distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.get_distance" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_distance</code><span class="sig-paren">(</span><em>i: int</em>, <em>j: int</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/pymatgen/core/structure.html#SiteCollection.get_distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.get_distance" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns distance between sites at index i and j.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>i</strong> (<em>int</em>) – Index of first site</li>
-<li><strong>j</strong> (<em>int</em>) – Index of second site</li>
+<li><strong>i</strong> – Index of first site</li>
+<li><strong>j</strong> – Index of second site</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(float) Distance between sites at index i and index j.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Distance between sites at index i and index j.</p>
 </td>
 </tr>
 </tbody>
@@ -1653,7 +1653,7 @@ distance.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.structure.SiteCollection.indices_from_symbol">
-<code class="descname">indices_from_symbol</code><span class="sig-paren">(</span><em>symbol</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#SiteCollection.indices_from_symbol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.indices_from_symbol" title="Permalink to this definition">¶</a></dt>
+<code class="descname">indices_from_symbol</code><span class="sig-paren">(</span><em>symbol: str</em><span class="sig-paren">)</span> &#x2192; tuple<a class="reference internal" href="_modules/pymatgen/core/structure.html#SiteCollection.indices_from_symbol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.indices_from_symbol" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a tuple with the sequential indices of the sites
 that contain an element with the given chemical symbol.</p>
 </dd></dl>
@@ -1667,7 +1667,7 @@ of the sites.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.structure.SiteCollection.is_valid">
-<code class="descname">is_valid</code><span class="sig-paren">(</span><em>tol=0.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#SiteCollection.is_valid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.is_valid" title="Permalink to this definition">¶</a></dt>
+<code class="descname">is_valid</code><span class="sig-paren">(</span><em>tol: float = 0.5</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/pymatgen/core/structure.html#SiteCollection.is_valid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.is_valid" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if SiteCollection does not contain atoms that are too close
 together. Note that the distance definition is based on type of
 SiteCollection. Cartesian distances are used for non-periodic
@@ -1740,7 +1740,7 @@ Note that len(symbol_set) == len(types_of_specie)</p>
 
 <dl class="method">
 <dt id="pymatgen.core.structure.SiteCollection.to">
-<code class="descname">to</code><span class="sig-paren">(</span><em>fmt=None</em>, <em>filename=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#SiteCollection.to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.to" title="Permalink to this definition">¶</a></dt>
+<code class="descname">to</code><span class="sig-paren">(</span><em>fmt: str = None</em>, <em>filename: str = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#SiteCollection.to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.to" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates well-known string representations of SiteCollections (e.g.,
 molecules / structures). Should return a string type or write to a file.</p>
 </dd></dl>
@@ -1756,7 +1756,7 @@ Disordered structures will raise TypeError.</p>
 
 <dl class="class">
 <dt id="pymatgen.core.structure.Structure">
-<em class="property">class </em><code class="descname">Structure</code><span class="sig-paren">(</span><em>lattice</em>, <em>species</em>, <em>coords</em>, <em>charge=None</em>, <em>validate_proximity=False</em>, <em>to_unit_cell=False</em>, <em>coords_are_cartesian=False</em>, <em>site_properties=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#Structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">Structure</code><span class="sig-paren">(</span><em>lattice: pymatgen.core.lattice.Lattice</em>, <em>species: list</em>, <em>coords: list</em>, <em>charge: float = None</em>, <em>validate_proximity: bool = False</em>, <em>to_unit_cell: bool = False</em>, <em>coords_are_cartesian: bool = False</em>, <em>site_properties: dict = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#Structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.core.structure.IStructure" title="pymatgen.core.structure.IStructure"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.structure.IStructure</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.MutableSequence</span></code></p>
 <p>Mutable version of structure.</p>
 <p>Create a periodic structure.</p>
@@ -2220,10 +2220,16 @@ and angles are preserved.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.structure.Structure.set_charge">
-<code class="descname">set_charge</code><span class="sig-paren">(</span><em>new_charge=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#Structure.set_charge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.set_charge" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets the overall structure charge
-:param charge: new charge to set
-:type charge: float</p>
+<code class="descname">set_charge</code><span class="sig-paren">(</span><em>new_charge: float = 0.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#Structure.set_charge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.set_charge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the overall structure charge</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_charge</strong> (<em>float</em>) – new charge to set</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -2361,7 +2367,7 @@ Raised when the structure has problems, e.g., atoms that are too close.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
       </ul>
     </div>
 

@@ -6,7 +6,7 @@ jobs:
       - image: materialsvirtuallab/circle-ci-pmg-py3:0.0.2
         environment:
           PMG_MAPI_ENDPOINT: https://zola.lbl.gov/rest/v2
-    parallelism: 4
+    # parallelism: 4
     steps:
       - checkout
       - restore_cache: # restores saved dependency cache if the Branch key template or requirements.txt files have not changed since the previous run
@@ -49,7 +49,7 @@ jobs:
             echo "NOSE_EXCLUDE_TESTS=$NOSE_EXCLUDE_TESTS"
             source activate test_env
             pip install --quiet -e .
-            nosetests --config=nose.cfg --processes=4 --process-timeout=600 --cover-html --cover-html-dir=coverage_reports --with-timer --timer-top-n 30
+            nosetests --config=nose.cfg --cover-html --cover-html-dir=coverage_reports --with-timer --timer-top-n 30
             # Command line tests
             pmg structure --convert --filenames test_files/Li2O.cif POSCAR.pmg
             pmg structure --convert --filenames POSCAR.pmg pmg.cif

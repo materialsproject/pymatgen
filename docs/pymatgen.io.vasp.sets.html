@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.sets module &#8212; pymatgen 2019.2.4 documentation</title>
+    <title>pymatgen.io.vasp.sets module &#8212; pymatgen 2019.2.28 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -76,7 +76,7 @@ there are no settings, VASP’s default of 0.6 is used.</li>
 <li><strong>config_dict</strong> (<em>dict</em>) – The config dictionary to use.</li>
 <li><strong>files_to_transfer</strong> (<em>dict</em>) – A dictionary of {filename: filepath}. This
 allows the transfer of files from a previous calculation.</li>
-<li><strong>user_incar_settings</strong> (<em>dict</em>) – User INCAR settings. This allows a user
+<li><strong>user_incar_settings</strong> (<em>dict</em>) – <p>User INCAR settings. This allows a user
 to override INCAR settings, e.g., setting a different MAGMOM for
 various elements or species. Note that in the new scheme,
 ediff_per_atom and hubbard_u are no longer args. Instead, the
@@ -89,7 +89,10 @@ pymatgen defines different values depending on what anions are
 present in the structure, so these keys can be defined in one
 of two ways, e.g. either {“LDAUU”:{“O”:{“Fe”:5}}} to set LDAUU
 for Fe to 5 in an oxide, or {“LDAUU”:{“Fe”:5}} to set LDAUU to
-5 regardless of the input structure.</li>
+5 regardless of the input structure.</p>
+<p>If a None value is given, that key is unset. For example,
+{“ENCUT”: None} will remove ENCUT from the incar settings.</p>
+</li>
 <li><strong>user_kpoints_settings</strong> (<em>dict</em><em> or </em><a class="reference internal" href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Kpoints" title="pymatgen.io.vasp.inputs.Kpoints"><em>Kpoints</em></a>) – Allow user to override kpoints
 setting by supplying a dict E.g., {“reciprocal_density”: 1000}.
 User can also supply Kpoints object. Default is None.</li>
@@ -1228,7 +1231,7 @@ Vasp input files, e.g. get_kpoints.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
       </ul>
     </div>
 

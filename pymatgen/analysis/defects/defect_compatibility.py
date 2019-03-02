@@ -152,7 +152,8 @@ class DefectCompatibility(MSONable):
     def perform_all_corrections(self, defect_entry):
 
         # consider running freysoldt correction
-        required_frey_params = ["axis_grid", "bulk_planar_averages", "defect_planar_averages", "dielectric"]
+        required_frey_params = ["axis_grid", "initial_defect_structure", "bulk_planar_averages",
+                                "defect_planar_averages", "dielectric"]
         run_freysoldt = True if len( set(defect_entry.parameters.keys()).intersection(required_frey_params)) \
                                 == len(required_frey_params) else False
         if not run_freysoldt:

@@ -66,16 +66,16 @@ class SiteCollection(collections.Sequence, metaclass=ABCMeta):
         return
 
     @abstractmethod
-    def get_distance(self, i, j):
+    def get_distance(self, i: int, j: int) -> float:
         """
         Returns distance between sites at index i and j.
 
         Args:
-            i (int): Index of first site
-            j (int): Index of second site
+            i: Index of first site
+            j: Index of second site
 
         Returns:
-            (float) Distance between sites at index i and index j.
+            Distance between sites at index i and index j.
         """
         return
 
@@ -137,7 +137,7 @@ to build an appropriate supercell from partial occupancies.""")
                 if site.specie == t:
                     yield site
 
-    def indices_from_symbol(self, symbol):
+    def indices_from_symbol(self, symbol: str) -> tuple:
         """
         Returns a tuple with the sequential indices of the sites
         that contain an element with the given chemical symbol.
@@ -242,34 +242,34 @@ to build an appropriate supercell from partial occupancies.""")
         """
         return all((site.is_ordered for site in self))
 
-    def get_angle(self, i, j, k):
+    def get_angle(self, i: int, j: int, k: int) -> float:
         """
         Returns angle specified by three sites.
 
         Args:
-            i (int): Index of first site.
-            j (int): Index of second site.
-            k (int): Index of third site.
+            i: Index of first site.
+            j: Index of second site.
+            k: Index of third site.
 
         Returns:
-            (float) Angle in degrees.
+            Angle in degrees.
         """
         v1 = self[i].coords - self[j].coords
         v2 = self[k].coords - self[j].coords
         return get_angle(v1, v2, units="degrees")
 
-    def get_dihedral(self, i, j, k, l):
+    def get_dihedral(self, i: int, j: int, k: int, l: int) -> float:
         """
         Returns dihedral angle specified by four sites.
 
         Args:
-            i (int): Index of first site
-            j (int): Index of second site
-            k (int): Index of third site
-            l (int): Index of fourth site
+            i: Index of first site
+            j: Index of second site
+            k: Index of third site
+            l: Index of fourth site
 
         Returns:
-            (float) Dihedral angle in degrees.
+            Dihedral angle in degrees.
         """
         v1 = self[k].coords - self[l].coords
         v2 = self[j].coords - self[k].coords
@@ -279,7 +279,7 @@ to build an appropriate supercell from partial occupancies.""")
         return math.degrees(math.atan2(np.linalg.norm(v2) * np.dot(v1, v23),
                                        np.dot(v12, v23)))
 
-    def is_valid(self, tol=DISTANCE_TOLERANCE):
+    def is_valid(self, tol: float = DISTANCE_TOLERANCE) -> bool:
         """
         True if SiteCollection does not contain atoms that are too close
         together. Note that the distance definition is based on type of
@@ -299,7 +299,7 @@ to build an appropriate supercell from partial occupancies.""")
         return bool(np.min(all_dists) > tol)
 
     @abstractmethod
-    def to(self, fmt=None, filename=None):
+    def to(self, fmt: str = None, filename: str = None):
         """
         Generates well-known string representations of SiteCollections (e.g.,
         molecules / structures). Should return a string type or write to a file.
@@ -308,7 +308,7 @@ to build an appropriate supercell from partial occupancies.""")
 
     @classmethod
     @abstractmethod
-    def from_str(cls, input_string, fmt):
+    def from_str(cls, input_string: str, fmt: str):
         """
         Reads in SiteCollection from a string.
         """
@@ -316,7 +316,7 @@ to build an appropriate supercell from partial occupancies.""")
 
     @classmethod
     @abstractmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename: str):
         """
         Reads in SiteCollection from a filename.
         """
@@ -334,9 +334,11 @@ class IStructure(SiteCollection, MSONable):
     structure is equivalent to going through the sites in sequence.
     """
 
-    def __init__(self, lattice, species, coords, charge=None,
-                 validate_proximity=False, to_unit_cell=False,
-                 coords_are_cartesian=False, site_properties=None):
+    def __init__(self, lattice: Lattice, species: list, coords: list,
+                 charge: float = None, validate_proximity: bool = False,
+                 to_unit_cell: bool = False,
+                 coords_are_cartesian: bool = False,
+                 site_properties: dict = None):
         """
         Create a periodic structure.
 
@@ -1667,6 +1669,7 @@ class IStructure(SiteCollection, MSONable):
         Returns:
             Structure.
         """
+        filename = str(filename)
         if filename.endswith(".nc"):
             # Read Structure from a netcdf file.
             from pymatgen.io.abinit.netcdf import structure_from_ncdata
@@ -1744,9 +1747,10 @@ class IMolecule(SiteCollection, MSONable):
     equivalent to going through the sites in sequence.
     """
 
-    def __init__(self, species, coords, charge=0,
-                 spin_multiplicity=None, validate_proximity=False,
-                 site_properties=None):
+    def __init__(self, species: list, coords: list, charge: float = 0,
+                 spin_multiplicity: float = None,
+                 validate_proximity: bool = False,
+                 site_properties: dict = None):
         """
         Creates a Molecule.
 
@@ -1789,7 +1793,8 @@ class IMolecule(SiteCollection, MSONable):
         nelectrons = 0
         for site in sites:
             for sp, amt in site.species_and_occu.items():
-                nelectrons += sp.Z * amt
+                if not isinstance(sp, DummySpecie):
+                    nelectrons += sp.Z * amt
         nelectrons -= charge
         self._nelectrons = nelectrons
         if spin_multiplicity:
@@ -1996,23 +2001,10 @@ class IMolecule(SiteCollection, MSONable):
         Returns:
             Molecule object
         """
-        species = []
-        coords = []
-        props = collections.defaultdict(list)
-
-        for site_dict in d["sites"]:
-            species.append({Specie(sp["element"], sp["oxidation_state"])
-                            if "oxidation_state" in sp else
-                            Element(sp["element"]): sp["occu"]
-                            for sp in site_dict["species"]})
-            coords.append(site_dict["xyz"])
-            siteprops = site_dict.get("properties", {})
-            for k, v in siteprops.items():
-                props[k].append(v)
-
-        return cls(species, coords, charge=d.get("charge", 0),
-                   spin_multiplicity=d.get("spin_multiplicity"),
-                   site_properties=props)
+        sites = [Site.from_dict(sd) for sd in d["sites"]]
+        charge = d.get("charge", 0)
+        spin_multiplicity = d.get("spin_multiplicity")
+        return cls.from_sites(sites, charge=charge, spin_multiplicity=spin_multiplicity)
 
     def get_distance(self, i, j):
         """
@@ -2292,6 +2284,7 @@ class IMolecule(SiteCollection, MSONable):
         Returns:
             Molecule
         """
+        filename = str(filename)
         from pymatgen.io.gaussian import GaussianOutput
         with zopen(filename) as f:
             contents = f.read()
@@ -2354,9 +2347,11 @@ class Structure(IStructure, collections.MutableSequence):
     """
     __hash__ = None
 
-    def __init__(self, lattice, species, coords, charge=None,
-                 validate_proximity=False, to_unit_cell=False,
-                 coords_are_cartesian=False, site_properties=None):
+    def __init__(self, lattice: Lattice, species: list, coords: np.ndarray,
+                 charge: float = None, validate_proximity: bool = False,
+                 to_unit_cell: bool = False,
+                 coords_are_cartesian: bool = False,
+                 site_properties: dict = None):
         """
         Create a periodic structure.
 
@@ -3159,7 +3154,7 @@ class Structure(IStructure, collections.MutableSequence):
                 if mode == "s":
                     species += sp
                 offset = self[i].frac_coords - coords
-                coords += ((offset - np.round(offset)) / (n + 2)).astype(
+                coords = coords + ((offset - np.round(offset)) / (n + 2)).astype(
                     coords.dtype)
                 for key in props.keys():
                     if props[key] is not None and self[i].properties[key] != props[key]:
@@ -3170,11 +3165,12 @@ class Structure(IStructure, collections.MutableSequence):
 
         self._sites = sites
 
-    def set_charge(self, new_charge=0.):
+    def set_charge(self, new_charge: float = 0.):
         """
         Sets the overall structure charge
+
         Args:
-            charge (float): new charge to set
+            new_charge (float): new charge to set
         """
         self._charge = new_charge
 
@@ -3186,9 +3182,10 @@ class Molecule(IMolecule, collections.MutableSequence):
     """
     __hash__ = None
 
-    def __init__(self, species, coords, charge=0,
-                 spin_multiplicity=None, validate_proximity=False,
-                 site_properties=None):
+    def __init__(self, species: list, coords: list, charge: float = 0,
+                 spin_multiplicity: float = None,
+                 validate_proximity: bool = False,
+                 site_properties: dict = None):
         """
         Creates a MutableMolecule.
 

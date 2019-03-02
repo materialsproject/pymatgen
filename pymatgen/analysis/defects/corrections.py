@@ -81,8 +81,8 @@ class FreysoldtCorrection(DefectCorrection):
                         A list of 3 numpy arrays which contain the planar averaged
                         electrostatic potential for the defective supercell.
 
-                    bulk_sc_structure (Structure) bulk structure corresponding to
-                        defect supercell structure (uses Lattice for charge correction)
+                    initial_defect_structure (Structure) structure corresponding to
+                        initial defect supercell structure (uses Lattice for charge correction)
 
                     defect_frac_sc_coords (3 x 1 array) Fracitional co-ordinates of
                         defect location in supercell structure
@@ -103,7 +103,7 @@ class FreysoldtCorrection(DefectCorrection):
                 list_bulk_plnr_avg_esp.append(np.array(entry.parameters["bulk_planar_averages"][ax]))
                 list_defect_plnr_avg_esp.append(np.array(entry.parameters["defect_planar_averages"][ax]))
 
-        lattice = entry.parameters["bulk_sc_structure"].lattice.copy()
+        lattice = entry.parameters["initial_defect_structure"].lattice.copy()
         defect_frac_coords = entry.parameters["defect_frac_sc_coords"]
 
         q = entry.defect.charge
@@ -116,7 +116,6 @@ class FreysoldtCorrection(DefectCorrection):
                                             list_axes):
             tmp_pot_corr = self.perform_pot_corr(
                 x, pureavg, defavg, lattice, entry.charge, defect_frac_coords,
-                # entry.site.coords,
                 axis, widthsample=1.0)
             pot_corr_tracker.append(tmp_pot_corr)
 
@@ -172,7 +171,6 @@ class FreysoldtCorrection(DefectCorrection):
                          q,
                          defect_frac_position,
                          axis,
-                         madetol=0.0001,
                          widthsample=1.0):
         """
         For performing planar averaging potential alignment
@@ -259,6 +257,8 @@ class FreysoldtCorrection(DefectCorrection):
         Plots the planar average electrostatic potential against the Long range and short range models from Freysoldt
 
         """
+        if not self.metadata["pot_plot_data"]:
+            raise ValueError("Cannot plot potential alignment before running correction!")
 
         x = self.metadata['pot_plot_data'][axis]['x']
         v_R = self.metadata['pot_plot_data'][axis]['Vr']
@@ -295,8 +295,9 @@ class KumagaiCorrection(DefectCorrection):
     """
     A class for KumagaiCorrection class. Largely adapated from PyCDT code
 
-    If this correction is used, please reference Kumagai and Oba's original paper.
+    If this correction is used, please reference Kumagai and Oba's original paper
     doi: 10.1103/PhysRevB.89.195205
+    as well as Freysoldt's original paper (doi: 10.1103/PhysRevLett.102.016402)
     NOTE that equations 8 and 9 from original reverence are divided by (4 pi) to get SI units
     """
 
@@ -315,7 +316,7 @@ class KumagaiCorrection(DefectCorrection):
                 gamma (float): convergence parameter for gamma function.
                     Code will automatically determine this if set to None.
         """
-        self.metadata = {"gamma": gamma, "sampling_radius": sampling_radius}
+        self.metadata = {"gamma": gamma, "sampling_radius": sampling_radius, "potalign": None}
 
         if isinstance(dielectric_tensor, int) or \
                 isinstance(dielectric_tensor, float):
@@ -485,6 +486,7 @@ class KumagaiCorrection(DefectCorrection):
                         " Assigning potential alignment value of 0.")
             pot_alignment = 0.
 
+        self.metadata["potalign"] = pot_alignment
         pot_corr = -q * pot_alignment
 
         # log uncertainty stats:
@@ -542,6 +544,71 @@ class KumagaiCorrection(DefectCorrection):
     def get_potential_shift(self, gamma, volume):
         return - 0.25 / (volume * gamma**2.)
 
+    def plot(self, title=None, saved=False):
+        """
+        Plots the AtomicSite electrostatic potential against the Long range and short range models
+        from Kumagai and Oba
+
+        """
+        if "pot_plot_data" not in self.metadata.keys():
+            raise ValueError("Cannot plot potential alignment before running correction!")
+
+        sampling_radius = self.metadata["sampling_radius"]
+        site_dict = self.metadata["pot_plot_data"]
+        potalign = self.metadata["potalign"]
+
+        plt.figure()
+        plt.clf()
+
+        distances, sample_region = [], []
+        Vqb_list, Vpc_list, diff_list = [], [], []
+        for site_ind, site_dict in site_dict.items():
+            dist = site_dict["dist_to_defect"]
+            distances.append(dist)
+
+            Vqb = site_dict["Vqb"]
+            Vpc = site_dict["Vpc"]
+
+            Vqb_list.append(Vqb)
+            Vpc_list.append(Vpc)
+            diff_list.append(Vqb - Vpc)
+
+            if dist > sampling_radius:
+                sample_region.append(Vqb - Vpc)
+
+        plt.plot(distances, Vqb_list,
+                 color='r', marker='^', linestyle='None',
+                 label='$V_{q/b}$')
+
+        plt.plot(distances, Vpc_list,
+                 color='g', marker='o', linestyle='None',
+                 label='$V_{pc}$')
+
+        plt.plot(distances, diff_list, color='b', marker='x', linestyle='None',
+                 label='$V_{q/b}$ - $V_{pc}$')
+
+        x = np.arange(sampling_radius, max(distances) * 1.05, 0.01)
+        y_max = max(max(Vqb_list), max(Vpc_list), max(diff_list)) + .1
+        y_min = min(min(Vqb_list), min(Vpc_list), min(diff_list)) - .1
+        plt.fill_between(x, y_min, y_max, facecolor='red',
+                         alpha=0.15, label='sampling region')
+        plt.axhline(y=potalign, linewidth=0.5, color='red',
+                    label='pot. align. / -q')
+
+        plt.legend(loc=0)
+        plt.axhline(y=0, linewidth=0.2, color='black')
+
+        plt.ylim([y_min, y_max])
+        plt.xlim([0, max(distances) * 1.1])
+
+        plt.xlabel('Distance from defect ($\AA$)', fontsize=20)
+        plt.ylabel('Potential (V)', fontsize=20)
+        plt.title(str(title) + " atomic site potential plot", fontsize=20)
+
+        if saved:
+            plt.savefig(str(title) + "KumagaiESPavgPlot.pdf")
+        else:
+            return plt
 
 class BandFillingCorrection(DefectCorrection):
     """

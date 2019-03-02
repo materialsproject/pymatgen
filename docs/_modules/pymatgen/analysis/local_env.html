@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.local_env &#8212; pymatgen 2019.2.4 documentation</title>
+    <title>pymatgen.analysis.local_env &#8212; pymatgen 2019.2.28 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -35,7 +35,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.2.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.2.28 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -530,17 +530,25 @@
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">all_sites</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_get_image</span><span class="p">(</span><span class="n">frac_coords</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_get_image</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">site</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Private convenience method for get_nn_info,</span>
-<span class="sd">        gives lattice image from provided PeriodicSite.</span>
+<span class="sd">        gives lattice image from provided PeriodicSite and Structure.</span>
+
+<span class="sd">        Image is defined as displacement from original site in structure to a given site.</span>
+<span class="sd">        i.e. if structure has a site at (-0.1, 1.0, 0.3), then (0.9, 0, 2.3) -&gt; jimage = (1, -1, 2).</span>
+<span class="sd">        Note that this method takes O(number of sites) due to searching an original site.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            frac_coords ([float]*3): Fraction coordinates</span>
+<span class="sd">            structure: Structure Object</span>
+<span class="sd">            site: PeriodicSite Object</span>
+
 <span class="sd">        Returns:</span>
-<span class="sd">            ((int)*3) Lattice image</span>
+<span class="sd">            image: ((int)*3) Lattice image</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># TODO: This is not numerically stable. Also, move to PeriodicSite? -WardLT, 23Jun18</span>
-        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">frac_coords</span><span class="p">)))</span>
+        <span class="n">original_site</span> <span class="o">=</span> <span class="n">structure</span><span class="p">[</span><span class="n">NearNeighbors</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">site</span><span class="p">)]</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">original_site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">))</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">image</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">site</span><span class="p">):</span>
@@ -1005,7 +1013,7 @@
             <span class="k">if</span> <span class="n">nstats</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span> <span class="o">*</span> <span class="n">max_weight</span> \
                     <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_in_targets</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">targets</span><span class="p">):</span>
                 <span class="n">nn_info</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">site</span><span class="p">,</span>
-                           <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">),</span>
+                           <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">site</span><span class="p">),</span>
                            <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">nstats</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="p">]</span> <span class="o">/</span> <span class="n">max_weight</span><span class="p">,</span>
                            <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span>
                                <span class="n">structure</span><span class="p">,</span> <span class="n">site</span><span class="p">)}</span>
@@ -1121,7 +1129,7 @@
             <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="n">bonds</span><span class="p">[(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">neighb</span><span class="o">.</span><span class="n">specie</span><span class="p">)])</span> <span class="ow">and</span> <span class="p">(</span><span class="n">dist</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_bond_distance</span><span class="p">):</span>
                 <span class="n">weight</span> <span class="o">=</span> <span class="n">min_rad</span> <span class="o">/</span> <span class="n">dist</span>
                 <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">neighb</span><span class="p">,</span>
-                            <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">neighb</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">),</span>
+                            <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">neighb</span><span class="p">),</span>
                             <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">weight</span><span class="p">,</span>
                             <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">neighb</span><span class="p">)})</span>
         <span class="k">return</span> <span class="n">siw</span></div></div>
@@ -1171,7 +1179,7 @@
             <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">)</span> <span class="o">*</span> <span class="n">min_dist</span><span class="p">:</span>
                 <span class="n">w</span> <span class="o">=</span> <span class="n">min_dist</span> <span class="o">/</span> <span class="n">dist</span>
                 <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span>
-                            <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">),</span>
+                            <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">s</span><span class="p">),</span>
                             <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">w</span><span class="p">,</span>
                             <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">s</span><span class="p">)})</span>
         <span class="k">return</span> <span class="n">siw</span></div></div>
@@ -1500,7 +1508,7 @@
             <span class="k">if</span> <span class="n">reldist</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">)</span> <span class="o">*</span> <span class="n">min_reldist</span><span class="p">:</span>
                 <span class="n">w</span> <span class="o">=</span> <span class="n">min_reldist</span> <span class="o">/</span> <span class="n">reldist</span>
                 <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span>
-                            <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">),</span>
+                            <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">s</span><span class="p">),</span>
                             <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">w</span><span class="p">,</span>
                             <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">s</span><span class="p">)})</span>
 
@@ -1559,7 +1567,7 @@
             <span class="k">if</span> <span class="n">reldist</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">)</span> <span class="o">*</span> <span class="n">min_reldist</span><span class="p">:</span>
                 <span class="n">w</span> <span class="o">=</span> <span class="n">min_reldist</span> <span class="o">/</span> <span class="n">reldist</span>
                 <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span>
-                            <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">),</span>
+                            <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">vire</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">s</span><span class="p">),</span>
                             <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">w</span><span class="p">,</span>
                             <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">vire</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">s</span><span class="p">)})</span>
 
@@ -2984,7 +2992,7 @@
             <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="n">d_max</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">:</span>
                 <span class="n">w</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">dist</span>
                 <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span>
-                            <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">),</span>
+                            <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">s</span><span class="p">),</span>
                             <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">w</span><span class="p">,</span>
                             <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">s</span><span class="p">)})</span>
         <span class="k">return</span> <span class="n">siw</span></div></div>
@@ -3023,7 +3031,7 @@
             <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="n">d_max</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">:</span>
                 <span class="n">w</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">dist</span>
                 <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span>
-                            <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">),</span>
+                            <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">s</span><span class="p">),</span>
                             <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">w</span><span class="p">,</span>
                             <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">s</span><span class="p">)})</span>
         <span class="k">return</span> <span class="n">siw</span></div></div>
@@ -3062,7 +3070,7 @@
             <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="n">d_max</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">:</span>
                 <span class="n">w</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">dist</span>
                 <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span>
-                            <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">),</span>
+                            <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">s</span><span class="p">),</span>
                             <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">w</span><span class="p">,</span>
                             <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">s</span><span class="p">)})</span>
         <span class="k">return</span> <span class="n">siw</span></div></div>
@@ -3103,7 +3111,7 @@
                 <span class="n">w</span> <span class="o">=</span> <span class="n">exp</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">dist</span> <span class="o">/</span> <span class="n">weighted_avg</span><span class="p">)</span><span class="o">**</span><span class="mi">6</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">w</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">:</span>
                     <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span>
-                                <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">),</span>
+                                <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">s</span><span class="p">),</span>
                                 <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">w</span><span class="p">,</span>
                                 <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">s</span><span class="p">)})</span>
         <span class="k">return</span> <span class="n">siw</span></div></div>
@@ -3578,7 +3586,7 @@
 
                 <span class="n">nn_info</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
                     <span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">n_site</span><span class="p">,</span>
-                    <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">n_site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">),</span>
+                    <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n_site</span><span class="p">),</span>
                     <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">dist</span><span class="p">,</span>
                     <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n_site</span><span class="p">)</span>
                 <span class="p">})</span>
@@ -3671,7 +3679,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.2.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.2.28 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

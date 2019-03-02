@@ -13,6 +13,9 @@ from pymatgen.electronic_structure.dos import FermiDos
 from pymatgen.analysis.defects.core import DefectEntry
 from pymatgen.analysis.structure_matcher import PointDefectComparator
 
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+
 __author__ = "Danny Broberg, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "1.0"
@@ -62,6 +65,13 @@ class DefectPhaseDiagram(MSONable):
             self.entries = [e for e in entries if e.parameters.get("is_compatible", True)]
         else:
             self.entries = entries
+
+        for ent_ind, ent in enumerate(self.entries):
+            if 'vbm' not in ent.parameters.keys() or ent.parameters['vbm'] != vbm:
+                # print("Entry did not have vbm equal to DefectPhaseDiagram value. Manually overriding.")
+                new_ent = ent.copy()
+                new_ent.parameters['vbm'] = vbm
+                self.entries[ent_ind] = new_ent
 
         self.metadata = metadata
         self.find_stable_charges()
@@ -403,3 +413,169 @@ class DefectPhaseDiagram(MSONable):
             return qd_tot
 
         return bisect(_get_total_q, -1., self.band_gap + 1.)
+
+    def plot(self, mu_elts, xlim=None, ylim=None, ax_fontsize=1.3, lg_fontsize=1.,
+             lg_position=None, fermi_level = None, title=None, saved=False):
+        """
+        Produce efect Formation energy vs Fermi energy plot
+        Args:
+            mu_elts:
+                a dictionnary of {Element:value} giving the chemical
+                potential of each element
+            xlim:
+                Tuple (min,max) giving the range of the x (fermi energy) axis
+            ylim:
+                Tuple (min,max) giving the range for the formation energy axis
+            ax_fontsize:
+                float  multiplier to change axis label fontsize
+            lg_fontsize:
+                float  multiplier to change legend label fontsize
+            lg_position:
+                Tuple (horizontal-position, vertical-position) giving the position
+                to place the legend.
+                Example: (0.5,-0.75) will likely put it below the x-axis.
+            saved:
+
+
+        Returns:
+            a matplotlib object
+
+        """
+        if xlim is None:
+            xlim = (-0.5, self.band_gap+0.5)
+        xy = {}
+        lower_cap = -100.
+        upper_cap = 100.
+        y_range_vals = [] # for finding max/min values on y-axis based on x-limits
+        for defnom, def_tl in self.transition_level_map.items():
+            xy[defnom] = [[],[]]
+            if def_tl:
+                org_x = list(def_tl.keys())  # list of transition levels
+                org_x.sort()  # sorted with lowest first
+
+                #establish lower x-bound
+                first_charge = max(def_tl[org_x[0]])
+                for chg_ent in self.stable_entries[defnom]:
+                    if chg_ent.charge == first_charge:
+                        form_en = chg_ent.formation_energy(chemical_potentials=mu_elts,
+                                                           fermi_level=lower_cap)
+                        fe_left = chg_ent.formation_energy(chemical_potentials=mu_elts,
+                                                           fermi_level=xlim[0])
+
+                xy[defnom][0].append(lower_cap)
+                xy[defnom][1].append(form_en)
+                y_range_vals.append( fe_left)
+
+                #iterate over stable charge state transitions
+                for fl in org_x:
+                    charge = max(def_tl[fl])
+                    for chg_ent in self.stable_entries[defnom]:
+                        if chg_ent.charge == charge:
+                            form_en = chg_ent.formation_energy(chemical_potentials=mu_elts,
+                                                               fermi_level=fl)
+                    xy[defnom][0].append(fl)
+                    xy[defnom][1].append(form_en)
+                    y_range_vals.append( form_en)
+
+                #establish upper x-bound
+                last_charge = min(def_tl[org_x[-1]])
+                for chg_ent in self.stable_entries[defnom]:
+                    if chg_ent.charge == last_charge:
+                        form_en = chg_ent.formation_energy(chemical_potentials=mu_elts,
+                                                           fermi_level=upper_cap)
+                        fe_right = chg_ent.formation_energy(chemical_potentials=mu_elts,
+                                                            fermi_level=xlim[1])
+                xy[defnom][0].append(upper_cap)
+                xy[defnom][1].append(form_en)
+                y_range_vals.append( fe_right)
+            else:
+                #no transition - just one stable charge
+                chg_ent = self.stable_entries[defnom][0]
+                for x_extrem in [lower_cap, upper_cap]:
+                    xy[defnom][0].append( x_extrem)
+                    xy[defnom][1].append( chg_ent.formation_energy(chemical_potentials=mu_elts,
+                                                                   fermi_level=x_extrem)
+                                          )
+                for x_window in xlim:
+                    y_range_vals.append( chg_ent.formation_energy(chemical_potentials=mu_elts,
+                                                                   fermi_level=x_window)
+                                          )
+
+        if ylim is None:
+            window = max(y_range_vals) - min(y_range_vals)
+            spacer = 0.1 * window
+            ylim = (min(y_range_vals) - spacer, max(y_range_vals) + spacer)
+
+        if len(xy) <= 8:
+            colors=cm.Dark2(np.linspace(0, 1, len(xy)))
+        else:
+            colors=cm.gist_rainbow(np.linspace(0, 1, len(xy)))
+
+        plt.figure()
+        plt.clf()
+        width, height = 12, 8
+        #plot formation energy lines
+        for_legend = []
+        for cnt, defnom in enumerate(xy.keys()):
+            plt.plot(xy[defnom][0], xy[defnom][1], linewidth=3, color=colors[cnt])
+            for_legend.append( self.stable_entries[defnom][0].copy())
+
+        #plot transtition levels
+        for cnt, defnom in enumerate(xy.keys()):
+            x_trans, y_trans = [], []
+            for x_val, chargeset in self.transition_level_map[defnom].items():
+                x_trans.append( x_val)
+                for chg_ent in self.stable_entries[defnom]:
+                    if chg_ent.charge == chargeset[0]:
+                        form_en = chg_ent.formation_energy(chemical_potentials=mu_elts,
+                                                           fermi_level=x_val)
+                y_trans.append( form_en)
+            if len(x_trans):
+                plt.plot(x_trans, y_trans,  marker='*', color=colors[cnt], markersize=12, fillstyle='full')
+
+        #get latex-like legend titles
+        legends_txt = []
+        for dfct in for_legend:
+            flds = dfct.name.split('_')
+            if 'Vac' == flds[0]:
+                base = '$Vac'
+                sub_str = '_{'+flds[1]+'}$'
+            elif 'Sub' == flds[0]:
+                flds = dfct.name.split('_')
+                base = '$'+flds[1]
+                sub_str = '_{'+flds[3]+'}$'
+            elif 'Int' == flds[0]:
+                base = '$'+flds[1]
+                sub_str = '_{inter}$'
+            else:
+                base = dfct.name
+                sub_str = ''
+
+            legends_txt.append( base + sub_str)
+
+        if not lg_position:
+            plt.legend(legends_txt, fontsize=lg_fontsize*width, loc=0)
+        else:
+            plt.legend(legends_txt, fontsize=lg_fontsize*width, ncol=3,
+                       loc='lower center', bbox_to_anchor=lg_position)
+
+        plt.ylim(ylim)
+        plt.xlim(xlim)
+
+        plt.plot([xlim[0], xlim[1]], [0, 0], 'k-')  # black dashed line for Eformation = 0
+        plt.axvline(x=0.0, linestyle='--', color='k', linewidth=3) # black dashed lines for gap edges
+        plt.axvline(x=self.band_gap, linestyle='--', color='k',
+                    linewidth=3)
+
+        if fermi_level is not None:
+            plt.axvline(x=fermi_level, linestyle='-.', color='k', linewidth=2) # smaller dashed lines for gap edges
+
+        plt.xlabel("Fermi energy (eV)", size=ax_fontsize*width)
+        plt.ylabel("Defect Formation\nEnergy (eV)", size=ax_fontsize*width)
+        if title:
+            plt.title("{}".format(title), size=ax_fontsize*width)
+
+        if saved:
+            plt.savefig(str(title) + "FreyplnravgPlot.pdf")
+        else:
+            return plt

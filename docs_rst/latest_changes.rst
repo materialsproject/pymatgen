@@ -1,8 +1,8 @@
 Change log
 ==========
 
-v2019.2.4
----------
-* New Trajectory class for MD simulations (@sivonxay)
-* Lattice.get_vector_along_lattice_directions (@blondgeek)
+v2019.2.28
+----------
+* Type hints now available for core classes.
+* New pymatgen.util.typing module for useful types.
 * Misc bug fixes.

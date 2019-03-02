@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.ext.matproj module &#8212; pymatgen 2019.2.4 documentation</title>
+    <title>pymatgen.ext.matproj module &#8212; pymatgen 2019.2.28 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -67,12 +67,8 @@ manager to ensure that sessions are properly closed after usage:</p>
 </div>
 <p>MPRester uses the “requests” package, which provides for HTTP connection
 pooling. All connections are made via https for security.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The Materials Project recently switched to using string ids with a
-“mp-” prefix for greater flexibility going forward. The MPRester
-should still work as intended if you provide the proper string ids.</p>
-</div>
+<p>For more advanced uses of the Materials API, please consult the API
+documentation at <a class="reference external" href="https://github.com/materialsproject/mapidoc">https://github.com/materialsproject/mapidoc</a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -153,6 +149,8 @@ Materials Project substrate database</p>
 <dt id="pymatgen.ext.matproj.MPRester.get_bandstructure_by_material_id">
 <code class="descname">get_bandstructure_by_material_id</code><span class="sig-paren">(</span><em>material_id</em>, <em>line_mode=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_bandstructure_by_material_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_bandstructure_by_material_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a BandStructure corresponding to a material_id.</p>
+<p>REST Endpoint: <a class="reference external" href="https://www.materialsproject.org/rest/v2/materials">https://www.materialsproject.org/rest/v2/materials</a>/&lt;mp-id&gt;/vasp/bandstructure or
+<a class="reference external" href="https://www.materialsproject.org/rest/v2/materials">https://www.materialsproject.org/rest/v2/materials</a>/&lt;mp-id&gt;/vasp/bandstructure_uniform</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -204,6 +202,9 @@ interface. Generally used by other methods for more specific queries.</p>
 <p>Format of REST return is <em>always</em> a list of dict (regardless of the
 number of pieces of data returned. The general format is as follows:</p>
 <p>[{“material_id”: material_id, “property_name” : value}, …]</p>
+<p>This is generally a call to
+<a class="reference external" href="https://www.materialsproject.org/rest/v2/materials/vasp">https://www.materialsproject.org/rest/v2/materials/vasp</a>/&lt;prop&gt;.
+See <a class="reference external" href="https://github.com/materialsproject/mapidoc">https://github.com/materialsproject/mapidoc</a> for details.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -227,6 +228,7 @@ general list of useful properties.</li>
 <dt id="pymatgen.ext.matproj.MPRester.get_doc">
 <code class="descname">get_doc</code><span class="sig-paren">(</span><em>materials_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_doc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_doc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the entire data document for one materials id. Use this judiciously.</p>
+<p>REST Endpoint: <a class="reference external" href="https://www.materialsproject.org/materials">https://www.materialsproject.org/materials</a>/&lt;mp-id&gt;/doc.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -244,6 +246,7 @@ details page.</td>
 <dt id="pymatgen.ext.matproj.MPRester.get_dos_by_material_id">
 <code class="descname">get_dos_by_material_id</code><span class="sig-paren">(</span><em>material_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_dos_by_material_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_dos_by_material_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a Dos corresponding to a material_id.</p>
+<p>REST Endpoint: <a class="reference external" href="https://www.materialsproject.org/rest/v2/materials">https://www.materialsproject.org/rest/v2/materials</a>/&lt;mp-id&gt;/vasp/dos</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1040,7 +1043,7 @@ assimilate. Defaults to None, which means serial.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
       </ul>
     </div>
 

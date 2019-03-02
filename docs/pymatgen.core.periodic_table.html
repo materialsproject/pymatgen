@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.periodic_table module &#8212; pymatgen 2019.2.4 documentation</title>
+    <title>pymatgen.core.periodic_table module &#8212; pymatgen 2019.2.28 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -48,7 +48,7 @@
 <span id="pymatgen-core-periodic-table-module"></span><h1>pymatgen.core.periodic_table module<a class="headerlink" href="#module-pymatgen.core.periodic_table" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.core.periodic_table.DummySpecie">
-<em class="property">class </em><code class="descname">DummySpecie</code><span class="sig-paren">(</span><em>symbol='X'</em>, <em>oxidation_state=0</em>, <em>properties=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#DummySpecie"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.DummySpecie" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">DummySpecie</code><span class="sig-paren">(</span><em>symbol: str = 'X'</em>, <em>oxidation_state: float = 0</em>, <em>properties: dict = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#DummySpecie"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.DummySpecie" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.periodic_table.Specie</span></code></a></p>
 <p>A special specie for representing non-traditional elements or species. For
 example, representation of vacancies (charged or otherwise), or special
@@ -127,7 +127,7 @@ to use atomic numbers for a Dummy specie.</p>
 
 <dl class="staticmethod">
 <dt id="pymatgen.core.periodic_table.DummySpecie.from_string">
-<em class="property">static </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>species_string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#DummySpecie.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.DummySpecie.from_string" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>species_string: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#DummySpecie.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.DummySpecie.from_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a Dummy from a string representation.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -152,7 +152,7 @@ species, e.g., “X2+”, “X3+”.</td>
 
 <dl class="classmethod">
 <dt id="pymatgen.core.periodic_table.DummySpecie.safe_from_composition">
-<em class="property">classmethod </em><code class="descname">safe_from_composition</code><span class="sig-paren">(</span><em>comp</em>, <em>oxidation_state=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#DummySpecie.safe_from_composition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.DummySpecie.safe_from_composition" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">safe_from_composition</code><span class="sig-paren">(</span><em>comp: Composition</em>, <em>oxidation_state: float = 0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#DummySpecie.safe_from_composition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.DummySpecie.safe_from_composition" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a DummySpecie object that can be safely used
 with (i.e. not present in) a given composition</p>
 </dd></dl>
@@ -166,7 +166,7 @@ with (i.e. not present in) a given composition</p>
 
 <dl class="class">
 <dt id="pymatgen.core.periodic_table.Element">
-<em class="property">class </em><code class="descname">Element</code><span class="sig-paren">(</span><em>symbol</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Element"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Element" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">Element</code><span class="sig-paren">(</span><em>symbol: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Element"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Element" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
 <p>Basic immutable element object with all relevant properties.
 Only one instance of Element for each symbol is stored after creation,
@@ -1298,7 +1298,7 @@ returns</p>
 
 <dl class="class">
 <dt id="pymatgen.core.periodic_table.Specie">
-<em class="property">class </em><code class="descname">Specie</code><span class="sig-paren">(</span><em>symbol</em>, <em>oxidation_state=None</em>, <em>properties=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Specie"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Specie" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">Specie</code><span class="sig-paren">(</span><em>symbol: str</em>, <em>oxidation_state: float = None</em>, <em>properties: dict = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Specie"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Specie" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>An extension of Element with an oxidation state and other optional
 properties. Properties associated with Specie should be “idealized”
@@ -1355,7 +1355,7 @@ Specie supported_properties.</li>
 
 <dl class="staticmethod">
 <dt id="pymatgen.core.periodic_table.Specie.from_string">
-<em class="property">static </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>species_string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Specie.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Specie.from_string" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>species_string: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Specie.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Specie.from_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a Specie from a string representation.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1374,7 +1374,7 @@ species, e.g., “Mn2+”, “Fe3+”, “O2-“.</td>
 
 <dl class="method">
 <dt id="pymatgen.core.periodic_table.Specie.get_crystal_field_spin">
-<code class="descname">get_crystal_field_spin</code><span class="sig-paren">(</span><em>coordination='oct'</em>, <em>spin_config='high'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Specie.get_crystal_field_spin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Specie.get_crystal_field_spin" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_crystal_field_spin</code><span class="sig-paren">(</span><em>coordination: str = 'oct'</em>, <em>spin_config: str = 'high'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Specie.get_crystal_field_spin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Specie.get_crystal_field_spin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the crystal field spin based on coordination and spin
 configuration. Only works for transition metal species.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1419,7 +1419,7 @@ default is None, which gets the lowest mass isotope</td>
 
 <dl class="method">
 <dt id="pymatgen.core.periodic_table.Specie.get_shannon_radius">
-<code class="descname">get_shannon_radius</code><span class="sig-paren">(</span><em>cn</em>, <em>spin=''</em>, <em>radius_type='ionic'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Specie.get_shannon_radius"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Specie.get_shannon_radius" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_shannon_radius</code><span class="sig-paren">(</span><em>cn: str</em>, <em>spin: str = ''</em>, <em>radius_type: str = 'ionic'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Specie.get_shannon_radius"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Specie.get_shannon_radius" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the local environment specific ionic radius for species.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1530,7 +1530,7 @@ that can be determined.</td>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
       </ul>
     </div>
 

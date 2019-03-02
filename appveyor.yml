@@ -19,14 +19,8 @@ install:
   # Add the paths
   - 'set PATH=%PYTHON%;%PYTHON%\Library\bin;%PYTHON%\Scripts;%PATH%'
   - 'set MPLBACKEND=Agg'
-  - 'set NOSE_EXCLUDE_TESTS="pymatgen.ext.tests.test_matproj.MPResterTest;pymatgen.analysis.tests.test_pourbaix_diagram.PourbaixDiagramTest;pymatgen.tests.test_init.SettingsTestCase"'
-  # Check that we have the expected version and architecture for Python
-  # - 'python --version'
-  # - 'python -c "import struct; print(struct.calcsize(''P'') * 8)"'
-
   # Install the build dependencies of the project via conda and pip
-  - 'pip install --upgrade numpy'
-  - 'conda install --yes --quiet scipy matplotlib setuptools wheel pip'
+  - 'conda install --yes --quiet numpy scipy matplotlib setuptools wheel pip'
   - 'conda install --yes --quiet --channel matsci spglib netcdf4 h5py'
   # - 'conda update --yes --all'
   - 'pip install -r requirements.txt'
@@ -38,6 +32,7 @@ install:
 build: false
 
 test_script:
+  - 'set NOSE_EXCLUDE_TESTS="pymatgen.ext.tests.test_matproj.MPResterTest;pymatgen.analysis.tests.test_pourbaix_diagram.PourbaixDiagramTest;pymatgen.tests.test_init.SettingsTestCase"'
   - IF NOT "%APPVEYOR_REPO_BRANCH%" == "stable" (nosetests)
 
 notifications:

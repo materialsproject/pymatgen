@@ -214,6 +214,9 @@ class DictSet(VaspInputSet):
             of two ways, e.g. either {"LDAUU":{"O":{"Fe":5}}} to set LDAUU
             for Fe to 5 in an oxide, or {"LDAUU":{"Fe":5}} to set LDAUU to
             5 regardless of the input structure.
+
+            If a None value is given, that key is unset. For example,
+            {"ENCUT": None} will remove ENCUT from the incar settings.
         user_kpoints_settings (dict or Kpoints): Allow user to override kpoints 
             setting by supplying a dict E.g., {"reciprocal_density": 1000}. 
             User can also supply Kpoints object. Default is None.
@@ -297,7 +300,14 @@ class DictSet(VaspInputSet):
     @property
     def incar(self):
         settings = dict(self._config_dict["INCAR"])
-        settings.update(self.user_incar_settings)
+        for k, v in self.user_incar_settings.items():
+            if v is None:
+                try:
+                    del settings[k]
+                except KeyError:
+                    settings[k] = v
+            else:
+                settings[k] = v
         structure = self.structure
         incar = Incar()
         comp = structure.composition

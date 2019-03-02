@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.graphs &#8212; pymatgen 2019.2.4 documentation</title>
+    <title>pymatgen.analysis.graphs &#8212; pymatgen 2019.2.28 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -35,7 +35,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.2.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.2.28 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -689,6 +689,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">connected_sites</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">connected_site_images</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
         <span class="n">out_edges</span> <span class="o">=</span> <span class="p">[(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="s1">&#39;out&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">out_edges</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span>
         <span class="n">in_edges</span> <span class="o">=</span> <span class="p">[(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="s1">&#39;in&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">in_edges</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span>
@@ -712,13 +713,16 @@
 
             <span class="n">weight</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;weight&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
-            <span class="n">connected_site</span> <span class="o">=</span> <span class="n">ConnectedSite</span><span class="p">(</span><span class="n">site</span><span class="o">=</span><span class="n">site</span><span class="p">,</span>
-                                           <span class="n">jimage</span><span class="o">=</span><span class="n">to_jimage</span><span class="p">,</span>
-                                           <span class="n">index</span><span class="o">=</span><span class="n">v</span><span class="p">,</span>
-                                           <span class="n">weight</span><span class="o">=</span><span class="n">weight</span><span class="p">,</span>
-                                           <span class="n">dist</span><span class="o">=</span><span class="n">dist</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">to_jimage</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">connected_site_images</span><span class="p">:</span>
 
-            <span class="n">connected_sites</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">connected_site</span><span class="p">)</span>
+                <span class="n">connected_site</span> <span class="o">=</span> <span class="n">ConnectedSite</span><span class="p">(</span><span class="n">site</span><span class="o">=</span><span class="n">site</span><span class="p">,</span>
+                                               <span class="n">jimage</span><span class="o">=</span><span class="n">to_jimage</span><span class="p">,</span>
+                                               <span class="n">index</span><span class="o">=</span><span class="n">v</span><span class="p">,</span>
+                                               <span class="n">weight</span><span class="o">=</span><span class="n">weight</span><span class="p">,</span>
+                                               <span class="n">dist</span><span class="o">=</span><span class="n">dist</span><span class="p">)</span>
+
+                <span class="n">connected_sites</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">connected_site</span><span class="p">)</span>
+                <span class="n">connected_site_images</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">v</span><span class="p">,</span> <span class="n">to_jimage</span><span class="p">))</span>
 
         <span class="c1"># return list sorted by closest sites first</span>
         <span class="n">connected_sites</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">connected_sites</span><span class="p">)</span>
@@ -2855,7 +2859,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.2.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.2.28 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

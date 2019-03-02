@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.ext.matproj &#8212; pymatgen 2019.2.4 documentation</title>
+    <title>pymatgen.ext.matproj &#8212; pymatgen 2019.2.28 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -35,7 +35,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.2.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.2.28 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -108,11 +108,8 @@
 <span class="sd">    MPRester uses the &quot;requests&quot; package, which provides for HTTP connection</span>
 <span class="sd">    pooling. All connections are made via https for security.</span>
 
-<span class="sd">    .. note::</span>
-
-<span class="sd">        The Materials Project recently switched to using string ids with a</span>
-<span class="sd">        &quot;mp-&quot; prefix for greater flexibility going forward. The MPRester</span>
-<span class="sd">        should still work as intended if you provide the proper string ids.</span>
+<span class="sd">    For more advanced uses of the Materials API, please consult the API</span>
+<span class="sd">    documentation at https://github.com/materialsproject/mapidoc.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        api_key (str): A String API key for accessing the MaterialsProject</span>
@@ -245,6 +242,10 @@
 
 <span class="sd">        [{&quot;material_id&quot;: material_id, &quot;property_name&quot; : value}, ...]</span>
 
+<span class="sd">        This is generally a call to</span>
+<span class="sd">        https://www.materialsproject.org/rest/v2/materials/vasp/&lt;prop&gt;.</span>
+<span class="sd">        See https://github.com/materialsproject/mapidoc for details.</span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            chemsys_formula_id (str): A chemical system (e.g., Li-Fe-O),</span>
 <span class="sd">                or formula (e.g., Fe2O3) or materials_id (e.g., mp-1234).</span>
@@ -276,6 +277,8 @@
 <div class="viewcode-block" id="MPRester.get_doc"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.get_doc">[docs]</a>    <span class="k">def</span> <span class="nf">get_doc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">materials_id</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the entire data document for one materials id. Use this judiciously.</span>
+
+<span class="sd">        REST Endpoint: https://www.materialsproject.org/materials/&lt;mp-id&gt;/doc.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            materials_id (str): E.g., mp-1143 for Al2O3</span>
@@ -587,6 +590,8 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a Dos corresponding to a material_id.</span>
 
+<span class="sd">        REST Endpoint: https://www.materialsproject.org/rest/v2/materials/&lt;mp-id&gt;/vasp/dos</span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            material_id (str): Materials Project material_id (a string,</span>
 <span class="sd">                e.g., mp-1234).</span>
@@ -600,6 +605,9 @@
 <div class="viewcode-block" id="MPRester.get_bandstructure_by_material_id"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.get_bandstructure_by_material_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_bandstructure_by_material_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">material_id</span><span class="p">,</span> <span class="n">line_mode</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a BandStructure corresponding to a material_id.</span>
+
+<span class="sd">        REST Endpoint: https://www.materialsproject.org/rest/v2/materials/&lt;mp-id&gt;/vasp/bandstructure or</span>
+<span class="sd">        https://www.materialsproject.org/rest/v2/materials/&lt;mp-id&gt;/vasp/bandstructure_uniform</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            material_id (str): Materials Project material_id.</span>
@@ -1355,7 +1363,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.2.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.2.28 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

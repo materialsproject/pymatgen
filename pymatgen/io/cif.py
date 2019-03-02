@@ -12,7 +12,7 @@ from collections import OrderedDict, deque
 from io import StringIO
 import numpy as np
 from functools import partial
-
+from pathlib import Path
 from inspect import getfullargspec as getargspec
 from itertools import groupby
 from pymatgen.core.periodic_table import Element, Specie, get_el_sp, DummySpecie
@@ -284,7 +284,7 @@ class CifFile:
 
     @classmethod
     def from_file(cls, filename):
-        with zopen(filename, "rt", errors="replace") as f:
+        with zopen(str(filename), "rt", errors="replace") as f:
             return cls.from_string(f.read())
 
 
@@ -306,7 +306,7 @@ class CifParser:
     def __init__(self, filename, occupancy_tolerance=1., site_tolerance=1e-4):
         self._occupancy_tolerance = occupancy_tolerance
         self._site_tolerance = site_tolerance
-        if isinstance(filename, str):
+        if isinstance(filename, (str, Path)):
             self._cif = CifFile.from_file(filename)
         else:
             self._cif = CifFile.from_string(filename.read())

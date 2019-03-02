@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.magnetism.analyzer module &#8212; pymatgen 2019.2.4 documentation</title>
+    <title>pymatgen.analysis.magnetism.analyzer module &#8212; pymatgen 2019.2.28 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -48,7 +48,7 @@
 <span id="pymatgen-analysis-magnetism-analyzer-module"></span><h1>pymatgen.analysis.magnetism.analyzer module<a class="headerlink" href="#module-pymatgen.analysis.magnetism.analyzer" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer">
-<em class="property">class </em><code class="descname">CollinearMagneticStructureAnalyzer</code><span class="sig-paren">(</span><em>structure</em>, <em>overwrite_magmom_mode='none'</em>, <em>round_magmoms=False</em>, <em>detect_valences=False</em>, <em>make_primitive=True</em>, <em>default_magmoms=None</em>, <em>threshold=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/magnetism/analyzer.html#CollinearMagneticStructureAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">CollinearMagneticStructureAnalyzer</code><span class="sig-paren">(</span><em>structure: pymatgen.core.structure.Structure</em>, <em>overwrite_magmom_mode: Union[pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode</em>, <em>str] = 'none'</em>, <em>round_magmoms: bool = False</em>, <em>detect_valences: bool = False</em>, <em>make_primitive: bool = True</em>, <em>default_magmoms: bool = None</em>, <em>set_net_positive: bool = True</em>, <em>threshold: float = 0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/magnetism/analyzer.html#CollinearMagneticStructureAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A class which provides a few helpful methods to analyze
 collinear magnetic structures.</p>
@@ -98,6 +98,9 @@ to input structure
 :param make_primitive (bool): if True, will transform to primitive
 magnetic cell
 :param default_magmoms (dict): (optional) dict specifying default magmoms
+:param set_net_positive (bool): if True, will change sign of magnetic
+moments such that the net magnetization is positive. Argument will be
+ignored if mode “respect_sign” is used.
 :param threshold (float): number (in Bohr magnetons) below which magmoms
 will be rounded to zero, default of 0.1 can probably be increased for many
 magnetic systems, depending on your application</p>
@@ -261,6 +264,13 @@ magnetic species.
 </dd></dl>
 
 <dl class="class">
+<dt id="pymatgen.analysis.magnetism.analyzer.MagneticOrderingEnumerationStrategy">
+<em class="property">class </em><code class="descname">MagneticOrderingEnumerationStrategy</code><a class="reference internal" href="_modules/pymatgen/analysis/magnetism/analyzer.html#MagneticOrderingEnumerationStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.MagneticOrderingEnumerationStrategy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>An enumeration.</p>
+</dd></dl>
+
+<dl class="class">
 <dt id="pymatgen.analysis.magnetism.analyzer.Ordering">
 <em class="property">class </em><code class="descname">Ordering</code><a class="reference internal" href="_modules/pymatgen/analysis/magnetism/analyzer.html#Ordering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.Ordering" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
@@ -292,6 +302,38 @@ magnetic species.
 
 </dd></dl>
 
+<dl class="class">
+<dt id="pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode">
+<em class="property">class </em><code class="descname">OverwriteMagmomMode</code><a class="reference internal" href="_modules/pymatgen/analysis/magnetism/analyzer.html#OverwriteMagmomMode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="attribute">
+<dt id="pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode.none">
+<code class="descname">none</code><em class="property"> = 'none'</em><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode.none" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode.normalize">
+<code class="descname">normalize</code><em class="property"> = 'normalize'</em><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode.normalize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode.replace_all">
+<code class="descname">replace_all</code><em class="property"> = 'replace_all'</em><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode.replace_all" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode.respect_sign">
+<code class="descname">respect_sign</code><em class="property"> = 'respect_sign'</em><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode.respect_sign" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode.respect_zero">
+<code class="descname">respect_zero</code><em class="property"> = 'respect_zeros'</em><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode.respect_zero" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="function">
 <dt id="pymatgen.analysis.magnetism.analyzer.magnetic_deformation">
 <code class="descname">magnetic_deformation</code><span class="sig-paren">(</span><em>structure_A</em>, <em>structure_B</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/magnetism/analyzer.html#magnetic_deformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.magnetic_deformation" title="Permalink to this definition">¶</a></dt>
@@ -306,8 +348,8 @@ doi: 10.1021/acs.chemmater.6b04729</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure_A</strong> – </li>
-<li><strong>structure_B</strong> – </li>
+<li><strong>structure_A</strong> – Structure</li>
+<li><strong>structure_B</strong> – Structure</li>
 </ul>
 </td>
 </tr>
@@ -358,7 +400,7 @@ doi: 10.1021/acs.chemmater.6b04729</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
       </ul>
     </div>
 
