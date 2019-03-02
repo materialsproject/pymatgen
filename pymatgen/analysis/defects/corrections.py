@@ -34,13 +34,16 @@ class FreysoldtCorrection(DefectCorrection):
 
     def __init__(self, dielectric_const, q_model=None, energy_cutoff=520, madetol=0.0001, axis=None):
         """
-        Initializes the Freysoldt Correction
+        Initializes the FreysoldtCorrection class
         Args:
             dielectric_const (float or 3x3 matrix): Dielectric constant for the structure
-            q_mode (QModel): instantiated QModel object or None. Uses default parameters to instantiate QModel if None supplied
-            energy_cutoff (int): Maximum energy in eV in recipripcol space to perform integration for potential correction
+            q_mode (QModel): instantiated QModel object or None.
+                Uses default parameters to instantiate QModel if None supplied
+            energy_cutoff (int): Maximum energy in eV in reciprocal space to perform
+                integration for potential correction.
             madeltol(float): Convergence criteria for the Madelung energy for potential correction
-            axis (int): Axis to calculate correction. Averages over all three if not supplied.
+            axis (int): Axis to calculate correction.
+                If axis is None, then averages over all three axes is performed.
         """
         self.q_model = QModel() if not q_model else q_model
         self.energy_cutoff = energy_cutoff
@@ -62,7 +65,8 @@ class FreysoldtCorrection(DefectCorrection):
         Gets the Freysoldt correction for a defect entry
         Args:
             entry (DefectEntry): defect entry to compute Freysoldt correction on.
-                Requires following parameters in the DefectEntry to exist:
+
+                Requires following keys to exist in DefectEntry.parameters dict:
 
                     axis_grid (3 x NGX where NGX is the length of the NGX grid
                     in the x,y and z axis directions. Same length as planar
@@ -84,10 +88,10 @@ class FreysoldtCorrection(DefectCorrection):
                     initial_defect_structure (Structure) structure corresponding to
                         initial defect supercell structure (uses Lattice for charge correction)
 
-                    defect_frac_sc_coords (3 x 1 array) Fracitional co-ordinates of
+                    defect_frac_sc_coords (3 x 1 array) Fractional co-ordinates of
                         defect location in supercell structure
-
-
+        Returns:
+            FreysoldtCorrection values as a dictionary
         """
 
         if self.axis is None:
@@ -129,6 +133,12 @@ class FreysoldtCorrection(DefectCorrection):
     def perform_es_corr(self, lattice, q, step=1e-4):
         """
         Peform Electrostatic Freysoldt Correction
+        Args:
+            lattice: Pymatgen lattice object
+            q (int): Charge of defect
+            step (float): step size for numerical integration
+        Return:
+            Electrostatic Point Charge contribution to Freysoldt Correction (float)
         """
         logger.info("Running Freysoldt 2011 PC calculation (should be " "equivalent to sxdefectalign)")
         logger.debug("defect lattice constants are (in angstroms)" + str(lattice.abc))
@@ -174,15 +184,33 @@ class FreysoldtCorrection(DefectCorrection):
                          widthsample=1.0):
         """
         For performing planar averaging potential alignment
-
-        title is for name of plot, if you dont want a plot then leave it as None
-        widthsample is the width (in Angstroms) of the region in between defects where the potential alignment correction is averaged
+        Args:
+             axis_grid (1 x NGX where NGX is the length of the NGX grid
+                    in the axis direction. Same length as pureavg list):
+                        A numpy array which contain the cartesian axis
+                        values (in angstroms) that correspond to each planar avg
+                        potential supplied.
+             pureavg (1 x NGX where NGX is the length of the NGX grid in
+                    the axis direction.):
+                        A numpy array for the planar averaged
+                        electrostatic potential of the bulk supercell.
+             defavg (1 x NGX where NGX is the length of the NGX grid in
+                    the axis direction.):
+                        A numpy array for the planar averaged
+                        electrostatic potential of the defect supercell.
+             lattice: Pymatgen Lattice object of the defect supercell
+             q (float or int): charge of the defect
+             defect_frac_position: Fracitional Coordinates of the defect in the supercell
+             axis (int): axis for performing the freysoldt correction on
+             widthsample (float): width (in Angstroms) of the region in between defects
+                where the potential alignment correction is averaged. Default is 1 Angstrom.
+        Returns:
+            Potential Alignment contribution to Freysoldt Correction (float)
         """
         logging.debug("run Freysoldt potential alignment method for axis " + str(axis))
         nx = len(axis_grid)
 
         # shift these planar averages to have defect at origin
-        # axfracval = lattice.get_fractional_coords(defect_position)[axis]
         axfracval = defect_frac_position[axis]
         axbulkval = axfracval * lattice.abc[axis]
         if axbulkval < 0:
@@ -254,7 +282,14 @@ class FreysoldtCorrection(DefectCorrection):
 
     def plot(self, axis, title=None, saved=False):
         """
-        Plots the planar average electrostatic potential against the Long range and short range models from Freysoldt
+        Plots the planar average electrostatic potential against the Long range and
+        short range models from Freysoldt. Must run perform_pot_corr or get_correction
+        (to load metadata) before this can be used.
+        Args:
+             axis (int): axis to plot
+             title (str): Title to be given to plot. Default is no title.
+             saved (bool): Whether to save file or not. If False then returns plot
+                object. If True then saves plot as   str(title) + "FreyplnravgPlot.pdf"
 
         """
         if not self.metadata["pot_plot_data"]:
@@ -287,6 +322,7 @@ class FreysoldtCorrection(DefectCorrection):
         plt.xlim(0, max(x))
         if saved:
             plt.savefig(str(title) + "FreyplnravgPlot.pdf")
+            return
         else:
             return plt
 
@@ -296,9 +332,10 @@ class KumagaiCorrection(DefectCorrection):
     A class for KumagaiCorrection class. Largely adapated from PyCDT code
 
     If this correction is used, please reference Kumagai and Oba's original paper
-    doi: 10.1103/PhysRevB.89.195205
-    as well as Freysoldt's original paper (doi: 10.1103/PhysRevLett.102.016402)
-    NOTE that equations 8 and 9 from original reverence are divided by (4 pi) to get SI units
+    (doi: 10.1103/PhysRevB.89.195205) as well as Freysoldt's original
+    paper (doi: 10.1103/PhysRevLett.102.016402)
+
+    NOTE that equations 8 and 9 from Kumagai et al. reverence are divided by (4 pi) to get SI units
     """
 
     def __init__(self,
@@ -311,8 +348,9 @@ class KumagaiCorrection(DefectCorrection):
             dielectric_tensor (float or 3x3 matrix): Dielectric constant for the structure
 
             optional data that can be tuned:
-                sampling_radius: radius (in Angstrom) which sites must be outside of to be included in the correction
-                    Publication by Kumagai suggests Wigner-Seitz radius of the supercell
+                sampling_radius (float): radius (in Angstrom) which sites must be outside
+                    of to be included in the correction. Publication by Kumagai advises to
+                    use Wigner-Seitz radius of defect supercell, so this is default value.
                 gamma (float): convergence parameter for gamma function.
                     Code will automatically determine this if set to None.
         """
@@ -329,7 +367,9 @@ class KumagaiCorrection(DefectCorrection):
         Gets the Kumagai correction for a defect entry
         Args:
             entry (DefectEntry): defect entry to compute Kumagai correction on.
+
                 Requires following parameters in the DefectEntry to exist:
+
                     bulk_atomic_site_averages (list):  list of bulk structure"s atomic site averaged ESPs * charge,
                         in same order as indices of bulk structure
                         note this is list given by VASP's OUTCAR (so it is multiplied by a test charge of -1)
@@ -346,12 +386,13 @@ class KumagaiCorrection(DefectCorrection):
 
                     defect_frac_sc_coords (array): Defect Position in fractional coordinates of the supercell
                         given in bulk_structure
+        Returns:
+            KumagaiCorrection values as a dictionary
 
         """
         bulk_atomic_site_averages = entry.parameters["bulk_atomic_site_averages"]
         defect_atomic_site_averages = entry.parameters["defect_atomic_site_averages"]
         site_matching_indices = entry.parameters["site_matching_indices"]
-
         defect_sc_structure = entry.parameters["initial_defect_structure"]
         defect_frac_sc_coords = entry.parameters["defect_frac_sc_coords"]
 
@@ -370,8 +411,9 @@ class KumagaiCorrection(DefectCorrection):
         si = self.get_self_interaction( self.metadata["gamma"])
         es_corr = [(real_summation[ind] + recip_summation[ind] + pot_shift + si) for ind in range(2)]
 
+        # increase precision if correction is not converged yet (TODO: allow for larger prec_set to be tried if this fails)
         if abs(es_corr[0] - es_corr[1]) > 0.0001:
-            print("Es_corr summation not converged! ({} vs. {})\nTrying a larger prec_set...".format( es_corr[0], es_corr[1]))
+            logger.debug("Es_corr summation not converged! ({} vs. {})\nTrying a larger prec_set...".format( es_corr[0], es_corr[1]))
             prec_set = [30, 35]
             g_vecs, recip_summation, r_vecs, real_summation = generate_R_and_G_vecs( self.metadata["gamma"],
                                                                                      prec_set, lattice, self.dielectric)
@@ -409,6 +451,13 @@ class KumagaiCorrection(DefectCorrection):
     def perform_es_corr(self, gamma, prec, lattice, charge):
         """
         Peform Electrostatic Kumagai Correction
+        Args:
+            gamma (float): Ewald parameter
+            prec (int): Precision parameter for reciprical/real lattice vector generation
+            lattice: Pymatgen Lattice object corresponding to defect supercell
+            charge (int): Defect charge
+        Return:
+            Electrostatic Point Charge contribution to Kumagai Correction (float)
         """
         volume = lattice.volume
 
@@ -428,6 +477,30 @@ class KumagaiCorrection(DefectCorrection):
                          sampling_radius, q, r_vecs, g_vecs, gamma):
         """
         For performing potential alignment in manner described by Kumagai et al.
+        Args:
+            defect_structure: Pymatgen Structure object corrsponding to the defect supercell
+
+            defect_frac_coords (array): Defect Position in fractional coordinates of the supercell
+                given in bulk_structure
+
+            site_list: list of corresponding site index values for
+                bulk and defect site structures EXCLUDING the defect site itself
+                (ex. [[bulk structure site index, defect structure"s corresponding site index], ... ]
+
+            sampling_radius (float): radius (in Angstrom) which sites must be outside
+                of to be included in the correction. Publication by Kumagai advises to
+                use Wigner-Seitz radius of defect supercell, so this is default value.
+
+            q (int): Defect charge
+
+            r_vecs: List of real lattice vectors to use in summation
+
+            g_vecs: List of reciprocal lattice vectors to use in summation
+
+            gamma (float): Ewald parameter
+
+        Return:
+            Potential alignment contribution to Kumagai Correction (float)
         """
         volume = defect_structure.lattice.volume
         potential_shift = self.get_potential_shift( gamma, volume)
@@ -610,6 +683,7 @@ class KumagaiCorrection(DefectCorrection):
         else:
             return plt
 
+
 class BandFillingCorrection(DefectCorrection):
     """
     A class for BandFillingCorrection class. Largely adapted from PyCDT code
@@ -655,6 +729,8 @@ class BandFillingCorrection(DefectCorrection):
                         VBM of bulk calculation (or band structure calculation of bulk);
                         calculated on same level of theory as the defect
                         (ex. GGA defects -> requires GGA vbm)
+        Returns:
+            Bandfilling Correction value as a dictionary
 
         """
         eigenvalues = entry.parameters["eigenvalues"]
@@ -742,7 +818,8 @@ class BandEdgeShiftingCorrection(DefectCorrection):
                         VBM of bulk calculation (or band structure calculation of bulk);
                         calculated on same level of theory as the defect
                         (ex. GGA defects -> requires GGA vbm)
-
+        Returns:
+            BandfillingCorrection value as a dictionary
         """
         hybrid_cbm = entry.parameters["hybrid_cbm"]
         hybrid_vbm = entry.parameters["hybrid_vbm"]

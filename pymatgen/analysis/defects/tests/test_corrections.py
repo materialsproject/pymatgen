@@ -24,6 +24,7 @@ class DefectsCorrectionsTest(PymatgenTest):
         struc.make_supercell(3)
         struc = struc
         vac = Vacancy(struc, struc.sites[0], charge=-3)
+        ids = vac.generate_defect_structure(1)
 
         abc = struc.lattice.abc
         axisdata = [np.arange(0., lattval, 0.2) for lattval in abc]
@@ -31,7 +32,8 @@ class DefectsCorrectionsTest(PymatgenTest):
         dldata = [
             np.array([(-1 - np.cos(2 * np.pi * u / lattval)) for u in np.arange(0., lattval, 0.2)]) for lattval in abc
         ]
-        params = {'axis_grid': axisdata, 'bulk_planar_averages': bldata, 'defect_planar_averages': dldata}
+        params = {'axis_grid': axisdata, 'bulk_planar_averages': bldata, 'defect_planar_averages': dldata,
+                  'initial_defect_structure': ids, 'defect_frac_sc_coords': struc.sites[0].frac_coords}
         fc = FreysoldtCorrection(15)
 
         #test electrostatic correction
@@ -48,11 +50,10 @@ class DefectsCorrectionsTest(PymatgenTest):
         self.assertAlmostEqual(val['freysoldt_electrostatic'], 0.975893)
         self.assertAlmostEqual(val['freysoldt_potential_alignment'], 4.4700574)
 
-        #test the freysoldt plotter and that plot metadata exists
-        pltsaver = []
+        #test the freysoldt plotter
         for ax in range(3):
-            pltsaver.append(fc.plot(axis=ax))
-        self.assertAlmostEqual(len(pltsaver), 3)
+            fcp = fc.plot(axis=ax)
+            self.assertTrue( fcp)
 
         #check that uncertainty metadata exists
         for ax in range(3):
@@ -85,7 +86,6 @@ class DefectsCorrectionsTest(PymatgenTest):
         self.assertTrue('freysoldt_meta' in de.parameters.keys())
         self.assertAlmostEqual(
             set(de.parameters['freysoldt_meta'].keys()), set(['pot_plot_data', 'pot_corr_uncertainty_md']))
-        #TODO: check that correct metadata exists
 
         #test a charge of zero
         vac = Vacancy(struc, struc.sites[0], charge=0)
@@ -168,6 +168,13 @@ class DefectsCorrectionsTest(PymatgenTest):
                                                            r_vecs[0], g_vecs[0], gamma)
         self.assertAlmostEqual( low_diel_pot_corr, -58.83598095)
 
+        #test the kumagai plotter
+        kcp = kc.plot()
+        self.assertTrue( kcp)
+
+        #check that uncertainty metadata exists
+        self.assertAlmostEqual(set(kc.metadata['pot_corr_uncertainty_md'].keys()), set(['number_sampled', 'stats']))
+
     def test_bandfilling(self):
         v = Vasprun(os.path.join(test_dir, 'vasprun.xml'))
         eigenvalues = v.eigenvalues.copy()
@@ -234,7 +241,6 @@ class DefectsCorrectionsTest(PymatgenTest):
                         occuset[1] = 1.
         bf_corr = bfc.perform_bandfill_corr(one_spin_eigen_twooccu, kptweights, potalign, vbm, cbm)
         self.assertAlmostEqual(bf_corr, -0.14487501159000005)
-
 
     def test_bandedgeshifting(self):
         struc = PymatgenTest.get_structure("VO2")
