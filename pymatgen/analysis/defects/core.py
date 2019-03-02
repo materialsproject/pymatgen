@@ -7,7 +7,7 @@ import numpy as np
 
 from abc import ABCMeta, abstractmethod
 from monty.json import MSONable, MontyDecoder, jsanitize
-from monty.functools import lru_cache
+from functools import lru_cache
 
 from pymatgen.core.structure import Structure, PeriodicSite
 from pymatgen.core.composition import Composition
@@ -198,7 +198,7 @@ class Substitution(Defect):
         """
         Returns Defective Substitution structure, decorated with charge.
         If bulk structure had any site properties, all of these properties are
-        removed in the resulting defect structure
+        removed in the resulting defect structure.
 
         Args:
             supercell (int, [3x1], or [[]] (3x3)): supercell integer, vector, or scaling matrix
@@ -210,11 +210,11 @@ class Substitution(Defect):
                                       site_properties = None) #remove all site_properties
         defect_structure.make_supercell(supercell)
 
-        #create a trivial defect structure to find where supercell transformation moves the lattice
+        #create a trivial defect structure to find where supercell transformation moves the defect
         struct_for_defect_site = Structure( self.bulk_structure.copy().lattice,
-                                             [self.site.specie],
-                                             [self.site.frac_coords],
-                                             to_unit_cell=True, coords_are_cartesian = False)
+                                            [self.site.specie],
+                                            [self.site.frac_coords],
+                                            to_unit_cell=True, coords_are_cartesian = False)
         struct_for_defect_site.make_supercell(supercell)
         defect_site = struct_for_defect_site[0]
 
@@ -262,7 +262,6 @@ class Interstitial(Defect):
     def __init__(self, structure, defect_site, charge=0., site_name='', multiplicity=None):
         """
         Initializes an interstial defect.
-        User must specify multiplity. Default is 1
         Args:
             structure: Pymatgen Structure without any defects
             defect_site (Site): the site for the interstitial
@@ -271,7 +270,7 @@ class Interstitial(Defect):
                 (assuming use_structure_charge=True in vasp input set)
             site_name: allows user to give a unique name to defect, since Wyckoff symbol/multiplicity
                 is sometimes insufficient to categorize the defect type.
-                 default is no name beyond multiplicity.
+                default is no name beyond multiplicity.
             multiplicity (int): multiplicity of defect within
                 the supercell can be supplied by user. if not
                 specified, then space group symmetry is used
@@ -371,7 +370,7 @@ def create_saturated_interstitial_structure( interstitial_def, dist_tol=0.1):
     defect in thermodynamic analysis.
 
     NOTE: if large relaxation happens to interstitial or
-        defect involves a complex then there maybe additional
+        defect involves a complex then there may be additional
         degrees of freedom that need to be considered for
         the multiplicity.
 
@@ -413,7 +412,7 @@ def create_saturated_interstitial_structure( interstitial_def, dist_tol=0.1):
     saturated_sga = SpacegroupAnalyzer( saturated_defect_struct)
     if saturated_sga.get_space_group_number() != sga.get_space_group_number():
         raise ValueError("Warning! Interstitial sublattice generation "
-                         "has changed space group symmetry. I recommend "
+                         "has changed space group symmetry. Recommend "
                          "reducing dist_tol and trying again...")
 
     return saturated_defect_struct
@@ -433,22 +432,15 @@ class DefectEntry(MSONable):
             uncorrected_energy (float): Energy of the defect entry. Usually the difference between
                 the final calculated energy for the defect supercell - the perfect
                 supercell energy
-            corrections ([Correction]):
-                List of Correction classes (from pymatgen.analysis.defects.corrections)
-                which correct energy due to charge (e.g. Freysoldt or Kumagai)
-                or other factors (e.g. Shallow level shifts)
+            corrections (dict):
+                Dict of corrections for defect formation energy. All values will be summed and
+                added to the defect formation energy.
             parameters (dict): An optional dict of calculation parameters and data to
                 use with correction schemes
                 (examples of parameter keys: supercell_size, axis_grid, bulk_planar_averages
                 defect_planar_averages )
             entry_id (obj): An id to uniquely identify this defect, can be any MSONable
                 type
-
-        Optional:
-            note that if you intend to use this defect entry with Charge Corrections
-            but the bulk_structure stored in defect is not the final supercell,
-            then 'scaling_matrix' must be stored in parameters
-                for example: parameters = {'scaling_matrix': [3,3,3]}
         """
         self.defect = defect
         self.uncorrected_energy = uncorrected_energy
@@ -530,7 +522,19 @@ class DefectEntry(MSONable):
 
     def formation_energy(self, chemical_potentials=None, fermi_level=0):
         """
-        Computes the formation energy for a defect taking into account a given chemical potential and fermi_level
+        Compute the formation energy for a defect taking into account a given chemical potential and fermi_level
+         Args:
+             chemical_potentials (dict): Dictionary of elemental chemical potential values.
+                Keys are Element objects within the defect structure's composition.
+                Values are float numbers equal to the atomic chemical potential for that element.
+            fermi_level (float):  Value corresponding to the electron chemical potential.
+                If "vbm" is supplied in parameters dict, then fermi_level is referenced to the VBM.
+                If "vbm" is NOT supplied in parameters dict, then fermi_level is referenced to the
+                calculation's absolute Kohn-Sham potential (and should include the vbm value provided
+                by a band structure calculation)
+
+        Returns:
+            Formation energy value (float)
         """
         chemical_potentials = chemical_potentials if chemical_potentials else {}
 
@@ -550,7 +554,7 @@ class DefectEntry(MSONable):
 
     def defect_concentration(self, chemical_potentials, temperature=300, fermi_level=0.0):
         """
-        Get the defect concentration for a temperature and Fermi level.
+        Compute the defect concentration for a temperature and Fermi level.
         Args:
             temperature:
                 the temperature in K
@@ -570,9 +574,7 @@ class DefectEntry(MSONable):
         Human readable string representation of this entry
         """
         output = [
-            # TODO: add defect.name abilities... maybe with composition?
-            # "DefectEntry {} - {}".format(self.entry_id, self.defect.name), "Energy = {:.4f}".format(self.energy),
-            "DefectEntry {} - {}".format(self.entry_id, "DEFECT"),
+            "DefectEntry {} - {} - charge {}".format(self.entry_id, self.name, self.charge),
             "Energy = {:.4f}".format(self.energy),
             "Correction = {:.4f}".format(np.sum(list(self.corrections.values()))),
             "Parameters:"
