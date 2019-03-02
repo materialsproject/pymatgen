@@ -38,6 +38,7 @@ except ImportError:
     peak_local_max_found = False
 
 
+
 __author__ = "Danny Broberg, Shyam Dwaraknath, Bharat Medasani, Nils Zimmermann, Geoffroy Hautier"
 __copyright__ = "Copyright 2014, The Materials Project"
 __version__ = "1.0"
