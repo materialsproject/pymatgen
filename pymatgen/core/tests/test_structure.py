@@ -16,9 +16,6 @@ import random
 import os
 import numpy as np
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files')
-
 
 class IStructureTest(PymatgenTest):
 
@@ -942,7 +939,7 @@ class StructureTest(PymatgenTest):
         self.assertEqual(super_cell.charge, 25, "Set charge not properly modifying _charge")
 
     def test_vesta_lattice_matrix(self):
-        silica_zeolite = Molecule.from_file(os.path.join(test_dir, "CON_vesta.xyz"))
+        silica_zeolite = Molecule.from_file(self.TEST_FILES_DIR / "CON_vesta.xyz")
 
         s_vesta = Structure(
             lattice=Lattice.from_parameters(22.6840, 13.3730, 12.5530, 90, 69.479, 90, True),

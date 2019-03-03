@@ -169,7 +169,6 @@ direct
         actual_str = poscar.get_string(significant_figures=2)
         self.assertEqual(actual_str, expected_str, "Wrong POSCAR output!")
 
-
     def test_str(self):
         si = 14
         coords = list()
