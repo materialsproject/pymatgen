@@ -3,7 +3,7 @@
 # Distributed under the terms of the MIT License.
 
 from typing import Union, List
-
+from pathlib import Path
 import numpy as np
 
 
@@ -14,3 +14,4 @@ change until best practices are established.
 """
 
 Vector3Like = Union[List[float], np.ndarray]
+PathLike = Union[str, Path]

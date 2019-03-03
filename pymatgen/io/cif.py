@@ -34,8 +34,6 @@ from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 try:
     from pybtex.database import BibliographyData, Entry
 except ImportError:
-    warnings.warn("Please install optional dependency pybtex if you"
-                  "want to extract references from CIF files.")
     BibliographyData, Entry = None, None
 
 """

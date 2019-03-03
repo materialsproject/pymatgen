@@ -10,6 +10,8 @@ import warnings
 import scipy.constants as const
 from pathlib import Path
 
+from monty.tempfile import ScratchDir
+from pymatgen import SETTINGS
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.vasp.inputs import Incar, Poscar, Kpoints, Potcar, \
     PotcarSingle, VaspInput
@@ -852,8 +854,11 @@ class VaspInputTest(PymatgenTest):
 
     def test_run_vasp(self):
         # To add some test.
-        pass
-        # self.vinput.run_vasp("hello")
+        with ScratchDir(".") as d:
+            self.vinput.run_vasp(d, vasp_cmd=["cat", "INCAR"])
+            with open(os.path.join(d, "vasp.out"), "r") as f:
+                output = f.read()
+                self.assertEqual(output.split("\n")[0], "ALGO = Damped")
 
     def test_from_directory(self):
         vi = VaspInput.from_directory(self.TEST_FILES_DIR,

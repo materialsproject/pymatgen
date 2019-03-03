@@ -13,6 +13,7 @@ import glob
 import subprocess
 
 import numpy as np
+from pymatgen.util.typing import PathLike
 from numpy.linalg import det
 from collections import OrderedDict, namedtuple
 from hashlib import md5
@@ -1914,9 +1915,25 @@ class VaspInput(dict, MSONable):
                     ftype.from_file(os.path.join(input_dir, fname))
         return VaspInput(**sub_d)
 
-    def run_vasp(self, run_dir="."):
+    def run_vasp(self, run_dir: PathLike = ".",
+                 vasp_cmd: list = None,
+                 output_file: PathLike = "vasp.out",
+                 err_file: PathLike = "vasp.err"):
+        """
+        Write input files and run VASP.
+
+        :param run_dir: Where to write input files and do the run.
+        :param vasp_cmd: Args to be supplied to run VASP. Otherwise, the
+            PMG_VASP_EXE in .pmgrc.yaml is used.
+        :param output_file: File to write output
+        :param err_file: File to write err.
+        """
         self.write_input(output_dir=run_dir)
-        if "PMG_VASP_EXE" not in SETTINGS:
-            raise RuntimeError("You need to set the PMG_VASP_EXE in .pmgrc.yaml to run VASP.")
+        vasp_cmd = vasp_cmd or SETTINGS.get("PMG_VASP_EXE")
+        if not vasp_cmd:
+            raise RuntimeError("You need to supply vasp_cmd or set the PMG_VASP_EXE in .pmgrc.yaml to run VASP.")
         with cd(run_dir):
-            subprocess.check_output(SETTINGS["PMG_VASP_EXE"])
+            with open(output_file, 'w') as f_std, \
+                    open(err_file, "w", buffering=1) as f_err:
+                subprocess.check_call(vasp_cmd, stdout=f_std, stderr=f_err)
+
