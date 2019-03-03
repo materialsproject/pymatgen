@@ -7,8 +7,8 @@ import os
 import pickle
 import numpy as np
 import warnings
-from pymatgen import SETTINGS
-
+#from pymatgen import SETTINGS
+from pathlib import Path
 import scipy.constants as const
 
 from pymatgen.util.testing import PymatgenTest
@@ -29,13 +29,12 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Jul 16, 2012"
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
-                        'test_files')
+test_dir = Path(__file__).absolute().parent / ".." / ".." / ".." / ".." / 'test_files'
 
 
 class PoscarTest(PymatgenTest):
     def test_init(self):
-        filepath = os.path.join(test_dir, 'POSCAR')
+        filepath = test_dir / 'POSCAR'
         poscar = Poscar.from_file(filepath,check_for_POTCAR=False)
         comp = poscar.structure.composition
         self.assertEqual(comp, Composition("Fe4P4O16"))
@@ -90,7 +89,7 @@ direct
         self.selective_poscar = poscar
 
     def test_from_file(self):
-        filepath = os.path.join(test_dir, 'POSCAR.symbols_natoms_multilines')
+        filepath = test_dir / 'POSCAR.symbols_natoms_multilines'
         poscar = Poscar.from_file(filepath, check_for_POTCAR=False,
                                   read_velocities=False)
         ordered_expected_elements = ['Fe', 'Cr', 'Fe', 'Fe', 'Cr', 'Cr', 'Cr',
@@ -227,8 +226,7 @@ direct
 
     def test_from_md_run(self):
         # Parsing from an MD type run with velocities and predictor corrector data
-        p = Poscar.from_file(os.path.join(test_dir, "CONTCAR.MD"),
-                             check_for_POTCAR=False)
+        p = Poscar.from_file(test_dir / "CONTCAR.MD", check_for_POTCAR=False)
         self.assertAlmostEqual(np.sum(np.array(p.velocities)), 0.0065417961324)
         self.assertEqual(p.predictor_corrector[0][0][0], 0.33387820E+00)
         self.assertEqual(p.predictor_corrector[0][1][1], -0.10583589E-02)
@@ -236,8 +234,7 @@ direct
     def test_write_MD_poscar(self):
         # Parsing from an MD type run with velocities and predictor corrector data
         # And writing a new POSCAR from the new structure
-        p = Poscar.from_file(os.path.join(test_dir, "CONTCAR.MD"),
-                             check_for_POTCAR=False)
+        p = Poscar.from_file(test_dir / "CONTCAR.MD", check_for_POTCAR=False)
 
         tempfname = "POSCAR.testing.md"
         p.write_file(tempfname)
@@ -254,7 +251,7 @@ direct
         os.remove(tempfname)
 
     def test_setattr(self):
-        filepath = os.path.join(test_dir, 'POSCAR')
+        filepath = test_dir / 'POSCAR'
         poscar = Poscar.from_file(filepath,check_for_POTCAR=False)
         self.assertRaises(ValueError, setattr, poscar, 'velocities',
                           [[0, 0, 0]])
@@ -331,7 +328,7 @@ direct
                                'Temperature instantiated incorrectly')
 
     def test_write(self):
-        filepath = os.path.join(test_dir, 'POSCAR')
+        filepath = test_dir / 'POSCAR'
         poscar = Poscar.from_file(filepath)
         tempfname = "POSCAR.testing"
         poscar.write_file(tempfname)
@@ -355,11 +352,11 @@ class IncarTest(unittest.TestCase):
 
     def test_diff(self):
         incar = self.incar
-        filepath1 = os.path.join(test_dir, 'INCAR')
+        filepath1 = test_dir / 'INCAR'
         incar1 = Incar.from_file(filepath1)
-        filepath2 = os.path.join(test_dir, 'INCAR.2')
+        filepath2 = test_dir / 'INCAR.2'
         incar2 = Incar.from_file(filepath2)
-        filepath3 = os.path.join(test_dir, 'INCAR.3')
+        filepath3 = test_dir / 'INCAR.3'
         incar3 = Incar.from_file(filepath2)
         self.assertEqual(
             incar1.diff(incar2),
@@ -568,10 +565,10 @@ SIGMA = 0.1"""
 
 class KpointsTest(PymatgenTest):
     def test_init(self):
-        filepath = os.path.join(test_dir, 'KPOINTS.auto')
+        filepath = test_dir / 'KPOINTS.auto'
         kpoints = Kpoints.from_file(filepath)
         self.assertEqual(kpoints.kpts, [[10]], "Wrong kpoint lattice read")
-        filepath = os.path.join(test_dir, 'KPOINTS.cartesian')
+        filepath = test_dir / 'KPOINTS.cartesian'
         kpoints = Kpoints.from_file(filepath)
         self.assertEqual(kpoints.kpts,
                          [[0.25, 0, 0], [0, 0.25, 0], [0, 0, 0.25]],
@@ -579,19 +576,19 @@ class KpointsTest(PymatgenTest):
         self.assertEqual(kpoints.kpts_shift, [0.5, 0.5, 0.5],
                          "Wrong kpoint shift read")
 
-        filepath = os.path.join(test_dir, 'KPOINTS')
+        filepath = test_dir / 'KPOINTS'
         kpoints = Kpoints.from_file(filepath)
         self.kpoints = kpoints
         self.assertEqual(kpoints.kpts, [[2, 4, 6]])
 
-        filepath = os.path.join(test_dir, 'KPOINTS.band')
+        filepath = test_dir / 'KPOINTS.band'
         kpoints = Kpoints.from_file(filepath)
         self.assertIsNotNone(kpoints.labels)
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Line_mode)
         kpoints_str = str(kpoints)
         self.assertEqual(kpoints_str.split("\n")[3], "Reciprocal")
 
-        filepath = os.path.join(test_dir, 'KPOINTS.explicit')
+        filepath = test_dir / 'KPOINTS.explicit'
         kpoints = Kpoints.from_file(filepath)
         self.assertIsNotNone(kpoints.kpts_weights)
         self.assertEqual(str(kpoints).strip(), """Example file
@@ -602,12 +599,12 @@ Cartesian
 0.0 0.5 0.5 2 None
 0.5 0.5 0.5 4 None""")
 
-        filepath = os.path.join(test_dir, 'KPOINTS.explicit_tet')
+        filepath = test_dir / 'KPOINTS.explicit_tet'
         kpoints = Kpoints.from_file(filepath)
         self.assertEqual(kpoints.tet_connections, [(6, [1, 2, 3, 4])])
 
     def test_style_setter(self):
-        filepath = os.path.join(test_dir, 'KPOINTS')
+        filepath = test_dir / 'KPOINTS'
         kpoints = Kpoints.from_file(filepath)
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Monkhorst)
         kpoints.style = "G"
@@ -756,8 +753,7 @@ class PotcarSingleTest(unittest.TestCase):
 
         self.assertEqual(self.psingle.potential_type, 'PAW')
 
-        psingle = PotcarSingle.from_file(os.path.join(test_dir, "POT_LDA_PAW",
-                                                      "POTCAR.Fe.gz"))
+        psingle = PotcarSingle.from_file(test_dir/ "POT_LDA_PAW"/ "POTCAR.Fe.gz")
 
         self.assertEqual(psingle.functional, 'Perdew-Zunger81')
 
@@ -777,11 +773,8 @@ class PotcarSingleTest(unittest.TestCase):
 class PotcarTest(unittest.TestCase):
     def setUp(self):
         if "PMG_VASP_PSP_DIR" not in os.environ:
-            test_potcar_dir = os.path.abspath(
-                os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
-                             "test_files"))
-            os.environ["PMG_VASP_PSP_DIR"] = test_potcar_dir
-        filepath = os.path.join(test_dir, 'POTCAR')
+            os.environ["PMG_VASP_PSP_DIR"] = str(test_dir)
+        filepath = test_dir / 'POTCAR'
         self.potcar = Potcar.from_file(filepath)
 
     def test_init(self):
@@ -791,8 +784,7 @@ class PotcarTest(unittest.TestCase):
         self.assertEqual(potcar[0].enmax, 293.238)
 
     def test_potcar_map(self):
-        fe_potcar = zopen(os.path.join(test_dir, "POT_GGA_PAW_PBE",
-                                       "POTCAR.Fe_pv.gz")).read().decode(
+        fe_potcar = zopen(test_dir / "POT_GGA_PAW_PBE" / "POTCAR.Fe_pv.gz").read().decode(
             "utf-8")
         # specify V instead of Fe - this makes sure the test won't pass if the
         # code just grabs the POTCAR from the config file (the config file would
@@ -807,11 +799,11 @@ class PotcarTest(unittest.TestCase):
         self.assertEqual(potcar.symbols, ["Fe", "P", "O"])
 
     def test_write(self):
-        tempfname = "POTCAR.testing"
+        tempfname = Path("POTCAR.testing")
         self.potcar.write_file(tempfname)
         p = Potcar.from_file(tempfname)
         self.assertEqual(p.symbols, self.potcar.symbols)
-        os.remove(tempfname)
+        tempfname.unlink()
 
     def test_set_symbol(self):
         self.assertEqual(self.potcar.symbols, ["Fe", "P", "O"])
@@ -838,18 +830,15 @@ class PotcarTest(unittest.TestCase):
 
 class VaspInputTest(unittest.TestCase):
     def setUp(self):
-        filepath = os.path.join(test_dir, 'INCAR')
+        filepath = test_dir / 'INCAR'
         incar = Incar.from_file(filepath)
-        filepath = os.path.join(test_dir, 'POSCAR')
+        filepath = test_dir / 'POSCAR'
         poscar = Poscar.from_file(filepath,check_for_POTCAR=False)
         if "PMG_VASP_PSP_DIR" not in os.environ:
-            test_potcar_dir = os.path.abspath(
-                os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
-                             "test_files"))
-            os.environ["PMG_VASP_PSP_DIR"] = test_potcar_dir
-        filepath = os.path.join(test_dir, 'POTCAR')
+            os.environ["PMG_VASP_PSP_DIR"] = str(test_dir)
+        filepath = test_dir / 'POTCAR'
         potcar = Potcar.from_file(filepath)
-        filepath = os.path.join(test_dir, 'KPOINTS.auto')
+        filepath = test_dir / 'KPOINTS.auto'
         kpoints = Kpoints.from_file(filepath)
         self.vinput = VaspInput(incar, kpoints, poscar, potcar)
 
@@ -860,17 +849,17 @@ class VaspInputTest(unittest.TestCase):
         self.assertEqual(comp, Composition("Fe4P4O16"))
 
     def test_write(self):
-        tmp_dir = "VaspInput.testing"
+        tmp_dir = Path("VaspInput.testing")
         self.vinput.write_input(tmp_dir)
 
-        filepath = os.path.join(tmp_dir, "INCAR")
+        filepath = tmp_dir / "INCAR"
         incar = Incar.from_file(filepath)
         self.assertEqual(incar["NSW"], 99)
 
         for name in ("INCAR", "POSCAR", "POTCAR", "KPOINTS"):
-            os.remove(os.path.join(tmp_dir, name))
+            (tmp_dir / name).unlink()
 
-        os.rmdir(tmp_dir)
+        tmp_dir.rmdir()
 
     def test_from_directory(self):
         vi = VaspInput.from_directory(test_dir,
