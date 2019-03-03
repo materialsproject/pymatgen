@@ -1925,7 +1925,7 @@ class VaspInput(dict, MSONable):
         :param run_dir: Where to write input files and do the run.
         :param vasp_cmd: Args to be supplied to run VASP. Otherwise, the
             PMG_VASP_EXE in .pmgrc.yaml is used.
-        :param output_file: File to write output
+        :param output_file: File to write output.
         :param err_file: File to write err.
         """
         self.write_input(output_dir=run_dir)

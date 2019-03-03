@@ -11,7 +11,6 @@ import scipy.constants as const
 from pathlib import Path
 
 from monty.tempfile import ScratchDir
-from pymatgen import SETTINGS
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.vasp.inputs import Incar, Poscar, Kpoints, Potcar, \
     PotcarSingle, VaspInput

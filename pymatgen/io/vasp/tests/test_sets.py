@@ -7,7 +7,6 @@ import unittest
 import os
 import tempfile
 from monty.json import MontyDecoder
-from pymatgen import SETTINGS
 from pymatgen.io.vasp.sets import *
 from pymatgen.io.vasp.inputs import Poscar, Kpoints
 from pymatgen.core import Specie, Lattice, Structure
@@ -262,13 +261,13 @@ class MITMPRelaxSetTest(PymatgenTest):
         self.assertEqual(kpoints.kpts, [[2, 4, 5]])
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
 
-    def test_all_input(self):
-        d = self.mitset.all_input
+    def test_get_vasp_input(self):
+        d = self.mitset.get_vasp_input()
         self.assertEqual(d["INCAR"]["ISMEAR"], -5)
         s = self.structure.copy()
         s.make_supercell(4)
         paramset = MPRelaxSet(s)
-        d = paramset.all_input
+        d = paramset.get_vasp_input()
         self.assertEqual(d["INCAR"]["ISMEAR"], 0)
 
     def test_as_from_dict(self):
@@ -653,9 +652,9 @@ class MVLSlabSetTest(PymatgenTest):
         vis = MVLSlabSet(self.slab)
         vis_dipole = MVLSlabSet(self.slab, auto_dipole=True)
 
-        self.d_bulk = vis_bulk.all_input
-        self.d_slab = vis.all_input
-        self.d_dipole = vis_dipole.all_input
+        self.d_bulk = vis_bulk.get_vasp_input()
+        self.d_slab = vis.get_vasp_input()
+        self.d_dipole = vis_dipole.get_vasp_input()
         self.vis = vis
         warnings.simplefilter("ignore")
 
@@ -874,8 +873,8 @@ class MVLGBSetTest(PymatgenTest):
         self.bulk = MVLGBSet(self.s)
         self.slab = MVLGBSet(self.s, slab_mode=True)
 
-        self.d_bulk = self.bulk.all_input
-        self.d_slab = self.slab.all_input
+        self.d_bulk = self.bulk.get_vasp_input()
+        self.d_slab = self.slab.get_vasp_input()
         warnings.simplefilter("ignore")
 
     def tearDown(self):

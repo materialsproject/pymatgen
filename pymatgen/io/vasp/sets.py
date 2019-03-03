@@ -14,6 +14,7 @@ import numpy as np
 from pathlib import Path
 from monty.serialization import loadfn
 from monty.io import zopen
+from monty.dev import deprecated
 
 from pymatgen.core.periodic_table import Specie, Element
 from pymatgen.core.structure import Structure
@@ -121,6 +122,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         """
         return Potcar(self.potcar_symbols, functional=self.potcar_functional)
 
+    @deprecated(message="Use the get_vasp_input() method instead.")
     @property
     def all_input(self):
         """
