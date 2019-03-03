@@ -163,10 +163,11 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
             include_cif (bool): Whether to write a CIF file in the output
                 directory for easier opening by VESTA.
         """
-        self.get_vasp_input().write_input(
+        vinput = self.get_vasp_input()
+        vinput.write_input(
             output_dir, make_dir_if_not_present=make_dir_if_not_present)
         if include_cif:
-            s = self.all_input["POSCAR"].structure
+            s = vinput["POSCAR"].structure
             fname = Path(output_dir) / ("%s.cif" % re.sub(r'\s', "", s.formula))
             s.to(filename=fname)
 
