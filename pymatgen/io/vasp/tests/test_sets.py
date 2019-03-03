@@ -15,16 +15,14 @@ from pymatgen.core.surface import SlabGenerator
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.vasp.outputs import Vasprun
 
-test_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "..",
-                        "..", "..", 'test_files')
+
 dec = MontyDecoder()
-SETTINGS["PMG_VASP_PSP_DIR"] = test_dir
 
 
-class MITMPRelaxSetTest(unittest.TestCase):
+class MITMPRelaxSetTest(PymatgenTest):
     @classmethod
     def setUpClass(cls):
-        filepath = os.path.join(test_dir, 'POSCAR')
+        filepath = cls.TEST_FILES_DIR / 'POSCAR'
         poscar = Poscar.from_file(filepath)
         cls.structure = poscar.structure
         cls.coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
@@ -324,7 +322,7 @@ class MPStaticSetTest(PymatgenTest):
         warnings.simplefilter("ignore")
 
     def test_init(self):
-        prev_run = os.path.join(test_dir, "relaxation")
+        prev_run = self.TEST_FILES_DIR / "relaxation"
 
         vis = MPStaticSet.from_prev_calc(prev_calc_dir=prev_run)
         self.assertEqual(vis.incar["NSW"], 0)
@@ -380,7 +378,7 @@ class MPNonSCFSetTest(PymatgenTest):
         warnings.simplefilter("ignore")
 
     def test_init(self):
-        prev_run = os.path.join(test_dir, "relaxation")
+        prev_run = self.TEST_FILES_DIR / "relaxation"
         vis = MPNonSCFSet.from_prev_calc(
             prev_calc_dir=prev_run, mode="Line", copy_chgcar=False,
             user_incar_settings={"SIGMA": 0.025})
@@ -407,7 +405,7 @@ class MPNonSCFSetTest(PymatgenTest):
         self.assertTrue(os.path.exists(os.path.join(self.tmp, "CHGCAR")))
 
     def test_optics(self):
-        prev_run = os.path.join(test_dir, "relaxation")
+        prev_run = self.TEST_FILES_DIR / "relaxation"
         vis = MPNonSCFSet.from_prev_calc(
             prev_calc_dir=prev_run, copy_chgcar=False, optics=True,
             mode="Uniform", nedos=2001)
@@ -436,7 +434,7 @@ class MagmomLdauTest(PymatgenTest):
         warnings.simplefilter("default")
 
     def test_structure_from_prev_run(self):
-        vrun = Vasprun(os.path.join(test_dir, "vasprun.xml.magmom_ldau"))
+        vrun = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.magmom_ldau")
         structure = vrun.final_structure
         poscar = Poscar(structure)
         structure_decorated = get_structure_from_prev_run(vrun, sym_prec=0)
@@ -457,7 +455,7 @@ class MagmomLdauTest(PymatgenTest):
         YAML_PATH = os.path.join(os.path.dirname(__file__),
                                  "../VASPIncarBase.yaml")
         MAGMOM_SETTING = loadfn(YAML_PATH)["MAGMOM"]
-        structure = Structure.from_file(os.path.join(test_dir, "La4Fe4O12.cif"))
+        structure = Structure.from_file(self.TEST_FILES_DIR / "La4Fe4O12.cif")
         structure.add_oxidation_state_by_element({"La": +3, "Fe": +3, "O": -2})
         for ion in MAGMOM_SETTING:
             s = structure.copy()
@@ -472,9 +470,9 @@ class MagmomLdauTest(PymatgenTest):
             self.assertEqual(vis.incar["MAGMOM"], magmom_ans)
 
 
-class MITMDSetTest(unittest.TestCase):
+class MITMDSetTest(PymatgenTest):
     def setUp(self):
-        filepath = os.path.join(test_dir, 'POSCAR')
+        filepath = self.TEST_FILES_DIR / 'POSCAR'
         poscar = Poscar.from_file(filepath)
         self.struct = poscar.structure
         self.mitmdparam = MITMDSet(self.struct, 300, 1200, 10000)
@@ -502,9 +500,9 @@ class MITMDSetTest(unittest.TestCase):
         self.assertEqual(v._config_dict["INCAR"]["PREC"], "Low")
 
 
-class MVLNPTMDSetTest(unittest.TestCase):
+class MVLNPTMDSetTest(PymatgenTest):
     def setUp(self):
-        file_path = os.path.join(test_dir, 'POSCAR')
+        file_path = self.TEST_FILES_DIR / 'POSCAR'
         poscar = Poscar.from_file(file_path)
         self.struct = poscar.structure
         self.mvl_npt_set = MVLNPTMDSet(self.struct, start_temp=0,
@@ -545,7 +543,7 @@ class MVLNPTMDSetTest(unittest.TestCase):
         self.assertEqual(v._config_dict["INCAR"]["NSW"], 1000)
 
 
-class MITNEBSetTest(unittest.TestCase):
+class MITNEBSetTest(PymatgenTest):
     def setUp(self):
         c1 = [[0.5] * 3, [0.9] * 3]
         c2 = [[0.5] * 3, [0.9, 0.1, 0.1]]
@@ -608,7 +606,7 @@ class MPSOCSetTest(PymatgenTest):
         warnings.simplefilter("default")
 
     def test_from_prev_calc(self):
-        prev_run = os.path.join(test_dir, "fe_monomer")
+        prev_run = self.TEST_FILES_DIR / "fe_monomer"
         vis = MPSOCSet.from_prev_calc(prev_calc_dir=prev_run, magmom=[3],
                                       saxis=(1, 0, 0),
                                       user_incar_settings={"SIGMA": 0.025})
@@ -628,7 +626,7 @@ class MPNMRSetTest(PymatgenTest):
         warnings.simplefilter("default")
 
     def test_incar(self):
-        filepath = os.path.join(test_dir, 'Li.cif')
+        filepath = self.TEST_FILES_DIR / 'Li.cif'
         structure = Structure.from_file(filepath)
 
         vis = MPNMRSet(structure)
@@ -646,7 +644,7 @@ class MPNMRSetTest(PymatgenTest):
 
 class MVLSlabSetTest(PymatgenTest):
     def setUp(self):
-        s = PymatgenTest.get_structure("Li2O")
+        s = self.get_structure("Li2O")
         gen = SlabGenerator(s, (1, 0, 0), 10, 10)
         self.slab = gen.get_slab()
         self.bulk = self.slab.oriented_unit_cell
@@ -755,7 +753,7 @@ class MVLGWSetTest(PymatgenTest):
         self.assertEqual(symbols, ["Li_sv_GW", "O_GW"])
 
     def test_diag(self):
-        prev_run = os.path.join(test_dir, "relaxation")
+        prev_run = self.TEST_FILES_DIR / "relaxation"
         mvlgwdiag = MVLGWSet.from_prev_calc(prev_run, copy_wavecar=True,
                                             mode="diag")
         mvlgwdiag.write_input(self.tmp)
@@ -765,14 +763,14 @@ class MVLGWSetTest(PymatgenTest):
         self.assertTrue(mvlgwdiag.incar["LOPTICS"])
 
     def test_bse(self):
-        prev_run = os.path.join(test_dir, "relaxation")
+        prev_run = self.TEST_FILES_DIR / "relaxation"
         mvlgwgbse = MVLGWSet.from_prev_calc(prev_run, copy_wavecar=True,
                                             mode="BSE")
         mvlgwgbse.write_input(self.tmp)
         self.assertTrue(os.path.exists(os.path.join(self.tmp, "WAVECAR")))
         self.assertTrue(os.path.exists(os.path.join(self.tmp, "WAVEDER")))
 
-        prev_run = os.path.join(test_dir, "relaxation")
+        prev_run = self.TEST_FILES_DIR / "relaxation"
         mvlgwgbse = MVLGWSet.from_prev_calc(prev_run, copy_wavecar=False,
                                             mode="GW")
         self.assertEqual(mvlgwgbse.incar["NOMEGA"], 80)
@@ -797,7 +795,7 @@ class MPHSEBSTest(PymatgenTest):
         warnings.simplefilter("default")
 
     def test_init(self):
-        prev_run = os.path.join(test_dir, "static_silicon")
+        prev_run = self.TEST_FILES_DIR / "static_silicon"
         vis = MPHSEBSSet.from_prev_calc(prev_calc_dir=prev_run, mode="uniform")
         self.assertTrue(vis.incar["LHFCALC"])
         self.assertEqual(len(vis.kpoints.kpts), 16)
@@ -816,7 +814,7 @@ class MPHSEBSTest(PymatgenTest):
 
 class MVLScanRelaxSetTest(PymatgenTest):
     def setUp(self):
-        file_path = os.path.join(test_dir, 'POSCAR')
+        file_path = self.TEST_FILES_DIR / 'POSCAR'
         poscar = Poscar.from_file(file_path)
         self.struct = poscar.structure
         self.mvl_scan_set = MVLScanRelaxSet(self.struct,
@@ -868,9 +866,9 @@ class FuncTest(PymatgenTest):
             shutil.rmtree(d)
 
 
-class MVLGBSetTest(unittest.TestCase):
+class MVLGBSetTest(PymatgenTest):
     def setUp(self):
-        filepath = os.path.join(test_dir, 'Li.cif')
+        filepath = self.TEST_FILES_DIR / 'Li.cif'
         self.s = Structure.from_file(filepath)
 
         self.bulk = MVLGBSet(self.s)
@@ -898,9 +896,9 @@ class MVLGBSetTest(unittest.TestCase):
         self.assertEqual(kpoints.kpts, [[k_a, k_b, 1]])
 
 
-class MVLRelax52SetTest(unittest.TestCase):
+class MVLRelax52SetTest(PymatgenTest):
     def setUp(self):
-        file_path = os.path.join(test_dir, 'POSCAR')
+        file_path = self.TEST_FILES_DIR / 'POSCAR'
         poscar = Poscar.from_file(file_path)
         self.struct = poscar.structure
         self.mvl_rlx_set = MVLRelax52Set(
