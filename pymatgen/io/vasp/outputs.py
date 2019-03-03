@@ -11,6 +11,7 @@ import math
 import os
 import re
 import warnings
+from pathlib import Path
 import xml.etree.cElementTree as ET
 from collections import defaultdict
 from io import StringIO
@@ -883,7 +884,8 @@ class Vasprun(MSONable):
             warnings.warn("No POTCAR file with matching TITEL fields"
                           " was found in {}".format(os.path.abspath(p)))
 
-        if isinstance(path, str):
+        if isinstance(path, (str, Path)):
+            path = str(path)
             if "POTCAR" in path:
                 potcar = Potcar.from_file(path)
                 if {d.TITEL for d in potcar} != \
