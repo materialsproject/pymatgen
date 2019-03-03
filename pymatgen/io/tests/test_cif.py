@@ -4,7 +4,6 @@
 
 
 import unittest
-import os
 import warnings
 
 import numpy as np
@@ -107,7 +106,7 @@ loop_
   C1  C0+  2  b  0  0  0.25  .  1.  0
   C2  C0+  2  c  0.3333  0.6667  0.25  .  1.  0"""
         for l1, l2, l3 in zip(str(c).split("\n"), cif_str.split("\n"),
-                          cif_str_2.split("\n")):
+                              cif_str_2.split("\n")):
             self.assertEqual(l1.strip(), l2.strip())
             self.assertEqual(l2.strip(), l3.strip())
 
