@@ -20,9 +20,6 @@ try:
 except ImportError:
     pybtex = None
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files')
-
 
 class CifBlockTest(PymatgenTest):
 
