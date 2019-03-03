@@ -28,16 +28,7 @@ def _load_pmg_settings():
                 d[k] = v
             elif k in ["VASP_PSP_DIR", "MAPI_KEY", "DEFAULT_FUNCTIONAL"]:
                 d["PMG_" + k] = v
-    clean_d = {}
-    for k, v in d.items():
-        if not k.startswith("PMG_"):
-            warnings.warn('With effect from pmg 5.0, all pymatgen settings are'
-                          ' prefixed with a "PMG_". E.g., "PMG_VASP_PSP_DIR" '
-                          'instead of "VASP_PSP_DIR".')
-            clean_d["PMG_" + k] = v
-        else:
-            clean_d[k] = v
-    return clean_d
+    return dict(d)
 
 
 SETTINGS = _load_pmg_settings()

@@ -850,6 +850,11 @@ class VaspInputTest(PymatgenTest):
 
         tmp_dir.rmdir()
 
+    def test_run_vasp(self):
+        # To add some test.
+        pass
+        # self.vinput.run_vasp("hello")
+
     def test_from_directory(self):
         vi = VaspInput.from_directory(self.TEST_FILES_DIR,
                                       optional_files={"CONTCAR.Li2O": Poscar})

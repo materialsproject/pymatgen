@@ -17,7 +17,7 @@ from monty.io import zopen
 
 from pymatgen.core.periodic_table import Specie, Element
 from pymatgen.core.structure import Structure
-from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints
+from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints, VaspInput
 from pymatgen.io.vasp.outputs import Vasprun, Outcar
 from monty.json import MSONable
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -139,6 +139,15 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
                 'POSCAR': self.poscar,
                 'POTCAR': self.potcar}
 
+    def get_vasp_input(self):
+        kpoints = self.kpoints
+        incar = self.incar
+        if np.product(kpoints.kpts) < 4 and incar.get("ISMEAR", 0) == -5:
+            incar["ISMEAR"] = 0
+
+        return VaspInput(incar=incar, kpoints=kpoints, poscar=self.poscar,
+                         potcar=self.potcar)
+
     def write_input(self, output_dir,
                     make_dir_if_not_present=True, include_cif=False):
         """
@@ -152,14 +161,11 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
             include_cif (bool): Whether to write a CIF file in the output
                 directory for easier opening by VESTA.
         """
-        output_dir = Path(output_dir)
-        if make_dir_if_not_present and not output_dir.exists():
-            output_dir.mkdir(parents=True)
-        for k, v in self.all_input.items():
-            v.write_file(str(output_dir / k))
+        self.get_vasp_input().write_input(
+            output_dir, make_dir_if_not_present=make_dir_if_not_present)
         if include_cif:
             s = self.all_input["POSCAR"].structure
-            fname = str(output_dir / ("%s.cif" % re.sub(r'\s', "", s.formula)))
+            fname = Path(output_dir) / ("%s.cif" % re.sub(r'\s', "", s.formula))
             s.to(filename=fname)
 
     def as_dict(self, verbosity=2):

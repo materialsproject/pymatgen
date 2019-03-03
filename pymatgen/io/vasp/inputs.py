@@ -10,6 +10,7 @@ import warnings
 import logging
 import math
 import glob
+import subprocess
 
 import numpy as np
 from numpy.linalg import det
@@ -19,6 +20,7 @@ from hashlib import md5
 from monty.io import zopen
 from monty.os.path import zpath
 from monty.json import MontyDecoder
+from monty.os import cd
 
 from enum import Enum
 from tabulate import tabulate
@@ -1911,3 +1913,10 @@ class VaspInput(dict, MSONable):
                 sub_d["optional_files"][fname] = \
                     ftype.from_file(os.path.join(input_dir, fname))
         return VaspInput(**sub_d)
+
+    def run_vasp(self, run_dir="."):
+        self.write_input(output_dir=run_dir)
+        if "PMG_VASP_EXE" not in SETTINGS:
+            raise RuntimeError("You need to set the PMG_VASP_EXE in .pmgrc.yaml to run VASP.")
+        with cd(run_dir):
+            subprocess.check_output(SETTINGS["PMG_VASP_EXE"])
