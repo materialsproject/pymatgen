@@ -57,12 +57,16 @@ class Site(collections.abc.Hashable, MSONable):
         """
         if isinstance(atoms_n_occu, Composition):
             # Compositions are immutable, so don't need to copy (much faster)
-            self._species = atoms_n_occu
+            species = atoms_n_occu
         else:
             try:
-                self._species = Composition({get_el_sp(atoms_n_occu): 1})
+                species = Composition({get_el_sp(atoms_n_occu): 1})
             except TypeError:
-                self._species = Composition(atoms_n_occu)
+                species = Composition(atoms_n_occu)
+        totaloccu = species.num_atoms
+        if totaloccu > 1 + Composition.amount_tolerance:
+            raise ValueError("Species occupancies sum to more than 1!")
+        self._species = species
         self.coords = np.array(coords)
         self.properties = properties or {}
 
