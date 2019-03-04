@@ -322,6 +322,175 @@ to build an appropriate supercell from partial occupancies.""")
         """
         pass
 
+    def add_site_property(self, property_name, values):
+        """
+        Adds a property to a site.
+
+        Args:
+            property_name (str): The name of the property to add.
+            values (list): A sequence of values. Must be same length as
+                number of sites.
+        """
+        if len(values) != len(self.sites):
+            raise ValueError("Values must be same length as sites.")
+        for site, val in zip(self.sites, values):
+            site.properties[property_name] = val
+
+    def remove_site_property(self, property_name):
+        """
+        Adds a property to a site.
+
+        Args:
+            property_name (str): The name of the property to add.
+        """
+        for site in self.sites:
+            del site.properties[property_name]
+
+    def replace_species(self, species_mapping):
+        """
+        Swap species.
+
+        Args:
+            species_mapping (dict): dict of species to swap. Species can be
+                elements too. E.g., {Element("Li"): Element("Na")} performs
+                a Li for Na substitution. The second species can be a
+                sp_and_occu dict. For example, a site with 0.5 Si that is
+                passed the mapping {Element('Si): {Element('Ge'):0.75,
+                Element('C'):0.25} } will have .375 Ge and .125 C.
+        """
+
+        species_mapping = {get_el_sp(k): v
+                           for k, v in species_mapping.items()}
+        sp_to_replace = set(species_mapping.keys())
+        sp_in_structure = set(self.composition.keys())
+        if not sp_in_structure.issuperset(sp_to_replace):
+            warnings.warn(
+                "Some species to be substituted are not present in "
+                "structure. Pls check your input. Species to be "
+                "substituted = %s; Species in structure = %s"
+                % (sp_to_replace, sp_in_structure))
+
+        for site in self._sites:
+            if sp_to_replace.intersection(site.species):
+                c = Composition()
+                for sp, amt in site.species.items():
+                    new_sp = species_mapping.get(sp, sp)
+                    try:
+                        c += Composition(new_sp) * amt
+                    except Exception:
+                        c += {new_sp: amt}
+                site.species = c
+
+    def add_oxidation_state_by_element(self, oxidation_states):
+        """
+        Add oxidation states.
+
+        Args:
+            oxidation_states (dict): Dict of oxidation states.
+                E.g., {"Li":1, "Fe":2, "P":5, "O":-2}
+        """
+        try:
+            for site in self.sites:
+                new_sp = {}
+                for el, occu in site.species.items():
+                    sym = el.symbol
+                    new_sp[Specie(sym, oxidation_states[sym])] = occu
+                site.species = new_sp
+        except KeyError:
+            raise ValueError("Oxidation state of all elements must be "
+                             "specified in the dictionary.")
+
+    def add_oxidation_state_by_site(self, oxidation_states):
+        """
+        Add oxidation states to a structure by site.
+
+        Args:
+            oxidation_states (list): List of oxidation states.
+                E.g., [1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, -2, -2, -2, -2]
+        """
+        if len(oxidation_states) != len(self.sites):
+            raise ValueError("Oxidation states of all sites must be "
+                             "specified.")
+        for site, ox in zip(self.sites, oxidation_states):
+            new_sp = {}
+            for el, occu in site.species.items():
+                sym = el.symbol
+                new_sp[Specie(sym, ox)] = occu
+            site.species = new_sp
+
+    def remove_oxidation_states(self):
+        """
+        Removes oxidation states from a structure.
+        """
+        for site in self.sites:
+            new_sp = collections.defaultdict(float)
+            for el, occu in site.species.items():
+                sym = el.symbol
+                new_sp[Element(sym)] += occu
+            site.species = new_sp
+
+    def add_oxidation_state_by_guess(self, **kwargs):
+        """
+        Decorates the structure with oxidation state, guessing
+        using Composition.oxi_state_guesses()
+
+        Args:
+            **kwargs: parameters to pass into oxi_state_guesses()
+        """
+        oxid_guess = self.composition.oxi_state_guesses(**kwargs)
+        oxid_guess = oxid_guess or \
+                     [dict([(e.symbol, 0) for e in self.composition])]
+        self.add_oxidation_state_by_element(oxid_guess[0])
+
+    def add_spin_by_element(self, spins):
+        """
+        Add spin states to a structure.
+
+        Args:
+            spisn (dict): Dict of spins associated with
+            elements or species, e.g. {"Ni":+5} or {"Ni2+":5}
+        """
+        for site in self.sites:
+            new_sp = {}
+            for sp, occu in site.species.items():
+                sym = sp.symbol
+                oxi_state = getattr(sp, "oxi_state", None)
+                new_sp[Specie(sym, oxidation_state=oxi_state,
+                              properties={'spin': spins.get(str(sp), spins.get(sym, None))})] = occu
+            site.species = new_sp
+
+    def add_spin_by_site(self, spins):
+        """
+        Add spin states to a structure by site.
+
+        Args:
+            spins (list): List of spins
+                E.g., [+5, -5, 0, 0]
+        """
+        if len(spins) != len(self.sites):
+            raise ValueError("Spin of all sites must be "
+                             "specified in the dictionary.")
+
+        for site, spin in zip(self.sites, spins):
+            new_sp = {}
+            for sp, occu in site.species.items():
+                sym = sp.symbol
+                oxi_state = getattr(sp, "oxi_state", None)
+                new_sp[Specie(sym, oxidation_state=oxi_state,
+                              properties={'spin': spin})] = occu
+            site.species = new_sp
+
+    def remove_spin(self):
+        """
+        Removes spin states from a structure.
+        """
+        for site in self.sites:
+            new_sp = collections.defaultdict(float)
+            for sp, occu in site.species.items():
+                oxi_state = getattr(sp, "oxi_state", None)
+                new_sp[Specie(sp.symbol, oxidation_state=oxi_state)] += occu
+            site.species = new_sp
+
 
 class IStructure(SiteCollection, MSONable):
     """
@@ -2531,69 +2700,6 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         self._sites.insert(i, new_site)
 
-    def add_site_property(self, property_name, values):
-        """
-        Adds a property to all sites.
-
-        Args:
-            property_name (str): The name of the property to add.
-            values: A sequence of values. Must be same length as number of
-                sites.
-        """
-        if len(values) != len(self._sites):
-            raise ValueError("Values must be same length as sites.")
-        for site, val in zip(self._sites, values):
-            site.properties[property_name] = val
-
-    def remove_site_property(self, property_name):
-        """
-        Adds a property to a site.
-
-        Args:
-            property_name (str): The name of the property to add.
-            values (list): A sequence of values. Must be same length as
-                number of sites.
-        """
-        for site in self._sites:
-            del site.properties[property_name]
-
-    def replace_species(self, species_mapping):
-        """
-        Swap species in a structure.
-
-        Args:
-            species_mapping (dict): Dict of species to swap. Species can be
-                elements too. e.g., {Element("Li"): Element("Na")} performs
-                a Li for Na substitution. The second species can be a
-                sp_and_occu dict. For example, a site with 0.5 Si that is
-                passed the mapping {Element('Si): {Element('Ge'):0.75,
-                Element('C'):0.25} } will have .375 Ge and .125 C. You can
-                also supply strings that represent elements or species and
-                the code will try to figure out the meaning. E.g.,
-                {"C": "C0.5Si0.5"} will replace all C with 0.5 C and 0.5 Si,
-                i.e., a disordered site.
-        """
-        species_mapping = {get_el_sp(k): v
-                           for k, v in species_mapping.items()}
-        sp_to_replace = set(species_mapping.keys())
-        sp_in_structure = set(self.composition.keys())
-        if not sp_in_structure.issuperset(sp_to_replace):
-            warnings.warn("Some species to be substituted are not present in "
-                          "structure. Pls check your input. Species to be "
-                          "substituted = %s; Species in structure = %s"
-                          % (sp_to_replace, sp_in_structure))
-
-        for site in self._sites:
-            if sp_to_replace.intersection(site.species):
-                c = Composition()
-                for sp, amt in site.species.items():
-                    new_sp = species_mapping.get(sp, sp)
-                    try:
-                        c += Composition(new_sp) * amt
-                    except Exception:
-                        c += {new_sp: amt}
-                site.species = c
-
     def replace(self, i, species, coords=None, coords_are_cartesian=False,
                 properties=None):
         """
@@ -2925,139 +3031,6 @@ class Structure(IStructure, collections.abc.MutableSequence):
         for i in range(len(self._sites)):
             self.translate_sites([i], get_rand_vec(), frac_coords=False)
 
-    def add_oxidation_state_by_element(self, oxidation_states):
-        """
-        Add oxidation states to a structure.
-
-        Args:
-            oxidation_states (dict): Dict of oxidation states.
-                E.g., {"Li":1, "Fe":2, "P":5, "O":-2}
-        """
-        try:
-            for i, site in enumerate(self._sites):
-                new_sp = {}
-                for el, occu in site.species.items():
-                    sym = el.symbol
-                    new_sp[Specie(sym, oxidation_states[sym])] = occu
-                new_site = PeriodicSite(new_sp, site.frac_coords,
-                                        self._lattice,
-                                        coords_are_cartesian=False,
-                                        properties=site.properties)
-                self._sites[i] = new_site
-
-        except KeyError:
-            raise ValueError("Oxidation state of all elements must be "
-                             "specified in the dictionary.")
-
-    def add_oxidation_state_by_site(self, oxidation_states):
-        """
-        Add oxidation states to a structure by site.
-
-        Args:
-            oxidation_states (list): List of oxidation states.
-                E.g., [1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, -2, -2, -2, -2]
-        """
-        try:
-            for i, site in enumerate(self._sites):
-                new_sp = {}
-                for el, occu in site.species.items():
-                    sym = el.symbol
-                    new_sp[Specie(sym, oxidation_states[i])] = occu
-                new_site = PeriodicSite(new_sp, site.frac_coords,
-                                        self._lattice,
-                                        coords_are_cartesian=False,
-                                        properties=site.properties)
-                self._sites[i] = new_site
-
-        except IndexError:
-            raise ValueError("Oxidation state of all sites must be "
-                             "specified in the dictionary.")
-
-    def remove_oxidation_states(self):
-        """
-        Removes oxidation states from a structure.
-        """
-        for site in self._sites:
-            new_sp = collections.defaultdict(float)
-            for el, occu in site.species.items():
-                sym = el.symbol
-                new_sp[Element(sym)] += occu
-            site.species = new_sp
-
-    def add_oxidation_state_by_guess(self, **kwargs):
-        """
-        Decorates the structure with oxidation state, guessing
-        using Composition.oxi_state_guesses()
-
-        Args:
-            **kwargs: parameters to pass into oxi_state_guesses()
-        """
-        oxid_guess = self.composition.oxi_state_guesses(**kwargs)
-        oxid_guess = oxid_guess or \
-                     [dict([(e.symbol, 0) for e in self.composition])]
-        self.add_oxidation_state_by_element(oxid_guess[0])
-
-    def add_spin_by_element(self, spins):
-        """
-        Add spin states to a structure.
-
-        Args:
-            spisn (dict): Dict of spins associated with
-            elements or species, e.g. {"Ni":+5} or {"Ni2+":5}
-        """
-        for i, site in enumerate(self._sites):
-            new_sp = {}
-            for sp, occu in site.species.items():
-                sym = sp.symbol
-                oxi_state = getattr(sp, "oxi_state", None)
-                new_sp[Specie(sym, oxidation_state=oxi_state,
-                              properties={'spin': spins.get(str(sp), spins.get(sym, None))})] = occu
-            new_site = PeriodicSite(new_sp, site.frac_coords,
-                                    self._lattice,
-                                    coords_are_cartesian=False,
-                                    properties=site.properties)
-            self._sites[i] = new_site
-
-    def add_spin_by_site(self, spins):
-        """
-        Add spin states to a structure by site.
-
-        Args:
-            spins (list): List of spins
-                E.g., [+5, -5, 0, 0]
-        """
-        try:
-            for i, site in enumerate(self._sites):
-                new_sp = {}
-                for sp, occu in site.species.items():
-                    sym = sp.symbol
-                    oxi_state = getattr(sp, "oxi_state", None)
-                    new_sp[Specie(sym, oxidation_state=oxi_state,
-                                  properties={'spin': spins[i]})] = occu
-                new_site = PeriodicSite(new_sp, site.frac_coords,
-                                        self._lattice,
-                                        coords_are_cartesian=False,
-                                        properties=site.properties)
-                self._sites[i] = new_site
-
-        except IndexError:
-            raise ValueError("Spin of all sites must be "
-                             "specified in the dictionary.")
-
-    def remove_spin(self):
-        """
-        Removes spin states from a structure.
-        """
-        for i, site in enumerate(self._sites):
-            new_sp = collections.defaultdict(float)
-            for sp, occu in site.species.items():
-                oxi_state = getattr(sp, "oxi_state", None)
-                new_sp[Specie(sp.symbol, oxidation_state=oxi_state)] += occu
-            new_site = PeriodicSite(new_sp, site.frac_coords,
-                                    self._lattice,
-                                    coords_are_cartesian=False,
-                                    properties=site.properties)
-            self._sites[i] = new_site
 
     def make_supercell(self, scaling_matrix, to_unit_cell=True):
         """
@@ -3292,15 +3265,12 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                 E.g., {"Li":1, "Fe":2, "P":5, "O":-2}
         """
         try:
-            for i, site in enumerate(self._sites):
+            for site in self._sites:
                 new_sp = {}
                 for el, occu in site.species.items():
                     sym = el.symbol
                     new_sp[Specie(sym, oxidation_states[sym])] = occu
-                new_site = Site(new_sp, site.coords,
-                                properties=site.properties)
-                self._sites[i] = new_site
-
+                site.species = new_sp
         except KeyError:
             raise ValueError("Oxidation state of all elements must be "
                              "specified in the dictionary.")
@@ -3328,68 +3298,6 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                     raise ValueError("New site is too close to an existing "
                                      "site!")
         self._sites.insert(i, new_site)
-
-    def add_site_property(self, property_name, values):
-        """
-        Adds a property to a site.
-
-        Args:
-            property_name (str): The name of the property to add.
-            values (list): A sequence of values. Must be same length as
-                number of sites.
-        """
-        if len(values) != len(self._sites):
-            raise ValueError("Values must be same length as sites.")
-        for i in range(len(self._sites)):
-            site = self._sites[i]
-            props = site.properties
-            if not props:
-                props = {}
-            props[property_name] = values[i]
-            self._sites[i] = Site(site.species, site.coords,
-                                  properties=props)
-
-    def remove_site_property(self, property_name):
-        """
-        Adds a property to a site.
-
-        Args:
-            property_name (str): The name of the property to add.
-        """
-        for i in range(len(self._sites)):
-            site = self._sites[i]
-            props = {k: v
-                     for k, v in site.properties.items()
-                     if k != property_name}
-            self._sites[i] = Site(site.species, site.coords,
-                                  properties=props)
-
-    def replace_species(self, species_mapping):
-        """
-        Swap species in a molecule.
-
-        Args:
-            species_mapping (dict): dict of species to swap. Species can be
-                elements too. E.g., {Element("Li"): Element("Na")} performs
-                a Li for Na substitution. The second species can be a
-                sp_and_occu dict. For example, a site with 0.5 Si that is
-                passed the mapping {Element('Si): {Element('Ge'):0.75,
-                Element('C'):0.25} } will have .375 Ge and .125 C.
-        """
-        species_mapping = {get_el_sp(k): v
-                           for k, v in species_mapping.items()}
-
-        def mod_site(site):
-            c = Composition()
-            for sp, amt in site.species.items():
-                new_sp = species_mapping.get(sp, sp)
-                try:
-                    c += Composition(new_sp) * amt
-                except TypeError:
-                    c += {new_sp: amt}
-            return Site(c, site.coords, properties=site.properties)
-
-        self._sites = [mod_site(site) for site in self._sites]
 
     def remove_species(self, species):
         """
