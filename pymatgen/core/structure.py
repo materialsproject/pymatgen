@@ -46,7 +46,7 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 
-class SiteCollection(collections.Sequence, metaclass=ABCMeta):
+class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
     """
     Basic SiteCollection. Essentially a sequence of Sites or PeriodicSites.
     This serves as a base class for Molecule (a collection of Site, i.e., no
@@ -2341,7 +2341,7 @@ class IMolecule(SiteCollection, MSONable):
         return Molecule.from_sites(cluster)
 
 
-class Structure(IStructure, collections.MutableSequence):
+class Structure(IStructure, collections.abc.MutableSequence):
     """
     Mutable version of structure.
     """
@@ -2455,7 +2455,7 @@ class Structure(IStructure, collections.MutableSequence):
                 self._sites[ii] = site
             else:
                 if isinstance(site, str) or (
-                        not isinstance(site, collections.Sequence)):
+                        not isinstance(site, collections.abc.Sequence)):
                     sp = site
                     frac_coords = self._sites[ii].frac_coords
                     properties = self._sites[ii].properties
@@ -2869,7 +2869,7 @@ class Structure(IStructure, collections.MutableSequence):
             to_unit_cell (bool): Whether new sites are transformed to unit
                 cell
         """
-        if not isinstance(indices, collections.Iterable):
+        if not isinstance(indices, collections.abc.Iterable):
             indices = [indices]
 
         for i in indices:
@@ -3175,7 +3175,7 @@ class Structure(IStructure, collections.MutableSequence):
         self._charge = new_charge
 
 
-class Molecule(IMolecule, collections.MutableSequence):
+class Molecule(IMolecule, collections.abc.MutableSequence):
     """
     Mutable Molecule. It has all the methods in IMolecule, but in addition,
     it allows a user to perform edits on the molecule.
@@ -3244,7 +3244,7 @@ class Molecule(IMolecule, collections.MutableSequence):
                 self._sites[ii] = site
             else:
                 if isinstance(site, str) or (
-                        not isinstance(site, collections.Sequence)):
+                        not isinstance(site, collections.abc.Sequence)):
                     sp = site
                     coords = self._sites[ii].coords
                     properties = self._sites[ii].properties

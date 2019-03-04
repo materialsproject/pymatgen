@@ -4,7 +4,6 @@
 
 
 import unittest
-import os
 import warnings
 import random
 from pymatgen import SETTINGS
@@ -23,6 +22,7 @@ from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.io.cif import CifParser
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
+from pymatgen.util.testing import PymatgenTest
 
 """
 Created on Jun 9, 2012
@@ -37,12 +37,9 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Jun 9, 2012"
 
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files')
-
-
-@unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY"), "PMG_MAPI_KEY environment variable not set.")
-class MPResterTest(unittest.TestCase):
+@unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY"),
+                 "PMG_MAPI_KEY environment variable not set.")
+class MPResterTest(PymatgenTest):
     _multiprocess_shared_ = True
 
     def setUp(self):
@@ -133,8 +130,8 @@ class MPResterTest(unittest.TestCase):
     def test_find_structure(self):
         # nosetests pymatgen/matproj/tests/test_matproj.py:MPResterTest.test_find_structure
         m = MPRester()
-        ciffile = os.path.join(test_dir, 'Fe3O4.cif')
-        data = m.find_structure(ciffile)
+        ciffile = self.TEST_FILES_DIR / 'Fe3O4.cif'
+        data = m.find_structure(str(ciffile))
         self.assertTrue(len(data) > 1)
         s = CifParser(ciffile).get_structures()[0]
         data = m.find_structure(s)

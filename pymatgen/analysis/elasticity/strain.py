@@ -101,7 +101,7 @@ class Deformation(SquareTensor):
         return cls(f)
 
 
-class DeformedStructureSet(collections.Sequence):
+class DeformedStructureSet(collections.abc.Sequence):
     """
     class that generates a set of independently deformed structures that
     can be used to calculate linear stress-strain response

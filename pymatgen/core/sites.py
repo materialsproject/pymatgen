@@ -27,7 +27,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Jul 17, 2012"
 
 
-class Site(collections.Hashable, MSONable):
+class Site(collections.abc.Hashable, MSONable):
     """
     A generalized *non-periodic* site. This is essentially a composition
     at a point in space, with some optional properties associated with it. A

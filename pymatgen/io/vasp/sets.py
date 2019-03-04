@@ -122,8 +122,8 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         """
         return Potcar(self.potcar_symbols, functional=self.potcar_functional)
 
-    @deprecated(message="Use the get_vasp_input() method instead.")
     @property
+    @deprecated(message="Use the get_vasp_input() method instead.")
     def all_input(self):
         """
         Returns all input files as a dict of {filename: vasp object}
@@ -131,23 +131,18 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         Returns:
             dict of {filename: object}, e.g., {'INCAR': Incar object, ...}
         """
-        kpoints = self.kpoints
-        incar = self.incar
-        if np.product(kpoints.kpts) < 4 and incar.get("ISMEAR", 0) == -5:
-            incar["ISMEAR"] = 0
-
-        return {'INCAR': incar,
-                'KPOINTS': kpoints,
+        return {'INCAR': self.incar,
+                'KPOINTS': self.kpoints,
                 'POSCAR': self.poscar,
                 'POTCAR': self.potcar}
 
-    def get_vasp_input(self):
-        kpoints = self.kpoints
-        incar = self.incar
-        if np.product(kpoints.kpts) < 4 and incar.get("ISMEAR", 0) == -5:
-            incar["ISMEAR"] = 0
+    def get_vasp_input(self) -> VaspInput:
+        """
 
-        return VaspInput(incar=incar, kpoints=kpoints, poscar=self.poscar,
+        Returns:
+            VaspInput
+        """
+        return VaspInput(incar=self.incar, kpoints=self.kpoints, poscar=self.poscar,
                          potcar=self.potcar)
 
     def write_input(self, output_dir,
@@ -388,6 +383,8 @@ class DictSet(VaspInputSet):
         if self.use_structure_charge:
             incar["NELECT"] = self.nelect
 
+        if np.product(self.kpoints.kpts) < 4 and incar.get("ISMEAR", 0) == -5:
+            incar["ISMEAR"] = 0
         return incar
 
     @property
