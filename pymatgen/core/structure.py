@@ -2605,18 +2605,13 @@ class Structure(IStructure, collections.abc.MutableSequence):
             else:
                 if isinstance(site, str) or (
                         not isinstance(site, collections.abc.Sequence)):
-                    sp = site
-                    frac_coords = self._sites[ii].frac_coords
-                    properties = self._sites[ii].properties
+                    self._sites[ii].species = site
                 else:
-                    sp = site[0]
-                    frac_coords = site[1] if len(site) > 1 else \
-                        self._sites[ii].frac_coords
-                    properties = site[2] if len(site) > 2 else \
-                        self._sites[ii].properties
-
-                self._sites[ii] = PeriodicSite(sp, frac_coords, self._lattice,
-                                               properties=properties)
+                    self._sites[ii].species = site[0]
+                    if len(site) > 1:
+                        self._sites[ii].frac_coords = site[1]
+                    if len(site) > 2:
+                        self._sites[ii].properties = site[2]
 
     def __delitem__(self, i):
         """
@@ -3011,7 +3006,6 @@ class Structure(IStructure, collections.abc.MutableSequence):
         for i in range(len(self._sites)):
             self.translate_sites([i], get_rand_vec(), frac_coords=False)
 
-
     def make_supercell(self, scaling_matrix, to_unit_cell=True):
         """
         Create a supercell.
@@ -3171,17 +3165,13 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             else:
                 if isinstance(site, str) or (
                         not isinstance(site, collections.abc.Sequence)):
-                    sp = site
-                    coords = self._sites[ii].coords
-                    properties = self._sites[ii].properties
+                    self._sites[ii].species = site
                 else:
-                    sp = site[0]
-                    coords = site[1] if len(site) > 1 else self._sites[
-                        ii].coords
-                    properties = site[2] if len(site) > 2 else self._sites[ii] \
-                        .properties
-
-                self._sites[ii] = Site(sp, coords, properties=properties)
+                    self._sites[ii].species = site[0]
+                    if len(site) > 1:
+                        self._sites[ii].coords = site[1]
+                    if len(site) > 2:
+                        self._sites[ii].properties = site[2]
 
     def __delitem__(self, i):
         """
