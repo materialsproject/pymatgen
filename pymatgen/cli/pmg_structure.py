@@ -59,7 +59,7 @@ def analyze_localenv(args):
         for i, site in enumerate(s):
             for species, dist in bonds.items():
                 if species[0] in [sp.symbol
-                                  for sp in site.species_and_occu.keys()]:
+                                  for sp in site.species.keys()]:
                     dists = [d for nn, d in s.get_neighbors(site, dist)
                              if species[1] in
                              [sp.symbol for sp in nn.species_and_occu.keys()]]

@@ -105,7 +105,7 @@ def calculate_bv_sum_unordered(site, nn_list, scale_factor=1):
     # \sum_{nn} \sum_j^N \sum_k^{N_{nn}} f_{site}_j f_{nn_i}_k vij_full
     # where vij_full is the valence bond of the fully occupied bond
     bvsum = 0
-    for specie1, occu1 in site.species_and_occu.items():
+    for specie1, occu1 in site.species.items():
         el1 = Element(specie1.symbol)
         for (nn, dist) in nn_list:
             for specie2, occu2 in nn.species_and_occu.items():
@@ -209,7 +209,7 @@ class BVAnalyzer:
         bv_sum = calculate_bv_sum_unordered(
             site, nn, scale_factor=self.dist_scale_factor)
         prob = {}
-        for specie, occu in site.species_and_occu.items():
+        for specie, occu in site.species.items():
             el = specie.symbol
 
             prob[el] = {}
@@ -295,7 +295,7 @@ class BVAnalyzer:
                 full_all_prob.extend(prob.values())
                 vals = []
                 for (elsp, occ) in get_z_ordered_elmap(
-                        test_site.species_and_occu):
+                        test_site.species):
                     val = list(prob[elsp.symbol].keys())
                     # Sort valences in order of decreasing probability.
                     val = sorted(val, key=lambda v: -prob[elsp.symbol][v])

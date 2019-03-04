@@ -473,7 +473,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             structure = Structure.from_sites(structure)
             for i, site in enumerate(structure):
                 structure[i] = {"%s0+" % k.symbol: v
-                                for k, v in site.species_and_occu.items()}
+                                for k, v in site.species.items()}
 
         equivalent_sites = []
         exemplars = []
@@ -485,7 +485,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 continue
             for j, ex in enumerate(exemplars):
                 sp = ex.species_and_occu
-                if not site.species_and_occu.almost_equals(sp):
+                if not site.species.almost_equals(sp):
                     continue
                 if self.symmetrized_structures:
                     sym_equiv = structure.find_equivalent_sites(ex)

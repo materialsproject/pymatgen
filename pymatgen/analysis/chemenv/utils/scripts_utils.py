@@ -102,7 +102,7 @@ def draw_cg(vis, site, neighbors, cg=None, perm=None, perfect2local_map=None,
             else:
                 faces = cg.faces(neighbors)
                 edges = cg.edges(neighbors)
-            symbol = list(site.species_and_occu.keys())[0].symbol
+            symbol = list(site.species.keys())[0].symbol
             if faces_color_override:
                 mycolor = faces_color_override
             else:
@@ -237,7 +237,7 @@ def compute_environments(chemenv_configuration):
                         continue
                     if len(ces) == 0:
                         continue
-                    comp = site.species_and_occu
+                    comp = site.species
                     #ce = strategy.get_site_coordination_environment(site)
                     if strategy.uniquely_determines_coordination_environments:
                         ce = ces[0]

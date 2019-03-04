@@ -365,7 +365,7 @@ class EnumlibAdaptor:
                         site_properties[k] = [v]
             ordered_structure = Structure(
                 original_latt,
-                [site.species_and_occu for site in self.ordered_sites],
+                [site.species for site in self.ordered_sites],
                 [site.frac_coords for site in self.ordered_sites],
                 site_properties=site_properties
             )
@@ -398,7 +398,7 @@ class EnumlibAdaptor:
 
                 for site in sub_structure:
                     if site.specie.symbol != "X":  # We exclude vacancies.
-                        sites.append(PeriodicSite(site.species_and_occu,
+                        sites.append(PeriodicSite(site.species,
                                                   site.frac_coords,
                                                   super_latt,
                                                   properties=disordered_site_properties)

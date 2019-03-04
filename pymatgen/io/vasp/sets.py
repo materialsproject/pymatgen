@@ -1647,14 +1647,14 @@ class MITNEBSet(MITRelaxSet):
             l = self.structures[0].lattice
             for site in chain(*(s.sites for s in self.structures)):
                 sites.add(
-                    PeriodicSite(site.species_and_occu, site.frac_coords, l))
+                    PeriodicSite(site.species, site.frac_coords, l))
             nebpath = Structure.from_sites(sorted(sites))
             nebpath.to(filename=str(output_dir / 'path.cif'))
 
 
 class MITMDSet(MITRelaxSet):
     """
-    Class for writing a vasp md run. This DOES NOT do multiple stage
+    Clas for writing a vasp md run. This DOES NOT do multiple stage
     runs.
     """
 

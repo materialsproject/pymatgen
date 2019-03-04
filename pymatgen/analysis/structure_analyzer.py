@@ -534,14 +534,14 @@ class OxideType:
         elif isinstance(structure.composition.elements[0], Specie):
             elmap = collections.defaultdict(float)
             for site in structure:
-                for species, occu in site.species_and_occu.items():
+                for species, occu in site.species.items():
                     elmap[species.element] += occu
             comp = Composition(elmap)
         if Element("O") not in comp or comp.is_element:
             return "None", 0
 
         for site in structure:
-            syms = [sp.symbol for sp in site.species_and_occu.keys()]
+            syms = [sp.symbol for sp in site.species.keys()]
             if "O" in syms:
                 o_sites_frac_coords.append(site.frac_coords)
             if "H" in syms:
