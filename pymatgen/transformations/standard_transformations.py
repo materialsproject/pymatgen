@@ -363,7 +363,7 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         """
         sp = get_el_sp(self.specie_to_remove)
         specie_indices = [i for i in range(len(structure))
-                          if structure[i].species_and_occu ==
+                          if structure[i].species ==
                           Composition({sp: 1})]
         trans = PartialRemoveSitesTransformation([specie_indices],
                                                  [self.fraction_to_remove],
@@ -484,7 +484,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             if site.is_ordered:
                 continue
             for j, ex in enumerate(exemplars):
-                sp = ex.species_and_occu
+                sp = ex.species
                 if not site.species.almost_equals(sp):
                     continue
                 if self.symmetrized_structures:
@@ -504,7 +504,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
 
         m_list = []
         for g in equivalent_sites:
-            total_occupancy = sum([structure[i].species_and_occu for i in g],
+            total_occupancy = sum([structure[i].species for i in g],
                                   Composition())
             total_occupancy = dict(total_occupancy.items())
             # round total occupancy to possible values

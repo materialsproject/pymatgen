@@ -1410,7 +1410,8 @@ class PointGroupAnalyzer:
                     continue
                 coords[j] = np.dot(ops[i][j], coords[i])
                 coords[j] = np.dot(ops[i][j], coords[i])
-        molecule = Molecule(species=self.centered_mol.species, coords=coords)
+        molecule = Molecule(species=self.centered_mol.species_and_occu,
+                            coords=coords)
         return {'sym_mol': molecule,
                 'eq_sets': eq_sets,
                 'sym_ops': ops}

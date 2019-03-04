@@ -185,7 +185,7 @@ class EnumlibAdaptor:
                 ordered_sites.append(sites)
             else:
                 sp_label = []
-                species = {k: v for k, v in sites[0].species_and_occu.items()}
+                species = {k: v for k, v in sites[0].species.items()}
                 if sum(species.values()) < 1 - EnumlibAdaptor.amount_tol:
                     # Let us first make add a dummy element for every single
                     # site whose total occupancies don't sum to 1.

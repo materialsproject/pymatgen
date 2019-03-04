@@ -483,7 +483,7 @@ class DiscretizeOccupanciesTransformationTest(unittest.TestCase):
                       [[0, 0, 0], [0.5, 0.5, 0.5]])
         dot = DiscretizeOccupanciesTransformation(max_denominator=5, tol=0.5)
         s = dot.apply_transformation(s_orig)
-        self.assertEqual(dict(s[0].species_and_occu), {Element("Li"): 0.2,
+        self.assertEqual(dict(s[0].species), {Element("Li"): 0.2,
                                                        Element("Na"): 0.2,
                                                        Element("K"): 0.6})
 
@@ -497,7 +497,7 @@ class DiscretizeOccupanciesTransformationTest(unittest.TestCase):
                                                   fix_denominator=False)
 
         s = dot.apply_transformation(s_orig_2)
-        self.assertEqual(dict(s[0].species_and_occu), {Element("Li"): Fraction(1/2),
+        self.assertEqual(dict(s[0].species), {Element("Li"): Fraction(1/2),
                                                        Element("Na"): Fraction(1/4),
                                                        Element("K"): Fraction(1/4)})
 
