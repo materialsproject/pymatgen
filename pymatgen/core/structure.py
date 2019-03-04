@@ -2619,6 +2619,16 @@ class Structure(IStructure, collections.abc.MutableSequence):
         """
         self._sites.__delitem__(i)
 
+    @property
+    def lattice(self):
+        return self._lattice
+
+    @lattice.setter
+    def lattice(self, lattice):
+        self._lattice = lattice
+        for site in self._sites:
+            site.lattice = lattice
+
     def append(self, species, coords, coords_are_cartesian=False,
                validate_proximity=False, properties=None):
         """
