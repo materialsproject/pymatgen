@@ -104,7 +104,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         """
         List of species and occupancies at each site of the structure.
         """
-        return [site.species_and_occu for site in self]
+        return [site.species for site in self]
 
     @property
     def ntypesp(self):
@@ -218,7 +218,7 @@ to build an appropriate supercell from partial occupancies.""")
         """
         elmap = collections.defaultdict(float)
         for site in self:
-            for species, occu in site.species_and_occu.items():
+            for species, occu in site.species.items():
                 elmap[species] += occu
         return Composition(elmap)
 
@@ -230,7 +230,7 @@ to build an appropriate supercell from partial occupancies.""")
         """
         charge = 0
         for site in self:
-            for specie, amt in site.species_and_occu.items():
+            for specie, amt in site.species.items():
                 charge += getattr(specie, "oxi_state", 0) * amt
         return charge
 
@@ -450,7 +450,7 @@ class IStructure(SiteCollection, MSONable):
             if any((vv is None for vv in v)):
                 warnings.warn("Not all sites have property %s. Missing values "
                               "are set to None." % k)
-        return cls(lattice, [site.species_and_occu for site in sites],
+        return cls(lattice, [site.species for site in sites],
                    [site.frac_coords for site in sites],
                    charge=charge,
                    site_properties=props,
@@ -783,7 +783,7 @@ class IStructure(SiteCollection, MSONable):
         new_sites = []
         for site in self:
             for v in c_lat:
-                s = PeriodicSite(site.species_and_occu, site.coords + v,
+                s = PeriodicSite(site.species, site.coords + v,
                                  new_lattice, properties=site.properties,
                                  coords_are_cartesian=True, to_unit_cell=False)
                 new_sites.append(s)
@@ -864,7 +864,7 @@ class IStructure(SiteCollection, MSONable):
         neighbors = []
         for fcoord, dist, i, img in self._lattice.get_points_in_sphere(
                 site_fcoords, pt, r):
-            nnsite = PeriodicSite(self[i].species_and_occu,
+            nnsite = PeriodicSite(self[i].species,
                                   fcoord, self._lattice,
                                   properties=self[i].properties)
 
@@ -957,7 +957,7 @@ class IStructure(SiteCollection, MSONable):
             all_within_r = np.bitwise_and(all_dists <= r, all_dists > 1e-8)
 
             for (j, d, within_r) in zip(indices, all_dists, all_within_r):
-                nnsite = PeriodicSite(self[j].species_and_occu, coords[j],
+                nnsite = PeriodicSite(self[j].species, coords[j],
                                       latt, properties=self[j].properties,
                                       coords_are_cartesian=True)
                 for i in indices[within_r]:
@@ -1087,7 +1087,7 @@ class IStructure(SiteCollection, MSONable):
                 site_props = {}
                 for p in props:
                     site_props[p] = props[p][i]
-                new_sites.append(PeriodicSite(site.species_and_occu,
+                new_sites.append(PeriodicSite(site.species,
                                               frac_coords, reduced_latt,
                                               to_unit_cell=True,
                                               properties=site_props))
@@ -1129,7 +1129,7 @@ class IStructure(SiteCollection, MSONable):
 
         # Check that both structures have the same species
         for i in range(len(self)):
-            if self[i].species_and_occu != end_structure[i].species_and_occu:
+            if self[i].species != end_structure[i].species:
                 raise ValueError("Different species!\nStructure 1:\n" +
                                  str(self) + "\nStructure 2\n" +
                                  str(end_structure))
@@ -1391,7 +1391,7 @@ class IStructure(SiteCollection, MSONable):
                             for n, j in enumerate(inds[1:]):
                                 offset = new_fcoords[j] - coords
                                 coords += (offset - np.round(offset)) / (n + 2)
-                            new_sp.append(gsites[inds[0]].species_and_occu)
+                            new_sp.append(gsites[inds[0]].species)
                             for k in gsites[inds[0]].properties:
                                 new_props[k].append(gsites[inds[0]].properties[k])
                             new_coords.append(coords)
@@ -1792,7 +1792,7 @@ class IMolecule(SiteCollection, MSONable):
         self._charge = charge
         nelectrons = 0
         for site in sites:
-            for sp, amt in site.species_and_occu.items():
+            for sp, amt in site.species.items():
                 if not isinstance(sp, DummySpecie):
                     nelectrons += sp.Z * amt
         nelectrons -= charge
@@ -1836,7 +1836,7 @@ class IMolecule(SiteCollection, MSONable):
         center = np.zeros(3)
         total_weight = 0
         for site in self:
-            wt = site.species_and_occu.weight
+            wt = site.species.weight
             center += site.coords * wt
             total_weight += wt
         return center / total_weight
@@ -1866,7 +1866,7 @@ class IMolecule(SiteCollection, MSONable):
         for site in sites:
             for k, v in site.properties.items():
                 props[k].append(v)
-        return cls([site.species_and_occu for site in sites],
+        return cls([site.species for site in sites],
                    [site.coords for site in sites],
                    charge=charge, spin_multiplicity=spin_multiplicity,
                    validate_proximity=validate_proximity,
@@ -2548,7 +2548,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             if not props:
                 props = {}
             props[property_name] = values[i]
-            self._sites[i] = PeriodicSite(site.species_and_occu,
+            self._sites[i] = PeriodicSite(site.species,
                                           site.frac_coords, self._lattice,
                                           properties=props)
 
@@ -2566,7 +2566,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             props = {k: v
                      for k, v in site.properties.items()
                      if k != property_name}
-            self._sites[i] = PeriodicSite(site.species_and_occu,
+            self._sites[i] = PeriodicSite(site.species,
                                           site.frac_coords, self._lattice,
                                           properties=props)
 
@@ -2598,9 +2598,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
                           % (sp_to_replace, sp_in_structure))
 
         def mod_site(site):
-            if sp_to_replace.intersection(site.species_and_occu):
+            if sp_to_replace.intersection(site.species):
                 c = Composition()
-                for sp, amt in site.species_and_occu.items():
+                for sp, amt in site.species.items():
                     new_sp = species_mapping.get(sp, sp)
                     try:
                         c += Composition(new_sp) * amt
@@ -2730,14 +2730,14 @@ class Structure(IStructure, collections.abc.MutableSequence):
             # We have a 180 degree angle. Simply do an inversion about the
             # origin
             for i in range(len(func_grp)):
-                func_grp[i] = (func_grp[i].species_and_occu,
+                func_grp[i] = (func_grp[i].species,
                                origin - (func_grp[i].coords - origin))
 
         # Remove the atom to be replaced, and add the rest of the functional
         # group.
         del self[index]
         for site in func_grp[1:]:
-            s_new = PeriodicSite(site.species_and_occu, site.coords,
+            s_new = PeriodicSite(site.species, site.coords,
                                  self.lattice, coords_are_cartesian=True)
             self._sites.append(s_new)
 
@@ -2752,7 +2752,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         species = [get_el_sp(s) for s in species]
 
         for site in self._sites:
-            new_sp_occu = {sp: amt for sp, amt in site.species_and_occu.items()
+            new_sp_occu = {sp: amt for sp, amt in site.species.items()
                            if sp not in species}
             if len(new_sp_occu) > 0:
                 new_sites.append(PeriodicSite(
@@ -2789,7 +2789,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             def operate_site(site):
                 new_cart = symmop.operate(site.coords)
                 new_frac = self._lattice.get_fractional_coords(new_cart)
-                return PeriodicSite(site.species_and_occu, new_frac,
+                return PeriodicSite(site.species, new_frac,
                                     self._lattice,
                                     properties=site.properties)
 
@@ -2798,7 +2798,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             self._lattice = Lattice(new_latt)
 
             def operate_site(site):
-                return PeriodicSite(site.species_and_occu,
+                return PeriodicSite(site.species,
                                     symmop.operate(site.frac_coords),
                                     self._lattice,
                                     properties=site.properties)
@@ -2816,7 +2816,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         self._lattice = new_lattice
         new_sites = []
         for site in self._sites:
-            new_sites.append(PeriodicSite(site.species_and_occu,
+            new_sites.append(PeriodicSite(site.species,
                                           site.frac_coords,
                                           self._lattice,
                                           properties=site.properties))
@@ -2879,7 +2879,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             else:
                 fcoords = self._lattice.get_fractional_coords(
                     site.coords + vector)
-            new_site = PeriodicSite(site.species_and_occu, fcoords,
+            new_site = PeriodicSite(site.species, fcoords,
                                     self._lattice, to_unit_cell=to_unit_cell,
                                     coords_are_cartesian=False,
                                     properties=site.properties)
@@ -2924,7 +2924,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             site = self._sites[i]
             s = ((np.dot(rm, np.array(site.coords - anchor).T)).T + anchor).ravel()
             new_site = PeriodicSite(
-                site.species_and_occu, s, self._lattice,
+                site.species, s, self._lattice,
                 to_unit_cell=to_unit_cell, coords_are_cartesian=True,
                 properties=site.properties)
             self._sites[i] = new_site
@@ -2959,7 +2959,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         try:
             for i, site in enumerate(self._sites):
                 new_sp = {}
-                for el, occu in site.species_and_occu.items():
+                for el, occu in site.species.items():
                     sym = el.symbol
                     new_sp[Specie(sym, oxidation_states[sym])] = occu
                 new_site = PeriodicSite(new_sp, site.frac_coords,
@@ -2983,7 +2983,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         try:
             for i, site in enumerate(self._sites):
                 new_sp = {}
-                for el, occu in site.species_and_occu.items():
+                for el, occu in site.species.items():
                     sym = el.symbol
                     new_sp[Specie(sym, oxidation_states[i])] = occu
                 new_site = PeriodicSite(new_sp, site.frac_coords,
@@ -3002,7 +3002,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         """
         for i, site in enumerate(self._sites):
             new_sp = collections.defaultdict(float)
-            for el, occu in site.species_and_occu.items():
+            for el, occu in site.species.items():
                 sym = el.symbol
                 new_sp[Element(sym)] += occu
             new_site = PeriodicSite(new_sp, site.frac_coords,
@@ -3034,7 +3034,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         """
         for i, site in enumerate(self._sites):
             new_sp = {}
-            for sp, occu in site.species_and_occu.items():
+            for sp, occu in site.species.items():
                 sym = sp.symbol
                 oxi_state = getattr(sp, "oxi_state", None)
                 new_sp[Specie(sym, oxidation_state=oxi_state,
@@ -3056,7 +3056,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         try:
             for i, site in enumerate(self._sites):
                 new_sp = {}
-                for sp, occu in site.species_and_occu.items():
+                for sp, occu in site.species.items():
                     sym = sp.symbol
                     oxi_state = getattr(sp, "oxi_state", None)
                     new_sp[Specie(sym, oxidation_state=oxi_state,
@@ -3077,7 +3077,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         """
         for i, site in enumerate(self._sites):
             new_sp = collections.defaultdict(float)
-            for sp, occu in site.species_and_occu.items():
+            for sp, occu in site.species.items():
                 oxi_state = getattr(sp, "oxi_state", None)
                 new_sp[Specie(sp.symbol, oxidation_state=oxi_state)] += occu
             new_site = PeriodicSite(new_sp, site.frac_coords,
@@ -3146,11 +3146,11 @@ class Structure(IStructure, collections.abc.MutableSequence):
         sites = []
         for c in np.unique(clusters):
             inds = np.where(clusters == c)[0]
-            species = self[inds[0]].species_and_occu
+            species = self[inds[0]].species
             coords = self[inds[0]].frac_coords
             props = self[inds[0]].properties
             for n, i in enumerate(inds[1:]):
-                sp = self[i].species_and_occu
+                sp = self[i].species
                 if mode == "s":
                     species += sp
                 offset = self[i].frac_coords - coords
@@ -3295,7 +3295,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         self._charge = charge
         nelectrons = 0
         for site in self._sites:
-            for sp, amt in site.species_and_occu.items():
+            for sp, amt in site.species.items():
                 if not isinstance(sp, DummySpecie):
                     nelectrons += sp.Z * amt
         nelectrons -= charge
@@ -3321,7 +3321,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         try:
             for i, site in enumerate(self._sites):
                 new_sp = {}
-                for el, occu in site.species_and_occu.items():
+                for el, occu in site.species.items():
                     sym = el.symbol
                     new_sp[Specie(sym, oxidation_states[sym])] = occu
                 new_site = Site(new_sp, site.coords,
@@ -3373,7 +3373,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             if not props:
                 props = {}
             props[property_name] = values[i]
-            self._sites[i] = Site(site.species_and_occu, site.coords,
+            self._sites[i] = Site(site.species, site.coords,
                                   properties=props)
 
     def remove_site_property(self, property_name):
@@ -3388,7 +3388,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             props = {k: v
                      for k, v in site.properties.items()
                      if k != property_name}
-            self._sites[i] = Site(site.species_and_occu, site.coords,
+            self._sites[i] = Site(site.species, site.coords,
                                   properties=props)
 
     def replace_species(self, species_mapping):
@@ -3408,7 +3408,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
         def mod_site(site):
             c = Composition()
-            for sp, amt in site.species_and_occu.items():
+            for sp, amt in site.species.items():
                 new_sp = species_mapping.get(sp, sp)
                 try:
                     c += Composition(new_sp) * amt
@@ -3428,7 +3428,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         new_sites = []
         species = [get_el_sp(sp) for sp in species]
         for site in self._sites:
-            new_sp_occu = {sp: amt for sp, amt in site.species_and_occu.items()
+            new_sp_occu = {sp: amt for sp, amt in site.species.items()
                            if sp not in species}
             if len(new_sp_occu) > 0:
                 new_sites.append(Site(new_sp_occu, site.coords,
@@ -3461,7 +3461,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             vector == [0, 0, 0]
         for i in indices:
             site = self._sites[i]
-            new_site = Site(site.species_and_occu, site.coords + vector,
+            new_site = Site(site.species, site.coords + vector,
                             properties=site.properties)
             self._sites[i] = new_site
 
@@ -3500,7 +3500,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         for i in indices:
             site = self._sites[i]
             s = ((np.dot(rm, (site.coords - anchor).T)).T + anchor).ravel()
-            new_site = Site(site.species_and_occu, s,
+            new_site = Site(site.species, s,
                             properties=site.properties)
             self._sites[i] = new_site
 
@@ -3533,7 +3533,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
         def operate_site(site):
             new_cart = symmop.operate(site.coords)
-            return Site(site.species_and_occu, new_cart,
+            return Site(site.species, new_cart,
                         properties=site.properties)
 
         self._sites = [operate_site(s) for s in self._sites]
@@ -3634,7 +3634,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             # We have a 180 degree angle. Simply do an inversion about the
             # origin
             for i in range(len(func_grp)):
-                func_grp[i] = (func_grp[i].species_and_occu,
+                func_grp[i] = (func_grp[i].species,
                                origin - (func_grp[i].coords - origin))
 
         # Remove the atom to be replaced, and add the rest of the functional
