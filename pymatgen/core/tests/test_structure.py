@@ -73,8 +73,8 @@ class IStructureTest(PymatgenTest):
         s = IStructure(self.lattice, ["O", "Li"], coords,
                        site_properties={'charge': [-2, 1]})
         sorted_s = s.get_sorted_structure()
-        self.assertEqual(sorted_s[0].species_and_occu, Composition("Li"))
-        self.assertEqual(sorted_s[1].species_and_occu, Composition("O"))
+        self.assertEqual(sorted_s[0].species, Composition("Li"))
+        self.assertEqual(sorted_s[1].species, Composition("O"))
         self.assertEqual(sorted_s[0].charge, 1)
         self.assertEqual(sorted_s[1].charge, -2)
         s = IStructure(self.lattice, ["Se", "C", "Se", "C"],
@@ -581,7 +581,7 @@ class StructureTest(PymatgenTest):
         oxidation_states = {"Si": -4}
         self.structure.add_oxidation_state_by_element(oxidation_states)
         for site in self.structure:
-            for k in site.species_and_occu.keys():
+            for k in site.species.keys():
                 self.assertEqual(k.oxi_state, oxidation_states[k.symbol],
                                  "Wrong oxidation state assigned!")
         oxidation_states = {"Fe": 2}
@@ -852,7 +852,7 @@ class StructureTest(PymatgenTest):
         s = Structure(Lattice.cubic(1), species, coords)
         s.merge_sites(mode="s")
         self.assertEqual(s[0].specie.symbol, 'Ag')
-        self.assertEqual(s[1].species_and_occu,
+        self.assertEqual(s[1].species,
                          Composition({'Cl': 0.35, 'F': 0.25}))
         self.assertArrayAlmostEqual(s[1].frac_coords, [.5, .5, .5005])
 
