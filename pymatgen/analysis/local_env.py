@@ -397,7 +397,7 @@ class NearNeighbors:
         for info in sites:
             orig_site = structure[info['site_index']]
             info['site'] = PeriodicSite(orig_site.species,
-                                        np.add(orig_site._fcoords,
+                                        np.add(orig_site.frac_coords,
                                                info['image']),
                                         structure.lattice,
                                         properties=orig_site.properties)
@@ -882,7 +882,7 @@ class VoronoiNN(NearNeighbors):
                 if nn.specie in targets:
                     resultweighted[nn_index] = nstats
             else:  # is nn site is disordered
-                for disordered_sp in nn.species_and_occu.keys():
+                for disordered_sp in nn.species.keys():
                     if disordered_sp in targets:
                         resultweighted[nn_index] = nstats
 

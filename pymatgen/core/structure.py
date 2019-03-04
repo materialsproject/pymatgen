@@ -2542,15 +2542,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
         """
         if len(values) != len(self._sites):
             raise ValueError("Values must be same length as sites.")
-        for i in range(len(self._sites)):
-            site = self._sites[i]
-            props = site.properties
-            if not props:
-                props = {}
-            props[property_name] = values[i]
-            self._sites[i] = PeriodicSite(site.species,
-                                          site.frac_coords, self._lattice,
-                                          properties=props)
+        for site, val in zip(self._sites, values):
+            site.properties[property_name] = val
 
     def remove_site_property(self, property_name):
         """
@@ -2561,14 +2554,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
             values (list): A sequence of values. Must be same length as
                 number of sites.
         """
-        for i in range(len(self._sites)):
-            site = self._sites[i]
-            props = {k: v
-                     for k, v in site.properties.items()
-                     if k != property_name}
-            self._sites[i] = PeriodicSite(site.species,
-                                          site.frac_coords, self._lattice,
-                                          properties=props)
+        for site in self._sites:
+            del site.properties[property_name]
 
     def replace_species(self, species_mapping):
         """
@@ -2586,7 +2573,6 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 {"C": "C0.5Si0.5"} will replace all C with 0.5 C and 0.5 Si,
                 i.e., a disordered site.
         """
-        latt = self._lattice
         species_mapping = {get_el_sp(k): v
                            for k, v in species_mapping.items()}
         sp_to_replace = set(species_mapping.keys())
@@ -2597,7 +2583,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                           "substituted = %s; Species in structure = %s"
                           % (sp_to_replace, sp_in_structure))
 
-        def mod_site(site):
+        for site in self._sites:
             if sp_to_replace.intersection(site.species):
                 c = Composition()
                 for sp, amt in site.species.items():
@@ -2606,11 +2592,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                         c += Composition(new_sp) * amt
                     except Exception:
                         c += {new_sp: amt}
-                return PeriodicSite(c, site.frac_coords, latt,
-                                    properties=site.properties)
-            return site
-
-        self._sites = [mod_site(site) for site in self._sites]
+                site.species = c
 
     def replace(self, i, species, coords=None, coords_are_cartesian=False,
                 properties=None):
@@ -2814,13 +2796,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
             new_lattice (Lattice): New lattice
         """
         self._lattice = new_lattice
-        new_sites = []
         for site in self._sites:
-            new_sites.append(PeriodicSite(site.species,
-                                          site.frac_coords,
-                                          self._lattice,
-                                          properties=site.properties))
-        self._sites = new_sites
+            site.lattice = new_lattice
 
     def apply_strain(self, strain):
         """
@@ -2852,7 +2829,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             reverse (bool): If set to True, then the list elements are sorted
                 as if each comparison were reversed.
         """
-        self._sites = sorted(self._sites, key=key, reverse=reverse)
+        self._sites.sort(key=key, reverse=reverse)
 
     def translate_sites(self, indices, vector, frac_coords=True,
                         to_unit_cell=True):
@@ -3000,16 +2977,12 @@ class Structure(IStructure, collections.abc.MutableSequence):
         """
         Removes oxidation states from a structure.
         """
-        for i, site in enumerate(self._sites):
+        for site in self._sites:
             new_sp = collections.defaultdict(float)
             for el, occu in site.species.items():
                 sym = el.symbol
                 new_sp[Element(sym)] += occu
-            new_site = PeriodicSite(new_sp, site.frac_coords,
-                                    self._lattice,
-                                    coords_are_cartesian=False,
-                                    properties=site.properties)
-            self._sites[i] = new_site
+            site.species = new_sp
 
     def add_oxidation_state_by_guess(self, **kwargs):
         """

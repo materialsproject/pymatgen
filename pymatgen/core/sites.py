@@ -545,8 +545,7 @@ class PeriodicSite(Site, MSONable):
         return "PeriodicSite: {} ({:.4f}, {:.4f}, {:.4f}) [{:.4f}, {:.4f}, " \
                "{:.4f}]".format(self.species_string, self.coords[0],
                                 self.coords[1], self.coords[2],
-                                self._fcoords[0], self._fcoords[1],
-                                self._fcoords[2])
+                                *self._frac_coords)
 
     def as_dict(self, verbosity=0):
         """
