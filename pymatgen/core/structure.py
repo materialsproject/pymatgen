@@ -3236,25 +3236,6 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         else:
             self._spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
 
-    def add_oxidation_state_by_element(self, oxidation_states):
-        """
-        Add oxidation states to a structure.
-
-        Args:
-            oxidation_states (dict): Dict of oxidation states.
-                E.g., {"Li":1, "Fe":2, "P":5, "O":-2}
-        """
-        try:
-            for site in self._sites:
-                new_sp = {}
-                for el, occu in site.species.items():
-                    sym = el.symbol
-                    new_sp[Specie(sym, oxidation_states[sym])] = occu
-                site.species = new_sp
-        except KeyError:
-            raise ValueError("Oxidation state of all elements must be "
-                             "specified in the dictionary.")
-
     def insert(self, i, species, coords, validate_proximity=False,
                properties=None):
         """
