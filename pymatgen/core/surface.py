@@ -165,7 +165,7 @@ class Slab(Structure):
         new_c /= np.linalg.norm(new_c)
         new_c = np.dot(c, new_c) * new_c
         new_latt = Lattice([a, b, new_c])
-        return Slab(lattice=new_latt, species=self.species,
+        return Slab(lattice=new_latt, species=self.species_and_occu,
                     coords=self.cart_coords, miller_index=self.miller_index,
                     oriented_unit_cell=self.oriented_unit_cell,
                     shift=self.shift, scale_factor=self.scale_factor,
