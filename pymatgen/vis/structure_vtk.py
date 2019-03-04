@@ -494,7 +494,7 @@ class StructureVis:
             # If partial occupations are involved, the color of the specie with
             # the highest occupation is used
             myoccu = 0.0
-            for specie, occu in center.species_and_occu.items():
+            for specie, occu in center.species.items():
                 if occu > myoccu:
                     myspecie = specie
                     myoccu = occu
@@ -552,7 +552,7 @@ class StructureVis:
             # If partial occupations are involved, the color of the specie with
             # the highest occupation is used
             myoccu = 0.0
-            for specie, occu in center.species_and_occu.items():
+            for specie, occu in center.species.items():
                 if occu > myoccu:
                     myspecie = specie
                     myoccu = occu

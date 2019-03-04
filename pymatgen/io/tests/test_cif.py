@@ -843,7 +843,7 @@ loop_
             self.assertRaises(ValueError, p.get_structures)
             p = CifParser(f, occupancy_tolerance=2)
             s = p.get_structures()[0]
-            self.assertAlmostEqual(s[0].species_and_occu["Al3+"], 0.5)
+            self.assertAlmostEqual(s[0].species["Al3+"], 0.5)
 
     def test_one_line_symm(self):
         with warnings.catch_warnings():

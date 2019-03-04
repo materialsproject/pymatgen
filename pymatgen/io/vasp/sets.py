@@ -1379,7 +1379,7 @@ class MVLSlabSet(MPRelaxSet):
                 slab_incar["BMIX"] = 0.001
             slab_incar["NELMIN"] = 8
             if self.auto_dipole:
-                weights = [s.species_and_occu.weight for s in structure]
+                weights = [s.species.weight for s in structure]
                 center_of_mass = np.average(structure.frac_coords,
                                             weights=weights, axis=0)
 
