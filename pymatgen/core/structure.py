@@ -19,6 +19,7 @@ from math import gcd
 
 import numpy as np
 
+from monty.dev import deprecated
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, get_el_sp, DummySpecie
@@ -2878,6 +2879,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         self._sites = [operate_site(s) for s in self._sites]
 
+    @deprecated(message="Simply set using Structure.lattice = lattice. This will be removed in pymatgen v2020.")
     def modify_lattice(self, new_lattice):
         """
         Modify the lattice of the structure.  Mainly used for changing the
@@ -2902,7 +2904,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 are 1% larger.
         """
         s = (1 + np.array(strain)) * np.eye(3)
-        self.modify_lattice(Lattice(np.dot(self._lattice.matrix.T, s).T))
+        self.lattice = Lattice(np.dot(self._lattice.matrix.T, s).T)
 
     def sort(self, key=None, reverse=False):
         """
@@ -3051,7 +3053,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         Args:
             volume (float): New volume of the unit cell in A^3.
         """
-        self.modify_lattice(self._lattice.scale(volume))
+        self.lattice = self._lattice.scale(volume)
 
     def merge_sites(self, tol=0.01, mode="sum"):
         """
