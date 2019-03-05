@@ -721,7 +721,8 @@ class VoronoiNN(NearNeighbors):
         #  The `get_all_neighbors` function returns neighbors for each site's image in the
         #   original unit cell. We start off with these central atoms to ensure they are
         #   included in the tessellation
-        sites = [x.to_unit_cell for x in structure]
+
+        sites = [x.to_unit_cell() for x in structure]
         indices = [(i, 0, 0, 0) for i, _ in enumerate(structure)]
 
         # Get all neighbors within a certain cutoff

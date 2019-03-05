@@ -391,18 +391,20 @@ class EnumlibAdaptor:
                                       for row in transformation]
                     logger.debug("Supercell matrix: {}".format(transformation))
                     s = ordered_structure * transformation
-                    sites.extend([site.to_unit_cell for site in s])
+                    sites.extend([site.to_unit_cell() for site in s])
                     super_latt = sites[-1].lattice
                 else:
                     super_latt = new_latt
 
                 for site in sub_structure:
                     if site.specie.symbol != "X":  # We exclude vacancies.
-                        sites.append(PeriodicSite(site.species,
-                                                  site.frac_coords,
-                                                  super_latt,
-                                                  properties=disordered_site_properties)
-                                     .to_unit_cell)
+                        sites.append(
+                            PeriodicSite(site.species,
+                                         site.frac_coords,
+                                         super_latt,
+                                         to_unit_cell=True,
+                                         properties=disordered_site_properties)
+                        )
                     else:
                         warnings.warn("Skipping sites that include species X.")
                 structs.append(Structure.from_sites(sorted(sites)))

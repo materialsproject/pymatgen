@@ -3039,7 +3039,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         s = self * scaling_matrix
         if to_unit_cell:
             for site in s:
-                site.to_unit_cell()
+                site.to_unit_cell(in_place=True)
         self._sites = s.sites
         self._lattice = s.lattice
 

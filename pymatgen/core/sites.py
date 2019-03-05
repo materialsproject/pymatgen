@@ -321,19 +321,20 @@ class PeriodicSite(Site, MSONable):
             properties (dict): Properties associated with the PeriodicSite,
                 e.g., {"magmom":5}. Defaults to None.
         """
-        self._lattice = lattice
         if coords_are_cartesian:
-            self._frac_coords = self.lattice.get_fractional_coords(coords)
-            c_coords = coords
+            frac_coords = lattice.get_fractional_coords(coords)
+            cart_coords = coords
         else:
-            self._frac_coords = np.array(coords)
-            c_coords = lattice.get_cartesian_coords(coords)
-        self.frac_coords.setflags(write=False)
+            frac_coords = np.array(coords)
+            cart_coords = lattice.get_cartesian_coords(coords)
 
         if to_unit_cell:
-            self._frac_coords = np.mod(self.frac_coords, 1)
-            c_coords = lattice.get_cartesian_coords(self._frac_coords)
-        super(PeriodicSite, self).__init__(atoms_n_occu, c_coords, properties)
+            frac_coords = np.mod(frac_coords, 1)
+            cart_coords = lattice.get_cartesian_coords(frac_coords)
+
+        self._lattice = lattice
+        self._frac_coords = frac_coords
+        super(PeriodicSite, self).__init__(atoms_n_occu, cart_coords, properties)
 
     def __hash__(self):
         """
@@ -444,11 +445,16 @@ class PeriodicSite(Site, MSONable):
         self.coords[2] = z
         self._frac_coords = self._lattice.get_fractional_coords(self.coords)
 
-    def to_unit_cell(self):
+    def to_unit_cell(self, in_place=False):
         """
-        Copy of PeriodicSite translated to the unit cell.
+        Move frac coords to within the unit cell cell.
         """
-        self.frac_coords = np.mod(self.frac_coords, 1)
+        frac_coords = np.mod(self.frac_coords, 1)
+        if in_place:
+            self.frac_coords = frac_coords
+        else:
+            return PeriodicSite(self.species, frac_coords, self.lattice,
+                                properties=self.properties)
 
     def is_periodic_image(self, other, tolerance=1e-8, check_lattice=True):
         """

@@ -81,7 +81,7 @@ class Deformation(SquareTensor):
         def_struct = structure.copy()
         old_latt = def_struct.lattice.matrix
         new_latt = np.transpose(np.dot(self, np.transpose(old_latt)))
-        def_struct.modify_lattice(Lattice(new_latt))
+        def_struct.lattice = Lattice(new_latt)
         return def_struct
 
     @classmethod
