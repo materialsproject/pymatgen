@@ -2949,11 +2949,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
             else:
                 fcoords = self._lattice.get_fractional_coords(
                     site.coords + vector)
-            new_site = PeriodicSite(site.species, fcoords,
-                                    self._lattice, to_unit_cell=to_unit_cell,
-                                    coords_are_cartesian=False,
-                                    properties=site.properties)
-            self._sites[i] = new_site
+            if to_unit_cell:
+                fcoords = np.mod(fcoords, 1)
+            self._sites[i].frac_coords = fcoords
 
     def rotate_sites(self, indices=None, theta=0, axis=None, anchor=None,
                      to_unit_cell=True):

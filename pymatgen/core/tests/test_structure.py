@@ -569,7 +569,7 @@ class StructureTest(PymatgenTest):
 
     def test_perturb(self):
         d = 0.1
-        pre_perturbation_sites = self.structure.sites[:]
+        pre_perturbation_sites = self.structure.copy()
         self.structure.perturb(distance=d)
         post_perturbation_sites = self.structure.sites
 

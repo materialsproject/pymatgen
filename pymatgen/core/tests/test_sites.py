@@ -221,6 +221,9 @@ class PeriodicSiteTest(PymatgenTest):
             site.species = {"Cu": 0.5, "Gd": 0.6}
         self.assertRaises(ValueError, set_bad_species)
 
+        site.frac_coords = [0, 0, 0.1]
+        self.assertArrayAlmostEqual(site.coords, [0, 0, 10])
+
     def test_repr(self):
         self.assertEqual(self.propertied_site.__repr__(), "PeriodicSite: Fe2+ (2.5000, 3.5000, 4.5000) [0.2500, 0.3500, 0.4500]")
 
