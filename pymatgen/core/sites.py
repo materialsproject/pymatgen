@@ -444,13 +444,11 @@ class PeriodicSite(Site, MSONable):
         self.coords[2] = z
         self._frac_coords = self._lattice.get_fractional_coords(self.coords)
 
-    @property
     def to_unit_cell(self):
         """
         Copy of PeriodicSite translated to the unit cell.
         """
-        return PeriodicSite(self.species, np.mod(self.frac_coords, 1),
-                            self.lattice, properties=self.properties)
+        self.frac_coords = np.mod(self.frac_coords, 1)
 
     def is_periodic_image(self, other, tolerance=1e-8, check_lattice=True):
         """

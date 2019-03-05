@@ -3038,8 +3038,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
         """
         s = self * scaling_matrix
         if to_unit_cell:
-            for isite, site in enumerate(s):
-                s[isite] = site.to_unit_cell
+            for site in s:
+                site.to_unit_cell()
         self._sites = s.sites
         self._lattice = s.lattice
 

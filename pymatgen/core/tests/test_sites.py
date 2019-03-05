@@ -200,7 +200,7 @@ class PeriodicSiteTest(PymatgenTest):
 
     def test_to_unit_cell(self):
         site = PeriodicSite("Fe", np.array([1.25, 2.35, 4.46]), self.lattice)
-        site = site.to_unit_cell
+        site.to_unit_cell()
         val = [0.25, 0.35, 0.46]
         self.assertArrayAlmostEqual(site.frac_coords, val)
 
