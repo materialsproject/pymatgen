@@ -492,6 +492,33 @@ to build an appropriate supercell from partial occupancies.""")
                 new_sp[Specie(sp.symbol, oxidation_state=oxi_state)] += occu
             site.species = new_sp
 
+    def extract_cluster(self, target_sites, **kwargs):
+        """
+        Extracts a cluster of atoms based on bond lengths
+
+        Args:
+            target_sites ([Site]): List of initial sites to nucleate cluster.
+            \\*\\*kwargs: kwargs passed through to CovalentBond.is_bonded.
+
+        Returns:
+            [Site/PeriodicSite] Cluster of atoms.
+        """
+        cluster = list(target_sites)
+        others = [site for site in self if site not in cluster]
+        size = 0
+        while len(cluster) > size:
+            size = len(cluster)
+            new_others = []
+            for site in others:
+                for site2 in cluster:
+                    if CovalentBond.is_bonded(site, site2, **kwargs):
+                        cluster.append(site)
+                        break
+                else:
+                    new_others.append(site)
+            others = new_others
+        return cluster
+
 
 class IStructure(SiteCollection, MSONable):
     """
@@ -2462,33 +2489,6 @@ class IMolecule(SiteCollection, MSONable):
                 return new
 
         raise ValueError("Unrecognized file extension!")
-
-    def extract_cluster(self, target_sites, **kwargs):
-        """
-        Extracts a cluster of atoms from a molecule based on bond lengths
-
-        Args:
-            target_sites ([Site]): List of initial sites to nucleate cluster.
-            \\*\\*kwargs: kwargs passed through to CovalentBond.is_bonded.
-
-        Returns:
-            (Molecule) Cluster of atoms.
-        """
-        cluster = list(target_sites)
-        others = [site for site in self if site not in cluster]
-        size = 0
-        while len(cluster) > size:
-            size = len(cluster)
-            new_others = []
-            for site in others:
-                for site2 in cluster:
-                    if CovalentBond.is_bonded(site, site2, **kwargs):
-                        cluster.append(site)
-                        break
-                else:
-                    new_others.append(site)
-            others = new_others
-        return Molecule.from_sites(cluster)
 
 
 class Structure(IStructure, collections.abc.MutableSequence):
