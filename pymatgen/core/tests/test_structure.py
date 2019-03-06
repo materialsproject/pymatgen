@@ -964,6 +964,29 @@ class StructureTest(PymatgenTest):
         broken_s.merge_sites(0.01, 'delete')
         self.assertEqual(broken_s.formula, 'Si56 O134')
 
+    def test_extract_cluster(self):
+        coords = [[0.000000, 0.000000, 0.000000],
+                  [0.000000, 0.000000, 1.089000],
+                  [1.026719, 0.000000, -0.363000],
+                  [-0.513360, -0.889165, -0.363000],
+                  [-0.513360, 0.889165, -0.363000]]
+        ch4 = ["C", "H", "H", "H", "H"]
+
+        species = []
+        allcoords = []
+        for vec in ([0, 0, 0], [4, 0, 0], [0, 4, 0], [4, 4, 0]):
+            species.extend(ch4)
+            for c in coords:
+                allcoords.append(np.array(c) + vec)
+
+        structure = Structure(Lattice.cubic(10), species, allcoords,
+                              coords_are_cartesian=True)
+
+        for site in structure:
+            if site.specie.symbol == "C":
+                cluster = Molecule.from_sites(structure.extract_cluster([site]))
+                self.assertEqual(cluster.formula, "H4 C1")
+
 
 class IMoleculeTest(PymatgenTest):
 
