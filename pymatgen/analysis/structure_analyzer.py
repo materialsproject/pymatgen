@@ -627,7 +627,17 @@ def sulfide_type(structure):
                sites[0].specie == s]
 
     def process_site(site):
-        neighbors = structure.get_neighbors(site, 4)
+
+        # in an exceptionally rare number of structures, the search
+        # radius needs to be increased to find a neighbor atom
+        search_radius = 4
+        neighbors = []
+        while len(neighbors) == 0:
+            neighbors = structure.get_neighbors(site, search_radius)
+            search_radius *= 2
+            if search_radius > max(structure.lattice.abc)*2:
+                break
+
         neighbors = sorted(neighbors, key=lambda n: n[1])
         nn, dist = neighbors[0]
         coord_elements = [site.specie for site, d in neighbors
