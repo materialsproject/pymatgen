@@ -9,8 +9,10 @@ import warnings
 
 import numpy as np
 import pandas as pd
+from pathlib import Path
 from monty.json import MSONable
 from monty.dev import deprecated
+from monty.serialization import loadfn
 from ruamel.yaml import YAML
 
 
@@ -38,6 +40,7 @@ __maintainer__ = "Zhi Deng"
 __email__ = "z4deng@eng.ucsd.edu"
 __date__ = "Aug 1, 2018"
 
+MODULE_DIR = Path(__file__).resolve().parent
 
 SECTION_KEYWORDS = {"atom": ["Atoms", "Velocities", "Masses",
                              "Ellipsoids", "Lines", "Triangles", "Bodies"],
@@ -365,172 +368,19 @@ class LammpsData(MSONable):
         default_formatters = {"x": map_coords, "y": map_coords, "z": map_coords,
                               "vx": map_velos, "vy": map_velos, "vz": map_velos,
                               "q": map_charges}
-        """
-        class2 styles are not covered. PairIJ Coeffs are not handled, 
-        so int params may be printed as floats.
-        """
-        improper_coeff = {'cvff': {"coeff2": float_format,
-                                   "coeff3": int_format,
-                                   "coeff4": int_format},
-                          'cossq': {"coeff2": float_format,
-                                    "coeff3": float_format},
-                          'harmonic': {"coeff2": float_format,
-                                       "coeff3": float_format_2},
-                          'distance': {"coeff2": float_format,
-                                       "coeff3": float_format},
-                          'distharm': {"coeff2": float_format,
-                                       "coeff3": float_format},
-                          'fourier': {"coeff2": float_format,
-                                      "coeff3": float_format,
-                                      "coeff4": float_format,
-                                      "coeff5": float_format,
-                                      "coeff6": int_format},
-                          'inversion': {"coeff2": float_format,
-                                        "coeff3": float_format},
-                          'ring': {"coeff2": float_format,
-                                   "coeff3": float_format},
-                          'umbrella': {"coeff2": float_format,
-                                       "coeff3": float_format},
-                          'sqdistharm': {"coeff2": float_format,
-                                         "coeff3": float_format}
-                          }
-        dihedral_coeff = {'multi_harmonic': {"coeff2": float_format,
-                                             "coeff3": float_format,
-                                             "coeff4": float_format,
-                                             "coeff5": float_format,
-                                             "coeff6": float_format},
-                          'charmm': {"coeff2": float_format,
-                                     "coeff3": int_format,
-                                     "coeff4": int_format,
-                                     "coeff5": float_format_2},
-                          'harmonic': {"coeff2": float_format,
-                                       "coeff3": int_format,
-                                       "coeff4": int_format},
-                          'nharmonic': {"coeff2": int_format,
-                                        "coeff3": float_format,
-                                        "coeff4": float_format,
-                                        "coeff5": float_format,
-                                        "coeff6": float_format,
-                                        "coeff7": float_format,
-                                        "coeff8": float_format,
-                                        "coeff9": float_format},
-                          'cosine/shift/exp': {"coeff2": float_format,
-                                               "coeff3": float_format,
-                                               "coeff4": float_format},
-                          'fourier': {"coeff2": int_format,
-                                      "coeff3": float_format,
-                                      "coeff4": int_format,
-                                      "coeff5": float_format,
-                                      "coeff6": float_format,
-                                      "coeff7": int_format,
-                                      "coeff8": float_format,
-                                      "coeff9": float_format,
-                                      "coeff10": int_format,
-                                      "coeff11": float_format},
-                          'helix': {"coeff2": float_format,
-                                    "coeff3": float_format,
-                                    "coeff4": float_format},
-                          'opls': {"coeff2": float_format,
-                                   "coeff3": float_format,
-                                   "coeff4": float_format,
-                                   "coeff5": float_format},
-                          'quadratic': {"coeff2": float_format,
-                                        "coeff3": float_format},
-                          'spherical': {"coeff2": int_format,
-                                        "coeff3": float_format,
-                                        "coeff4": int_format,
-                                        "coeff5": float_format,
-                                        "coeff6": float_format_2,
-                                        "coeff7": int_format,
-                                        "coeff8": float_format_2,
-                                        "coeff9": float_format_2,
-                                        "coeff10": int_format,
-                                        "coeff11": float_format_2,
-                                        "coeff12": float_format_2,
-                                        "coeff13": float_format,
-                                        "coeff14": int_format,
-                                        "coeff15": float_format,
-                                        "coeff16": float_format_2,
-                                        "coeff17": int_format,
-                                        "coeff18": float_format_2,
-                                        "coeff19": float_format_2,
-                                        "coeff20": int_format,
-                                        "coeff21": float_format_2,
-                                        "coeff22": float_format_2,
-                                        "coeff23": float_format,
-                                        "coeff24": int_format,
-                                        "coeff25": float_format,
-                                        "coeff26": float_format_2,
-                                        "coeff27": int_format,
-                                        "coeff28": float_format_2,
-                                        "coeff29": float_format_2,
-                                        "coeff30": int_format,
-                                        "coeff31": float_format_2,
-                                        "coeff32": float_format_2}
-                          }
-        bond_coeff = {'fene': {"coeff2": float_format,
-                               "coeff3": float_format,
-                               "coeff4": float_format,
-                               "coeff5": float_format,
-                               "coeff6": float_format},
-                      'gromos': {"coeff2": float_format,
-                                 "coeff3": float_format},
-                      'harmonic': {"coeff2": float_format,
-                                   "coeff3": float_format,
-                                   "coeff4": float_format},
-                      'mm3': {"coeff2": float_format,
-                              "coeff3": float_format},
-                      'morse': {"coeff2": float_format,
-                                "coeff3": float_format,
-                                "coeff4": float_format},
-                      'nonlinear': {"coeff2": float_format,
-                                    "coeff3": float_format,
-                                    "coeff4": float_format},
-                      'oxdna': {"coeff2": float_format,
-                                "coeff3": float_format,
-                                "coeff4": float_format},
-                      'quartic': {"coeff2": float_format,
-                                  "coeff3": float_format,
-                                  "coeff4": float_format,
-                                  "coeff5": float_format,
-                                  "coeff6": float_format}
-                      }
-        angle_coeff = {'charmm': {"coeff2": float_format,
-                                  "coeff3": float_format,
-                                  "coeff4": float_format,
-                                  "coeff5": float_format},
-                       'cosine/buck6d': {"coeff2": float_format,
-                                         "coeff3": int_format,
-                                         "coeff4": float_format},
-                       'cosine/periodic': {"coeff2": float_format,
-                                           "coeff3": int_format,
-                                           "coeff4": int_format},
-                       'cosine': {"coeff2": float_format,
-                                  "coeff3": float_format,
-                                  "coeff4": float_format},
-                       'cross': {"coeff2": float_format,
-                                 "coeff3": float_format,
-                                 "coeff4": float_format,
-                                 "coeff5": float_format,
-                                 "coeff6": float_format,
-                                 "coeff7": float_format},
-                       'dipole': {"coeff2": float_format,
-                                  "coeff3": float_format},
-                       'fourier': {"coeff2": float_format,
-                                   "coeff3": float_format,
-                                   "coeff4": float_format,
-                                   "coeff5": float_format},
-                       'harmonic': {"coeff2": float_format,
-                                    "coeff3": float_format},
-                       'mm3': {"coeff2": float_format,
-                               "coeff3": float_format},
-                       'quartic': {"coeff2": float_format,
-                                   "coeff3": float_format,
-                                   "coeff4": float_format,
-                                   "coeff5": float_format},
-                       'sdk': {"coeff2": float_format,
-                               "coeff3": float_format}
-                       }
+        coeffsdatatype = loadfn(str(MODULE_DIR / "CoeffsDataType.yaml"))
+        coeffs = {}
+        for style, types in coeffsdatatype.items():
+            coeffs[style] = {}
+            for type, formatter in types.items():
+                coeffs[style][type] = {}
+                for coeff, datatype in formatter.items():
+                    if datatype == 'int_format':
+                        coeffs[style][type][coeff] = int_format
+                    elif datatype == 'float_format_2':
+                        coeffs[style][type][coeff] = float_format_2
+                    else:
+                        coeffs[style][type][coeff] = float_format
 
         section_template = "{kw}\n\n{df}\n"
         parts = []
@@ -542,25 +392,25 @@ class LammpsData(MSONable):
                 for i in range(len(listofdf)):
                     if isinstance(listofdf[i].iloc[0]['coeff1'], str):
                         if listofdf[i].iloc[0]['coeff1'].startswith('crossq'):
-                            formatters = {**default_formatters, **improper_coeff['crossq']}
+                            formatters = {**default_formatters, **coeffs['improper_coeff']['crossq']}
                         elif listofdf[i].iloc[0]['coeff1'].startswith('cvff'):
-                            formatters = {**default_formatters, **improper_coeff['cvff']}
+                            formatters = {**default_formatters, **coeffs['improper_coeff']['cvff']}
                         elif listofdf[i].iloc[0]['coeff1'] == 'distance':
-                            formatters = {**default_formatters, **improper_coeff['distance']}
+                            formatters = {**default_formatters, **coeffs['improper_coeff']['distance']}
                         elif listofdf[i].iloc[0]['coeff1'] == 'distharm':
-                            formatters = {**default_formatters, **improper_coeff['distharm']}
+                            formatters = {**default_formatters, **coeffs['improper_coeff']['distharm']}
                         elif listofdf[i].iloc[0]['coeff1'] == 'sqdistharm':
-                            formatters = {**default_formatters, **improper_coeff['distharm']}
+                            formatters = {**default_formatters, **coeffs['improper_coeff']['distharm']}
                         elif listofdf[i].iloc[0]['coeff1'].startswith('fourier'):
-                            formatters = {**default_formatters, **improper_coeff['fourier']}
+                            formatters = {**default_formatters, **coeffs['improper_coeff']['fourier']}
                         elif listofdf[i].iloc[0]['coeff1'].startswith('harmonic'):
-                            formatters = {**default_formatters, **improper_coeff['harmonic']}
+                            formatters = {**default_formatters, **coeffs['improper_coeff']['harmonic']}
                         elif listofdf[i].iloc[0]['coeff1'].startswith('inversion'):
-                            formatters = {**default_formatters, **improper_coeff['inversion']}
+                            formatters = {**default_formatters, **coeffs['improper_coeff']['inversion']}
                         elif listofdf[i].iloc[0]['coeff1'].startswith('ring'):
-                            formatters = {**default_formatters, **improper_coeff['ring']}
+                            formatters = {**default_formatters, **coeffs['improper_coeff']['ring']}
                         elif listofdf[i].iloc[0]['coeff1'].startswith('umbrella'):
-                            formatters = {**default_formatters, **improper_coeff['umbrella']}
+                            formatters = {**default_formatters, **coeffs['improper_coeff']['umbrella']}
                         else:
                             formatters = default_formatters
                         line_string = \
@@ -578,25 +428,25 @@ class LammpsData(MSONable):
                 for i in range(len(listofdf)):
                     if isinstance(listofdf[i].iloc[0]['coeff1'], str):
                         if listofdf[i].iloc[0]['coeff1'] == 'multi/harmonic':
-                            formatters = {**default_formatters, **dihedral_coeff['multi_harmonic']}
+                            formatters = {**default_formatters, **coeffs['dihedral_coeff']['multi_harmonic']}
                         elif listofdf[i].iloc[0]['coeff1'].startswith('charmm'):
-                            formatters = {**default_formatters, **dihedral_coeff['charmm']}
+                            formatters = {**default_formatters, **coeffs['dihedral_coeff']['charmm']}
                         elif listofdf[i].iloc[0]['coeff1'] == 'cosine/shift/exp':
-                            formatters = {**default_formatters, **dihedral_coeff['cosine/shift/exp']}
+                            formatters = {**default_formatters, **coeffs['dihedral_coeff']['cosine/shift/exp']}
                         elif listofdf[i].iloc[0]['coeff1'].startswith('harmonic'):
-                            formatters = {**default_formatters, **dihedral_coeff['harmonic']}
+                            formatters = {**default_formatters, **coeffs['dihedral_coeff']['harmonic']}
                         elif listofdf[i].iloc[0]['coeff1'].startswith('fourier'):
-                            formatters = {**default_formatters, **dihedral_coeff['fourier']}
+                            formatters = {**default_formatters, **coeffs['dihedral_coeff']['fourier']}
                         elif listofdf[i].iloc[0]['coeff1'].startswith('helix'):
-                            formatters = {**default_formatters, **dihedral_coeff['helix']}
+                            formatters = {**default_formatters, **coeffs['dihedral_coeff']['helix']}
                         elif listofdf[i].iloc[0]['coeff1'] == 'nharmonic':
-                            formatters = {**default_formatters, **dihedral_coeff['nharmonic']}
+                            formatters = {**default_formatters, **coeffs['dihedral_coeff']['nharmonic']}
                         elif listofdf[i].iloc[0]['coeff1'].startswith('opls'):
-                            formatters = {**default_formatters, **dihedral_coeff['opls']}
+                            formatters = {**default_formatters, **coeffs['dihedral_coeff']['opls']}
                         elif listofdf[i].iloc[0]['coeff1'].startswith('quadratic'):
-                            formatters = {**default_formatters, **dihedral_coeff['quadratic']}
+                            formatters = {**default_formatters, **coeffs['dihedral_coeff']['quadratic']}
                         elif listofdf[i].iloc[0]['coeff1'] == 'spherical':
-                            formatters = {**default_formatters, **dihedral_coeff['spherical']}
+                            formatters = {**default_formatters, **coeffs['dihedral_coeff']['spherical']}
                         else:
                             formatters = default_formatters
                         line_string = \
@@ -614,21 +464,21 @@ class LammpsData(MSONable):
                 for i in range(len(listofdf)):
                     if isinstance(listofdf[i].iloc[0]['coeff1'], str):
                         if listofdf[i].iloc[0]['coeff1'].startswith('fene'):
-                            formatters = {**default_formatters, **bond_coeff['fene']}
+                            formatters = {**default_formatters, **coeffs['bond_coeff']['fene']}
                         elif listofdf[i].iloc[0]['coeff1'].startswith('gromos'):
-                            formatters = {**default_formatters, **bond_coeff['gromos']}
+                            formatters = {**default_formatters, **coeffs['bond_coeff']['gromos']}
                         elif listofdf[i].iloc[0]['coeff1'].startswith('harmonic'):
-                            formatters = {**default_formatters, **bond_coeff['harmonic']}
+                            formatters = {**default_formatters, **coeffs['bond_coeff']['harmonic']}
                         elif listofdf[i].iloc[0]['coeff1'] == 'mm3':
-                            formatters = {**default_formatters, **bond_coeff['mm3']}
+                            formatters = {**default_formatters, **coeffs['bond_coeff']['mm3']}
                         elif listofdf[i].iloc[0]['coeff1'].startswith('morse'):
-                            formatters = {**default_formatters, **bond_coeff['morse']}
+                            formatters = {**default_formatters, **coeffs['bond_coeff']['morse']}
                         elif listofdf[i].iloc[0]['coeff1'].startswith('nonlinear'):
-                            formatters = {**default_formatters, **bond_coeff['nonlinear']}
+                            formatters = {**default_formatters, **coeffs['bond_coeff']['nonlinear']}
                         elif listofdf[i].iloc[0]['coeff1'].startswith('oxdna'):
-                            formatters = {**default_formatters, **bond_coeff['oxdna']}
+                            formatters = {**default_formatters, **coeffs['bond_coeff']['oxdna']}
                         elif listofdf[i].iloc[0]['coeff1'].startswith('quartic'):
-                            formatters = {**default_formatters, **bond_coeff['quartic']}
+                            formatters = {**default_formatters, **coeffs['bond_coeff']['quartic']}
                         else:
                             formatters = default_formatters
                         line_string = \
@@ -646,27 +496,27 @@ class LammpsData(MSONable):
                 for i in range(len(listofdf)):
                     if isinstance(listofdf[i].iloc[0]['coeff1'], str):
                         if listofdf[i].iloc[0]['coeff1'].startswith('charmm'):
-                            formatters = {**default_formatters, **angle_coeff['charmm']}
+                            formatters = {**default_formatters, **coeffs['angle_coeff']['charmm']}
                         elif listofdf[i].iloc[0]['coeff1'] == 'cosine/buck6d':
-                            formatters = {**default_formatters, **angle_coeff['cosine/buck6d']}
+                            formatters = {**default_formatters, **coeffs['angle_coeff']['cosine/buck6d']}
                         elif listofdf[i].iloc[0]['coeff1'].startswith('cosine/periodic'):
-                            formatters = {**default_formatters, **angle_coeff['cosine/periodic']}
+                            formatters = {**default_formatters, **coeffs['angle_coeff']['cosine/periodic']}
                         elif listofdf[i].iloc[0]['coeff1'].startswith('cosine'):
-                            formatters = {**default_formatters, **angle_coeff['cosine']}
+                            formatters = {**default_formatters, **coeffs['angle_coeff']['cosine']}
                         elif listofdf[i].iloc[0]['coeff1'] == 'cross':
-                            formatters = {**default_formatters, **angle_coeff['cross']}
+                            formatters = {**default_formatters, **coeffs['angle_coeff']['cross']}
                         elif listofdf[i].iloc[0]['coeff1'].startswith('dipole'):
-                            formatters = {**default_formatters, **angle_coeff['dipole']}
+                            formatters = {**default_formatters, **coeffs['angle_coeff']['dipole']}
                         elif listofdf[i].iloc[0]['coeff1'].startswith('fourier'):
-                            formatters = {**default_formatters, **angle_coeff['fourier']}
+                            formatters = {**default_formatters, **coeffs['angle_coeff']['fourier']}
                         elif listofdf[i].iloc[0]['coeff1'].startswith('harmonic'):
-                            formatters = {**default_formatters, **angle_coeff['harmonic']}
+                            formatters = {**default_formatters, **coeffs['angle_coeff']['harmonic']}
                         elif listofdf[i].iloc[0]['coeff1'] == 'mm3':
-                            formatters = {**default_formatters, **angle_coeff['mm3']}
+                            formatters = {**default_formatters, **coeffs['angle_coeff']['mm3']}
                         elif listofdf[i].iloc[0]['coeff1'].startswith('sdk'):
-                            formatters = {**default_formatters, **angle_coeff['sdk']}
+                            formatters = {**default_formatters, **coeffs['angle_coeff']['sdk']}
                         elif listofdf[i].iloc[0]['coeff1'].startswith('quartic'):
-                            formatters = {**default_formatters, **angle_coeff['quartic']}
+                            formatters = {**default_formatters, **coeffs['angle_coeff']['quartic']}
                         else:
                             formatters = default_formatters
                         line_string = \
