@@ -2,7 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
+import logging
 from monty.json import MSONable
 from pymatgen.core import PeriodicSite, Structure
 from pymatgen.analysis.defects.corrections import FreysoldtCorrection, \
@@ -22,21 +22,23 @@ __email__ = "shyamd@lbl.gov"
 __status__ = "Development"
 __date__ = "Mar 15, 2018"
 
+logger = logging.getLogger(__name__)
 
 class DefectCompatibility(MSONable):
     """
     The DefectCompatibility class evaluates corrections and delocalization
     metrics on a DefectEntry. It can only parse based on the available
-    parameters already exist in the parameters of the DefectEntry.
+    parameters that already exist in the parameters dict of the DefectEntry.
 
     required settings in defect_entry.parameters for various types of analysis/correction:
-        freysoldt: ["axis_grid", "bulk_planar_averages", "defect_planar_averages", "dielectric"]
-        kumagai: ["dim", "bulk_atomic_site_averages", "defect_atomic_site_averages", "site_matching_indices",
-                    "dielectric]
+        freysoldt: [ "dielectric", "axis_grid", "bulk_planar_averages", "defect_planar_averages",
+                    "initial_defect_structure", "defect_frac_sc_coords"]
+        kumagai: [ "dielectric", "bulk_atomic_site_averages", "defect_atomic_site_averages",
+                   "site_matching_indices", "initial_defect_structure", "defect_frac_sc_coords"]
         bandfilling: ["eigenvalues", "kpoint_weights", "potalign", "vbm", "cbm"]
-        bandshifting: ["hybrid_cbm", "hybrid_vbm", "num_hole_vbm", "num_elec_cbm", "vbm", "cbm"]
-        defect relaxation/structure analysis: ["final_defect_structure", "initial_defect_structure", "sampling_radius"]
-
+        bandshifting: ["hybrid_cbm", "hybrid_vbm", "vbm", "cbm"]
+        defect relaxation/structure analysis: ["final_defect_structure", "initial_defect_structure",
+                                              "sampling_radius", "defect_frac_sc_coords"]
     """
 
     def __init__(self,
@@ -51,6 +53,7 @@ class DefectCompatibility(MSONable):
                  free_chg_cutoff=2.,
                  use_bandfilling=True,
                  use_bandedgeshift=True):
+        # TODO: tune defaults for qualifiers a bit more after benchmarking
         self.plnr_avg_var_tol = plnr_avg_var_tol
         self.plnr_avg_minmax_tol = plnr_avg_minmax_tol
         self.atomic_site_var_tol = atomic_site_var_tol
@@ -94,7 +97,7 @@ class DefectCompatibility(MSONable):
         if "num_hole_vbm" in defect_entry.parameters.keys():
             if (self.free_chg_cutoff < defect_entry.parameters["num_hole_vbm"]) or (
                 self.free_chg_cutoff < defect_entry.parameters["num_elec_cbm"]):
-                print('Will not use charge correction because too many free charges')
+                logger.info('Will not use charge correction because too many free charges')
                 skip_charge_corrections = True
 
         if skip_charge_corrections:
@@ -110,14 +113,14 @@ class DefectCompatibility(MSONable):
                     kumagai_meta["kumagai_potential_alignment_correction"]
                 corrections.update({'charge_correction': kumagai_corr})
             else:
-                print('Could not use any charge correction because insufficient metadata was supplied.')
+                logger.info('Could not use any charge correction because insufficient metadata was supplied.')
 
         if self.use_bandfilling:
             if "bandfilling_meta" in defect_entry.parameters.keys():
                 bfc_corr = defect_entry.parameters["bandfilling_meta"]["bandfilling_correction"]
                 corrections.update({'bandfilling_correction': bfc_corr})
             else:
-                print('Could not use band filling correction because insufficient metadata was supplied.')
+                logger.info('Could not use band filling correction because insufficient metadata was supplied.')
         else:
             corrections.update({'bandfilling_correction': 0.})
 
@@ -148,32 +151,30 @@ class DefectCompatibility(MSONable):
 
         return defect_entry
 
-
     def perform_all_corrections(self, defect_entry):
 
         # consider running freysoldt correction
-        required_frey_params = ["axis_grid", "initial_defect_structure", "bulk_planar_averages",
-                                "defect_planar_averages", "dielectric"]
+        required_frey_params = [ "dielectric", "axis_grid", "bulk_planar_averages", "defect_planar_averages",
+                                 "initial_defect_structure", "defect_frac_sc_coords"]
         run_freysoldt = True if len( set(defect_entry.parameters.keys()).intersection(required_frey_params)) \
                                 == len(required_frey_params) else False
         if not run_freysoldt:
-            print('Insufficient DefectEntry parameters exist for Freysoldt Correction.')
+            logger.info('Insufficient DefectEntry parameters exist for Freysoldt Correction.')
         else:
             defect_entry = self.perform_freysoldt( defect_entry)
 
         # consider running kumagai correction
-        required_kumagai_params = ["bulk_atomic_site_averages", "defect_atomic_site_averages",
-                                   "site_matching_indices", "initial_defect_structure",
-                                   "defect_frac_sc_coords", "dielectric"]
+        required_kumagai_params = [ "dielectric", "bulk_atomic_site_averages", "defect_atomic_site_averages",
+                                    "site_matching_indices", "initial_defect_structure", "defect_frac_sc_coords"]
         run_kumagai = True if len( set(defect_entry.parameters.keys()).intersection(required_kumagai_params)) \
                                 == len(required_kumagai_params) else False
         if not run_kumagai:
-            print('Insufficient DefectEntry parameters exist for Kumagai Correction.')
+            logger.info('Insufficient DefectEntry parameters exist for Kumagai Correction.')
         else:
             try:
                 defect_entry = self.perform_kumagai( defect_entry)
             except:
-                print("Kumagai correction error occured! Wont perform correction.")
+                logger.info("Kumagai correction error occured! Wont perform correction.")
 
         # add potalign based on preferred correction setting if it does not already exist in defect entry
         if self.preferred_cc == 'freysoldt':
@@ -181,7 +182,7 @@ class DefectCompatibility(MSONable):
                 potalign = defect_entry.parameters['freysoldt_meta']['freysoldt_potalign']
                 defect_entry.parameters['potalign'] = potalign
             elif 'kumagai_meta' in defect_entry.parameters.keys():
-                print('WARNING: was not able to use potalign from Freysoldt correction, '
+                logger.info('WARNING: was not able to use potalign from Freysoldt correction, '
                       'using Kumagai value for purposes of band filling correction.')
                 potalign = defect_entry.parameters['kumagai_meta']['kumagai_potalign']
                 defect_entry.parameters['potalign'] = potalign
@@ -190,7 +191,7 @@ class DefectCompatibility(MSONable):
                 potalign = defect_entry.parameters['kumagai_meta']['kumagai_potalign']
                 defect_entry.parameters['potalign'] = potalign
             elif 'freysoldt_meta' in defect_entry.parameters.keys():
-                print('WARNING: was not able to use potalign from Kumagai correction, '
+                logger.info('WARNING: was not able to use potalign from Kumagai correction, '
                       'using Freysoldt value for purposes of band filling correction.')
                 potalign = defect_entry.parameters['freysoldt_meta']['freysoldt_potalign']
                 defect_entry.parameters['potalign'] = potalign
@@ -205,16 +206,16 @@ class DefectCompatibility(MSONable):
                 run_bandfilling = False
 
         if not run_bandfilling:
-            print('Insufficient DefectEntry parameters exist for BandFilling Correction.')
+            logger.info('Insufficient DefectEntry parameters exist for BandFilling Correction.')
         else:
             defect_entry = self.perform_bandfilling( defect_entry)
 
         # consider running band edge shifting correction
-        required_bandedge_shifting_params = ["hybrid_cbm", "hybrid_vbm", "num_hole_vbm", "num_elec_cbm", "vbm", "cbm"]
+        required_bandedge_shifting_params = ["hybrid_cbm", "hybrid_vbm", "vbm", "cbm"]
         run_bandedge_shifting = True if len( set(defect_entry.parameters.keys()).intersection(required_bandedge_shifting_params)) \
                                 == len(required_bandedge_shifting_params) else False
         if not run_bandedge_shifting:
-            print('Insufficient DefectEntry parameters exist for BandShifting Correction.')
+            logger.info('Insufficient DefectEntry parameters exist for BandShifting Correction.')
         else:
             defect_entry = self.perform_band_edge_shifting( defect_entry)
 
@@ -269,7 +270,6 @@ class DefectCompatibility(MSONable):
 
         return defect_entry
 
-
     def delocalization_analysis(self, defect_entry):
         """
         Do delocalization analysis. To do this, one considers:
@@ -290,28 +290,31 @@ class DefectCompatibility(MSONable):
         if 'freysoldt_meta' in defect_entry.parameters.keys():
             defect_entry = self.check_freysoldt_delocalized(defect_entry)
         else:
-            print('Insufficient information provided for performing Freysoldt '
-                  'correction delocalization analysis.\n'
-                  'Cannot perform planar averaged electrostatic potential '
-                  'compatibility analysis.')
+            logger.info('Insufficient information provided for performing Freysoldt '
+                          'correction delocalization analysis.\n'
+                          'Cannot perform planar averaged electrostatic potential '
+                          'compatibility analysis.')
 
 
         if 'kumagai_meta' in defect_entry.parameters.keys():
             defect_entry = self.check_kumagai_delocalized(defect_entry)
         else:
-            print('Insufficient information provided for performing Kumagai '
-                  'correction delocalization analysis.\n'
-                  'Cannot perform atomic site averaged electrostatic '
-                  'potential compatibility analysis.')
+            logger.info('Insufficient information provided for performing Kumagai '
+                          'correction delocalization analysis.\n'
+                          'Cannot perform atomic site averaged electrostatic '
+                          'potential compatibility analysis.')
 
 
-        if ('final_defect_structure' in defect_entry.parameters.keys()) and \
-                ('initial_defect_structure' in defect_entry.parameters.keys()) and \
-                ('sampling_radius' in defect_entry.parameters.keys()):
-            defect_entry = self.is_final_relaxed_structure_delocalized(defect_entry)
+        req_struct_delocal_params = ["final_defect_structure", "initial_defect_structure",
+                                     "sampling_radius", "defect_frac_sc_coords"]
+        run_struct_delocal = True if \
+            len( set(defect_entry.parameters.keys()).intersection(req_struct_delocal_params)) \
+            == len(req_struct_delocal_params) else False
+        if run_struct_delocal:
+            defect_entry = self.check_final_relaxed_structure_delocalized(defect_entry)
         else:
-            print('Insufficient information provided in defect_entry.parameters. '
-                  'Cannot perform full structure site relaxation compatibility analysis.')
+            logger.info('Insufficient information provided in defect_entry.parameters. '
+                        'Cannot perform full structure site relaxation compatibility analysis.')
 
         return defect_entry
 
@@ -376,7 +379,7 @@ class DefectCompatibility(MSONable):
 
         return defect_entry
 
-    def is_final_relaxed_structure_delocalized(self, defect_entry):
+    def check_final_relaxed_structure_delocalized(self, defect_entry):
         """
         NOTE this assumes initial and final structures have sites indexed in same way
 

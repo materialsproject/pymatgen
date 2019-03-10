@@ -32,7 +32,9 @@ class DefectCompatibilityTest(PymatgenTest):
             np.array([(-1 - np.cos(2 * np.pi * u / lattval)) for u in np.arange(0., lattval, 0.2)]) for lattval in abc
         ]
         self.frey_params = {'axis_grid': axisdata, 'bulk_planar_averages': bldata,
-                            'defect_planar_averages': dldata, 'dielectric': 15}
+                            'defect_planar_averages': dldata, 'dielectric': 15,
+                            'initial_defect_structure': struc.copy(),
+                            'defect_frac_sc_coords': struc.sites[0].frac_coords[:]}
 
         v = Vasprun(os.path.join(test_dir, 'vasprun.xml'))
         eigenvalues = v.eigenvalues.copy()
@@ -86,7 +88,7 @@ class DefectCompatibilityTest(PymatgenTest):
         dentry = DefectEntry(self.vac, 0., corrections={}, parameters=params, entry_id=None)
         dc = DefectCompatibility( free_chg_cutoff=0.8)
         dentry = dc.process_entry( dentry)
-        self.assertAlmostEqual( dentry.corrections['bandedgeshifting_correction'], 1.52500002)
+        self.assertAlmostEqual( dentry.corrections['bandedgeshifting_correction'], 1.19999999)
         self.assertAlmostEqual( dentry.corrections['bandfilling_correction'], -1.62202400)
         self.assertAlmostEqual( dentry.corrections['charge_correction'], 0.)
 
@@ -133,12 +135,6 @@ class DefectCompatibilityTest(PymatgenTest):
         self.assertAlmostEqual(val['num_hole_vbm'], 0.)
         self.assertAlmostEqual(val['num_elec_cbm'], 0.)
         self.assertAlmostEqual(val['bandfilling_correction'], 0.)
-        occu = [[1.457, 0.0833333], [1.5204, 0.0833333], [1.53465, 0.0833333], [1.5498, 0.0416667]]
-        self.assertArrayAlmostEqual(
-            list(sorted(val['occupied_def_levels'], key=lambda x: x[0])), list(
-                sorted(occu, key=lambda x: x[0])))
-        self.assertAlmostEqual(val['total_occupation_defect_levels'], 0.29166669)
-        self.assertFalse(val['unoccupied_def_levels'])
 
     def test_run_band_edge_shifting(self):
         de = DefectEntry(self.vac, 0., corrections={}, parameters=self.band_edge_params, entry_id=None)
@@ -148,9 +144,7 @@ class DefectCompatibilityTest(PymatgenTest):
         val = dentry.parameters['bandshift_meta']
         self.assertEqual(val['vbmshift'], -0.5)
         self.assertEqual(val['cbmshift'], 0.4)
-        self.assertEqual(val['vbm_shift_correction'], 1.5)
-        self.assertEqual(val['hole_vbm_shift_correction'], 0.5)
-        self.assertEqual(val['elec_cbm_shift_correction'], 0.4)
+        self.assertEqual(val['bandedgeshifting_correction'], 1.5)
 
     def test_delocalization_analysis(self):
         #return entry even if insufficent values are provided
@@ -162,14 +156,14 @@ class DefectCompatibilityTest(PymatgenTest):
         self.assertIsNotNone( dentry)
         #all other correction applications are tested in unit tests below
 
-    def test_is_freysoldt_delocalized(self):
+    def test_check_freysoldt_delocalized(self):
         de = DefectEntry(self.vac, 0., corrections={}, parameters=self.frey_params, entry_id=None)
         de.parameters.update( {'is_compatible': True}) #needs to be initialized with this here
         dc = DefectCompatibility( plnr_avg_var_tol=0.1, plnr_avg_minmax_tol=0.5)
         dentry = dc.perform_freysoldt( de)
 
         # check case which fits under compatibility constraints
-        dentry = dc.is_freysoldt_delocalized( dentry)
+        dentry = dc.check_freysoldt_delocalized( dentry)
         frey_delocal = dentry.parameters['delocalization_meta']['plnr_avg']
         self.assertTrue( frey_delocal['is_compatible'])
         ans_var = [0.00038993, 0.02119532, 0.02119532]
@@ -186,7 +180,7 @@ class DefectCompatibilityTest(PymatgenTest):
         # check planar delocalization on 2nd and 3rd axes
         dc = DefectCompatibility( plnr_avg_var_tol=0.1, plnr_avg_minmax_tol=0.2)
         dentry.parameters.update( {'is_compatible': True})
-        dentry = dc.is_freysoldt_delocalized( dentry)
+        dentry = dc.check_freysoldt_delocalized( dentry)
         frey_delocal = dentry.parameters['delocalization_meta']['plnr_avg']
         self.assertFalse( frey_delocal['is_compatible'])
         ax_metadata = frey_delocal['metadata'][0]
@@ -202,7 +196,7 @@ class DefectCompatibilityTest(PymatgenTest):
         # check variance based delocalization on 2nd and 3rd axes
         dc = DefectCompatibility( plnr_avg_var_tol=0.01, plnr_avg_minmax_tol=0.5)
         dentry.parameters.update( {'is_compatible': True})
-        dentry = dc.is_freysoldt_delocalized( dentry)
+        dentry = dc.check_freysoldt_delocalized( dentry)
         frey_delocal = dentry.parameters['delocalization_meta']['plnr_avg']
         self.assertFalse( frey_delocal['is_compatible'])
         ax_metadata = frey_delocal['metadata'][0]
@@ -215,25 +209,27 @@ class DefectCompatibilityTest(PymatgenTest):
 
         self.assertFalse( dentry.parameters['is_compatible'])
 
-    def test_is_kumagai_delocalized(self):
+    def test_check_kumagai_delocalized(self):
         #TODO: add this once correction exists
         pass
 
-    def test_is_final_relaxed_structure_delocalized(self):
+    def test_check_final_relaxed_structure_delocalized(self):
         # test structure delocalization analysis
         # first test no movement in atoms
         initial_defect_structure = self.vac.generate_defect_structure()
         final_defect_structure = initial_defect_structure.copy()
         sampling_radius = 4.55
+        defect_frac_sc_coords = self.vac.site.frac_coords[:]
 
         params = {'initial_defect_structure': initial_defect_structure,
                   'final_defect_structure': final_defect_structure,
                   'sampling_radius': sampling_radius,
+                  'defect_frac_sc_coords': defect_frac_sc_coords,
                   'is_compatible': True}
         dentry = DefectEntry(self.vac, 0., corrections={}, parameters=params, entry_id=None)
 
         dc = DefectCompatibility( tot_relax_tol=0.1, perc_relax_tol=0.1, defect_tot_relax_tol=0.1)
-        dentry = dc.is_final_relaxed_structure_delocalized( dentry)
+        dentry = dc.check_final_relaxed_structure_delocalized( dentry)
 
         struc_delocal = dentry.parameters['delocalization_meta']['structure_relax']
         self.assertTrue( dentry.parameters['is_compatible'])
@@ -254,7 +250,7 @@ class DefectCompatibilityTest(PymatgenTest):
         pert_struct_fin_struct = initial_defect_structure.copy()
         pert_struct_fin_struct.perturb( 0.1)
         dentry.parameters.update( {'final_defect_structure': pert_struct_fin_struct})
-        dentry = dc.is_final_relaxed_structure_delocalized( dentry)
+        dentry = dc.check_final_relaxed_structure_delocalized( dentry)
 
         struc_delocal = dentry.parameters['delocalization_meta']['structure_relax']
         self.assertFalse( dentry.parameters['is_compatible'])
@@ -279,14 +275,16 @@ class DefectCompatibilityTest(PymatgenTest):
         def_index = poss_deflist[0][2]
         final_defect_structure.translate_sites(indices=[def_index],
                                                vector=[0., 0., 0.008]) #fractional coords translation
+        defect_frac_sc_coords = inter_def_site.frac_coords[:]
 
         params = {'initial_defect_structure': initial_defect_structure,
                   'final_defect_structure': final_defect_structure,
                   'sampling_radius': sampling_radius,
+                  'defect_frac_sc_coords': defect_frac_sc_coords,
                   'is_compatible': True}
         dentry = DefectEntry(inter, 0., corrections={}, parameters=params, entry_id=None)
 
-        dentry = dc.is_final_relaxed_structure_delocalized( dentry)
+        dentry = dc.check_final_relaxed_structure_delocalized( dentry)
 
         defect_delocal = dentry.parameters['delocalization_meta']['defectsite_relax']
         self.assertFalse( defect_delocal['is_compatible'])
