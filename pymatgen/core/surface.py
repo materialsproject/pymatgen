@@ -165,7 +165,7 @@ class Slab(Structure):
         new_c /= np.linalg.norm(new_c)
         new_c = np.dot(c, new_c) * new_c
         new_latt = Lattice([a, b, new_c])
-        return Slab(lattice=new_latt, species=self.species,
+        return Slab(lattice=new_latt, species=self.species_and_occu,
                     coords=self.cart_coords, miller_index=self.miller_index,
                     oriented_unit_cell=self.oriented_unit_cell,
                     shift=self.shift, scale_factor=self.scale_factor,
@@ -217,7 +217,7 @@ class Slab(Structure):
             for site in sites:
                 if abs(site.c - surface_site.c) < tol and (
                         (not same_species_only) or
-                        site.species_and_occu == surface_site.species_and_occu):
+                        site.species == surface_site.species):
                     tomove.append(site)
                 else:
                     fixed.append(site)
@@ -240,11 +240,11 @@ class Slab(Structure):
                     [c for c in itertools.combinations(g, int(len(g) / 2))])
 
             for selection in itertools.product(*combinations):
-                species = [site.species_and_occu for site in fixed]
+                species = [site.species for site in fixed]
                 fcoords = [site.frac_coords for site in fixed]
 
                 for s in tomove:
-                    species.append(s.species_and_occu)
+                    species.append(s.species)
                     for group in selection:
                         if s in group:
                             fcoords.append(s.frac_coords)
@@ -343,7 +343,7 @@ class Slab(Structure):
         normal = self.normal
         for site in self:
             charge = sum([getattr(sp, "oxi_state", 0) * amt
-                          for sp, amt in site.species_and_occu.items()])
+                          for sp, amt in site.species.items()])
             dipole += charge * np.dot(site.coords - mid_pt, normal) * normal
         return dipole
 
@@ -386,7 +386,7 @@ class Slab(Structure):
         """
         Calculates the center of mass of the slab
         """
-        weights = [s.species_and_occu.weight for s in self]
+        weights = [s.species.weight for s in self]
         center_of_mass = np.average(self.frac_coords,
                                     weights=weights, axis=0)
         return center_of_mass
@@ -1008,10 +1008,10 @@ class SlabGenerator:
                  bonds.items()}
         for (sp1, sp2), bond_dist in bonds.items():
             for site in self.oriented_unit_cell:
-                if sp1 in site.species_and_occu:
+                if sp1 in site.species:
                     for nn, d in self.oriented_unit_cell.get_neighbors(
                             site, bond_dist):
-                        if sp2 in nn.species_and_occu:
+                        if sp2 in nn.species:
                             c_range = tuple(sorted([site.frac_coords[2],
                                                     nn.frac_coords[2]]))
                             if c_range[1] > 1:
@@ -1802,7 +1802,7 @@ def center_slab(slab):
             slab.translate_sites(all_indices, [0, 0, shift])
 
     # now the slab is case 1, shift the center of mass of the slab to 0.5
-    weights = [s.species_and_occu.weight for s in slab]
+    weights = [s.species.weight for s in slab]
     center_of_mass = np.average(slab.frac_coords,
                                 weights=weights, axis=0)
     shift = 0.5 - center_of_mass[2]

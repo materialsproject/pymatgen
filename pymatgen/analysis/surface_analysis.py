@@ -272,7 +272,7 @@ class SlabEntry(ComputedStructureEntry):
         """
 
         struct = self.structure
-        weights = [s.species_and_occu.weight for s in struct]
+        weights = [s.species.weight for s in struct]
         center_of_mass = np.average(struct.frac_coords,
                                     weights=weights, axis=0)
 

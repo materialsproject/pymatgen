@@ -14,10 +14,11 @@ import numpy as np
 from pathlib import Path
 from monty.serialization import loadfn
 from monty.io import zopen
+from monty.dev import deprecated
 
 from pymatgen.core.periodic_table import Specie, Element
 from pymatgen.core.structure import Structure
-from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints
+from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints, VaspInput
 from pymatgen.io.vasp.outputs import Vasprun, Outcar
 from monty.json import MSONable
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -122,6 +123,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         return Potcar(self.potcar_symbols, functional=self.potcar_functional)
 
     @property
+    @deprecated(message="Use the get_vasp_input() method instead.")
     def all_input(self):
         """
         Returns all input files as a dict of {filename: vasp object}
@@ -129,15 +131,19 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         Returns:
             dict of {filename: object}, e.g., {'INCAR': Incar object, ...}
         """
-        kpoints = self.kpoints
-        incar = self.incar
-        if np.product(kpoints.kpts) < 4 and incar.get("ISMEAR", 0) == -5:
-            incar["ISMEAR"] = 0
-
-        return {'INCAR': incar,
-                'KPOINTS': kpoints,
+        return {'INCAR': self.incar,
+                'KPOINTS': self.kpoints,
                 'POSCAR': self.poscar,
                 'POTCAR': self.potcar}
+
+    def get_vasp_input(self) -> VaspInput:
+        """
+
+        Returns:
+            VaspInput
+        """
+        return VaspInput(incar=self.incar, kpoints=self.kpoints, poscar=self.poscar,
+                         potcar=self.potcar)
 
     def write_input(self, output_dir,
                     make_dir_if_not_present=True, include_cif=False):
@@ -152,14 +158,12 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
             include_cif (bool): Whether to write a CIF file in the output
                 directory for easier opening by VESTA.
         """
-        output_dir = Path(output_dir)
-        if make_dir_if_not_present and not output_dir.exists():
-            output_dir.mkdir(parents=True)
-        for k, v in self.all_input.items():
-            v.write_file(str(output_dir / k))
+        vinput = self.get_vasp_input()
+        vinput.write_input(
+            output_dir, make_dir_if_not_present=make_dir_if_not_present)
         if include_cif:
-            s = self.all_input["POSCAR"].structure
-            fname = str(output_dir / ("%s.cif" % re.sub(r'\s', "", s.formula)))
+            s = vinput["POSCAR"].structure
+            fname = Path(output_dir) / ("%s.cif" % re.sub(r'\s', "", s.formula))
             s.to(filename=fname)
 
     def as_dict(self, verbosity=2):
@@ -379,6 +383,8 @@ class DictSet(VaspInputSet):
         if self.use_structure_charge:
             incar["NELECT"] = self.nelect
 
+        if np.product(self.kpoints.kpts) < 4 and incar.get("ISMEAR", 0) == -5:
+            incar["ISMEAR"] = 0
         return incar
 
     @property
@@ -1373,7 +1379,7 @@ class MVLSlabSet(MPRelaxSet):
                 slab_incar["BMIX"] = 0.001
             slab_incar["NELMIN"] = 8
             if self.auto_dipole:
-                weights = [s.species_and_occu.weight for s in structure]
+                weights = [s.species.weight for s in structure]
                 center_of_mass = np.average(structure.frac_coords,
                                             weights=weights, axis=0)
 
@@ -1641,14 +1647,14 @@ class MITNEBSet(MITRelaxSet):
             l = self.structures[0].lattice
             for site in chain(*(s.sites for s in self.structures)):
                 sites.add(
-                    PeriodicSite(site.species_and_occu, site.frac_coords, l))
+                    PeriodicSite(site.species, site.frac_coords, l))
             nebpath = Structure.from_sites(sorted(sites))
             nebpath.to(filename=str(output_dir / 'path.cif'))
 
 
 class MITMDSet(MITRelaxSet):
     """
-    Class for writing a vasp md run. This DOES NOT do multiple stage
+    Clas for writing a vasp md run. This DOES NOT do multiple stage
     runs.
     """
 

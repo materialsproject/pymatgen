@@ -147,7 +147,7 @@ def group_entries_by_structure(entries, species_to_remove=None,
     return entry_groups
 
 
-class EntrySet(collections.MutableSet, MSONable):
+class EntrySet(collections.abc.MutableSet, MSONable):
     """
     A convenient container for manipulating entries. Allows for generating
     subsets, dumping into files, etc.

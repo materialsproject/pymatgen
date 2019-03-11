@@ -16,9 +16,6 @@ import random
 import os
 import numpy as np
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files')
-
 
 class IStructureTest(PymatgenTest):
 
@@ -76,8 +73,8 @@ class IStructureTest(PymatgenTest):
         s = IStructure(self.lattice, ["O", "Li"], coords,
                        site_properties={'charge': [-2, 1]})
         sorted_s = s.get_sorted_structure()
-        self.assertEqual(sorted_s[0].species_and_occu, Composition("Li"))
-        self.assertEqual(sorted_s[1].species_and_occu, Composition("O"))
+        self.assertEqual(sorted_s[0].species, Composition("Li"))
+        self.assertEqual(sorted_s[1].species, Composition("O"))
         self.assertEqual(sorted_s[0].charge, 1)
         self.assertEqual(sorted_s[1].charge, -2)
         s = IStructure(self.lattice, ["Se", "C", "Se", "C"],
@@ -572,7 +569,7 @@ class StructureTest(PymatgenTest):
 
     def test_perturb(self):
         d = 0.1
-        pre_perturbation_sites = self.structure.sites[:]
+        pre_perturbation_sites = self.structure.copy()
         self.structure.perturb(distance=d)
         post_perturbation_sites = self.structure.sites
 
@@ -584,7 +581,7 @@ class StructureTest(PymatgenTest):
         oxidation_states = {"Si": -4}
         self.structure.add_oxidation_state_by_element(oxidation_states)
         for site in self.structure:
-            for k in site.species_and_occu.keys():
+            for k in site.species.keys():
                 self.assertEqual(k.oxi_state, oxidation_states[k.symbol],
                                  "Wrong oxidation state assigned!")
         oxidation_states = {"Fe": 2}
@@ -855,7 +852,7 @@ class StructureTest(PymatgenTest):
         s = Structure(Lattice.cubic(1), species, coords)
         s.merge_sites(mode="s")
         self.assertEqual(s[0].specie.symbol, 'Ag')
-        self.assertEqual(s[1].species_and_occu,
+        self.assertEqual(s[1].species,
                          Composition({'Cl': 0.35, 'F': 0.25}))
         self.assertArrayAlmostEqual(s[1].frac_coords, [.5, .5, .5005])
 
@@ -942,7 +939,7 @@ class StructureTest(PymatgenTest):
         self.assertEqual(super_cell.charge, 25, "Set charge not properly modifying _charge")
 
     def test_vesta_lattice_matrix(self):
-        silica_zeolite = Molecule.from_file(os.path.join(test_dir, "CON_vesta.xyz"))
+        silica_zeolite = Molecule.from_file(self.TEST_FILES_DIR / "CON_vesta.xyz")
 
         s_vesta = Structure(
             lattice=Lattice.from_parameters(22.6840, 13.3730, 12.5530, 90, 69.479, 90, True),
@@ -966,6 +963,29 @@ class StructureTest(PymatgenTest):
 
         broken_s.merge_sites(0.01, 'delete')
         self.assertEqual(broken_s.formula, 'Si56 O134')
+
+    def test_extract_cluster(self):
+        coords = [[0.000000, 0.000000, 0.000000],
+                  [0.000000, 0.000000, 1.089000],
+                  [1.026719, 0.000000, -0.363000],
+                  [-0.513360, -0.889165, -0.363000],
+                  [-0.513360, 0.889165, -0.363000]]
+        ch4 = ["C", "H", "H", "H", "H"]
+
+        species = []
+        allcoords = []
+        for vec in ([0, 0, 0], [4, 0, 0], [0, 4, 0], [4, 4, 0]):
+            species.extend(ch4)
+            for c in coords:
+                allcoords.append(np.array(c) + vec)
+
+        structure = Structure(Lattice.cubic(10), species, allcoords,
+                              coords_are_cartesian=True)
+
+        for site in structure:
+            if site.specie.symbol == "C":
+                cluster = Molecule.from_sites(structure.extract_cluster([site]))
+                self.assertEqual(cluster.formula, "H4 C1")
 
 
 class IMoleculeTest(PymatgenTest):
@@ -1325,7 +1345,7 @@ class MoleculeTest(PymatgenTest):
         coords = list(self.mol.cart_coords) + list(self.mol.cart_coords
                                                    + [10, 0, 0])
         mol = Molecule(species, coords)
-        cluster = mol.extract_cluster([mol[0]])
+        cluster = Molecule.from_sites(mol.extract_cluster([mol[0]]))
         self.assertEqual(mol.formula, "H8 C2")
         self.assertEqual(cluster.formula, "H4 C1")
 

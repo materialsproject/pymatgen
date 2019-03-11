@@ -36,7 +36,7 @@ def ref_file(filename):
 #        print(repr(pptest_wf))
 #        print(pptest_wf)
 #
-#        self.assertTrue(isinstance(pptest_wf, collections.Iterable))
+#        self.assertTrue(isinstance(pptest_wf, collections.abc.Iterable))
 #        self.assertTrue(pptest_wf.isnc)
 #
 #        pptest_wf.build()

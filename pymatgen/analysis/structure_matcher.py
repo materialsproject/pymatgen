@@ -639,9 +639,9 @@ class StructureMatcher(MSONable):
         if self._scale:
             ratio = (struct2.volume / (struct1.volume * mult)) ** (1 / 6)
             nl1 = Lattice(struct1.lattice.matrix * ratio)
-            struct1.modify_lattice(nl1)
+            struct1.lattice = nl1
             nl2 = Lattice(struct2.lattice.matrix / ratio)
-            struct2.modify_lattice(nl2)
+            struct2.lattice = nl2
 
         return struct1, struct2, fu, s1_supercell
 

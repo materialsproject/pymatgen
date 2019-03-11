@@ -73,7 +73,7 @@ class SpacegroupAnalyzer:
         magmoms = []
 
         for species, g in itertools.groupby(structure,
-                                            key=lambda s: s.species_and_occu):
+                                            key=lambda s: s.species):
             if species in unique_species:
                 ind = unique_species.index(species)
                 zs.extend([ind + 1] * len(tuple(g)))
@@ -876,7 +876,7 @@ class PointGroupAnalyzer:
             total_inertia = 0
             for site in self.centered_mol:
                 c = site.coords
-                wt = site.species_and_occu.weight
+                wt = site.species.weight
                 for i in range(3):
                     inertia_tensor[i, i] += wt * (c[(i + 1) % 3] ** 2
                                                   + c[(i + 2) % 3] ** 2)
@@ -1037,7 +1037,7 @@ class PointGroupAnalyzer:
         else:
             # Iterate through all pairs of atoms to find mirror
             for s1, s2 in itertools.combinations(self.centered_mol, 2):
-                if s1.species_and_occu == s2.species_and_occu:
+                if s1.species == s2.species:
                     normal = s1.coords - s2.coords
                     if np.dot(normal, axis) < self.tol:
                         op = SymmOp.reflection(normal)
@@ -1221,8 +1221,8 @@ class PointGroupAnalyzer:
             coord = symmop.operate(site.coords)
             ind = find_in_coord_list(coords, coord, self.tol)
             if not (len(ind) == 1
-                    and self.centered_mol[ind[0]].species_and_occu
-                    == site.species_and_occu):
+                    and self.centered_mol[ind[0]].species
+                    == site.species):
                 return False
         return True
 
@@ -1410,7 +1410,8 @@ class PointGroupAnalyzer:
                     continue
                 coords[j] = np.dot(ops[i][j], coords[i])
                 coords[j] = np.dot(ops[i][j], coords[i])
-        molecule = Molecule(species=self.centered_mol.species, coords=coords)
+        molecule = Molecule(species=self.centered_mol.species_and_occu,
+                            coords=coords)
         return {'sym_mol': molecule,
                 'eq_sets': eq_sets,
                 'sym_ops': ops}
@@ -1501,10 +1502,10 @@ def cluster_sites(mol, tol, give_only_index=False):
         else:
             if give_only_index:
                 clustered_sites[
-                    (avg_dist[f[i]], site.species_and_occu)].append(i)
+                    (avg_dist[f[i]], site.species)].append(i)
             else:
                 clustered_sites[
-                    (avg_dist[f[i]], site.species_and_occu)].append(site)
+                    (avg_dist[f[i]], site.species)].append(site)
     return origin_site, clustered_sites
 
 
@@ -1590,7 +1591,7 @@ class SpacegroupOperations(list):
             return False
 
         for op in self:
-            newsites2 = [PeriodicSite(site.species_and_occu,
+            newsites2 = [PeriodicSite(site.species,
                                       op.operate(site.frac_coords),
                                       site.lattice) for site in sites2]
             for site in newsites2:

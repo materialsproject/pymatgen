@@ -396,8 +396,8 @@ class NearNeighbors:
         output = []
         for info in sites:
             orig_site = structure[info['site_index']]
-            info['site'] = PeriodicSite(orig_site.species_and_occu,
-                                        np.add(orig_site._fcoords,
+            info['site'] = PeriodicSite(orig_site.species,
+                                        np.add(orig_site.frac_coords,
                                                info['image']),
                                         structure.lattice,
                                         properties=orig_site.properties)
@@ -721,7 +721,8 @@ class VoronoiNN(NearNeighbors):
         #  The `get_all_neighbors` function returns neighbors for each site's image in the
         #   original unit cell. We start off with these central atoms to ensure they are
         #   included in the tessellation
-        sites = [x.to_unit_cell for x in structure]
+
+        sites = [x.to_unit_cell() for x in structure]
         indices = [(i, 0, 0, 0) for i, _ in enumerate(structure)]
 
         # Get all neighbors within a certain cutoff
@@ -768,7 +769,7 @@ class VoronoiNN(NearNeighbors):
                 return [site.specie]
             return [Element(site.specie)]
         except:
-            return site.species_and_occu.elements
+            return site.species.elements
 
     def _is_in_targets(self, site, targets):
         """
@@ -882,7 +883,7 @@ class VoronoiNN(NearNeighbors):
                 if nn.specie in targets:
                     resultweighted[nn_index] = nstats
             else:  # is nn site is disordered
-                for disordered_sp in nn.species_and_occu.keys():
+                for disordered_sp in nn.species.keys():
                     if disordered_sp in targets:
                         resultweighted[nn_index] = nstats
 
@@ -1262,7 +1263,7 @@ class OpenBabelNN(NearNeighbors):
         output = []
         for info in sites:
             orig_site = structure[info['site_index']]
-            info['site'] = Site(orig_site.species_and_occu,
+            info['site'] = Site(orig_site.species,
                                 orig_site._coords,
                                 properties=orig_site.properties)
             output.append(info)
@@ -1394,7 +1395,7 @@ class CovalentBondNN(NearNeighbors):
         output = []
         for info in sites:
             orig_site = structure[info['site_index']]
-            info['site'] = Site(orig_site.species_and_occu,
+            info['site'] = Site(orig_site.species,
                                 orig_site._coords,
                                 properties=orig_site.properties)
             output.append(info)

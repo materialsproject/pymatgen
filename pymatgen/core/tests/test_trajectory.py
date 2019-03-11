@@ -88,7 +88,7 @@ class TrajectoryTest(PymatgenTest):
         for i in range(10):
             new_lattice = np.dot(structure.lattice.matrix, np.diag(1 + np.random.random_sample(3)/20))
             temp_struct = structure.copy()
-            temp_struct.modify_lattice(Lattice(new_lattice))
+            temp_struct.lattice = Lattice(new_lattice)
             structures.append(temp_struct)
 
         traj = Trajectory.from_structures(structures, constant_lattice=False)

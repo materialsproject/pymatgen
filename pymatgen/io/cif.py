@@ -34,8 +34,6 @@ from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 try:
     from pybtex.database import BibliographyData, Entry
 except ImportError:
-    warnings.warn("Please install optional dependency pybtex if you"
-                  "want to extract references from CIF files.")
     BibliographyData, Entry = None, None
 
 """
@@ -1282,7 +1280,7 @@ class CifWriter:
         count = 1
         if symprec is None:
             for site in struct:
-                for sp, occu in sorted(site.species_and_occu.items()):
+                for sp, occu in sorted(site.species.items()):
                     atom_site_type_symbol.append(sp.__str__())
                     atom_site_symmetry_multiplicity.append("1")
                     atom_site_fract_x.append("{0:f}".format(site.a))
@@ -1313,9 +1311,9 @@ class CifWriter:
             ]
             for site, mult in sorted(
                     unique_sites,
-                    key=lambda t: (t[0].species_and_occu.average_electroneg,
+                    key=lambda t: (t[0].species.average_electroneg,
                                    -t[1], t[0].a, t[0].b, t[0].c)):
-                for sp, occu in site.species_and_occu.items():
+                for sp, occu in site.species.items():
                     atom_site_type_symbol.append(sp.__str__())
                     atom_site_symmetry_multiplicity.append("%d" % mult)
                     atom_site_fract_x.append("{0:f}".format(site.a))

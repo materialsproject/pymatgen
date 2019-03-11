@@ -1,8 +1,8 @@
-numpy==1.16.1
+numpy==1.16.2
 pydispatcher==2.0.5
 sympy==1.3
 requests==2.21.0
-monty==1.0.5
+monty==1.0.6
 ruamel.yaml==0.15.89
 scipy==1.2.1
 tabulate==0.8.3
