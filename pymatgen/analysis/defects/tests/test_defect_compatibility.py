@@ -9,7 +9,7 @@ import os
 import numpy as np
 
 from pymatgen.core import PeriodicSite
-from pymatgen.io.vasp import Vasprun
+from pymatgen.io.vasp import Vasprun, Poscar, Outcar
 from pymatgen.analysis.defects.core import  Vacancy, Interstitial, DefectEntry
 from pymatgen.analysis.defects.defect_compatibility import DefectCompatibility
 from pymatgen.util.testing import PymatgenTest
@@ -35,6 +35,20 @@ class DefectCompatibilityTest(PymatgenTest):
                             'defect_planar_averages': dldata, 'dielectric': 15,
                             'initial_defect_structure': struc.copy(),
                             'defect_frac_sc_coords': struc.sites[0].frac_coords[:]}
+
+        kumagai_bulk_struc = Poscar.from_file(os.path.join( test_dir, 'defect', 'CONTCAR_bulk')).structure
+        bulk_out = Outcar( os.path.join( test_dir, 'defect', 'OUTCAR_bulk.gz'))
+        defect_out = Outcar( os.path.join( test_dir, 'defect', 'OUTCAR_vac_Ga_-3.gz'))
+        self.kumagai_vac = Vacancy(kumagai_bulk_struc, kumagai_bulk_struc.sites[0], charge=-3)
+        kumagai_defect_structure = self.kumagai_vac.generate_defect_structure()
+        self.kumagai_params = {'bulk_atomic_site_averages': bulk_out.electrostatic_potential,
+                              'defect_atomic_site_averages': defect_out.electrostatic_potential,
+                              'site_matching_indices': [[ind, ind-1] for ind in range(len(kumagai_bulk_struc))],
+                              'defect_frac_sc_coords': [0.,0.,0.],
+                              'initial_defect_structure': kumagai_defect_structure,
+                              'dielectric': 18.118 * np.identity(3),
+                               'gamma': 0.153156 #not neccessary to load gamma, but speeds up unit test
+                               }
 
         v = Vasprun(os.path.join(test_dir, 'vasprun.xml'))
         eigenvalues = v.eigenvalues.copy()
@@ -99,7 +113,6 @@ class DefectCompatibilityTest(PymatgenTest):
         self.assertAlmostEqual( dentry.corrections['bandfilling_correction'], 0.)
         self.assertAlmostEqual( dentry.corrections['charge_correction'], 0.)
 
-
     def test_perform_all_corrections(self):
 
         #return entry even if insufficent values are provided
@@ -123,8 +136,16 @@ class DefectCompatibilityTest(PymatgenTest):
         self.assertTrue('pot_plot_data' in val.keys())
 
     def test_perform_kumagai(self):
-        #TODO: add this once correction exists
-        pass
+        de = DefectEntry( self.kumagai_vac, 0., parameters=self.kumagai_params)
+        dc = DefectCompatibility()
+        dentry = dc.perform_kumagai( de)
+
+        val = dentry.parameters['kumagai_meta']
+        self.assertAlmostEqual(val['kumagai_electrostatic'], 0.88236299)
+        self.assertAlmostEqual(val['kumagai_potential_alignment_correction'], 2.09704862)
+        self.assertAlmostEqual(val['kumagai_potalign'], 0.69901620)
+        self.assertTrue('pot_corr_uncertainty_md' in val.keys())
+        self.assertTrue('pot_plot_data' in val.keys())
 
     def test_run_bandfilling(self):
         de = DefectEntry(self.vac, 0., corrections={}, parameters=self.bandfill_params, entry_id=None)
