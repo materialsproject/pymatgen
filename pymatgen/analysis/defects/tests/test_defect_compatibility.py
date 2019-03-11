@@ -179,7 +179,7 @@ class DefectCompatibilityTest(PymatgenTest):
 
     def test_check_freysoldt_delocalized(self):
         de = DefectEntry(self.vac, 0., corrections={}, parameters=self.frey_params, entry_id=None)
-        de.parameters.update( {'is_compatible': True}) #needs to be initialized with this here
+        de.parameters.update( {'is_compatible': True}) #needs to be initialized with this here for unittest
         dc = DefectCompatibility( plnr_avg_var_tol=0.1, plnr_avg_minmax_tol=0.5)
         dentry = dc.perform_freysoldt( de)
 
@@ -231,8 +231,55 @@ class DefectCompatibilityTest(PymatgenTest):
         self.assertFalse( dentry.parameters['is_compatible'])
 
     def test_check_kumagai_delocalized(self):
-        #TODO: add this once correction exists
-        pass
+        # pass
+        de = DefectEntry( self.kumagai_vac, 0., parameters=self.kumagai_params)
+        de.parameters.update( {'is_compatible': True}) #needs to be initialized with this here for unittest
+        dc = DefectCompatibility( atomic_site_var_tol=13.3, atomic_site_minmax_tol=20.95)
+        dentry = dc.perform_kumagai( de)
+
+        # check case which fits under compatibility constraints
+        dentry = dc.check_kumagai_delocalized( dentry)
+        kumagai_delocal = dentry.parameters['delocalization_meta']['atomic_site']
+        self.assertTrue( kumagai_delocal['is_compatible'])
+        kumagai_md = kumagai_delocal['metadata']
+        true_variance = 13.262304401193997
+        true_minmax = 20.9435
+        self.assertTrue(kumagai_md['kumagai_variance_compatible'])
+        self.assertAlmostEqual(kumagai_md['kumagai_variance'], true_variance)
+        self.assertTrue(kumagai_md['kumagai_minmax_compatible'])
+        self.assertAlmostEqual(kumagai_md['kumagai_minmax_window'], true_minmax)
+
+        self.assertTrue( dentry.parameters['is_compatible'])
+
+        # break variable compatibility
+        dc = DefectCompatibility( atomic_site_var_tol=0.1, atomic_site_minmax_tol=20.95)
+        de.parameters.update( {'is_compatible': True})
+        dentry = dc.perform_kumagai( de)
+        dentry = dc.check_kumagai_delocalized( dentry)
+        kumagai_delocal = dentry.parameters['delocalization_meta']['atomic_site']
+        self.assertFalse( kumagai_delocal['is_compatible'])
+        kumagai_md = kumagai_delocal['metadata']
+        self.assertFalse(kumagai_md['kumagai_variance_compatible'])
+        self.assertAlmostEqual(kumagai_md['kumagai_variance'], true_variance)
+        self.assertTrue(kumagai_md['kumagai_minmax_compatible'])
+        self.assertAlmostEqual(kumagai_md['kumagai_minmax_window'], true_minmax)
+
+        self.assertFalse( dentry.parameters['is_compatible'])
+
+        # break maxmin compatibility
+        dc = DefectCompatibility(atomic_site_var_tol=13.3, atomic_site_minmax_tol=0.5)
+        de.parameters.update({'is_compatible': True})
+        dentry = dc.perform_kumagai(de)
+        dentry = dc.check_kumagai_delocalized(dentry)
+        kumagai_delocal = dentry.parameters['delocalization_meta']['atomic_site']
+        self.assertFalse(kumagai_delocal['is_compatible'])
+        kumagai_md = kumagai_delocal['metadata']
+        self.assertTrue(kumagai_md['kumagai_variance_compatible'])
+        self.assertAlmostEqual(kumagai_md['kumagai_variance'], true_variance)
+        self.assertFalse(kumagai_md['kumagai_minmax_compatible'])
+        self.assertAlmostEqual(kumagai_md['kumagai_minmax_window'], true_minmax)
+
+        self.assertFalse(dentry.parameters['is_compatible'])
 
     def test_check_final_relaxed_structure_delocalized(self):
         # test structure delocalization analysis
