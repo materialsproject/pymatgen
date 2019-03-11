@@ -65,6 +65,10 @@ class DefectsCoreTest(PymatgenTest):
         self.assertRaises( ValueError, Vacancy, struc, sc_scaled_struc[V_index])
         self.assertRaises( ValueError, Vacancy, sc_scaled_struc, struc[V_index])
 
+        # test value error raised for site not in the structure
+        non_site = PeriodicSite( "V", struc[V_index].frac_coords + [0., 0., .1], struc.lattice)
+        self.assertRaises( ValueError, Vacancy, struc, non_site)
+
     def test_interstitial(self):
         struc = PymatgenTest.get_structure("VO2")
         V_index = struc.indices_from_symbol("V")[0]
@@ -172,6 +176,10 @@ class DefectsCoreTest(PymatgenTest):
         sub_struc = substitution.generate_defect_structure(1)
 
         self.assertTrue( 'velocities' not in sub_struc.site_properties)
+
+        # test value error raised for site not in the structure
+        non_site = PeriodicSite( "Sr", struc[V_index].frac_coords - [0., 0., .1], struc.lattice)
+        self.assertRaises( ValueError, Substitution, struc, non_site)
 
 
 

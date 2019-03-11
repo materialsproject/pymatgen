@@ -30,7 +30,7 @@ class Defect(MSONable, metaclass=ABCMeta):
     Abstract class for a single point defect
     """
 
-    def __init__(self, structure, defect_site, charge=0.):
+    def __init__(self, structure, defect_site, charge=0., multiplicity=None):
         """
         Initializes an abstract defect
 
@@ -41,12 +41,17 @@ class Defect(MSONable, metaclass=ABCMeta):
             charge: (int or float) defect charge
                 default is zero, meaning no change to NELECT after defect is created in the structure
                 (assuming use_structure_charge=True in vasp input set)
+            multiplicity (int): multiplicity of defect within
+                the supercell can be supplied by user. if not
+                specified, then space group symmetry analysis is
+                used to generate multiplicity.
         """
         self._structure = structure
         self._charge = int(charge)
         self._defect_site = defect_site
         if structure.lattice != defect_site.lattice:
             raise ValueError("defect_site lattice must be same as structure lattice.")
+        self._multiplicity = multiplicity if multiplicity else self.get_multiplicity()
 
     @property
     def bulk_structure(self):
@@ -70,12 +75,11 @@ class Defect(MSONable, metaclass=ABCMeta):
         return self._defect_site
 
     @property
-    @abstractmethod
     def multiplicity(self):
         """
         Returns the multiplicity of a defect site within the structure (needed for concentration analysis)
         """
-        return
+        return self._multiplicity
 
     @property
     @abstractmethod
@@ -99,6 +103,14 @@ class Defect(MSONable, metaclass=ABCMeta):
     def name(self):
         """
         Returns a name for this defect
+        """
+        return
+
+    @abstractmethod
+    def get_multiplicity(self):
+        """
+        Method to determine multiplicity. For non-Interstitial objects, also confirms that defect_site
+        is a site in bulk_structure.
         """
         return
 
@@ -149,25 +161,28 @@ class Vacancy(Defect):
         defect_site = struct_for_defect_site[0]
 
         poss_deflist = sorted(
-            defect_structure.get_sites_in_sphere(defect_site.coords, 2, include_index=True), key=lambda x: x[1])
+            defect_structure.get_sites_in_sphere(defect_site.coords, 0.1, include_index=True), key=lambda x: x[1])
         defindex = poss_deflist[0][2]
         defect_structure.remove_sites([defindex])
         defect_structure.set_charge(self.charge)
         return defect_structure
 
-    @property
-    def multiplicity(self):
+    def get_multiplicity(self):
         """
         Returns the multiplicity of a defect site within the structure (needed for concentration analysis)
+        and confirms that defect_site is a site in bulk_structure.
         """
         sga = SpacegroupAnalyzer(self.bulk_structure)
         periodic_struc = sga.get_symmetrized_structure()
         poss_deflist = sorted(
-            periodic_struc.get_sites_in_sphere(self.site.coords, 2, include_index=True), key=lambda x: x[1])
-        defindex = poss_deflist[0][2]
-
-        equivalent_sites = periodic_struc.find_equivalent_sites(self.bulk_structure[defindex])
-        return len(equivalent_sites)
+            periodic_struc.get_sites_in_sphere(self.site.coords, 0.1, include_index=True), key=lambda x: x[1])
+        if not len(poss_deflist):
+            raise ValueError("Site {} is not in bulk structure! Cannot create Vacancy object.".format( self.site))
+        else:
+            defindex = poss_deflist[0][2]
+            defect_site = self.bulk_structure[defindex]
+            equivalent_sites = periodic_struc.find_equivalent_sites(defect_site)
+            return len(equivalent_sites)
 
     @property
     def name(self):
@@ -186,7 +201,7 @@ class Substitution(Defect):
     @lru_cache(1)
     def defect_composition(self):
         poss_deflist = sorted(
-            self.bulk_structure.get_sites_in_sphere(self.site.coords, 2, include_index=True), key=lambda x: x[1])
+            self.bulk_structure.get_sites_in_sphere(self.site.coords, 0.1, include_index=True), key=lambda x: x[1])
         defindex = poss_deflist[0][2]
 
         temp_comp = self.bulk_structure.composition.as_dict()
@@ -219,7 +234,7 @@ class Substitution(Defect):
         defect_site = struct_for_defect_site[0]
 
         poss_deflist = sorted(
-            defect_structure.get_sites_in_sphere(defect_site.coords, 2, include_index=True), key=lambda x: x[1])
+            defect_structure.get_sites_in_sphere(defect_site.coords, 0.1, include_index=True), key=lambda x: x[1])
         defindex = poss_deflist[0][2]
 
         subsite = defect_structure.pop(defindex)
@@ -228,19 +243,22 @@ class Substitution(Defect):
         defect_structure.set_charge(self.charge)
         return defect_structure
 
-    @property
-    def multiplicity(self):
+    def get_multiplicity(self):
         """
         Returns the multiplicity of a defect site within the structure (needed for concentration analysis)
+        and confirms that defect_site is a site in bulk_structure.
         """
         sga = SpacegroupAnalyzer(self.bulk_structure)
         periodic_struc = sga.get_symmetrized_structure()
         poss_deflist = sorted(
-            periodic_struc.get_sites_in_sphere(self.site.coords, 2, include_index=True), key=lambda x: x[1])
-        defindex = poss_deflist[0][2]
-
-        equivalent_sites = periodic_struc.find_equivalent_sites(self.bulk_structure[defindex])
-        return len(equivalent_sites)
+            periodic_struc.get_sites_in_sphere(self.site.coords, 0.1, include_index=True), key=lambda x: x[1])
+        if not len(poss_deflist):
+            raise ValueError("Site {} is not in bulk structure! Cannot create Substitution object.".format( self.site))
+        else:
+            defindex = poss_deflist[0][2]
+            defect_site = self.bulk_structure[defindex]
+            equivalent_sites = periodic_struc.find_equivalent_sites(defect_site)
+            return len(equivalent_sites)
 
     @property
     @lru_cache(1)
@@ -249,7 +267,7 @@ class Substitution(Defect):
         Returns a name for this defect
         """
         poss_deflist = sorted(
-            self.bulk_structure.get_sites_in_sphere(self.site.coords, 2, include_index=True), key=lambda x: x[1])
+            self.bulk_structure.get_sites_in_sphere(self.site.coords, 0.1, include_index=True), key=lambda x: x[1])
         defindex = poss_deflist[0][2]
         return "Sub_{}_on_{}_mult{}".format(self.site.specie, self.bulk_structure[defindex].specie, self.multiplicity)
 
@@ -286,7 +304,7 @@ class Interstitial(Defect):
                 significant relaxation.
         """
         super().__init__(structure=structure, defect_site=defect_site, charge=charge)
-        self._multiplicity = multiplicity
+        self._multiplicity = multiplicity if multiplicity else self.get_multiplicity()
         self.site_name = site_name
 
     @property
@@ -324,32 +342,26 @@ class Interstitial(Defect):
         defect_structure.set_charge(self.charge)
         return defect_structure
 
-    @property
-    def multiplicity(self):
+    def get_multiplicity(self):
         """
         Returns the multiplicity of a defect site within the structure (needed for concentration analysis)
         """
-        if self._multiplicity is None:
-            # generate multiplicity based on space group symmetry operations performed on defect coordinates
-            try:
-                d_structure = create_saturated_interstitial_structure(self)
-            except ValueError:
-                logger.debug('WARNING! Multiplicity was not able to be calculated adequately '
-                             'for interstitials...setting this to 1 and skipping for now...')
-                return 1
+        try:
+            d_structure = create_saturated_interstitial_structure(self)
+        except ValueError:
+            logger.debug('WARNING! Multiplicity was not able to be calculated adequately '
+                         'for interstitials...setting this to 1 and skipping for now...')
+            return 1
 
-            sga = SpacegroupAnalyzer(d_structure)
-            periodic_struc = sga.get_symmetrized_structure()
-            poss_deflist = sorted(
-                periodic_struc.get_sites_in_sphere(self.site.coords, 2, include_index=True),
-                key=lambda x: x[1])
-            defindex = poss_deflist[0][2]
+        sga = SpacegroupAnalyzer(d_structure)
+        periodic_struc = sga.get_symmetrized_structure()
+        poss_deflist = sorted(
+            periodic_struc.get_sites_in_sphere(self.site.coords, 0.1, include_index=True),
+            key=lambda x: x[1])
+        defindex = poss_deflist[0][2]
 
-            equivalent_sites = periodic_struc.find_equivalent_sites(periodic_struc[defindex])
-            return len(equivalent_sites)
-
-        else:
-            return self._multiplicity
+        equivalent_sites = periodic_struc.find_equivalent_sites(periodic_struc[defindex])
+        return len(equivalent_sites)
 
     @property
     def name(self):
