@@ -31,7 +31,7 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 # Loads element data from json file
-with open(Path(__file__).absolute().parent / "periodic_table.json", "rt") as f:
+with open(str(Path(__file__).absolute().parent / "periodic_table.json"), "rt") as f:
     _pt_data = json.load(f)
 
 _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
