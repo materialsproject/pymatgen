@@ -14,7 +14,7 @@ from monty.json import MontyDecoder, MontyEncoder
 
 from copy import deepcopy
 
-from pymatgen import SETTINGS
+from pymatgen import SETTINGS, __version__
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
@@ -115,7 +115,7 @@ class MPRester:
                               "you should install dependencies via "
                               "`pip install pymatgen[matproj.snl]`.")
         self.session = requests.Session()
-        self.session.headers = {"x-api-key": self.api_key}
+        self.session.headers = {"x-api-key": self.api_key, "user-agent": "pymatgen/"+__version__}
 
     def __enter__(self):
         """
