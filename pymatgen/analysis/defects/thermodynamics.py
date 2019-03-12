@@ -140,7 +140,8 @@ class DefectPhaseDiagram(MSONable):
             grp_def_sets = []
             grp_def_indices = []
             for ent_ind, ent in enumerate( entryset):
-                #TODO: more pythonic way of grouping entry sets with PointDefectComparator
+                #TODO: more pythonic way of grouping entry sets with PointDefectComparator.
+                #this is currently most time intensive part of DefectPhaseDiagram
                 matched_ind = None
                 for grp_ind, defgrp in enumerate(grp_def_sets):
                     if pdc.are_equal( ent.defect, defgrp[0].defect):
@@ -414,10 +415,10 @@ class DefectPhaseDiagram(MSONable):
 
         return bisect(_get_total_q, -1., self.band_gap + 1.)
 
-    def plot(self, mu_elts, xlim=None, ylim=None, ax_fontsize=1.3, lg_fontsize=1.,
+    def plot(self, mu_elts=None, xlim=None, ylim=None, ax_fontsize=1.3, lg_fontsize=1.,
              lg_position=None, fermi_level = None, title=None, saved=False):
         """
-        Produce efect Formation energy vs Fermi energy plot
+        Produce defect Formation energy vs Fermi energy plot
         Args:
             mu_elts:
                 a dictionnary of {Element:value} giving the chemical
