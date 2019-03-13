@@ -8,6 +8,7 @@ import itertools
 import json
 import re
 import warnings
+import platform
 from time import sleep
 
 from monty.json import MontyDecoder, MontyEncoder
@@ -74,6 +75,9 @@ class MPRester:
             interface. Defaults to the standard Materials Project REST
             address at "https://materialsproject.org/rest/v2", but
             can be changed to other urls implementing a similar interface.
+        include_user_agent (bool): If True, will include a user agent with the
+            HTTP request including information on pymatgen and system version
+            making the API request. Set to False to disable the user agent.
     """
 
     supported_properties = ("energy", "energy_per_atom", "volume",
@@ -94,7 +98,7 @@ class MPRester:
                                  "is_compatible", "spacegroup",
                                  "band_gap", "density", "icsd_id", "cif")
 
-    def __init__(self, api_key=None, endpoint=None):
+    def __init__(self, api_key=None, endpoint=None, include_user_agent=True):
         if api_key is not None:
             self.api_key = api_key
         else:
@@ -115,7 +119,14 @@ class MPRester:
                               "you should install dependencies via "
                               "`pip install pymatgen[matproj.snl]`.")
         self.session = requests.Session()
-        self.session.headers = {"x-api-key": self.api_key, "user-agent": "pymatgen/"+__version__}
+        self.session.headers = {"x-api-key": self.api_key}
+        if include_user_agent:
+            pymatgen_version = "pymatgen/"+__version__
+            python_version = "Python {}.{}.{}".format(sys.version_info.major, sys.version_info.minor,
+                                                      sys.version_info.micro)
+            platform = "{} {}".format(platform.system(), platform.release())
+            self.session.headers["user-agent"] = "{} ({} {})".format(pymatgen_version, python_version,
+                                                                     platform)
 
     def __enter__(self):
         """
