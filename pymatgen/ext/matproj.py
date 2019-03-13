@@ -77,7 +77,9 @@ class MPRester:
             can be changed to other urls implementing a similar interface.
         include_user_agent (bool): If True, will include a user agent with the
             HTTP request including information on pymatgen and system version
-            making the API request. Set to False to disable the user agent.
+            making the API request. This helps MP support pymatgen users, and
+            is similar to what most web browsers send with each page request.
+            Set to False to disable the user agent.
     """
 
     supported_properties = ("energy", "energy_per_atom", "volume",
