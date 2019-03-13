@@ -25,8 +25,11 @@ v2019.3.13
         for k_dens in [100, 200, 400, 800]:
             vis = MPRelaxSet(structure, 
                 user_kpoints_settings={"reciprocal_density": k_dens})
+            vi = vis.get_vasp_input()
             kpoints = vi["KPOINTS"].kpts[0][0]
             d = "Li2O_kpoints_%d" % kpoints
+ 
+            # Directly run vasp.
             vi.run_vasp(d, vasp_cmd=VASP_CMD)
             # Use the final structure as the new initial structure to speed up calculations.
             structure = Vasprun("%s/vasprun.xml" % d).final_structure
