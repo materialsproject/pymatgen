@@ -187,12 +187,15 @@ kpoint convergence script that can be submitted in a queue</li>
 
 <span class="go">def main():</span>
 <span class="go">    mpr = MPRester()</span>
-<span class="go">    structure = mpr.get_structure(&quot;Li2O&quot;)</span>
+<span class="go">    structure = mpr.get_structures(&quot;Li2O&quot;)[0]</span>
 <span class="go">    for k_dens in [100, 200, 400, 800]:</span>
 <span class="go">        vis = MPRelaxSet(structure,</span>
 <span class="go">            user_kpoints_settings={&quot;reciprocal_density&quot;: k_dens})</span>
+<span class="go">        vi = vis.get_vasp_input()</span>
 <span class="go">        kpoints = vi[&quot;KPOINTS&quot;].kpts[0][0]</span>
 <span class="go">        d = &quot;Li2O_kpoints_%d&quot; % kpoints</span>
+
+<span class="go">        # Directly run vasp.</span>
 <span class="go">        vi.run_vasp(d, vasp_cmd=VASP_CMD)</span>
 <span class="go">        # Use the final structure as the new initial structure to speed up calculations.</span>
 <span class="go">        structure = Vasprun(&quot;%s/vasprun.xml&quot; % d).final_structure</span>
