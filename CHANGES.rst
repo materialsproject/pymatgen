@@ -21,7 +21,7 @@ v2019.3.13
 
     def main():
         mpr = MPRester()
-        structure = mpr.get_structure("Li2O")
+        structure = mpr.get_structures("Li2O")[0]
         for k_dens in [100, 200, 400, 800]:
             vis = MPRelaxSet(structure, 
                 user_kpoints_settings={"reciprocal_density": k_dens})
