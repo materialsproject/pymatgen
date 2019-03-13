@@ -50,7 +50,7 @@
 <dl class="class">
 <dt id="pymatgen.io.abinit.scheduler_error_handlers.SchedulerErrorHandler">
 <em class="property">class </em><code class="descname">SchedulerErrorHandler</code><span class="sig-paren">(</span><em>scheduler_adapter</em>, <em>application_adapter=None</em>, <em>err_file='queue.err'</em>, <em>out_file='queue.out'</em>, <em>run_err_file='run.err'</em>, <em>batch_err_file='batch.err'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/scheduler_error_handlers.html#SchedulerErrorHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.scheduler_error_handlers.SchedulerErrorHandler" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">custodian.custodian.ErrorHandler</span></code></p>
 <dl class="docutils">
 <dt>Custodian error handler for scheduler related errors</dt>
 <dd>scheduler_adapter takes the scheduler, it should at least provide a .name attribute indentifying the scheduler,

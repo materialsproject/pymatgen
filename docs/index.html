@@ -127,7 +127,7 @@ pymatgen examples page in favor of this more sustainable approach going forward.
 One of the ways you can contribute is to fork the matgenb repo and add your own
 examples.</p>
 <p>Below are a quick look at some of the graphical output possible.</p>
-<div class="figure align-center" id="id11">
+<div class="figure align-center" id="id3">
 <a class="reference internal image-reference" href="_images/examples.png"><img alt="Examples" src="_images/examples.png" style="width: 100%;" /></a>
 <p class="caption"><span class="caption-text">Top: (left) Phase and (right) Pourbaix diagram from the Materials API.
 Bottom left: Calculated bandstructure plot using pymatgen’s parsing and
@@ -176,33 +176,32 @@ immutability for Site and PeriodicSite.</li>
 <li>VaspInput class now supports a run_vasp method, which can be used to code
 runnable python scripts for running simple calculations (custodian still
 recommended for more complex calculations.). For example, the following is a
-kpoint convergence script that can be submitted in a queue.</li>
+kpoint convergence script that can be submitted in a queue</li>
 </ul>
-<p><a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a>python
-from pymatgen import MPRester
-from pymatgen.io.vasp.sets import MPRelaxSet</p>
-<p>VASP_CMD = [“mpirun”, “-machinefile”, “$PBS_NODEFILE”, “-np”, “16”, “vasp”]</p>
-<dl class="docutils">
-<dt>def main():</dt>
-<dd><p class="first">mpr = MPRester()
-structure = mpr.get_structure(“Li2O”)
-for k_dens in [100, 200, 400, 800]:</p>
-<blockquote class="last">
-<div><dl class="docutils">
-<dt>vis = MPRelaxSet(structure,</dt>
-<dd>user_kpoints_settings={“reciprocal_density”: k_dens})</dd>
-</dl>
-<p>kpoints = vi[“KPOINTS”].kpts[0][0]
-d = “Li2O_kpoints_%d” % kpoints
-vi.run_vasp(d, vasp_cmd=VASP_CMD)
-# Use the final structure as the new initial structure to speed up calculations.
-structure = Vasprun(“%s/vasprun.xml” % d).final_structure</p>
-</div></blockquote>
-</dd>
-<dt>if __name__ == “__main__”:</dt>
-<dd>main()</dd>
-</dl>
-<p><a href="#id5"><span class="problematic" id="id6">``</span></a><a href="#id7"><span class="problematic" id="id8">`</span></a></p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">from pymatgen import MPRester</span>
+<span class="go">from pymatgen.io.vasp.sets import MPRelaxSet</span>
+
+
+<span class="go">VASP_CMD = [&quot;mpirun&quot;, &quot;-machinefile&quot;, &quot;$PBS_NODEFILE&quot;, &quot;-np&quot;, &quot;16&quot;, &quot;vasp&quot;]</span>
+
+
+<span class="go">def main():</span>
+<span class="go">    mpr = MPRester()</span>
+<span class="go">    structure = mpr.get_structure(&quot;Li2O&quot;)</span>
+<span class="go">    for k_dens in [100, 200, 400, 800]:</span>
+<span class="go">        vis = MPRelaxSet(structure,</span>
+<span class="go">            user_kpoints_settings={&quot;reciprocal_density&quot;: k_dens})</span>
+<span class="go">        kpoints = vi[&quot;KPOINTS&quot;].kpts[0][0]</span>
+<span class="go">        d = &quot;Li2O_kpoints_%d&quot; % kpoints</span>
+<span class="go">        vi.run_vasp(d, vasp_cmd=VASP_CMD)</span>
+<span class="go">        # Use the final structure as the new initial structure to speed up calculations.</span>
+<span class="go">        structure = Vasprun(&quot;%s/vasprun.xml&quot; % d).final_structure</span>
+
+
+<span class="go">if __name__ == &quot;__main__&quot;:</span>
+<span class="go">    main()</span>
+</pre></div>
+</div>
 <ul class="simple">
 <li>Many pymatgen from_file methods now support pathlib.Path as well as strings.</li>
 <li>Misc bug fixes.</li>
@@ -333,7 +332,7 @@ conda install --yes --channel matsci pymatgen
 </div>
 <div class="section" id="usage">
 <h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
-<div class="figure align-center" id="id12">
+<div class="figure align-center" id="id4">
 <a class="reference internal image-reference" href="_images/overview.jpg"><img alt="pymatgen overview" src="_images/overview.jpg" style="width: 100%;" /></a>
 <p class="caption"><span class="caption-text">Overview of a typical workflow for pymatgen.</span></p>
 </div>
@@ -344,7 +343,7 @@ molecule input files, Materials Project, etc.) into Python objects using
 pymatgen’s io packages, which are then used to perform further structure
 manipulation or analyses.</p>
 <div class="section" id="quick-start">
-<span id="id9"></span><h2>Quick start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h2>
+<span id="id1"></span><h2>Quick start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h2>
 <p>Useful aliases for commonly used objects are now provided. Supported objects
 include Element, Composition, Structure, Molecule, Spin and Orbital. Here are
 some quick examples of the core capabilities and objects:</p>

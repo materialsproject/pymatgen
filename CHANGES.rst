@@ -8,8 +8,10 @@ v2019.3.13
 * VaspInput class now supports a run_vasp method, which can be used to code
   runnable python scripts for running simple calculations (custodian still
   recommended for more complex calculations.). For example, the following is a
-  kpoint convergence script that can be submitted in a queue::
-  
+  kpoint convergence script that can be submitted in a queue
+
+.. code-block:: pycon
+
     from pymatgen import MPRester
     from pymatgen.io.vasp.sets import MPRelaxSet
 
