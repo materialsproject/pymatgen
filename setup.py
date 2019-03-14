@@ -105,7 +105,7 @@ setup(
                   "pymatgen.analysis.chemenv.coordination_environments.strategy_files": ["*.json"],
                   "pymatgen.analysis.hhi": ["*.csv"],
                   "pymatgen.analysis.magnetism": ["*.json", "*.yaml"],
-                  "pymatgen.analysis.structure_predictor": ["data/*.json", "*.yaml"],
+                  "pymatgen.analysis.structure_prediction": ["data/*.json", "*.yaml"],
                   "pymatgen.io.vasp": ["*.yaml"],
                   "pymatgen.io.lammps": ["templates/*.*"],
                   "pymatgen.io.feff": ["*.yaml"],
