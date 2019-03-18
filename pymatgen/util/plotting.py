@@ -261,6 +261,35 @@ def periodic_table_heatmap(elemental_data, cbar_label="",
     return plt
 
 
+def format_formula(formula):
+    """
+    Converts str of chemical formula into
+    latex format for labelling purposes
+
+    Args:
+        formula (str): Chemical formula
+    """
+
+    formatted_formula = ""
+    number_format = ""
+    for i, s in enumerate(formula):
+        if s.isdigit():
+            if not number_format:
+                number_format = "_{"
+            number_format += s
+            if i == len(formula) - 1:
+                number_format += "}"
+                formatted_formula += number_format
+        else:
+            if number_format:
+                number_format += "}"
+                formatted_formula += number_format
+                number_format = ""
+            formatted_formula += s
+
+    return r"$%s$" % (formatted_formula)
+
+
 def get_ax_fig_plt(ax=None, **kwargs):
     """
     Helper function used in plot functions supporting an optional Axes argument.
