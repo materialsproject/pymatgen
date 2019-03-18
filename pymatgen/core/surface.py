@@ -942,10 +942,14 @@ class SlabGenerator:
 
         # Reorient the lattice to get the correct reduced cell
         ouc = self.oriented_unit_cell.copy()
-        if self.primitive and self.max_normal_search:
-            ouc = ouc.get_primitive_structure(constrain_latt=[False, False,
-                                                              True, False,
-                                                              False, False])
+        if self.primitive:
+            if self.max_normal_search:
+                # find a reduced ouc that is orthogonalized
+                constrain_latt = [False, False, False, True, True, False]
+            else:
+                # find the most reduced ouc possible
+                constrain_latt = [False, False, False, False, False, True]
+            ouc = ouc.get_primitive_structure(constrain_latt=constrain_latt)
 
         return Slab(slab.lattice, slab.species_and_occu,
                     slab.frac_coords, self.miller_index,
