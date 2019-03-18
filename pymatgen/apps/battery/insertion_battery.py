@@ -334,8 +334,8 @@ class InsertionElectrode(AbstractElectrode):
              "material_ids" : [itr_ent.entry_id for itr_ent in self._entries],
              "stable_material_ids" : [itr_ent.entry_id for itr_ent in self.get_stable_entries()],
              "unstable_material_ids": [itr_ent.entry_id for itr_ent in self.get_unstable_entries()],
-             "stability_charged": self.fully_charged_entry.data['decomposition_energy'],
-             "stability_discharged": self.fully_discharged_entry.data['decomposition_energy'],
+             "stability_charge": self.fully_charged_entry.data['decomposition_energy'],
+             "stability_discharge": self.fully_discharged_entry.data['decomposition_energy'],
              "stability_data":{itr_ent.entry_id: itr_ent.data['decomposition_energy'] for itr_ent in self._entries},
              "muO2_data" : {itr_ent.entry_id: itr_ent.data['muO2'] for itr_ent in self._entries}
              }
