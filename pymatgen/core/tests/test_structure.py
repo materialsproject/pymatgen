@@ -685,8 +685,8 @@ class StructureTest(PymatgenTest):
     def test_translate_sites(self):
         self.structure.translate_sites([0, 1], [0.5, 0.5, 0.5],
                                        frac_coords=True)
-        self.assertArrayEqual(self.structure.frac_coords[0],
-                              [0.5, 0.5, 0.5])
+        self.assertArrayAlmostEqual(self.structure.frac_coords[0],
+                                    [0.5, 0.5, 0.5])
 
         self.structure.translate_sites([0], [0.5, 0.5, 0.5],
                                        frac_coords=False)

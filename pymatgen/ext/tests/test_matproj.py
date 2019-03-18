@@ -362,7 +362,7 @@ class MPResterTest(PymatgenTest):
         self.assertTrue(len(kinks) > 0)
         kink = kinks[0]
         self.assertIn("energy", kink)
-        self.assertIn("ratio", kink)
+        self.assertIn("ratio_atomic", kink)
         self.assertIn("rxn", kink)
         self.assertTrue(isinstance(kink['rxn'], Reaction))
         kinks_open_O = self.rester.get_interface_reactions(

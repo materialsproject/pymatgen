@@ -331,10 +331,24 @@ class PeriodicSite(Site, MSONable):
         if to_unit_cell:
             frac_coords = np.mod(frac_coords, 1)
             cart_coords = lattice.get_cartesian_coords(frac_coords)
+        if isinstance(atoms_n_occu, Composition):
+            # Compositions are immutable, so don't need to copy (much faster)
+            species = atoms_n_occu
+        else:
+            try:
+                species = Composition({get_el_sp(atoms_n_occu): 1})
+            except TypeError:
+                species = Composition(atoms_n_occu)
+
+        totaloccu = species.num_atoms
+        if totaloccu > 1 + Composition.amount_tolerance:
+            raise ValueError("Species occupancies sum to more than 1!")
 
         self._lattice = lattice
         self._frac_coords = frac_coords
-        super(PeriodicSite, self).__init__(atoms_n_occu, cart_coords, properties)
+        self._species = species
+        self._coords = np.array(cart_coords)
+        self.properties = properties or {}
 
     def __hash__(self):
         """
@@ -357,6 +371,21 @@ class PeriodicSite(Site, MSONable):
         """
         self._lattice = lattice
         self.coords = self._lattice.get_cartesian_coords(self._frac_coords)
+
+    @property
+    def coords(self):
+        """
+        Fractional coordinates
+        """
+        return self._coords
+
+    @coords.setter
+    def coords(self, coords):
+        """
+        Fractional a coordinate
+        """
+        self._coords = np.array(coords)
+        self._frac_coords = self._lattice.get_fractional_coords(self._coords)
 
     @property
     def frac_coords(self):

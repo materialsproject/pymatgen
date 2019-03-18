@@ -2987,12 +2987,11 @@ class Structure(IStructure, collections.abc.MutableSequence):
         theta %= 2 * np.pi
 
         rm = expm(cross(eye(3), axis / norm(axis)) * theta)
-
         for i in indices:
             site = self._sites[i]
-            s = ((np.dot(rm, np.array(site.coords - anchor).T)).T + anchor).ravel()
+            coords = ((np.dot(rm, np.array(site.coords - anchor).T)).T + anchor).ravel()
             new_site = PeriodicSite(
-                site.species, s, self._lattice,
+                site.species, coords, self._lattice,
                 to_unit_cell=to_unit_cell, coords_are_cartesian=True,
                 properties=site.properties)
             self._sites[i] = new_site

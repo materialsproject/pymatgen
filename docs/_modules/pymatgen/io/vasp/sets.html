@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.sets &#8212; pymatgen 2019.2.28 documentation</title>
+    <title>pymatgen.io.vasp.sets &#8212; pymatgen 2019.3.13 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -35,7 +35,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.2.28 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -63,10 +63,11 @@
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="k">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="k">import</span> <span class="n">loadfn</span>
 <span class="kn">from</span> <span class="nn">monty.io</span> <span class="k">import</span> <span class="n">zopen</span>
+<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">deprecated</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">Element</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="k">import</span> <span class="n">Incar</span><span class="p">,</span> <span class="n">Poscar</span><span class="p">,</span> <span class="n">Potcar</span><span class="p">,</span> <span class="n">Kpoints</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="k">import</span> <span class="n">Incar</span><span class="p">,</span> <span class="n">Poscar</span><span class="p">,</span> <span class="n">Potcar</span><span class="p">,</span> <span class="n">Kpoints</span><span class="p">,</span> <span class="n">VaspInput</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.vasp.outputs</span> <span class="k">import</span> <span class="n">Vasprun</span><span class="p">,</span> <span class="n">Outcar</span>
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
@@ -171,6 +172,7 @@
         <span class="k">return</span> <span class="n">Potcar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">potcar_symbols</span><span class="p">,</span> <span class="n">functional</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">potcar_functional</span><span class="p">)</span>
 
     <span class="nd">@property</span>
+    <span class="nd">@deprecated</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Use the get_vasp_input() method instead.&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">all_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns all input files as a dict of {filename: vasp object}</span>
@@ -178,15 +180,19 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            dict of {filename: object}, e.g., {&#39;INCAR&#39;: Incar object, ...}</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">kpoints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span>
-        <span class="n">incar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar</span>
-        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">kpoints</span><span class="o">.</span><span class="n">kpts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">4</span> <span class="ow">and</span> <span class="n">incar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ISMEAR&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">5</span><span class="p">:</span>
-            <span class="n">incar</span><span class="p">[</span><span class="s2">&quot;ISMEAR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-
-        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;INCAR&#39;</span><span class="p">:</span> <span class="n">incar</span><span class="p">,</span>
-                <span class="s1">&#39;KPOINTS&#39;</span><span class="p">:</span> <span class="n">kpoints</span><span class="p">,</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;INCAR&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar</span><span class="p">,</span>
+                <span class="s1">&#39;KPOINTS&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span><span class="p">,</span>
                 <span class="s1">&#39;POSCAR&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">poscar</span><span class="p">,</span>
                 <span class="s1">&#39;POTCAR&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">potcar</span><span class="p">}</span>
+
+<div class="viewcode-block" id="VaspInputSet.get_vasp_input"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.VaspInputSet.get_vasp_input">[docs]</a>    <span class="k">def</span> <span class="nf">get_vasp_input</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VaspInput</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            VaspInput</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">VaspInput</span><span class="p">(</span><span class="n">incar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">incar</span><span class="p">,</span> <span class="n">kpoints</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span><span class="p">,</span> <span class="n">poscar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">poscar</span><span class="p">,</span>
+                         <span class="n">potcar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">potcar</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="VaspInputSet.write_input"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.VaspInputSet.write_input">[docs]</a>    <span class="k">def</span> <span class="nf">write_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span>
                     <span class="n">make_dir_if_not_present</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">include_cif</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -201,14 +207,12 @@
 <span class="sd">            include_cif (bool): Whether to write a CIF file in the output</span>
 <span class="sd">                directory for easier opening by VESTA.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">make_dir_if_not_present</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">output_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-            <span class="n">output_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_input</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">v</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">output_dir</span> <span class="o">/</span> <span class="n">k</span><span class="p">))</span>
+        <span class="n">vinput</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_vasp_input</span><span class="p">()</span>
+        <span class="n">vinput</span><span class="o">.</span><span class="n">write_input</span><span class="p">(</span>
+            <span class="n">output_dir</span><span class="p">,</span> <span class="n">make_dir_if_not_present</span><span class="o">=</span><span class="n">make_dir_if_not_present</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">include_cif</span><span class="p">:</span>
-            <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_input</span><span class="p">[</span><span class="s2">&quot;POSCAR&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">structure</span>
-            <span class="n">fname</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">output_dir</span> <span class="o">/</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.cif&quot;</span> <span class="o">%</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\s&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">formula</span><span class="p">)))</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">vinput</span><span class="p">[</span><span class="s2">&quot;POSCAR&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">structure</span>
+            <span class="n">fname</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.cif&quot;</span> <span class="o">%</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\s&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">formula</span><span class="p">))</span>
             <span class="n">s</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">fname</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="VaspInputSet.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.VaspInputSet.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
@@ -428,6 +432,8 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_structure_charge</span><span class="p">:</span>
             <span class="n">incar</span><span class="p">[</span><span class="s2">&quot;NELECT&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nelect</span>
 
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span><span class="o">.</span><span class="n">kpts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">4</span> <span class="ow">and</span> <span class="n">incar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ISMEAR&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">5</span><span class="p">:</span>
+            <span class="n">incar</span><span class="p">[</span><span class="s2">&quot;ISMEAR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">return</span> <span class="n">incar</span>
 
     <span class="nd">@property</span>
@@ -1422,7 +1428,7 @@
                 <span class="n">slab_incar</span><span class="p">[</span><span class="s2">&quot;BMIX&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.001</span>
             <span class="n">slab_incar</span><span class="p">[</span><span class="s2">&quot;NELMIN&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">8</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">auto_dipole</span><span class="p">:</span>
-                <span class="n">weights</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">species_and_occu</span><span class="o">.</span><span class="n">weight</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">structure</span><span class="p">]</span>
+                <span class="n">weights</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">weight</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">structure</span><span class="p">]</span>
                 <span class="n">center_of_mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
                                             <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
@@ -1690,14 +1696,14 @@
             <span class="n">l</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lattice</span>
             <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">sites</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">)):</span>
                 <span class="n">sites</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
-                    <span class="n">PeriodicSite</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">l</span><span class="p">))</span>
+                    <span class="n">PeriodicSite</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">species</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">l</span><span class="p">))</span>
             <span class="n">nebpath</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">sites</span><span class="p">))</span>
             <span class="n">nebpath</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">output_dir</span> <span class="o">/</span> <span class="s1">&#39;path.cif&#39;</span><span class="p">))</span></div></div>
 
 
 <div class="viewcode-block" id="MITMDSet"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MITMDSet">[docs]</a><span class="k">class</span> <span class="nc">MITMDSet</span><span class="p">(</span><span class="n">MITRelaxSet</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Class for writing a vasp md run. This DOES NOT do multiple stage</span>
+<span class="sd">    Clas for writing a vasp md run. This DOES NOT do multiple stage</span>
 <span class="sd">    runs.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -2064,7 +2070,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.2.28 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -2072,7 +2078,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

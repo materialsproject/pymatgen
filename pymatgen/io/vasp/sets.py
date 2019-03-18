@@ -1061,6 +1061,13 @@ class MPSOCSet(MPStaticSet):
         vasprun, outcar = get_vasprun_outcar(prev_calc_dir)
 
         incar = vasprun.incar
+      
+        # Remove magmoms from previous INCAR, since we will prefer
+        # the final calculated magmoms
+        # TODO: revisit in context of MPStaticSet incar logic
+        if 'MAGMOM' in incar:
+            del incar['magmom']
+      
         # Get a magmom-decorated structure
         structure = get_structure_from_prev_run(
             vasprun, outcar, sym_prec=standardize and sym_prec,

@@ -217,7 +217,10 @@ class CifBlock:
             if s[0] == "_eof":
                 break
             if s[0].startswith("_"):
-                data[s[0]] = "".join(q.popleft())
+                try:
+                    data[s[0]] = "".join(q.popleft())
+                except IndexError:
+                    data[s[0]] = ""
             elif s[0].startswith("loop_"):
                 columns = []
                 items = []
