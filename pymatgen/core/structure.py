@@ -1239,10 +1239,10 @@ class IStructure(SiteCollection, MSONable):
                 as [0, 0, 0] for a tolerance of 0.25. Defaults to 0.25.
             use_site_props (bool): Whether to account for site properties in
                 differntiating sites.
-            constrain_latt (list of str), (latt parameter names): Determines
-                which lattice constant we want to preserve if any, e.g.
-                ["alpha", "c"] will preserve the angle alpha and length c in
-                the primitive cell.
+            constrain_latt (list/dict): List of lattice parameters we want to
+                preserve, e.g. ["alpha", "c"] or dict with the lattice
+                parameter names as keys and values we want the parameters to
+                be e.g. {"alpha": 90, "c": 2.5}.
 
         Returns:
             The most primitive structure found.
@@ -1409,14 +1409,18 @@ class IStructure(SiteCollection, MSONable):
                         tolerance=tolerance, use_site_props=use_site_props,
                         constrain_latt=constrain_latt
                     ).get_reduced_structure()
-                    if not any(constrain_latt):
+                    if not constrain_latt:
                         return p
 
                     # Only return primitive structures that
                     # satisfy the restriction condition
                     p_latt, s_latt = p.lattice, self.lattice
-                    if all([getattr(p_latt, p) == getattr(s_latt, p) for p in constrain_latt]):
-                        return p
+                    if type(constrain_latt).__name__ == "list":
+                        if all([getattr(p_latt, p) == getattr(s_latt, p) for p in constrain_latt]):
+                            return p
+                    elif type(constrain_latt).__name__ == "dict":
+                        if all([getattr(p_latt, p) == constrain_latt[p] for p in constrain_latt.keys()]):
+                            return p
 
         return self.copy()
 
