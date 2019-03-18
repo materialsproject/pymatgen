@@ -6,6 +6,7 @@ import math
 import numpy as np
 
 from pymatgen.core.periodic_table import Element
+from itertools import combinations
 
 """
 Utilities for generating nicer plots.
@@ -330,6 +331,9 @@ def van_arkel_triangle(list_of_materials, annotate=True):
     d = pt3 - pt1
     slope2 = d[1] / d[0]
     b2 = pt3[1] - slope2 * pt3[0]
+
+    # Initialize the plt object
+    import matplotlib.pyplot as plt
 
     # set labels and appropriate limits for plot
     plt.xlim(pt2[0] - 0.45, -b2 / slope2 + 0.45)
