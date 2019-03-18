@@ -295,6 +295,12 @@ def van_arkel_triangle(list_of_materials, annotate=True):
     A static method that generates a binary van Arkel-Ketelaar triangle to
         quantify the ionic, metallic and covalent character of a compound
         by plotting the electronegativity difference (y) vs average (x).
+        See:
+            A.E. van Arkel, Molecules and Crystals in Inorganic Chemistry,
+                Interscience, New York (1956)
+        and
+            J.A.A Ketelaar, Chemical Constitution (2nd edn.), An Introduction
+                to the Theory of the Chemical Bond, Elsevier, New York (1958)
 
     Args:
          list_of_materials (list): A list of computed entries of binary
