@@ -214,7 +214,9 @@ class SlabTest(PymatgenTest):
         all_slabs = generate_all_slabs(self.agfcc, 2, 10, 10, max_normal_search=3)
         for slab in all_slabs:
             ouc = slab.oriented_unit_cell
-            self.assertAlmostEqual(surface_area(slab), surface_area(ouc))
+            slab_l, ouc_l = slab.lattice, ouc.lattice
+            for p in ['a', 'b', 'alpha', 'beta', 'gamma']:
+                self.assertAlmostEqual(getattr(slab_l, p), getattr(ouc_l, p))
             self.assertGreaterEqual(len(slab), len(ouc))
 
 

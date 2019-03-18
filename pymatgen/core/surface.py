@@ -944,7 +944,11 @@ class SlabGenerator:
         ouc = self.oriented_unit_cell.copy()
         if self.primitive:
             #find a reduced ouc
-            ouc = ouc.get_primitive_structure(constrain_latt=["alpha", "beta"])
+            slab_l = slab.lattice
+            ouc = ouc.get_primitive_structure(constrain_latt={"a": slab_l.a, "b": slab_l.b,
+                                                              "alpha": slab_l.alpha,
+                                                              "beta": slab_l.beta,
+                                                              "gamma": slab_l.gamma})
 
         return Slab(slab.lattice, slab.species_and_occu,
                     slab.frac_coords, self.miller_index,
@@ -1027,7 +1031,7 @@ class SlabGenerator:
                                 c_ranges.add(c_range)
         return c_ranges
 
-    def get_slabs(self, bonds=None, tol=0.1, max_broken_bonds=0,
+    def get_slabs(self, bonds=None, ftol=0.1, tol=0.1, max_broken_bonds=0,
                   symmetrize=False, repair=False):
         """
         This method returns a list of slabs that are generated using the list of
@@ -1042,7 +1046,9 @@ class SlabGenerator:
                 specified as a dict of tuples: float of specie1, specie2
                 and the max bonding distance. For example, PO4 groups may be
                 defined as {("P", "O"): 3}.
-            tol (float): Threshold parameter in fcluster in order to check
+            tol (float): General tolerance paramter for getting primitive
+                cells and matching structures
+            ftol (float): Threshold parameter in fcluster in order to check
                 if two atoms are lying on the same plane. Default thresh set
                 to 0.1 Angstrom in the direction of the surface normal.
             max_broken_bonds (int): Maximum number of allowable broken bonds
@@ -1062,7 +1068,7 @@ class SlabGenerator:
         c_ranges = set() if bonds is None else self._get_c_ranges(bonds)
 
         slabs = []
-        for shift in self._calculate_possible_shifts(tol=tol):
+        for shift in self._calculate_possible_shifts(tol=ftol):
             bonds_broken = 0
             for r in c_ranges:
                 if r[0] <= shift <= r[1]:
