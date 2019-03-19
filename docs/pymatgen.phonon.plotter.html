@@ -6,14 +6,15 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.phonon.plotter module &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.phonon.plotter module &#8212; pymatgen 2019.3.13 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -34,7 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.3.13 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -100,7 +101,7 @@ lattice: The reciprocal lattice.</td>
 
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.PhononBSPlotter.get_plot">
-<code class="descname">get_plot</code><span class="sig-paren">(</span><em>ylim=None</em>, <em>units=u'thz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononBSPlotter.get_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.get_plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_plot</code><span class="sig-paren">(</span><em>ylim=None</em>, <em>units='thz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononBSPlotter.get_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.get_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a matplotlib object for the bandstructure plot.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -161,7 +162,7 @@ the one of the band structure used to build the PhononBSPlotter</p>
 
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.PhononBSPlotter.save_plot">
-<code class="descname">save_plot</code><span class="sig-paren">(</span><em>filename</em>, <em>img_format=u'eps'</em>, <em>ylim=None</em>, <em>units=u'thz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononBSPlotter.save_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.save_plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">save_plot</code><span class="sig-paren">(</span><em>filename</em>, <em>img_format='eps'</em>, <em>ylim=None</em>, <em>units='thz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononBSPlotter.save_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.save_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save matplotlib plot to a file.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -181,7 +182,7 @@ the one of the band structure used to build the PhononBSPlotter</p>
 
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.PhononBSPlotter.show">
-<code class="descname">show</code><span class="sig-paren">(</span><em>ylim=None</em>, <em>units=u'thz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononBSPlotter.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.show" title="Permalink to this definition">¶</a></dt>
+<code class="descname">show</code><span class="sig-paren">(</span><em>ylim=None</em>, <em>units='thz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononBSPlotter.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.show" title="Permalink to this definition">¶</a></dt>
 <dd><p>Show the plot using matplotlib.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -291,7 +292,7 @@ be the smeared densities, not the original densities.</p>
 
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.PhononDosPlotter.get_plot">
-<code class="descname">get_plot</code><span class="sig-paren">(</span><em>xlim=None</em>, <em>ylim=None</em>, <em>units=u'thz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononDosPlotter.get_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononDosPlotter.get_plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_plot</code><span class="sig-paren">(</span><em>xlim=None</em>, <em>ylim=None</em>, <em>units='thz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononDosPlotter.get_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononDosPlotter.get_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a matplotlib plot showing the DOS.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -311,7 +312,7 @@ determination.</li>
 
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.PhononDosPlotter.save_plot">
-<code class="descname">save_plot</code><span class="sig-paren">(</span><em>filename</em>, <em>img_format=u'eps'</em>, <em>xlim=None</em>, <em>ylim=None</em>, <em>units=u'thz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononDosPlotter.save_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononDosPlotter.save_plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">save_plot</code><span class="sig-paren">(</span><em>filename</em>, <em>img_format='eps'</em>, <em>xlim=None</em>, <em>ylim=None</em>, <em>units='thz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononDosPlotter.save_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononDosPlotter.save_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save matplotlib plot to a file.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -333,7 +334,7 @@ determination.</li>
 
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.PhononDosPlotter.show">
-<code class="descname">show</code><span class="sig-paren">(</span><em>xlim=None</em>, <em>ylim=None</em>, <em>units=u'thz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononDosPlotter.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononDosPlotter.show" title="Permalink to this definition">¶</a></dt>
+<code class="descname">show</code><span class="sig-paren">(</span><em>xlim=None</em>, <em>ylim=None</em>, <em>units='thz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononDosPlotter.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononDosPlotter.show" title="Permalink to this definition">¶</a></dt>
 <dd><p>Show the plot using matplotlib.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -374,7 +375,7 @@ the plots in units of mol instead of mole-cell</p>
 </table>
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.ThermoPlotter.plot_cv">
-<code class="descname">plot_cv</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#ThermoPlotter.plot_cv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_cv" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot_cv</code><span class="sig-paren">(</span><em>tmin</em>, <em>tmax</em>, <em>ntemp</em>, <em>ylim=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#ThermoPlotter.plot_cv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_cv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plots the constant volume specific heat C_v in a temperature range.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -436,7 +437,7 @@ Default: False</td>
 
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.ThermoPlotter.plot_entropy">
-<code class="descname">plot_entropy</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#ThermoPlotter.plot_entropy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_entropy" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot_entropy</code><span class="sig-paren">(</span><em>tmin</em>, <em>tmax</em>, <em>ntemp</em>, <em>ylim=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#ThermoPlotter.plot_entropy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_entropy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plots the vibrational entrpy in a temperature range.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -498,7 +499,7 @@ Default: False</td>
 
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.ThermoPlotter.plot_helmholtz_free_energy">
-<code class="descname">plot_helmholtz_free_energy</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#ThermoPlotter.plot_helmholtz_free_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_helmholtz_free_energy" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot_helmholtz_free_energy</code><span class="sig-paren">(</span><em>tmin</em>, <em>tmax</em>, <em>ntemp</em>, <em>ylim=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#ThermoPlotter.plot_helmholtz_free_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_helmholtz_free_energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plots the vibrational contribution to the Helmoltz free energy in a temperature range.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -560,7 +561,7 @@ Default: False</td>
 
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.ThermoPlotter.plot_internal_energy">
-<code class="descname">plot_internal_energy</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#ThermoPlotter.plot_internal_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_internal_energy" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot_internal_energy</code><span class="sig-paren">(</span><em>tmin</em>, <em>tmax</em>, <em>ntemp</em>, <em>ylim=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#ThermoPlotter.plot_internal_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_internal_energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plots the vibrational internal energy in a temperature range.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -622,7 +623,7 @@ Default: False</td>
 
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.ThermoPlotter.plot_thermodynamic_properties">
-<code class="descname">plot_thermodynamic_properties</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#ThermoPlotter.plot_thermodynamic_properties"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_thermodynamic_properties" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot_thermodynamic_properties</code><span class="sig-paren">(</span><em>tmin</em>, <em>tmax</em>, <em>ntemp</em>, <em>ylim=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#ThermoPlotter.plot_thermodynamic_properties"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_thermodynamic_properties" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plots all the thermodynamic properties in a temperature range.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -731,13 +732,13 @@ Accepted values: thz, ev, mev, ha, cm-1, cm^-1</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.3.13 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

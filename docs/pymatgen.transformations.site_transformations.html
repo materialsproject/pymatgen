@@ -6,14 +6,15 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.transformations.site_transformations module &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.transformations.site_transformations module &#8212; pymatgen 2019.3.13 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -34,7 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.3.13 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -75,12 +76,19 @@
 <dl class="attribute">
 <dt id="pymatgen.transformations.site_transformations.AddSitePropertyTransformation.inverse">
 <code class="descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.site_transformations.AddSitePropertyTransformation.inverse" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the inverse transformation if available.
+Otherwise, should return None.</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.transformations.site_transformations.AddSitePropertyTransformation.is_one_to_many">
 <code class="descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.site_transformations.AddSitePropertyTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Determines if a Transformation is a one-to-many transformation. If a
+Transformation is a one-to-many transformation, the
+apply_transformation method should have a keyword arg
+“return_ranked_list” which allows for the transformed structures to be
+returned as a ranked list.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -109,17 +117,53 @@ that added sites are not too close to other sites. Defaults to True.</li>
 <dl class="method">
 <dt id="pymatgen.transformations.site_transformations.InsertSitesTransformation.apply_transformation">
 <code class="descname">apply_transformation</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#InsertSitesTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.InsertSitesTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Applies the transformation to a structure. Depending on whether a
+transformation is one-to-many, there may be an option to return a
+ranked list of structures.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>structure</strong> – input structure</li>
+<li><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
+returned. If return_ranked_list is a number, that number of
+structures is returned.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">depending on returned_ranked list, either a transformed structure
+or
+a list of dictionaries, where each dictionary is of the form
+{‘structure’ = …. , ‘other_arguments’}
+the key ‘transformation’ is reserved for the transformation that
+was actually applied to the structure.
+This transformation is parsed by the alchemy classes for generating
+a more specific transformation history. Any other information will
+be stored in the transformation_parameters dictionary in the
+transmuted structure class.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.transformations.site_transformations.InsertSitesTransformation.inverse">
 <code class="descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.site_transformations.InsertSitesTransformation.inverse" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the inverse transformation if available.
+Otherwise, should return None.</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.transformations.site_transformations.InsertSitesTransformation.is_one_to_many">
 <code class="descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.site_transformations.InsertSitesTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Determines if a Transformation is a one-to-many transformation. If a
+Transformation is a one-to-many transformation, the
+apply_transformation method should have a keyword arg
+“return_ranked_list” which allows for the transformed structures to be
+returned as a ranked list.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -256,12 +300,19 @@ until the number of permutations is on the order of 30,000.</p>
 <dl class="attribute">
 <dt id="pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.inverse">
 <code class="descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.inverse" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the inverse transformation if available.
+Otherwise, should return None.</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.is_one_to_many">
 <code class="descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Determines if a Transformation is a one-to-many transformation. If a
+Transformation is a one-to-many transformation, the
+apply_transformation method should have a keyword arg
+“return_ranked_list” which allows for the transformed structures to be
+returned as a ranked list.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -281,17 +332,53 @@ until the number of permutations is on the order of 30,000.</p>
 <dl class="method">
 <dt id="pymatgen.transformations.site_transformations.RemoveSitesTransformation.apply_transformation">
 <code class="descname">apply_transformation</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#RemoveSitesTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.RemoveSitesTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Applies the transformation to a structure. Depending on whether a
+transformation is one-to-many, there may be an option to return a
+ranked list of structures.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>structure</strong> – input structure</li>
+<li><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
+returned. If return_ranked_list is a number, that number of
+structures is returned.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">depending on returned_ranked list, either a transformed structure
+or
+a list of dictionaries, where each dictionary is of the form
+{‘structure’ = …. , ‘other_arguments’}
+the key ‘transformation’ is reserved for the transformation that
+was actually applied to the structure.
+This transformation is parsed by the alchemy classes for generating
+a more specific transformation history. Any other information will
+be stored in the transformation_parameters dictionary in the
+transmuted structure class.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.transformations.site_transformations.RemoveSitesTransformation.inverse">
 <code class="descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.site_transformations.RemoveSitesTransformation.inverse" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the inverse transformation if available.
+Otherwise, should return None.</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.transformations.site_transformations.RemoveSitesTransformation.is_one_to_many">
 <code class="descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.site_transformations.RemoveSitesTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Determines if a Transformation is a one-to-many transformation. If a
+Transformation is a one-to-many transformation, the
+apply_transformation method should have a keyword arg
+“return_ranked_list” which allows for the transformed structures to be
+returned as a ranked list.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -316,17 +403,53 @@ disordered structure.</td>
 <dl class="method">
 <dt id="pymatgen.transformations.site_transformations.ReplaceSiteSpeciesTransformation.apply_transformation">
 <code class="descname">apply_transformation</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#ReplaceSiteSpeciesTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.ReplaceSiteSpeciesTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Applies the transformation to a structure. Depending on whether a
+transformation is one-to-many, there may be an option to return a
+ranked list of structures.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>structure</strong> – input structure</li>
+<li><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
+returned. If return_ranked_list is a number, that number of
+structures is returned.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">depending on returned_ranked list, either a transformed structure
+or
+a list of dictionaries, where each dictionary is of the form
+{‘structure’ = …. , ‘other_arguments’}
+the key ‘transformation’ is reserved for the transformation that
+was actually applied to the structure.
+This transformation is parsed by the alchemy classes for generating
+a more specific transformation history. Any other information will
+be stored in the transformation_parameters dictionary in the
+transmuted structure class.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.transformations.site_transformations.ReplaceSiteSpeciesTransformation.inverse">
 <code class="descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.site_transformations.ReplaceSiteSpeciesTransformation.inverse" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the inverse transformation if available.
+Otherwise, should return None.</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.transformations.site_transformations.ReplaceSiteSpeciesTransformation.is_one_to_many">
 <code class="descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.site_transformations.ReplaceSiteSpeciesTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Determines if a Transformation is a one-to-many transformation. If a
+Transformation is a one-to-many transformation, the
+apply_transformation method should have a keyword arg
+“return_ranked_list” which allows for the transformed structures to be
+returned as a ranked list.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -356,7 +479,36 @@ coordinations. Defaults to True.</li>
 <dl class="method">
 <dt id="pymatgen.transformations.site_transformations.TranslateSitesTransformation.apply_transformation">
 <code class="descname">apply_transformation</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#TranslateSitesTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.TranslateSitesTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Applies the transformation to a structure. Depending on whether a
+transformation is one-to-many, there may be an option to return a
+ranked list of structures.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>structure</strong> – input structure</li>
+<li><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
+returned. If return_ranked_list is a number, that number of
+structures is returned.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">depending on returned_ranked list, either a transformed structure
+or
+a list of dictionaries, where each dictionary is of the form
+{‘structure’ = …. , ‘other_arguments’}
+the key ‘transformation’ is reserved for the transformation that
+was actually applied to the structure.
+This transformation is parsed by the alchemy classes for generating
+a more specific transformation history. Any other information will
+be stored in the transformation_parameters dictionary in the
+transmuted structure class.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.transformations.site_transformations.TranslateSitesTransformation.as_dict">
@@ -367,12 +519,19 @@ coordinations. Defaults to True.</li>
 <dl class="attribute">
 <dt id="pymatgen.transformations.site_transformations.TranslateSitesTransformation.inverse">
 <code class="descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.site_transformations.TranslateSitesTransformation.inverse" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the inverse transformation if available.
+Otherwise, should return None.</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.transformations.site_transformations.TranslateSitesTransformation.is_one_to_many">
 <code class="descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.site_transformations.TranslateSitesTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Determines if a Transformation is a one-to-many transformation. If a
+Transformation is a one-to-many transformation, the
+apply_transformation method should have a keyword arg
+“return_ranked_list” which allows for the transformed structures to be
+returned as a ranked list.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -416,13 +575,13 @@ coordinations. Defaults to True.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.3.13 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

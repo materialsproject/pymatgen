@@ -6,14 +6,15 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.chemenv.utils.coordination_geometry_utils module &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.analysis.chemenv.utils.coordination_geometry_utils module &#8212; pymatgen 2019.3.13 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -34,7 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.3.13 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -45,6 +46,7 @@
             
   <div class="section" id="module-pymatgen.analysis.chemenv.utils.coordination_geometry_utils">
 <span id="pymatgen-analysis-chemenv-utils-coordination-geometry-utils-module"></span><h1>pymatgen.analysis.chemenv.utils.coordination_geometry_utils module<a class="headerlink" href="#module-pymatgen.analysis.chemenv.utils.coordination_geometry_utils" title="Permalink to this headline">¶</a></h1>
+<p>This module contains some utility functions and classes that are used in the chemenv package.</p>
 <dl class="class">
 <dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane">
 <em class="property">class </em><code class="descname">Plane</code><span class="sig-paren">(</span><em>coefficients</em>, <em>p1=None</em>, <em>p2=None</em>, <em>p3=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/utils/coordination_geometry_utils.html#Plane"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane" title="Permalink to this definition">¶</a></dt>
@@ -160,7 +162,7 @@ the latter, when the sign parameter is True, items of the sorting list are given
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.fit_error">
-<code class="descname">fit_error</code><span class="sig-paren">(</span><em>points</em>, <em>fit=u'least_square_distance'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/utils/coordination_geometry_utils.html#Plane.fit_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.fit_error" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit_error</code><span class="sig-paren">(</span><em>points</em>, <em>fit='least_square_distance'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/utils/coordination_geometry_utils.html#Plane.fit_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.fit_error" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -190,7 +192,7 @@ the latter, when the sign parameter is True, items of the sorting list are given
 
 <dl class="classmethod">
 <dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_npoints">
-<em class="property">classmethod </em><code class="descname">from_npoints</code><span class="sig-paren">(</span><em>points</em>, <em>best_fit=u'least_square_distance'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/utils/coordination_geometry_utils.html#Plane.from_npoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_npoints" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">from_npoints</code><span class="sig-paren">(</span><em>points</em>, <em>best_fit='least_square_distance'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/utils/coordination_geometry_utils.html#Plane.from_npoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_npoints" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="classmethod">
@@ -279,7 +281,7 @@ third one is the normal vector of the plane
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.project_and_to2dim_ordered_indices">
-<code class="descname">project_and_to2dim_ordered_indices</code><span class="sig-paren">(</span><em>pps</em>, <em>plane_center=u'mean'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/utils/coordination_geometry_utils.html#Plane.project_and_to2dim_ordered_indices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.project_and_to2dim_ordered_indices" title="Permalink to this definition">¶</a></dt>
+<code class="descname">project_and_to2dim_ordered_indices</code><span class="sig-paren">(</span><em>pps</em>, <em>plane_center='mean'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/utils/coordination_geometry_utils.html#Plane.project_and_to2dim_ordered_indices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.project_and_to2dim_ordered_indices" title="Permalink to this definition">¶</a></dt>
 <dd><p>Projects each points in the point list pps on plane and returns the indices that would sort the
 list of projected points in anticlockwise order
 :param pps: List of points to project on plane
@@ -650,13 +652,13 @@ defined by two functions f_lower and f_upper.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.3.13 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

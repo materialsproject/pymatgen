@@ -6,14 +6,15 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.gb.grain module &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.analysis.gb.grain module &#8212; pymatgen 2019.3.13 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -34,7 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.3.13 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -43,8 +44,789 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="pymatgen-analysis-gb-grain-module">
-<h1>pymatgen.analysis.gb.grain module<a class="headerlink" href="#pymatgen-analysis-gb-grain-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-pymatgen.analysis.gb.grain">
+<span id="pymatgen-analysis-gb-grain-module"></span><h1>pymatgen.analysis.gb.grain module<a class="headerlink" href="#module-pymatgen.analysis.gb.grain" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.analysis.gb.grain.GrainBoundary">
+<em class="property">class </em><code class="descname">GrainBoundary</code><span class="sig-paren">(</span><em>lattice</em>, <em>species</em>, <em>coords</em>, <em>rotation_axis</em>, <em>rotation_angle</em>, <em>gb_plane</em>, <em>join_plane</em>, <em>init_cell</em>, <em>vacuum_thickness</em>, <em>ab_shift</em>, <em>site_properties</em>, <em>oriented_unit_cell</em>, <em>validate_proximity=False</em>, <em>coords_are_cartesian=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.structure.Structure</span></code></a></p>
+<p>Subclass of Structure representing a GrainBoundary (gb) object.
+Implements additional attributes pertaining to gbs, but the
+init method does not actually implement any algorithm that
+creates a gb. This is a DUMMY class who’s init method only holds
+information about the gb. Also has additional methods that returns
+other information about a gb such as sigma value.</p>
+<p>Note that all gbs have the gb surface normal oriented in the c-direction.
+This means the lattice vectors a and b are in the gb surface plane (at</p>
+<blockquote>
+<div>least for one grain) and the c vector is out of the surface plane
+(though not necessary perpendicular to the surface.)</div></blockquote>
+<p>Makes a gb structure, a structure object with additional information
+and methods pertaining to gbs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>lattice</strong> (<em>Lattice/3x3 array</em>) – The lattice, either as a
+<a class="reference internal" href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.lattice.Lattice</span></code></a> or
+simply as any 2D array. Each row should correspond to a lattice
+vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
+lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].</li>
+<li><strong>species</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a><em>]</em>) – <p>Sequence of species on each site. Can take in
+flexible input, including:</p>
+<ol class="lowerroman">
+<li>A sequence of element / specie specified either as string
+symbols, e.g. [“Li”, “Fe2+”, “P”, …] or atomic numbers,
+e.g., (3, 56, …) or actual Element or Specie objects.</li>
+<li>List of dict of elements/species and occupancies, e.g.,
+[{“Fe” : 0.5, “Mn”:0.5}, …]. This allows the setup of
+disordered structures.</li>
+</ol>
+</li>
+<li><strong>coords</strong> (<em>Nx3 array</em>) – list of fractional/cartesian coordinates of
+each species.</li>
+<li><strong>rotation_axis</strong> (<em>list</em>) – Rotation axis of GB in the form of a list of
+integers, e.g. [1, 1, 0].</li>
+<li><strong>rotation_angle</strong> (<em>float</em><em>, </em><em>in unit of degree</em>) – rotation angle of GB.</li>
+<li><strong>gb_plane</strong> (<em>list</em>) – Grain boundary plane in the form of a list of integers
+e.g.: [1, 2, 3].</li>
+<li><strong>join_plane</strong> (<em>list</em>) – Joining plane of the second grain in the form of a list of
+integers. e.g.: [1, 2, 3].</li>
+<li><strong>init_cell</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – initial bulk structure to form the GB.</li>
+<li><strong>site_properties</strong> (<em>dict</em>) – Properties associated with the sites as a
+dict of sequences, The sequences have to be the same length as
+the atomic species and fractional_coords. For gb, you should
+have the ‘grain_label’ properties to classify the sites as ‘top’,
+‘bottom’, ‘top_incident’, or ‘bottom_incident’.</li>
+<li><strong>vacuum_thickness</strong> (<em>float in angstrom</em>) – The thickness of vacuum inserted
+between two grains of the GB.</li>
+<li><strong>ab_shift</strong> (<em>list of float</em><em>, </em><em>in unit of crystal vector a</em><em>, </em><em>b</em>) – The relative
+shift along a, b vectors.</li>
+<li><strong>oriented_unit_cell</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – oriented unit cell of the bulk init_cell.
+Help to accurate calculate the bulk properties that are consistent
+with gb calculations.</li>
+<li><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if there are sites
+that are less than 0.01 Ang apart. Defaults to False.</li>
+<li><strong>coords_are_cartesian</strong> (<em>bool</em>) – Set to True if you are providing
+coordinates in cartesian coordinates. Defaults to False.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.analysis.gb.grain.GrainBoundary.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundary.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundary.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dict representation of Structure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>verbosity</strong> (<em>int</em>) – Verbosity level. Default of 1 includes both
+direct and cartesian coordinates for all sites, lattice
+parameters, etc. Useful for reading and for insertion into a
+database. Set to 0 for an extremely lightweight version
+that only includes sufficient information to reconstruct the
+object.</li>
+<li><strong>fmt</strong> (<em>str</em>) – Specifies a format for the dict. Defaults to None,
+which is the default format used in pymatgen. Other options
+include “abivars”.</li>
+<li><strong>**kwargs</strong> – Allow passing of other kwargs needed for certain</li>
+<li><strong>e.g.</strong><strong>, </strong><strong>&quot;abivars&quot;.</strong> (<em>formats</em><em>,</em>) – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">JSON serializable dict representation.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.gb.grain.GrainBoundary.bottom_grain">
+<code class="descname">bottom_grain</code><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundary.bottom_grain" title="Permalink to this definition">¶</a></dt>
+<dd><p>return the bottom grain (Structure) of the GB.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.gb.grain.GrainBoundary.coincidents">
+<code class="descname">coincidents</code><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundary.coincidents" title="Permalink to this definition">¶</a></dt>
+<dd><p>return the a list of coincident sites.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.gb.grain.GrainBoundary.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundary.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundary.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience method to get a copy of the structure, with options to add
+site properties.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A copy of the Structure, with optionally new site_properties and
+optionally sanitized.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.analysis.gb.grain.GrainBoundary.from_dict">
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundary.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundary.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reconstitute a Structure object from a dict representation of Structure
+created using as_dict().</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>d</strong> (<em>dict</em>) – Dict representation of structure.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Structure object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.gb.grain.GrainBoundary.get_sorted_structure">
+<code class="descname">get_sorted_structure</code><span class="sig-paren">(</span><em>key=None</em>, <em>reverse=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundary.get_sorted_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundary.get_sorted_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a sorted copy of the structure. The parameters have the same
+meaning as in list.sort. By default, sites are sorted by the
+electronegativity of the species. Note that Slab has to override this
+because of the different __init__ args.
+:param key: Specifies a function of one argument that is used to extract</p>
+<blockquote>
+<div>a comparison key from each list element: key=str.lower. The
+default value is None (compare the elements directly).</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>reverse</strong> (<em>bool</em>) – If set to True, then the list elements are sorted
+as if each comparison were reversed.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.gb.grain.GrainBoundary.sigma">
+<code class="descname">sigma</code><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundary.sigma" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method returns the sigma value of the gb.
+If using ‘quick_gen’ to generate GB, this value is not valid.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.gb.grain.GrainBoundary.sigma_from_site_prop">
+<code class="descname">sigma_from_site_prop</code><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundary.sigma_from_site_prop" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method returns the sigma value of the gb from site properties.
+If the GB structure merge some atoms due to the atoms too closer with
+each other, this property will not work.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.gb.grain.GrainBoundary.top_grain">
+<code class="descname">top_grain</code><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundary.top_grain" title="Permalink to this definition">¶</a></dt>
+<dd><p>return the top grain (Structure) of the GB.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.gb.grain.GrainBoundaryGenerator">
+<em class="property">class </em><code class="descname">GrainBoundaryGenerator</code><span class="sig-paren">(</span><em>initial_structure</em>, <em>symprec=0.1</em>, <em>angle_tolerance=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class is to generate grain boundaries (GBs) from bulk
+conventional cell (fcc, bcc can from the primitive cell), and works for Cubic,
+Tetragonal, Orthorhombic, Rhombohedral, and Hexagonal systems.
+It generate GBs from given parameters, which includes
+GB plane, rotation axis, rotation angle.</p>
+<p>This class works for any general GB, including twist, tilt and mixed GBs.
+The three parameters, rotation axis, GB plane and rotation angle, are
+sufficient to identify one unique GB. While sometimes, users may not be able
+to tell what exactly rotation angle is but prefer to use sigma as an parameter,
+this class also provides the function that is able to return all possible
+rotation angles for a specific sigma value.
+The same sigma value (with rotation axis fixed) can correspond to
+multiple rotation angles.
+Users can use structure matcher in pymatgen to get rid of the redundant structures.</p>
+<dl class="docutils">
+<dt>initial_structure (Structure): Initial input structure. It can</dt>
+<dd>be conventional or primitive cell (primitive cell works for bcc and fcc).
+For fcc and bcc, using conventional cell can lead to a non-primitive
+grain boundary structure.
+This code supplies Cubic, Tetragonal, Orthorhombic, Rhombohedral, and
+Hexagonal systems.</dd>
+<dt>symprec (float): Tolerance for symmetry finding. Defaults to 0.1 (the value used</dt>
+<dd>in Materials Project), which is for structures with slight deviations
+from their proper atomic positions (e.g., structures relaxed with
+electronic structure codes).
+A smaller value of 0.01 is often used for properly refined
+structures with atoms in the proper symmetry coordinates.
+User should make sure the symmetry is what you want.</dd>
+</dl>
+<p>angle_tolerance (float): Angle tolerance for symmetry finding.</p>
+<dl class="staticmethod">
+<dt id="pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_possible_plane_cubic">
+<em class="property">static </em><code class="descname">enum_possible_plane_cubic</code><span class="sig-paren">(</span><em>plane_cutoff</em>, <em>r_axis</em>, <em>r_angle</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.enum_possible_plane_cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_possible_plane_cubic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find all possible plane combinations for GBs given a rotaion axis and angle for
+cubic system, and classify them to different categories, including ‘Twist’,
+‘Symmetric tilt’, ‘Normal tilt’, ‘Mixed’ GBs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>plane_cutoff</strong> (<em>integer</em>) – the cutoff of plane miller index.</li>
+<li><strong>r_axis</strong> (<em>list of three integers</em><em>, </em><em>e.g. u</em><em>, </em><em>v</em><em>, </em><em>w</em>) – the rotation axis of the grain boundary, with the format of [u,v,w].</li>
+<li><strong>r_angle</strong> (<em>float</em>) – rotation angle of the GBs.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p>dictionary with keys as GB type, e.g. ‘Twist’,’Symmetric tilt’,etc.
+and values as the combination of the two plane miller index</p>
+<blockquote>
+<div><p>(GB plane and joining plane).</p>
+</div></blockquote>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">all_combinations (dict)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_cubic">
+<em class="property">static </em><code class="descname">enum_sigma_cubic</code><span class="sig-paren">(</span><em>cutoff</em>, <em>r_axis</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.enum_sigma_cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_cubic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find all possible sigma values and corresponding rotation angles
+within a sigma value cutoff with known rotation axis in cubic system.
+The algorithm for this code is from reference, Acta Cryst, A40,108(1984)
+:param cutoff: the cutoff of sigma values.
+:type cutoff: integer
+:param r_axis: the rotation axis of the grain boundary, with the format of [u,v,w].
+:type r_axis: list of three integers, e.g. u, v, w</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">dictionary with keys as the possible integer sigma values
+and values as list of the possible rotation angles to the
+corresponding sigma values.
+e.g. the format as
+{sigma1: [angle11,angle12,…], sigma2: [angle21, angle22,…],…}
+Note: the angles are the rotation angles of one grain respect to
+the other grain.
+When generate the microstructures of the grain boundary using these angles,
+you need to analyze the symmetry of the structure. Different angles may
+result in equivalent microstructures.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">sigmas (dict)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_hex">
+<em class="property">static </em><code class="descname">enum_sigma_hex</code><span class="sig-paren">(</span><em>cutoff</em>, <em>r_axis</em>, <em>c2_a2_ratio</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.enum_sigma_hex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_hex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find all possible sigma values and corresponding rotation angles
+within a sigma value cutoff with known rotation axis in hexagonal system.
+The algorithm for this code is from reference, Acta Cryst, A38,550(1982)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>cutoff</strong> (<em>integer</em>) – the cutoff of sigma values.</li>
+<li><strong>(</strong><strong>list of three integers</strong><strong>, </strong><strong>e.g. u</strong><strong>, </strong><strong>v</strong><strong>, </strong><strong>w</strong> (<em>r_axis</em>) – or four integers, e.g. u, v, t, w):
+the rotation axis of the grain boundary.</li>
+<li><strong>c2_a2_ratio</strong> (<em>list of two integers</em><em>, </em><em>e.g. mu</em><em>, </em><em>mv</em>) – mu/mv is the square of the hexagonal axial ratio, which is rational
+number. If irrational, set c2_a2_ratio = None</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">dictionary with keys as the possible integer sigma values
+and values as list of the possible rotation angles to the
+corresponding sigma values.
+e.g. the format as
+{sigma1: [angle11,angle12,…], sigma2: [angle21, angle22,…],…}
+Note: the angles are the rotation angle of one grain respect to the
+other grain.
+When generate the microstructure of the grain boundary using these
+angles, you need to analyze the symmetry of the structure. Different
+angles may result in equivalent microstructures.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">sigmas (dict)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_ort">
+<em class="property">static </em><code class="descname">enum_sigma_ort</code><span class="sig-paren">(</span><em>cutoff</em>, <em>r_axis</em>, <em>c2_b2_a2_ratio</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.enum_sigma_ort"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_ort" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find all possible sigma values and corresponding rotation angles
+within a sigma value cutoff with known rotation axis in orthorhombic system.
+The algorithm for this code is from reference, Scipta Metallurgica 27, 291(1992)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>cutoff</strong> (<em>integer</em>) – the cutoff of sigma values.</li>
+<li><strong>r_axis</strong> (<em>list of three integers</em><em>, </em><em>e.g. u</em><em>, </em><em>v</em><em>, </em><em>w</em>) – the rotation axis of the grain boundary, with the format of [u,v,w].</li>
+<li><strong>c2_b2_a2_ratio</strong> (<em>list of three integers</em><em>, </em><em>e.g. mu</em><em>,</em><em>lamda</em><em>, </em><em>mv</em>) – mu:lam:mv is the square of the orthorhombic axial ratio with rational
+numbers. If irrational for one axis, set it to None.
+e.g. mu:lam:mv = c2,None,a2, means b2 is irrational.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">dictionary with keys as the possible integer sigma values
+and values as list of the possible rotation angles to the
+corresponding sigma values.
+e.g. the format as
+{sigma1: [angle11,angle12,…], sigma2: [angle21, angle22,…],…}
+Note: the angles are the rotation angle of one grain respect to the
+other grain.
+When generate the microstructure of the grain boundary using these
+angles, you need to analyze the symmetry of the structure. Different
+angles may result in equivalent microstructures.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">sigmas (dict)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_rho">
+<em class="property">static </em><code class="descname">enum_sigma_rho</code><span class="sig-paren">(</span><em>cutoff</em>, <em>r_axis</em>, <em>ratio_alpha</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.enum_sigma_rho"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_rho" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find all possible sigma values and corresponding rotation angles
+within a sigma value cutoff with known rotation axis in rhombohedral system.
+The algorithm for this code is from reference, Acta Cryst, A45,505(1989).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>cutoff</strong> (<em>integer</em>) – the cutoff of sigma values.</li>
+<li><strong>(</strong><strong>list of three integers</strong><strong>, </strong><strong>e.g. u</strong><strong>, </strong><strong>v</strong><strong>, </strong><strong>w</strong> (<em>r_axis</em>) – or four integers, e.g. u, v, t, w):
+the rotation axis of the grain boundary, with the format of [u,v,w]
+or Weber indices [u, v, t, w].</li>
+<li><strong>ratio_alpha</strong> (<em>list of two integers</em><em>, </em><em>e.g. mu</em><em>, </em><em>mv</em>) – mu/mv is the ratio of (1+2*cos(alpha))/cos(alpha) with rational number.
+If irrational, set ratio_alpha = None.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">dictionary with keys as the possible integer sigma values
+and values as list of the possible rotation angles to the
+corresponding sigma values.
+e.g. the format as
+{sigma1: [angle11,angle12,…], sigma2: [angle21, angle22,…],…}
+Note: the angles are the rotation angle of one grain respect to the
+other grain.
+When generate the microstructure of the grain boundary using these
+angles, you need to analyze the symmetry of the structure. Different
+angles may result in equivalent microstructures.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">sigmas (dict)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_tet">
+<em class="property">static </em><code class="descname">enum_sigma_tet</code><span class="sig-paren">(</span><em>cutoff</em>, <em>r_axis</em>, <em>c2_a2_ratio</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.enum_sigma_tet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_tet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find all possible sigma values and corresponding rotation angles
+within a sigma value cutoff with known rotation axis in tetragonal system.
+The algorithm for this code is from reference, Acta Cryst, B46,117(1990)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>cutoff</strong> (<em>integer</em>) – the cutoff of sigma values.</li>
+<li><strong>r_axis</strong> (<em>list of three integers</em><em>, </em><em>e.g. u</em><em>, </em><em>v</em><em>, </em><em>w</em>) – the rotation axis of the grain boundary, with the format of [u,v,w].</li>
+<li><strong>c2_a2_ratio</strong> (<em>list of two integers</em><em>, </em><em>e.g. mu</em><em>, </em><em>mv</em>) – mu/mv is the square of the tetragonal axial ratio with rational number.
+if irrational, set c2_a2_ratio = None</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">dictionary with keys as the possible integer sigma values
+and values as list of the possible rotation angles to the
+corresponding sigma values.
+e.g. the format as
+{sigma1: [angle11,angle12,…], sigma2: [angle21, angle22,…],…}
+Note: the angles are the rotation angle of one grain respect to the
+other grain.
+When generate the microstructure of the grain boundary using these
+angles, you need to analyze the symmetry of the structure. Different
+angles may result in equivalent microstructures.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">sigmas (dict)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.gb.grain.GrainBoundaryGenerator.gb_from_parameters">
+<code class="descname">gb_from_parameters</code><span class="sig-paren">(</span><em>rotation_axis, rotation_angle, expand_times=4, vacuum_thickness=0.0, ab_shift=[0, 0], normal=False, ratio=None, plane=None, max_search=20, tol_coi=1e-08, rm_ratio=0.7, quick_gen=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.gb_from_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.gb_from_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>rotation_axis</strong> (<em>list</em>) – Rotation axis of GB in the form of a list of integer
+e.g.: [1, 1, 0]</li>
+<li><strong>rotation_angle</strong> (<em>float</em><em>, </em><em>in unit of degree</em>) – rotation angle used to generate GB.
+Make sure the angle is accurate enough. You can use the enum* functions
+in this class to extract the accurate angle.
+e.g.: The rotation angle of sigma 3 twist GB with the rotation axis
+[1, 1, 1] and GB plane (1, 1, 1) can be 60.000000000 degree.
+If you do not know the rotation angle, but know the sigma value, we have
+provide the function get_rotation_angle_from_sigma which is able to return
+all the rotation angles of sigma value you provided.</li>
+<li><strong>expand_times</strong> (<em>int</em>) – The multiple times used to expand one unit grain to larger grain.
+This is used to tune the grain length of GB to warrant that the two GBs in one
+cell do not interact with each other. Default set to 4.</li>
+<li><strong>vacuum_thickness</strong> (<em>float</em><em>, </em><em>in angstrom</em>) – <dl class="docutils">
+<dt>The thickness of vacuum that you want to insert</dt>
+<dd>between two grains of the GB. Default to 0.</dd>
+</dl>
+<p>ab_shift (list of float, in unit of a, b vectors of Gb): in plane shift of two grains
+normal (logic):</p>
+<blockquote>
+<div>determine if need to require the c axis of top grain (first transformation matrix)
+perperdicular to the surface or not.
+default to false.</div></blockquote>
+<dl class="docutils">
+<dt>ratio (list of integers):</dt>
+<dd>lattice axial ratio.
+For cubic system, ratio is not needed.
+For tetragonal system, ratio = [mu, mv], list of two integers,
+that is, mu/mv = c2/a2. If it is irrational, set it to none.
+For orthorhombic system, ratio = [mu, lam, mv], list of three integers,
+that is, mu:lam:mv = c2:b2:a2. If irrational for one axis, set it to None.
+e.g. mu:lam:mv = c2,None,a2, means b2 is irrational.
+For rhombohedral system, ratio = [mu, mv], list of two integers,
+that is, mu/mv is the ratio of (1+2*cos(alpha))/cos(alpha).
+If irrational, set it to None.
+For hexagonal system, ratio = [mu, mv], list of two integers,
+that is, mu/mv = c2/a2. If it is irrational, set it to none.
+This code also supplies a class method to generate the ratio from the
+structure (get_ratio). User can also make their own approximation and
+input the ratio directly.</dd>
+<dt>plane (list): Grain boundary plane in the form of a list of integers</dt>
+<dd>e.g.: [1, 2, 3]. If none, we set it as twist GB. The plane will be perpendicular
+to the rotation axis.</dd>
+<dt>max_search (int): max search for the GB lattice vectors that give the smallest GB</dt>
+<dd>lattice. If normal is true, also max search the GB c vector that perpendicular
+to the plane. For complex GB, if you want to speed up, you can reduce this value.
+But too small of this value may lead to error.</dd>
+<dt>tol_coi (float): tolerance to find the coincidence sites. When making approximations to</dt>
+<dd>the ratio needed to generate the GB, you probably need to increase this tolerance to
+obtain the correct number of coincidence sites. To check the number of coincidence
+sites are correct or not, you can compare the generated Gb object’s sigma_from_site_prop
+with enum* sigma values (what user expected by input).</dd>
+<dt>rm_ratio (float): the criteria to remove the atoms which are too close with each other.</dt>
+<dd>rm_ratio*bond_length of bulk system is the criteria of bond length, below which the atom
+will be removed. Default to 0.7.</dd>
+<dt>quick_gen (bool): whether to quickly generate a supercell, if set to true, no need to</dt>
+<dd>find the smallest cell.</dd>
+</dl>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Grain boundary structure (gb object).</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.gb.grain.GrainBoundaryGenerator.get_ratio">
+<code class="descname">get_ratio</code><span class="sig-paren">(</span><em>max_denominator=5</em>, <em>index_none=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.get_ratio"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.get_ratio" title="Permalink to this definition">¶</a></dt>
+<dd><p>find the axial ratio needed for GB generator input.
+:param max_denominator: the maximum denominator for</p>
+<blockquote>
+<div>the computed ratio, default to be 5.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>index_none</strong> (<em>int</em>) – specify the irrational axis.
+0-a, 1-b, 2-c. Only may be needed for orthorombic system.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">axial ratio needed for GB generator (list of integers).</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.analysis.gb.grain.GrainBoundaryGenerator.get_rotation_angle_from_sigma">
+<em class="property">static </em><code class="descname">get_rotation_angle_from_sigma</code><span class="sig-paren">(</span><em>sigma</em>, <em>r_axis</em>, <em>lat_type='C'</em>, <em>ratio=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.get_rotation_angle_from_sigma"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.get_rotation_angle_from_sigma" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find all possible rotation angle for the given sigma value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sigma</strong> (<em>integer</em>) – sigma value provided</li>
+<li><strong>(</strong><strong>list of three integers</strong><strong>, </strong><strong>e.g. u</strong><strong>, </strong><strong>v</strong><strong>, </strong><strong>w</strong> (<em>r_axis</em>) – or four integers, e.g. u, v, t, w for hex/rho system only):
+the rotation axis of the grain boundary.</li>
+<li><strong>lat_type</strong> (<em>one character</em>) – <dl class="docutils">
+<dt>‘c’ or ‘C’: cubic system</dt>
+<dd>’t’ or ‘T’: tetragonal system
+‘o’ or ‘O’: orthorhombic system
+‘h’ or ‘H’: hexagonal system
+‘r’ or ‘R’: rhombohedral system
+default to cubic system</dd>
+</dl>
+</li>
+<li><strong>ratio</strong> (<em>list of integers</em>) – lattice axial ratio.
+For cubic system, ratio is not needed.
+For tetragonal system, ratio = [mu, mv], list of two integers,
+that is, mu/mv = c2/a2. If it is irrational, set it to none.
+For orthorhombic system, ratio = [mu, lam, mv], list of three integers,
+that is, mu:lam:mv = c2:b2:a2. If irrational for one axis, set it to None.
+e.g. mu:lam:mv = c2,None,a2, means b2 is irrational.
+For rhombohedral system, ratio = [mu, mv], list of two integers,
+that is, mu/mv is the ratio of (1+2*cos(alpha)/cos(alpha).
+If irrational, set it to None.
+For hexagonal system, ratio = [mu, mv], list of two integers,
+that is, mu/mv = c2/a2. If it is irrational, set it to none.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">rotation_angles corresponding to the provided sigma value.
+If the sigma value is not correct, return the rotation angle corresponding
+to the correct possible sigma value right smaller than the wrong sigma value provided.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.analysis.gb.grain.GrainBoundaryGenerator.get_trans_mat">
+<em class="property">static </em><code class="descname">get_trans_mat</code><span class="sig-paren">(</span><em>r_axis, angle, normal=False, trans_cry=array([[1., 0., 0.],        [0., 1., 0.],        [0., 0., 1.]]), lat_type='c', ratio=None, surface=None, max_search=20, quick_gen=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.get_trans_mat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.get_trans_mat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the two transformation matrix for each grain from given rotation axis,
+GB plane, rotation angle and corresponding ratio (see explanation for ratio
+below).
+The structure of each grain can be obtained by applying the corresponding
+transformation matrix to the conventional cell.
+The algorithm for this code is from reference, Acta Cryst, A32,783(1976).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>(</strong><strong>list of three integers</strong><strong>, </strong><strong>e.g. u</strong><strong>, </strong><strong>v</strong><strong>, </strong><strong>w</strong> (<em>r_axis</em>) – or four integers, e.g. u, v, t, w for hex/rho system only):
+the rotation axis of the grain boundary.</li>
+<li><strong>angle</strong> (<em>float</em><em>, </em><em>in unit of degree</em>) – the rotation angle of the grain boundary</li>
+<li><strong>normal</strong> (<em>logic</em>) – determine if need to require the c axis of one grain associated with
+the first transformation matrix perperdicular to the surface or not.
+default to false.</li>
+<li><strong>trans_cry</strong> (<em>3 by 3 array</em>) – if the structure given are primitive cell in cubic system, e.g.
+bcc or fcc system, trans_cry is the transformation matrix from its
+conventional cell to the primitive cell.</li>
+<li><strong>lat_type</strong> (<em>one character</em>) – <dl class="docutils">
+<dt>‘c’ or ‘C’: cubic system</dt>
+<dd>’t’ or ‘T’: tetragonal system
+‘o’ or ‘O’: orthorhombic system
+‘h’ or ‘H’: hexagonal system
+‘r’ or ‘R’: rhombohedral system
+default to cubic system</dd>
+</dl>
+</li>
+<li><strong>ratio</strong> (<em>list of integers</em>) – lattice axial ratio.
+For cubic system, ratio is not needed.
+For tetragonal system, ratio = [mu, mv], list of two integers,
+that is, mu/mv = c2/a2. If it is irrational, set it to none.
+For orthorhombic system, ratio = [mu, lam, mv], list of three integers,
+that is, mu:lam:mv = c2:b2:a2. If irrational for one axis, set it to None.
+e.g. mu:lam:mv = c2,None,a2, means b2 is irrational.
+For rhombohedral system, ratio = [mu, mv], list of two integers,
+that is, mu/mv is the ratio of (1+2*cos(alpha)/cos(alpha).
+If irrational, set it to None.
+For hexagonal system, ratio = [mu, mv], list of two integers,
+that is, mu/mv = c2/a2. If it is irrational, set it to none.</li>
+<li><strong>(</strong><strong>list of three integers</strong><strong>, </strong><strong>e.g. h</strong><strong>, </strong><strong>k</strong><strong>, </strong><strong>l</strong> (<em>surface</em>) – or four integers, e.g. h, k, i, l for hex/rho system only):
+the miller index of grain boundary plane, with the format of [h,k,l]
+if surface is not given, the default is perpendicular to r_axis, which is
+a twist grain boundary.</li>
+<li><strong>max_search</strong> (<em>int</em>) – max search for the GB lattice vectors that give the smallest GB
+lattice. If normal is true, also max search the GB c vector that perpendicular
+to the plane.</li>
+<li><strong>quick_gen</strong> (<em>bool</em>) – whether to quickly generate a supercell, if set to true, no need to
+find the smallest cell.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p>The transformation array for one grain.
+t2 (3 by 3 integer array):</p>
+<blockquote>
+<div><p>The transformation array for the other grain</p>
+</div></blockquote>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">t1 (3 by 3 integer array)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.analysis.gb.grain.GrainBoundaryGenerator.reduce_mat">
+<em class="property">static </em><code class="descname">reduce_mat</code><span class="sig-paren">(</span><em>mat</em>, <em>mag</em>, <em>r_matrix</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.reduce_mat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.reduce_mat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reduce integer array mat’s determinant mag times by linear combination
+of its row vectors, so that the new array after rotation (r_matrix) is
+still an integer array</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>mat</strong> (<em>3 by 3 array</em>) – input matrix</li>
+<li><strong>mag</strong> (<em>integer</em>) – reduce times for the determinant</li>
+<li><strong>r_matrix</strong> (<em>3 by 3 array</em>) – rotation matrix</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the reduced integer array</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.analysis.gb.grain.GrainBoundaryGenerator.slab_from_csl">
+<em class="property">static </em><code class="descname">slab_from_csl</code><span class="sig-paren">(</span><em>csl</em>, <em>surface</em>, <em>normal</em>, <em>trans_cry</em>, <em>max_search=20</em>, <em>quick_gen=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.slab_from_csl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.slab_from_csl" title="Permalink to this definition">¶</a></dt>
+<dd><p>By linear operation of csl lattice vectors to get the best corresponding
+slab lattice. That is the area of a,b vectors (within the surface plane)
+is the smallest, the c vector first, has shortest length perpendicular
+to surface [h,k,l], second, has shortest length itself.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>csl</strong> (<em>3 by 3 integer array</em>) – input csl lattice.</li>
+<li><strong>surface</strong> (<em>list of three integers</em><em>, </em><em>e.g. h</em><em>, </em><em>k</em><em>, </em><em>l</em>) – the miller index of the surface, with the format of [h,k,l]</li>
+<li><strong>normal</strong> (<em>logic</em>) – determine if the c vector needs to perpendicular to surface</li>
+<li><strong>trans_cry</strong> (<em>3 by 3 array</em>) – transform matrix from crystal system to orthogonal system</li>
+<li><strong>max_search</strong> (<em>int</em>) – max search for the GB lattice vectors that give the smallest GB
+lattice. If normal is true, also max search the GB c vector that perpendicular
+to the plane.</li>
+<li><strong>quick_gen</strong> (<em>bool</em>) – whether to quickly generate a supercell, no need to find the smallest
+cell if set to true.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a slab lattice ( 3 by 3 integer array):</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">t_matrix</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.analysis.gb.grain.GrainBoundaryGenerator.vec_to_surface">
+<em class="property">static </em><code class="descname">vec_to_surface</code><span class="sig-paren">(</span><em>vec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.vec_to_surface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.vec_to_surface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform a float vector to a surface miller index with integers.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>vec</strong> (<em>1 by 3 array float vector</em>) – input float vector</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the surface miller index of the input vector.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.gb.grain.factors">
+<code class="descname">factors</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#factors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.factors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the factors of a integer.
+:param n: the input integer</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a set of integers that are the factors of the input integer.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.gb.grain.fix_pbc">
+<code class="descname">fix_pbc</code><span class="sig-paren">(</span><em>structure</em>, <em>matrix=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#fix_pbc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.fix_pbc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set all frac_coords of the input structure within [0,1].</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>structure</strong> (<em>pymatgen structure object</em>) – input structure</li>
+<li><strong>matrix</strong> (<em>lattice matrix</em><em>, </em><em>3 by 3 array/matrix</em>) – new structure’s lattice matrix, if none, use
+input structure’s matrix</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">new structure with fixed frac_coords and lattice matrix</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.gb.grain.symm_group_cubic">
+<code class="descname">symm_group_cubic</code><span class="sig-paren">(</span><em>mat</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#symm_group_cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.symm_group_cubic" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>obtain cubic symmetric eqivalents of the list of vectors.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>matrix</strong> (<em>lattice matrix</em><em>, </em><em>n by 3 array/matrix</em>) – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">cubic symmetric eqivalents of the list of vectors.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 
 
@@ -85,13 +867,13 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.3.13 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

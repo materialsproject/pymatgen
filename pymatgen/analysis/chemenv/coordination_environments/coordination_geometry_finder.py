@@ -541,7 +541,7 @@ class LocalGeometryFinder:
         if only_atoms is not None:
             sites_indices = [isite for isite in sites_indices
                              if any([at in [sp.symbol for sp in self.structure[
-                    isite].species_and_occu]
+                    isite].species]
                                      for at in only_atoms])]
 
         # Exclude atoms that are in the list of excluded atoms
@@ -549,7 +549,7 @@ class LocalGeometryFinder:
             sites_indices = [isite for isite in sites_indices
                              if not any([at in [sp.symbol for sp in
                                                 self.structure[
-                                                    isite].species_and_occu]
+                                                    isite].species]
                                          for at in excluded_atoms])]
 
         if only_indices is not None:

@@ -6,14 +6,15 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.outputs module &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.io.vasp.outputs module &#8212; pymatgen 2019.3.13 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -34,7 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.3.13 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -604,7 +605,7 @@ Each dict key/value pair corresponds to a component of the tensors.</td>
 
 <dl class="method">
 <dt id="pymatgen.io.vasp.outputs.Outcar.read_pattern">
-<code class="descname">read_pattern</code><span class="sig-paren">(</span><em>patterns</em>, <em>reverse=False</em>, <em>terminate_on_match=False</em>, <em>postprocess=&lt;type 'str'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar.read_pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_pattern" title="Permalink to this definition">¶</a></dt>
+<code class="descname">read_pattern</code><span class="sig-paren">(</span><em>patterns</em>, <em>reverse=False</em>, <em>terminate_on_match=False</em>, <em>postprocess=&lt;class 'str'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar.read_pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_pattern" title="Permalink to this definition">¶</a></dt>
 <dd><p>General pattern reading. Uses monty’s regrep method. Takes the same
 arguments.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -650,7 +651,7 @@ are lists of lists, because you can grep multiple items on one line.</dd>
 
 <dl class="method">
 <dt id="pymatgen.io.vasp.outputs.Outcar.read_table_pattern">
-<code class="descname">read_table_pattern</code><span class="sig-paren">(</span><em>header_pattern</em>, <em>row_pattern</em>, <em>footer_pattern</em>, <em>postprocess=&lt;type 'str'&gt;</em>, <em>attribute_name=None</em>, <em>last_one_only=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar.read_table_pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_table_pattern" title="Permalink to this definition">¶</a></dt>
+<code class="descname">read_table_pattern</code><span class="sig-paren">(</span><em>header_pattern</em>, <em>row_pattern</em>, <em>footer_pattern</em>, <em>postprocess=&lt;class 'str'&gt;</em>, <em>attribute_name=None</em>, <em>last_one_only=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar.read_table_pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_table_pattern" title="Permalink to this definition">¶</a></dt>
 <dd><blockquote>
 <div><p>Parse table-like data. A table composes of three parts: header,
 main body, footer. All the data matches “row pattern” in the main body
@@ -807,14 +808,14 @@ of that orbital is returned.</li>
 <dl class="exception">
 <dt id="pymatgen.io.vasp.outputs.UnconvergedVASPWarning">
 <em class="property">exception </em><code class="descname">UnconvergedVASPWarning</code><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#UnconvergedVASPWarning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.UnconvergedVASPWarning" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">exceptions.Warning</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Warning</span></code></p>
 <p>Warning for unconverged vasp run.</p>
 </dd></dl>
 
 <dl class="exception">
 <dt id="pymatgen.io.vasp.outputs.VaspParserError">
 <em class="property">exception </em><code class="descname">VaspParserError</code><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#VaspParserError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VaspParserError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">exceptions.Exception</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Exception class for VASP parsing.</p>
 </dd></dl>
 
@@ -1487,8 +1488,9 @@ f[“lattice”]: Lattice in the pymatgen.core.lattice.Lattice matrix</p>
 
 <dl class="class">
 <dt id="pymatgen.io.vasp.outputs.Wavecar">
-<em class="property">class </em><code class="descname">Wavecar</code><span class="sig-paren">(</span><em>filename=u'WAVECAR'</em>, <em>verbose=False</em>, <em>precision=u'normal'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Wavecar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar" title="Permalink to this definition">¶</a></dt>
-<dd><p>This is a class that contains the (pseudo-) wavefunctions from VASP.</p>
+<em class="property">class </em><code class="descname">Wavecar</code><span class="sig-paren">(</span><em>filename='WAVECAR'</em>, <em>verbose=False</em>, <em>precision='normal'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Wavecar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This is a class that contains the (pseudo-) wavefunctions from VASP.</p>
 <p>Coefficients are read from the given WAVECAR file and the corresponding
 G-vectors are generated using the algorithm developed in WaveTrans (see
 acknowledgments below). To understand how the wavefunctions are evaluated,
@@ -1651,8 +1653,8 @@ ISPIN = 2, default = 0)</li>
 used to obtain real-space evaluation of the wavefunction. The output
 of this function can be passed directly to numpy’s fft function. For
 .. rubric:: Example</p>
-<p>mesh = Wavecar().fft_mesh(kpoint, band)
-evals = np.fft.fft(mesh)</p>
+<p>mesh = Wavecar(‘WAVECAR’).fft_mesh(kpoint, band)
+evals = np.fft.ifftn(mesh)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1670,6 +1672,50 @@ placed at index (0, 0, 0) or centered</li>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a numpy ndarray representing the 3D mesh of coefficients</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.vasp.outputs.Wavecar.get_parchg">
+<code class="descname">get_parchg</code><span class="sig-paren">(</span><em>poscar</em>, <em>kpoint</em>, <em>band</em>, <em>spin=None</em>, <em>phase=False</em>, <em>scale=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Wavecar.get_parchg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar.get_parchg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a Chgcar object, which is the charge density of the specified
+wavefunction.</p>
+<p>This function generates a Chgcar object with the charge density of the
+wavefunction specified by band and kpoint (and spin, if the WAVECAR
+corresponds to a spin-polarized calculation). The phase tag is a
+feature that is not present in VASP. For a real wavefunction, the phase
+tag being turned on means that the charge density is multiplied by the
+sign of the wavefunction at that point in space. A warning is generated
+if the phase tag is on and the chosen kpoint is not Gamma.</p>
+<p>Note: Augmentation from the PAWs is NOT included in this function. The
+maximal charge density will differ from the PARCHG from VASP, but the
+qualitative shape of the charge density will match.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>poscar</strong> (<a class="reference internal" href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Poscar" title="pymatgen.io.vasp.inputs.Poscar"><em>pymatgen.io.vasp.inputs.Poscar</em></a>) – Poscar object that has the
+structure associated with the WAVECAR file</li>
+<li><strong>kpoint</strong> (<em>int</em>) – the index of the kpoint for the wavefunction</li>
+<li><strong>band</strong> (<em>int</em>) – the index of the band for the wavefunction</li>
+<li><strong>spin</strong> (<em>int</em>) – optional argument to specify the spin. If the
+Wavecar has ISPIN = 2, spin == None generates a
+Chgcar with total spin and magnetization, and
+spin == {0, 1} specifies just the spin up or
+down component.</li>
+<li><strong>phase</strong> (<em>bool</em>) – flag to determine if the charge density is
+multiplied by the sign of the wavefunction.
+Only valid for real wavefunctions.</li>
+<li><strong>scale</strong> (<em>int</em>) – scaling for the FFT grid. The default value of 2 is
+at least as fine as the VASP default.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a pymatgen.io.vasp.outputs.Chgcar object</p>
 </td>
 </tr>
 </tbody>
@@ -1955,13 +2001,13 @@ any. Note that this is sometimes very large</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.3.13 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

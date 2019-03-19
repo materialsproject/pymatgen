@@ -6,14 +6,15 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.electronic_structure.boltztrap module &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.electronic_structure.boltztrap module &#8212; pymatgen 2019.3.13 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -34,7 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.3.13 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -207,7 +208,7 @@ True if the avg_dist &gt; warn_thr[1]</dd>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_average_eff_mass">
-<code class="descname">get_average_eff_mass</code><span class="sig-paren">(</span><em>output=u'eigs'</em>, <em>doping_levels=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapAnalyzer.get_average_eff_mass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_average_eff_mass" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_average_eff_mass</code><span class="sig-paren">(</span><em>output='eigs'</em>, <em>doping_levels=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapAnalyzer.get_average_eff_mass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_average_eff_mass" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gives the average effective mass tensor. We call it average because
 it takes into account all the bands
 and regions in the Brillouin zone. This is different than the standard
@@ -303,7 +304,7 @@ an_dw=BoltztrapAnalyzer.from_files(“dos_dw/boltztrap/”,dos_spin=-1)</p>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_complexity_factor">
-<code class="descname">get_complexity_factor</code><span class="sig-paren">(</span><em>output=u'average'</em>, <em>temp=300</em>, <em>doping_levels=False</em>, <em>Lambda=0.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapAnalyzer.get_complexity_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_complexity_factor" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_complexity_factor</code><span class="sig-paren">(</span><em>output='average'</em>, <em>temp=300</em>, <em>doping_levels=False</em>, <em>Lambda=0.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapAnalyzer.get_complexity_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_complexity_factor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fermi surface complexity factor respect to calculated as explained in Ref.
 Gibbs, Z. M. et al., Effective mass and fermi surface complexity factor
 from ab initio band structure calculations.
@@ -341,7 +342,7 @@ the three components of the complexity factor.</p>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_conductivity">
-<code class="descname">get_conductivity</code><span class="sig-paren">(</span><em>output=u'eigs'</em>, <em>doping_levels=True</em>, <em>relaxation_time=1e-14</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapAnalyzer.get_conductivity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_conductivity" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_conductivity</code><span class="sig-paren">(</span><em>output='eigs'</em>, <em>doping_levels=True</em>, <em>relaxation_time=1e-14</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapAnalyzer.get_conductivity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_conductivity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gives the conductivity (1/Ohm*m) in either a full 3x3 tensor
 form, as 3 eigenvalues, or as the average value
 (trace/3.0) If doping_levels=True, the results are given at
@@ -439,7 +440,7 @@ electron chemical potential</dd>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_power_factor">
-<code class="descname">get_power_factor</code><span class="sig-paren">(</span><em>output=u'eigs'</em>, <em>doping_levels=True</em>, <em>relaxation_time=1e-14</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapAnalyzer.get_power_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_power_factor" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_power_factor</code><span class="sig-paren">(</span><em>output='eigs'</em>, <em>doping_levels=True</em>, <em>relaxation_time=1e-14</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapAnalyzer.get_power_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_power_factor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gives the power factor (Seebeck^2 * conductivity) in units
 microW/(m*K^2) in either a full 3x3 tensor form,
 as 3 eigenvalues, or as the average value (trace/3.0) If
@@ -485,7 +486,7 @@ The result includes a given constant relaxation time</p>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_seebeck">
-<code class="descname">get_seebeck</code><span class="sig-paren">(</span><em>output=u'eigs'</em>, <em>doping_levels=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapAnalyzer.get_seebeck"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_seebeck" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_seebeck</code><span class="sig-paren">(</span><em>output='eigs'</em>, <em>doping_levels=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapAnalyzer.get_seebeck"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_seebeck" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gives the seebeck coefficient (microV/K) in either a
 full 3x3 tensor form, as 3 eigenvalues, or as the average value
 (trace/3.0) If doping_levels=True, the results are given at
@@ -528,7 +529,7 @@ output=’tensor’) or as an average
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_seebeck_eff_mass">
-<code class="descname">get_seebeck_eff_mass</code><span class="sig-paren">(</span><em>output=u'average'</em>, <em>temp=300</em>, <em>doping_levels=False</em>, <em>Lambda=0.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapAnalyzer.get_seebeck_eff_mass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_seebeck_eff_mass" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_seebeck_eff_mass</code><span class="sig-paren">(</span><em>output='average'</em>, <em>temp=300</em>, <em>doping_levels=False</em>, <em>Lambda=0.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapAnalyzer.get_seebeck_eff_mass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_seebeck_eff_mass" title="Permalink to this definition">¶</a></dt>
 <dd><p>Seebeck effective mass calculated as explained in Ref.
 Gibbs, Z. M. et al., Effective mass and fermi surface complexity factor
 from ab initio band structure calculations.
@@ -579,7 +580,7 @@ object (usually it comes from DFT or Boltztrap calc)</p>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_thermal_conductivity">
-<code class="descname">get_thermal_conductivity</code><span class="sig-paren">(</span><em>output=u'eigs'</em>, <em>doping_levels=True</em>, <em>k_el=True</em>, <em>relaxation_time=1e-14</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapAnalyzer.get_thermal_conductivity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_thermal_conductivity" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_thermal_conductivity</code><span class="sig-paren">(</span><em>output='eigs'</em>, <em>doping_levels=True</em>, <em>k_el=True</em>, <em>relaxation_time=1e-14</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapAnalyzer.get_thermal_conductivity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_thermal_conductivity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gives the electronic part of the thermal conductivity in either a
 full 3x3 tensor form,
 as 3 eigenvalues, or as the average value (trace/3.0) If
@@ -626,7 +627,7 @@ The result includes a given constant relaxation time</p>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_zt">
-<code class="descname">get_zt</code><span class="sig-paren">(</span><em>output=u'eigs'</em>, <em>doping_levels=True</em>, <em>relaxation_time=1e-14</em>, <em>kl=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapAnalyzer.get_zt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_zt" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_zt</code><span class="sig-paren">(</span><em>output='eigs'</em>, <em>doping_levels=True</em>, <em>relaxation_time=1e-14</em>, <em>kl=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapAnalyzer.get_zt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_zt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gives the ZT coefficient (S^2*cond*T/thermal cond) in either a full
 3x3 tensor form,
 as 3 eigenvalues, or as the average value (trace/3.0) If
@@ -760,14 +761,14 @@ hall_doping, carrier_conc</td>
 <dl class="exception">
 <dt id="pymatgen.electronic_structure.boltztrap.BoltztrapError">
 <em class="property">exception </em><code class="descname">BoltztrapError</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">exceptions.Exception</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Exception class for boltztrap.
 Raised when the boltztrap gives an error</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.electronic_structure.boltztrap.BoltztrapRunner">
-<em class="property">class </em><code class="descname">BoltztrapRunner</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapRunner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapRunner" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">BoltztrapRunner</code><span class="sig-paren">(</span><em>bs</em>, <em>nelec</em>, <em>dos_type='HISTO'</em>, <em>energy_grid=0.005</em>, <em>lpfac=10</em>, <em>run_type='BOLTZ'</em>, <em>band_nb=None</em>, <em>tauref=0</em>, <em>tauexp=0</em>, <em>tauen=0</em>, <em>soc=False</em>, <em>doping=None</em>, <em>energy_span_around_fermi=1.5</em>, <em>scissor=0.0</em>, <em>kpt_line=None</em>, <em>spin=None</em>, <em>cond_band=False</em>, <em>tmax=1300</em>, <em>tgrid=50</em>, <em>symprec=0.001</em>, <em>cb_cut=10</em>, <em>timeout=7200</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapRunner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapRunner" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>This class is used to run Boltztrap on a band structure object.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -847,7 +848,8 @@ loop when trying to find Fermi levels.</li>
 <dl class="method">
 <dt id="pymatgen.electronic_structure.boltztrap.BoltztrapRunner.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapRunner.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapRunner.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>A JSON serializable dict representation of an object.</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.electronic_structure.boltztrap.BoltztrapRunner.bs">
@@ -1004,13 +1006,13 @@ a certain carrier concentration n</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.3.13 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

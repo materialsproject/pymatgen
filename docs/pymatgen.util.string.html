@@ -6,14 +6,15 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.util.string module &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.util.string module &#8212; pymatgen 2019.3.13 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -34,7 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.3.13 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -52,14 +53,14 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="attribute">
 <dt id="pymatgen.util.string.StringColorizer.colours">
-<code class="descname">colours</code><em class="property"> = {u'blue': u'\x1b[01;34m', u'cyan': u'\x1b[01;36m', u'default': u'', u'green': u'\x1b[01;32m', u'red': u'\x1b[01;31m'}</em><a class="headerlink" href="#pymatgen.util.string.StringColorizer.colours" title="Permalink to this definition">¶</a></dt>
+<code class="descname">colours</code><em class="property"> = {'blue': '\x1b[01;34m', 'cyan': '\x1b[01;36m', 'default': '', 'green': '\x1b[01;32m', 'red': '\x1b[01;31m'}</em><a class="headerlink" href="#pymatgen.util.string.StringColorizer.colours" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.string.disordered_formula">
-<code class="descname">disordered_formula</code><span class="sig-paren">(</span><em>disordered_struct</em>, <em>symbols=(u'x'</em>, <em>u'y'</em>, <em>u'z')</em>, <em>fmt=u'plain'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#disordered_formula"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.disordered_formula" title="Permalink to this definition">¶</a></dt>
+<code class="descname">disordered_formula</code><span class="sig-paren">(</span><em>disordered_struct</em>, <em>symbols=('x'</em>, <em>'y'</em>, <em>'z')</em>, <em>fmt='plain'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#disordered_formula"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.disordered_formula" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a formula of a form like AxB1-x (x=0.5)
 for disordered structures. Will only return a
 formula for disordered structures with one
@@ -159,7 +160,7 @@ P2$_{1}$/c and P-1 is converted to P$overline{1}$.</p>
 
 <dl class="function">
 <dt id="pymatgen.util.string.str_delimited">
-<code class="descname">str_delimited</code><span class="sig-paren">(</span><em>results</em>, <em>header=None</em>, <em>delimiter=u'\t'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#str_delimited"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.str_delimited" title="Permalink to this definition">¶</a></dt>
+<code class="descname">str_delimited</code><span class="sig-paren">(</span><em>results</em>, <em>header=None</em>, <em>delimiter='\t'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#str_delimited"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.str_delimited" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a tuple of tuples, generate a delimited string form.
 &gt;&gt;&gt; results = [[“a”,”b”,”c”],[“d”,”e”,”f”],[1,2,3]]
 &gt;&gt;&gt; print(str_delimited(results,delimiter=”,”))
@@ -191,7 +192,7 @@ d,e,f
 
 <dl class="function">
 <dt id="pymatgen.util.string.transformation_to_string">
-<code class="descname">transformation_to_string</code><span class="sig-paren">(</span><em>matrix</em>, <em>translation_vec=(0</em>, <em>0</em>, <em>0)</em>, <em>components=(u'x'</em>, <em>u'y'</em>, <em>u'z')</em>, <em>c=u''</em>, <em>delim=u'</em>, <em>'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#transformation_to_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.transformation_to_string" title="Permalink to this definition">¶</a></dt>
+<code class="descname">transformation_to_string</code><span class="sig-paren">(</span><em>matrix</em>, <em>translation_vec=(0</em>, <em>0</em>, <em>0)</em>, <em>components=('x'</em>, <em>'y'</em>, <em>'z')</em>, <em>c=''</em>, <em>delim='</em>, <em>'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#transformation_to_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.transformation_to_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience method. Given matrix returns string, e.g. x+2y+1/4
 :param matrix
 :param translation_vec
@@ -258,13 +259,13 @@ to Fe₂O₃. Does not support formulae with decimal points.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.3.13 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

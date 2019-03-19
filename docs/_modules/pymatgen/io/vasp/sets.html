@@ -6,14 +6,15 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.sets &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.io.vasp.sets &#8212; pymatgen 2019.3.13 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -34,7 +35,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -50,26 +51,23 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span>
 
 <span class="kn">import</span> <span class="nn">abc</span>
 <span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">glob</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">chain</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
-
-<span class="kn">import</span> <span class="nn">six</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="k">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="k">import</span> <span class="n">loadfn</span>
 <span class="kn">from</span> <span class="nn">monty.io</span> <span class="k">import</span> <span class="n">zopen</span>
+<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">deprecated</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Specie</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">Element</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="k">import</span> <span class="n">Incar</span><span class="p">,</span> <span class="n">Poscar</span><span class="p">,</span> <span class="n">Potcar</span><span class="p">,</span> <span class="n">Kpoints</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="k">import</span> <span class="n">Incar</span><span class="p">,</span> <span class="n">Poscar</span><span class="p">,</span> <span class="n">Potcar</span><span class="p">,</span> <span class="n">Kpoints</span><span class="p">,</span> <span class="n">VaspInput</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.vasp.outputs</span> <span class="k">import</span> <span class="n">Vasprun</span><span class="p">,</span> <span class="n">Outcar</span>
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
@@ -119,10 +117,10 @@
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyuep@gmail.com&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;May 28 2016&quot;</span>
 
-<span class="n">MODULE_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+<span class="n">MODULE_DIR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span>
 
 
-<div class="viewcode-block" id="VaspInputSet"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.VaspInputSet">[docs]</a><span class="k">class</span> <span class="nc">VaspInputSet</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">with_metaclass</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">)):</span>
+<div class="viewcode-block" id="VaspInputSet"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.VaspInputSet">[docs]</a><span class="k">class</span> <span class="nc">VaspInputSet</span><span class="p">(</span><span class="n">MSONable</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class representing a set of Vasp input parameters with a structure</span>
 <span class="sd">    supplied as init parameters. Typically, you should not inherit from this</span>
@@ -174,6 +172,7 @@
         <span class="k">return</span> <span class="n">Potcar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">potcar_symbols</span><span class="p">,</span> <span class="n">functional</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">potcar_functional</span><span class="p">)</span>
 
     <span class="nd">@property</span>
+    <span class="nd">@deprecated</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Use the get_vasp_input() method instead.&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">all_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns all input files as a dict of {filename: vasp object}</span>
@@ -181,15 +180,19 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            dict of {filename: object}, e.g., {&#39;INCAR&#39;: Incar object, ...}</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">kpoints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span>
-        <span class="n">incar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar</span>
-        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">kpoints</span><span class="o">.</span><span class="n">kpts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">4</span> <span class="ow">and</span> <span class="n">incar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ISMEAR&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">5</span><span class="p">:</span>
-            <span class="n">incar</span><span class="p">[</span><span class="s2">&quot;ISMEAR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-
-        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;INCAR&#39;</span><span class="p">:</span> <span class="n">incar</span><span class="p">,</span>
-                <span class="s1">&#39;KPOINTS&#39;</span><span class="p">:</span> <span class="n">kpoints</span><span class="p">,</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;INCAR&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar</span><span class="p">,</span>
+                <span class="s1">&#39;KPOINTS&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span><span class="p">,</span>
                 <span class="s1">&#39;POSCAR&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">poscar</span><span class="p">,</span>
                 <span class="s1">&#39;POTCAR&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">potcar</span><span class="p">}</span>
+
+<div class="viewcode-block" id="VaspInputSet.get_vasp_input"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.VaspInputSet.get_vasp_input">[docs]</a>    <span class="k">def</span> <span class="nf">get_vasp_input</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VaspInput</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            VaspInput</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">VaspInput</span><span class="p">(</span><span class="n">incar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">incar</span><span class="p">,</span> <span class="n">kpoints</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span><span class="p">,</span> <span class="n">poscar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">poscar</span><span class="p">,</span>
+                         <span class="n">potcar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">potcar</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="VaspInputSet.write_input"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.VaspInputSet.write_input">[docs]</a>    <span class="k">def</span> <span class="nf">write_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span>
                     <span class="n">make_dir_if_not_present</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">include_cif</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -204,14 +207,12 @@
 <span class="sd">            include_cif (bool): Whether to write a CIF file in the output</span>
 <span class="sd">                directory for easier opening by VESTA.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">make_dir_if_not_present</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_dir</span><span class="p">):</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_input</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">v</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+        <span class="n">vinput</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_vasp_input</span><span class="p">()</span>
+        <span class="n">vinput</span><span class="o">.</span><span class="n">write_input</span><span class="p">(</span>
+            <span class="n">output_dir</span><span class="p">,</span> <span class="n">make_dir_if_not_present</span><span class="o">=</span><span class="n">make_dir_if_not_present</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">include_cif</span><span class="p">:</span>
-            <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_input</span><span class="p">[</span><span class="s2">&quot;POSCAR&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">structure</span>
-            <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.cif&quot;</span> <span class="o">%</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\s&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-                                                               <span class="n">s</span><span class="o">.</span><span class="n">formula</span><span class="p">))</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">vinput</span><span class="p">[</span><span class="s2">&quot;POSCAR&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">structure</span>
+            <span class="n">fname</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.cif&quot;</span> <span class="o">%</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\s&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">formula</span><span class="p">))</span>
             <span class="n">s</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">fname</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="VaspInputSet.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.VaspInputSet.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
@@ -222,9 +223,8 @@
 
 
 <span class="k">def</span> <span class="nf">_load_yaml_config</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
-    <span class="n">config</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.yaml&quot;</span> <span class="o">%</span> <span class="n">fname</span><span class="p">))</span>
-    <span class="n">config</span><span class="p">[</span><span class="s2">&quot;INCAR&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span>
-                                               <span class="s2">&quot;VASPIncarBase.yaml&quot;</span><span class="p">)))</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">MODULE_DIR</span> <span class="o">/</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.yaml&quot;</span> <span class="o">%</span> <span class="n">fname</span><span class="p">)))</span>
+    <span class="n">config</span><span class="p">[</span><span class="s2">&quot;INCAR&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">loadfn</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">MODULE_DIR</span> <span class="o">/</span> <span class="s2">&quot;VASPIncarBase.yaml&quot;</span><span class="p">)))</span>
     <span class="k">return</span> <span class="n">config</span>
 
 
@@ -267,6 +267,9 @@
 <span class="sd">            of two ways, e.g. either {&quot;LDAUU&quot;:{&quot;O&quot;:{&quot;Fe&quot;:5}}} to set LDAUU</span>
 <span class="sd">            for Fe to 5 in an oxide, or {&quot;LDAUU&quot;:{&quot;Fe&quot;:5}} to set LDAUU to</span>
 <span class="sd">            5 regardless of the input structure.</span>
+
+<span class="sd">            If a None value is given, that key is unset. For example,</span>
+<span class="sd">            {&quot;ENCUT&quot;: None} will remove ENCUT from the incar settings.</span>
 <span class="sd">        user_kpoints_settings (dict or Kpoints): Allow user to override kpoints </span>
 <span class="sd">            setting by supplying a dict E.g., {&quot;reciprocal_density&quot;: 1000}. </span>
 <span class="sd">            User can also supply Kpoints object. Default is None.</span>
@@ -329,7 +332,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">vdw</span> <span class="o">=</span> <span class="n">vdw</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">if</span> <span class="n">vdw</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">use_structure_charge</span> <span class="o">=</span> <span class="n">use_structure_charge</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vdw</span><span class="p">:</span>
-            <span class="n">vdw_par</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s2">&quot;vdW_parameters.yaml&quot;</span><span class="p">))</span>
+            <span class="n">vdw_par</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">MODULE_DIR</span> <span class="o">/</span> <span class="s2">&quot;vdW_parameters.yaml&quot;</span><span class="p">))</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_config_dict</span><span class="p">[</span><span class="s2">&quot;INCAR&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">vdw_par</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vdw</span><span class="p">])</span>
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
@@ -350,7 +353,14 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">incar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">settings</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config_dict</span><span class="p">[</span><span class="s2">&quot;INCAR&quot;</span><span class="p">])</span>
-        <span class="n">settings</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">user_incar_settings</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_incar_settings</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">del</span> <span class="n">settings</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="n">settings</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">settings</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
         <span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span>
         <span class="n">incar</span> <span class="o">=</span> <span class="n">Incar</span><span class="p">()</span>
         <span class="n">comp</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span>
@@ -422,6 +432,8 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_structure_charge</span><span class="p">:</span>
             <span class="n">incar</span><span class="p">[</span><span class="s2">&quot;NELECT&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nelect</span>
 
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span><span class="o">.</span><span class="n">kpts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">4</span> <span class="ow">and</span> <span class="n">incar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ISMEAR&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">5</span><span class="p">:</span>
+            <span class="n">incar</span><span class="p">[</span><span class="s2">&quot;ISMEAR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">return</span> <span class="n">incar</span>
 
     <span class="nd">@property</span>
@@ -502,8 +514,7 @@
             <span class="n">make_dir_if_not_present</span><span class="o">=</span><span class="n">make_dir_if_not_present</span><span class="p">,</span>
             <span class="n">include_cif</span><span class="o">=</span><span class="n">include_cif</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">files_to_transfer</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">,</span> \
-                    <span class="n">zopen</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">k</span><span class="p">),</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fout</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">,</span> <span class="n">zopen</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span> <span class="o">/</span> <span class="n">k</span><span class="p">),</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fout</span><span class="p">:</span>
                 <span class="n">shutil</span><span class="o">.</span><span class="n">copyfileobj</span><span class="p">(</span><span class="n">fin</span><span class="p">,</span> <span class="n">fout</span><span class="p">)</span></div></div>
 
 
@@ -577,9 +588,9 @@
 <span class="sd">            \\*\\*kwargs: kwargs supported by MPRelaxSet.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">MPStaticSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prev_incar</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prev_incar</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">prev_incar</span> <span class="o">=</span> <span class="n">Incar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">prev_incar</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prev_kpoints</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prev_kpoints</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">prev_kpoints</span> <span class="o">=</span> <span class="n">Kpoints</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">prev_kpoints</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">prev_incar</span> <span class="o">=</span> <span class="n">prev_incar</span>
@@ -839,7 +850,7 @@
 
         <span class="n">files_to_transfer</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="n">copy_chgcar</span><span class="p">:</span>
-            <span class="n">chgcars</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">prev_calc_dir</span><span class="p">,</span> <span class="s2">&quot;CHGCAR*&quot;</span><span class="p">)))</span>
+            <span class="n">chgcars</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">prev_calc_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;CHGCAR*&quot;</span><span class="p">)))</span>
             <span class="k">if</span> <span class="n">chgcars</span><span class="p">:</span>
                 <span class="n">files_to_transfer</span><span class="p">[</span><span class="s2">&quot;CHGCAR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">chgcars</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
@@ -851,7 +862,7 @@
 
 <div class="viewcode-block" id="MPNonSCFSet"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MPNonSCFSet">[docs]</a><span class="k">class</span> <span class="nc">MPNonSCFSet</span><span class="p">(</span><span class="n">MPRelaxSet</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">prev_incar</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;line&quot;</span><span class="p">,</span> <span class="n">nedos</span><span class="o">=</span><span class="mi">601</span><span class="p">,</span> <span class="n">reciprocal_density</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">sym_prec</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+                 <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;line&quot;</span><span class="p">,</span> <span class="n">nedos</span><span class="o">=</span><span class="mi">2001</span><span class="p">,</span> <span class="n">reciprocal_density</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">sym_prec</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
                  <span class="n">kpoints_line_density</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">optics</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Init a MPNonSCFSet. Typically, you would use the classmethod</span>
@@ -861,7 +872,7 @@
 <span class="sd">            structure (Structure): Structure to compute</span>
 <span class="sd">            prev_incar (Incar/string): Incar file from previous run.</span>
 <span class="sd">            mode (str): Line or Uniform mode supported.</span>
-<span class="sd">            nedos (int): nedos parameter. Default to 601.</span>
+<span class="sd">            nedos (int): nedos parameter. Default to 2001.</span>
 <span class="sd">            reciprocal_density (int): density of k-mesh by reciprocal</span>
 <span class="sd">                                    volume (defaults to 100)</span>
 <span class="sd">            sym_prec (float): Symmetry precision (for Uniform mode).</span>
@@ -870,7 +881,7 @@
 <span class="sd">            \\*\\*kwargs: kwargs supported by MPVaspInputSet.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">MPNonSCFSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prev_incar</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prev_incar</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">prev_incar</span> <span class="o">=</span> <span class="n">Incar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">prev_incar</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">prev_incar</span> <span class="o">=</span> <span class="n">prev_incar</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
@@ -895,14 +906,21 @@
             <span class="n">incar</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_incar</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
 
         <span class="c1"># Overwrite necessary INCAR parameters from previous runs</span>
-        <span class="n">incar</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;IBRION&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;ISMEAR&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;SIGMA&quot;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>
-                      <span class="s2">&quot;LCHARG&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;LORBIT&quot;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="s2">&quot;LWAVE&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                      <span class="s2">&quot;NSW&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;ISYM&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;ICHARG&quot;</span><span class="p">:</span> <span class="mi">11</span><span class="p">})</span>
+        <span class="n">incar</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;IBRION&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>  <span class="s2">&quot;LCHARG&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;LORBIT&quot;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span>
+                      <span class="s2">&quot;LWAVE&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;NSW&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;ISYM&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;ICHARG&quot;</span><span class="p">:</span> <span class="mi">11</span><span class="p">})</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;uniform&#39;</span><span class="p">:</span>
+            <span class="c1"># use tetrahedron method for DOS and optics calculations</span>
+            <span class="n">incar</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;ISMEAR&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">5</span><span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># if line mode, can&#39;t use ISMEAR=-5; also use small sigma to avoid</span>
+            <span class="c1"># partial occupancies for small band gap materials</span>
+            <span class="n">incar</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;ISMEAR&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;SIGMA&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">})</span>
 
         <span class="n">incar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;user_incar_settings&quot;</span><span class="p">,</span> <span class="p">{}))</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;uniform&quot;</span><span class="p">:</span>
-            <span class="c1"># Set smaller steps for DOS output</span>
+            <span class="c1"># Set smaller steps for DOS and optics output</span>
             <span class="n">incar</span><span class="p">[</span><span class="s2">&quot;NEDOS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nedos</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">optics</span><span class="p">:</span>
@@ -998,7 +1016,7 @@
 
         <span class="n">files_to_transfer</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="n">copy_chgcar</span><span class="p">:</span>
-            <span class="n">chgcars</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">prev_calc_dir</span><span class="p">,</span> <span class="s2">&quot;CHGCAR*&quot;</span><span class="p">)))</span>
+            <span class="n">chgcars</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">prev_calc_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;CHGCAR*&quot;</span><span class="p">)))</span>
             <span class="k">if</span> <span class="n">chgcars</span><span class="p">:</span>
                 <span class="n">files_to_transfer</span><span class="p">[</span><span class="s2">&quot;CHGCAR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">chgcars</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
@@ -1115,7 +1133,7 @@
 
         <span class="n">files_to_transfer</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="n">copy_chgcar</span><span class="p">:</span>
-            <span class="n">chgcars</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">prev_calc_dir</span><span class="p">,</span> <span class="s2">&quot;CHGCAR*&quot;</span><span class="p">)))</span>
+            <span class="n">chgcars</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">prev_calc_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;CHGCAR*&quot;</span><span class="p">)))</span>
             <span class="k">if</span> <span class="n">chgcars</span><span class="p">:</span>
                 <span class="n">files_to_transfer</span><span class="p">[</span><span class="s2">&quot;CHGCAR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">chgcars</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
@@ -1355,11 +1373,11 @@
         <span class="n">files_to_transfer</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="n">copy_wavecar</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;WAVECAR&quot;</span><span class="p">,</span> <span class="s2">&quot;WAVEDER&quot;</span><span class="p">,</span> <span class="s2">&quot;WFULL&quot;</span><span class="p">):</span>
-                <span class="n">w</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">prev_calc_dir</span><span class="p">,</span> <span class="n">fname</span> <span class="o">+</span> <span class="s2">&quot;*&quot;</span><span class="p">)))</span>
+                <span class="n">w</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">prev_calc_dir</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">fname</span> <span class="o">+</span> <span class="s2">&quot;*&quot;</span><span class="p">))))</span>
                 <span class="k">if</span> <span class="n">w</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">fname</span> <span class="o">==</span> <span class="s2">&quot;WFULL&quot;</span><span class="p">:</span>
                         <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">w</span><span class="p">:</span>
-                            <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                            <span class="n">fname</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
                             <span class="n">fname</span> <span class="o">=</span> <span class="n">fname</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
                             <span class="n">files_to_transfer</span><span class="p">[</span><span class="n">fname</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span>
                     <span class="k">else</span><span class="p">:</span>
@@ -1410,7 +1428,7 @@
                 <span class="n">slab_incar</span><span class="p">[</span><span class="s2">&quot;BMIX&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.001</span>
             <span class="n">slab_incar</span><span class="p">[</span><span class="s2">&quot;NELMIN&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">8</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">auto_dipole</span><span class="p">:</span>
-                <span class="n">weights</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">species_and_occu</span><span class="o">.</span><span class="n">weight</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">structure</span><span class="p">]</span>
+                <span class="n">weights</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">weight</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">structure</span><span class="p">]</span>
                 <span class="n">center_of_mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
                                             <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
@@ -1647,20 +1665,20 @@
 <span class="sd">            write_endpoint_inputs (bool): If true, writes input files for</span>
 <span class="sd">                running endpoint calculations.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">if</span> <span class="n">make_dir_if_not_present</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_dir</span><span class="p">):</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">incar</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s1">&#39;INCAR&#39;</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s1">&#39;KPOINTS&#39;</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">potcar</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s1">&#39;POTCAR&#39;</span><span class="p">))</span>
+        <span class="n">output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">make_dir_if_not_present</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">output_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">output_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">incar</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">output_dir</span> <span class="o">/</span> <span class="s1">&#39;INCAR&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">output_dir</span> <span class="o">/</span> <span class="s1">&#39;KPOINTS&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">potcar</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">output_dir</span> <span class="o">/</span> <span class="s1">&#39;POTCAR&#39;</span><span class="p">))</span>
 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">poscars</span><span class="p">):</span>
-            <span class="n">d</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
-                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
-            <span class="n">p</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="s1">&#39;POSCAR&#39;</span><span class="p">))</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">d</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="n">d</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">d</span> <span class="o">/</span> <span class="s1">&#39;POSCAR&#39;</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">write_cif</span><span class="p">:</span>
-                <span class="n">p</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">.cif&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">d</span> <span class="o">/</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">.cif&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span>
         <span class="k">if</span> <span class="n">write_endpoint_inputs</span><span class="p">:</span>
             <span class="n">end_point_param</span> <span class="o">=</span> <span class="n">MITRelaxSet</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
@@ -1668,24 +1686,24 @@
 
             <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;00&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)]:</span>
                 <span class="n">end_point_param</span><span class="o">.</span><span class="n">incar</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span>
-                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="s1">&#39;INCAR&#39;</span><span class="p">))</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">output_dir</span> <span class="o">/</span> <span class="n">image</span> <span class="o">/</span> <span class="s1">&#39;INCAR&#39;</span><span class="p">))</span>
                 <span class="n">end_point_param</span><span class="o">.</span><span class="n">kpoints</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span>
-                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="s1">&#39;KPOINTS&#39;</span><span class="p">))</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">output_dir</span> <span class="o">/</span> <span class="n">image</span> <span class="o">/</span> <span class="s1">&#39;KPOINTS&#39;</span><span class="p">))</span>
                 <span class="n">end_point_param</span><span class="o">.</span><span class="n">potcar</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span>
-                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="s1">&#39;POTCAR&#39;</span><span class="p">))</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">output_dir</span> <span class="o">/</span> <span class="n">image</span> <span class="o">/</span> <span class="s1">&#39;POTCAR&#39;</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">write_path_cif</span><span class="p">:</span>
             <span class="n">sites</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
             <span class="n">l</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lattice</span>
             <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">sites</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">)):</span>
                 <span class="n">sites</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
-                    <span class="n">PeriodicSite</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">l</span><span class="p">))</span>
+                    <span class="n">PeriodicSite</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">species</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">l</span><span class="p">))</span>
             <span class="n">nebpath</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">sites</span><span class="p">))</span>
-            <span class="n">nebpath</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s1">&#39;path.cif&#39;</span><span class="p">))</span></div></div>
+            <span class="n">nebpath</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">output_dir</span> <span class="o">/</span> <span class="s1">&#39;path.cif&#39;</span><span class="p">))</span></div></div>
 
 
 <div class="viewcode-block" id="MITMDSet"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MITMDSet">[docs]</a><span class="k">class</span> <span class="nc">MITMDSet</span><span class="p">(</span><span class="n">MITRelaxSet</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Class for writing a vasp md run. This DOES NOT do multiple stage</span>
+<span class="sd">    Clas for writing a vasp md run. This DOES NOT do multiple stage</span>
 <span class="sd">    runs.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1722,6 +1740,68 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">end_temp</span> <span class="o">=</span> <span class="n">end_temp</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nsteps</span> <span class="o">=</span> <span class="n">nsteps</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">=</span> <span class="n">time_step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spin_polarized</span> <span class="o">=</span> <span class="n">spin_polarized</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
+
+        <span class="c1"># use VASP default ENCUT</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config_dict</span><span class="p">[</span><span class="s2">&quot;INCAR&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;ENCUT&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">defaults</span><span class="p">[</span><span class="s1">&#39;ISPIN&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_config_dict</span><span class="p">[</span><span class="s2">&quot;INCAR&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;MAGMOM&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config_dict</span><span class="p">[</span><span class="s2">&quot;INCAR&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">defaults</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">kpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Kpoints</span><span class="o">.</span><span class="n">gamma_automatic</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="MPMDSet"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MPMDSet">[docs]</a><span class="k">class</span> <span class="nc">MPMDSet</span><span class="p">(</span><span class="n">MPRelaxSet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This a modified version of the old MITMDSet pre 2018/03/12.</span>
+<span class="sd">    This set serves as the basis for the amorphous skyline paper.</span>
+<span class="sd">    (1) Aykol, M.; Dwaraknath, S. S.; Sun, W.; Persson, K. A.</span>
+<span class="sd">    Thermodynamic Limit for Synthesis of Metastable Inorganic Materials. Sci. Adv. 2018, 4 (4).</span>
+<span class="sd">     Class for writing a vasp md run. This DOES NOT do multiple stage</span>
+<span class="sd">    runs.</span>
+<span class="sd">     Precision remains normal, to increase accuracy of stress tensor.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">start_temp</span><span class="p">,</span> <span class="n">end_temp</span><span class="p">,</span> <span class="n">nsteps</span><span class="p">,</span>
+                 <span class="n">spin_polarized</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): Input structure.</span>
+<span class="sd">            start_temp (int): Starting temperature.</span>
+<span class="sd">            end_temp (int): Final temperature.</span>
+<span class="sd">            nsteps (int): Number of time steps for simulations. The NSW parameter.</span>
+<span class="sd">            time_step (int): The time step for the simulation. The POTIM</span>
+<span class="sd">                parameter. Defaults to 2fs.</span>
+<span class="sd">            spin_polarized (bool): Whether to do spin polarized calculations.</span>
+<span class="sd">                The ISPIN parameter. Defaults to False.</span>
+<span class="sd">            \\*\\*kwargs: Other kwargs supported by :class:`DictSet`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># MD default settings</span>
+        <span class="n">defaults</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;TEBEG&#39;</span><span class="p">:</span> <span class="n">start_temp</span><span class="p">,</span> <span class="s1">&#39;TEEND&#39;</span><span class="p">:</span> <span class="n">end_temp</span><span class="p">,</span> <span class="s1">&#39;NSW&#39;</span><span class="p">:</span> <span class="n">nsteps</span><span class="p">,</span>
+                    <span class="s1">&#39;EDIFF_PER_ATOM&#39;</span><span class="p">:</span> <span class="mf">0.00001</span><span class="p">,</span> <span class="s1">&#39;LSCALU&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                    <span class="s1">&#39;LCHARG&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                    <span class="s1">&#39;LPLANE&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;LWAVE&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;ISMEAR&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                    <span class="s1">&#39;NELMIN&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;LREAL&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;BMIX&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="s1">&#39;MAXMIX&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s1">&#39;NELM&#39;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span> <span class="s1">&#39;NSIM&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;ISYM&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                    <span class="s1">&#39;ISIF&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;IBRION&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;NBLOCK&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;KBLOCK&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+                    <span class="s1">&#39;SMASS&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;POTIM&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;PREC&#39;</span><span class="p">:</span> <span class="s1">&#39;Normal&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;ISPIN&#39;</span><span class="p">:</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">spin_polarized</span> <span class="k">else</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="s2">&quot;LDAU&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;ADDGRID&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">Element</span><span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">)</span> <span class="ow">in</span> <span class="n">structure</span><span class="o">.</span><span class="n">species</span><span class="p">:</span>
+            <span class="n">defaults</span><span class="p">[</span><span class="s1">&#39;POTIM&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span>
+        <span class="n">defaults</span><span class="p">[</span><span class="s1">&#39;NSW&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">defaults</span><span class="p">[</span><span class="s1">&#39;NSW&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">MPMDSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_temp</span> <span class="o">=</span> <span class="n">start_temp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end_temp</span> <span class="o">=</span> <span class="n">end_temp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nsteps</span> <span class="o">=</span> <span class="n">nsteps</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">spin_polarized</span> <span class="o">=</span> <span class="n">spin_polarized</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
 
@@ -1831,15 +1911,16 @@
 
 
 <div class="viewcode-block" id="get_vasprun_outcar"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.get_vasprun_outcar">[docs]</a><span class="k">def</span> <span class="nf">get_vasprun_outcar</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">parse_dos</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parse_eigen</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="n">vruns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;vasprun.xml*&quot;</span><span class="p">)))</span>
-    <span class="n">outcars</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;OUTCAR*&quot;</span><span class="p">)))</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">vruns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;vasprun.xml*&quot;</span><span class="p">)))</span>
+    <span class="n">outcars</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;OUTCAR*&quot;</span><span class="p">)))</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vruns</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">outcars</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
             <span class="s2">&quot;Unable to get vasprun.xml/OUTCAR from prev calculation in </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
             <span class="n">path</span><span class="p">)</span>
-    <span class="n">vsfile_fullpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;vasprun.xml&quot;</span><span class="p">)</span>
-    <span class="n">outcarfile_fullpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;OUTCAR&quot;</span><span class="p">)</span>
+    <span class="n">vsfile_fullpath</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;vasprun.xml&quot;</span><span class="p">)</span>
+    <span class="n">outcarfile_fullpath</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;OUTCAR&quot;</span><span class="p">)</span>
     <span class="n">vsfile</span> <span class="o">=</span> <span class="n">vsfile_fullpath</span> <span class="k">if</span> <span class="n">vsfile_fullpath</span> <span class="ow">in</span> <span class="n">vruns</span> <span class="k">else</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">vruns</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">outcarfile</span> <span class="o">=</span> <span class="n">outcarfile_fullpath</span> <span class="k">if</span> <span class="n">outcarfile_fullpath</span> <span class="ow">in</span> <span class="n">outcars</span> <span class="k">else</span> \
         <span class="nb">sorted</span><span class="p">(</span><span class="n">outcars</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
@@ -1944,17 +2025,18 @@
 <span class="sd">        \\*\\*kwargs: Additional kwargs are passed to the vasp_input_set class</span>
 <span class="sd">            in addition to structure.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">structures</span><span class="p">):</span>
         <span class="n">formula</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\s+&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">formula</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">subfolder</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">subdir</span> <span class="o">=</span> <span class="n">subfolder</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-            <span class="n">d</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">subdir</span><span class="p">)</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="n">subdir</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">d</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">formula</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">formula</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">sanitize</span><span class="p">:</span>
             <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">sanitize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">v</span> <span class="o">=</span> <span class="n">vasp_input_set</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="n">v</span><span class="o">.</span><span class="n">write_input</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">make_dir_if_not_present</span><span class="o">=</span><span class="n">make_dir_if_not_present</span><span class="p">,</span>
+        <span class="n">v</span><span class="o">.</span><span class="n">write_input</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">d</span><span class="p">),</span> <span class="n">make_dir_if_not_present</span><span class="o">=</span><span class="n">make_dir_if_not_present</span><span class="p">,</span>
                       <span class="n">include_cif</span><span class="o">=</span><span class="n">include_cif</span><span class="p">)</span></div>
 </pre></div>
 
@@ -1988,7 +2070,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1996,7 +2078,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

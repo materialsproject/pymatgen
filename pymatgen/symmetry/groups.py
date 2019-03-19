@@ -6,7 +6,7 @@ import os
 from itertools import product
 from fractions import Fraction
 from abc import ABCMeta, abstractmethod
-from collections import Sequence
+from collections.abc import Sequence
 import numpy as np
 import warnings
 import re
@@ -268,6 +268,7 @@ class SpaceGroup(SymmetryGroup):
                 symm_ops.append(m)
             self.generators = symm_ops
             self.full_symbol = data["full_symbol"]
+            self.point_group = data["point_group"]
             self.int_number = data["int_number"]
             self.order = data["order"]
 

@@ -6,14 +6,15 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.alchemy.filters &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.alchemy.filters &#8212; pymatgen 2019.3.13 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -34,7 +35,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -50,11 +51,7 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
 <span class="kn">import</span> <span class="nn">abc</span>
-
-<span class="kn">import</span> <span class="nn">six</span>
-<span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">map</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">get_el_sp</span>
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
@@ -77,7 +74,7 @@
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Sep 25, 2012&quot;</span>
 
 
-<div class="viewcode-block" id="AbstractStructureFilter"><a class="viewcode-back" href="../../../pymatgen.alchemy.filters.html#pymatgen.alchemy.filters.AbstractStructureFilter">[docs]</a><span class="k">class</span> <span class="nc">AbstractStructureFilter</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">with_metaclass</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">)):</span>
+<div class="viewcode-block" id="AbstractStructureFilter"><a class="viewcode-back" href="../../../pymatgen.alchemy.filters.html#pymatgen.alchemy.filters.AbstractStructureFilter">[docs]</a><span class="k">class</span> <span class="nc">AbstractStructureFilter</span><span class="p">(</span><span class="n">MSONable</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    AbstractStructureFilter that defines an API to perform testing of</span>
 <span class="sd">    Structures. Structures that return True to a test are retained during</span>
@@ -117,26 +114,26 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_exclude</span> <span class="o">=</span> <span class="n">exclude</span>
 
 <div class="viewcode-block" id="ContainsSpecieFilter.test"><a class="viewcode-back" href="../../../pymatgen.alchemy.filters.html#pymatgen.alchemy.filters.ContainsSpecieFilter.test">[docs]</a>    <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
-        <span class="c1">#set up lists to compare</span>
+        <span class="c1"># set up lists to compare</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strict</span><span class="p">:</span>
-            <span class="c1">#compare by atomic number</span>
+            <span class="c1"># compare by atomic number</span>
             <span class="n">atomic_number</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">Z</span>
             <span class="n">filter_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">atomic_number</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_species</span><span class="p">))</span>
             <span class="n">structure_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">atomic_number</span><span class="p">,</span>
                                 <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">elements</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c1">#compare by specie or element object</span>
+            <span class="c1"># compare by specie or element object</span>
             <span class="n">filter_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_species</span><span class="p">)</span>
             <span class="n">structure_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">elements</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_AND</span> <span class="ow">and</span> <span class="n">filter_set</span> <span class="o">&lt;=</span> <span class="n">structure_set</span><span class="p">:</span>
-            <span class="c1">#return true if we aren&#39;t excluding since all are in structure</span>
+            <span class="c1"># return true if we aren&#39;t excluding since all are in structure</span>
             <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exclude</span>
         <span class="k">elif</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_AND</span><span class="p">)</span> <span class="ow">and</span> <span class="n">filter_set</span> <span class="o">&amp;</span> <span class="n">structure_set</span><span class="p">:</span>
-            <span class="c1">#return true if we aren&#39;t excluding since one is in structure</span>
+            <span class="c1"># return true if we aren&#39;t excluding since one is in structure</span>
             <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exclude</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c1">#return false if we aren&#39;t excluding otherwise</span>
+            <span class="c1"># return false if we aren&#39;t excluding otherwise</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exclude</span></div>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -182,7 +179,7 @@
 <div class="viewcode-block" id="SpecieProximityFilter.test"><a class="viewcode-back" href="../../../pymatgen.alchemy.filters.html#pymatgen.alchemy.filters.SpecieProximityFilter.test">[docs]</a>    <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
         <span class="n">all_species</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">specie_and_min_dist</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">structure</span><span class="p">:</span>
-            <span class="n">species</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="n">species</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
             <span class="n">sp_to_test</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">species</span><span class="p">)</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">all_species</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">sp_to_test</span><span class="p">:</span>
                 <span class="n">max_r</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">specie_and_min_dist</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span>
@@ -190,7 +187,7 @@
                 <span class="n">nn</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">max_r</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">sp_to_test</span><span class="p">:</span>
                     <span class="k">for</span> <span class="p">(</span><span class="n">nnsite</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span> <span class="ow">in</span> <span class="n">nn</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">nnsite</span><span class="o">.</span><span class="n">species_and_occu</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">nnsite</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                             <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">specie_and_min_dist</span><span class="p">[</span><span class="n">sp</span><span class="p">]:</span>
                                 <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="kc">True</span></div>
@@ -377,7 +374,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -385,7 +382,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

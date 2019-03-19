@@ -6,14 +6,15 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.entries.entry_tools &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.entries.entry_tools &#8212; pymatgen 2019.3.13 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -34,7 +35,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -50,14 +51,12 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module implements functions to perform various useful operations on</span>
 <span class="sd">entries, such as grouping entries by structure.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">filter</span><span class="p">,</span> <span class="nb">zip</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
@@ -70,10 +69,18 @@
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">datetime</span>
 <span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">import</span> <span class="nn">re</span>
 
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MontyEncoder</span><span class="p">,</span> <span class="n">MontyDecoder</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="k">import</span> <span class="n">Composition</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.phase_diagram</span> <span class="k">import</span> <span class="n">PDEntry</span>
+<span class="kn">from</span> <span class="nn">pymatgen.entries.computed_entries</span> <span class="k">import</span> <span class="n">ComputedEntry</span><span class="p">,</span> <span class="n">ComputedStructureEntry</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MontyEncoder</span><span class="p">,</span> <span class="n">MontyDecoder</span><span class="p">,</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">monty.string</span> <span class="k">import</span> <span class="n">unicode2str</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="k">import</span> <span class="n">StructureMatcher</span><span class="p">,</span> \
     <span class="n">SpeciesComparator</span>
 
@@ -167,7 +174,7 @@
         <span class="n">manager</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Manager</span><span class="p">()</span>
         <span class="n">groups</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
         <span class="n">p</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">ncpus</span><span class="p">)</span>
-        <span class="c1">#Parallel processing only supports Python primitives and not objects.</span>
+        <span class="c1"># Parallel processing only supports Python primitives and not objects.</span>
         <span class="n">p</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_perform_grouping</span><span class="p">,</span>
               <span class="p">[(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">([</span><span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">eh</span><span class="p">],</span> <span class="bp">cls</span><span class="o">=</span><span class="n">MontyEncoder</span><span class="p">),</span>
                 <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">([</span><span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">eh</span><span class="p">],</span> <span class="bp">cls</span><span class="o">=</span><span class="n">MontyEncoder</span><span class="p">),</span>
@@ -187,6 +194,148 @@
     <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Finished at </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()))</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Took </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">entry_groups</span></div>
+
+
+<div class="viewcode-block" id="EntrySet"><a class="viewcode-back" href="../../../pymatgen.entries.entry_tools.html#pymatgen.entries.entry_tools.EntrySet">[docs]</a><span class="k">class</span> <span class="nc">EntrySet</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A convenient container for manipulating entries. Allows for generating</span>
+<span class="sd">    subsets, dumping into files, etc.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entries</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">PDEntry</span><span class="p">,</span><span class="n">ComputedEntry</span><span class="p">,</span><span class="n">ComputedStructureEntry</span><span class="p">]]):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            entries: All the entries.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entries</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entries</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">entries</span><span class="o">.</span><span class="fm">__iter__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entries</span><span class="p">)</span>
+
+<div class="viewcode-block" id="EntrySet.add"><a class="viewcode-back" href="../../../pymatgen.entries.entry_tools.html#pymatgen.entries.entry_tools.EntrySet.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entries</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">element</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EntrySet.discard"><a class="viewcode-back" href="../../../pymatgen.entries.entry_tools.html#pymatgen.entries.entry_tools.EntrySet.discard">[docs]</a>    <span class="k">def</span> <span class="nf">discard</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entries</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">element</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">chemsys</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            set representing the chemical system, e.g., {&quot;Li&quot;, &quot;Fe&quot;, &quot;P&quot;, &quot;O&quot;}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">chemsys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entries</span><span class="p">:</span>
+            <span class="n">chemsys</span><span class="o">.</span><span class="n">update</span><span class="p">([</span><span class="n">el</span><span class="o">.</span><span class="n">symbol</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span>
+        <span class="k">return</span> <span class="n">chemsys</span>
+
+<div class="viewcode-block" id="EntrySet.remove_non_ground_states"><a class="viewcode-back" href="../../../pymatgen.entries.entry_tools.html#pymatgen.entries.entry_tools.EntrySet.remove_non_ground_states">[docs]</a>    <span class="k">def</span> <span class="nf">remove_non_ground_states</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Removes all non-ground state entries, i.e., only keep the lowest energy</span>
+<span class="sd">        per atom entry at each composition.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">group_func</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span>
+        <span class="n">entries</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entries</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">group_func</span><span class="p">)</span>
+        <span class="n">ground_states</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">entries</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">group_func</span><span class="p">):</span>
+            <span class="n">ground_states</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">energy_per_atom</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entries</span> <span class="o">=</span> <span class="n">ground_states</span></div>
+
+<div class="viewcode-block" id="EntrySet.get_subset_in_chemsys"><a class="viewcode-back" href="../../../pymatgen.entries.entry_tools.html#pymatgen.entries.entry_tools.EntrySet.get_subset_in_chemsys">[docs]</a>    <span class="k">def</span> <span class="nf">get_subset_in_chemsys</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chemsys</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns an EntrySet containing only the set of entries belonging to</span>
+<span class="sd">        a particular chemical system (in this definition, it includes all sub</span>
+<span class="sd">        systems). For example, if the entries are from the</span>
+<span class="sd">        Li-Fe-P-O system, and chemsys=[&quot;Li&quot;, &quot;O&quot;], only the Li, O,</span>
+<span class="sd">        and Li-O entries are returned.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            chemsys: Chemical system specified as list of elements. E.g.,</span>
+<span class="sd">                [&quot;Li&quot;, &quot;O&quot;]</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            EntrySet</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">chemsys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">chemsys</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">chemsys</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chemsys</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> is not a subset of </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">chemsys</span><span class="p">,</span>
+                                                           <span class="bp">self</span><span class="o">.</span><span class="n">chemsys</span><span class="p">))</span>
+        <span class="n">subset</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entries</span><span class="p">:</span>
+            <span class="n">elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">sp</span><span class="o">.</span><span class="n">symbol</span> <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+            <span class="k">if</span> <span class="n">chemsys</span><span class="o">.</span><span class="n">issuperset</span><span class="p">(</span><span class="n">elements</span><span class="p">):</span>
+                <span class="n">subset</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">EntrySet</span><span class="p">(</span><span class="n">subset</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EntrySet.as_dict"><a class="viewcode-back" href="../../../pymatgen.entries.entry_tools.html#pymatgen.entries.entry_tools.EntrySet.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;entries&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entries</span><span class="p">)</span>
+        <span class="p">}</span></div>
+
+<div class="viewcode-block" id="EntrySet.to_csv"><a class="viewcode-back" href="../../../pymatgen.entries.entry_tools.html#pymatgen.entries.entry_tools.EntrySet.to_csv">[docs]</a>    <span class="k">def</span> <span class="nf">to_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">latexify_names</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Exports PDEntries to a csv</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename: Filename to write to.</span>
+<span class="sd">            entries: PDEntries to export.</span>
+<span class="sd">            latexify_names: Format entry names to be LaTex compatible,</span>
+<span class="sd">                e.g., Li_{2}O</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">elements</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entries</span><span class="p">:</span>
+            <span class="n">elements</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">elements</span><span class="p">)</span>
+        <span class="n">elements</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">elements</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">a</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">),</span> <span class="n">delimiter</span><span class="o">=</span><span class="n">unicode2str</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">),</span>
+                            <span class="n">quotechar</span><span class="o">=</span><span class="n">unicode2str</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">),</span>
+                            <span class="n">quoting</span><span class="o">=</span><span class="n">csv</span><span class="o">.</span><span class="n">QUOTE_MINIMAL</span><span class="p">)</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span><span class="s2">&quot;Name&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">elements</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;Energy&quot;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entries</span><span class="p">:</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="p">[</span><span class="n">entry</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">latexify_names</span>
+                   <span class="k">else</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;([0-9]+)&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;_{\1}&quot;</span><span class="p">,</span> <span class="n">entry</span><span class="o">.</span><span class="n">name</span><span class="p">)]</span>
+            <span class="n">row</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">])</span>
+            <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">energy</span><span class="p">)</span>
+            <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">row</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EntrySet.from_csv"><a class="viewcode-back" href="../../../pymatgen.entries.entry_tools.html#pymatgen.entries.entry_tools.EntrySet.from_csv">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_csv</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Imports PDEntries from a csv.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename: Filename to import from.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List of Elements, List of PDEntries</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="n">unicode2str</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">),</span>
+                                <span class="n">quotechar</span><span class="o">=</span><span class="n">unicode2str</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">),</span>
+                                <span class="n">quoting</span><span class="o">=</span><span class="n">csv</span><span class="o">.</span><span class="n">QUOTE_MINIMAL</span><span class="p">)</span>
+            <span class="n">entries</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+            <span class="n">header_read</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">elements</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">header_read</span><span class="p">:</span>
+                    <span class="n">elements</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">:(</span><span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
+                    <span class="n">header_read</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">name</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">energy</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="n">comp</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+                    <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">ind</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="n">comp</span><span class="p">[</span><span class="n">Element</span><span class="p">(</span><span class="n">elements</span><span class="p">[</span><span class="n">ind</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">ind</span><span class="p">])</span>
+                    <span class="n">entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PDEntry</span><span class="p">(</span><span class="n">Composition</span><span class="p">(</span><span class="n">comp</span><span class="p">),</span> <span class="n">energy</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span></div></div>
+
 </pre></div>
 
           </div>
@@ -219,7 +368,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -227,7 +376,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -6,14 +6,15 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.electronic_structure.plotter &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.electronic_structure.plotter &#8212; pymatgen 2019.3.13 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -34,7 +35,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -50,13 +51,11 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
-<span class="kn">import</span> <span class="nn">six</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
@@ -87,7 +86,7 @@
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="DosPlotter"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.DosPlotter">[docs]</a><span class="k">class</span> <span class="nc">DosPlotter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="DosPlotter"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.DosPlotter">[docs]</a><span class="k">class</span> <span class="nc">DosPlotter</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class for plotting DOSs. Note that the interface is extremely flexible</span>
 <span class="sd">    given that there are many different ways in which people want to view</span>
@@ -290,7 +289,7 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div></div>
 
 
-<div class="viewcode-block" id="BSPlotter"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BSPlotter">[docs]</a><span class="k">class</span> <span class="nc">BSPlotter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="BSPlotter"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BSPlotter">[docs]</a><span class="k">class</span> <span class="nc">BSPlotter</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class to plot or get data to facilitate the plot of band structure objects.</span>
 
@@ -1603,7 +1602,7 @@
                             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                                 <span class="s2">&quot;The dictio[</span><span class="si">%s</span><span class="s2">] is empty. We cannot do anything&quot;</span> <span class="o">%</span> <span class="n">elt</span><span class="p">)</span>
                         <span class="k">for</span> <span class="n">orb</span> <span class="ow">in</span> <span class="n">dictio</span><span class="p">[</span><span class="n">elt</span><span class="p">]:</span>
-                            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">orb</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">orb</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                                     <span class="s2">&quot;The invalid format of orbitals is in &#39;dictio[</span><span class="si">%s</span><span class="s2">]&#39;: </span><span class="si">%s</span><span class="s2">. &quot;</span>
                                     <span class="s2">&quot;They should be string.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">elt</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">orb</span><span class="p">)))</span>
@@ -1640,7 +1639,7 @@
                 <span class="k">if</span> <span class="n">Element</span><span class="o">.</span><span class="n">is_valid_symbol</span><span class="p">(</span><span class="n">elt</span><span class="p">):</span>
                     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sum_morbs</span><span class="p">[</span><span class="n">elt</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
                         <span class="k">for</span> <span class="n">orb</span> <span class="ow">in</span> <span class="n">sum_morbs</span><span class="p">[</span><span class="n">elt</span><span class="p">]:</span>
-                            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">orb</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">orb</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
                                     <span class="s2">&quot;The invalid format of orbitals is in &#39;sum_morbs[</span><span class="si">%s</span><span class="s2">]&#39;: </span><span class="si">%s</span><span class="s2">. &quot;</span>
                                     <span class="s2">&quot;They should be string.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">elt</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">orb</span><span class="p">)))</span>
@@ -2142,7 +2141,7 @@
         <span class="k">return</span> <span class="n">plt</span><span class="p">,</span> <span class="n">shift</span></div>
 
 
-<div class="viewcode-block" id="BSDOSPlotter"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BSDOSPlotter">[docs]</a><span class="k">class</span> <span class="nc">BSDOSPlotter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="BSDOSPlotter"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BSDOSPlotter">[docs]</a><span class="k">class</span> <span class="nc">BSDOSPlotter</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A joint, aligned band structure and density of states plot. Contributions </span>
 <span class="sd">    from Jan Pohls as well as the online example from Germain Salvato-Vallverdu:</span>
@@ -2597,7 +2596,7 @@
         <span class="n">inset_ax</span><span class="o">.</span><span class="n">get_yaxis</span><span class="p">()</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="BoltztrapPlotter"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BoltztrapPlotter">[docs]</a><span class="k">class</span> <span class="nc">BoltztrapPlotter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="BoltztrapPlotter"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BoltztrapPlotter">[docs]</a><span class="k">class</span> <span class="nc">BoltztrapPlotter</span><span class="p">:</span>
     <span class="c1"># TODO: We need a unittest for this. Come on folks.</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    class containing methods to plot the data from Boltztrap.</span>
@@ -3504,7 +3503,7 @@
         <span class="k">return</span> <span class="n">plt</span></div></div>
 
 
-<div class="viewcode-block" id="CohpPlotter"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.CohpPlotter">[docs]</a><span class="k">class</span> <span class="nc">CohpPlotter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="CohpPlotter"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.CohpPlotter">[docs]</a><span class="k">class</span> <span class="nc">CohpPlotter</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class for plotting crystal orbital Hamilton populations (COHPs) or</span>
 <span class="sd">    crystal orbital overlap populations (COOPs). It is modeled after the</span>
@@ -3806,7 +3805,7 @@
                                 <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">bz</span><span class="p">[</span><span class="n">jface</span><span class="p">]):</span>
                         <span class="n">mlab</span><span class="o">.</span><span class="n">plot3d</span><span class="p">(</span><span class="o">*</span><span class="nb">zip</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
                                     <span class="n">tube_radius</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">figure</span><span class="o">=</span><span class="n">fig</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">coords</span> <span class="ow">in</span> <span class="n">kpoints_dict</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">coords</span> <span class="ow">in</span> <span class="n">kpoints_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">label_coords</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">reciprocal_lattice</span> \
                 <span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
             <span class="n">mlab</span><span class="o">.</span><span class="n">points3d</span><span class="p">(</span><span class="o">*</span><span class="n">label_coords</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="n">points_scale_factor</span><span class="p">,</span>
@@ -3828,7 +3827,7 @@
                             <span class="n">mlab</span><span class="o">.</span><span class="n">plot3d</span><span class="p">(</span><span class="o">*</span><span class="nb">zip</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
                                         <span class="n">tube_radius</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">figure</span><span class="o">=</span><span class="n">fig</span><span class="p">)</span>
 
-            <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">coords</span> <span class="ow">in</span> <span class="n">kpoints_dict</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">coords</span> <span class="ow">in</span> <span class="n">kpoints_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="n">label_coords</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">reciprocal_lattice</span> \
                     <span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
                 <span class="n">mlab</span><span class="o">.</span><span class="n">points3d</span><span class="p">(</span><span class="o">*</span><span class="n">label_coords</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="n">points_scale_factor</span><span class="p">,</span>
@@ -3851,7 +3850,8 @@
 
         <span class="n">polydata</span><span class="o">.</span><span class="n">points</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">polydata</span><span class="o">.</span><span class="n">points</span><span class="p">)</span> <span class="o">-</span> <span class="p">[</span><span class="n">cx</span><span class="p">,</span> <span class="n">cy</span><span class="p">,</span> <span class="n">cz</span><span class="p">])</span> <span class="o">*</span> <span class="mi">2</span>
 
-        <span class="n">mlab</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">distance</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span>
+        <span class="c1">#mlab.view(distance=&#39;auto&#39;)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">isometric_view</span><span class="p">()</span> 
     <span class="k">if</span> <span class="n">interative</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
         <span class="n">mlab</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
@@ -4264,7 +4264,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -4272,7 +4272,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
