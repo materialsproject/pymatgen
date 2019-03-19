@@ -12,7 +12,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.surface import Slab, SlabGenerator, generate_all_slabs, \
     get_symmetrically_distinct_miller_indices, ReconstructionGenerator, \
-    miller_index_from_sites, get_d
+    miller_index_from_sites, get_d, get_slab_regions
 from pymatgen.symmetry.groups import SpaceGroup
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
@@ -214,11 +214,29 @@ class SlabTest(PymatgenTest):
         all_slabs = generate_all_slabs(self.agfcc, 2, 10, 10, max_normal_search=3)
         for slab in all_slabs:
             ouc = slab.oriented_unit_cell
-            slab_l, ouc_l = slab.lattice, ouc.lattice
-            for p in ['a', 'b', 'alpha', 'beta', 'gamma']:
-                self.assertAlmostEqual(getattr(slab_l, p), getattr(ouc_l, p))
+
+            self.assertAlmostEqual(surface_area(slab), surface_area(ouc))
             self.assertGreaterEqual(len(slab), len(ouc))
 
+    def test_get_slab_regions(self):
+
+        # If a slab layer in the slab cell is not completely inside
+        # the cell (noncontiguous), check that get_slab_regions will
+        # be able to identify where the slab layers are located
+
+        s = self.get_structure("LiFePO4")
+        slabgen = SlabGenerator(s, (0, 0, 1), 15, 15)
+        slab = slabgen.get_slabs()[0]
+        s.translate_sites([i for i, site in enumerate(slab)], [0, 0, -0.25])
+        bottom_c, top_c = [], []
+        for site in s:
+            if site.frac_coords[2] < 0.5:
+                bottom_c.append(site.frac_coords[2])
+            else:
+                top_c.append(site.frac_coords[2])
+        ranges = get_slab_regions(s)
+        self.assertArrayEqual(tuple(ranges[0]) == (0, max(bottom_c)))
+        self.assertArrayEqual(tuple(ranges[1]) == (min(top_c), 1))
 
 class SlabGeneratorTest(PymatgenTest):
 
