@@ -227,16 +227,16 @@ class SlabTest(PymatgenTest):
         s = self.get_structure("LiFePO4")
         slabgen = SlabGenerator(s, (0, 0, 1), 15, 15)
         slab = slabgen.get_slabs()[0]
-        s.translate_sites([i for i, site in enumerate(slab)], [0, 0, -0.25])
+        slab.translate_sites([i for i, site in enumerate(slab)], [0, 0, -0.25])
         bottom_c, top_c = [], []
-        for site in s:
+        for site in slab:
             if site.frac_coords[2] < 0.5:
                 bottom_c.append(site.frac_coords[2])
             else:
                 top_c.append(site.frac_coords[2])
-        ranges = get_slab_regions(s)
-        self.assertArrayEqual(tuple(ranges[0]) == (0, max(bottom_c)))
-        self.assertArrayEqual(tuple(ranges[1]) == (min(top_c), 1))
+        ranges = get_slab_regions(slab)
+        self.assertEqual(tuple(ranges[0]), (0, max(bottom_c)))
+        self.assertEqual(tuple(ranges[1]), (min(top_c), 1))
 
 class SlabGeneratorTest(PymatgenTest):
 

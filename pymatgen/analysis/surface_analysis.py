@@ -1363,7 +1363,7 @@ class WorkFunctionAnalyzer:
         The average locpot of the slab region along the c direction
     """
 
-    def __init__(self, structure, locpot_along_c, efermi, shift=0, blength=3):
+    def __init__(self, structure, locpot_along_c, efermi, shift=0, blength=3.5):
         """
         Initializes the WorkFunctionAnalyzer class.
 
@@ -1572,7 +1572,7 @@ class WorkFunctionAnalyzer:
         return all(all_flat)
 
     @staticmethod
-    def from_files(poscar_filename, locpot_filename, outcar_filename, shift=0, blength=3):
+    def from_files(poscar_filename, locpot_filename, outcar_filename, shift=0, blength=3.5):
         p = Poscar.from_file(poscar_filename)
         l = Locpot.from_file(locpot_filename)
         o = Outcar(outcar_filename)

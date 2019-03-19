@@ -1734,14 +1734,15 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
     return all_slabs
 
 
-def get_slab_regions(slab, blength=3):
+def get_slab_regions(slab, blength=3.5):
     """
     Function to get the ranges of the slab regions. Useful for discerning where
     the slab ends and vacuum begins if the slab is not fully within the cell
-
     Args:
         slab (Structure): Structure object modelling the surface
-        blength (float, Ang): The bondlength between atoms.
+        blength (float, Ang): The bondlength between atoms. You generally  
+            want this value to be larger than the actual bondlengths in
+            order to find atoms that are part of the slab
     """
 
     fcoords, indices, all_indices = [], [], []
