@@ -361,7 +361,7 @@ class SlabGeneratorTest(PymatgenTest):
         # At this threshold, only the origin and center Li results in
         # clustering. All other sites are non-clustered. So the of
         # slabs is of sites in LiFePO4 unit cell - 2 + 1.
-        self.assertEqual(len(gen.get_slabs(tol=1e-4)), 15)
+        self.assertEqual(len(gen.get_slabs(tol=1e-4, ftol=1e-4)), 15)
 
         LiCoO2=Structure.from_file(get_path("icsd_LiCoO2.cif"),
                                           primitive=False)

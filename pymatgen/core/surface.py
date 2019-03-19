@@ -1740,7 +1740,7 @@ def get_slab_regions(slab, blength=3.5):
     the slab ends and vacuum begins if the slab is not fully within the cell
     Args:
         slab (Structure): Structure object modelling the surface
-        blength (float, Ang): The bondlength between atoms. You generally  
+        blength (float, Ang): The bondlength between atoms. You generally
             want this value to be larger than the actual bondlengths in
             order to find atoms that are part of the slab
     """
