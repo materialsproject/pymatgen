@@ -1380,10 +1380,11 @@ class WorkFunctionAnalyzer:
             shift += -1*int(shift) + 1
         elif shift >= 1:
             shift -= int(shift)
+        self.shift = shift
 
         # properties that can be shifted
         slab = structure.copy()
-        slab.translate_sites([i for i, site in enumerate(slab)], [0,0,shift])
+        slab.translate_sites([i for i, site in enumerate(slab)], [0, 0, self.shift])
         self.slab = slab
         self.sorted_sites = sorted(self.slab, key=lambda site: site.frac_coords[2])
 
@@ -1395,7 +1396,7 @@ class WorkFunctionAnalyzer:
         # increments of the number of locpot points
         locpot_along_c_mid, locpot_end, locpot_start = [], [], []
         for i, s in enumerate(self.along_c):
-            j = s + shift
+            j = s + self.shift
             if j > 1:
                 locpot_start.append(locpot_along_c[i])
             elif j < 0:
