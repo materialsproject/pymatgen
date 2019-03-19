@@ -581,7 +581,7 @@ def _dict_from_lines(lines, key_nums, sep=None):
     if is_string(lines):
         lines = [lines]
 
-    if not isinstance(key_nums, collections.Iterable):
+    if not isinstance(key_nums, collections.abc.Iterable):
         key_nums = list(key_nums)
 
     if len(lines) != len(key_nums):
@@ -1501,7 +1501,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
     #    return fig
 
 
-class PseudoTable(collections.Sequence, MSONable, metaclass=abc.ABCMeta):
+class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
     """
     Define the pseudopotentials from the element table.
     Individidual elements are accessed by name, symbol or atomic number.
@@ -1577,7 +1577,7 @@ class PseudoTable(collections.Sequence, MSONable, metaclass=abc.ABCMeta):
         # Store pseudos in a default dictionary with z as key.
         # Note that we can have more than one pseudo for given z.
         # hence the values are lists of pseudos.
-        if not isinstance(pseudos, collections.Iterable):
+        if not isinstance(pseudos, collections.abc.Iterable):
             pseudos = [pseudos]
 
         if len(pseudos) and is_string(pseudos[0]):

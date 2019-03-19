@@ -1202,7 +1202,7 @@ class LightStructureEnvironments(MSONable):
             # Building anion and cation list
             site_species = []
             if self.valences != 'undefined':
-                for sp, occ in site.species_and_occu.items():
+                for sp, occ in site.species.items():
                     valence = self.valences[isite]
                     strspecie = str(Specie(sp.symbol, valence))
                     if valence < 0:
@@ -1233,7 +1233,7 @@ class LightStructureEnvironments(MSONable):
                     if ce_symbol not in count_ce:
                         count_ce[ce_symbol] = 0.0
                     count_ce[ce_symbol] += fraction
-                for sp, occ in site.species_and_occu.items():
+                for sp, occ in site.species.items():
                     elmt = sp.symbol
                     if elmt not in atom_stat:
                         atom_stat[elmt] = {}
@@ -1315,7 +1315,7 @@ class LightStructureEnvironments(MSONable):
         csms = []
         fractions = []
         for isite, site in enumerate(self.structure):
-            if element in [sp.symbol for sp in site.species_and_occu]:
+            if element in [sp.symbol for sp in site.species]:
                 if self.valences == 'undefined' or oxi_state == self.valences[isite]:
                     for ce_dict in self.coordination_environments[isite]:
                         if ce_symbol == ce_dict['ce_symbol']:
@@ -1329,7 +1329,7 @@ class LightStructureEnvironments(MSONable):
         element = specie.symbol
         oxi_state = specie.oxi_state
         for isite, site in enumerate(self.structure):
-            if element in [sp.symbol for sp in site.species_and_occu]:
+            if element in [sp.symbol for sp in site.species]:
                 if self.valences == 'undefined' or oxi_state == self.valences[isite]:
                     if self.coordination_environments[isite] is None:
                         continue
@@ -1424,7 +1424,7 @@ class LightStructureEnvironments(MSONable):
         :return: True if the coordination environment is found, False otherwise
         """
         for isite, site in enumerate(self.structure):
-            if (Element(atom_symbol) in site.species_and_occu.
+            if (Element(atom_symbol) in site.species.
                     element_composition and self.site_contains_environment(isite, ce_symbol)):
                 return True
         return False

@@ -9,7 +9,7 @@ import os
 import numpy as np
 import json
 
-from .core import DiffractionPattern, DiffractionPatternCalculator, \
+from .core import DiffractionPattern, AbstractDiffractionPatternCalculator, \
     get_unique_families
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
@@ -31,7 +31,7 @@ with open(os.path.join(os.path.dirname(__file__),
     ATOMIC_SCATTERING_LEN = json.load(f)
 
 
-class NDCalculator(DiffractionPatternCalculator):
+class NDCalculator(AbstractDiffractionPatternCalculator):
     """
     Computes the powder neutron diffraction pattern of a crystal structure.
     This code is a slight modification of XRDCalculator in
@@ -113,7 +113,7 @@ class NDCalculator(DiffractionPatternCalculator):
         dwfactors = []
 
         for site in structure:
-            for sp, occu in site.species_and_occu.items():
+            for sp, occu in site.species.items():
                 try:
                     c = ATOMIC_SCATTERING_LEN[sp.symbol]
                 except KeyError:

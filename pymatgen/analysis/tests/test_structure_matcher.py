@@ -430,7 +430,7 @@ class StructureMatcherTest(PymatgenTest):
         result = sm.get_s2_like_s1(s1, s2)
         for a, b in zip(s1, result):
             self.assertTrue(a.distance(b) < 0.08)
-            self.assertEqual(a.species_and_occu, b.species_and_occu)
+            self.assertEqual(a.species, b.species)
 
         self.assertTrue(sm.fit(s1, s2))
         self.assertTrue(sm.fit(s2, s1))
@@ -448,7 +448,7 @@ class StructureMatcherTest(PymatgenTest):
         self.assertEqual(len(result), 6)
         for a, b in zip(subset_supercell, result):
             self.assertTrue(a.distance(b) < 0.08)
-            self.assertEqual(a.species_and_occu, b.species_and_occu)
+            self.assertEqual(a.species, b.species)
 
         self.assertTrue(sm.fit(subset_supercell, s2))
         self.assertTrue(sm.fit(s2, subset_supercell))
@@ -465,7 +465,7 @@ class StructureMatcherTest(PymatgenTest):
         result = sm.get_s2_like_s1(s1, s2_missing_site)
         for a, b in zip((s1[i] for i in (0, 2, 4, 5)), result):
             self.assertTrue(a.distance(b) < 0.08)
-            self.assertEqual(a.species_and_occu, b.species_and_occu)
+            self.assertEqual(a.species, b.species)
 
         self.assertTrue(sm.fit(s1, s2_missing_site))
         self.assertTrue(sm.fit(s2_missing_site, s1))
@@ -514,14 +514,14 @@ class StructureMatcherTest(PymatgenTest):
         s2.make_supercell([2,1,1])
         #equal sizes
         for i, x in enumerate(sm.get_mapping(s1, s2)):
-            self.assertEqual(s1[x].species_and_occu,
-                             s2[i].species_and_occu)
+            self.assertEqual(s1[x].species,
+                             s2[i].species)
 
         del s1[0]
         #s1 is subset of s2
         for i, x in enumerate(sm.get_mapping(s2, s1)):
-            self.assertEqual(s1[i].species_and_occu,
-                             s2[x].species_and_occu)
+            self.assertEqual(s1[i].species,
+                             s2[x].species)
         #s2 is smaller than s1
         del s2[0]
         del s2[1]

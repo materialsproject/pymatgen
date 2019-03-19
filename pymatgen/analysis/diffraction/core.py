@@ -36,17 +36,19 @@ class DiffractionPattern(Spectrum):
         Args:
             x: Two theta angles.
             y: Intensities
-            hkls: [{(h, k, l): mult}] {(h, k, l): mult} is a dict of Miller
+            hkls: [{"hkl": (h, k, l), "multiplicity": mult}],
+                where {"hkl": (h, k, l), "multiplicity": mult}
+                is a dict of Miller
                 indices for all diffracted lattice facets contributing to each
                 intensity.
             d_hkls: List of interplanar spacings.
         """
-        super(DiffractionPattern, self).__init__(x, y, hkls,d_hkls)
+        super(DiffractionPattern, self).__init__(x, y, hkls, d_hkls)
         self.hkls = hkls
         self.d_hkls = d_hkls
 
 
-class DiffractionPatternCalculator(abc.ABC):
+class AbstractDiffractionPatternCalculator(abc.ABC):
     """
     Abstract base class for computing the diffraction pattern of a crystal.
     """
@@ -113,7 +115,8 @@ class DiffractionPatternCalculator(abc.ABC):
 
         for two_theta, i, hkls, d_hkl in zip(xrd.x, xrd.y, xrd.hkls, xrd.d_hkls):
             if two_theta_range[0] <= two_theta <= two_theta_range[1]:
-                label = ", ".join([str(hkl) for hkl in hkls.keys()])
+                print(hkls)
+                label = ", ".join([str(hkl["hkl"]) for hkl in hkls])
                 ax.plot([two_theta, two_theta], [0, i], color='k',
                          linewidth=3, label=label)
                 if annotate_peaks:

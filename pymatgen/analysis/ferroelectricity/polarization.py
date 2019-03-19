@@ -109,20 +109,6 @@ def get_total_ionic_dipole(structure, zval_dict):
     return np.sum(tot_ionic, axis=0)
 
 
-def convert_cart_to_latt(vector, structure):
-    """
-    Convert a vector along Cartesian directions to be along
-    lattice directions.
-
-    vector: np.array along Cartesian directions of shape [3]
-    structure: pymatgen Structure with desired lattice directions
-    """
-    M = structure.lattice.matrix
-    cart_to_direct = np.linalg.inv(M.T).dot(vector)
-    direct_to_latt = structure.lattice.lengths_and_angles[0] * cart_to_direct
-    return direct_to_latt
-
-
 class PolarizationLattice(Structure):
     def get_nearest_site(self, coords, site, r=None):
         """
@@ -179,10 +165,10 @@ class Polarization:
                 "The number of electronic polarization and ionic polarization values must be equal.")
         if p_elecs_in_cartesian:
             p_elecs = np.array(
-                [convert_cart_to_latt(p_elecs[i], struct) for i, struct in enumerate(structures)])
+                [struct.lattice.get_vector_along_lattice_directions(p_elecs[i]) for i, struct in enumerate(structures)])
         if p_ions_in_cartesian:
             p_ions = np.array(
-                [convert_cart_to_latt(p_ions[i], struct) for i, struct in enumerate(structures)])
+                [struct.lattice.get_vector_along_lattice_directions(p_ions[i]) for i, struct in enumerate(structures)])
         self.p_elecs = np.array(p_elecs)
         self.p_ions = np.array(p_ions)
         self.structures = structures

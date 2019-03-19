@@ -4,17 +4,13 @@
 
 
 import re
-import csv
 import collections
 import itertools
-from io import open
 import math
-
 import logging
 
 from monty.json import MSONable, MontyDecoder
-from monty.string import unicode2str
-from monty.functools import lru_cache
+from functools import lru_cache
 
 import numpy as np
 from scipy.spatial import ConvexHull
@@ -77,7 +73,8 @@ class PDEntry(MSONable):
             but must be MSONable.
     """
 
-    def __init__(self, composition, energy, name=None, attribute=None):
+    def __init__(self, composition: Composition, energy: float,
+                 name: str = None, attribute: object = None):
         self.energy = energy
         self.composition = Composition(composition)
         self.name = name if name else self.composition.reduced_formula
@@ -126,66 +123,6 @@ class PDEntry(MSONable):
         return cls(Composition(d["composition"]), d["energy"],
                    d["name"] if "name" in d else None,
                    d["attribute"] if "attribute" in d else None)
-
-    @staticmethod
-    def to_csv(filename, entries, latexify_names=False):
-        """
-        Exports PDEntries to a csv
-
-        Args:
-            filename: Filename to write to.
-            entries: PDEntries to export.
-            latexify_names: Format entry names to be LaTex compatible,
-                e.g., Li_{2}O
-        """
-
-        elements = set()
-        for entry in entries:
-            elements.update(entry.composition.elements)
-        elements = sorted(list(elements), key=lambda a: a.X)
-        writer = csv.writer(open(filename, "w"), delimiter=unicode2str(","),
-                            quotechar=unicode2str("\""),
-                            quoting=csv.QUOTE_MINIMAL)
-        writer.writerow(["Name"] + elements + ["Energy"])
-        for entry in entries:
-            row = [entry.name if not latexify_names
-                   else re.sub(r"([0-9]+)", r"_{\1}", entry.name)]
-            row.extend([entry.composition[el] for el in elements])
-            row.append(entry.energy)
-            writer.writerow(row)
-
-    @staticmethod
-    def from_csv(filename):
-        """
-        Imports PDEntries from a csv.
-
-        Args:
-            filename: Filename to import from.
-
-        Returns:
-            List of Elements, List of PDEntries
-        """
-        with open(filename, "r", encoding="utf-8") as f:
-            reader = csv.reader(f, delimiter=unicode2str(","),
-                                quotechar=unicode2str("\""),
-                                quoting=csv.QUOTE_MINIMAL)
-            entries = list()
-            header_read = False
-            elements = None
-            for row in reader:
-                if not header_read:
-                    elements = row[1:(len(row) - 1)]
-                    header_read = True
-                else:
-                    name = row[0]
-                    energy = float(row[-1])
-                    comp = dict()
-                    for ind in range(1, len(row) - 1):
-                        if float(row[ind]) > 0:
-                            comp[Element(elements[ind - 1])] = float(row[ind])
-                    entries.append(PDEntry(Composition(comp), energy, name))
-        elements = [Element(el) for el in elements]
-        return elements, entries
 
 
 class GrandPotPDEntry(PDEntry):
@@ -532,7 +469,7 @@ class PhaseDiagram(MSONable):
 
     @classmethod
     def from_dict(cls, d):
-        entries = [PDEntry.from_dict(dd) for dd in d["all_entries"]]
+        entries = [MontyDecoder().process_decoded(dd) for dd in d["all_entries"]]
         elements = [Element.from_dict(dd) for dd in d["elements"]]
         return cls(entries, elements)
 

@@ -623,7 +623,7 @@ class GrainBoundaryGenerator:
         translation_v = unit_normal_v * vacuum_thickness
 
         # construct the final lattice
-        whole_matrix_no_vac = half_lattice.matrix
+        whole_matrix_no_vac = np.array(half_lattice.matrix)
         whole_matrix_no_vac[2] = half_lattice.matrix[2] * 2
         whole_matrix_with_vac = whole_matrix_no_vac.copy()
         whole_matrix_with_vac[2] = whole_matrix_no_vac[2] + translation_v * 2
@@ -2278,7 +2278,7 @@ def fix_pbc(structure, matrix=None):
 
     for site in structure:
         spec.append(site.specie)
-        coord = site.frac_coords
+        coord = np.array(site.frac_coords)
         for i in range(3):
             coord[i] -= floor(coord[i])
             if np.allclose(coord[i], 1):

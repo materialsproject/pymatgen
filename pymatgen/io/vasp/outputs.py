@@ -11,6 +11,7 @@ import math
 import os
 import re
 import warnings
+from pathlib import Path
 import xml.etree.cElementTree as ET
 from collections import defaultdict
 from io import StringIO
@@ -646,8 +647,13 @@ class Vasprun(MSONable):
 
         TODO: Fix for other functional types like PW91, other vdW types, etc.
         """
+
+        METAGGA_TYPES = {"TPSS", "RTPSS", "M06L", "MBJL", "SCAN", "MS0", "MS1", "MS2"}
+
         if self.parameters.get("LHFCALC", False):
             rt = "HF"
+        elif self.parameters.get("METAGGA", "").strip().upper() in METAGGA_TYPES:
+            rt = incar["METAGGA"].strip().upper()
         elif self.parameters.get("LUSE_VDW", False):
             vdw_gga = {"RE": "DF", "OR": "optPBE", "BO": "optB88",
                        "MK": "optB86b", "ML": "DF2"}
@@ -878,7 +884,8 @@ class Vasprun(MSONable):
             warnings.warn("No POTCAR file with matching TITEL fields"
                           " was found in {}".format(os.path.abspath(p)))
 
-        if isinstance(path, str):
+        if isinstance(path, (str, Path)):
+            path = str(path)
             if "POTCAR" in path:
                 potcar = Potcar.from_file(path)
                 if {d.TITEL for d in potcar} != \
