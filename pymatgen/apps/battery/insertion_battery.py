@@ -310,6 +310,10 @@ class InsertionElectrode(AbstractElectrode):
         """
         chg_comp = self.fully_charged_entry.composition
         dischg_comp = self.fully_discharged_entry.composition
+        # Check if the all the decomposition energies are there
+
+
+
         ion = self.working_ion
         d = {"average_voltage": self.get_average_voltage(),
              "max_voltage": self.max_voltage,
@@ -334,11 +338,17 @@ class InsertionElectrode(AbstractElectrode):
              "material_ids" : [itr_ent.entry_id for itr_ent in self._entries],
              "stable_material_ids" : [itr_ent.entry_id for itr_ent in self.get_stable_entries()],
              "unstable_material_ids": [itr_ent.entry_id for itr_ent in self.get_unstable_entries()],
-             "stability_charge": self.fully_charged_entry.data['decomposition_energy'],
-             "stability_discharge": self.fully_discharged_entry.data['decomposition_energy'],
-             "stability_data":{itr_ent.entry_id: itr_ent.data['decomposition_energy'] for itr_ent in self._entries},
-             "muO2_data" : {itr_ent.entry_id: itr_ent.data['muO2'] for itr_ent in self._entries}
              }
+
+        if all(['decomposition_energy' in itr_ent.data for itr_ent in self._entries]):
+            d.update({"stability_charge": self.fully_charged_entry.data['decomposition_energy'],
+                 "stability_discharge": self.fully_discharged_entry.data['decomposition_energy'],
+                 "stability_data":{itr_ent.entry_id: itr_ent.data['decomposition_energy'] for itr_ent in self._entries},
+                 })
+
+        if all(['muO2' in itr_ent.data for itr_ent in self._entries]):
+            d.update({"muO2_data" : {itr_ent.entry_id: itr_ent.data['muO2'] for itr_ent in self._entries}})
+
         if print_subelectrodes:
             f_dict = lambda c: c.as_dict_summary(print_subelectrodes=False)
             d["adj_pairs"] = list(map(f_dict,

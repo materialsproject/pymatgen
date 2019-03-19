@@ -131,8 +131,8 @@ class InsertionElectrodeTest(unittest.TestCase):
 
     def test_as_dict_summary(self):
         d = self.ie_CMO.as_dict_summary()
-        self.assertAlmostEqual(d['stability_charged'], 0.2346574583333325)
-        self.assertAlmostEqual(d['stability_discharged'], 0.33379544031249786)
+        self.assertAlmostEqual(d['stability_charge'], 0.2346574583333325)
+        self.assertAlmostEqual(d['stability_discharge'], 0.33379544031249786)
         self.assertAlmostEqual(d['muO2_data']['mp-714969'][0]['chempot'], -4.93552791875)
 
 
