@@ -25,6 +25,7 @@ from sympy.solvers import linsolve, solve
 
 from pymatgen.core.composition import Composition
 from pymatgen import Structure
+from pymatgen.core.surface import get_slab_regions
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.wulff import WulffShape
@@ -1373,6 +1374,8 @@ class WorkFunctionAnalyzer:
             shift (float): Parameter to translate the slab (and
                 therefore the vacuum) of the slab structure, thereby
                 translating the plot along the x axis.
+            blength (float (Ang)): The longest bond length in the material.
+                Used to handle pbc for noncontiguous slab layers
         """
 
         # ensure shift between 0 and 1
@@ -1405,30 +1408,21 @@ class WorkFunctionAnalyzer:
                 locpot_along_c_mid.append(locpot_along_c[i])
         self.locpot_along_c = locpot_start + locpot_along_c_mid + locpot_end
 
-        # Get pbc_corr value to shift c direction between 0 and 1 when identifying slab region
-        diff, pbc_corr = -1, 1e-6
-        slab_copy = self.slab.copy()
-        while diff < 0:
-            all_c_unadjusted = []
-            for site in slab_copy:
-                all_c_unadjusted.extend([nn[0].frac_coords[2] for nn in slab_copy.get_neighbors(site, blength)])
-            pbc_corr += abs(min(all_c_unadjusted)) if min(all_c_unadjusted) < 0 else 0
-            slab_copy.translate_sites([i for i, site in enumerate(slab_copy)], [0,0,pbc_corr])
-            diff = min(all_c_unadjusted)
-        min_fcoord_c = min([site.frac_coords[2] for site in slab_copy])
-        max_fcoord_c = max([site.frac_coords[2] for site in slab_copy])
-
+        # identify slab region
+        self.slab_regions = get_slab_regions(self.slab)
         # get the average of the signal in the bulk-like region of the
         # slab, i.e. the average of the oscillating region. This gives
         # a rough appr. of the potential in the interior of the slab
         bulk_p = []
-        for i, p in enumerate(self.locpot_along_c):
-            # account for pbc
-            c = self.along_c[i] + pbc_corr
-            current_c = c if c < 1 else c - 1
-            if min_fcoord_c < current_c < max_fcoord_c:
-                # print(min_fcoord_c, current_c, max_fcoord_c)
-                bulk_p.append(p)
+        for r in self.slab_regions:
+            bulk_p.extend([p for i, p in enumerate(self.locpot_along_c) if \
+                           r[1] >= self.along_c[i] \
+                           >= r[0]])
+        if len(self.slab_regions) > 1:
+            bulk_p.extend([p for i, p in enumerate(self.locpot_along_c) if \
+                           self.slab_regions[1][1] <= self.along_c[i]])
+            bulk_p.extend([p for i, p in enumerate(self.locpot_along_c) if \
+                           self.slab_regions[0][0] >= self.along_c[i]])
         self.ave_bulk_p = np.mean(bulk_p)
 
         # shift independent quantities
@@ -1464,9 +1458,20 @@ class WorkFunctionAnalyzer:
         xg, yg = [], []
         for i, p in enumerate(self.locpot_along_c):
             # average signal is just the bulk-like potential when in the slab region
-            if p < self.ave_bulk_p \
-                    or self.sorted_sites[-1].frac_coords[2] >= self.along_c[i] \
-                            >= self.sorted_sites[0].frac_coords[2]:
+            in_slab = False
+            for r in self.slab_regions:
+                if r[0] <= self.along_c[i] <= r[1]:
+                    in_slab = True
+            if len(self.slab_regions) > 1:
+                if self.along_c[i] >= self.slab_regions[1][1]:
+                    in_slab = True
+                if self.along_c[i] <= self.slab_regions[0][0]:
+                    in_slab = True
+
+            if in_slab:
+                yg.append(self.ave_bulk_p)
+                xg.append(self.along_c[i])
+            elif p < self.ave_bulk_p:
                 yg.append(self.ave_bulk_p)
                 xg.append(self.along_c[i])
             else:
@@ -1511,27 +1516,32 @@ class WorkFunctionAnalyzer:
         # label the vacuum locpot
         label_in_bulk = maxc - (maxc - minc) / 2
         plt.plot([0, 1], [self.vacuum_locpot]*2, 'b--', zorder=-5, linewidth=1)
-        xy = [label_in_bulk, self.vacuum_locpot+self.ave_locpot*0.05]
+        x = label_in_bulk + self.shift if label_in_bulk+self.shift < 1 else label_in_bulk+self.shift - 1
+        xy = [x, self.vacuum_locpot+self.ave_locpot*0.05]
         plt.annotate(r"$V_{vac}=%.2f$" %(self.vacuum_locpot), xy=xy,
                      xytext=xy, color='b', fontsize=label_fontsize)
 
         # label the fermi energy
         plt.plot([0, 1], [self.efermi]*2, 'g--',
                  zorder=-5, linewidth=3)
-        xy = [label_in_bulk, self.efermi+self.ave_locpot*0.05]
+        x = label_in_bulk + self.shift if label_in_bulk + self.shift < 1 else label_in_bulk + self.shift - 1
+        xy = [x, self.efermi+self.ave_locpot*0.05]
         plt.annotate(r"$E_F=%.2f$" %(self.efermi), xytext=xy,
                      xy=xy, fontsize=label_fontsize, color='g')
 
         # label the bulk-like locpot
         plt.plot([0, 1], [self.ave_bulk_p]*2, 'r--', linewidth=1., zorder=-1)
-        xy = [label_in_vac, self.ave_bulk_p + self.ave_locpot * 0.05]
+        x = label_in_vac + self.shift if label_in_vac + self.shift < 1 else label_in_vac + self.shift - 1
+        xy = [x, self.ave_bulk_p + self.ave_locpot * 0.05]
         plt.annotate(r"$V^{interior}_{slab}=%.2f$" % (self.ave_bulk_p),
                      xy=xy, xytext=xy, color='r', fontsize=label_fontsize)
 
         # label the work function as a barrier
-        plt.plot([label_in_vac]*2, [self.efermi, self.vacuum_locpot],
+        x = label_in_vac+self.shift if label_in_vac+self.shift < 1 else label_in_vac+self.shift - 1
+        plt.plot([x]*2, [self.efermi, self.vacuum_locpot],
                  'k--', zorder=-5, linewidth=2)
-        xy = [label_in_vac, self.efermi + self.ave_locpot * 0.05]
+
+        xy = [x, self.efermi + self.ave_locpot * 0.05]
         plt.annotate(r"$\Phi=%.2f$" %(self.work_function),
                      xy=xy, xytext=xy, fontsize=label_fontsize)
 
