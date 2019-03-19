@@ -1417,7 +1417,7 @@ class WorkFunctionAnalyzer:
         for r in self.slab_regions:
             bulk_p.extend([p for i, p in enumerate(self.locpot_along_c) if \
                            r[1] >= self.along_c[i] \
-                           >= r[0]])
+                           > r[0]])
         if len(self.slab_regions) > 1:
             bulk_p.extend([p for i, p in enumerate(self.locpot_along_c) if \
                            self.slab_regions[1][1] <= self.along_c[i]])
