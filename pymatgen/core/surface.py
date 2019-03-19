@@ -1734,6 +1734,68 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
     return all_slabs
 
 
+def get_slab_regions(slab, blength=3):
+    """
+    Function to get the ranges of the slab regions. Useful for discerning where
+    the slab ends and vacuum begins if the slab is not fully within the cell
+
+    Args:
+        slab (Structure): Structure object modelling the surface
+        blength (float, Ang): The bondlength between atoms.
+    """
+
+    fcoords, indices, all_indices = [], [], []
+    for site in slab:
+        # find sites with c < 0 (noncontiguous)
+        neighbors = slab.get_neighbors(site, blength, include_index=True,
+                                       include_image=True)
+        for nn in neighbors:
+            if nn[0].frac_coords[2] < 0:
+                # sites are noncontiguous within cell
+                fcoords.append(nn[0].frac_coords[2])
+                indices.append(nn[-2])
+                if nn[-2] not in all_indices:
+                    all_indices.append(nn[-2])
+
+    if fcoords:
+        # If slab is noncontiguous, locate the lowest
+        # site within the upper region of the slab
+        while fcoords:
+            last_fcoords = copy.copy(fcoords)
+            last_indices = copy.copy(indices)
+            site = slab[indices[fcoords.index(min(fcoords))]]
+            neighbors = slab.get_neighbors(site, blength, include_index=True,
+                                           include_image=True)
+            fcoords, indices = [], []
+            for nn in neighbors:
+                if 1 > nn[0].frac_coords[2] > 0 and \
+                                nn[0].frac_coords[2] < site.frac_coords[2]:
+                    # sites are noncontiguous within cell
+                    fcoords.append(nn[0].frac_coords[2])
+                    indices.append(nn[-2])
+                    if nn[-2] not in all_indices:
+                        all_indices.append(nn[-2])
+
+        # Now locate the highest site within the lower region of the slab
+        upper_fcoords = []
+        for site in slab:
+            if all([nn[-1] not in all_indices for nn in
+                    slab.get_neighbors(site, blength,
+                                       include_index=True)]):
+                upper_fcoords.append(site.frac_coords[2])
+        coords = copy.copy(last_fcoords) if not fcoords else copy.copy(fcoords)
+        min_top = slab[last_indices[coords.index(min(coords))]].frac_coords[2]
+        ranges = [[0, max(upper_fcoords)], [min_top, 1]]
+    else:
+        # If the entire slab region is within the slab cell, just
+        # set the range as the highest and lowest site in the slab
+        sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
+        ranges = [[sorted_sites[0].frac_coords[2],
+                   sorted_sites[-1].frac_coords[2]]]
+
+    return ranges
+
+
 def miller_index_from_sites(lattice, coords, coords_are_cartesian=True,
                             round_dp=4, verbose=True):
     """
