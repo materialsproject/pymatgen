@@ -276,11 +276,11 @@ class SlabGeneratorTest(PymatgenTest):
 
         fcc = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Fe"],
                                         [[0, 0, 0]])
-        gen = SlabGenerator(fcc, [1, 1, 1], 10, 10)
+        gen = SlabGenerator(fcc, [1, 1, 1], 10, 10, max_normal_search=1)
         slab = gen.get_slab()
-        gen = SlabGenerator(fcc, [1, 1, 1], 10, 10, primitive=False)
-        slab_non_prim = gen.get_slab()
         self.assertEqual(len(slab), 6)
+        gen = SlabGenerator(fcc, [1, 1, 1], 10, 10, primitive=False, max_normal_search=1)
+        slab_non_prim = gen.get_slab()
         self.assertEqual(len(slab_non_prim), len(slab) * 4)
 
         # Some randomized testing of cell vectors
