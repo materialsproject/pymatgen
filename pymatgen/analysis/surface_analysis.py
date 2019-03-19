@@ -67,7 +67,7 @@ consider citing the following works::
 
 class SlabEntry(ComputedStructureEntry):
     """
-    A ComputedStructureEntry object encompassing all data relevant to a 
+    A ComputedStructureEntry object encompassing all data relevant to a
         slab for analyzing surface thermodynamics.
 
     .. attribute:: miller_index
@@ -1362,7 +1362,7 @@ class WorkFunctionAnalyzer:
         The average locpot of the slab region along the c direction
     """
 
-    def __init__(self, structure, locpot_along_c, efermi, shift=0):
+    def __init__(self, structure, locpot_along_c, efermi, shift=0, blength=3):
         """
         Initializes the WorkFunctionAnalyzer class.
 
@@ -1375,6 +1375,12 @@ class WorkFunctionAnalyzer:
                 translating the plot along the x axis.
         """
 
+        # ensure shift between 0 and 1
+        if shift < 0:
+            shift += -1*int(shift) + 1
+        elif shift >= 1:
+            shift -= int(shift)
+
         # properties that can be shifted
         slab = structure.copy()
         slab.translate_sites([i for i, site in enumerate(slab)], [0,0,shift])
@@ -1383,25 +1389,48 @@ class WorkFunctionAnalyzer:
 
         # Get the plot points between 0 and c
         # increments of the number of locpot points
-        locpot_along_c = locpot_along_c
         self.along_c = np.linspace(0, 1, num=len(locpot_along_c))
-        locpot_along_c_mid, locpot_end, locpot_start = [], [], []
-        for i, s in enumerate(self.along_c):
-            j = s + shift
-            if j > 1:
-                locpot_start.append(locpot_along_c[i])
-            elif j < 0:
-                locpot_end.append(locpot_along_c[i])
+
+        # get shifted locpot
+        shifted_locpot_along_c, pre_shift_locpot_along_c = [], []
+        for i, c in enumerate(self.along_c):
+            if shift < 0:
+                if c > abs(shift):
+                    shifted_locpot_along_c.append(locpot_along_c[i])
+                else:
+                    pre_shift_locpot_along_c.append(locpot_along_c[i])
             else:
-                locpot_along_c_mid.append(locpot_along_c[i])
-        self.locpot_along_c = locpot_start + locpot_along_c_mid + locpot_end
+                if c > 1 - shift:
+                    shifted_locpot_along_c.append(locpot_along_c[i])
+                else:
+                    pre_shift_locpot_along_c.append(locpot_along_c[i])
+        self.locpot_along_c = shifted_locpot_along_c
+        self.locpot_along_c.extend(pre_shift_locpot_along_c)
+
+        # Get pbc_corr value to shift c direction between 0 and 1 when identifying slab region
+        diff, pbc_corr = -1, 1e-6
+        slab_copy = self.slab.copy()
+        while diff < 0:
+            all_c_unadjusted = []
+            for site in slab_copy:
+                all_c_unadjusted.extend([nn[0].frac_coords[2] for nn in slab_copy.get_neighbors(site, blength)])
+            pbc_corr += abs(min(all_c_unadjusted)) if min(all_c_unadjusted) < 0 else 0
+            slab_copy.translate_sites([i for i, site in enumerate(slab_copy)], [0,0,pbc_corr])
+            diff = min(all_c_unadjusted)
+        min_fcoord_c = min([site.frac_coords[2] for site in slab_copy])
+        max_fcoord_c = max([site.frac_coords[2] for site in slab_copy])
 
         # get the average of the signal in the bulk-like region of the
         # slab, i.e. the average of the oscillating region. This gives
         # a rough appr. of the potential in the interior of the slab
-        bulk_p = [p for i, p in enumerate(self.locpot_along_c) if \
-                  self.sorted_sites[-1].frac_coords[2] > self.along_c[i] \
-                  > self.sorted_sites[0].frac_coords[2]]
+        bulk_p = []
+        for i, p in enumerate(self.locpot_along_c):
+            # account for pbc
+            c = self.along_c[i] + pbc_corr
+            current_c = c if c < 1 else c - 1
+            if min_fcoord_c < current_c < max_fcoord_c:
+                # print(min_fcoord_c, current_c, max_fcoord_c)
+                bulk_p.append(p)
         self.ave_bulk_p = np.mean(bulk_p)
 
         # shift independent quantities
