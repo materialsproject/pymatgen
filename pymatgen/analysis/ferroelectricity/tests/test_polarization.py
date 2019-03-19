@@ -7,6 +7,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.outputs import Outcar
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.util.testing import PymatgenTest
+import numpy as np
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files/BTO_221_99_polarization')

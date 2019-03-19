@@ -6,14 +6,15 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.periodic_table &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.core.periodic_table &#8212; pymatgen 2019.3.13 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -34,7 +35,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -50,14 +51,12 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span>
-
-<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">io</span> <span class="k">import</span> <span class="nb">open</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="k">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="k">import</span> <span class="n">Mass</span><span class="p">,</span> <span class="n">Length</span><span class="p">,</span> <span class="n">unitized</span><span class="p">,</span> <span class="n">FloatWithUnit</span><span class="p">,</span> <span class="n">Unit</span><span class="p">,</span> \
@@ -81,8 +80,7 @@
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Sep 23, 2011&quot;</span>
 
 <span class="c1"># Loads element data from json file</span>
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span>
-                       <span class="s2">&quot;periodic_table.json&quot;</span><span class="p">),</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;periodic_table.json&quot;</span><span class="p">),</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
     <span class="n">_pt_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
 <span class="n">_pt_row_sizes</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">)</span>
@@ -451,7 +449,7 @@
     <span class="n">No</span> <span class="o">=</span> <span class="s2">&quot;No&quot;</span>
     <span class="n">Lr</span> <span class="o">=</span> <span class="s2">&quot;Lr&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symbol</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symbol</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">symbol</span>
         <span class="n">d</span> <span class="o">=</span> <span class="n">_pt_data</span><span class="p">[</span><span class="n">symbol</span><span class="p">]</span>
 
@@ -804,7 +802,7 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">symbol</span>
 
 <div class="viewcode-block" id="Element.from_Z"><a class="viewcode-back" href="../../../pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element.from_Z">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_Z</span><span class="p">(</span><span class="n">z</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_Z</span><span class="p">(</span><span class="n">z</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get an element from an atomic number.</span>
 
@@ -820,7 +818,7 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No element with this atomic number </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">z</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Element.from_row_and_group"><a class="viewcode-back" href="../../../pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element.from_row_and_group">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_row_and_group</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">group</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_row_and_group</span><span class="p">(</span><span class="n">row</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">group</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns an element from a row and group number.</span>
 
@@ -838,7 +836,7 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No element with this row and group!&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Element.is_valid_symbol"><a class="viewcode-back" href="../../../pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element.is_valid_symbol">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">is_valid_symbol</span><span class="p">(</span><span class="n">symbol</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">is_valid_symbol</span><span class="p">(</span><span class="n">symbol</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns true if symbol is a valid element symbol.</span>
 
@@ -1051,7 +1049,7 @@
                 <span class="s2">&quot;element&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">}</span></div>
 
 <div class="viewcode-block" id="Element.print_periodic_table"><a class="viewcode-back" href="../../../pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element.print_periodic_table">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">print_periodic_table</span><span class="p">(</span><span class="n">filter_function</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">print_periodic_table</span><span class="p">(</span><span class="n">filter_function</span><span class="p">:</span> <span class="n">callable</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A pretty ASCII printer for the periodic table, based on some</span>
 <span class="sd">        filter_function.</span>
@@ -1107,7 +1105,9 @@
 
     <span class="n">supported_properties</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;spin&quot;</span><span class="p">,)</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symbol</span><span class="p">,</span> <span class="n">oxidation_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">properties</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symbol</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                 <span class="n">oxidation_state</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">properties</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_el</span> <span class="o">=</span> <span class="n">Element</span><span class="p">(</span><span class="n">symbol</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_oxi_state</span> <span class="o">=</span> <span class="n">oxidation_state</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_properties</span> <span class="o">=</span> <span class="n">properties</span> <span class="k">if</span> <span class="n">properties</span> <span class="k">else</span> <span class="p">{}</span>
@@ -1205,7 +1205,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oxi_state</span>
 
 <div class="viewcode-block" id="Specie.from_string"><a class="viewcode-back" href="../../../pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie.from_string">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="n">species_string</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="n">species_string</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a Specie from a string representation.</span>
 
@@ -1271,7 +1271,8 @@
                     <span class="n">isotope</span><span class="p">))</span>
             <span class="k">return</span> <span class="n">quad_mom</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">isotope</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Specie.get_shannon_radius"><a class="viewcode-back" href="../../../pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie.get_shannon_radius">[docs]</a>    <span class="k">def</span> <span class="nf">get_shannon_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cn</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">radius_type</span><span class="o">=</span><span class="s2">&quot;ionic&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="Specie.get_shannon_radius"><a class="viewcode-back" href="../../../pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie.get_shannon_radius">[docs]</a>    <span class="k">def</span> <span class="nf">get_shannon_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cn</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">spin</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                           <span class="n">radius_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ionic&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the local environment specific ionic radius for species.</span>
 
@@ -1322,7 +1323,8 @@
             <span class="n">data</span> <span class="o">=</span> <span class="n">radii</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_oxi_state</span><span class="p">))][</span><span class="n">cn</span><span class="p">][</span><span class="n">spin</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_radius&quot;</span> <span class="o">%</span> <span class="n">radius_type</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="Specie.get_crystal_field_spin"><a class="viewcode-back" href="../../../pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie.get_crystal_field_spin">[docs]</a>    <span class="k">def</span> <span class="nf">get_crystal_field_spin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordination</span><span class="o">=</span><span class="s2">&quot;oct&quot;</span><span class="p">,</span> <span class="n">spin_config</span><span class="o">=</span><span class="s2">&quot;high&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="Specie.get_crystal_field_spin"><a class="viewcode-back" href="../../../pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie.get_crystal_field_spin">[docs]</a>    <span class="k">def</span> <span class="nf">get_crystal_field_spin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordination</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;oct&quot;</span><span class="p">,</span>
+                               <span class="n">spin_config</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;high&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate the crystal field spin based on coordination and spin</span>
 <span class="sd">        configuration. Only works for transition metal species.</span>
@@ -1429,7 +1431,8 @@
 <span class="sd">        DummySpecie is always assigned an electronegativity of 0.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symbol</span><span class="o">=</span><span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="n">oxidation_state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">properties</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symbol</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span>
+                 <span class="n">oxidation_state</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">properties</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">symbol</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">Element</span><span class="o">.</span><span class="n">is_valid_symbol</span><span class="p">(</span><span class="n">symbol</span><span class="p">[:</span><span class="n">i</span><span class="p">]):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> contains </span><span class="si">{}</span><span class="s2">, which is a valid element &quot;</span>
@@ -1516,7 +1519,7 @@
         <span class="k">return</span> <span class="n">DummySpecie</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oxi_state</span><span class="p">)</span>
 
 <div class="viewcode-block" id="DummySpecie.from_string"><a class="viewcode-back" href="../../../pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.DummySpecie.from_string">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="n">species_string</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="n">species_string</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a Dummy from a string representation.</span>
 
@@ -1546,7 +1549,8 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid DummySpecies String&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DummySpecie.safe_from_composition"><a class="viewcode-back" href="../../../pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.DummySpecie.safe_from_composition">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">safe_from_composition</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">comp</span><span class="p">,</span> <span class="n">oxidation_state</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">safe_from_composition</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">comp</span><span class="p">:</span> <span class="s2">&quot;Composition&quot;</span><span class="p">,</span>
+                              <span class="n">oxidation_state</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a DummySpecie object that can be safely used</span>
 <span class="sd">        with (i.e. not present in) a given composition</span>
@@ -1671,7 +1675,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1679,7 +1683,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

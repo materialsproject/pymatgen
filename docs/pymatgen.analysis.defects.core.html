@@ -6,14 +6,15 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.defects.core module &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.analysis.defects.core module &#8212; pymatgen 2019.3.13 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -34,7 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.3.13 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -60,7 +61,8 @@
 <li><strong>defect_site</strong> (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a>) – site for defect within structure
 must have same lattice as structure</li>
 <li><strong>charge</strong> – (int or float) defect charge
-default is zero, meaning no change to NELECT after defect is created in the structure</li>
+default is zero, meaning no change to NELECT after defect is created in the structure
+(assuming use_structure_charge=True in vasp input set)</li>
 </ul>
 </td>
 </tr>
@@ -216,6 +218,12 @@ then ‘scaling_matrix’ must be stored in parameters</p>
 <div>for example: parameters = {‘scaling_matrix’: [3,3,3]}</div></blockquote>
 </dd>
 </dl>
+<dl class="method">
+<dt id="pymatgen.analysis.defects.core.DefectEntry.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/core.html#DefectEntry.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Json-serializable dict representation of DefectEntry</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="pymatgen.analysis.defects.core.DefectEntry.bulk_structure">
 <code class="descname">bulk_structure</code><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry.bulk_structure" title="Permalink to this definition">¶</a></dt>
@@ -268,6 +276,21 @@ then ‘scaling_matrix’ must be stored in parameters</p>
 <dd><p>Computes the formation energy for a defect taking into account a given chemical potential and fermi_level</p>
 </dd></dl>
 
+<dl class="classmethod">
+<dt id="pymatgen.analysis.defects.core.DefectEntry.from_dict">
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/core.html#DefectEntry.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reconstitute a DefectEntry object from a dict representation created using
+as_dict().</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>Args:</dt>
+<dd>d (dict): dict representation of DefectEntry.</dd>
+<dt>Returns:</dt>
+<dd>DefectEntry object</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="pymatgen.analysis.defects.core.DefectEntry.multiplicity">
 <code class="descname">multiplicity</code><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry.multiplicity" title="Permalink to this definition">¶</a></dt>
@@ -288,30 +311,41 @@ then ‘scaling_matrix’ must be stored in parameters</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.defects.core.Interstitial">
-<em class="property">class </em><code class="descname">Interstitial</code><span class="sig-paren">(</span><em>structure</em>, <em>defect_site</em>, <em>charge=0.0</em>, <em>site_name=u''</em>, <em>multiplicity=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/core.html#Interstitial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Interstitial" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">Interstitial</code><span class="sig-paren">(</span><em>structure</em>, <em>defect_site</em>, <em>charge=0.0</em>, <em>site_name=''</em>, <em>multiplicity=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/core.html#Interstitial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Interstitial" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.defects.core.Defect" title="pymatgen.analysis.defects.core.Defect"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.defects.core.Defect</span></code></a></p>
 <p>Subclass of Defect to capture essential information for a single Interstitial defect structure.</p>
 <p>Initializes an interstial defect.
 User must specify multiplity. Default is 1
 :param structure: Pymatgen Structure without any defects
-:param defect_site: the site for the interstial
+:param defect_site: the site for the interstitial
 :type defect_site: Site
 :param charge: (int or float) defect charge</p>
 <blockquote>
-<div>default is zero, meaning no change to NELECT after defect is created in the structure</div></blockquote>
+<div>default is zero, meaning no change to NELECT after defect is created in the structure
+(assuming use_structure_charge=True in vasp input set)</div></blockquote>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>site_name</strong> – <dl class="docutils">
-<dt>allows user to give a unique name to defect, since Wyckoff symbol/multiplicity is</dt>
-<dd>insufficient to categorize the defect type</dd>
-</dl>
-<p>default is no name.</p>
+<li><strong>site_name</strong> – <p>allows user to give a unique name to defect, since Wyckoff symbol/multiplicity
+is sometimes insufficient to categorize the defect type.</p>
+<blockquote>
+<div>default is no name beyond multiplicity.</div></blockquote>
 </li>
-<li><strong>multiplicity</strong> (<em>int</em>) – multiplicity
-default is 1,</li>
+<li><strong>multiplicity</strong> (<em>int</em>) – <p>multiplicity of defect within
+the supercell can be supplied by user. if not
+specified, then space group symmetry is used
+to generator interstitial sublattice</p>
+<p>NOTE: multiplicity generation will not work for
+interstitial complexes,
+where multiplicity may depend on additional
+factors (ex. orientation etc.)
+If defect is not a complex, then this
+process will yield the correct multiplicity,
+provided that the defect does not undergo
+significant relaxation.</p>
+</li>
 </ul>
 </td>
 </tr>
@@ -320,7 +354,8 @@ default is 1,</li>
 <dl class="attribute">
 <dt id="pymatgen.analysis.defects.core.Interstitial.defect_composition">
 <code class="descname">defect_composition</code><a class="headerlink" href="#pymatgen.analysis.defects.core.Interstitial.defect_composition" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the defect composition as a Composition object</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.defects.core.Interstitial.generate_defect_structure">
@@ -359,7 +394,8 @@ default is 1,</li>
 <li><strong>defect_site</strong> (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a>) – site for defect within structure
 must have same lattice as structure</li>
 <li><strong>charge</strong> – (int or float) defect charge
-default is zero, meaning no change to NELECT after defect is created in the structure</li>
+default is zero, meaning no change to NELECT after defect is created in the structure
+(assuming use_structure_charge=True in vasp input set)</li>
 </ul>
 </td>
 </tr>
@@ -368,7 +404,8 @@ default is zero, meaning no change to NELECT after defect is created in the stru
 <dl class="attribute">
 <dt id="pymatgen.analysis.defects.core.Substitution.defect_composition">
 <code class="descname">defect_composition</code><a class="headerlink" href="#pymatgen.analysis.defects.core.Substitution.defect_composition" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the defect composition as a Composition object</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.defects.core.Substitution.generate_defect_structure">
@@ -407,7 +444,8 @@ default is zero, meaning no change to NELECT after defect is created in the stru
 <li><strong>defect_site</strong> (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a>) – site for defect within structure
 must have same lattice as structure</li>
 <li><strong>charge</strong> – (int or float) defect charge
-default is zero, meaning no change to NELECT after defect is created in the structure</li>
+default is zero, meaning no change to NELECT after defect is created in the structure
+(assuming use_structure_charge=True in vasp input set)</li>
 </ul>
 </td>
 </tr>
@@ -416,7 +454,8 @@ default is zero, meaning no change to NELECT after defect is created in the stru
 <dl class="attribute">
 <dt id="pymatgen.analysis.defects.core.Vacancy.defect_composition">
 <code class="descname">defect_composition</code><a class="headerlink" href="#pymatgen.analysis.defects.core.Vacancy.defect_composition" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the defect composition as a Composition object</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.defects.core.Vacancy.generate_defect_structure">
@@ -438,6 +477,33 @@ default is zero, meaning no change to NELECT after defect is created in the stru
 <dd><p>Returns a name for this defect</p>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.defects.core.create_saturated_interstitial_structure">
+<code class="descname">create_saturated_interstitial_structure</code><span class="sig-paren">(</span><em>interstitial_def</em>, <em>dist_tol=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/core.html#create_saturated_interstitial_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.create_saturated_interstitial_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>this takes a Interstitial defect object and generates the
+sublattice for it based on the structure’s space group.
+Useful for understanding multiplicity of an interstitial
+defect in thermodynamic analysis.</p>
+<dl class="docutils">
+<dt>NOTE: if large relaxation happens to interstitial or</dt>
+<dd>defect involves a complex then there maybe additional
+degrees of freedom that need to be considered for
+the multiplicity.</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dist_tol</strong> – changing distance tolerance of saturated structure,
+allowing for possibly overlapping sites
+but ensuring space group is maintained</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Structure object decorated with interstitial site equivalents</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -480,13 +546,13 @@ default is zero, meaning no change to NELECT after defect is created in the stru
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.3.13 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

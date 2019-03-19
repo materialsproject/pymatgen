@@ -108,8 +108,6 @@ def make_dash(ctx):
     with open("docs/pymatgen.xml", "wt") as f:
         f.write("\n".join(xml))
     ctx.run('rm -r pymatgen.docset')
-    ctx.run("cp docs_rst/conf-normal.py docs_rst/conf.py")
-    make_doc(ctx)
 
 
 @task
@@ -144,7 +142,12 @@ def submit_dash_pr(ctx):
 @task
 def update_doc(ctx):
     make_doc(ctx)
-    contribute_dash(ctx)
+    try:
+        contribute_dash(ctx)
+    except:
+        pass
+    ctx.run("cp docs_rst/conf-normal.py docs_rst/conf.py")
+    make_doc(ctx)
     ctx.run("git add .")
     ctx.run("git commit -a -m \"Update docs\"")
     ctx.run("git push")
@@ -201,7 +204,7 @@ def merge_stable(ctx):
 def release_github(ctx):
     with open("CHANGES.rst") as f:
         contents = f.read()
-    toks = re.split("\-+", contents)
+    toks = re.split(r"\-+", contents)
     desc = toks[1].strip()
     toks = desc.split("\n")
     desc = "\n".join(toks[:-1]).strip()
@@ -221,6 +224,28 @@ def release_github(ctx):
 
 
 @task
+def post_discourse(ctx):
+    with open("CHANGES.rst") as f:
+        contents = f.read()
+    toks = re.split(r"\-+", contents)
+    desc = toks[1].strip()
+    toks = desc.split("\n")
+    desc = "\n".join(toks[:-1]).strip()
+    raw = "v" + NEW_VER + "\n\n" + desc
+    payload = {
+        "topic_id": 36,
+        "raw": raw,
+    }
+    response = requests.post(
+        "https://pymatgen.discourse.group/posts.json",
+        data=payload,
+        params={
+            "api_username": os.environ["DISCOURSE_API_USERNAME"],
+            "api_key": os.environ["DISCOURSE_API_KEY"]}
+    )
+    print(response.text)
+
+@task
 def update_changelog(ctx):
 
     output = subprocess.check_output(["git", "log", "--pretty=format:%s",
@@ -238,24 +263,17 @@ def update_changelog(ctx):
 
 
 @task
-def log_ver(ctx, logdir="~/Dropbox/Public/pymatgen"):
-    filepath = os.path.join(os.path.expanduser(logdir), NEW_VER)
-    with open(filepath, "w") as f:
-        f.write("Release")
-
-
-@task
-def release(ctx, notest=False, nodoc=False, logdir="~/Dropbox/Public/pymatgen"):
+def release(ctx, notest=False, nodoc=False):
     ctx.run("rm -r dist build pymatgen.egg-info", warn=True)
     set_ver(ctx)
     if not notest:
         ctx.run("nosetests")
     publish(ctx)
-    log_ver(ctx, logdir=logdir)
     if not nodoc:
         update_doc(ctx)
     merge_stable(ctx)
     release_github(ctx)
+    post_discourse(ctx)
 
 
 @task

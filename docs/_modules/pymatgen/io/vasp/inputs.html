@@ -6,14 +6,15 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.inputs &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.io.vasp.inputs &#8212; pymatgen 2019.3.13 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -34,7 +35,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -50,7 +51,6 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
@@ -59,9 +59,10 @@
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
 
-<span class="kn">import</span> <span class="nn">six</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.typing</span> <span class="k">import</span> <span class="n">PathLike</span>
 <span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="k">import</span> <span class="n">det</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">namedtuple</span>
 <span class="kn">from</span> <span class="nn">hashlib</span> <span class="k">import</span> <span class="n">md5</span>
@@ -69,6 +70,7 @@
 <span class="kn">from</span> <span class="nn">monty.io</span> <span class="k">import</span> <span class="n">zopen</span>
 <span class="kn">from</span> <span class="nn">monty.os.path</span> <span class="k">import</span> <span class="n">zpath</span>
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MontyDecoder</span>
+<span class="kn">from</span> <span class="nn">monty.os</span> <span class="k">import</span> <span class="n">cd</span>
 
 <span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span>
 <span class="kn">from</span> <span class="nn">tabulate</span> <span class="k">import</span> <span class="n">tabulate</span>
@@ -528,11 +530,12 @@
             <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Selective dynamics&quot;</span><span class="p">)</span>
         <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;direct&quot;</span> <span class="k">if</span> <span class="n">direct</span> <span class="k">else</span> <span class="s2">&quot;cartesian&quot;</span><span class="p">)</span>
 
+        <span class="n">selective_dynamics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">selective_dynamics</span>
         <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">site</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">):</span>
             <span class="n">coords</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span> <span class="k">if</span> <span class="n">direct</span> <span class="k">else</span> <span class="n">site</span><span class="o">.</span><span class="n">coords</span>
             <span class="n">line</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">format_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">coords</span><span class="p">])</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">selective_dynamics</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">sd</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;T&quot;</span> <span class="k">if</span> <span class="n">j</span> <span class="k">else</span> <span class="s2">&quot;F&quot;</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">selective_dynamics</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
+            <span class="k">if</span> <span class="n">selective_dynamics</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">sd</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;T&quot;</span> <span class="k">if</span> <span class="n">j</span> <span class="k">else</span> <span class="s2">&quot;F&quot;</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">selective_dynamics</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
                 <span class="n">line</span> <span class="o">+=</span> <span class="s2">&quot; </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sd</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sd</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">sd</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
             <span class="n">line</span> <span class="o">+=</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">site</span><span class="o">.</span><span class="n">species_string</span>
             <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
@@ -686,7 +689,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Incar</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__setitem__</span><span class="p">(</span>
             <span class="n">key</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">Incar</span><span class="o">.</span><span class="n">proc_val</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">val</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">)</span> <span class="k">else</span> <span class="n">val</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">val</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Incar.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Incar.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -1015,7 +1018,7 @@
 
     <span class="nd">@style</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">style</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">style</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">style</span> <span class="o">=</span> <span class="n">Kpoints</span><span class="o">.</span><span class="n">supported_modes</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">style</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">style</span> <span class="ow">in</span> <span class="p">(</span><span class="n">Kpoints</span><span class="o">.</span><span class="n">supported_modes</span><span class="o">.</span><span class="n">Automatic</span><span class="p">,</span>
@@ -1165,7 +1168,7 @@
     <span class="k">def</span> <span class="nf">automatic_density_by_vol</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">kppvol</span><span class="p">,</span> <span class="n">force_gamma</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns an automatic Kpoint object based on a structure and a kpoint</span>
-<span class="sd">        density per inverse Angstrom of reciprocal cell.</span>
+<span class="sd">        density per inverse Angstrom^3 of reciprocal cell.</span>
 
 <span class="sd">        Algorithm:</span>
 <span class="sd">            Same as automatic_density()</span>
@@ -1447,7 +1450,7 @@
                                 <span class="p">[</span><span class="s1">&#39;l&#39;</span><span class="p">,</span> <span class="s1">&#39;E&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">,</span> <span class="s2">&quot;Rcut&quot;</span><span class="p">,</span> <span class="s2">&quot;Type2&quot;</span><span class="p">,</span> <span class="s2">&quot;Rcut2&quot;</span><span class="p">])</span>
 
 
-<div class="viewcode-block" id="PotcarSingle"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.PotcarSingle">[docs]</a><span class="k">class</span> <span class="nc">PotcarSingle</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="PotcarSingle"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.PotcarSingle">[docs]</a><span class="k">class</span> <span class="nc">PotcarSingle</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Object for a **single** POTCAR. The builder assumes the complete string is</span>
 <span class="sd">    the POTCAR contains the complete untouched data in &quot;data&quot; as a string and</span>
@@ -1959,7 +1962,31 @@
             <span class="k">for</span> <span class="n">fname</span><span class="p">,</span> <span class="n">ftype</span> <span class="ow">in</span> <span class="n">optional_files</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="n">sub_d</span><span class="p">[</span><span class="s2">&quot;optional_files&quot;</span><span class="p">][</span><span class="n">fname</span><span class="p">]</span> <span class="o">=</span> \
                     <span class="n">ftype</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="n">fname</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">VaspInput</span><span class="p">(</span><span class="o">**</span><span class="n">sub_d</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">VaspInput</span><span class="p">(</span><span class="o">**</span><span class="n">sub_d</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VaspInput.run_vasp"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.VaspInput.run_vasp">[docs]</a>    <span class="k">def</span> <span class="nf">run_vasp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_dir</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="p">,</span>
+                 <span class="n">vasp_cmd</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">output_file</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">=</span> <span class="s2">&quot;vasp.out&quot;</span><span class="p">,</span>
+                 <span class="n">err_file</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">=</span> <span class="s2">&quot;vasp.err&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write input files and run VASP.</span>
+
+<span class="sd">        :param run_dir: Where to write input files and do the run.</span>
+<span class="sd">        :param vasp_cmd: Args to be supplied to run VASP. Otherwise, the</span>
+<span class="sd">            PMG_VASP_EXE in .pmgrc.yaml is used.</span>
+<span class="sd">        :param output_file: File to write output.</span>
+<span class="sd">        :param err_file: File to write err.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_input</span><span class="p">(</span><span class="n">output_dir</span><span class="o">=</span><span class="n">run_dir</span><span class="p">)</span>
+        <span class="n">vasp_cmd</span> <span class="o">=</span> <span class="n">vasp_cmd</span> <span class="ow">or</span> <span class="n">SETTINGS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PMG_VASP_EXE&quot;</span><span class="p">)</span>
+        <span class="n">vasp_cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expandvars</span><span class="p">(</span><span class="n">t</span><span class="p">))</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">vasp_cmd</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">vasp_cmd</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;You need to supply vasp_cmd or set the PMG_VASP_EXE in .pmgrc.yaml to run VASP.&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">cd</span><span class="p">(</span><span class="n">run_dir</span><span class="p">):</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_std</span><span class="p">,</span> \
+                    <span class="nb">open</span><span class="p">(</span><span class="n">err_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">buffering</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_err</span><span class="p">:</span>
+                <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="n">vasp_cmd</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">f_std</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">f_err</span><span class="p">)</span></div></div>
+
 </pre></div>
 
           </div>
@@ -1992,7 +2019,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -2000,7 +2027,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

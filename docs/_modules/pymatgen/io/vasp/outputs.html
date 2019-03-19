@@ -6,14 +6,15 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.outputs &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.io.vasp.outputs &#8212; pymatgen 2019.3.13 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -34,7 +35,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -50,7 +51,6 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span>
 
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">glob</span>
@@ -60,6 +60,7 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="k">import</span> <span class="n">Path</span>
 <span class="kn">import</span> <span class="nn">xml.etree.cElementTree</span> <span class="k">as</span> <span class="nn">ET</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
 <span class="kn">from</span> <span class="nn">io</span> <span class="k">import</span> <span class="n">StringIO</span>
@@ -70,8 +71,8 @@
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">jsanitize</span>
 <span class="kn">from</span> <span class="nn">monty.re</span> <span class="k">import</span> <span class="n">regrep</span>
 <span class="kn">from</span> <span class="nn">monty.os.path</span> <span class="k">import</span> <span class="n">zpath</span>
-<span class="kn">from</span> <span class="nn">six</span> <span class="k">import</span> <span class="n">string_types</span>
-<span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">map</span><span class="p">,</span> <span class="nb">zip</span>
+
+
 
 <span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="k">import</span> <span class="n">Composition</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="k">import</span> <span class="n">Lattice</span>
@@ -695,8 +696,13 @@
 
 <span class="sd">        TODO: Fix for other functional types like PW91, other vdW types, etc.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">METAGGA_TYPES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;TPSS&quot;</span><span class="p">,</span> <span class="s2">&quot;RTPSS&quot;</span><span class="p">,</span> <span class="s2">&quot;M06L&quot;</span><span class="p">,</span> <span class="s2">&quot;MBJL&quot;</span><span class="p">,</span> <span class="s2">&quot;SCAN&quot;</span><span class="p">,</span> <span class="s2">&quot;MS0&quot;</span><span class="p">,</span> <span class="s2">&quot;MS1&quot;</span><span class="p">,</span> <span class="s2">&quot;MS2&quot;</span><span class="p">}</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LHFCALC&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
             <span class="n">rt</span> <span class="o">=</span> <span class="s2">&quot;HF&quot;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;METAGGA&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="ow">in</span> <span class="n">METAGGA_TYPES</span><span class="p">:</span>
+            <span class="n">rt</span> <span class="o">=</span> <span class="n">incar</span><span class="p">[</span><span class="s2">&quot;METAGGA&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LUSE_VDW&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
             <span class="n">vdw_gga</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;RE&quot;</span><span class="p">:</span> <span class="s2">&quot;DF&quot;</span><span class="p">,</span> <span class="s2">&quot;OR&quot;</span><span class="p">:</span> <span class="s2">&quot;optPBE&quot;</span><span class="p">,</span> <span class="s2">&quot;BO&quot;</span><span class="p">:</span> <span class="s2">&quot;optB88&quot;</span><span class="p">,</span>
                        <span class="s2">&quot;MK&quot;</span><span class="p">:</span> <span class="s2">&quot;optB86b&quot;</span><span class="p">,</span> <span class="s2">&quot;ML&quot;</span><span class="p">:</span> <span class="s2">&quot;DF2&quot;</span><span class="p">}</span>
@@ -927,7 +933,8 @@
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;No POTCAR file with matching TITEL fields&quot;</span>
                           <span class="s2">&quot; was found in </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">p</span><span class="p">)))</span>
 
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">string_types</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">)):</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
             <span class="k">if</span> <span class="s2">&quot;POTCAR&quot;</span> <span class="ow">in</span> <span class="n">path</span><span class="p">:</span>
                 <span class="n">potcar</span> <span class="o">=</span> <span class="n">Potcar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
                 <span class="k">if</span> <span class="p">{</span><span class="n">d</span><span class="o">.</span><span class="n">TITEL</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">potcar</span><span class="p">}</span> <span class="o">!=</span> \
@@ -1404,7 +1411,7 @@
         <span class="k">return</span> <span class="n">jsanitize</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="Outcar"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Outcar">[docs]</a><span class="k">class</span> <span class="nc">Outcar</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Outcar"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Outcar">[docs]</a><span class="k">class</span> <span class="nc">Outcar</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parser for data in OUTCAR that is not available in Vasprun.xml</span>
 
@@ -3196,7 +3203,7 @@
             <span class="k">return</span> <span class="kc">None</span></div>
 
 
-<div class="viewcode-block" id="Procar"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Procar">[docs]</a><span class="k">class</span> <span class="nc">Procar</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Procar"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Procar">[docs]</a><span class="k">class</span> <span class="nc">Procar</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Object for reading a PROCAR file.</span>
 
@@ -3373,7 +3380,7 @@
                 <span class="k">for</span> <span class="n">spin</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span></div></div>
 
 
-<div class="viewcode-block" id="Oszicar"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Oszicar">[docs]</a><span class="k">class</span> <span class="nc">Oszicar</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Oszicar"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Oszicar">[docs]</a><span class="k">class</span> <span class="nc">Oszicar</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A basic parser for an OSZICAR output from VASP.  In general, while the</span>
 <span class="sd">    OSZICAR is useful for a quick look at the output from a VASP run, we</span>
@@ -3557,7 +3564,7 @@
             <span class="k">return</span> <span class="kc">None</span></div>
 
 
-<div class="viewcode-block" id="Xdatcar"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Xdatcar">[docs]</a><span class="k">class</span> <span class="nc">Xdatcar</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Xdatcar"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Xdatcar">[docs]</a><span class="k">class</span> <span class="nc">Xdatcar</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class representing an XDATCAR file. Only tested with VASP 5.x files.</span>
 
@@ -3775,7 +3782,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_string</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="Dynmat"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Dynmat">[docs]</a><span class="k">class</span> <span class="nc">Dynmat</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Dynmat"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Dynmat">[docs]</a><span class="k">class</span> <span class="nc">Dynmat</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Object for reading a DYNMAT file.</span>
 
@@ -4224,8 +4231,8 @@
 <span class="sd">        of this function can be passed directly to numpy&#39;s fft function. For</span>
 <span class="sd">        example:</span>
 
-<span class="sd">            mesh = Wavecar().fft_mesh(kpoint, band)</span>
-<span class="sd">            evals = np.fft.fft(mesh)</span>
+<span class="sd">            mesh = Wavecar(&#39;WAVECAR&#39;).fft_mesh(kpoint, band)</span>
+<span class="sd">            evals = np.fft.ifftn(mesh)</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            kpoint (int): the index of the kpoint where the wavefunction</span>
@@ -4248,10 +4255,81 @@
         <span class="k">if</span> <span class="n">shift</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifftshift</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">mesh</span></div></div>
+            <span class="k">return</span> <span class="n">mesh</span></div>
+
+<div class="viewcode-block" id="Wavecar.get_parchg"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Wavecar.get_parchg">[docs]</a>    <span class="k">def</span> <span class="nf">get_parchg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">poscar</span><span class="p">,</span> <span class="n">kpoint</span><span class="p">,</span> <span class="n">band</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                   <span class="n">scale</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates a Chgcar object, which is the charge density of the specified</span>
+<span class="sd">        wavefunction.</span>
+
+<span class="sd">        This function generates a Chgcar object with the charge density of the</span>
+<span class="sd">        wavefunction specified by band and kpoint (and spin, if the WAVECAR</span>
+<span class="sd">        corresponds to a spin-polarized calculation). The phase tag is a</span>
+<span class="sd">        feature that is not present in VASP. For a real wavefunction, the phase</span>
+<span class="sd">        tag being turned on means that the charge density is multiplied by the</span>
+<span class="sd">        sign of the wavefunction at that point in space. A warning is generated</span>
+<span class="sd">        if the phase tag is on and the chosen kpoint is not Gamma.</span>
+
+<span class="sd">        Note: Augmentation from the PAWs is NOT included in this function. The</span>
+<span class="sd">        maximal charge density will differ from the PARCHG from VASP, but the</span>
+<span class="sd">        qualitative shape of the charge density will match.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            poscar (pymatgen.io.vasp.inputs.Poscar): Poscar object that has the</span>
+<span class="sd">                                structure associated with the WAVECAR file</span>
+<span class="sd">            kpoint (int):   the index of the kpoint for the wavefunction</span>
+<span class="sd">            band (int):     the index of the band for the wavefunction</span>
+<span class="sd">            spin (int):     optional argument to specify the spin. If the</span>
+<span class="sd">                                Wavecar has ISPIN = 2, spin == None generates a</span>
+<span class="sd">                                Chgcar with total spin and magnetization, and</span>
+<span class="sd">                                spin == {0, 1} specifies just the spin up or</span>
+<span class="sd">                                down component.</span>
+<span class="sd">            phase (bool):   flag to determine if the charge density is</span>
+<span class="sd">                                multiplied by the sign of the wavefunction.</span>
+<span class="sd">                                Only valid for real wavefunctions.</span>
+<span class="sd">            scale (int):    scaling for the FFT grid. The default value of 2 is</span>
+<span class="sd">                                at least as fine as the VASP default.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            a pymatgen.io.vasp.outputs.Chgcar object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">phase</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span><span class="p">[</span><span class="n">kpoint</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;phase == True should only be used for the Gamma &#39;</span>
+                          <span class="s1">&#39;kpoint! I hope you know what you</span><span class="se">\&#39;</span><span class="s1">re doing!&#39;</span><span class="p">)</span>
+
+        <span class="c1"># scaling of ng for the fft grid, need to restore value at the end</span>
+        <span class="n">temp_ng</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ng</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ng</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ng</span> <span class="o">*</span> <span class="n">scale</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ng</span><span class="p">)</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">spin</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">wfr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifftn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fft_mesh</span><span class="p">(</span><span class="n">kpoint</span><span class="p">,</span> <span class="n">band</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">))</span> <span class="o">*</span> <span class="n">N</span>
+                <span class="n">den</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">wfr</span><span class="p">)</span> <span class="o">*</span> <span class="n">wfr</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">phase</span><span class="p">:</span>
+                    <span class="n">den</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">wfr</span><span class="p">))</span> <span class="o">*</span> <span class="n">den</span>
+                <span class="n">data</span><span class="p">[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">den</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">wfr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifftn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fft_mesh</span><span class="p">(</span><span class="n">kpoint</span><span class="p">,</span> <span class="n">band</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span> <span class="o">*</span> <span class="n">N</span>
+                <span class="n">denup</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">wfr</span><span class="p">)</span> <span class="o">*</span> <span class="n">wfr</span><span class="p">)</span>
+                <span class="n">wfr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifftn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fft_mesh</span><span class="p">(</span><span class="n">kpoint</span><span class="p">,</span> <span class="n">band</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">N</span>
+                <span class="n">dendn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">wfr</span><span class="p">)</span> <span class="o">*</span> <span class="n">wfr</span><span class="p">)</span>
+                <span class="n">data</span><span class="p">[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">denup</span> <span class="o">+</span> <span class="n">dendn</span>
+                <span class="n">data</span><span class="p">[</span><span class="s1">&#39;diff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">denup</span> <span class="o">-</span> <span class="n">dendn</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">wfr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifftn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fft_mesh</span><span class="p">(</span><span class="n">kpoint</span><span class="p">,</span> <span class="n">band</span><span class="p">))</span> <span class="o">*</span> <span class="n">N</span>
+            <span class="n">den</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">wfr</span><span class="p">)</span> <span class="o">*</span> <span class="n">wfr</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">phase</span><span class="p">:</span>
+                <span class="n">den</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">wfr</span><span class="p">))</span> <span class="o">*</span> <span class="n">den</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">den</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ng</span> <span class="o">=</span> <span class="n">temp_ng</span>
+        <span class="k">return</span> <span class="n">Chgcar</span><span class="p">(</span><span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="Wavederf"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Wavederf">[docs]</a><span class="k">class</span> <span class="nc">Wavederf</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Wavederf"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Wavederf">[docs]</a><span class="k">class</span> <span class="nc">Wavederf</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Object for reading a WAVEDERF file.</span>
 
@@ -4382,7 +4460,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -4390,7 +4468,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

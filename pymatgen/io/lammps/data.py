@@ -193,22 +193,16 @@ def lattice_2_lmpbox(lattice, origin=(0, 0, 0)):
     a, b, c = lattice.abc
     xlo, ylo, zlo = origin
     xhi = a + xlo
-    if lattice.is_orthogonal:
-        yhi = b + ylo
-        zhi = c + zlo
-        tilt = None
-        rot_matrix = np.eye(3)
-    else:
-        m = lattice.matrix
-        xy = np.dot(m[1], m[0] / a)
-        yhi = np.sqrt(b ** 2 - xy ** 2) + ylo
-        xz = np.dot(m[2], m[0] / a)
-        yz = (np.dot(m[1], m[2]) - xy * xz) / (yhi - ylo)
-        zhi = np.sqrt(c ** 2 - xz ** 2 - yz ** 2) + zlo
-        tilt = [xy, xz, yz]
-        rot_matrix = np.linalg.solve([[xhi - xlo, 0, 0],
-                                      [xy, yhi - ylo, 0],
-                                      [xz, yz, zhi - zlo]], m)
+    m = lattice.matrix
+    xy = np.dot(m[1], m[0] / a)
+    yhi = np.sqrt(b ** 2 - xy ** 2) + ylo
+    xz = np.dot(m[2], m[0] / a)
+    yz = (np.dot(m[1], m[2]) - xy * xz) / (yhi - ylo)
+    zhi = np.sqrt(c ** 2 - xz ** 2 - yz ** 2) + zlo
+    tilt = None if lattice.is_orthogonal else [xy, xz, yz]
+    rot_matrix = np.linalg.solve([[xhi - xlo, 0, 0],
+                                  [xy, yhi - ylo, 0],
+                                  [xz, yz, zhi - zlo]], m)
     bounds = [[xlo, xhi], [ylo, yhi], [zlo, zhi]]
     symmop = SymmOp.from_rotation_and_translation(rot_matrix, origin)
     return LammpsBox(bounds, tilt), symmop
@@ -926,13 +920,13 @@ class Topology(MSONable):
         else:
             angle_list, dihedral_list = [], []
             dests, freq = np.unique(bond_list, return_counts=True)
-            hubs = dests[np.where(freq > 1)]
+            hubs = dests[np.where(freq > 1)].tolist()
             bond_arr = np.array(bond_list)
             if len(hubs) > 0:
                 hub_spokes = {}
                 for hub in hubs:
                     ix = np.any(np.isin(bond_arr, hub), axis=1)
-                    bonds = list(np.unique(bond_arr[ix]))
+                    bonds = np.unique(bond_arr[ix]).tolist()
                     bonds.remove(hub)
                     hub_spokes[hub] = bonds
             # skip angle or dihedral searching if too few bonds or hubs
@@ -946,10 +940,10 @@ class Topology(MSONable):
                                        itertools.combinations(v, 2)])
             if dihedral:
                 hub_cons = bond_arr[np.all(np.isin(bond_arr, hubs), axis=1)]
-                for i, j in hub_cons:
+                for i, j in hub_cons.tolist():
                     ks = [k for k in hub_spokes[i] if k != j]
                     ls = [l for l in hub_spokes[j] if l != i]
-                    dihedral_list.extend([[k, i, j, l] for k,l in
+                    dihedral_list.extend([[k, i, j, l] for k, l in
                                           itertools.product(ks, ls)
                                           if k != l])
 
@@ -1194,7 +1188,7 @@ def structure_2_lmpdata(structure, ff_elements=None, atom_style="charge"):
     box_tilt = None if not any(box_tilt) else box_tilt
     box = LammpsBox(box_bounds, box_tilt)
     new_latt = Lattice([[xhi, 0, 0], [xy, yhi, 0], [xz, yz, zhi]])
-    s.modify_lattice(new_latt)
+    s.lattice = new_latt
 
     symbols = list(s.symbol_set)
     if ff_elements:

@@ -6,14 +6,15 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.diffraction.neutron module &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.analysis.diffraction.neutron module &#8212; pymatgen 2019.3.13 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -34,7 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.3.13 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -43,8 +44,69 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="pymatgen-analysis-diffraction-neutron-module">
-<h1>pymatgen.analysis.diffraction.neutron module<a class="headerlink" href="#pymatgen-analysis-diffraction-neutron-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-pymatgen.analysis.diffraction.neutron">
+<span id="pymatgen-analysis-diffraction-neutron-module"></span><h1>pymatgen.analysis.diffraction.neutron module<a class="headerlink" href="#module-pymatgen.analysis.diffraction.neutron" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.analysis.diffraction.neutron.NDCalculator">
+<em class="property">class </em><code class="descname">NDCalculator</code><span class="sig-paren">(</span><em>wavelength=1.54184</em>, <em>symprec=0</em>, <em>debye_waller_factors=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffraction/neutron.html#NDCalculator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.neutron.NDCalculator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.analysis.diffraction.core.html#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator" title="pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator</span></code></a></p>
+<p>Computes the powder neutron diffraction pattern of a crystal structure.
+This code is a slight modification of XRDCalculator in
+pymatgen.analysis.diffraction.xrd. See it for details of the algorithm.
+Main changes by using neutron instead of X-ray are as follows:
+1. Atomic scattering length is a constant.
+2. Polarization correction term of Lorentz factor is unnecessary.</p>
+<p>Reference:
+Marc De Graef and Michael E. McHenry, Structure of Materials 2nd ed,
+Chapter13, Cambridge University Press 2003.</p>
+<p>Initializes the ND calculator with a given radiation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>wavelength</strong> (<em>float</em>) – The wavelength of neutron in angstroms.
+Defaults to 1.54, corresponds to Cu K_alpha x-ray radiation.</li>
+<li><strong>symprec</strong> (<em>float</em>) – Symmetry precision for structure refinement. If
+set to 0, no refinement is done. Otherwise, refinement is
+performed using spglib with provided precision.</li>
+<li><strong>(</strong><strong>{element symbol</strong> (<em>debye_waller_factors</em>) – float}): Allows the
+specification of Debye-Waller factors. Note that these
+factors are temperature dependent.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.analysis.diffraction.neutron.NDCalculator.get_pattern">
+<code class="descname">get_pattern</code><span class="sig-paren">(</span><em>structure</em>, <em>scaled=True</em>, <em>two_theta_range=(0</em>, <em>90)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffraction/neutron.html#NDCalculator.get_pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.neutron.NDCalculator.get_pattern" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the powder neutron diffraction pattern for a structure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure</li>
+<li><strong>scaled</strong> (<em>bool</em>) – Whether to return scaled intensities. The maximum
+peak is set to a value of 100. Defaults to True. Use False if
+you need the absolute values to combine ND plots.</li>
+<li><strong>two_theta_range</strong> (<em>[</em><em>float of length 2</em><em>]</em>) – Tuple for range of
+two_thetas to calculate in degrees. Defaults to (0, 90). Set to
+None if you want all diffracted beams within the limiting
+sphere of radius 2 / wavelength.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(NDPattern)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
@@ -85,13 +147,13 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.3.13 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

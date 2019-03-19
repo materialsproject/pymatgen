@@ -6,14 +6,15 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.abiinspect &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.io.abinit.abiinspect &#8212; pymatgen 2019.3.13 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -34,7 +35,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -53,17 +54,12 @@
 <span class="sd">This module provides objects to inspect the status of the Abinit tasks at run-time.</span>
 <span class="sd">by extracting information from the main output file (text format).</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">ruamel.yaml</span> <span class="k">as</span> <span class="nn">yaml</span>
-<span class="kn">import</span> <span class="nn">six</span>
 
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="k">import</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span>
-<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span>
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="k">import</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span> <span class="nn">tabulate</span> <span class="k">import</span> <span class="n">tabulate</span>
 <span class="kn">from</span> <span class="nn">monty.functools</span> <span class="k">import</span> <span class="n">lazy_property</span>
@@ -306,7 +302,7 @@
     <span class="sd">&quot;&quot;&quot;Iterations of the DFPT SCF cycle for phonons.&quot;&quot;&quot;</span></div>
 
 
-<div class="viewcode-block" id="CyclesPlotter"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiinspect.html#pymatgen.io.abinit.abiinspect.CyclesPlotter">[docs]</a><span class="k">class</span> <span class="nc">CyclesPlotter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="CyclesPlotter"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiinspect.html#pymatgen.io.abinit.abiinspect.CyclesPlotter">[docs]</a><span class="k">class</span> <span class="nc">CyclesPlotter</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Relies on the plot method of cycle objects to build multiple subfigures.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -682,7 +678,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">doc</span> <span class="o">=</span> <span class="n">six</span><span class="o">.</span><span class="n">advance_iterator</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+                <span class="n">doc</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">doc</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="n">doc_tag</span><span class="p">:</span>
                     <span class="k">return</span> <span class="n">doc</span>
 
@@ -726,7 +722,7 @@
         <span class="c1">#return d[&quot;irred_perts&quot;]</span>
 
 
-<div class="viewcode-block" id="YamlDoc"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiinspect.html#pymatgen.io.abinit.abiinspect.YamlDoc">[docs]</a><span class="k">class</span> <span class="nc">YamlDoc</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="YamlDoc"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiinspect.html#pymatgen.io.abinit.abiinspect.YamlDoc">[docs]</a><span class="k">class</span> <span class="nc">YamlDoc</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Handy object that stores that YAML document, its main tag and the</span>
 <span class="sd">    position inside the file.</span>
@@ -813,7 +809,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -821,7 +817,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

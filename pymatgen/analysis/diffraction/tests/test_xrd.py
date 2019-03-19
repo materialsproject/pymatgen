@@ -27,14 +27,15 @@ class XRDCalculatorTest(PymatgenTest):
         s = self.get_structure("CsCl")
         c = XRDCalculator()
         xrd = c.get_pattern(s, two_theta_range=(0, 90))
+        self.assertTrue(xrd.to_json())  # Test MSONAble property
         # Check the first two peaks
         self.assertAlmostEqual(xrd.x[0], 21.107738329639844)
         self.assertAlmostEqual(xrd.y[0], 36.483184003748946)
-        self.assertEqual(xrd.hkls[0], {(1, 0, 0): 6})
+        self.assertEqual(xrd.hkls[0], [{'hkl': (1, 0, 0), 'multiplicity': 6}])
         self.assertAlmostEqual(xrd.d_hkls[0], 4.2089999999999996)
         self.assertAlmostEqual(xrd.x[1], 30.024695921112777)
         self.assertAlmostEqual(xrd.y[1], 100)
-        self.assertEqual(xrd.hkls[1], {(1, 1, 0): 12})
+        self.assertEqual(xrd.hkls[1], [{"hkl": (1, 1, 0), "multiplicity": 12}])
         self.assertAlmostEqual(xrd.d_hkls[1], 2.976212442014178)
 
         s = self.get_structure("LiFePO4")
@@ -53,7 +54,7 @@ class XRDCalculatorTest(PymatgenTest):
         xrd = c.get_pattern(s, two_theta_range=(0, 90))
         self.assertAlmostEqual(xrd.x[0], 26.21057350859598)
         self.assertAlmostEqual(xrd.y[0], 100)
-        self.assertAlmostEqual(len(list(xrd.hkls[0].keys())[0]), 4)
+        self.assertAlmostEqual(len(xrd.hkls[0][0]["hkl"]), 4)
 
         # Add test case with different lengths of coefficients.
         # Also test d_hkl.
@@ -81,7 +82,6 @@ class XRDCalculatorTest(PymatgenTest):
         self.assertAlmostEqual(xrd.x[0], 40.294828554672264)
         self.assertAlmostEqual(xrd.y[0], 2377745.2296686019)
         self.assertAlmostEqual(xrd.d_hkls[0], 2.2382050944897789)
-        c.get_plot(tungsten)
 
 
 if __name__ == '__main__':
