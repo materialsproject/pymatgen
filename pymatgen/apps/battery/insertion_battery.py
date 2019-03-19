@@ -310,9 +310,6 @@ class InsertionElectrode(AbstractElectrode):
         """
         chg_comp = self.fully_charged_entry.composition
         dischg_comp = self.fully_discharged_entry.composition
-        # Check if the all the decomposition energies are there
-
-
 
         ion = self.working_ion
         d = {"average_voltage": self.get_average_voltage(),
