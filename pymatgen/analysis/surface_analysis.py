@@ -1409,7 +1409,7 @@ class WorkFunctionAnalyzer:
         self.locpot_along_c = locpot_start + locpot_along_c_mid + locpot_end
 
         # identify slab region
-        self.slab_regions = get_slab_regions(self.slab)
+        self.slab_regions = get_slab_regions(self.slab, blength=blength)
         # get the average of the signal in the bulk-like region of the
         # slab, i.e. the average of the oscillating region. This gives
         # a rough appr. of the potential in the interior of the slab
@@ -1576,12 +1576,12 @@ class WorkFunctionAnalyzer:
         return all(all_flat)
 
     @staticmethod
-    def from_files(poscar_filename, locpot_filename, outcar_filename, shift=0):
+    def from_files(poscar_filename, locpot_filename, outcar_filename, shift=0, blength=3):
         p = Poscar.from_file(poscar_filename)
         l = Locpot.from_file(locpot_filename)
         o = Outcar(outcar_filename)
         return WorkFunctionAnalyzer(p.structure, l.get_average_along_axis(2),
-                                    o.efermi, shift=shift)
+                                    o.efermi, shift=shift, blength=blength)
 
 
 class NanoscaleStability:
