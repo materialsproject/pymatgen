@@ -1391,21 +1391,18 @@ class WorkFunctionAnalyzer:
         # increments of the number of locpot points
         self.along_c = np.linspace(0, 1, num=len(locpot_along_c))
 
-        # get shifted locpot
-        shifted_locpot_along_c, pre_shift_locpot_along_c = [], []
-        for i, c in enumerate(self.along_c):
-            if shift < 0:
-                if c > abs(shift):
-                    shifted_locpot_along_c.append(locpot_along_c[i])
-                else:
-                    pre_shift_locpot_along_c.append(locpot_along_c[i])
+        # Get the plot points between 0 and c
+        # increments of the number of locpot points
+        locpot_along_c_mid, locpot_end, locpot_start = [], [], []
+        for i, s in enumerate(self.along_c):
+            j = s + shift
+            if j > 1:
+                locpot_start.append(locpot_along_c[i])
+            elif j < 0:
+                locpot_end.append(locpot_along_c[i])
             else:
-                if c > 1 - shift:
-                    shifted_locpot_along_c.append(locpot_along_c[i])
-                else:
-                    pre_shift_locpot_along_c.append(locpot_along_c[i])
-        self.locpot_along_c = shifted_locpot_along_c
-        self.locpot_along_c.extend(pre_shift_locpot_along_c)
+                locpot_along_c_mid.append(locpot_along_c[i])
+        self.locpot_along_c = locpot_start + locpot_along_c_mid + locpot_end
 
         # Get pbc_corr value to shift c direction between 0 and 1 when identifying slab region
         diff, pbc_corr = -1, 1e-6
