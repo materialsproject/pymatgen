@@ -1314,7 +1314,9 @@ class WavederTest(PymatgenTest):
         kp_index=0
         spin_index=0
         cart_dir_index=0
-        self.assertEqual(wder.get_orbital_derivative_between_states(band_i,band_j,kp_index,spin_index,cart_dir_index),-1.33639226092e-103)
+        cder=wder.get_orbital_derivative_between_states
+        (band_i,band_j,kp_index,spin_index,cart_dir_index)
+        self.assertEqual(cder,-1.33639226092e-103)
 
 
 if __name__ == "__main__":
