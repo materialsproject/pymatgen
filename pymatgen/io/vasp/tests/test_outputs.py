@@ -21,7 +21,7 @@ from pymatgen.electronic_structure.core import OrbitalType
 from pymatgen.io.vasp.inputs import Kpoints, Poscar
 from pymatgen.io.vasp.outputs import Chgcar, Locpot, Oszicar, Outcar, \
     Vasprun, Procar, Xdatcar, Dynmat, BSVasprun, UnconvergedVASPWarning, \
-    VaspParserError, Wavecar
+    VaspParserError, Wavecar, Waveder
 from pymatgen import Spin, Orbital, Lattice, Structure
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.electronic_structure.core import Magmom
@@ -1297,6 +1297,24 @@ class WavecarTest(PymatgenTest):
         self.assertTrue('diff' not in c.data)
         self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng * 2))
         self.assertFalse(np.all(c.data['total'] > 0.))
+
+
+
+
+class WavederTest(PymatgenTest):
+    _multiprocess_shared_ = True
+
+    def setUp(self):
+        wder = Waveder(self.TEST_FILES_DIR / 'WAVEDER')
+        self.assertEqual(wder.nband,36)
+        self.assertEqual(wder.nkpoint,56)
+        self.assertEqual(wder.nelect,8)
+        band_i=0
+        band_j=0
+        kp_index=0
+        spin_index=0
+        cart_dir_index=0
+        self.assertEqual(wder.get_orbital_derivative_between_states(band_i,band_j,kp_index,spin_index,cart_dir_index),-1.33639226092e-103)
 
 
 if __name__ == "__main__":

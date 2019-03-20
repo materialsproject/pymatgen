@@ -4412,9 +4412,16 @@ class Waveder:
     @property
     def nkpoints(self):
         """
-        Returns the number of k-points in the band structure calculation
+        Returns the number of k-points in the calculation
         """
         return self.nkpoints
+
+    @property
+    def nelect(self):
+        """
+        Returns the number of electrons in the calculation
+        """
+        return self.nelect
 
     def get_orbital_derivative_between_states(self, band_i, band_j,kpoint,spin,cart_dir):
         """
@@ -4430,10 +4437,12 @@ class Waveder:
         Returns:
             a float value
         """
-        if band_i < 0 or band_i > self.nbands or band_j < 0 or band_j > self.nelect:
+        if band_i < 0 or band_i > self.nbands-1 or band_j < 0 or band_j > self.nelect-1:
             raise ValueError("Band index out of bounds")
         if kpoint>self.nkpoints:
             raise ValueError("K-point index out of bounds")
+        if cart_dir>2 or cart_dir<0:
+            raise ValueError("cart_dir index out of bounds")
 
         return self.cder_data[band_i,band_j,kpoint,spin,cart_dir]
 
