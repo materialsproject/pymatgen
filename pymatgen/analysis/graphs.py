@@ -2702,7 +2702,11 @@ class MoleculeGraph(MSONable):
         :param other: MoleculeGraph object to be compared.
         :return: bool
         """
-        if self.molecule.composition != other.molecule.composition:
+        if len(self.molecule) != len(other.molecule):
+            return False
+        elif self.molecule.composition != other.molecule.composition:
+            return False
+        elif len(self.graph.edges()) != len(other.graph.edges()):
             return False
         else:
             self_undir = self.graph.to_undirected()
