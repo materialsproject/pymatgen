@@ -64,10 +64,10 @@ class CohpTest(unittest.TestCase):
         self.assertEqual(self.coop.__str__(), str_coop)
 
     def test_antibnd_states_below_efermi(self):
-        self.assertDictEqual(self.cohp.has_antibnd_states_below_efermi(spin=None),{Spin.up: True, Spin.down:True})
-        self.assertDictEqual(self.cohp.has_antibnd_states_below_efermi(spin=None,limit=0.5),{Spin.up: False, Spin.down:False})
-        self.assertDictEqual(self.cohp.has_antibnd_states_below_efermi(spin=Spin.up,limit=0.5),{Spin.up: False})
-
+        self.assertDictEqual(self.cohp.has_antibnd_states_below_efermi(spin=None), {Spin.up: True, Spin.down: True})
+        self.assertDictEqual(self.cohp.has_antibnd_states_below_efermi(spin=None, limit=0.5),
+                             {Spin.up: False, Spin.down: False})
+        self.assertDictEqual(self.cohp.has_antibnd_states_below_efermi(spin=Spin.up, limit=0.5), {Spin.up: False})
 
 
 class IcohpValueTest(unittest.TestCase):
@@ -218,7 +218,6 @@ class CombinedIcohpTest(unittest.TestCase):
         self.assertAlmostEqual(
             self.icohpcollection_Fe.get_summed_icohp_by_label_list(["1", "2"], summed_spin_channels=False,
                                                                    spin=Spin.down, divisor=2.0), sum3)
-
 
     def test_get_icohp_dict_by_bondlengths(self):
         # without spin polarization
@@ -585,19 +584,20 @@ class CompleteCohpTest(PymatgenTest):
 
     def test_get_summed_cohp_by_label_and_orbital_list(self):
         ref = self.cohp_orb.orb_res_cohp["1"]["4s-4px"]
-        ref2=self.cohp_orb.orb_res_cohp["1"]["4px-4pz"]
-        cohp_label = self.cohp_orb.get_summed_cohp_by_label_and_orbital_list(["1"],["4s-4px"])
+        ref2 = self.cohp_orb.orb_res_cohp["1"]["4px-4pz"]
+        cohp_label = self.cohp_orb.get_summed_cohp_by_label_and_orbital_list(["1"], ["4s-4px"])
         cohp_label2 = self.cohp_orb.get_summed_cohp_by_label_and_orbital_list(["1", "1"], ["4s-4px", "4s-4px"])
-        cohp_label2x = self.cohp_orb.get_summed_cohp_by_label_and_orbital_list(["1", "1"], ["4s-4px", "4s-4px"],divisor=2)
-        cohp_label3 = self.cohp_orb.get_summed_cohp_by_label_and_orbital_list(["1", "1"], ["4px-4pz","4s-4px"])
+        cohp_label2x = self.cohp_orb.get_summed_cohp_by_label_and_orbital_list(["1", "1"], ["4s-4px", "4s-4px"],
+                                                                               divisor=2)
+        cohp_label3 = self.cohp_orb.get_summed_cohp_by_label_and_orbital_list(["1", "1"], ["4px-4pz", "4s-4px"])
 
         self.assertArrayEqual(cohp_label.cohp[Spin.up], ref["COHP"][Spin.up])
-        self.assertArrayEqual(cohp_label2.cohp[Spin.up], ref["COHP"][Spin.up]*2.0)
-        self.assertArrayEqual(cohp_label3.cohp[Spin.up], ref["COHP"][Spin.up] +ref2["COHP"][Spin.up])
+        self.assertArrayEqual(cohp_label2.cohp[Spin.up], ref["COHP"][Spin.up] * 2.0)
+        self.assertArrayEqual(cohp_label3.cohp[Spin.up], ref["COHP"][Spin.up] + ref2["COHP"][Spin.up])
         self.assertArrayEqual(cohp_label.icohp[Spin.up], ref["ICOHP"][Spin.up])
-        self.assertArrayEqual(cohp_label2.icohp[Spin.up], ref["ICOHP"][Spin.up]*2.0)
+        self.assertArrayEqual(cohp_label2.icohp[Spin.up], ref["ICOHP"][Spin.up] * 2.0)
         self.assertArrayEqual(cohp_label2x.icohp[Spin.up], ref["ICOHP"][Spin.up])
-        self.assertArrayEqual(cohp_label3.icohp[Spin.up], ref["ICOHP"][Spin.up] +ref2["ICOHP"][Spin.up])
+        self.assertArrayEqual(cohp_label3.icohp[Spin.up], ref["ICOHP"][Spin.up] + ref2["ICOHP"][Spin.up])
 
     def test_orbital_resolved_cohp(self):
         # When read from a COHPCAR file, total COHPs are calculated from
