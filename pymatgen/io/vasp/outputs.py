@@ -4373,7 +4373,8 @@ class Wavederf:
             raise ValueError("Band index out of bounds")
 
         return self.data[:, band_i - 1, band_j - 1, :]
-    
+
+
 class Waveder:
     """
     Class for reading a WAVEDER file.
@@ -4387,20 +4388,20 @@ class Waveder:
 
     def __init__(self, filename):
         with FortranFile(filename, "r") as f:
-            val=(f.read_reals(dtype=np.int32))
-            nbands=int(val[0])
-            nelect=int(val[1])
-            nk=int(val[2])
-            ispin=int(val[3])
-            nodes_in_dielectric_function=(f.read_reals(dtype=np.float))
-            wplasmon=(f.read_reals(dtype=np.float))
-            cder=np.array((f.read_reals(dtype=np.float)))
-            cder_data = cder.reshape((nbands,nelect,nk,ispin,3))
+            val = (f.read_reals(dtype=np.int32))
+            nbands = int(val[0])
+            nelect = int(val[1])
+            nk = int(val[2])
+            ispin = int(val[3])
+            nodes_in_dielectric_function = (f.read_reals(dtype=np.float))
+            wplasmon = (f.read_reals(dtype=np.float))
+            cder = np.array((f.read_reals(dtype=np.float)))
+            cder_data = cder.reshape((nbands, nelect, nk, ispin, 3))
             self.cder_data = cder_data
             self.nkpoints = nk
             self.ispin = ispin
             self.nelect = nelect
-            self.nbands=nbands
+            self.nbands = nbands
 
     @property
     def nbands(self):
@@ -4423,7 +4424,7 @@ class Waveder:
         """
         return self.nelect
 
-    def get_orbital_derivative_between_states(self, band_i, band_j,kpoint,spin,cart_dir):
+    def get_orbital_derivative_between_states(self, band_i, band_j, kpoint, spin, cart_dir):
         """
         Method returning a value
         between bands band_i and band_j for k-point index, spin-channel and cartesian direction.
@@ -4437,14 +4438,14 @@ class Waveder:
         Returns:
             a float value
         """
-        if band_i < 0 or band_i > self.nbands-1 or band_j < 0 or band_j > self.nelect-1:
+        if band_i < 0 or band_i > self.nbands - 1 or band_j < 0 or band_j > self.nelect - 1:
             raise ValueError("Band index out of bounds")
-        if kpoint>self.nkpoints:
+        if kpoint > self.nkpoints:
             raise ValueError("K-point index out of bounds")
-        if cart_dir>2 or cart_dir<0:
+        if cart_dir > 2 or cart_dir < 0:
             raise ValueError("cart_dir index out of bounds")
 
-        return self.cder_data[band_i,band_j,kpoint,spin,cart_dir]
+        return self.cder_data[band_i, band_j, kpoint, spin, cart_dir]
 
 
 class UnconvergedVASPWarning(Warning):
