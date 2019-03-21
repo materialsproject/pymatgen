@@ -100,7 +100,6 @@ class Fragmenter(MSONable):
 
             # Loop through the number of levels,
             for level in range(depth):
-                # print("level", level)
                 # If on the first level, perform one level of fragmentation on the principle molecule graph:
                 if level == 0:
                     self.fragments_by_level["0"] = self._fragment_one_level([self.mol_graph])
@@ -111,13 +110,12 @@ class Fragmenter(MSONable):
                     else: # If not on the first level, and there are fragments present in the previous level, then
                           # perform one level of fragmentation on all fragments present in the previous level:
                         self.fragments_by_level[str(level)] = self._fragment_one_level(self.fragments_by_level[str(level-1)])
-                # print(len(self.fragments_by_level[str(level)]), "additional unique fragments on this level")
             if self.prev_unique_frag_dict == {}:
-                self.new_unique_frag_dict = self.level_unique_frag_dict
+                self.new_unique_frag_dict = copy.deepcopy(self.level_unique_frag_dict)
             else:
                 for comp in self.level_unique_frag_dict:
                     if comp not in self.prev_unique_frag_dict:
-                        self.new_unique_frag_dict[comp] = self.level_unique_frag_dict[comp]
+                        self.new_unique_frag_dict[comp] = copy.deepcopy(self.level_unique_frag_dict[comp])
                     else:
                         for fragment in self.level_unique_frag_dict[comp]:
                             found = False
@@ -125,7 +123,10 @@ class Fragmenter(MSONable):
                                 if fragment.isomorphic_to(prev_frag):
                                     found = True
                             if not found:
-                                self.new_unique_frag_dict[comp].append(fragment)
+                                if comp not in self.new_unique_frag_dict:
+                                    self.new_unique_frag_dict[comp] = [fragment]
+                                else:
+                                    self.new_unique_frag_dict[comp].append(fragment)
 
         self.new_unique_fragments = 0
         for comp in self.new_unique_frag_dict:
