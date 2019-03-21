@@ -6,14 +6,15 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.sites module &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.core.sites module &#8212; pymatgen 2019.3.13 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -34,7 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.3.13 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -213,7 +214,7 @@ of the other site for which the distance applies.</p>
 <dl class="attribute">
 <dt id="pymatgen.core.sites.PeriodicSite.frac_coords">
 <code class="descname">frac_coords</code><a class="headerlink" href="#pymatgen.core.sites.PeriodicSite.frac_coords" title="Permalink to this definition">¶</a></dt>
-<dd><p>A copy of the fractional coordinates of the site.</p>
+<dd><p>Fractional coordinates</p>
 </dd></dl>
 
 <dl class="classmethod">
@@ -268,13 +269,31 @@ same lattice.</li>
 <dl class="attribute">
 <dt id="pymatgen.core.sites.PeriodicSite.lattice">
 <code class="descname">lattice</code><a class="headerlink" href="#pymatgen.core.sites.PeriodicSite.lattice" title="Permalink to this definition">¶</a></dt>
-<dd><p>The lattice associated with the site.</p>
+<dd><p>Lattice associated with PeriodicSite</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.sites.PeriodicSite.to_unit_cell">
+<code class="descname">to_unit_cell</code><span class="sig-paren">(</span><em>in_place=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/sites.html#PeriodicSite.to_unit_cell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.sites.PeriodicSite.to_unit_cell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move frac coords to within the unit cell cell.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pymatgen.core.sites.PeriodicSite.to_unit_cell">
-<code class="descname">to_unit_cell</code><a class="headerlink" href="#pymatgen.core.sites.PeriodicSite.to_unit_cell" title="Permalink to this definition">¶</a></dt>
-<dd><p>Copy of PeriodicSite translated to the unit cell.</p>
+<dt id="pymatgen.core.sites.PeriodicSite.x">
+<code class="descname">x</code><a class="headerlink" href="#pymatgen.core.sites.PeriodicSite.x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cartesian x coordinate</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.sites.PeriodicSite.y">
+<code class="descname">y</code><a class="headerlink" href="#pymatgen.core.sites.PeriodicSite.y" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cartesian y coordinate</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.sites.PeriodicSite.z">
+<code class="descname">z</code><a class="headerlink" href="#pymatgen.core.sites.PeriodicSite.z" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cartesian z coordinate</p>
 </dd></dl>
 
 </dd></dl>
@@ -282,7 +301,7 @@ same lattice.</li>
 <dl class="class">
 <dt id="pymatgen.core.sites.Site">
 <em class="property">class </em><code class="descname">Site</code><span class="sig-paren">(</span><em>atoms_n_occu</em>, <em>coords</em>, <em>properties=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/sites.html#Site"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.sites.Site" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_abcoll.Hashable</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.Hashable</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>A generalized <em>non-periodic</em> site. This is essentially a composition
 at a point in space, with some optional properties associated with it. A
 Composition is used to represent the atoms and occupancy, which allows for
@@ -318,12 +337,6 @@ disordered structures.</dd>
 <dt id="pymatgen.core.sites.Site.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/sites.html#Site.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.sites.Site.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Json-serializable dict representation for Site.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pymatgen.core.sites.Site.coords">
-<code class="descname">coords</code><a class="headerlink" href="#pymatgen.core.sites.Site.coords" title="Permalink to this definition">¶</a></dt>
-<dd><p>A copy of the cartesian coordinates of the site as a numpy array.</p>
 </dd></dl>
 
 <dl class="method">
@@ -377,12 +390,6 @@ occupancy 1.</p>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="pymatgen.core.sites.Site.properties">
-<code class="descname">properties</code><a class="headerlink" href="#pymatgen.core.sites.Site.properties" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a view of properties as a dict.</p>
-</dd></dl>
-
-<dl class="attribute">
 <dt id="pymatgen.core.sites.Site.specie">
 <code class="descname">specie</code><a class="headerlink" href="#pymatgen.core.sites.Site.specie" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Specie/Element at the site. Only works for ordered sites. Otherwise
@@ -399,11 +406,14 @@ design should make use of the property species_and_occu instead.</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="pymatgen.core.sites.Site.species">
+<code class="descname">species</code><a class="headerlink" href="#pymatgen.core.sites.Site.species" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
 <dt id="pymatgen.core.sites.Site.species_and_occu">
 <code class="descname">species_and_occu</code><a class="headerlink" href="#pymatgen.core.sites.Site.species_and_occu" title="Permalink to this definition">¶</a></dt>
-<dd><p>The species at the site, i.e., a Composition mapping type of
-element/species to occupancy.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.sites.Site.species_string">
@@ -471,13 +481,13 @@ element/species to occupancy.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.3.13 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

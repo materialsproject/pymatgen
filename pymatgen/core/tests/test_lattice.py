@@ -69,6 +69,19 @@ class LatticeTestCase(PymatgenTest):
         fcoord = self.tetragonal.get_fractional_coords(coord)
         self.assertArrayAlmostEqual(fcoord, rand_coord)
 
+    def test_get_vector_along_lattice_directions(self):
+       lattice_mat = np.array([[0.5, 0., 0.],
+                               [0.5, np.sqrt(3) / 2., 0.],
+                               [0., 0., 1.0]])
+       lattice = Lattice(lattice_mat)
+       cart_coord = np.array([0.5, np.sqrt(3)/4., 0.5])
+       latt_coord = np.array([0.25, 0.5, 0.5])
+       from_direct = lattice.get_fractional_coords(cart_coord) * lattice.lengths_and_angles[0]
+       self.assertArrayAlmostEqual(lattice.get_vector_along_lattice_directions(cart_coord), from_direct)
+       self.assertArrayAlmostEqual(lattice.get_vector_along_lattice_directions(cart_coord), latt_coord)
+       self.assertArrayEqual(lattice.get_vector_along_lattice_directions(cart_coord).shape, [3,])
+       self.assertArrayEqual(lattice.get_vector_along_lattice_directions(cart_coord.reshape([1,3])).shape, [1,3])
+
     def test_d_hkl(self):
         cubic_copy = self.cubic.copy()
         hkl = (1,2,3)

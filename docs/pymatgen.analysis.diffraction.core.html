@@ -6,14 +6,15 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.diffraction.core module &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.analysis.diffraction.core module &#8212; pymatgen 2019.3.13 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -34,7 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.3.13 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -43,8 +44,220 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="pymatgen-analysis-diffraction-core-module">
-<h1>pymatgen.analysis.diffraction.core module<a class="headerlink" href="#pymatgen-analysis-diffraction-core-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-pymatgen.analysis.diffraction.core">
+<span id="pymatgen-analysis-diffraction-core-module"></span><h1>pymatgen.analysis.diffraction.core module<a class="headerlink" href="#module-pymatgen.analysis.diffraction.core" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator">
+<em class="property">class </em><code class="descname">AbstractDiffractionPatternCalculator</code><a class="reference internal" href="_modules/pymatgen/analysis/diffraction/core.html#AbstractDiffractionPatternCalculator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<p>Abstract base class for computing the diffraction pattern of a crystal.</p>
+<dl class="attribute">
+<dt id="pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.SCALED_INTENSITY_TOL">
+<code class="descname">SCALED_INTENSITY_TOL</code><em class="property"> = 0.001</em><a class="headerlink" href="#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.SCALED_INTENSITY_TOL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.TWO_THETA_TOL">
+<code class="descname">TWO_THETA_TOL</code><em class="property"> = 1e-05</em><a class="headerlink" href="#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.TWO_THETA_TOL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.get_pattern">
+<code class="descname">get_pattern</code><span class="sig-paren">(</span><em>structure</em>, <em>scaled=True</em>, <em>two_theta_range=(0</em>, <em>90)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffraction/core.html#AbstractDiffractionPatternCalculator.get_pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.get_pattern" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the diffraction pattern for a structure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure</li>
+<li><strong>scaled</strong> (<em>bool</em>) – Whether to return scaled intensities. The maximum
+peak is set to a value of 100. Defaults to True. Use False if
+you need the absolute values to combine XRD plots.</li>
+<li><strong>two_theta_range</strong> (<em>[</em><em>float of length 2</em><em>]</em>) – Tuple for range of
+two_thetas to calculate in degrees. Defaults to (0, 90). Set to
+None if you want all diffracted beams within the limiting
+sphere of radius 2 / wavelength.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(DiffractionPattern)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.get_plot">
+<code class="descname">get_plot</code><span class="sig-paren">(</span><em>structure</em>, <em>two_theta_range=(0</em>, <em>90)</em>, <em>annotate_peaks=True</em>, <em>ax=None</em>, <em>with_labels=True</em>, <em>fontsize=16</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffraction/core.html#AbstractDiffractionPatternCalculator.get_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.get_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the diffraction plot as a matplotlib.pyplot.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>structure</strong> – Input structure</li>
+<li><strong>two_theta_range</strong> (<em>[</em><em>float of length 2</em><em>]</em>) – Tuple for range of
+two_thetas to calculate in degrees. Defaults to (0, 90). Set to
+None if you want all diffracted beams within the limiting
+sphere of radius 2 / wavelength.</li>
+<li><strong>annotate_peaks</strong> – Whether to annotate the peaks with plane
+information.</li>
+<li><strong>ax</strong> – matplotlib <code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code> or None if a new figure should be created.</li>
+<li><strong>with_labels</strong> – True to add xlabels and ylabels to the plot.</li>
+<li><strong>fontsize</strong> – (int) fontsize for peak labels.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(matplotlib.pyplot)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.plot_structures">
+<code class="descname">plot_structures</code><span class="sig-paren">(</span><em>structures</em>, <em>fontsize=6</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffraction/core.html#AbstractDiffractionPatternCalculator.plot_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.plot_structures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot diffraction patterns for multiple structures on the same figure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>structures</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – List of structures</li>
+<li><strong>two_theta_range</strong> (<em>[</em><em>float of length 2</em><em>]</em>) – Tuple for range of
+two_thetas to calculate in degrees. Defaults to (0, 90). Set to
+None if you want all diffracted beams within the limiting
+sphere of radius 2 / wavelength.</li>
+<li><strong>annotate_peaks</strong> (<em>bool</em>) – Whether to annotate the peaks with plane
+information.</li>
+<li><strong>fontsize</strong> – (int) fontsize for peak labels.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Keyword arguments controlling the display of the figure:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="77%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">kwargs</th>
+<th class="head">Meaning</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>title</td>
+<td>Title of the plot (Default: None).</td>
+</tr>
+<tr class="row-odd"><td>show</td>
+<td>True to show the figure (default: True).</td>
+</tr>
+<tr class="row-even"><td>savefig</td>
+<td>“abc.png” or “abc.eps” to save the figure to a file.</td>
+</tr>
+<tr class="row-odd"><td>size_kwargs</td>
+<td>Dictionary with options passed to fig.set_size_inches
+e.g. size_kwargs=dict(w=3, h=4)</td>
+</tr>
+<tr class="row-even"><td>tight_layout</td>
+<td>True to call fig.tight_layout (default: False)</td>
+</tr>
+<tr class="row-odd"><td>ax_grid</td>
+<td>True (False) to add (remove) grid from all axes in fig.
+Default: None i.e. fig is left unchanged.</td>
+</tr>
+<tr class="row-even"><td>ax_annotate</td>
+<td>Add labels to  subplots e.g. (a), (b).
+Default: False</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.show_plot">
+<code class="descname">show_plot</code><span class="sig-paren">(</span><em>structure</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffraction/core.html#AbstractDiffractionPatternCalculator.show_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator.show_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shows the diffraction plot.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure</li>
+<li><strong>two_theta_range</strong> (<em>[</em><em>float of length 2</em><em>]</em>) – Tuple for range of
+two_thetas to calculate in degrees. Defaults to (0, 90). Set to
+None if you want all diffracted beams within the limiting
+sphere of radius 2 / wavelength.</li>
+<li><strong>annotate_peaks</strong> (<em>bool</em>) – Whether to annotate the peaks with plane
+information.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.diffraction.core.DiffractionPattern">
+<em class="property">class </em><code class="descname">DiffractionPattern</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>hkls</em>, <em>d_hkls</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffraction/core.html#DiffractionPattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.core.DiffractionPattern" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.core.spectrum.html#pymatgen.core.spectrum.Spectrum" title="pymatgen.core.spectrum.Spectrum"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.spectrum.Spectrum</span></code></a></p>
+<p>A representation of a diffraction pattern</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>x</strong> – Two theta angles.</li>
+<li><strong>y</strong> – Intensities</li>
+<li><strong>hkls</strong> – [{“hkl”: (h, k, l), “multiplicity”: mult}],
+where {“hkl”: (h, k, l), “multiplicity”: mult}
+is a dict of Miller
+indices for all diffracted lattice facets contributing to each
+intensity.</li>
+<li><strong>d_hkls</strong> – List of interplanar spacings.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pymatgen.analysis.diffraction.core.DiffractionPattern.XLABEL">
+<code class="descname">XLABEL</code><em class="property"> = '$2\\Theta$'</em><a class="headerlink" href="#pymatgen.analysis.diffraction.core.DiffractionPattern.XLABEL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.diffraction.core.DiffractionPattern.YLABEL">
+<code class="descname">YLABEL</code><em class="property"> = 'Intensity'</em><a class="headerlink" href="#pymatgen.analysis.diffraction.core.DiffractionPattern.YLABEL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.diffraction.core.get_unique_families">
+<code class="descname">get_unique_families</code><span class="sig-paren">(</span><em>hkls</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffraction/core.html#get_unique_families"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.core.get_unique_families" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns unique families of Miller indices. Families must be permutations
+of each other.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>hkls</strong> (<em>[</em><em>h</em><em>, </em><em>k</em><em>, </em><em>l</em><em>]</em>) – List of Miller indices.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">multiplicity}: A dict with unique hkl and multiplicity.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">{hkl</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 
 
@@ -85,13 +298,13 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.3.13 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

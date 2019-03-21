@@ -6,14 +6,15 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.sets module &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.io.vasp.sets module &#8212; pymatgen 2019.3.13 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -34,7 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.3.13 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -47,7 +48,7 @@
 <span id="pymatgen-io-vasp-sets-module"></span><h1>pymatgen.io.vasp.sets module<a class="headerlink" href="#module-pymatgen.io.vasp.sets" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.io.vasp.sets.DictSet">
-<em class="property">class </em><code class="descname">DictSet</code><span class="sig-paren">(</span><em>structure</em>, <em>config_dict</em>, <em>files_to_transfer=None</em>, <em>user_incar_settings=None</em>, <em>user_kpoints_settings=None</em>, <em>user_potcar_settings=None</em>, <em>constrain_total_magmom=False</em>, <em>sort_structure=True</em>, <em>potcar_functional=u'PBE'</em>, <em>force_gamma=False</em>, <em>reduce_structure=None</em>, <em>vdw=None</em>, <em>use_structure_charge=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#DictSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.DictSet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">DictSet</code><span class="sig-paren">(</span><em>structure</em>, <em>config_dict</em>, <em>files_to_transfer=None</em>, <em>user_incar_settings=None</em>, <em>user_kpoints_settings=None</em>, <em>user_potcar_settings=None</em>, <em>constrain_total_magmom=False</em>, <em>sort_structure=True</em>, <em>potcar_functional='PBE'</em>, <em>force_gamma=False</em>, <em>reduce_structure=None</em>, <em>vdw=None</em>, <em>use_structure_charge=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#DictSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.DictSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vasp.sets.VaspInputSet" title="pymatgen.io.vasp.sets.VaspInputSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.vasp.sets.VaspInputSet</span></code></a></p>
 <p>Concrete implementation of VaspInputSet that is initialized from a dict
 settings. This allows arbitrary settings to be input. In general,
@@ -75,7 +76,7 @@ there are no settings, VASP’s default of 0.6 is used.</li>
 <li><strong>config_dict</strong> (<em>dict</em>) – The config dictionary to use.</li>
 <li><strong>files_to_transfer</strong> (<em>dict</em>) – A dictionary of {filename: filepath}. This
 allows the transfer of files from a previous calculation.</li>
-<li><strong>user_incar_settings</strong> (<em>dict</em>) – User INCAR settings. This allows a user
+<li><strong>user_incar_settings</strong> (<em>dict</em>) – <p>User INCAR settings. This allows a user
 to override INCAR settings, e.g., setting a different MAGMOM for
 various elements or species. Note that in the new scheme,
 ediff_per_atom and hubbard_u are no longer args. Instead, the
@@ -88,7 +89,10 @@ pymatgen defines different values depending on what anions are
 present in the structure, so these keys can be defined in one
 of two ways, e.g. either {“LDAUU”:{“O”:{“Fe”:5}}} to set LDAUU
 for Fe to 5 in an oxide, or {“LDAUU”:{“Fe”:5}} to set LDAUU to
-5 regardless of the input structure.</li>
+5 regardless of the input structure.</p>
+<p>If a None value is given, that key is unset. For example,
+{“ENCUT”: None} will remove ENCUT from the incar settings.</p>
+</li>
 <li><strong>user_kpoints_settings</strong> (<em>dict</em><em> or </em><a class="reference internal" href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Kpoints" title="pymatgen.io.vasp.inputs.Kpoints"><em>Kpoints</em></a>) – Allow user to override kpoints
 setting by supplying a dict E.g., {“reciprocal_density”: 1000}.
 User can also supply Kpoints object. Default is None.</li>
@@ -132,7 +136,8 @@ Default is False (structure’s overall charge is not used)</li>
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.sets.DictSet.incar">
 <code class="descname">incar</code><a class="headerlink" href="#pymatgen.io.vasp.sets.DictSet.incar" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Incar object</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.sets.DictSet.kpoints">
@@ -155,12 +160,30 @@ reciprocal lattice vector proportional to its length.</dd>
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.sets.DictSet.poscar">
 <code class="descname">poscar</code><a class="headerlink" href="#pymatgen.io.vasp.sets.DictSet.poscar" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Poscar object</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.vasp.sets.DictSet.write_input">
 <code class="descname">write_input</code><span class="sig-paren">(</span><em>output_dir</em>, <em>make_dir_if_not_present=True</em>, <em>include_cif=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#DictSet.write_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.DictSet.write_input" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Writes a set of VASP input to a directory.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>output_dir</strong> (<em>str</em>) – Directory to output the VASP input files</li>
+<li><strong>make_dir_if_not_present</strong> (<em>bool</em>) – Set to True if you want the
+directory (and the whole path) to be created if it is not
+present.</li>
+<li><strong>include_cif</strong> (<em>bool</em>) – Whether to write a CIF file in the output
+directory for easier opening by VESTA.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
@@ -168,7 +191,7 @@ reciprocal lattice vector proportional to its length.</dd>
 <dt id="pymatgen.io.vasp.sets.MITMDSet">
 <em class="property">class </em><code class="descname">MITMDSet</code><span class="sig-paren">(</span><em>structure</em>, <em>start_temp</em>, <em>end_temp</em>, <em>nsteps</em>, <em>time_step=2</em>, <em>spin_polarized=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MITMDSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MITMDSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vasp.sets.MITRelaxSet" title="pymatgen.io.vasp.sets.MITRelaxSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.vasp.sets.MITRelaxSet</span></code></a></p>
-<p>Class for writing a vasp md run. This DOES NOT do multiple stage
+<p>Clas for writing a vasp md run. This DOES NOT do multiple stage
 runs.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -192,7 +215,14 @@ The ISPIN parameter. Defaults to False.</li>
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.sets.MITMDSet.kpoints">
 <code class="descname">kpoints</code><a class="headerlink" href="#pymatgen.io.vasp.sets.MITMDSet.kpoints" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Writes out a KPOINTS file using the fully automated grid method. Uses
+Gamma centered meshes for hexagonal cells and Monk grids otherwise.</p>
+<dl class="docutils">
+<dt>Algorithm:</dt>
+<dd>Uses a simple approach scaling the number of divisions along each
+reciprocal lattice vector proportional to its length.</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -217,7 +247,8 @@ basis for this input set.</p>
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.sets.MITNEBSet.poscar">
 <code class="descname">poscar</code><a class="headerlink" href="#pymatgen.io.vasp.sets.MITNEBSet.poscar" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Poscar object</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.sets.MITNEBSet.poscars">
@@ -275,7 +306,7 @@ which means in general pseudopotentials with fewer electrons were chosen.</p>
 
 <dl class="class">
 <dt id="pymatgen.io.vasp.sets.MPHSEBSSet">
-<em class="property">class </em><code class="descname">MPHSEBSSet</code><span class="sig-paren">(</span><em>structure</em>, <em>user_incar_settings=None</em>, <em>added_kpoints=None</em>, <em>mode=u'Uniform'</em>, <em>reciprocal_density=None</em>, <em>kpoints_line_density=20</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MPHSEBSSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MPHSEBSSet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">MPHSEBSSet</code><span class="sig-paren">(</span><em>structure</em>, <em>user_incar_settings=None</em>, <em>added_kpoints=None</em>, <em>mode='Uniform'</em>, <em>reciprocal_density=None</em>, <em>kpoints_line_density=20</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MPHSEBSSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MPHSEBSSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vasp.sets.MPHSERelaxSet" title="pymatgen.io.vasp.sets.MPHSERelaxSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.vasp.sets.MPHSERelaxSet</span></code></a></p>
 <p>Implementation of a VaspInputSet for HSE band structure computations.
 Remember that HSE band structures must be self-consistent in VASP. A
@@ -308,7 +339,7 @@ bandstructure. “Uniform” - generate uniform k-points grid</li>
 </table>
 <dl class="classmethod">
 <dt id="pymatgen.io.vasp.sets.MPHSEBSSet.from_prev_calc">
-<em class="property">classmethod </em><code class="descname">from_prev_calc</code><span class="sig-paren">(</span><em>prev_calc_dir</em>, <em>mode=u'gap'</em>, <em>reciprocal_density=50</em>, <em>copy_chgcar=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MPHSEBSSet.from_prev_calc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MPHSEBSSet.from_prev_calc" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">from_prev_calc</code><span class="sig-paren">(</span><em>prev_calc_dir</em>, <em>mode='gap'</em>, <em>reciprocal_density=50</em>, <em>copy_chgcar=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MPHSEBSSet.from_prev_calc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MPHSEBSSet.from_prev_calc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a set of Vasp input files for HSE calculations from a
 directory of previous Vasp run. if mode==”gap”, it explicitly adds VBM
 and CBM of the prev run to the k-point list of this run.</p>
@@ -335,7 +366,14 @@ calc dir.</li>
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.sets.MPHSEBSSet.kpoints">
 <code class="descname">kpoints</code><a class="headerlink" href="#pymatgen.io.vasp.sets.MPHSEBSSet.kpoints" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Writes out a KPOINTS file using the fully automated grid method. Uses
+Gamma centered meshes for hexagonal cells and Monk grids otherwise.</p>
+<dl class="docutils">
+<dt>Algorithm:</dt>
+<dd>Uses a simple approach scaling the number of divisions along each
+reciprocal lattice vector proportional to its length.</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -352,8 +390,55 @@ calc dir.</li>
 </dd></dl>
 
 <dl class="class">
+<dt id="pymatgen.io.vasp.sets.MPMDSet">
+<em class="property">class </em><code class="descname">MPMDSet</code><span class="sig-paren">(</span><em>structure</em>, <em>start_temp</em>, <em>end_temp</em>, <em>nsteps</em>, <em>spin_polarized=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MPMDSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MPMDSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vasp.sets.MPRelaxSet" title="pymatgen.io.vasp.sets.MPRelaxSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.vasp.sets.MPRelaxSet</span></code></a></p>
+<p>This a modified version of the old MITMDSet pre 2018/03/12.
+This set serves as the basis for the amorphous skyline paper.
+(1) Aykol, M.; Dwaraknath, S. S.; Sun, W.; Persson, K. A.
+Thermodynamic Limit for Synthesis of Metastable Inorganic Materials. Sci. Adv. 2018, 4 (4).</p>
+<blockquote>
+<div>Class for writing a vasp md run. This DOES NOT do multiple stage</div></blockquote>
+<dl class="docutils">
+<dt>runs.</dt>
+<dd>Precision remains normal, to increase accuracy of stress tensor.</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure.</li>
+<li><strong>start_temp</strong> (<em>int</em>) – Starting temperature.</li>
+<li><strong>end_temp</strong> (<em>int</em>) – Final temperature.</li>
+<li><strong>nsteps</strong> (<em>int</em>) – Number of time steps for simulations. The NSW parameter.</li>
+<li><strong>time_step</strong> (<em>int</em>) – The time step for the simulation. The POTIM
+parameter. Defaults to 2fs.</li>
+<li><strong>spin_polarized</strong> (<em>bool</em>) – Whether to do spin polarized calculations.
+The ISPIN parameter. Defaults to False.</li>
+<li><strong>**kwargs</strong> – Other kwargs supported by <a class="reference internal" href="#pymatgen.io.vasp.sets.DictSet" title="pymatgen.io.vasp.sets.DictSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DictSet</span></code></a>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.sets.MPMDSet.kpoints">
+<code class="descname">kpoints</code><a class="headerlink" href="#pymatgen.io.vasp.sets.MPMDSet.kpoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes out a KPOINTS file using the fully automated grid method. Uses
+Gamma centered meshes for hexagonal cells and Monk grids otherwise.</p>
+<dl class="docutils">
+<dt>Algorithm:</dt>
+<dd>Uses a simple approach scaling the number of divisions along each
+reciprocal lattice vector proportional to its length.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="pymatgen.io.vasp.sets.MPNMRSet">
-<em class="property">class </em><code class="descname">MPNMRSet</code><span class="sig-paren">(</span><em>structure</em>, <em>mode=u'cs'</em>, <em>isotopes=None</em>, <em>prev_incar=None</em>, <em>reciprocal_density=100</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MPNMRSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MPNMRSet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">MPNMRSet</code><span class="sig-paren">(</span><em>structure</em>, <em>mode='cs'</em>, <em>isotopes=None</em>, <em>prev_incar=None</em>, <em>reciprocal_density=100</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MPNMRSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MPNMRSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vasp.sets.MPStaticSet" title="pymatgen.io.vasp.sets.MPStaticSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.vasp.sets.MPStaticSet</span></code></a></p>
 <p>Init a MPNMRSet.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -378,13 +463,14 @@ volume (defaults to 100)</li>
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.sets.MPNMRSet.incar">
 <code class="descname">incar</code><a class="headerlink" href="#pymatgen.io.vasp.sets.MPNMRSet.incar" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Incar object</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.io.vasp.sets.MPNonSCFSet">
-<em class="property">class </em><code class="descname">MPNonSCFSet</code><span class="sig-paren">(</span><em>structure</em>, <em>prev_incar=None</em>, <em>mode=u'line'</em>, <em>nedos=601</em>, <em>reciprocal_density=100</em>, <em>sym_prec=0.1</em>, <em>kpoints_line_density=20</em>, <em>optics=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MPNonSCFSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MPNonSCFSet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">MPNonSCFSet</code><span class="sig-paren">(</span><em>structure</em>, <em>prev_incar=None</em>, <em>mode='line'</em>, <em>nedos=2001</em>, <em>reciprocal_density=100</em>, <em>sym_prec=0.1</em>, <em>kpoints_line_density=20</em>, <em>optics=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MPNonSCFSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MPNonSCFSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vasp.sets.MPRelaxSet" title="pymatgen.io.vasp.sets.MPRelaxSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.vasp.sets.MPRelaxSet</span></code></a></p>
 <p>Init a MPNonSCFSet. Typically, you would use the classmethod
 from_prev_calc to initialize from a previous SCF run.</p>
@@ -396,7 +482,7 @@ from_prev_calc to initialize from a previous SCF run.</p>
 <li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Structure to compute</li>
 <li><strong>prev_incar</strong> (<em>Incar/string</em>) – Incar file from previous run.</li>
 <li><strong>mode</strong> (<em>str</em>) – Line or Uniform mode supported.</li>
-<li><strong>nedos</strong> (<em>int</em>) – nedos parameter. Default to 601.</li>
+<li><strong>nedos</strong> (<em>int</em>) – nedos parameter. Default to 2001.</li>
 <li><strong>reciprocal_density</strong> (<em>int</em>) – density of k-mesh by reciprocal
 volume (defaults to 100)</li>
 <li><strong>sym_prec</strong> (<em>float</em>) – Symmetry precision (for Uniform mode).</li>
@@ -451,12 +537,20 @@ are determined from the prev_calc_dir.</li>
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.sets.MPNonSCFSet.incar">
 <code class="descname">incar</code><a class="headerlink" href="#pymatgen.io.vasp.sets.MPNonSCFSet.incar" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Incar object</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.sets.MPNonSCFSet.kpoints">
 <code class="descname">kpoints</code><a class="headerlink" href="#pymatgen.io.vasp.sets.MPNonSCFSet.kpoints" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Writes out a KPOINTS file using the fully automated grid method. Uses
+Gamma centered meshes for hexagonal cells and Monk grids otherwise.</p>
+<dl class="docutils">
+<dt>Algorithm:</dt>
+<dd>Uses a simple approach scaling the number of divisions along each
+reciprocal lattice vector proportional to its length.</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -541,7 +635,8 @@ are determined from the prev_calc_dir.</li>
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.sets.MPSOCSet.incar">
 <code class="descname">incar</code><a class="headerlink" href="#pymatgen.io.vasp.sets.MPSOCSet.incar" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Incar object</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -608,12 +703,20 @@ are determined from the prev_calc_dir.</li>
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.sets.MPStaticSet.incar">
 <code class="descname">incar</code><a class="headerlink" href="#pymatgen.io.vasp.sets.MPStaticSet.incar" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Incar object</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.sets.MPStaticSet.kpoints">
 <code class="descname">kpoints</code><a class="headerlink" href="#pymatgen.io.vasp.sets.MPStaticSet.kpoints" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Writes out a KPOINTS file using the fully automated grid method. Uses
+Gamma centered meshes for hexagonal cells and Monk grids otherwise.</p>
+<dl class="docutils">
+<dt>Algorithm:</dt>
+<dd>Uses a simple approach scaling the number of divisions along each
+reciprocal lattice vector proportional to its length.</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -680,7 +783,8 @@ which can be set by the user to be anything desired.</li>
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.sets.MVLGBSet.incar">
 <code class="descname">incar</code><a class="headerlink" href="#pymatgen.io.vasp.sets.MVLGBSet.incar" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Incar object</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.sets.MVLGBSet.kpoints">
@@ -694,7 +798,7 @@ Automatic mesh &amp; Gamma is the default setting.</p>
 
 <dl class="class">
 <dt id="pymatgen.io.vasp.sets.MVLGWSet">
-<em class="property">class </em><code class="descname">MVLGWSet</code><span class="sig-paren">(</span><em>structure</em>, <em>prev_incar=None</em>, <em>nbands=None</em>, <em>potcar_functional=u'PBE_54'</em>, <em>reciprocal_density=100</em>, <em>mode=u'STATIC'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MVLGWSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MVLGWSet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">MVLGWSet</code><span class="sig-paren">(</span><em>structure</em>, <em>prev_incar=None</em>, <em>nbands=None</em>, <em>potcar_functional='PBE_54'</em>, <em>reciprocal_density=100</em>, <em>mode='STATIC'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MVLGWSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MVLGWSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vasp.sets.DictSet" title="pymatgen.io.vasp.sets.DictSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.vasp.sets.DictSet</span></code></a></p>
 <p>MVL denotes VASP input sets that are implemented by the Materials Virtual
 Lab (<a class="reference external" href="http://www.materialsvirtuallab.org">http://www.materialsvirtuallab.org</a>) for various research. This is a
@@ -735,12 +839,12 @@ user_incar_settings is a commonly used option.</li>
 
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.sets.MVLGWSet.SUPPORTED_MODES">
-<code class="descname">SUPPORTED_MODES</code><em class="property"> = (u'DIAG', u'GW', u'STATIC', u'BSE')</em><a class="headerlink" href="#pymatgen.io.vasp.sets.MVLGWSet.SUPPORTED_MODES" title="Permalink to this definition">¶</a></dt>
+<code class="descname">SUPPORTED_MODES</code><em class="property"> = ('DIAG', 'GW', 'STATIC', 'BSE')</em><a class="headerlink" href="#pymatgen.io.vasp.sets.MVLGWSet.SUPPORTED_MODES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="classmethod">
 <dt id="pymatgen.io.vasp.sets.MVLGWSet.from_prev_calc">
-<em class="property">classmethod </em><code class="descname">from_prev_calc</code><span class="sig-paren">(</span><em>prev_calc_dir</em>, <em>copy_wavecar=True</em>, <em>mode=u'DIAG'</em>, <em>nbands_factor=5</em>, <em>ncores=16</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MVLGWSet.from_prev_calc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MVLGWSet.from_prev_calc" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">from_prev_calc</code><span class="sig-paren">(</span><em>prev_calc_dir</em>, <em>copy_wavecar=True</em>, <em>mode='DIAG'</em>, <em>nbands_factor=5</em>, <em>ncores=16</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MVLGWSet.from_prev_calc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MVLGWSet.from_prev_calc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a set of Vasp input files for GW or BSE calculations from a
 directory of previous Exact Diag Vasp run.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -772,7 +876,8 @@ are determined from the prev_calc_dir.</li>
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.sets.MVLGWSet.incar">
 <code class="descname">incar</code><a class="headerlink" href="#pymatgen.io.vasp.sets.MVLGWSet.incar" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Incar object</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.sets.MVLGWSet.kpoints">
@@ -814,7 +919,7 @@ The ISPIN parameter. Defaults to False.</li>
 
 <dl class="class">
 <dt id="pymatgen.io.vasp.sets.MVLRelax52Set">
-<em class="property">class </em><code class="descname">MVLRelax52Set</code><span class="sig-paren">(</span><em>structure</em>, <em>potcar_functional=u'PBE_52'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MVLRelax52Set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MVLRelax52Set" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">MVLRelax52Set</code><span class="sig-paren">(</span><em>structure</em>, <em>potcar_functional='PBE_52'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MVLRelax52Set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MVLRelax52Set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vasp.sets.DictSet" title="pymatgen.io.vasp.sets.DictSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.vasp.sets.DictSet</span></code></a></p>
 <p>Implementation of VaspInputSet utilizing the public Materials Project
 parameters for INCAR &amp; KPOINTS and VASP’s recommended PAW potentials for
@@ -859,7 +964,7 @@ Specifically, C_h, O_h, N_h, F_h, P_h, S_h, Cl_h</dd>
 
 <dl class="class">
 <dt id="pymatgen.io.vasp.sets.MVLScanRelaxSet">
-<em class="property">class </em><code class="descname">MVLScanRelaxSet</code><span class="sig-paren">(</span><em>structure</em>, <em>potcar_functional=u'PBE_52'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MVLScanRelaxSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MVLScanRelaxSet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">MVLScanRelaxSet</code><span class="sig-paren">(</span><em>structure</em>, <em>potcar_functional='PBE_52'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MVLScanRelaxSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MVLScanRelaxSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vasp.sets.MPRelaxSet" title="pymatgen.io.vasp.sets.MPRelaxSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.vasp.sets.MPRelaxSet</span></code></a></p>
 <p>Class for writing a relax input set using Strongly Constrained and
 Appropriately Normed (SCAN) semilocal density functional.</p>
@@ -918,7 +1023,8 @@ also for c direction in bulk calculations</li>
 <dl class="method">
 <dt id="pymatgen.io.vasp.sets.MVLSlabSet.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><em>verbosity=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MVLSlabSet.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MVLSlabSet.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>A JSON serializable dict representation of an object.</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.sets.MVLSlabSet.kpoints">
@@ -942,25 +1048,26 @@ class. Start from DictSet or MPRelaxSet or MITRelaxSet.</p>
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.sets.VaspInputSet.all_input">
 <code class="descname">all_input</code><a class="headerlink" href="#pymatgen.io.vasp.sets.VaspInputSet.all_input" title="Permalink to this definition">¶</a></dt>
-<dd><p>vasp object}</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">object}, e.g., {‘INCAR’: Incar object, …}</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dict of {filename</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">Returns all input files as a dict of {filename</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.vasp.sets.VaspInputSet.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><em>verbosity=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#VaspInputSet.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.VaspInputSet.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>A JSON serializable dict representation of an object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.vasp.sets.VaspInputSet.get_vasp_input">
+<code class="descname">get_vasp_input</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; pymatgen.io.vasp.inputs.VaspInput<a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#VaspInputSet.get_vasp_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.VaspInputSet.get_vasp_input" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">VaspInput</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.sets.VaspInputSet.incar">
@@ -1018,7 +1125,7 @@ directory for easier opening by VESTA.</li>
 
 <dl class="function">
 <dt id="pymatgen.io.vasp.sets.batch_write_input">
-<code class="descname">batch_write_input</code><span class="sig-paren">(</span><em>structures</em>, <em>vasp_input_set=&lt;class 'pymatgen.io.vasp.sets.MPRelaxSet'&gt;</em>, <em>output_dir=u'.'</em>, <em>make_dir_if_not_present=True</em>, <em>subfolder=None</em>, <em>sanitize=False</em>, <em>include_cif=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#batch_write_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.batch_write_input" title="Permalink to this definition">¶</a></dt>
+<code class="descname">batch_write_input</code><span class="sig-paren">(</span><em>structures</em>, <em>vasp_input_set=&lt;class 'pymatgen.io.vasp.sets.MPRelaxSet'&gt;</em>, <em>output_dir='.'</em>, <em>make_dir_if_not_present=True</em>, <em>subfolder=None</em>, <em>sanitize=False</em>, <em>include_cif=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#batch_write_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.batch_write_input" title="Permalink to this definition">¶</a></dt>
 <dd><p>Batch write vasp input for a sequence of structures to
 output_dir, following the format output_dir/{group}/{formula}_{number}.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1124,13 +1231,13 @@ Vasp input files, e.g. get_kpoints.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.3.13 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -241,7 +241,7 @@ class ParalHintsParser:
                 raise self.Error(err_msg)
 
 
-class ParalHints(collections.Iterable):
+class ParalHints(collections.abc.Iterable):
     """
     Iterable with the hints for the parallel execution reported by ABINIT.
     """
@@ -455,7 +455,7 @@ class TaskPolicy:
         else:
             if isinstance(obj, cls):
                 return obj
-            elif isinstance(obj, collections.Mapping):
+            elif isinstance(obj, collections.abc.Mapping):
                 return cls(**obj)
             else:
                 raise TypeError("Don't know how to convert type %s to %s" % (type(obj), cls))
@@ -629,7 +629,7 @@ batch_adapter:
             else:
                 return cls.from_string(obj)
 
-        elif isinstance(obj, collections.Mapping):
+        elif isinstance(obj, collections.abc.Mapping):
             return cls.from_dict(obj)
         else:
             raise TypeError("Don't know how to convert type %s to TaskManager" % type(obj))

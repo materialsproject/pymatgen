@@ -143,9 +143,13 @@ class DLSVolumePredictor:
     """
     Data-mined lattice scaling (DLS) scheme that relies on data-mined bond
     lengths to predict the crystal volume of a given structure.
+
+    As of 2/12/19, we suggest this method be used in conjunction with
+    min_scaling and max_scaling to prevent instances of very large, unphysical
+    predicted volumes found in a small subset of structures.
     """
 
-    def __init__(self, cutoff=4.0):
+    def __init__(self, cutoff=4.0, min_scaling=0.5, max_scaling=1.5):
         """
         Args:
             cutoff (float): cutoff radius added to site radius for finding
@@ -153,9 +157,16 @@ class DLSVolumePredictor:
                 structure guess is extremely bad (atoms way too far apart). In
                 all other instances, increasing cutoff gives same answer
                 but takes more time.
+            min_scaling (float): if not None, this will ensure that the new
+                volume is at least this fraction of the original (preventing
+                too-small volumes)
+            max_scaling (float): if not None, this will ensure that the new
+                volume is at most this fraction of the original (preventing
+                too-large volumes)
         """
-
         self.cutoff = cutoff
+        self.min_scaling = min_scaling
+        self.max_scaling = max_scaling
 
     def predict(self, structure, icsd_vol=False):
         """
@@ -223,6 +234,11 @@ class DLSVolumePredictor:
         if icsd_vol:
             volume_factor *= 1.05
 
+        if self.min_scaling:
+            volume_factor = max(self.min_scaling, volume_factor)
+        if self.max_scaling:
+            volume_factor = min(self.max_scaling, volume_factor)
+
         return structure.volume * volume_factor
 
     def get_predicted_structure(self, structure, icsd_vol=False):
@@ -237,5 +253,4 @@ class DLSVolumePredictor:
         """
         new_structure = structure.copy()
         new_structure.scale_lattice(self.predict(structure, icsd_vol=icsd_vol))
-
         return new_structure

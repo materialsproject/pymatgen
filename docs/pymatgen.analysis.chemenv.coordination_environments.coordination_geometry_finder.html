@@ -6,14 +6,15 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder module &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder module &#8212; pymatgen 2019.3.13 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -34,7 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.3.13 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -45,9 +46,16 @@
             
   <div class="section" id="module-pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder">
 <span id="pymatgen-analysis-chemenv-coordination-environments-coordination-geometry-finder-module"></span><h1>pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder module<a class="headerlink" href="#module-pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder" title="Permalink to this headline">¶</a></h1>
+<p>This module contains the main object used to identify the coordination environments in a given structure.
+If you use this module, please cite the following:</p>
+<p>David Waroquiers, Xavier Gonze, Gian-Marco Rignanese, Cathrin Welker-Nieuwoudt, Frank Rosowski,
+Michael Goebel, Stephan Schenk, Peter Degelmann, Rute Andre, Robert Glaum, and Geoffroy Hautier,
+“Statistical analysis of coordination environments in oxides”,
+Chem. Mater., 2017, 29 (19), pp 8346–8360,
+DOI: 10.1021/acs.chemmater.7b02766</p>
 <dl class="class">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry">
-<em class="property">class </em><code class="descname">AbstractGeometry</code><span class="sig-paren">(</span><em>central_site=None</em>, <em>bare_coords=None</em>, <em>centering_type=u'standard'</em>, <em>include_central_site_in_centroid=False</em>, <em>optimization=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.html#AbstractGeometry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">AbstractGeometry</code><span class="sig-paren">(</span><em>central_site=None</em>, <em>bare_coords=None</em>, <em>centering_type='standard'</em>, <em>include_central_site_in_centroid=False</em>, <em>optimization=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.html#AbstractGeometry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class used to describe a geometry (perfect or distorted)</p>
 <p>Constructor for the abstract geometry
@@ -77,7 +85,7 @@
 
 <dl class="classmethod">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.from_cg">
-<em class="property">classmethod </em><code class="descname">from_cg</code><span class="sig-paren">(</span><em>cg</em>, <em>centering_type=u'standard'</em>, <em>include_central_site_in_centroid=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.html#AbstractGeometry.from_cg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.from_cg" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">from_cg</code><span class="sig-paren">(</span><em>cg</em>, <em>centering_type='standard'</em>, <em>include_central_site_in_centroid=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.html#AbstractGeometry.from_cg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.from_cg" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -123,7 +131,7 @@ coordination numbers!)
 :param plane_ordering_override: If set to False, the ordering of the points in the plane is disabled</p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.BVA_DISTANCE_SCALE_FACTORS">
-<code class="descname">BVA_DISTANCE_SCALE_FACTORS</code><em class="property"> = {u'GGA_relaxed': 1.015, u'LDA_relaxed': 0.995, u'experimental': 1.0}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.BVA_DISTANCE_SCALE_FACTORS" title="Permalink to this definition">¶</a></dt>
+<code class="descname">BVA_DISTANCE_SCALE_FACTORS</code><em class="property"> = {'GGA_relaxed': 1.015, 'LDA_relaxed': 0.995, 'experimental': 1.0}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.BVA_DISTANCE_SCALE_FACTORS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -133,7 +141,7 @@ coordination numbers!)
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.DEFAULT_SPG_ANALYZER_OPTIONS">
-<code class="descname">DEFAULT_SPG_ANALYZER_OPTIONS</code><em class="property"> = {u'angle_tolerance': 5, u'symprec': 0.001}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.DEFAULT_SPG_ANALYZER_OPTIONS" title="Permalink to this definition">¶</a></dt>
+<code class="descname">DEFAULT_SPG_ANALYZER_OPTIONS</code><em class="property"> = {'angle_tolerance': 5, 'symprec': 0.001}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.DEFAULT_SPG_ANALYZER_OPTIONS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -143,32 +151,32 @@ coordination numbers!)
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.PRESETS">
-<code class="descname">PRESETS</code><em class="property"> = {u'DEFAULT': {u'maximum_distance_factor': 2.0, u'minimum_angle_factor': 0.05, u'optimization': 2, u'voronoi_normalized_angle_tolerance': 0.03, u'voronoi_normalized_distance_tolerance': 0.05}}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.PRESETS" title="Permalink to this definition">¶</a></dt>
+<code class="descname">PRESETS</code><em class="property"> = {'DEFAULT': {'maximum_distance_factor': 2.0, 'minimum_angle_factor': 0.05, 'optimization': 2, 'voronoi_normalized_angle_tolerance': 0.03, 'voronoi_normalized_distance_tolerance': 0.05}}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.PRESETS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.STRUCTURE_REFINEMENT_NONE">
-<code class="descname">STRUCTURE_REFINEMENT_NONE</code><em class="property"> = u'none'</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.STRUCTURE_REFINEMENT_NONE" title="Permalink to this definition">¶</a></dt>
+<code class="descname">STRUCTURE_REFINEMENT_NONE</code><em class="property"> = 'none'</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.STRUCTURE_REFINEMENT_NONE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.STRUCTURE_REFINEMENT_REFINED">
-<code class="descname">STRUCTURE_REFINEMENT_REFINED</code><em class="property"> = u'refined'</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.STRUCTURE_REFINEMENT_REFINED" title="Permalink to this definition">¶</a></dt>
+<code class="descname">STRUCTURE_REFINEMENT_REFINED</code><em class="property"> = 'refined'</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.STRUCTURE_REFINEMENT_REFINED" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.STRUCTURE_REFINEMENT_SYMMETRIZED">
-<code class="descname">STRUCTURE_REFINEMENT_SYMMETRIZED</code><em class="property"> = u'symmetrized'</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.STRUCTURE_REFINEMENT_SYMMETRIZED" title="Permalink to this definition">¶</a></dt>
+<code class="descname">STRUCTURE_REFINEMENT_SYMMETRIZED</code><em class="property"> = 'symmetrized'</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.STRUCTURE_REFINEMENT_SYMMETRIZED" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.compute_coordination_environments">
-<code class="descname">compute_coordination_environments</code><span class="sig-paren">(</span><em>structure</em>, <em>indices=None</em>, <em>only_cations=True</em>, <em>strategy=&lt;pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiWeightsChemenvStrategy object&gt;</em>, <em>valences=u'bond-valence-analysis'</em>, <em>initial_structure_environments=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.html#LocalGeometryFinder.compute_coordination_environments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.compute_coordination_environments" title="Permalink to this definition">¶</a></dt>
+<code class="descname">compute_coordination_environments</code><span class="sig-paren">(</span><em>structure</em>, <em>indices=None</em>, <em>only_cations=True</em>, <em>strategy=&lt;pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiWeightsChemenvStrategy object&gt;</em>, <em>valences='bond-valence-analysis'</em>, <em>initial_structure_environments=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.html#LocalGeometryFinder.compute_coordination_environments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.compute_coordination_environments" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.compute_structure_environments">
-<code class="descname">compute_structure_environments</code><span class="sig-paren">(</span><em>excluded_atoms=None</em>, <em>only_atoms=None</em>, <em>only_cations=True</em>, <em>only_indices=None</em>, <em>maximum_distance_factor=2.0</em>, <em>minimum_angle_factor=0.05</em>, <em>max_cn=None</em>, <em>min_cn=None</em>, <em>only_symbols=None</em>, <em>valences=u'undefined'</em>, <em>additional_conditions=None</em>, <em>info=None</em>, <em>timelimit=None</em>, <em>initial_structure_environments=None</em>, <em>get_from_hints=False</em>, <em>voronoi_normalized_distance_tolerance=0.05</em>, <em>voronoi_normalized_angle_tolerance=0.03</em>, <em>recompute=None</em>, <em>optimization=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.html#LocalGeometryFinder.compute_structure_environments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.compute_structure_environments" title="Permalink to this definition">¶</a></dt>
+<code class="descname">compute_structure_environments</code><span class="sig-paren">(</span><em>excluded_atoms=None</em>, <em>only_atoms=None</em>, <em>only_cations=True</em>, <em>only_indices=None</em>, <em>maximum_distance_factor=2.0</em>, <em>minimum_angle_factor=0.05</em>, <em>max_cn=None</em>, <em>min_cn=None</em>, <em>only_symbols=None</em>, <em>valences='undefined'</em>, <em>additional_conditions=None</em>, <em>info=None</em>, <em>timelimit=None</em>, <em>initial_structure_environments=None</em>, <em>get_from_hints=False</em>, <em>voronoi_normalized_distance_tolerance=0.05</em>, <em>voronoi_normalized_angle_tolerance=0.03</em>, <em>recompute=None</em>, <em>optimization=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.html#LocalGeometryFinder.compute_structure_environments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.compute_structure_environments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes and returns the StructureEnvironments object containing all the information about the coordination
 environments in the structure
 :param excluded_atoms: Atoms for which the coordination geometries does not have to be identified
@@ -383,7 +391,7 @@ method for the list of possible parameters
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_parameters">
-<code class="descname">setup_parameters</code><span class="sig-paren">(</span><em>centering_type=u'standard'</em>, <em>include_central_site_in_centroid=False</em>, <em>bva_distance_scale_factor=None</em>, <em>structure_refinement=u'refined'</em>, <em>spg_analyzer_options=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.html#LocalGeometryFinder.setup_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_parameters" title="Permalink to this definition">¶</a></dt>
+<code class="descname">setup_parameters</code><span class="sig-paren">(</span><em>centering_type='standard'</em>, <em>include_central_site_in_centroid=False</em>, <em>bva_distance_scale_factor=None</em>, <em>structure_refinement='refined'</em>, <em>spg_analyzer_options=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.html#LocalGeometryFinder.setup_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Setup of the parameters for the coordination geometry finder. A reference point for the geometries has to be
 chosen. This can be the centroid of the structure (including or excluding the atom for which the coordination
 geometry is looked for) or the atom itself. In the ‘standard’ centering_type, the reference point is the central
@@ -436,7 +444,7 @@ with the space group analyzer and a refined structure is used
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_test_perfect_environment">
-<code class="descname">setup_test_perfect_environment</code><span class="sig-paren">(</span><em>symbol</em>, <em>randomness=False</em>, <em>max_random_dist=0.1</em>, <em>symbol_type=u'mp_symbol'</em>, <em>indices=u'RANDOM'</em>, <em>random_translation=u'NONE'</em>, <em>random_rotation=u'NONE'</em>, <em>random_scale=u'NONE'</em>, <em>points=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.html#LocalGeometryFinder.setup_test_perfect_environment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_test_perfect_environment" title="Permalink to this definition">¶</a></dt>
+<code class="descname">setup_test_perfect_environment</code><span class="sig-paren">(</span><em>symbol</em>, <em>randomness=False</em>, <em>max_random_dist=0.1</em>, <em>symbol_type='mp_symbol'</em>, <em>indices='RANDOM'</em>, <em>random_translation='NONE'</em>, <em>random_rotation='NONE'</em>, <em>random_scale='NONE'</em>, <em>points=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.html#LocalGeometryFinder.setup_test_perfect_environment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_test_perfect_environment" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -552,13 +560,13 @@ with the space group analyzer and a refined structure is used
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.12.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.3.13 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

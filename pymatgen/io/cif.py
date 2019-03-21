@@ -12,7 +12,7 @@ from collections import OrderedDict, deque
 from io import StringIO
 import numpy as np
 from functools import partial
-
+from pathlib import Path
 from inspect import getfullargspec as getargspec
 from itertools import groupby
 from pymatgen.core.periodic_table import Element, Specie, get_el_sp, DummySpecie
@@ -34,8 +34,6 @@ from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 try:
     from pybtex.database import BibliographyData, Entry
 except ImportError:
-    warnings.warn("Please install optional dependency pybtex if you"
-                  "want to extract references from CIF files.")
     BibliographyData, Entry = None, None
 
 """
@@ -219,7 +217,10 @@ class CifBlock:
             if s[0] == "_eof":
                 break
             if s[0].startswith("_"):
-                data[s[0]] = "".join(q.popleft())
+                try:
+                    data[s[0]] = "".join(q.popleft())
+                except IndexError:
+                    data[s[0]] = ""
             elif s[0].startswith("loop_"):
                 columns = []
                 items = []
@@ -284,7 +285,7 @@ class CifFile:
 
     @classmethod
     def from_file(cls, filename):
-        with zopen(filename, "rt", errors="replace") as f:
+        with zopen(str(filename), "rt", errors="replace") as f:
             return cls.from_string(f.read())
 
 
@@ -306,7 +307,7 @@ class CifParser:
     def __init__(self, filename, occupancy_tolerance=1., site_tolerance=1e-4):
         self._occupancy_tolerance = occupancy_tolerance
         self._site_tolerance = site_tolerance
-        if isinstance(filename, str):
+        if isinstance(filename, (str, Path)):
             self._cif = CifFile.from_file(filename)
         else:
             self._cif = CifFile.from_string(filename.read())
@@ -1282,7 +1283,7 @@ class CifWriter:
         count = 1
         if symprec is None:
             for site in struct:
-                for sp, occu in sorted(site.species_and_occu.items()):
+                for sp, occu in sorted(site.species.items()):
                     atom_site_type_symbol.append(sp.__str__())
                     atom_site_symmetry_multiplicity.append("1")
                     atom_site_fract_x.append("{0:f}".format(site.a))
@@ -1313,9 +1314,9 @@ class CifWriter:
             ]
             for site, mult in sorted(
                     unique_sites,
-                    key=lambda t: (t[0].species_and_occu.average_electroneg,
+                    key=lambda t: (t[0].species.average_electroneg,
                                    -t[1], t[0].a, t[0].b, t[0].c)):
-                for sp, occu in site.species_and_occu.items():
+                for sp, occu in site.species.items():
                     atom_site_type_symbol.append(sp.__str__())
                     atom_site_symmetry_multiplicity.append("%d" % mult)
                     atom_site_fract_x.append("{0:f}".format(site.a))

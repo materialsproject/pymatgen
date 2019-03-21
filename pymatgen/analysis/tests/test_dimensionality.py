@@ -138,8 +138,11 @@ class CheonDimensionalityTest(PymatgenTest):
              [0.726, 0.726, 0.726], [0.274, 0.726, 0.274],
              [0.274, 0.274, 0.726], [0.726, 0.274, 0.274], [0.5, 0.5, 0.5]])
 
-        # cheon dimensionality gets wrong structure
+        # cheon dimensionality gets wrong structure using default parameters
         self.assertEqual(get_dimensionality_cheon(tricky_structure), '2D')
+        # cheon dimensionality gets tricky structure right using a
+        # bigger supercell
+        self.assertEqual(get_dimensionality_cheon(tricky_structure, larger_cell=True), '3D')
 
 
 class GoraiDimensionalityTest(PymatgenTest):

@@ -6,14 +6,15 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.qchem_deprecated &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.io.qchem_deprecated &#8212; pymatgen 2019.3.13 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -34,7 +35,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -50,7 +51,6 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span>
 <span class="kn">import</span> <span class="nn">textwrap</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
@@ -62,8 +62,6 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">string</span> <span class="k">import</span> <span class="n">Template</span>
-
-<span class="kn">import</span> <span class="nn">six</span>
 
 <span class="kn">from</span> <span class="nn">monty.io</span> <span class="k">import</span> <span class="n">zopen</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.operations</span> <span class="k">import</span> <span class="n">SymmOp</span>
@@ -154,7 +152,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">mol</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">molecule</span><span class="p">)</span> <span class="k">if</span> <span class="n">molecule</span> <span class="k">else</span> <span class="s2">&quot;read&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">=</span> <span class="n">charge</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">spin_multiplicity</span> <span class="o">=</span> <span class="n">spin_multiplicity</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span> <span class="o">!=</span> <span class="s2">&quot;read&quot;</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The only accept text value for mol is &quot;read&quot;&#39;</span><span class="p">)</span>
@@ -177,7 +175,7 @@
             <span class="k">if</span> <span class="n">ghost_atoms</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ghost_atoms</span><span class="p">:</span>
                     <span class="n">site</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-                    <span class="k">for</span> <span class="n">sp</span><span class="p">,</span> <span class="n">amt</span> <span class="ow">in</span> <span class="n">site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">for</span> <span class="n">sp</span><span class="p">,</span> <span class="n">amt</span> <span class="ow">in</span> <span class="n">site</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                         <span class="n">ghost_nelectrons</span> <span class="o">+=</span> <span class="n">sp</span><span class="o">.</span><span class="n">Z</span> <span class="o">*</span> <span class="n">amt</span>
             <span class="n">nelectrons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">charge</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">nelectrons</span> <span class="o">-</span> <span class="n">ghost_nelectrons</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">charge</span>
             <span class="k">if</span> <span class="n">spin_multiplicity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -220,7 +218,7 @@
                 <span class="n">k</span> <span class="o">=</span> <span class="n">k</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
                 <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">alternative_keys</span><span class="p">:</span>
                     <span class="n">k</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alternative_keys</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                     <span class="n">v</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
                     <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">alternative_values</span><span class="p">:</span>
                         <span class="c1"># noinspection PyTypeChecker</span>
@@ -243,7 +241,7 @@
 
         <span class="k">if</span> <span class="n">aux_basis_set</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_aux_basis_required</span><span class="p">():</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;basis&quot;</span><span class="p">],</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;basis&quot;</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;basis&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;6-31+g&quot;</span><span class="p">):</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">set_auxiliary_basis_set</span><span class="p">(</span><span class="s2">&quot;rimp2-aug-cc-pvdz&quot;</span><span class="p">)</span>
                     <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;basis&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;6-311+g&quot;</span><span class="p">):</span>
@@ -284,7 +282,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;velocity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">velocities</span></div>
 
 <div class="viewcode-block" id="QcTask.set_basis_set"><a class="viewcode-back" href="../../../pymatgen.io.qchem_deprecated.html#pymatgen.io.qchem_deprecated.QcTask.set_basis_set">[docs]</a>    <span class="k">def</span> <span class="nf">set_basis_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">basis_set</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">basis_set</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">basis_set</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;basis&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">basis_set</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">basis_set</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;gen&quot;</span><span class="p">,</span> <span class="s2">&quot;mixed&quot;</span><span class="p">]:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;basis&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -333,7 +331,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;alist&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">alist</span></div>
 
 <div class="viewcode-block" id="QcTask.set_basis2"><a class="viewcode-back" href="../../../pymatgen.io.qchem_deprecated.html#pymatgen.io.qchem_deprecated.QcTask.set_basis2">[docs]</a>    <span class="k">def</span> <span class="nf">set_basis2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">basis2_basis_set</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">basis2_basis_set</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">basis2_basis_set</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;basis2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">basis2_basis_set</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">basis2_basis_set</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;basis2_gen&quot;</span><span class="p">,</span> <span class="s2">&quot;basis2_mixed&quot;</span><span class="p">]:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;basis2&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -371,7 +369,7 @@
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Can</span><span class="se">\&#39;</span><span class="s1">t handle type &quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">basis2_basis_set</span><span class="p">)))</span></div>
 
 <div class="viewcode-block" id="QcTask.set_auxiliary_basis_set"><a class="viewcode-back" href="../../../pymatgen.io.qchem_deprecated.html#pymatgen.io.qchem_deprecated.QcTask.set_auxiliary_basis_set">[docs]</a>    <span class="k">def</span> <span class="nf">set_auxiliary_basis_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">aux_basis_set</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">aux_basis_set</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">aux_basis_set</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;aux_basis&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">aux_basis_set</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">aux_basis_set</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;gen&quot;</span><span class="p">,</span> <span class="s2">&quot;mixed&quot;</span><span class="p">]:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;aux_basis&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -409,7 +407,7 @@
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Can</span><span class="se">\&#39;</span><span class="s1">t handle type &quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">aux_basis_set</span><span class="p">)))</span></div>
 
 <div class="viewcode-block" id="QcTask.set_ecp"><a class="viewcode-back" href="../../../pymatgen.io.qchem_deprecated.html#pymatgen.io.qchem_deprecated.QcTask.set_ecp">[docs]</a>    <span class="k">def</span> <span class="nf">set_ecp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ecp</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ecp</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ecp</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;ecp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ecp</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ecp</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;ecp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;gen&quot;</span>
@@ -658,15 +656,15 @@
         <span class="k">if</span> <span class="n">pcm_params</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">pcm_params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;pcm&quot;</span><span class="p">][</span><span class="n">k</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> \
-                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">)</span> <span class="k">else</span> <span class="n">v</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">v</span>
 
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">default_pcm_params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;pcm&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;pcm&quot;</span><span class="p">][</span><span class="n">k</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> \
-                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">)</span> <span class="k">else</span> <span class="n">v</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">v</span>
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">solvent_params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">solvent_key</span><span class="p">][</span><span class="n">k</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> \
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">)</span> <span class="k">else</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;solvent_method&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;pcm&quot;</span>
         <span class="k">if</span> <span class="n">radii_force_field</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;pcm&quot;</span><span class="p">][</span><span class="s2">&quot;radii&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;bondi&quot;</span>
@@ -731,7 +729,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; </span><span class="si">{charge:d}</span><span class="s2">  </span><span class="si">{multi:d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">charge</span><span class="o">=</span><span class="bp">self</span>
                          <span class="o">.</span><span class="n">charge</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">spin_multiplicity</span><span class="p">))</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span> <span class="o">==</span> <span class="s2">&quot;read&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span> <span class="o">==</span> <span class="s2">&quot;read&quot;</span><span class="p">:</span>
             <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; read&quot;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="n">starting_index</span> <span class="o">=</span> <span class="mi">0</span>
@@ -905,7 +903,7 @@
         <span class="k">return</span> <span class="n">lines</span>
 
 <div class="viewcode-block" id="QcTask.as_dict"><a class="viewcode-back" href="../../../pymatgen.io.qchem_deprecated.html#pymatgen.io.qchem_deprecated.QcTask.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">mol_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="p">,</span> <span class="n">Molecule</span><span class="p">):</span>
             <span class="n">mol_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
@@ -1505,7 +1503,7 @@
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span></div></div>
 
 
-<div class="viewcode-block" id="QcOutput"><a class="viewcode-back" href="../../../pymatgen.io.qchem_deprecated.html#pymatgen.io.qchem_deprecated.QcOutput">[docs]</a><span class="k">class</span> <span class="nc">QcOutput</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="QcOutput"><a class="viewcode-back" href="../../../pymatgen.io.qchem_deprecated.html#pymatgen.io.qchem_deprecated.QcOutput">[docs]</a><span class="k">class</span> <span class="nc">QcOutput</span><span class="p">:</span>
 
     <span class="n">kcal_per_mol_2_eV</span> <span class="o">=</span> <span class="mf">4.3363E-2</span>
 
@@ -2007,7 +2005,7 @@
         <span class="p">}</span>
         <span class="k">return</span> <span class="n">data</span></div>
 
-<div class="viewcode-block" id="QcNucVeloc"><a class="viewcode-back" href="../../../pymatgen.io.qchem_deprecated.html#pymatgen.io.qchem_deprecated.QcNucVeloc">[docs]</a><span class="k">class</span> <span class="nc">QcNucVeloc</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="QcNucVeloc"><a class="viewcode-back" href="../../../pymatgen.io.qchem_deprecated.html#pymatgen.io.qchem_deprecated.QcNucVeloc">[docs]</a><span class="k">class</span> <span class="nc">QcNucVeloc</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    class to QChem AMID NucVeloc file.</span>
 <span class="sd">    </span>
@@ -2082,7 +2080,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -2090,7 +2088,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

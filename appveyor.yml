@@ -11,26 +11,20 @@ environment:
       CONDA_PY: "36"
       CONDA_BUILD: "TRUE"
       SPLIT_RUN: "FALSE"
-  PMG_MAPI_KEY:
-    secure: XIbk1W27nucVUHTVpIL2B+FodL9w2Efyw5PqTdnfbHg=
-  PMG_MAPI_ENDPOINT: https://zola.lbl.gov/rest/v2
+#  PMG_MAPI_KEY:
+#    secure: XIbk1W27nucVUHTVpIL2B+FodL9w2Efyw5PqTdnfbHg=
   PYPIPWD:
     secure: QPpXonUAeLJ8p3f936jh7g==
 install:
   # Add the paths
   - 'set PATH=%PYTHON%;%PYTHON%\Library\bin;%PYTHON%\Scripts;%PATH%'
   - 'set MPLBACKEND=Agg'
-  - 'set NOSE_EXCLUDE_TESTS="pymatgen.ext.tests.test_matproj.MPResterTest;pymatgen.analysis.tests.test_pourbaix_diagram.PourbaixDiagramTest;pymatgen.tests.test_init.SettingsTestCase"'
-  # Check that we have the expected version and architecture for Python
-  # - 'python --version'
-  # - 'python -c "import struct; print(struct.calcsize(''P'') * 8)"'
-
   # Install the build dependencies of the project via conda and pip
   - 'conda install --yes --quiet numpy scipy matplotlib setuptools wheel pip'
   - 'conda install --yes --quiet --channel matsci spglib netcdf4 h5py'
-  - 'conda update --yes --all'
-  - "pip install -r requirements.txt"
-  - "pip install pybtex nose coverage ase coveralls fdint ase twine networkx"
+  # - 'conda update --yes --all'
+  - 'pip install -r requirements.txt'
+  - 'pip install pybtex nose coverage ase coveralls fdint ase twine networkx'
   # Note that pyhull is excluded because it does not work on Windows.
   # Run develop to install in dev mode and build C extension.
   - "python setup.py develop"
@@ -38,6 +32,7 @@ install:
 build: false
 
 test_script:
+  - 'set NOSE_EXCLUDE_TESTS="pymatgen.ext.tests.test_matproj.MPResterTest;pymatgen.analysis.tests.test_pourbaix_diagram.PourbaixDiagramTest;pymatgen.tests.test_init.SettingsTestCase"'
   - IF NOT "%APPVEYOR_REPO_BRANCH%" == "stable" (nosetests)
 
 notifications:

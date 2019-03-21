@@ -6,14 +6,15 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.tasks &#8212; pymatgen 2018.12.12 documentation</title>
+    <title>pymatgen.io.abinit.tasks &#8212; pymatgen 2019.3.13 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -34,7 +35,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -50,7 +51,6 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 <span class="sd">&quot;&quot;&quot;This module provides functions and classes related to Task objects.&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">absolute_import</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">time</span>
@@ -60,12 +60,12 @@
 <span class="kn">import</span> <span class="nn">abc</span>
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">ruamel.yaml</span> <span class="k">as</span> <span class="nn">yaml</span>
-<span class="kn">import</span> <span class="nn">six</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="k">import</span> <span class="n">StringIO</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">pprint</span> <span class="k">import</span> <span class="n">pprint</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">product</span>
-<span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">map</span><span class="p">,</span> <span class="nb">zip</span><span class="p">,</span> <span class="n">StringIO</span>
+
 <span class="kn">from</span> <span class="nn">monty.string</span> <span class="k">import</span> <span class="n">is_string</span><span class="p">,</span> <span class="n">list_strings</span>
 <span class="kn">from</span> <span class="nn">monty.termcolor</span> <span class="k">import</span> <span class="n">colored</span><span class="p">,</span> <span class="n">cprint</span>
 <span class="kn">from</span> <span class="nn">monty.collections</span> <span class="k">import</span> <span class="n">AttrDict</span>
@@ -260,7 +260,7 @@
     <span class="sd">&quot;&quot;&quot;Base error class for `ParalHints`.&quot;&quot;&quot;</span>
 
 
-<div class="viewcode-block" id="ParalHintsParser"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHintsParser">[docs]</a><span class="k">class</span> <span class="nc">ParalHintsParser</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="ParalHintsParser"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHintsParser">[docs]</a><span class="k">class</span> <span class="nc">ParalHintsParser</span><span class="p">:</span>
 
     <span class="n">Error</span> <span class="o">=</span> <span class="n">ParalHintsError</span>
 
@@ -290,7 +290,7 @@
                 <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="ParalHints"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHints">[docs]</a><span class="k">class</span> <span class="nc">ParalHints</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">):</span>
+<div class="viewcode-block" id="ParalHints"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHints">[docs]</a><span class="k">class</span> <span class="nc">ParalHints</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Iterable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Iterable with the hints for the parallel execution reported by ABINIT.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -481,7 +481,7 @@
         <span class="k">return</span> <span class="n">hints</span></div></div>
 
 
-<span class="k">class</span> <span class="nc">TaskPolicy</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">TaskPolicy</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This object stores the parameters used by the :class:`TaskManager` to</span>
 <span class="sd">    create the submission script and/or to modify the ABINIT variables</span>
@@ -504,7 +504,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">cls</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">obj</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">):</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Mapping</span><span class="p">):</span>
                 <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">obj</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Don&#39;t know how to convert type </span><span class="si">%s</span><span class="s2"> to </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">),</span> <span class="bp">cls</span><span class="p">))</span>
@@ -678,7 +678,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
 
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Mapping</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Don&#39;t know how to convert type </span><span class="si">%s</span><span class="s2"> to TaskManager&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span></div>
@@ -1093,7 +1093,7 @@
             <span class="k">raise</span> <span class="n">ManagerIncreaseError</span><span class="p">(</span><span class="s1">&#39;manager failed to increase time&#39;</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="AbinitBuild"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.AbinitBuild">[docs]</a><span class="k">class</span> <span class="nc">AbinitBuild</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="AbinitBuild"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.AbinitBuild">[docs]</a><span class="k">class</span> <span class="nc">AbinitBuild</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This object stores information on the options used to build Abinit</span>
 
@@ -1240,7 +1240,7 @@
         <span class="k">return</span> <span class="n">op</span><span class="p">(</span><span class="n">parse_version</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">),</span> <span class="n">parse_version</span><span class="p">(</span><span class="n">version_string</span><span class="p">))</span></div></div>
 
 
-<span class="k">class</span> <span class="nc">FakeProcess</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">FakeProcess</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This object is attached to a :class:`Task` instance if the task has not been submitted</span>
 <span class="sd">    This trick allows us to simulate a process that is still running so that</span>
@@ -1283,7 +1283,7 @@
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">delta</span><span class="o">.</span><span class="n">days</span><span class="p">,</span> <span class="n">delta</span><span class="o">.</span><span class="n">seconds</span><span class="p">,</span> <span class="n">delta</span><span class="o">.</span><span class="n">microseconds</span><span class="p">)</span>
 
 
-<span class="k">class</span> <span class="nc">TaskDateTimes</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">TaskDateTimes</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Small object containing useful :class:`datetime.datatime` objects associated to important events.</span>
 
@@ -1353,7 +1353,7 @@
     <span class="sd">&quot;&quot;&quot;Exception raised while trying to restart the :class:`Task`.&quot;&quot;&quot;</span>
 
 
-<span class="k">class</span> <span class="nc">Task</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">with_metaclass</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">,</span> <span class="n">Node</span><span class="p">)):</span>
+<span class="k">class</span> <span class="nc">Task</span><span class="p">(</span><span class="n">Node</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A Task is a node that performs some kind of calculation.</span>
 <span class="sd">    This is base class providing low-level methods.</span>
@@ -3214,7 +3214,7 @@
         <span class="k">return</span> <span class="kc">None</span></div></div>
 
 
-<span class="k">class</span> <span class="nc">ProduceHist</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">ProduceHist</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Mixin class for an :class:`AbinitTask` producing a HIST file.</span>
 <span class="sd">    Provide the method `open_hist` that reads and return a HIST file.</span>
@@ -4726,7 +4726,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.12.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -4734,7 +4734,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
