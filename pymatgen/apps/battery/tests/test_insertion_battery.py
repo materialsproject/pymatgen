@@ -30,6 +30,7 @@ class InsertionElectrodeTest(unittest.TestCase):
 
     def setUp(self):
         self.entry_Li = ComputedEntry("Li", -1.90753119)
+        self.entry_Ca = ComputedEntry("Ca", -1.99689568)
 
         with open(os.path.join(test_dir, "LiTiO2_batt.json"), "r") as f:
             self.entries_LTO = json.load(f, cls=MontyDecoder)
@@ -40,9 +41,12 @@ class InsertionElectrodeTest(unittest.TestCase):
         with open(os.path.join(test_dir, "Mg_batt.json"), "r") as file:
             self.entry_Mg = json.load(file, cls=MontyDecoder)
 
+        with open(os.path.join(test_dir, "CaMoO2_batt.json"), "r") as f:
+            self.entries_CMO = json.load(f, cls=MontyDecoder)
 
         self.ie_LTO = InsertionElectrode(self.entries_LTO, self.entry_Li)
         self.ie_MVO = InsertionElectrode(self.entries_MVO, self.entry_Mg)
+        self.ie_CMO = InsertionElectrode(self.entries_CMO, self.entry_Ca)
 
     def test_voltage(self):
         #test basic voltage
@@ -124,6 +128,18 @@ class InsertionElectrodeTest(unittest.TestCase):
         self.assertAlmostEqual(vpair.vol_discharge, 37.917719932)
         self.assertAlmostEqual(vpair.frac_charge, 0.0)
         self.assertAlmostEqual(vpair.frac_discharge, 0.14285714285714285)
+
+    def test_as_dict_summary(self):
+        d = self.ie_CMO.as_dict_summary()
+        self.assertAlmostEqual(d['stability_charge'], 0.2346574583333325)
+        self.assertAlmostEqual(d['stability_discharge'], 0.33379544031249786)
+        self.assertAlmostEqual(d['muO2_data']['mp-714969'][0]['chempot'], -4.93552791875)
+
+
+
+
+
+
 
 if __name__ == '__main__':
     unittest.main()
