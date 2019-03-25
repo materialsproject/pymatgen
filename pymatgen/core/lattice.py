@@ -306,8 +306,9 @@ class Lattice(MSONable):
         """
         return Lattice.from_parameters(abc[0], abc[1], abc[2], ang[0], ang[1], ang[2])
 
-    @staticmethod
+    @classmethod
     def from_parameters(
+        cls,
         a: float,
         b: float,
         c: float,
@@ -335,13 +336,12 @@ class Lattice(MSONable):
         alpha_r = radians(alpha)
         beta_r = radians(beta)
         gamma_r = radians(gamma)
+        cos_alpha = np.cos(alpha_r)
+        cos_beta = np.cos(beta_r)
+        cos_gamma = np.cos(gamma_r)
+        sin_gamma = np.sin(gamma_r)
 
         if vesta:
-            cos_alpha = np.cos(alpha_r)
-            cos_beta = np.cos(beta_r)
-            cos_gamma = np.cos(gamma_r)
-            sin_gamma = np.sin(gamma_r)
-
             c1 = c * cos_beta
             c2 = (c * (cos_alpha - (cos_beta * cos_gamma))) / sin_gamma
 
@@ -350,18 +350,18 @@ class Lattice(MSONable):
             vector_c = [c1, c2, math.sqrt(c ** 2 - c1 ** 2 - c2 ** 2)]
 
         else:
-            val = (np.cos(alpha_r) * np.cos(beta_r) - np.cos(gamma_r)) / (
-                np.sin(alpha_r) * np.sin(beta_r)
-            )
+            sin_alpha = np.sin(alpha_r)
+            sin_beta = np.sin(beta_r)
+            val = (cos_alpha * cos_beta - cos_gamma) / (sin_alpha * sin_beta)
             # Sometimes rounding errors result in values slightly > 1.
             val = abs_cap(val)
             gamma_star = np.arccos(val)
 
-            vector_a = [a * np.sin(beta_r), 0.0, a * np.cos(beta_r)]
+            vector_a = [a * sin_beta, 0.0, a * cos_beta]
             vector_b = [
-                -b * np.sin(alpha_r) * np.cos(gamma_star),
-                b * np.sin(alpha_r) * np.sin(gamma_star),
-                b * np.cos(alpha_r),
+                -b * sin_alpha * np.cos(gamma_star),
+                b * sin_alpha * np.sin(gamma_star),
+                b * cos_alpha,
             ]
             vector_c = [0.0, 0.0, float(c)]
 
