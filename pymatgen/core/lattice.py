@@ -90,7 +90,7 @@ class Lattice(MSONable):
 
     @property
     def is_orthogonal(self):
-        all([abs(a - 90) < 1e-5 for a in self.angles])
+        return all([abs(a - 90) < 1e-5 for a in self.angles])
 
     def __format__(self, fmt_spec=""):
         """
@@ -547,13 +547,13 @@ class Lattice(MSONable):
         if verbosity > 0:
             d.update(
                 {
-                    "a": a,
-                    "b": b,
-                    "c": c,
-                    "alpha": alpha,
-                    "beta": beta,
-                    "gamma": gamma,
-                    "volume": self.volume,
+                    "a": float(a),
+                    "b": float(b),
+                    "c": float(c),
+                    "alpha": float(alpha),
+                    "beta": float(beta),
+                    "gamma": float(gamma),
+                    "volume": float(self.volume),
                 }
             )
 
