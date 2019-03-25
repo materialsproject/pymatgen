@@ -780,7 +780,7 @@ class MPRester:
                                            chunk_size=0, mp_decode=mp_decode))
                     break
                 except MPRestError as e:
-                    match = re.search("error status code (\d+)", e.message)
+                    match = re.search(r"error status code (\d+)", e.message)
                     if match:
                         if not match.group(1).startswith("5"):
                             raise e
