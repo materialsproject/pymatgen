@@ -66,14 +66,13 @@ class Lattice(MSONable):
         m.setflags(write=False)
         self._matrix = m
         self._inv_matrix = None
-        self._metric_tensor = None
         self._diags = None
         self._lll_matrix_mappings = {}
         self._lll_inverse = None
 
     @property
     def lengths(self):
-        return np.sqrt(np.sum(self._matrix ** 2, axis=1))
+        return tuple(np.sqrt(np.sum(self._matrix ** 2, axis=1)))
 
     @property
     def angles(self) -> Tuple[float]:
@@ -87,7 +86,7 @@ class Lattice(MSONable):
             j = (i + 1) % 3
             k = (i + 2) % 3
             angles[i] = abs_cap(dot(m[j], m[k]) / (lengths[j] * lengths[k]))
-        return np.arccos(angles) * 180.0 / pi
+        return tuple(np.arccos(angles) * 180.0 / pi)
 
     @property
     def is_orthogonal(self):
@@ -143,9 +142,7 @@ class Lattice(MSONable):
         """
         The metric tensor of the lattice.
         """
-        if self._metric_tensor is None:
-            self._metric_tensor = np.dot(self._matrix, self._matrix.T)
-        return self._metric_tensor
+        return dot(self._matrix, self._matrix.T)
 
     def get_cartesian_coords(self, fractional_coords: Vector3Like) -> np.ndarray:
         """
@@ -204,7 +201,7 @@ class Lattice(MSONable):
 
         gstar = self.reciprocal_lattice_crystallographic.metric_tensor
         hkl = np.array(miller_index)
-        return 1 / ((np.dot(np.dot(hkl, gstar), hkl.T)) ** (1 / 2))
+        return 1 / ((dot(dot(hkl, gstar), hkl.T)) ** (1 / 2))
 
     @staticmethod
     def cubic(a: float):
@@ -451,14 +448,14 @@ class Lattice(MSONable):
         Volume of the unit cell.
         """
         m = self._matrix
-        return abs(np.dot(np.cross(m[0], m[1]), m[2]))
+        return abs(dot(np.cross(m[0], m[1]), m[2]))
 
     @property
     def lengths_and_angles(self) -> Tuple[Tuple[float, float, float], Tuple[float, float, float]]:
         """
         Returns (lattice lengths, lattice angles).
         """
-        return tuple(self.lengths), tuple(self.angles)
+        return self.lengths, self.angles
 
     @property
     def reciprocal_lattice(self) -> "Lattice":
@@ -469,12 +466,8 @@ class Lattice(MSONable):
         use the reciprocal_lattice_crystallographic property.
         The property is lazily generated for efficiency.
         """
-        try:
-            return self._reciprocal_lattice
-        except AttributeError:
-            v = np.linalg.inv(self._matrix).T
-            self._reciprocal_lattice = Lattice(v * 2 * np.pi)
-            return self._reciprocal_lattice
+        v = np.linalg.inv(self._matrix).T
+        return Lattice(v * 2 * np.pi)
 
     @property
     def reciprocal_lattice_crystallographic(self) -> "Lattice":
@@ -779,14 +772,14 @@ class Lattice(MSONable):
         Given fractional coordinates in the lattice basis, returns corresponding
         fractional coordinates in the lll basis.
         """
-        return np.dot(frac_coords, self.lll_inverse)
+        return dot(frac_coords, self.lll_inverse)
 
     def get_frac_coords_from_lll(self, lll_frac_coords: Vector3Like) -> np.ndarray:
         """
         Given fractional coordinates in the lll basis, returns corresponding
         fractional coordinates in the lattice basis.
         """
-        return np.dot(lll_frac_coords, self.lll_mapping)
+        return dot(lll_frac_coords, self.lll_mapping)
 
     def get_niggli_reduced_lattice(self, tol: float = 1e-5) -> "Lattice":
         """
@@ -952,7 +945,7 @@ class Lattice(MSONable):
         """
         versors = self.matrix / self.abc
 
-        geo_factor = abs(np.dot(np.cross(versors[0], versors[1]), versors[2]))
+        geo_factor = abs(dot(np.cross(versors[0], versors[1]), versors[2]))
 
         ratios = self.abc / self.c
 
@@ -970,9 +963,9 @@ class Lattice(MSONable):
             Wigner Seitz cell. For instance, a list of four coordinates will
             represent a square facet.
         """
-        vec1 = self.matrix[0]
-        vec2 = self.matrix[1]
-        vec3 = self.matrix[2]
+        vec1 = self._matrix[0]
+        vec2 = self._matrix[1]
+        vec3 = self._matrix[2]
 
         list_k_points = []
         for i, j, k in itertools.product([-1, 0, 1], [-1, 0, 1], [-1, 0, 1]):
@@ -1035,7 +1028,7 @@ class Lattice(MSONable):
                 [self.get_cartesian_coords(vec) for vec in coords_b], (-1, 3)
             )
 
-        return np.array([np.dot(a, b) for a, b in zip(cart_a, cart_b)])
+        return np.array([dot(a, b) for a, b in zip(cart_a, cart_b)])
 
     def norm(self, coords: Vector3Like, frac_coords: bool = True) -> float:
         """
