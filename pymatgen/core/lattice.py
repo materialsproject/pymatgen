@@ -500,8 +500,8 @@ class Lattice(MSONable):
     def __repr__(self):
         outs = [
             "Lattice",
-            "    abc : " + " ".join(map(repr, self._lengths)),
-            " angles : " + " ".join(map(repr, self._angles)),
+            "    abc : " + " ".join(map(repr, self.lengths)),
+            " angles : " + " ".join(map(repr, self.angles)),
             " volume : " + repr(self.volume),
             "      A : " + " ".join(map(repr, self._matrix[0])),
             "      B : " + " ".join(map(repr, self._matrix[1])),
