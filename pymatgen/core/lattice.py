@@ -63,25 +63,35 @@ class Lattice(MSONable):
                 with lattice vectors [10, 0, 0], [20, 10, 0] and [0, 0, 30].
         """
         m = np.array(matrix, dtype=np.float64).reshape((3, 3))
-        lengths = np.sqrt(np.sum(m ** 2, axis=1))
-        angles = np.zeros(3)
-        for i in range(3):
-            j = (i + 1) % 3
-            k = (i + 2) % 3
-            angles[i] = abs_cap(dot(m[j], m[k]) / (lengths[j] * lengths[k]))
-
-        self._angles = np.arccos(angles) * 180.0 / pi
-        self._lengths = lengths
-
         m.setflags(write=False)
         self._matrix = m
-
         self._inv_matrix = None
         self._metric_tensor = None
         self._diags = None
         self._lll_matrix_mappings = {}
         self._lll_inverse = None
-        self.is_orthogonal = all([abs(a - 90) < 1e-5 for a in self._angles])
+
+    @property
+    def lengths(self):
+        return np.sqrt(np.sum(self._matrix ** 2, axis=1))
+
+    @property
+    def angles(self) -> Tuple[float]:
+        """
+        Returns the angles (alpha, beta, gamma) of the lattice.
+        """
+        m = self._matrix
+        lengths = self.lengths
+        angles = np.zeros(3)
+        for i in range(3):
+            j = (i + 1) % 3
+            k = (i + 2) % 3
+            angles[i] = abs_cap(dot(m[j], m[k]) / (lengths[j] * lengths[k]))
+        return np.arccos(angles) * 180.0 / pi
+
+    @property
+    def is_orthogonal(self):
+        all([abs(a - 90) < 1e-5 for a in self.angles])
 
     def __format__(self, fmt_spec=""):
         """
@@ -97,7 +107,7 @@ class Lattice(MSONable):
            0.000 10.000 0.000
            0.000 0.000 10.000
         """
-        m = self.matrix.tolist()
+        m = self._matrix.tolist()
         if fmt_spec.endswith("l"):
             fmt = "[[{}, {}, {}], [{}, {}, {}], [{}, {}, {}]]"
             fmt_spec = fmt_spec[:-1]
@@ -387,60 +397,53 @@ class Lattice(MSONable):
             )
 
     @property
-    def angles(self) -> Tuple[float]:
-        """
-        Returns the angles (alpha, beta, gamma) of the lattice.
-        """
-        return tuple(self._angles)
-
-    @property
     def a(self) -> float:
         """
         *a* lattice parameter.
         """
-        return self._lengths[0]
+        return self.lengths[0]
 
     @property
     def b(self) -> float:
         """
         *b* lattice parameter.
         """
-        return self._lengths[1]
+        return self.lengths[1]
 
     @property
     def c(self) -> float:
         """
         *c* lattice parameter.
         """
-        return self._lengths[2]
+        return self.lengths[2]
 
     @property
     def abc(self) -> Tuple[float]:
         """
         Lengths of the lattice vectors, i.e. (a, b, c)
         """
-        return tuple(self._lengths)
+        return tuple(self.lengths)
 
     @property
     def alpha(self) -> float:
         """
         Angle alpha of lattice in degrees.
         """
-        return self._angles[0]
+        return self.angles[0]
 
     @property
     def beta(self) -> float:
         """
         Angle beta of lattice in degrees.
         """
-        return self._angles[1]
+        return self.angles[1]
 
     @property
     def gamma(self) -> float:
         """
         Angle gamma of lattice in degrees.
         """
-        return self._angles[2]
+        return self.angles[2]
 
     @property
     def volume(self) -> float:
@@ -455,7 +458,7 @@ class Lattice(MSONable):
         """
         Returns (lattice lengths, lattice angles).
         """
-        return tuple(self._lengths), tuple(self._angles)
+        return tuple(self.lengths), tuple(self.angles)
 
     @property
     def reciprocal_lattice(self) -> "Lattice":
@@ -547,16 +550,17 @@ class Lattice(MSONable):
             "@class": self.__class__.__name__,
             "matrix": self._matrix.tolist(),
         }
+        (a, b, c), (alpha, beta, gamma) = self.lengths_and_angles
         if verbosity > 0:
             d.update(
                 {
-                    "a": float(self.a),
-                    "b": float(self.b),
-                    "c": float(self.c),
-                    "alpha": float(self.alpha),
-                    "beta": float(self.beta),
-                    "gamma": float(self.gamma),
-                    "volume": float(self.volume),
+                    "a": a,
+                    "b": b,
+                    "c": c,
+                    "alpha": alpha,
+                    "beta": beta,
+                    "gamma": gamma,
+                    "volume": self.volume,
                 }
             )
 
