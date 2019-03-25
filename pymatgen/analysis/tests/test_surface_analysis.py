@@ -330,14 +330,10 @@ class WorkfunctionAnalyzerTest(PymatgenTest):
                        "outcar_filename": get_path("OUTCAR.relax1.gz")}
         self.wf_analyzer = WorkFunctionAnalyzer.from_files(**self.kwargs)
 
-    def test_attributes(self):
-        wf_analyzer_shift = WorkFunctionAnalyzer.from_files(shift=0.25, **self.kwargs)
-        self.assertEqual("%.1f" %(self.wf_analyzer.ave_bulk_p),
-                         "%.1f" %(wf_analyzer_shift.ave_bulk_p))
-
-    # def test_plt(self):
-    #     plt = self.wf_analyzer.get_locpot_along_slab_plot()
-    #     self.assertEqual(type(plt).__name__, "module")
+    def test_shift(self):
+        wf_analyzer_shift = WorkFunctionAnalyzer.from_files(shift=-0.25, blength=3.7, **self.kwargs)
+        self.assertEqual("%.f" %(self.wf_analyzer.ave_bulk_p),
+                         "%.f" %(wf_analyzer_shift.ave_bulk_p))
 
     def test_is_converged(self):
         self.assertTrue(self.wf_analyzer.is_converged())
