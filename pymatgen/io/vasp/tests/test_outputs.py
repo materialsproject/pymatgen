@@ -21,7 +21,7 @@ from pymatgen.electronic_structure.core import OrbitalType
 from pymatgen.io.vasp.inputs import Kpoints, Poscar
 from pymatgen.io.vasp.outputs import Chgcar, Locpot, Oszicar, Outcar, \
     Vasprun, Procar, Xdatcar, Dynmat, BSVasprun, UnconvergedVASPWarning, \
-    VaspParserError, Wavecar
+    VaspParserError, Wavecar, Waveder
 from pymatgen import Spin, Orbital, Lattice, Structure
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.electronic_structure.core import Magmom
@@ -37,8 +37,6 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Jul 16, 2012"
-
-# test_dir = Path(__file__).absolute().parent / ".." / ".." / ".." / ".." / 'test_files'
 
 
 class VasprunTest(PymatgenTest):
@@ -191,7 +189,7 @@ class VasprunTest(PymatgenTest):
         self.assertTrue(vasprun_ggau.is_hubbard)
         self.assertEqual(vasprun_ggau.hubbards["Fe"], 4.3)
         self.assertAlmostEqual(vasprun_ggau.projected_eigenvalues[Spin.up][
-            0][0][96][0], 0.0032)
+                                   0][0][96][0], 0.0032)
         d = vasprun_ggau.as_dict()
         self.assertEqual(d["elements"], ["Fe", "Li", "O", "P"])
         self.assertEqual(d["nelements"], 4)
@@ -420,7 +418,6 @@ class VasprunTest(PymatgenTest):
                 self.assertEqual(bs.efermi, bs_vasprun_gzip.efermi)
                 self.assertEqual(bs.as_dict(), bs_vasprun_gzip.as_dict())
 
-
             # test hybrid band structures
             vasprun.actual_kpoints_weights[-1] = 0.
             bs = vasprun.get_band_structure(kpoints_filename=self.TEST_FILES_DIR / 'KPOINTS_Si_bands')
@@ -547,7 +544,6 @@ class VasprunTest(PymatgenTest):
 
 
 class OutcarTest(PymatgenTest):
-
     _multiprocess_shared_ = True
 
     def test_init(self):
@@ -620,12 +616,12 @@ class OutcarTest(PymatgenTest):
             self.assertAlmostEqual(outcar.piezo_ionic_tensor[2][5], 0.06242)
             self.assertAlmostEqual(outcar.born[0][1][2], -0.385)
             self.assertAlmostEqual(outcar.born[1][2][0], 0.36465)
-            self.assertAlmostEqual(outcar.internal_strain_tensor[0][0][0], -572.5437,places=4)
-            self.assertAlmostEqual(outcar.internal_strain_tensor[0][1][0], 683.2985,places=4)
-            self.assertAlmostEqual(outcar.internal_strain_tensor[0][1][3], 73.07059,places=4)
-            self.assertAlmostEqual(outcar.internal_strain_tensor[1][0][0], 570.98927,places=4)
-            self.assertAlmostEqual(outcar.internal_strain_tensor[1][1][0], -683.68519,places=4)
-            self.assertAlmostEqual(outcar.internal_strain_tensor[1][2][2], 570.98927,places=4)
+            self.assertAlmostEqual(outcar.internal_strain_tensor[0][0][0], -572.5437, places=4)
+            self.assertAlmostEqual(outcar.internal_strain_tensor[0][1][0], 683.2985, places=4)
+            self.assertAlmostEqual(outcar.internal_strain_tensor[0][1][3], 73.07059, places=4)
+            self.assertAlmostEqual(outcar.internal_strain_tensor[1][0][0], 570.98927, places=4)
+            self.assertAlmostEqual(outcar.internal_strain_tensor[1][1][0], -683.68519, places=4)
+            self.assertAlmostEqual(outcar.internal_strain_tensor[1][2][2], 570.98927, places=4)
 
     def test_soc(self):
         filepath = self.TEST_FILES_DIR / 'OUTCAR.NiO_SOC.gz'
@@ -817,7 +813,7 @@ class OutcarTest(PymatgenTest):
                           [-6e-06, -0.008328, -9.320237]])
 
     def test_cs_core_contribution(self):
-        filename = self.TEST_FILES_DIR / "nmr" /  "cs" / "core.diff" / "core.diff.chemical.shifts.OUTCAR"
+        filename = self.TEST_FILES_DIR / "nmr" / "cs" / "core.diff" / "core.diff.chemical.shifts.OUTCAR"
         outcar = Outcar(filename)
         core_contrib = outcar.data["cs_core_contribution"]
         self.assertEqual(core_contrib,
@@ -1049,6 +1045,7 @@ class ChgcarTest(PymatgenTest):
 
 class ProcarTest(PymatgenTest):
     _multiprocess_shared_ = True
+
     def test_init(self):
         filepath = self.TEST_FILES_DIR / 'PROCAR.simple'
         p = Procar(filepath)
@@ -1075,7 +1072,6 @@ class ProcarTest(PymatgenTest):
                                0.85796295426000124)
 
     def test_phase_factors(self):
-        
         filepath = self.TEST_FILES_DIR / 'PROCAR.phase'
         p = Procar(filepath)
         self.assertAlmostEqual(p.phase_factors[Spin.up][0, 0, 0, 0],
@@ -1090,11 +1086,11 @@ class ProcarTest(PymatgenTest):
                                -0.053 + 0.007j)
         self.assertAlmostEqual(p.phase_factors[Spin.down][0, 0, 2, 0],
                                0.027 - 0.047j)
-        
+
         # new style phase factors (VASP 5.4.4+)
         filepath = self.TEST_FILES_DIR / 'PROCAR.new_format_5.4.4'
         p = Procar(filepath)
-        self.assertAlmostEqual(p.phase_factors[Spin.up][0, 0, 0, 0], -0.13+0.199j)
+        self.assertAlmostEqual(p.phase_factors[Spin.up][0, 0, 0, 0], -0.13 + 0.199j)
 
 
 class XdatcarTest(PymatgenTest):
@@ -1145,7 +1141,7 @@ class WavecarTest(PymatgenTest):
 
     def setUp(self):
         a = np.array([[10.0, 0.0, 0.0], [0.0, 10.0, 0.0],
-                          [0.0, 0.0, 10.0]])
+                      [0.0, 0.0, 10.0]])
         self.vol = np.dot(a[0, :], np.cross(a[1, :], a[2, :]))
         b = np.array([np.cross(a[1, :], a[2, :]),
                       np.cross(a[2, :], a[0, :]),
@@ -1157,11 +1153,11 @@ class WavecarTest(PymatgenTest):
     def test_standard(self):
         w = self.w
         a = np.array([[10.0, 0.0, 0.0], [0.0, 10.0, 0.0],
-                     [0.0, 0.0, 10.0]])
+                      [0.0, 0.0, 10.0]])
         vol = np.dot(a[0, :], np.cross(a[1, :], a[2, :]))
         b = np.array([np.cross(a[1, :], a[2, :]),
-                           np.cross(a[2, :], a[0, :]),
-                           np.cross(a[0, :], a[1, :])])
+                      np.cross(a[2, :], a[0, :]),
+                      np.cross(a[0, :], a[1, :])])
         b = 2 * np.pi * b / vol
 
         self.assertEqual(w.filename, self.TEST_FILES_DIR / 'WAVECAR.N2')
@@ -1297,6 +1293,24 @@ class WavecarTest(PymatgenTest):
         self.assertTrue('diff' not in c.data)
         self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng * 2))
         self.assertFalse(np.all(c.data['total'] > 0.))
+
+
+class WavederTest(PymatgenTest):
+    _multiprocess_shared_ = True
+
+    def setUp(self):
+        wder = Waveder(self.TEST_FILES_DIR / 'WAVEDER')
+        self.assertEqual(wder.nband, 36)
+        self.assertEqual(wder.nkpoint, 56)
+        self.assertEqual(wder.nelect, 8)
+        band_i = 0
+        band_j = 0
+        kp_index = 0
+        spin_index = 0
+        cart_dir_index = 0
+        cder = wder.get_orbital_derivative_between_states
+        (band_i, band_j, kp_index, spin_index, cart_dir_index)
+        self.assertEqual(cder, -1.33639226092e-103)
 
 
 if __name__ == "__main__":
