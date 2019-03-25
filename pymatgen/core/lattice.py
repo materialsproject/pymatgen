@@ -72,7 +72,7 @@ class Lattice(MSONable):
 
     @property
     def lengths(self):
-        return tuple(np.sqrt(np.sum(self._matrix ** 2, axis=1)))
+        return tuple(np.sqrt(np.sum(self._matrix ** 2, axis=1)).tolist())
 
     @property
     def angles(self) -> Tuple[float]:
@@ -86,7 +86,8 @@ class Lattice(MSONable):
             j = (i + 1) % 3
             k = (i + 2) % 3
             angles[i] = abs_cap(dot(m[j], m[k]) / (lengths[j] * lengths[k]))
-        return tuple(np.arccos(angles) * 180.0 / pi)
+        angles = np.arccos(angles) * 180.0 / pi
+        return tuple(angles.tolist())
 
     @property
     def is_orthogonal(self):
@@ -448,7 +449,7 @@ class Lattice(MSONable):
         Volume of the unit cell.
         """
         m = self._matrix
-        return abs(dot(np.cross(m[0], m[1]), m[2]))
+        return float(abs(dot(np.cross(m[0], m[1]), m[2])))
 
     @property
     def lengths_and_angles(self) -> Tuple[Tuple[float, float, float], Tuple[float, float, float]]:
@@ -547,13 +548,13 @@ class Lattice(MSONable):
         if verbosity > 0:
             d.update(
                 {
-                    "a": float(a),
-                    "b": float(b),
-                    "c": float(c),
-                    "alpha": float(alpha),
-                    "beta": float(beta),
-                    "gamma": float(gamma),
-                    "volume": float(self.volume),
+                    "a": a,
+                    "b": b,
+                    "c": c,
+                    "alpha": alpha,
+                    "beta": beta,
+                    "gamma": gamma,
+                    "volume": self.volume,
                 }
             )
 
@@ -947,7 +948,7 @@ class Lattice(MSONable):
 
         geo_factor = abs(dot(np.cross(versors[0], versors[1]), versors[2]))
 
-        ratios = self.abc / self.c
+        ratios = np.array(self.abc) / self.c
 
         new_c = (new_volume / (geo_factor * np.prod(ratios))) ** (1 / 3.0)
 
