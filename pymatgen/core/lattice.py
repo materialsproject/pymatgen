@@ -333,13 +333,9 @@ class Lattice(MSONable):
             Lattice with the specified lattice parameters.
         """
 
-        alpha_r = radians(alpha)
-        beta_r = radians(beta)
-        gamma_r = radians(gamma)
-        cos_alpha = np.cos(alpha_r)
-        cos_beta = np.cos(beta_r)
-        cos_gamma = np.cos(gamma_r)
-        sin_gamma = np.sin(gamma_r)
+        angles_r = np.radians([alpha, beta, gamma])
+        cos_alpha, cos_beta, cos_gamma = np.cos(angles_r)
+        sin_alpha, sin_beta, sin_gamma = np.sin(angles_r)
 
         if vesta:
             c1 = c * cos_beta
@@ -350,8 +346,6 @@ class Lattice(MSONable):
             vector_c = [c1, c2, math.sqrt(c ** 2 - c1 ** 2 - c2 ** 2)]
 
         else:
-            sin_alpha = np.sin(alpha_r)
-            sin_beta = np.sin(beta_r)
             val = (cos_alpha * cos_beta - cos_gamma) / (sin_alpha * sin_beta)
             # Sometimes rounding errors result in values slightly > 1.
             val = abs_cap(val)
