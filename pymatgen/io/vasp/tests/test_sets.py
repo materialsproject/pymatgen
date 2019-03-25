@@ -270,6 +270,14 @@ class MITMPRelaxSetTest(PymatgenTest):
         d = paramset.get_vasp_input()
         self.assertEqual(d["INCAR"]["ISMEAR"], 0)
 
+    def test_MPMetalRelaxSet(self):
+        mpmetalset = MPMetalRelaxSet(self.get_structure("Sn"))
+        incar = mpmetalset.incar
+        self.assertEqual(incar["ISMEAR"], 1)
+        self.assertEqual(incar["SIGMA"], 0.2)
+        kpoints = mpmetalset.kpoints
+        self.assertArrayAlmostEqual(kpoints.kpts[0], [5, 5, 5])
+
     def test_as_from_dict(self):
         mitset = MITRelaxSet(self.structure)
         mpset = MPRelaxSet(self.structure)

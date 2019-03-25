@@ -507,6 +507,27 @@ class MPRelaxSet(DictSet):
         self.kwargs = kwargs
 
 
+class MPMetalRelaxSet(MPRelaxSet):
+    """
+    Implementation of VaspInputSet utilizing parameters in the public
+    Materials Project, but with tuning for metals. Key things are a denser
+    k point density, and a
+    """
+    CONFIG = _load_yaml_config("MPRelaxSet")
+
+    def __init__(self, structure, **kwargs):
+        super(MPMetalRelaxSet, self).__init__(
+            structure, **kwargs)
+        self._config_dict["INCAR"].update({
+            "ISMEAR": 1,
+            "SIGMA": 0.2
+        })
+        self._config_dict["KPOINTS"].update({
+            "reciprocal_density": 200
+        })
+        self.kwargs = kwargs
+
+
 class MPHSERelaxSet(DictSet):
     """
     Same as the MPRelaxSet, but with HSE parameters.
