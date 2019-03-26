@@ -431,7 +431,7 @@ class MPNonSCFSetTest(PymatgenTest):
     def test_user_kpoint_override(self):
         user_kpoints_override = Kpoints(
             style=Kpoints.supported_modes.Gamma,
-            kpts=((1, 1, 1)))  # the default kpoints style is reciprocal
+            kpts=((1, 1, 1),))  # the default kpoints style is reciprocal
 
         prev_run = self.TEST_FILES_DIR / "relaxation"
         vis = MPNonSCFSet.from_prev_calc(
