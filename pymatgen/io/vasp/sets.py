@@ -931,6 +931,12 @@ class MPNonSCFSet(MPRelaxSet):
                               style=Kpoints.supported_modes.Reciprocal,
                               num_kpts=len(ir_kpts),
                               kpts=kpts, kpts_weights=weights)
+
+        # override pymatgen kpoints if provided
+        user_kpoints = self.kwargs.get("user_kpoints_settings", None)
+        if isinstance(user_kpoints, Kpoints):
+            kpoints = user_kpoints
+
         return kpoints
 
     @classmethod
