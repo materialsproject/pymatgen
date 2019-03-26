@@ -52,10 +52,11 @@ Read the following carefully before implementing new input sets:
 The above are recommendations. The following are UNBREAKABLE rules:
 1. All input sets must take in a structure or list of structures as the first
    argument.
-2. user_incar_settings and user_kpoints_settings are absolute. Any new sets you
-   implement must obey this. If a user wants to override your settings,
-   you assume he knows what he is doing. Do not magically override user
-   supplied settings. You can issue a warning if you think the user is wrong.
+2. user_incar_settings, user_kpoints_settings and user_<whatever>_settings are
+   ABSOLUTE. Any new sets you implement must obey this. If a user wants to
+   override your settings, you assume he knows what he is doing. Do not
+   magically override user supplied settings. You can issue a warning if you
+   think the user is wrong.
 3. All input sets must save all supplied args and kwargs as instance variables.
    E.g., self.my_arg = my_arg and self.kwargs = kwargs in the __init__. This
    ensures the as_dict and from_dict work correctly.
