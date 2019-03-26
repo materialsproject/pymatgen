@@ -428,6 +428,18 @@ class MPNonSCFSetTest(PymatgenTest):
         self.assertTrue(vis.incar["LOPTICS"])
         self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Reciprocal)
 
+    def test_user_kpoint_override(self):
+        user_kpoints_override = Kpoints(
+            style=Kpoints.supported_modes.Gamma,
+            kpts=((1, 1, 1),))  # the default kpoints style is reciprocal
+
+        prev_run = self.TEST_FILES_DIR / "relaxation"
+        vis = MPNonSCFSet.from_prev_calc(
+            prev_calc_dir=prev_run, copy_chgcar=False, optics=True,
+            mode="Uniform", nedos=2001,
+            user_kpoints_settings=user_kpoints_override)
+        self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Gamma)
+
     def tearDown(self):
         shutil.rmtree(self.tmp)
         warnings.simplefilter("default")
