@@ -1,10 +1,6 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
-from __future__ import division, print_function, unicode_literals, \
-    absolute_import
-
 from scipy.linalg import polar
 import numpy as np
 import itertools
@@ -503,11 +499,10 @@ class Tensor(np.ndarray, MSONable):
             rotation[2] = np.array(c)
             rotation[0] = np.cross(rotation[1], rotation[2])
 
-        # IEEE rules: c || x3
+        # IEEE rules: c || x3, x2 normal to ac plane
         elif xtal_sys == "triclinic":
             rotation = [vec / mag for (mag, vec) in sorted(zip(lengths, vecs))]
-            rotation = np.roll(rotation, 2, axis=0)
-            rotation[1] = get_uvec(np.cross(rotation[2], rotation[1]))
+            rotation[1] = get_uvec(np.cross(rotation[2], rotation[0]))
             rotation[0] = np.cross(rotation[1], rotation[2])
 
         rotation = SquareTensor(rotation)
@@ -720,7 +715,7 @@ class Tensor(np.ndarray, MSONable):
             return cls(d["input_array"])
 
 
-class TensorCollection(collections.Sequence, MSONable):
+class TensorCollection(collections.abc.Sequence, MSONable):
     """
     A sequence of tensors that can be used for fitting data
     or for having a tensor expansion
@@ -961,7 +956,7 @@ def symmetry_reduce(tensors, structure, tol=1e-8, **kwargs):
     return unique_mapping
 
 
-class TensorMapping(collections.MutableMapping):
+class TensorMapping(collections.abc.MutableMapping):
     """
     Base class for tensor mappings, which function much like
     a dictionary, but use numpy routines to determine approximate
@@ -1041,7 +1036,7 @@ class TensorMapping(collections.MutableMapping):
 
 
 @deprecated(message="get_tkd_value is deprecated and will be removed in "
-            "pymatgen version 2019.1.1, please use the TensorMapping " 
+            "pymatgen version 2019.1.1, please use the TensorMapping "
             "class instead")
 def get_tkd_value(tensor_keyed_dict, tensor, allclose_kwargs=None):
     """

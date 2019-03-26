@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 """
 This module contains classes to wrap Python VTK to make nice molecular plots.
@@ -45,7 +44,7 @@ module_dir = os.path.dirname(os.path.abspath(__file__))
 EL_COLORS = loadfn(os.path.join(module_dir, "ElementColorSchemes.yaml"))
 
 
-class StructureVis(object):
+class StructureVis:
     """
     Provides Structure object visualization using VTK.
     """
@@ -264,7 +263,7 @@ class StructureVis(object):
             anion = elements[-1]
 
             def contains_anion(site):
-                for sp in site.species_and_occu.keys():
+                for sp in site.species.keys():
                     if sp.symbol == anion.symbol:
                         return True
                 return False
@@ -274,7 +273,7 @@ class StructureVis(object):
                 exclude = False
                 max_radius = 0
                 color = np.array([0, 0, 0])
-                for sp, occu in site.species_and_occu.items():
+                for sp, occu in site.species.items():
                     if sp.symbol in self.excluded_bonding_elements \
                             or sp == anion:
                         exclude = True
@@ -359,7 +358,7 @@ class StructureVis(object):
         radius = 0
         total_occu = 0
 
-        for specie, occu in site.species_and_occu.items():
+        for specie, occu in site.species.items():
             radius += occu * (specie.ionic_radius
                               if isinstance(specie, Specie)
                                  and specie.ionic_radius
@@ -368,7 +367,7 @@ class StructureVis(object):
 
         vis_radius = 0.2 + 0.002 * radius
 
-        for specie, occu in site.species_and_occu.items():
+        for specie, occu in site.species.items():
             if not specie:
                 color = (1, 1, 1)
             elif specie.symbol in self.el_color_mapping:
@@ -495,7 +494,7 @@ class StructureVis(object):
             # If partial occupations are involved, the color of the specie with
             # the highest occupation is used
             myoccu = 0.0
-            for specie, occu in center.species_and_occu.items():
+            for specie, occu in center.species.items():
                 if occu > myoccu:
                     myspecie = specie
                     myoccu = occu
@@ -553,7 +552,7 @@ class StructureVis(object):
             # If partial occupations are involved, the color of the specie with
             # the highest occupation is used
             myoccu = 0.0
-            for specie, occu in center.species_and_occu.items():
+            for specie, occu in center.species.items():
                 if occu > myoccu:
                     myspecie = specie
                     myoccu = occu
@@ -937,7 +936,7 @@ class MultiStructuresVis(StructureVis):
             struct_vis_radii = []
             for site in struct:
                 radius = 0
-                for specie, occu in site.species_and_occu.items():
+                for specie, occu in site.species.items():
                     radius += occu * (specie.ionic_radius
                                       if isinstance(specie, Specie)
                                          and specie.ionic_radius
@@ -989,7 +988,7 @@ class MultiStructuresVis(StructureVis):
                 coords = site.coords
             else:
                 fcoords = site.frac_coords + np.array(cell_index)
-                site_image = PeriodicSite(site.species_and_occu, fcoords,
+                site_image = PeriodicSite(site.species, fcoords,
                                           self.current_structure.lattice, to_unit_cell=False,
                                           coords_are_cartesian=False,
                                           properties=site.properties)

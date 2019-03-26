@@ -2,11 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import numpy as np
-
-import six
 import warnings
+import functools
 from monty.json import MSONable
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.core.periodic_table import get_el_sp
@@ -611,7 +609,7 @@ class CompleteDos(Dos):
         Returns:
             Dos containing summed orbital densities for site.
         """
-        site_dos = six.moves.reduce(add_densities, self.pdos[site].values())
+        site_dos = functools.reduce(add_densities, self.pdos[site].values())
         return Dos(self.efermi, self.energies, site_dos)
 
     def get_site_spd_dos(self, site):
@@ -655,9 +653,9 @@ class CompleteDos(Dos):
                     elif orb in (Orbital.dx2, Orbital.dz2):
                         eg_dos.append(pdos)
         return {"t2g": Dos(self.efermi, self.energies,
-                           six.moves.reduce(add_densities, t2g_dos)),
+                           functools.reduce(add_densities, t2g_dos)),
                 "e_g": Dos(self.efermi, self.energies,
-                           six.moves.reduce(add_densities, eg_dos))}
+                           functools.reduce(add_densities, eg_dos))}
 
     def get_spd_dos(self):
         """
@@ -845,9 +843,9 @@ class LobsterCompleteDos(CompleteDos):
                     elif _get_orb_lobster(orb) in (Orbital.dx2, Orbital.dz2):
                         eg_dos.append(pdos)
         return {"t2g": Dos(self.efermi, self.energies,
-                           six.moves.reduce(add_densities, t2g_dos)),
+                           functools.reduce(add_densities, t2g_dos)),
                 "e_g": Dos(self.efermi, self.energies,
-                           six.moves.reduce(add_densities, eg_dos))}
+                           functools.reduce(add_densities, eg_dos))}
 
     def get_spd_dos(self):
         """

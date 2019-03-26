@@ -15,7 +15,6 @@ TODO:
         user does not need to generate a dict
 """
 
-from __future__ import division, unicode_literals
 
 import numpy as np
 import itertools
@@ -26,6 +25,7 @@ from sympy.solvers import linsolve, solve
 
 from pymatgen.core.composition import Composition
 from pymatgen import Structure
+from pymatgen.core.surface import get_slab_regions
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.wulff import WulffShape
@@ -68,7 +68,7 @@ consider citing the following works::
 
 class SlabEntry(ComputedStructureEntry):
     """
-    A ComputedStructureEntry object encompassing all data relevant to a 
+    A ComputedStructureEntry object encompassing all data relevant to a
         slab for analyzing surface thermodynamics.
 
     .. attribute:: miller_index
@@ -188,6 +188,18 @@ class SlabEntry(ComputedStructureEntry):
 
         # Set up
         ref_entries = [] if not ref_entries else ref_entries
+
+        # Check if appropriate ref_entries are present if the slab is non-stoichiometric
+        # TODO: There should be a way to identify which specific species are
+        # non-stoichiometric relative to the others in systems with more than 2 species
+        slab_comp = self.composition.as_dict()
+        ucell_entry_comp = ucell_entry.composition.reduced_composition.as_dict()
+        slab_clean_comp = Composition({el: slab_comp[el] for el in ucell_entry_comp.keys()})
+        if slab_clean_comp.reduced_composition != ucell_entry.composition.reduced_composition:
+            list_els = [list(entry.composition.as_dict().keys())[0] for entry in ref_entries]
+            if not any([el in list_els for el in ucell_entry.composition.as_dict().keys()]):
+                warnings.warn("Elemental references missing for the non-dopant species.")
+
         gamma = (Symbol("E_surf") - Symbol("Ebulk")) / (2 * Symbol("A"))
         ucell_comp = ucell_entry.composition
         ucell_reduced_comp = ucell_comp.reduced_composition
@@ -261,7 +273,7 @@ class SlabEntry(ComputedStructureEntry):
         """
 
         struct = self.structure
-        weights = [s.species_and_occu.weight for s in struct]
+        weights = [s.species.weight for s in struct]
         center_of_mass = np.average(struct.frac_coords,
                                     weights=weights, axis=0)
 
@@ -345,7 +357,7 @@ class SlabEntry(ComputedStructureEntry):
                          adsorbates=adsorbates, clean_entry=clean_entry, **kwargs)
 
 
-class SurfaceEnergyPlotter(object):
+class SurfaceEnergyPlotter:
     """
     A class used for generating plots to analyze the thermodynamics of surfaces
         of a material. Produces stability maps of different slab configurations,
@@ -1304,14 +1316,11 @@ def entry_dict_from_list(all_slab_entries):
     return entry_dict
 
 
-class WorkFunctionAnalyzer(object):
+class WorkFunctionAnalyzer:
     """
-    A class that post processes a task document of a vasp calculation (from
-        using drone.assimilate). Can calculate work function from the vasp
-        calculations and plot the potential along the c axis. This class
-        assumes that LVTOT=True (i.e. the LOCPOT file was generated) for a
-        slab calculation and it was insert into the task document along with
-        the other outputs.
+    A class used for calculating the work function
+        from a slab model and visualizing the behavior
+        of the local potential along the slab.
 
     .. attribute:: efermi
 
@@ -1354,7 +1363,7 @@ class WorkFunctionAnalyzer(object):
         The average locpot of the slab region along the c direction
     """
 
-    def __init__(self, structure, locpot_along_c, efermi, shift=0):
+    def __init__(self, structure, locpot_along_c, efermi, shift=0, blength=3.5):
         """
         Initializes the WorkFunctionAnalyzer class.
 
@@ -1365,21 +1374,32 @@ class WorkFunctionAnalyzer(object):
             shift (float): Parameter to translate the slab (and
                 therefore the vacuum) of the slab structure, thereby
                 translating the plot along the x axis.
+            blength (float (Ang)): The longest bond length in the material.
+                Used to handle pbc for noncontiguous slab layers
         """
+
+        # ensure shift between 0 and 1
+        if shift < 0:
+            shift += -1*int(shift) + 1
+        elif shift >= 1:
+            shift -= int(shift)
+        self.shift = shift
 
         # properties that can be shifted
         slab = structure.copy()
-        slab.translate_sites([i for i, site in enumerate(slab)], [0,0,shift])
+        slab.translate_sites([i for i, site in enumerate(slab)], [0, 0, self.shift])
         self.slab = slab
         self.sorted_sites = sorted(self.slab, key=lambda site: site.frac_coords[2])
 
         # Get the plot points between 0 and c
         # increments of the number of locpot points
-        locpot_along_c = locpot_along_c
         self.along_c = np.linspace(0, 1, num=len(locpot_along_c))
+
+        # Get the plot points between 0 and c
+        # increments of the number of locpot points
         locpot_along_c_mid, locpot_end, locpot_start = [], [], []
         for i, s in enumerate(self.along_c):
-            j = s + shift
+            j = s + self.shift
             if j > 1:
                 locpot_start.append(locpot_along_c[i])
             elif j < 0:
@@ -1388,12 +1408,20 @@ class WorkFunctionAnalyzer(object):
                 locpot_along_c_mid.append(locpot_along_c[i])
         self.locpot_along_c = locpot_start + locpot_along_c_mid + locpot_end
 
+        # identify slab region
+        self.slab_regions = get_slab_regions(self.slab, blength=blength)
         # get the average of the signal in the bulk-like region of the
         # slab, i.e. the average of the oscillating region. This gives
         # a rough appr. of the potential in the interior of the slab
-        bulk_p = [p for i, p in enumerate(self.locpot_along_c) if \
-                  self.sorted_sites[-1].frac_coords[2] > self.along_c[i] \
-                  > self.sorted_sites[0].frac_coords[2]]
+        bulk_p = []
+        for r in self.slab_regions:
+            bulk_p.extend([p for i, p in enumerate(self.locpot_along_c) if \
+                           r[1] >= self.along_c[i] > r[0]])
+        if len(self.slab_regions) > 1:
+            bulk_p.extend([p for i, p in enumerate(self.locpot_along_c) if \
+                           self.slab_regions[1][1] <= self.along_c[i]])
+            bulk_p.extend([p for i, p in enumerate(self.locpot_along_c) if \
+                           self.slab_regions[0][0] >= self.along_c[i]])
         self.ave_bulk_p = np.mean(bulk_p)
 
         # shift independent quantities
@@ -1429,9 +1457,20 @@ class WorkFunctionAnalyzer(object):
         xg, yg = [], []
         for i, p in enumerate(self.locpot_along_c):
             # average signal is just the bulk-like potential when in the slab region
-            if p < self.ave_bulk_p \
-                    or self.sorted_sites[-1].frac_coords[2] >= self.along_c[i] \
-                            >= self.sorted_sites[0].frac_coords[2]:
+            in_slab = False
+            for r in self.slab_regions:
+                if r[0] <= self.along_c[i] <= r[1]:
+                    in_slab = True
+            if len(self.slab_regions) > 1:
+                if self.along_c[i] >= self.slab_regions[1][1]:
+                    in_slab = True
+                if self.along_c[i] <= self.slab_regions[0][0]:
+                    in_slab = True
+
+            if in_slab:
+                yg.append(self.ave_bulk_p)
+                xg.append(self.along_c[i])
+            elif p < self.ave_bulk_p:
                 yg.append(self.ave_bulk_p)
                 xg.append(self.along_c[i])
             else:
@@ -1462,19 +1501,21 @@ class WorkFunctionAnalyzer(object):
         Returns Labelled plt
         """
 
-        maxc = self.sorted_sites[-1].frac_coords[2]
-        minc = self.sorted_sites[0].frac_coords[2]
-        # determine whether most of the vacuum is to
-        # the left or right for labelling purposes
-        vleft = [i for i in self.along_c if i <= minc]
-        vright = [i for i in self.along_c if i >= maxc]
-        if max(vleft) - min(vleft) > max(vright) - min(vright):
-            label_in_vac = (max(vleft) - min(vleft))/2
+        # center of vacuum and bulk region
+        if len(self.slab_regions) > 1:
+            label_in_vac = (self.slab_regions[0][1] + self.slab_regions[1][0])/2
+            if abs(self.slab_regions[0][0]-self.slab_regions[0][1]) > \
+                    abs(self.slab_regions[1][0]-self.slab_regions[1][1]):
+                label_in_bulk = self.slab_regions[0][1]/2
+            else:
+                label_in_bulk = (self.slab_regions[1][1] + self.slab_regions[1][0]) / 2
         else:
-            label_in_vac = (max(vright) - min(vright))/2 + maxc
+            label_in_bulk = (self.slab_regions[0][0] + self.slab_regions[0][1])/2
+            if self.slab_regions[0][0] > 1-self.slab_regions[0][1]:
+                label_in_vac = self.slab_regions[0][0] / 2
+            else:
+                label_in_vac = (1 + self.slab_regions[0][1]) / 2
 
-        # label the vacuum locpot
-        label_in_bulk = maxc - (maxc - minc) / 2
         plt.plot([0, 1], [self.vacuum_locpot]*2, 'b--', zorder=-5, linewidth=1)
         xy = [label_in_bulk, self.vacuum_locpot+self.ave_locpot*0.05]
         plt.annotate(r"$V_{vac}=%.2f$" %(self.vacuum_locpot), xy=xy,
@@ -1531,15 +1572,15 @@ class WorkFunctionAnalyzer(object):
         return all(all_flat)
 
     @staticmethod
-    def from_files(poscar_filename, locpot_filename, outcar_filename, shift=0):
+    def from_files(poscar_filename, locpot_filename, outcar_filename, shift=0, blength=3.5):
         p = Poscar.from_file(poscar_filename)
         l = Locpot.from_file(locpot_filename)
         o = Outcar(outcar_filename)
         return WorkFunctionAnalyzer(p.structure, l.get_average_along_axis(2),
-                                    o.efermi, shift=shift)
+                                    o.efermi, shift=shift, blength=blength)
 
 
-class NanoscaleStability(object):
+class NanoscaleStability:
     """
     A class for analyzing the stability of nanoparticles of different
         polymorphs with respect to size. The Wulff shape will be the
@@ -1797,12 +1838,12 @@ class NanoscaleStability(object):
 
         return plt
 
-        # class GetChempotRange(object):
+        # class GetChempotRange:
         #     def __init__(self, entry):
         #         self.entry = entry
         #
         #
-        # class SlabEntryGenerator(object):
+        # class SlabEntryGenerator:
         #     def __init__(self, entry):
         #         self.entry = entry
 

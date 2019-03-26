@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals
 
 """
 Interface with command line GULP.
@@ -27,8 +26,10 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.bond_valence import BVAnalyzer
-from six.moves import map
-from six.moves import zip
+
+
+
+from monty.tempfile import ScratchDir
 
 
 _anions = set(map(Element, ["O", "S", "F", "Cl", "Br", "N", "P"]))
@@ -78,7 +79,7 @@ _gulp_kw = {
 }
 
 
-class GulpIO(object):
+class GulpIO:
     """
     To generate GULP input and process output
     """
@@ -479,7 +480,7 @@ class GulpIO(object):
         return Structure(latt, sp, coords)
 
 
-class GulpCaller(object):
+class GulpCaller:
     """
     Class to run gulp from commandline
     """
@@ -518,39 +519,39 @@ class GulpCaller(object):
         Returns:
             gout: GULP output string
         """
-        #command=["gulp"]
-        p = subprocess.Popen(
-            self._gulp_cmd, stdout=subprocess.PIPE,
-            stdin=subprocess.PIPE, stderr=subprocess.PIPE
-        )
+        with ScratchDir("."):
+            p = subprocess.Popen(
+                self._gulp_cmd, stdout=subprocess.PIPE,
+                stdin=subprocess.PIPE, stderr=subprocess.PIPE
+            )
 
-        out, err = p.communicate(bytearray(gin, "utf-8"))
-        out = out.decode("utf-8")
-        err = err.decode("utf-8")
+            out, err = p.communicate(bytearray(gin, "utf-8"))
+            out = out.decode("utf-8")
+            err = err.decode("utf-8")
 
-        if "Error" in err or "error" in err:
-            print(gin)
-            print("----output_0---------")
-            print(out)
-            print("----End of output_0------\n\n\n")
-            print("----output_1--------")
-            print(out)
-            print("----End of output_1------")
-            raise GulpError(err)
+            if "Error" in err or "error" in err:
+                print(gin)
+                print("----output_0---------")
+                print(out)
+                print("----End of output_0------\n\n\n")
+                print("----output_1--------")
+                print(out)
+                print("----End of output_1------")
+                raise GulpError(err)
 
-        # We may not need this
-        if "ERROR" in out:
-            raise GulpError(out)
+            # We may not need this
+            if "ERROR" in out:
+                raise GulpError(out)
 
-        # Sometimes optimisation may fail to reach convergence
-        conv_err_string = "Conditions for a minimum have not been satisfied"
-        if conv_err_string in out:
-            raise GulpConvergenceError()
+            # Sometimes optimisation may fail to reach convergence
+            conv_err_string = "Conditions for a minimum have not been satisfied"
+            if conv_err_string in out:
+                raise GulpConvergenceError()
 
-        gout = ""
-        for line in out.split("\n"):
-            gout = gout + line + "\n"
-        return gout
+            gout = ""
+            for line in out.split("\n"):
+                gout = gout + line + "\n"
+            return gout
 
 
 def get_energy_tersoff(structure, gulp_cmd='gulp'):
@@ -642,7 +643,7 @@ class GulpConvergenceError(Exception):
         return self.msg
 
 
-class BuckinghamPotential(object):
+class BuckinghamPotential:
     """
     Generate the Buckingham Potential Table from the bush.lib and lewis.lib.
 
@@ -720,7 +721,7 @@ class BuckinghamPotential(object):
             self.spring_dict = spring_dict
 
 
-class TersoffPotential(object):
+class TersoffPotential:
     """
     Generate Tersoff Potential Table from "OxideTersoffPotentialentials" file
     """

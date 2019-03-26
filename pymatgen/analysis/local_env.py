@@ -2,12 +2,11 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import math
+import warnings
 from collections import namedtuple, defaultdict
 
-import six
 import ruamel.yaml as yaml
 import os
 import json
@@ -44,6 +43,7 @@ except:
     ob = None
 
 from monty.dev import requires
+from monty.serialization import loadfn
 
 from bisect import bisect_left
 from scipy.spatial import Voronoi
@@ -51,25 +51,20 @@ from scipy.spatial import Voronoi
 from pymatgen import Element
 from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
 
-default_op_params = {}
-with open(os.path.join(os.path.dirname(
-        __file__), 'op_params.yaml'), "rt") as f:
+
+_directory = os.path.join(os.path.dirname(__file__))
+
+with open(os.path.join(_directory, 'op_params.yaml'), "rt") as f:
     default_op_params = yaml.safe_load(f)
-    f.close()
 
-cn_opt_params = {}
-with open(os.path.join(os.path.dirname(
-        __file__), 'cn_opt_params.yaml'), 'r') as f:
+with open(os.path.join(_directory, 'cn_opt_params.yaml'), 'r') as f:
     cn_opt_params = yaml.safe_load(f)
-    f.close()
 
-file_dir = os.path.dirname(__file__)
-rad_file = os.path.join(file_dir, 'ionic_radii.json')
-with open(rad_file, 'r') as fp:
+with open(os.path.join(_directory, 'ionic_radii.json'), 'r') as fp:
     _ion_radii = json.load(fp)
 
 
-class ValenceIonicRadiusEvaluator(object):
+class ValenceIonicRadiusEvaluator:
     """
     Computes site valences and ionic radii for a structure using bond valence
     analyzer
@@ -221,7 +216,7 @@ class ValenceIonicRadiusEvaluator(object):
         return valences
 
 
-class NearNeighbors(object):
+class NearNeighbors:
     """
     Base class to determine near neighbors that typically include nearest
     neighbors and others that are within some tolerable distance.
@@ -401,8 +396,8 @@ class NearNeighbors(object):
         output = []
         for info in sites:
             orig_site = structure[info['site_index']]
-            info['site'] = PeriodicSite(orig_site.species_and_occu,
-                                        np.add(orig_site._fcoords,
+            info['site'] = PeriodicSite(orig_site.species,
+                                        np.add(orig_site.frac_coords,
                                                info['image']),
                                         structure.lattice,
                                         properties=orig_site.properties)
@@ -486,17 +481,25 @@ class NearNeighbors(object):
         return list(all_sites.values())
 
     @staticmethod
-    def _get_image(frac_coords):
+    def _get_image(structure, site):
         """Private convenience method for get_nn_info,
-        gives lattice image from provided PeriodicSite.
+        gives lattice image from provided PeriodicSite and Structure.
+
+        Image is defined as displacement from original site in structure to a given site.
+        i.e. if structure has a site at (-0.1, 1.0, 0.3), then (0.9, 0, 2.3) -> jimage = (1, -1, 2).
+        Note that this method takes O(number of sites) due to searching an original site.
 
         Args:
-            frac_coords ([float]*3): Fraction coordinates
+            structure: Structure Object
+            site: PeriodicSite Object
+
         Returns:
-            ((int)*3) Lattice image
+            image: ((int)*3) Lattice image
         """
-        # TODO: This is not numerically stable. Also, move to PeriodicSite? -WardLT, 23Jun18
-        return tuple(map(int, np.floor(frac_coords)))
+        original_site = structure[NearNeighbors._get_original_site(structure, site)]
+        image = np.around(np.subtract(site.frac_coords, original_site.frac_coords))
+        image = tuple(image.astype(int))
+        return image
 
     @staticmethod
     def _get_original_site(structure, site):
@@ -590,7 +593,7 @@ class VoronoiNN(NearNeighbors):
             (default: 0).
         targets (Element or list of Elements): target element(s).
         cutoff (float): cutoff radius in Angstrom to look for near-neighbor
-            atoms. Defaults to 10.0.
+            atoms. Defaults to 13.0.
         allow_pathological (bool): whether to allow infinite vertices in
             determination of Voronoi coordination.
         weight (string) - Statistic used to weigh neighbors (see the statistics
@@ -600,7 +603,7 @@ class VoronoiNN(NearNeighbors):
             for faster performance
     """
 
-    def __init__(self, tol=0, targets=None, cutoff=10.0,
+    def __init__(self, tol=0, targets=None, cutoff=13.0,
                  allow_pathological=False, weight='solid_angle',
                  extra_nn_info=True, compute_adj_neighbors=True):
         super(VoronoiNN, self).__init__()
@@ -645,8 +648,12 @@ class VoronoiNN(NearNeighbors):
         center = structure[n]
 
         cutoff = self.cutoff
-        max_cutoff = np.linalg.norm(
-            structure.lattice.lengths_and_angles[0]) + 0.01  # diagonal of cell
+
+        # max cutoff is the longest diagonal of the cell + room for noise
+        corners = [[1, 1, 1], [-1, 1, 1], [1, -1, 1], [1, 1, -1]]
+        d_corners = [np.linalg.norm(structure.lattice.get_cartesian_coords(c))
+                     for c in corners]
+        max_cutoff = max(d_corners) + 0.01
 
         while True:
             try:
@@ -657,19 +664,27 @@ class VoronoiNN(NearNeighbors):
 
                 # Run the Voronoi tessellation
                 qvoronoi_input = [s.coords for s in neighbors]
+
                 voro = Voronoi(
                     qvoronoi_input)  # can give seg fault if cutoff is too small
+
+                # Extract data about the site in question
+                cell_info = self._extract_cell_info(
+                    structure, 0, neighbors, targets, voro,
+                    self.compute_adj_neighbors)
                 break
 
-            except RuntimeError:
+            except RuntimeError as e:
                 if cutoff >= max_cutoff:
-                    raise RuntimeError("Error in Voronoi neighbor finding; max "
-                                       "cutoff exceeded")
+                    if e.args and "vertex" in e.args[0]:
+                        # pass through the error raised by _extract_cell_info
+                        raise e
+                    else:
+                        raise RuntimeError("Error in Voronoi neighbor finding; "
+                                           "max cutoff exceeded")
                 cutoff = min(cutoff * 2, max_cutoff + 0.001)
+        return cell_info
 
-        # Extract data about the site in question
-        return self._extract_cell_info(structure, 0, neighbors, targets, voro,
-                                       self.compute_adj_neighbors)
 
     def get_all_voronoi_polyhedra(self, structure):
         """Get the Voronoi polyhedra for all site in a simulation cell
@@ -706,7 +721,8 @@ class VoronoiNN(NearNeighbors):
         #  The `get_all_neighbors` function returns neighbors for each site's image in the
         #   original unit cell. We start off with these central atoms to ensure they are
         #   included in the tessellation
-        sites = [x.to_unit_cell for x in structure]
+
+        sites = [x.to_unit_cell() for x in structure]
         indices = [(i, 0, 0, 0) for i, _ in enumerate(structure)]
 
         # Get all neighbors within a certain cutoff
@@ -753,7 +769,7 @@ class VoronoiNN(NearNeighbors):
                 return [site.specie]
             return [Element(site.specie)]
         except:
-            return site.species_and_occu.elements
+            return site.species.elements
 
     def _is_in_targets(self, site, targets):
         """
@@ -867,7 +883,7 @@ class VoronoiNN(NearNeighbors):
                 if nn.specie in targets:
                     resultweighted[nn_index] = nstats
             else:  # is nn site is disordered
-                for disordered_sp in nn.species_and_occu.keys():
+                for disordered_sp in nn.species.keys():
                     if disordered_sp in targets:
                         resultweighted[nn_index] = nstats
 
@@ -949,7 +965,7 @@ class VoronoiNN(NearNeighbors):
             if nstats[self.weight] > self.tol * max_weight \
                     and self._is_in_targets(site, targets):
                 nn_info = {'site': site,
-                           'image': self._get_image(site.frac_coords),
+                           'image': self._get_image(structure, site),
                            'weight': nstats[self.weight] / max_weight,
                            'site_index': self._get_original_site(
                                structure, site)}
@@ -1065,7 +1081,7 @@ class JmolNN(NearNeighbors):
             if dist <= (bonds[(site.specie, neighb.specie)]) and (dist > self.min_bond_distance):
                 weight = min_rad / dist
                 siw.append({'site': neighb,
-                            'image': self._get_image(neighb.frac_coords),
+                            'image': self._get_image(structure, neighb),
                             'weight': weight,
                             'site_index': self._get_original_site(structure, neighb)})
         return siw
@@ -1115,7 +1131,7 @@ class MinimumDistanceNN(NearNeighbors):
             if dist < (1.0 + self.tol) * min_dist:
                 w = min_dist / dist
                 siw.append({'site': s,
-                            'image': self._get_image(s.frac_coords),
+                            'image': self._get_image(structure, s),
                             'weight': w,
                             'site_index': self._get_original_site(structure, s)})
         return siw
@@ -1247,7 +1263,7 @@ class OpenBabelNN(NearNeighbors):
         output = []
         for info in sites:
             orig_site = structure[info['site_index']]
-            info['site'] = Site(orig_site.species_and_occu,
+            info['site'] = Site(orig_site.species,
                                 orig_site._coords,
                                 properties=orig_site.properties)
             output.append(info)
@@ -1379,7 +1395,7 @@ class CovalentBondNN(NearNeighbors):
         output = []
         for info in sites:
             orig_site = structure[info['site_index']]
-            info['site'] = Site(orig_site.species_and_occu,
+            info['site'] = Site(orig_site.species,
                                 orig_site._coords,
                                 properties=orig_site.properties)
             output.append(info)
@@ -1444,7 +1460,7 @@ class MinimumOKeeffeNN(NearNeighbors):
             if reldist < (1.0 + self.tol) * min_reldist:
                 w = min_reldist / reldist
                 siw.append({'site': s,
-                            'image': self._get_image(s.frac_coords),
+                            'image': self._get_image(structure, s),
                             'weight': w,
                             'site_index': self._get_original_site(structure, s)})
 
@@ -1503,7 +1519,7 @@ class MinimumVIRENN(NearNeighbors):
             if reldist < (1.0 + self.tol) * min_reldist:
                 w = min_reldist / reldist
                 siw.append({'site': s,
-                            'image': self._get_image(s.frac_coords),
+                            'image': self._get_image(vire.structure, s),
                             'weight': w,
                             'site_index': self._get_original_site(vire.structure, s)})
 
@@ -1743,7 +1759,7 @@ def gramschmidt(vin, uin):
     return vin - (vin_uin / uin_uin) * uin
 
 
-class LocalStructOrderParams(object):
+class LocalStructOrderParams:
     """
     This class permits the calculation of various types of local
     structure order parameters.
@@ -2928,7 +2944,7 @@ class BrunnerNN_reciprocal(NearNeighbors):
             if dist < d_max + self.tol:
                 w = ds[0] / dist
                 siw.append({'site': s,
-                            'image': self._get_image(s.frac_coords),
+                            'image': self._get_image(structure, s),
                             'weight': w,
                             'site_index': self._get_original_site(structure, s)})
         return siw
@@ -2967,7 +2983,7 @@ class BrunnerNN_relative(NearNeighbors):
             if dist < d_max + self.tol:
                 w = ds[0] / dist
                 siw.append({'site': s,
-                            'image': self._get_image(s.frac_coords),
+                            'image': self._get_image(structure, s),
                             'weight': w,
                             'site_index': self._get_original_site(structure, s)})
         return siw
@@ -3006,7 +3022,7 @@ class BrunnerNN_real(NearNeighbors):
             if dist < d_max + self.tol:
                 w = ds[0] / dist
                 siw.append({'site': s,
-                            'image': self._get_image(s.frac_coords),
+                            'image': self._get_image(structure, s),
                             'weight': w,
                             'site_index': self._get_original_site(structure, s)})
         return siw
@@ -3047,7 +3063,7 @@ class EconNN(NearNeighbors):
                 w = exp(1 - (dist / weighted_avg)**6)
                 if w > self.tol:
                     siw.append({'site': s,
-                                'image': self._get_image(s.frac_coords),
+                                'image': self._get_image(structure, s),
                                 'weight': w,
                                 'site_index': self._get_original_site(structure, s)})
         return siw
@@ -3067,7 +3083,7 @@ class CrystalNN(NearNeighbors):
     NNData = namedtuple("nn_data", ["all_nninfo", "cn_weights", "cn_nninfo"])
 
     def __init__(self, weighted_cn=False, cation_anion=False,
-                 distance_cutoffs=(0.5, 1.0), x_diff_weight=3.0,
+                 distance_cutoffs=(0.5, 1), x_diff_weight=3.0,
                  porous_adjustment=True, search_cutoff=7,
                  fingerprint_length=None):
         """
@@ -3218,12 +3234,22 @@ class CrystalNN(NearNeighbors):
             r1 = self._get_radius(structure[n])
             for entry in nn:
                 r2 = self._get_radius(entry["site"])
+                if r1 > 0 and r2 > 0:
+                    d = r1 + r2
+                else:
+                    warnings.warn(
+                        "CrystalNN: cannot locate an appropriate radius, "
+                        "covalent or atomic radii will be used, this can lead "
+                        "to non-optimal results.")
+                    d = CrystalNN._get_default_radius(structure[n]) + \
+                        CrystalNN._get_default_radius(entry["site"])
+
                 dist = np.linalg.norm(
                     structure[n].coords - entry["site"].coords)
                 dist_weight = 0
 
-                cutoff_low = (r1 + r2) + self.distance_cutoffs[0]
-                cutoff_high = (r1 + r2) + self.distance_cutoffs[1]
+                cutoff_low = d + self.distance_cutoffs[0]
+                cutoff_high = d + self.distance_cutoffs[1]
 
                 if dist <= cutoff_low:
                     dist_weight = 1
@@ -3345,11 +3371,11 @@ class CrystalNN(NearNeighbors):
 
         return (area1 - area2) / (0.25 * math.pi * r ** 2)
 
-
     @staticmethod
-    def _get_radius(site):
+    def _get_default_radius(site):
         """
-        An internal method to get the expected radius for a site.
+        An internal method to get a "default" covalent/element radius
+
         Args:
             site: (Site)
 
@@ -3360,6 +3386,49 @@ class CrystalNN(NearNeighbors):
             return CovalentRadius.radius[site.specie.symbol]
         except:
             return site.specie.atomic_radius
+
+
+    @staticmethod
+    def _get_radius(site):
+        """
+        An internal method to get the expected radius for a site with
+        oxidation state.
+        Args:
+            site: (Site)
+
+        Returns:
+            Oxidation-state dependent radius: ionic, covalent, or atomic.
+            Returns 0 if no oxidation state or appropriate radius is found.
+        """
+        if hasattr(site.specie, 'oxi_state'):
+            el = site.specie.element
+            oxi = site.specie.oxi_state
+
+            if oxi == 0:
+                return CrystalNN._get_default_radius(site)
+
+            elif oxi in el.ionic_radii:
+                return el.ionic_radii[oxi]
+
+            # e.g., oxi = 2.667, average together 2+ and 3+ radii
+            elif int(math.floor(oxi)) in el.ionic_radii and \
+                    int(math.ceil(oxi)) in el.ionic_radii:
+                oxi_low = el.ionic_radii[int(math.floor(oxi))]
+                oxi_high = el.ionic_radii[int(math.ceil(oxi))]
+                x = oxi - int(math.floor(oxi))
+                return (1-x) * oxi_low + x * oxi_high
+
+            elif oxi > 0 and el.average_cationic_radius > 0:
+                return el.average_cationic_radius
+
+            elif oxi < 0 and el.average_anionic_radius > 0:
+                return el.average_anionic_radius
+
+        else:
+            warnings.warn("CrystalNN: distance cutoffs set but no oxidation "
+                          "states specified on sites! For better results, set "
+                          "the site oxidation states in the structure.")
+        return 0
 
     @staticmethod
     def transform_to_length(nndata, length):
@@ -3432,6 +3501,26 @@ class CutOffDictNN(NearNeighbors):
                 self._max_dist = dist
         self._lookup_dict = lookup_dict
 
+    @staticmethod
+    def from_preset(preset):
+        """
+        Initialise a CutOffDictNN according to a preset set of cut-offs.
+
+        Args:
+            preset (str): A preset name. The list of supported presets are:
+
+                - "vesta_2019": The distance cut-offs used by the VESTA
+                  visualisation program.
+
+        Returns:
+            A CutOffDictNN using the preset cut-off dictionary.
+        """
+        if preset == 'vesta_2019':
+            cut_offs = loadfn(os.path.join(_directory, 'vesta_cutoffs.yaml'))
+            return CutOffDictNN(cut_off_dict=cut_offs)
+        else:
+            raise ValueError("Unrecognised preset: {}".format(preset))
+
     def get_nn_info(self, structure, n):
 
         site = structure[n]
@@ -3449,7 +3538,7 @@ class CutOffDictNN(NearNeighbors):
 
                 nn_info.append({
                     'site': n_site,
-                    'image': self._get_image(n_site.frac_coords),
+                    'image': self._get_image(structure, n_site),
                     'weight': dist,
                     'site_index': self._get_original_site(structure, n_site)
                 })

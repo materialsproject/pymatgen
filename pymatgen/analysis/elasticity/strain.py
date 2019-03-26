@@ -2,8 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
 """
 This module provides classes and methods used to describe deformations and
@@ -14,7 +12,7 @@ generating deformed structure sets for further calculations.
 import numpy as np
 import scipy
 import itertools
-from six.moves import zip
+
 import collections
 from monty.dev import deprecated
 
@@ -83,7 +81,7 @@ class Deformation(SquareTensor):
         def_struct = structure.copy()
         old_latt = def_struct.lattice.matrix
         new_latt = np.transpose(np.dot(self, np.transpose(old_latt)))
-        def_struct.modify_lattice(Lattice(new_latt))
+        def_struct.lattice = Lattice(new_latt)
         return def_struct
 
     @classmethod
@@ -103,7 +101,7 @@ class Deformation(SquareTensor):
         return cls(f)
 
 
-class DeformedStructureSet(collections.Sequence):
+class DeformedStructureSet(collections.abc.Sequence):
     """
     class that generates a set of independently deformed structures that
     can be used to calculate linear stress-strain response

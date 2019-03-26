@@ -2,10 +2,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import unittest
-import os
 import warnings
 import random
 from pymatgen import SETTINGS
@@ -24,6 +22,7 @@ from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.io.cif import CifParser
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
+from pymatgen.util.testing import PymatgenTest
 
 """
 Created on Jun 9, 2012
@@ -38,19 +37,17 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Jun 9, 2012"
 
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files')
-
-
-@unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY"), "PMG_MAPI_KEY environment variable not set.")
-class MPResterTest(unittest.TestCase):
+@unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY"),
+                 "PMG_MAPI_KEY environment variable not set.")
+class MPResterTest(PymatgenTest):
+    _multiprocess_shared_ = True
 
     def setUp(self):
         self.rester = MPRester()
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_get_all_materials_ids_doc(self):
         mids = self.rester.get_materials_ids("Al2O3")
@@ -133,8 +130,8 @@ class MPResterTest(unittest.TestCase):
     def test_find_structure(self):
         # nosetests pymatgen/matproj/tests/test_matproj.py:MPResterTest.test_find_structure
         m = MPRester()
-        ciffile = os.path.join(test_dir, 'Fe3O4.cif')
-        data = m.find_structure(ciffile)
+        ciffile = self.TEST_FILES_DIR / 'Fe3O4.cif'
+        data = m.find_structure(str(ciffile))
         self.assertTrue(len(data) > 1)
         s = CifParser(ciffile).get_structures()[0]
         data = m.find_structure(s)
@@ -160,11 +157,24 @@ class MPResterTest(unittest.TestCase):
     def test_query(self):
         criteria = {'elements': {'$in': ['Li', 'Na', 'K'], '$all': ['O']}}
         props = ['pretty_formula', 'energy']
-        data = self.rester.query(criteria=criteria, properties=props)
+        data = self.rester.query(
+            criteria=criteria, properties=props, chunk_size=0)
         self.assertTrue(len(data) > 6)
-        data = self.rester.query(criteria="*2O", properties=props)
+        data = self.rester.query(
+            criteria="*2O", properties=props, chunk_size=0)
         self.assertGreaterEqual(len(data), 52)
         self.assertIn("Li2O", (d["pretty_formula"] for d in data))
+
+    def test_query_chunk_size(self):
+        criteria = {"nelements": 2, "elements": "O"}
+        props = ['pretty_formula']
+        data1 = self.rester.query(
+            criteria=criteria, properties=props, chunk_size=0)
+        data2 = self.rester.query(
+            criteria=criteria, properties=props, chunk_size=500)
+        self.assertEqual({d['pretty_formula'] for d in data1},
+                         {d['pretty_formula'] for d in data2})
+        self.assertIn("Al2O3", {d['pretty_formula'] for d in data1})
 
     def test_get_exp_thermo_data(self):
         data = self.rester.get_exp_thermo_data("Fe2O3")
@@ -257,17 +267,16 @@ class MPResterTest(unittest.TestCase):
         Fe_entries = self.rester.get_entries("Fe", sort_by_e_above_hull=True)
         self.assertEqual(Fe_entries[0].data["e_above_hull"], 0)
 
-
     def test_get_pourbaix_entries(self):
-        pbx_entries = self.rester.get_pourbaix_entries(["Fe"])
+        pbx_entries = self.rester.get_pourbaix_entries(["Fe", "Cr"])
         for pbx_entry in pbx_entries:
             self.assertTrue(isinstance(pbx_entry, PourbaixEntry))
         # Ensure entries are pourbaix compatible
         pbx = PourbaixDiagram(pbx_entries)
 
         # Try binary system
-        pbx_entries = self.rester.get_pourbaix_entries(["Fe", "Cr"])
-        pbx = PourbaixDiagram(pbx_entries)
+        #pbx_entries = self.rester.get_pourbaix_entries(["Fe", "Cr"])
+        #pbx = PourbaixDiagram(pbx_entries)
 
         # TODO: Shyue Ping: I do not understand this test. You seem to
         # be grabbing Zn-S system, but I don't see proper test for anything,
@@ -353,7 +362,7 @@ class MPResterTest(unittest.TestCase):
         self.assertTrue(len(kinks) > 0)
         kink = kinks[0]
         self.assertIn("energy", kink)
-        self.assertIn("ratio", kink)
+        self.assertIn("ratio_atomic", kink)
         self.assertIn("rxn", kink)
         self.assertTrue(isinstance(kink['rxn'], Reaction))
         kinks_open_O = self.rester.get_interface_reactions(

@@ -2,12 +2,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
-from six.moves import filter, zip
 import numpy as np
-import six
-
 import collections
 from numbers import Number
 import numbers
@@ -210,7 +206,7 @@ class Unit(collections.Mapping):
                 space-separated.
         """
 
-        if isinstance(unit_def, six.string_types):
+        if isinstance(unit_def, str):
             unit = collections.defaultdict(int)
             import re
             for m in re.finditer(r"([A-Za-z]+)\s*\^*\s*([\-0-9]*)", unit_def):
@@ -855,7 +851,7 @@ def unitized(unit):
             if isinstance(val, FloatWithUnit) or isinstance(val, ArrayWithUnit):
                 return val.to(unit)
 
-            elif isinstance(val, collections.Sequence):
+            elif isinstance(val, collections.abc.Sequence):
                 # TODO: why don't we return a ArrayWithUnit?
                 # This complicated way is to ensure the sequence type is
                 # preserved (list or tuple).

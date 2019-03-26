@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import os
 import re
@@ -11,9 +10,10 @@ import warnings
 import logging
 import math
 import glob
+import subprocess
 
-import six
 import numpy as np
+from pymatgen.util.typing import PathLike
 from numpy.linalg import det
 from collections import OrderedDict, namedtuple
 from hashlib import md5
@@ -21,6 +21,7 @@ from hashlib import md5
 from monty.io import zopen
 from monty.os.path import zpath
 from monty.json import MontyDecoder
+from monty.os import cd
 
 from enum import Enum
 from tabulate import tabulate
@@ -480,11 +481,12 @@ class Poscar(MSONable):
             lines.append("Selective dynamics")
         lines.append("direct" if direct else "cartesian")
 
+        selective_dynamics = self.selective_dynamics
         for (i, site) in enumerate(self.structure):
             coords = site.frac_coords if direct else site.coords
             line = " ".join([format_str.format(c) for c in coords])
-            if self.selective_dynamics is not None:
-                sd = ["T" if j else "F" for j in self.selective_dynamics[i]]
+            if selective_dynamics is not None:
+                sd = ["T" if j else "F" for j in selective_dynamics[i]]
                 line += " %s %s %s" % (sd[0], sd[1], sd[2])
             line += " " + site.species_string
             lines.append(line)
@@ -638,7 +640,7 @@ class Incar(dict, MSONable):
         """
         super(Incar, self).__setitem__(
             key.strip(), Incar.proc_val(key.strip(), val.strip())
-            if isinstance(val, six.string_types) else val)
+            if isinstance(val, str) else val)
 
     def as_dict(self):
         d = dict(self)
@@ -967,7 +969,7 @@ class Kpoints(MSONable):
 
     @style.setter
     def style(self, style):
-        if isinstance(style, six.string_types):
+        if isinstance(style, str):
             style = Kpoints.supported_modes.from_string(style)
 
         if style in (Kpoints.supported_modes.Automatic,
@@ -1117,7 +1119,7 @@ class Kpoints(MSONable):
     def automatic_density_by_vol(structure, kppvol, force_gamma=False):
         """
         Returns an automatic Kpoint object based on a structure and a kpoint
-        density per inverse Angstrom of reciprocal cell.
+        density per inverse Angstrom^3 of reciprocal cell.
 
         Algorithm:
             Same as automatic_density()
@@ -1216,7 +1218,7 @@ class Kpoints(MSONable):
             kpts_shift = (0, 0, 0)
             if len(lines) > 4 and coord_pattern.match(lines[4]):
                 try:
-                    kpts_shift = [int(i) for i in lines[4].split()]
+                    kpts_shift = [float(i) for i in lines[4].split()]
                 except ValueError:
                     pass
             return Kpoints.gamma_automatic(kpts, kpts_shift) if style == "g" \
@@ -1399,7 +1401,7 @@ OrbitalDescription = namedtuple('OrbitalDescription',
                                 ['l', 'E', 'Type', "Rcut", "Type2", "Rcut2"])
 
 
-class PotcarSingle(object):
+class PotcarSingle:
     """
     Object for a **single** POTCAR. The builder assumes the complete string is
     the POTCAR contains the complete untouched data in "data" as a string and
@@ -1552,6 +1554,10 @@ class PotcarSingle(object):
 
     @property
     def electron_configuration(self):
+        if not self.nelectrons.is_integer():
+            warnings.warn("POTCAR has non-integer charge, "
+                          "electron configuration not well-defined.")
+            return None
         el = Element.from_Z(self.atomic_no)
         full_config = el.full_electronic_structure
         nelect = self.nelectrons
@@ -1908,3 +1914,27 @@ class VaspInput(dict, MSONable):
                 sub_d["optional_files"][fname] = \
                     ftype.from_file(os.path.join(input_dir, fname))
         return VaspInput(**sub_d)
+
+    def run_vasp(self, run_dir: PathLike = ".",
+                 vasp_cmd: list = None,
+                 output_file: PathLike = "vasp.out",
+                 err_file: PathLike = "vasp.err"):
+        """
+        Write input files and run VASP.
+
+        :param run_dir: Where to write input files and do the run.
+        :param vasp_cmd: Args to be supplied to run VASP. Otherwise, the
+            PMG_VASP_EXE in .pmgrc.yaml is used.
+        :param output_file: File to write output.
+        :param err_file: File to write err.
+        """
+        self.write_input(output_dir=run_dir)
+        vasp_cmd = vasp_cmd or SETTINGS.get("PMG_VASP_EXE")
+        vasp_cmd = [os.path.expanduser(os.path.expandvars(t)) for t in vasp_cmd]
+        if not vasp_cmd:
+            raise RuntimeError("You need to supply vasp_cmd or set the PMG_VASP_EXE in .pmgrc.yaml to run VASP.")
+        with cd(run_dir):
+            with open(output_file, 'w') as f_std, \
+                    open(err_file, "w", buffering=1) as f_err:
+                subprocess.check_call(vasp_cmd, stdout=f_std, stderr=f_err)
+

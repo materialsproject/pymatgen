@@ -2,20 +2,21 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import logging
 
 from fractions import Fraction
-from numpy import around
+from numpy import around, array
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
+from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
 from pymatgen.analysis.elasticity.strain import Deformation
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.composition import Composition
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.core.structure import Structure
+from pymatgen.core.structure import Structure, Lattice
 from pymatgen.transformations.site_transformations import \
     PartialRemoveSitesTransformation
 from pymatgen.transformations.transformation_abc import AbstractTransformation
@@ -362,7 +363,7 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         """
         sp = get_el_sp(self.specie_to_remove)
         specie_indices = [i for i in range(len(structure))
-                          if structure[i].species_and_occu ==
+                          if structure[i].species ==
                           Composition({sp: 1})]
         trans = PartialRemoveSitesTransformation([specie_indices],
                                                  [self.fraction_to_remove],
@@ -472,7 +473,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             structure = Structure.from_sites(structure)
             for i, site in enumerate(structure):
                 structure[i] = {"%s0+" % k.symbol: v
-                                for k, v in site.species_and_occu.items()}
+                                for k, v in site.species.items()}
 
         equivalent_sites = []
         exemplars = []
@@ -483,8 +484,8 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             if site.is_ordered:
                 continue
             for j, ex in enumerate(exemplars):
-                sp = ex.species_and_occu
-                if not site.species_and_occu.almost_equals(sp):
+                sp = ex.species
+                if not site.species.almost_equals(sp):
                     continue
                 if self.symmetrized_structures:
                     sym_equiv = structure.find_equivalent_sites(ex)
@@ -503,7 +504,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
 
         m_list = []
         for g in equivalent_sites:
-            total_occupancy = sum([structure[i].species_and_occu for i in g],
+            total_occupancy = sum([structure[i].species for i in g],
                                   Composition())
             total_occupancy = dict(total_occupancy.items())
             # round total occupancy to possible values
@@ -613,6 +614,51 @@ class PrimitiveCellTransformation(AbstractTransformation):
 
     def __str__(self):
         return "Primitive cell transformation"
+
+    def __repr__(self):
+        return self.__str__()
+
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return False
+
+
+class ConventionalCellTransformation(AbstractTransformation):
+    """
+    This class finds the conventional cell of the input structure.
+
+    Args:
+        symprec (float): tolerance as in SpacegroupAnalyzer
+        angle_tolerance (float): angle tolerance as in SpacegroupAnalyzer
+        international_monoclinic (bool): whether to use beta (True) or alpha (False)
+        as the non-right-angle in the unit cell
+    """
+    def __init__(self, symprec=0.01, angle_tolerance=5,
+                 international_monoclinic=True):
+        self.symprec = symprec
+        self.angle_tolerance = angle_tolerance
+        self.international_monoclinic = international_monoclinic
+
+    def apply_transformation(self, structure):
+        """
+        Returns most primitive cell for structure.
+
+        Args:
+            structure: A structure
+
+        Returns:
+            The same structure in a conventional standard setting
+        """
+        sga = SpacegroupAnalyzer(structure, symprec=self.symprec,
+                                 angle_tolerance=self.angle_tolerance)
+        return sga.get_conventional_standard_structure(international_monoclinic=self.international_monoclinic)
+
+    def __str__(self):
+        return "Conventional cell transformation"
 
     def __repr__(self):
         return self.__str__()
@@ -791,6 +837,89 @@ class ChargedCellTransformation(AbstractTransformation):
     @property
     def inverse(self):
         raise NotImplementedError()
+
+    @property
+    def is_one_to_many(self):
+        return False
+
+
+class ScaleToRelaxedTransformation(AbstractTransformation):
+    """
+    Takes the unrelaxed and relaxed structure and applies its site and volume
+    relaxation to a structurally similar structures (e.g. bulk: NaCl and PbTe
+    (rock-salt), slab: Sc(10-10) and Mg(10-10) (hcp), GB: Mo(001) sigma 5 GB,
+    Fe(001) sigma 5). Useful for finding an initial guess of a set of similar
+    structures closer to its most relaxed state.
+
+    Args:
+        unrelaxed_structure (Structure): Initial, unrelaxed structure
+        relaxed_structure (Structure): Relaxed structure
+        species_map (dict): A dict or list of tuples containing the species mapping in
+            string-string pairs. The first species corresponds to the relaxed
+            structure while the second corresponds to the species in the
+            structure to be scaled. E.g., {"Li":"Na"} or [("Fe2+","Mn2+")].
+            Multiple substitutions can be done. Overloaded to accept
+            sp_and_occu dictionary E.g. {"Si: {"Ge":0.75, "C":0.25}},
+            which substitutes a single species with multiple species to
+            generate a disordered structure.
+
+    """
+
+    def __init__(self, unrelaxed_structure, relaxed_structure, species_map=None):
+
+        # Get the ratio matrix for lattice relaxation which can be
+        # applied to any similar structure to simulate volumetric relaxation
+        relax_params = list(relaxed_structure.lattice.abc)
+        relax_params.extend(relaxed_structure.lattice.angles)
+        unrelax_params = list(unrelaxed_structure.lattice.abc)
+        unrelax_params.extend(unrelaxed_structure.lattice.angles)
+
+        self.params_percent_change = []
+        for i, p in enumerate(relax_params):
+            self.params_percent_change.append(relax_params[i]/unrelax_params[i])
+
+        self.unrelaxed_structure = unrelaxed_structure
+        self.relaxed_structure = relaxed_structure
+        self.species_map = species_map
+
+    def apply_transformation(self, structure):
+        """
+        Returns a copy of structure with lattice parameters
+        and sites scaled to the same degree as the relaxed_structure.
+
+        Arg:
+            structure (Structure): A structurally similar structure in
+                regards to crystal and site positions.
+        """
+
+        if self.species_map == None:
+            match = StructureMatcher()
+            s_map = \
+                match.get_best_electronegativity_anonymous_mapping(self.unrelaxed_structure,
+                                                                   structure)
+        else:
+            s_map = self.species_map
+
+        params = list(structure.lattice.abc)
+        params.extend(structure.lattice.angles)
+        new_lattice = Lattice.from_parameters(*[p*self.params_percent_change[i] \
+                                                for i, p in enumerate(params)])
+        species, frac_coords = [], []
+        for site in self.relaxed_structure:
+            species.append(s_map[site.specie])
+            frac_coords.append(site.frac_coords)
+
+        return Structure(new_lattice, species, frac_coords)
+
+    def __str__(self):
+        return "ScaleToRelaxedTransformation"
+
+    def __repr__(self):
+        return self.__str__()
+
+    @property
+    def inverse(self):
+        return None
 
     @property
     def is_one_to_many(self):

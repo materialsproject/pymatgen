@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 """
 This module contains the main object used to identify the coordination environments in a given structure.
@@ -65,7 +64,7 @@ debug = False
 DIST_TOLERANCES = [0.02, 0.05, 0.1, 0.2, 0.3]
 
 
-class AbstractGeometry(object):
+class AbstractGeometry:
     """
     Class used to describe a geometry (perfect or distorted)
     """
@@ -289,7 +288,7 @@ def find_scaling_factor(points_distorted, points_perfect, rot):
     return num / denom, rotated_coords, points_perfect
 
 
-class LocalGeometryFinder(object):
+class LocalGeometryFinder:
     """
     Main class used to find the local environments in a structure
     """
@@ -542,7 +541,7 @@ class LocalGeometryFinder(object):
         if only_atoms is not None:
             sites_indices = [isite for isite in sites_indices
                              if any([at in [sp.symbol for sp in self.structure[
-                    isite].species_and_occu]
+                    isite].species]
                                      for at in only_atoms])]
 
         # Exclude atoms that are in the list of excluded atoms
@@ -550,7 +549,7 @@ class LocalGeometryFinder(object):
             sites_indices = [isite for isite in sites_indices
                              if not any([at in [sp.symbol for sp in
                                                 self.structure[
-                                                    isite].species_and_occu]
+                                                    isite].species]
                                          for at in excluded_atoms])]
 
         if only_indices is not None:

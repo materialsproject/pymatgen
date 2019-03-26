@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 from pymatgen.core import Specie, Element, Lattice, Structure
 from pymatgen.io.cif import CifParser
 from pymatgen.analysis.magnetism import *
@@ -85,7 +84,7 @@ class CollinearMagneticStructureAnalyzerTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_get_representations(self):
 
@@ -175,6 +174,11 @@ class CollinearMagneticStructureAnalyzerTest(unittest.TestCase):
         magmoms = msa.structure.site_properties['magmom']
         self.assertEqual(magmoms, [1, 0])
 
+    def test_net_positive(self):
+        msa = CollinearMagneticStructureAnalyzer(self.NiO_unphysical)
+        magmoms = msa.structure.site_properties['magmom']
+        self.assertEqual(magmoms, [3, 0, 0, 0])
+
     def test_get_ferromagnetic_structure(self):
 
         msa = CollinearMagneticStructureAnalyzer(self.NiO,
@@ -245,13 +249,13 @@ Magmoms Sites
         struct.add_site_property('magmom', [-5.0143, -5.02, 0.147, 0.146])
 
         msa = CollinearMagneticStructureAnalyzer(struct, round_magmoms=0.001, make_primitive=False)
-        self.assertTrue(np.allclose(msa.magmoms, [-5.0171, -5.0171, 0.1465, 0.1465]))
+        self.assertTrue(np.allclose(msa.magmoms, [5.0171, 5.0171, -0.1465, -0.1465]))
         self.assertAlmostEqual(msa.magnetic_species_and_magmoms['Ni'], 5.0171)
         self.assertAlmostEqual(msa.magnetic_species_and_magmoms['O'], 0.1465)
 
         struct.add_site_property('magmom', [-5.0143, 4.5, 0.147, 0.146])
         msa = CollinearMagneticStructureAnalyzer(struct, round_magmoms=0.001, make_primitive=False)
-        self.assertTrue(np.allclose(msa.magmoms, [-5.0143, 4.5, 0.1465, 0.1465]))
+        self.assertTrue(np.allclose(msa.magmoms, [5.0143, -4.5, -0.1465, -0.1465]))
         self.assertAlmostEqual(msa.magnetic_species_and_magmoms['Ni'][0], 4.5)
         self.assertAlmostEqual(msa.magnetic_species_and_magmoms['Ni'][1], 5.0143)
         self.assertAlmostEqual(msa.magnetic_species_and_magmoms['O'], 0.1465)
