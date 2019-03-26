@@ -104,6 +104,10 @@ class MPRester:
         else:
             self.preamble = SETTINGS.get("PMG_MAPI_ENDPOINT",
                                          "https://materialsproject.org/rest/v2")
+
+        if self.preamble != "https://materialsproject.org/rest/v2":
+            warnings.warn("Non-default endpoint used: {}".format(self.preamble))
+
         import requests
         if sys.version_info[0] < 3:
             try:
