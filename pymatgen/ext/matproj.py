@@ -6,16 +6,16 @@
 import sys
 import itertools
 import json
+import platform
 import re
 import warnings
-import platform
 from time import sleep
 
 from monty.json import MontyDecoder, MontyEncoder
 
 from copy import deepcopy
 
-from pymatgen import SETTINGS, __version__
+from pymatgen import SETTINGS, __version__ as pmg_version
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
@@ -123,12 +123,12 @@ class MPRester:
         self.session = requests.Session()
         self.session.headers = {"x-api-key": self.api_key}
         if include_user_agent:
-            pymatgen_version = "pymatgen/"+__version__
-            python_version = "Python {}.{}.{}".format(sys.version_info.major, sys.version_info.minor,
-                                                      sys.version_info.micro)
-            platform = "{} {}".format(platform.system(), platform.release())
-            self.session.headers["user-agent"] = "{} ({} {})".format(pymatgen_version, python_version,
-                                                                     platform)
+            pymatgen_info = "pymatgen/"+pmg_version
+            python_info = "Python/{}.{}.{}".format(
+                sys.version_info.major, sys.version_info.minor, sys.version_info.micro)
+            platform_info = "{}/{}".format(platform.system(), platform.release())
+            self.session.headers["user-agent"] = "{} ({} {})".format(
+                pymatgen_info, python_info, platform_info)
 
     def __enter__(self):
         """
