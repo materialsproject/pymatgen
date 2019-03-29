@@ -1,6 +1,17 @@
 Change log
 ==========
 
+v2019.3.27
+----------
+* Bug fixes for OrderDisorderComparator (@utf), custom k-points
+in MPNonSCFSet (@dyllamt), battery app (@jmmshn), MPSOCSet (@mkhorton),
+more
+* Improvements to COHP (@JaGeo)
+* Support to read WAVEDER files (@knc6)
+* Addition of van Arkel-Ketelaar triangle plots (@richardtran415)
+* Addition of optional user agent to MPRester API calls, see documentation
+for more information (@dwinston)
+
 v2019.3.13
 ----------
 * Streamlined Site, PeriodicSite, Molecule and Structure code by abandoning

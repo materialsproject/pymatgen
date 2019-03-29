@@ -242,17 +242,16 @@ class OrderDisorderElementComparator(AbstractComparator):
         Returns:
             True always
         """
-        set1 = set(sp1.element_composition.keys())
-        set2 = set(sp2.element_composition.keys())
-        if set1.intersection(set2):
-            return True
-        return False
+        set1 = set(sp1.elements)
+        set2 = set(sp2.elements)
+        return set1.issubset(set2) or set2.issubset(set1)
 
     def get_hash(self, composition):
-        """"
-        No hash possible
         """
-        return 1
+        Returns: Fractional composition
+        """
+        return composition.fractional_composition
+
 
 class OccupancyComparator(AbstractComparator):
     """
