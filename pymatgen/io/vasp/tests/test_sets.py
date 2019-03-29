@@ -270,6 +270,14 @@ class MITMPRelaxSetTest(PymatgenTest):
         d = paramset.get_vasp_input()
         self.assertEqual(d["INCAR"]["ISMEAR"], 0)
 
+    def test_MPMetalRelaxSet(self):
+        mpmetalset = MPMetalRelaxSet(self.get_structure("Sn"))
+        incar = mpmetalset.incar
+        self.assertEqual(incar["ISMEAR"], 1)
+        self.assertEqual(incar["SIGMA"], 0.2)
+        kpoints = mpmetalset.kpoints
+        self.assertArrayAlmostEqual(kpoints.kpts[0], [5, 5, 5])
+
     def test_as_from_dict(self):
         mitset = MITRelaxSet(self.structure)
         mpset = MPRelaxSet(self.structure)
@@ -419,6 +427,18 @@ class MPNonSCFSetTest(PymatgenTest):
 
         self.assertTrue(vis.incar["LOPTICS"])
         self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Reciprocal)
+
+    def test_user_kpoint_override(self):
+        user_kpoints_override = Kpoints(
+            style=Kpoints.supported_modes.Gamma,
+            kpts=((1, 1, 1),))  # the default kpoints style is reciprocal
+
+        prev_run = self.TEST_FILES_DIR / "relaxation"
+        vis = MPNonSCFSet.from_prev_calc(
+            prev_calc_dir=prev_run, copy_chgcar=False, optics=True,
+            mode="Uniform", nedos=2001,
+            user_kpoints_settings=user_kpoints_override)
+        self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Gamma)
 
     def tearDown(self):
         shutil.rmtree(self.tmp)
