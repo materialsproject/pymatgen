@@ -2704,7 +2704,7 @@ class MoleculeGraph(MSONable):
         """
         if len(self.molecule) != len(other.molecule):
             return False
-        elif self.molecule.composition != other.molecule.composition:
+        elif self.molecule.composition.alphabetical_formula != other.molecule.composition.alphabetical_formula:
             return False
         elif len(self.graph.edges()) != len(other.graph.edges()):
             return False

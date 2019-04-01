@@ -79,7 +79,7 @@ class Fragmenter(MSONable):
                 self._open_all_rings()
 
             for fragment in self.unique_fragments:
-                frag_key = str(fragment.molecule.composition.reduced_formula)+" E"+str(len(fragment.graph.edges()))
+                frag_key = str(fragment.molecule.composition.alphabetical_formula)+" E"+str(len(fragment.graph.edges()))
                 add_frag = False
                 if frag_key not in self.prev_unique_frag_dict:
                     add_frag = True
@@ -104,9 +104,15 @@ class Fragmenter(MSONable):
             for level in range(depth):
                 # If on the first level, perform one level of fragmentation on the principle molecule graph:
                 if level == 0:
-                    self.fragments_by_level["0"] = self._fragment_one_level({str(self.mol_graph.molecule.composition.reduced_formula)+" E"+str(len(self.mol_graph.graph.edges())): [self.mol_graph]})
+                    print("Level",level)
+                    self.fragments_by_level["0"] = self._fragment_one_level({str(self.mol_graph.molecule.composition.alphabetical_formula)+" E"+str(len(self.mol_graph.graph.edges())): [self.mol_graph]})
                 else:
-                    if len(self.fragments_by_level[str(level-1)]) == 0:
+                    num_frags_prev_level = 0
+                    for key in self.fragments_by_level[str(level-1)]:
+                        num_frags_prev_level += len(self.fragments_by_level[str(level-1)][key])
+                    print(num_frags_prev_level,"unique fragments on level",level-1)
+                    print("Level",level)
+                    if num_frags_prev_level == 0:
                         # Nothing left to fragment, so exit the loop:
                         break
                     else: # If not on the first level, and there are fragments present in the previous level, then
@@ -203,7 +209,7 @@ class Fragmenter(MSONable):
                     try:
                         fragments = old_frag.split_molecule_subgraphs(bond, allow_reverse=True)
                         for fragment in fragments:
-                            new_frag_key = str(fragment.molecule.composition.reduced_formula)+" E"+str(len(fragment.graph.edges()))
+                            new_frag_key = str(fragment.molecule.composition.alphabetical_formula)+" E"+str(len(fragment.graph.edges()))
                             proceed = True
                             if self.assume_previous_thoroughness and self.prev_unique_frag_dict != {}:
                                 if new_frag_key in self.prev_unique_frag_dict:
@@ -230,7 +236,7 @@ class Fragmenter(MSONable):
                     except MolGraphSplitError:
                         if self.open_rings:
                             fragment = open_ring(old_frag, bond, self.opt_steps)
-                            new_frag_key = str(fragment.molecule.composition.reduced_formula)+" E"+str(len(fragment.graph.edges()))
+                            new_frag_key = str(fragment.molecule.composition.alphabetical_formula)+" E"+str(len(fragment.graph.edges()))
                             proceed = True
                             if self.assume_previous_thoroughness and self.prev_unique_frag_dict != {}:
                                 if new_frag_key in self.prev_unique_frag_dict:
