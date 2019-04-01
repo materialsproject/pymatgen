@@ -15,7 +15,8 @@ __maintainer__ = "Andrius Merkys"
 __email__ = "andrius.merkys@gmail.com"
 __date__ = "Oct 9, 2015"
 
-from monty.dev import requires, deprecated
+from monty.dev import requires
+import warnings
 
 try:
     from aiida.orm import DataFactory
@@ -29,9 +30,11 @@ except ImportError:
     aiida_loaded = False
 
 
-@deprecated(message="The pymatgen.io.aiida module is deprecated and will be "
-                    "removed in pmg 2019. Pls install the aiida package if you"
-                    "need to convert pmg objects to Aiida objects.")
+warnings.warn("The pymatgen.io.aiida module is deprecated and will be "
+              "removed in pmg 2020. Pls install the aiida package if you"
+              "need to convert pmg objects to Aiida objects.")
+
+
 @requires(aiida_loaded, "To use the AiidaStructureAdaptor, you need to have "
                         "aiida installed.")
 class AiidaStructureAdaptor:
