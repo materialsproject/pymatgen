@@ -410,6 +410,13 @@ class MPNonSCFSetTest(PymatgenTest):
                                          mode="Line", copy_chgcar=True)
         vis.write_input(self.tmp)
         self.assertTrue(os.path.exists(os.path.join(self.tmp, "CHGCAR")))
+        os.remove(os.path.join(self.tmp, "CHGCAR"))
+
+        vis = MPNonSCFSet.from_prev_calc(prev_calc_dir=prev_run,
+                                         standardize=True,
+                                         mode="Line", copy_chgcar=True)
+        vis.write_input(self.tmp)
+        self.assertFalse(os.path.exists(os.path.join(self.tmp, "CHGCAR")))
 
     def test_optics(self):
         prev_run = self.TEST_FILES_DIR / "relaxation"

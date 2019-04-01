@@ -679,6 +679,12 @@ class MPStaticSet(MPRelaxSet):
         prev_incar = vasprun.incar
         prev_kpoints = vasprun.kpoints
 
+        if standardize:
+            warnings.warn("Use of standardize=True with from_prev_run is not "
+                          "recommended as there is no guarantee the copied "
+                          "input files will be appropriate for the standardized"
+                          " structure. copy_chgcar is now enforced to be false.")
+
         # We will make a standard structure for the given symprec.
         prev_structure = get_structure_from_prev_run(
             vasprun, outcar, sym_prec=standardize and sym_prec,
@@ -994,6 +1000,14 @@ class MPNonSCFSet(MPRelaxSet):
         incar.update({"ISPIN": ispin, "NBANDS": nbands})
 
         files_to_transfer = {}
+
+        if standardize:
+            warnings.warn("Use of standardize=True with from_prev_run is not "
+                          "recommended as there is no guarantee the copied "
+                          "input files will be appropriate for the standardized"
+                          " structure. copy_chgcar is now enforced to be false.")
+            copy_chgcar = False
+
         if copy_chgcar:
             chgcars = sorted(glob.glob(str(Path(prev_calc_dir) / "CHGCAR*")))
             if chgcars:
@@ -1116,6 +1130,13 @@ class MPSOCSet(MPStaticSet):
 
         nbands = int(np.ceil(vasprun.parameters["NBANDS"] * nbands_factor))
         incar.update({"NBANDS": nbands})
+
+        if standardize:
+            warnings.warn("Use of standardize=True with from_prev_run is not "
+                          "recommended as there is no guarantee the copied "
+                          "input files will be appropriate for the standardized"
+                          " structure. copy_chgcar is now enforced to be false.")
+            copy_chgcar = False
 
         files_to_transfer = {}
         if copy_chgcar:
