@@ -3,7 +3,7 @@
 
 import os
 import unittest
-
+import time
 from pymatgen.core.structure import Molecule
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
@@ -88,15 +88,10 @@ class TestFragmentMolecule(PymatgenTest):
         fragments_by_level = fragmenter10.fragments_by_level
         num_frags_by_level = [13,51,95,115,105,75,39,14,2,0]
         for ii in range(10):
-            self.assertEqual(len(fragments_by_level[str(ii)]),num_frags_by_level[ii])
-
-        # for fragment10 in fragmenter10.unique_fragments:
-        #     found = False
-        #     for fragment0 in fragmenter0.unique_fragments:
-        #         if fragment0.isomorphic_to(fragment10):
-        #             found = True
-        #             break
-        #     self.assertEqual(found, True)
+            num_frags = 0
+            for key in fragments_by_level[str(ii)]:
+                num_frags += len(fragments_by_level[str(ii)][key])
+            self.assertEqual(num_frags,num_frags_by_level[ii])
 
     def test_PC_depth_0_vs_depth_10(self):
         fragmenter0 = Fragmenter(molecule=self.pc, edges=self.pc_edges, depth=0, open_rings=False)
@@ -108,15 +103,10 @@ class TestFragmentMolecule(PymatgenTest):
         fragments_by_level = fragmenter10.fragments_by_level
         num_frags_by_level = [8,12,15,14,9,4,1]
         for ii in range(7):
-            self.assertEqual(len(fragments_by_level[str(ii)]),num_frags_by_level[ii])
-
-        # for fragment10 in fragmenter10.unique_fragments:
-        #     found = False
-        #     for fragment0 in fragmenter0.unique_fragments:
-        #         if fragment0.isomorphic_to(fragment10):
-        #             found = True
-        #             break
-        #     self.assertEqual(found, True)
+            num_frags = 0
+            for key in fragments_by_level[str(ii)]:
+                num_frags += len(fragments_by_level[str(ii)][key])
+            self.assertEqual(num_frags,num_frags_by_level[ii])
 
     def test_PC_frag1_then_PC(self):
         frag1 = Fragmenter(molecule=self.pc_frag1, edges=self.pc_frag1_edges, depth=0)
