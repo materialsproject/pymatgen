@@ -888,6 +888,20 @@ class StructureTest(PymatgenTest):
         navs2.merge_sites(mode="d")
         assert len(navs2) == 12
 
+        # Test that we can average the site properties that are floats
+        l = Lattice.from_lengths_and_angles([3.587776, 3.587776, 19.622793],
+                                            [90.000000, 90.000000, 120.000000])
+        species = ["Na", "V", "S", "S"]
+        coords = [[0.333333, 0.666667, 0.165000], [0.000000, 0.000000, 0.998333],
+                  [0.333333, 0.666667, 0.399394], [0.666667, 0.333333, 0.597273]]
+        site_props = {'prop1' : [3.0, 5.0, 7.0, 11.0]}
+        navs2 = Structure.from_spacegroup(160, l, species, coords, site_properties=site_props)
+        navs2.insert(0, 'Na', coords[0], properties={'prop1': 100.})
+        navs2.merge_sites(mode="a")
+        self.assertEqual(len(navs2), 12)
+        self.assertEqual(51.5 in [itr.properties['prop1'] for itr in navs2.sites], True)
+
+
     def test_properties(self):
         self.assertEqual(self.structure.num_sites, len(self.structure))
         self.structure.make_supercell(2)

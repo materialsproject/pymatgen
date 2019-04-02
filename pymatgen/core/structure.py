@@ -3062,8 +3062,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         Args:
             tol (float): Tolerance for distance to merge sites.
-            mode (str): Two modes supported. "delete" means duplicate sites are
+            mode (str): Three modes supported. "delete" means duplicate sites are
                 deleted. "sum" means the occupancies are summed for the sites.
+                "average" means that the site is deleted but the properties are averaged
                 Only first letter is considered.
 
         """
@@ -3090,9 +3091,13 @@ class Structure(IStructure, collections.abc.MutableSequence):
                     coords.dtype)
                 for key in props.keys():
                     if props[key] is not None and self[i].properties[key] != props[key]:
-                        props[key] = None
-                        warnings.warn("Sites with different site property %s are merged. "
-                                      "So property is set to none" % key)
+                        if mode  == 'a' and isinstance(props[key], float):
+                            # update a running total
+                            props[key] = props[key]*(n+1)/(n+2) + self[i].properties[key]/(n+2)
+                        else:
+                            props[key] = None
+                            warnings.warn("Sites with different site property %s are merged. "
+                                        "So property is set to none" % key)
             sites.append(PeriodicSite(species, coords, self.lattice, properties=props))
 
         self._sites = sites
