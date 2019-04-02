@@ -3091,7 +3091,6 @@ class Structure(IStructure, collections.abc.MutableSequence):
                     coords.dtype)
                 for key in props.keys():
                     if props[key] is not None and self[i].properties[key] != props[key]:
-                        print(props[key], self[i].properties[key])
                         if mode  == 'a' and isinstance(props[key], float):
                             # update a running total
                             props[key] = props[key]*(n+1)/(n+2) + self[i].properties[key]/(n+2)
