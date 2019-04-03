@@ -13,6 +13,7 @@ from monty.json import MSONable, MontyDecoder
 
 from multiprocessing import Pool
 import warnings
+from deprecated import deprecated
 
 from scipy.spatial import ConvexHull, HalfspaceIntersection
 
@@ -598,6 +599,7 @@ class PourbaixDiagram(MSONable):
 
         return multi_entries
 
+    @deprecated
     def _generate_multielement_entries(self, entries, forced_include=None,
                                        nproc=None):
         """
@@ -688,7 +690,6 @@ class PourbaixDiagram(MSONable):
             # Return None if reaction coeff threshold is not met
             # TODO: this filtration step might be put somewhere else
             if (coeffs > coeff_threshold).all():
-
                 return MultiEntry(entry_list, weights=coeffs.tolist())
             else:
                 return None
@@ -832,8 +833,7 @@ class PourbaixDiagram(MSONable):
 
         # Find representative multientry
         if self._multielement and not isinstance(entry, MultiEntry):
-            possible_entries = self._generate_multielement_entries(
-                self._filtered_entries, forced_include=[entry])
+            possible_entries = self._preprocess_pourbaix_entries(self._filtered_entries, forced_include=[entry])
 
             # Filter to only include materials where the entry is only solid
             if entry.phase_type == "solid":
