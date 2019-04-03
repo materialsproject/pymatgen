@@ -121,7 +121,7 @@ class MigrationPathAnalyzer():
     def __init__(self,
                  base_entry,
                  single_cat_entries,
-                 base_aeccar,
+                 base_aeccar=None,
                  cation='Li',
                  ltol=0.2,
                  stol=0.3,
@@ -206,12 +206,9 @@ class MigrationPathAnalyzer():
             for isite in struct_tmp.sites:
                 if isite.species_string == "Li":
                     host_allsites.insert(0, 'Li', isite.frac_coords, properties={'inserted_energy' : ent.energy})
-        for isite in host_allsites.sites:
-            logger.info(f"{isite.as_dict()['properties']}")
 
-        host_allsites.merge_sites(mode='average')
-        for isite in host_allsites.sites:
-            logger.info(f"average {isite.as_dict()['properties']}")
+        host_allsites.merge_sites(mode='average') # keeps only one position but average the properties
+
         return host_allsites
 
     def get_full_sites(self):
@@ -258,7 +255,6 @@ class MigrationPathAnalyzer():
 
         # write the image
         self.unique_edges = self._edgelist.drop_duplicates('edge_label', keep='first').copy()
-        print(self.unique_edges)
 
         # set up the grid
         aa = np.linspace(0, 1, len(self.base_aeccar.get_axis_grid(0)),
@@ -308,6 +304,124 @@ class MigrationPathAnalyzer():
         self.complete_mask=idx_pbc_mask
         print('test')
         self.unique_edges.loc[self.unique_edges.index, 'chg_total'] = total_chg
+
+    def _setup_grids(self):
+        """
+        Populate the internal varialbes used for defining the grid points in the charge density analysis
+        """
+        # set up the grid
+        aa = np.linspace(0, 1, len(self.base_aeccar.get_axis_grid(0)),
+                         endpoint=False)
+        bb = np.linspace(0, 1, len(self.base_aeccar.get_axis_grid(1)),
+                         endpoint=False)
+        cc = np.linspace(0, 1, len(self.base_aeccar.get_axis_grid(2)),
+                         endpoint=False)
+        AA, BB, CC = np.meshgrid(aa, bb, cc, indexing='ij')
+
+        IMA, IMB, IMC = np.meshgrid([-1, 0, 1], [-1, 0, 1], [-1, 0, 1], indexing='ij')
+
+        # store these
+        self.uc_grid_shape = AA.shape
+        self.fcoords = np.vstack([AA.flatten(), BB.flatten(), CC.flatten()]).T
+        self.images = np.vstack([IMA.flatten(), IMB.flatten(), IMC.flatten()]).T
+
+    def _get_chg_between_sites_tube(self, edge_index, mask_file_seedname=None):
+        """Calculate the amount of charge that a cation has to move through in order to complete a hop
+
+        :param edge_index: the index value to read from self._edgelist
+        :param mask_file_seedname: seedname for output of the migration path masks (for debugging and visualization)
+        :returns: total amount of chg in a tube connecting the endpoints
+        :rtype: float
+
+        # TODO use the cell centers as the positions for evaluating the tubes
+
+        """
+        try:
+            self._tube_radius
+        except NameError:
+            logger.error("The radius of the tubes for charge analysis need to be first.")
+
+        pbc_mask = np.zeros(self.uc_grid_shape).flatten()
+        e0 = self._edgelist.iloc[edge_index].i_pos.astype('float64')
+        e1 = self._edgelist.iloc[edge_index].f_pos.astype('float64')
+
+        cart_e0 = np.dot(e0, self.base_aeccar.structure.lattice.matrix)
+        cart_e1 = np.dot(e1, self.base_aeccar.structure.lattice.matrix)
+        pbc_mask = np.zeros(self.uc_grid_shape, dtype=bool).flatten()
+        for img in self.images:
+            grid_pos = np.dot(self.fcoords + img, self.base_aeccar.structure.lattice.matrix)
+            proj_on_line = np.dot(grid_pos - cart_e0, cart_e1 - cart_e0) / (np.linalg.norm(cart_e1 - cart_e0))
+            dist_to_line = np.linalg.norm(
+                np.cross(grid_pos - cart_e0, cart_e1 - cart_e0) / (np.linalg.norm(cart_e1 - cart_e0)), axis=-1)
+
+            mask = (proj_on_line >= 0) * (proj_on_line < np.linalg.norm(cart_e1 - cart_e0)) * (dist_to_line < self._tube_radius)
+            pbc_mask = pbc_mask + mask
+        pbc_mask = pbc_mask.reshape(self.uc_grid_shape)
+
+        if mask_file_seedname:
+            mask_out.data['total'] = pbc_mask
+            mask_out.write_file('{}_{}.vasp'.format(mask_file,self._edgelist.iloc[edge_index].edge_tuple))
+
+        return self.base_aeccar.data['total'][pbc_mask].sum() / self.base_aeccar.ngridpts / self.base_aeccar.structure.volume
+
+    def _populate_unique_edge_df(self):
+        """
+        Populate the self.unique_edges dataframe which is a subset of self._edgelist that are unique
+        """
+
+        if not hasattr(self, 'gt'):
+            self.get_graph()
+        d = [{"isite" : u, "fsite" : v, "to_jimage" : d['to_jimage'], 'edge_tuple' : (u, v)} for u, v, d in self.gt.graph.edges(data=True)]
+        self._edgelist = pd.DataFrame(d)
+
+        self._edgelist['i_pos'] = self._edgelist.apply(lambda u : self.full_sites.sites[u.isite].frac_coords, axis=1)
+        self._edgelist['f_pos'] = self._edgelist.apply(lambda u : self.full_sites.sites[u.fsite].frac_coords + u.to_jimage, axis=1)
+
+        edge_lab = generic_groupby(self._edgelist.index.values, comp = self.compare_edges)
+        self._edgelist.loc[:, 'edge_label'] = edge_lab
+
+        # write the image
+        self.unique_edges = self._edgelist.drop_duplicates('edge_label', keep='first').copy()
+
+    def _get_chg_values_for_unique_hops(self, tube_radius=0.5):
+        """Populate the charge density values for each 
+
+        :param tube_radius: The radius (in Angstroms) of the tube used to evaluate the total charge density for one hop
+
+        """
+        self._tube_radius = tube_radius
+        self._setup_grids()
+        total_chg = self.unique_edges.apply(lambda row : self._get_chg_between_sites_tube(row.name), axis=1)
+        self.unique_edges.loc[:, 'chg_total_tube'] = total_chg
+
+    def _get_chg_values_for_all_hops(self):
+        """
+        Populate the charge density values for each hop in the full list using the unque hops as a lookup table
+        """
+        def read_value_from_uniq(row):
+            select_uniq = self.unique_edges.edge_label==row.edge_label
+            return self.unique_edges.loc[select_uniq, 'chg_total_tube'].values[0]
+
+        total_chg = self._edgelist.apply(read_value_from_uniq, axis=1)
+        self._edgelist['chg_total_tube'] = total_chg
+
+class MigrationPathAnalyzer_ChgOnly(MigrationPathAnalyzer_ChgOnly):
+    def __init__(self,
+                 base_aeccar,
+                 cation='Li',
+                 ltol=0.2,
+                 stol=0.3,
+                 angle_tol=5):
+        """Inherited from MigrationPathAnalyzer for cases where we only want to analyze the charge density of the host material
+
+        :param base_aeccar: Chgcar object that contains the AECCAR0 + AECCAR2
+        :param cation: a String symbol or Element for the cation. It must be positively charged, but can be 1+/2+/3+ etc.
+        :param ltol: parameter for StructureMatcher
+        :param stol: parameter for StructureMa
+        :param angle_tol: parameter for StructureMa
+
+        """
+        
 
 def main():
     test_dir = os.path.join(
