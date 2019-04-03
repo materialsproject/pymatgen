@@ -1,6 +1,18 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
+
+"""
+Created on Jan 25, 2012
+"""
+
+__author__ = "Jimmy Shen"
+__copyright__ = "Copyright 2019, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Jimmy Shen"
+__email__ = "jmmshn@lbl.gov"
+__date__ = "April 1, 2019"
+
 from pprint import pprint
 from collections import defaultdict
 import math
@@ -21,13 +33,6 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 from pandas.io.json import json_normalize
-__author__ = "Jimmy Shen"
-__copyright__ = "Copyright 2019, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Jimmy Shen"
-__email__ = "jmmshn@lbl.gov"
-__date__ = "April 1, 2019"
-
 root = logging.getLogger()
 root.setLevel(logging.INFO)
 handler = logging.StreamHandler(sys.stdout)
@@ -405,5 +410,3 @@ class MigrationPathAnalyzer():
         total_chg = self._edgelist.apply(read_value_from_uniq, axis=1)
         self._edgelist['chg_total_tube'] = total_chg
 
-if __name__ == "__main__":
-    main()
