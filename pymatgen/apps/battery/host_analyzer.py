@@ -15,6 +15,7 @@ from pymatgen.analysis.structure_matcher import StructureMatcher, ElementCompara
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.analysis.local_env import NearNeighbors
+from pymatgen.io.vasp import Chgcar
 import operator
 import networkx as nx
 import numpy as np
@@ -73,7 +74,7 @@ class ConnectSitesNN(NearNeighbors):
             near-neighbor sites (default: 10.0).
     """
 
-    def __init__(self, cutoff=8.0):
+    def __init__(self, cutoff=5.0):
         self.cutoff = cutoff
 
     def get_nn_info(self, structure, n):
@@ -120,6 +121,7 @@ class MigrationPathAnalyzer():
     def __init__(self,
                  base_entry,
                  single_cat_entries,
+                 base_aeccar,
                  cation='Li',
                  ltol=0.2,
                  stol=0.3,
@@ -128,6 +130,7 @@ class MigrationPathAnalyzer():
         Pass in a entries for analysis
 
         :param base_entry: the structure without a working ion for us to analyze the migration
+        :param base_aeccar: Chgcar object that contains the AECCAR0 + AECCAR2
         :param single_cat_entries: list of structures containing a single cation at different positions
         :param cation: a String symbol or Element for the cation. It must be positively charged, but can be 1+/2+/3+ etc.
         :param ltol: parameter for StructureMatcher
@@ -144,13 +147,15 @@ class MigrationPathAnalyzer():
             stol=stol,
             angle_tol=angle_tol)
 
-        logger.debug('See if the structures all match')
-        for ent in single_cat_entries:
-            assert (self.sm.fit(base_entry.structure, ent.structure))
 
-        self.base_entry = base_entry
         self.single_cat_entries = single_cat_entries
         self.cation = cation
+        self.base_entry = base_entry
+        self.base_aeccar = base_aeccar
+
+        logger.debug('See if the structures all match')
+        for ent in self.single_cat_entries:
+            assert (self.sm.fit(self.base_entry.structure, ent.structure))
 
         self.translated_single_cat_entries = list(
             map(self.match_ent_to_base, self.single_cat_entries))
@@ -231,11 +236,6 @@ class MigrationPathAnalyzer():
 
     def compare_edges(self, edge1, edge2):
         # Test
-        # p0=nx.get_node_attributes(self.gt.graph, 'properties')[edge1[0]]['label']
-        # p1=nx.get_node_attributes(self.gt.graph, 'properties')[edge1[1]]['label']
-        # pp0=nx.get_node_attributes(self.gt.graph, 'properties')[edge2[0]]['label']
-        # pp1=nx.get_node_attributes(self.gt.graph, 'properties')[edge2[1]]['label']
-        # print(edge1, '{}->{}'.format(p0, p1), '{}->{}'.format(pp0, pp1), edge2)
         temp_struct1 = self.base_entry.structure.copy()
         temp_struct2 = self.base_entry.structure.copy()
 
@@ -246,81 +246,79 @@ class MigrationPathAnalyzer():
         return grouper_sm.fit(temp_struct1, temp_struct2)
 
     def get_edges_labels(self, mask_file=None):
+
         d = [{"isite" : u, "fsite" : v, "to_jimage" : d['to_jimage'], 'edge_tuple' : (u, v)} for u, v, d in self.gt.graph.edges(data=True)]
         self._edgelist = pd.DataFrame(d)
-
 
         self._edgelist['i_pos'] = self._edgelist.apply(lambda u : self.full_sites.sites[u.isite].frac_coords, axis=1)
         self._edgelist['f_pos'] = self._edgelist.apply(lambda u : self.full_sites.sites[u.fsite].frac_coords + u.to_jimage, axis=1)
 
         edge_lab = generic_groupby(self._edgelist.index.values, comp = self.compare_edges)
-        self._edgelist['edge_label'] = edge_lab
+        self._edgelist.loc[:, 'edge_label'] = edge_lab
 
         # write the image
-        self.unique_edges = self._edgelist.drop_duplicates('edge_label', keep='first')
+        self.unique_edges = self._edgelist.drop_duplicates('edge_label', keep='first').copy()
         print(self.unique_edges)
 
-        #
-        # # set up the grid
-        # aa = np.linspace(0, 1, len(self.chgcar.get_axis_grid(0)),
-        #                  endpoint=False)
-        # bb = np.linspace(0, 1, len(self.chgcar.get_axis_grid(1)),
-        #                  endpoint=False)
-        # cc = np.linspace(0, 1, len(self.chgcar.get_axis_grid(2)),
-        #                  endpoint=False)
-        # AA, BB, CC = np.meshgrid(aa, bb, cc, indexing='ij')
-        # fcoords = np.vstack([AA.flatten(), BB.flatten(), CC.flatten()]).T
-        #
-        # IMA, IMB, IMC = np.meshgrid([-1, 0, 1], [-1, 0, 1], [-1, 0, 1], indexing='ij')
-        # images = np.vstack([IMA.flatten(), IMB.flatten(), IMC.flatten()]).T
-        #
-        # # get the charge density masks for each hop (for plotting and sanity check purposes)
-        # idx_pbc_mask = np.zeros_like(AA)
-        # surf_idx=0
-        # total_chg=[]
-        # if mask_file:
-        #     mask_out = copy(self.chgcar)
-        #     mask_out.data['total'] = np.zeros_like(AA)
-        #
-        # for _, row in self.unique_edges.iterrows():
-        #     pbc_mask = np.zeros_like(AA).flatten()
-        #     e0 = row[['pos0x', 'pos0y', 'pos0z']].astype('float64').values
-        #     e1 = row[['pos1x', 'pos1y', 'pos1z']].astype('float64').values
-        #
-        #     cart_e0 = np.dot(e0, self.chgcar.structure.lattice.matrix)
-        #     cart_e1 = np.dot(e1, self.chgcar.structure.lattice.matrix)
-        #     pbc_mask = np.zeros_like(AA,dtype=bool).flatten()
-        #     for img in images:
-        #         grid_pos = np.dot(fcoords + img, self.chgcar.structure.lattice.matrix)
-        #         proj_on_line = np.dot(grid_pos - cart_e0, cart_e1 - cart_e0) / (np.linalg.norm(cart_e1 - cart_e0))
-        #         dist_to_line = np.linalg.norm(
-        #             np.cross(grid_pos - cart_e0, cart_e1 - cart_e0) / (np.linalg.norm(cart_e1 - cart_e0)), axis=-1)
-        #
-        #         mask = (proj_on_line >= 0) * (proj_on_line < np.linalg.norm(cart_e1 - cart_e0)) * (dist_to_line < 0.5)
-        #         pbc_mask = pbc_mask + mask
-        #     pbc_mask = pbc_mask.reshape(AA.shape)
-        #     if mask_file:
-        #         mask_out.data['total'] = pbc_mask
-        #         mask_out.write_file('{}_{}.vasp'.format(mask_file,row['edge_tuple']))
-        #
-        #
-        #     total_chg.append(self.chgcar.data['total'][pbc_mask].sum()/self.chgcar.ngridpts/self.chgcar.structure.volume)
-        #
-        # self.complete_mask=idx_pbc_mask
-        # self.unique_edges['chg_total']=total_chg
+        # set up the grid
+        aa = np.linspace(0, 1, len(self.base_aeccar.get_axis_grid(0)),
+                         endpoint=False)
+        bb = np.linspace(0, 1, len(self.base_aeccar.get_axis_grid(1)),
+                         endpoint=False)
+        cc = np.linspace(0, 1, len(self.base_aeccar.get_axis_grid(2)),
+                         endpoint=False)
+        AA, BB, CC = np.meshgrid(aa, bb, cc, indexing='ij')
+        fcoords = np.vstack([AA.flatten(), BB.flatten(), CC.flatten()]).T
+
+        IMA, IMB, IMC = np.meshgrid([-1, 0, 1], [-1, 0, 1], [-1, 0, 1], indexing='ij')
+        images = np.vstack([IMA.flatten(), IMB.flatten(), IMC.flatten()]).T
+
+        # get the charge density masks for each hop (for plotting and sanity check purposes)
+        idx_pbc_mask = np.zeros_like(AA)
+        surf_idx=0
+        total_chg=[]
+        if mask_file:
+            mask_out = copy(self.base_aeccar)
+            mask_out.data['total'] = np.zeros_like(AA)
+
+        for _, row in self.unique_edges.iterrows():
+            pbc_mask = np.zeros_like(AA).flatten()
+            e0 = row.i_pos.astype('float64')
+            e1 = row.f_pos.astype('float64')
+
+            cart_e0 = np.dot(e0, self.base_aeccar.structure.lattice.matrix)
+            cart_e1 = np.dot(e1, self.base_aeccar.structure.lattice.matrix)
+            pbc_mask = np.zeros_like(AA,dtype=bool).flatten()
+            for img in images:
+                grid_pos = np.dot(fcoords + img, self.base_aeccar.structure.lattice.matrix)
+                proj_on_line = np.dot(grid_pos - cart_e0, cart_e1 - cart_e0) / (np.linalg.norm(cart_e1 - cart_e0))
+                dist_to_line = np.linalg.norm(
+                    np.cross(grid_pos - cart_e0, cart_e1 - cart_e0) / (np.linalg.norm(cart_e1 - cart_e0)), axis=-1)
+
+                mask = (proj_on_line >= 0) * (proj_on_line < np.linalg.norm(cart_e1 - cart_e0)) * (dist_to_line < 0.5)
+                pbc_mask = pbc_mask + mask
+            pbc_mask = pbc_mask.reshape(AA.shape)
+            if mask_file:
+                mask_out.data['total'] = pbc_mask
+                mask_out.write_file('{}_{}.vasp'.format(mask_file,row['edge_tuple']))
 
 
+            total_chg.append(self.base_aeccar.data['total'][pbc_mask].sum() / self.base_aeccar.ngridpts / self.base_aeccar.structure.volume)
+
+        self.complete_mask=idx_pbc_mask
+        print('test')
+        self.unique_edges.loc[self.unique_edges.index, 'chg_total'] = total_chg
 
 def main():
     test_dir = os.path.join(
         os.path.dirname(__file__), "..", "..", "..", 'test_files')
     test_ents = loadfn(test_dir + '/Mn6O5F7_cat_migration.json')
-
-    mpa = MigrationPathAnalyzer(test_ents['ent_base'], test_ents['one_cation'])
+    aeccar = Chgcar.from_file(test_dir + '/AECCAR_Mn6O5F7.vasp')
+    mpa = MigrationPathAnalyzer(base_entry=test_ents['ent_base'], single_cat_entries=test_ents['one_cation'], base_aeccar=aeccar)
     print(mpa.full_sites)
     mpa.get_graph()
     mpa.get_edges_labels()
-    print(mpa.unique_edges)
+    print(mpa.unique_edges.chg_total)
 
 
 if __name__ == "__main__":
