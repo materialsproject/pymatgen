@@ -6,11 +6,17 @@ from pymatgen.core import Specie, Element, Lattice, Structure
 from pymatgen.io.cif import CifParser
 from pymatgen.analysis.magnetism import *
 
+from monty.os.path import which
+
 import os
 import unittest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
+
+enum_cmd = which("enum.x") or which("multienum.x")
+makestr_cmd = which("makestr.x") or which("makeStr.x") or which("makeStr.py")
+enumlib_present = enum_cmd and makestr_cmd
 
 
 class CollinearMagneticStructureAnalyzerTest(unittest.TestCase):
@@ -174,6 +180,11 @@ class CollinearMagneticStructureAnalyzerTest(unittest.TestCase):
         magmoms = msa.structure.site_properties['magmom']
         self.assertEqual(magmoms, [1, 0])
 
+    def test_net_positive(self):
+        msa = CollinearMagneticStructureAnalyzer(self.NiO_unphysical)
+        magmoms = msa.structure.site_properties['magmom']
+        self.assertEqual(magmoms, [3, 0, 0, 0])
+
     def test_get_ferromagnetic_structure(self):
 
         msa = CollinearMagneticStructureAnalyzer(self.NiO,
@@ -244,17 +255,61 @@ Magmoms Sites
         struct.add_site_property('magmom', [-5.0143, -5.02, 0.147, 0.146])
 
         msa = CollinearMagneticStructureAnalyzer(struct, round_magmoms=0.001, make_primitive=False)
-        self.assertTrue(np.allclose(msa.magmoms, [-5.0171, -5.0171, 0.1465, 0.1465]))
+        self.assertTrue(np.allclose(msa.magmoms, [5.0171, 5.0171, -0.1465, -0.1465]))
         self.assertAlmostEqual(msa.magnetic_species_and_magmoms['Ni'], 5.0171)
         self.assertAlmostEqual(msa.magnetic_species_and_magmoms['O'], 0.1465)
 
         struct.add_site_property('magmom', [-5.0143, 4.5, 0.147, 0.146])
         msa = CollinearMagneticStructureAnalyzer(struct, round_magmoms=0.001, make_primitive=False)
-        self.assertTrue(np.allclose(msa.magmoms, [-5.0143, 4.5, 0.1465, 0.1465]))
+        self.assertTrue(np.allclose(msa.magmoms, [5.0143, -4.5, -0.1465, -0.1465]))
         self.assertAlmostEqual(msa.magnetic_species_and_magmoms['Ni'][0], 4.5)
         self.assertAlmostEqual(msa.magnetic_species_and_magmoms['Ni'][1], 5.0143)
         self.assertAlmostEqual(msa.magnetic_species_and_magmoms['O'], 0.1465)
+
+
+class MagneticStructureEnumeratorTest(unittest.TestCase):
+
+    @unittest.skipIf(not enumlib_present, "enumlib not present")
+    def test_ordering_enumeration(self):
         
+        # simple afm
+        structure = Structure.from_file(
+            os.path.join(test_dir, "magnetic_orderings/LaMnO3.json"))
+        enumerator = MagneticStructureEnumerator(structure)
+        self.assertEqual(enumerator.input_origin, "afm")
+
+        # ferrimagnetic (Cr produces net spin)
+        structure = Structure.from_file(
+            os.path.join(test_dir, "magnetic_orderings/Cr2NiO4.json"))
+        enumerator = MagneticStructureEnumerator(structure)
+        self.assertEqual(enumerator.input_origin, "ferri_by_Cr")
+
+        # antiferromagnetic on single magnetic site
+        structure = Structure.from_file(
+            os.path.join(test_dir, "magnetic_orderings/Cr2WO6.json"))
+        enumerator = MagneticStructureEnumerator(structure)
+        self.assertEqual(enumerator.input_origin, "afm_by_Cr")
+
+        # afm requiring large cell size
+        # (enable for further development of workflow, too slow for CI)
+
+        # structure = Structure.from_file(os.path.join(ref_dir, "CuO.json"))
+        # enumerator = MagneticOrderingsenumerator(structure, default_magmoms={'Cu': 1.73},
+        #                         transformation_kwargs={'max_cell_size': 4})
+        # self.assertEqual(enumerator.input_origin, "afm")
+
+        # antiferromagnetic by structural motif
+        structure = Structure.from_file(
+            os.path.join(test_dir, "magnetic_orderings/Ca3Co2O6.json"))
+        enumerator = MagneticStructureEnumerator(
+            structure,
+            strategies=("antiferromagnetic_by_motif",),
+            # this example just misses default cut-off, so do not truncate
+            truncate_by_symmetry=False,
+            transformation_kwargs={"max_cell_size": 2},
+        )
+        self.assertEqual(enumerator.input_origin, "afm_by_motif_2a")
+
 
 class MagneticDeformationTest(unittest.TestCase):
 

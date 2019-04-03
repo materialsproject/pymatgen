@@ -380,12 +380,12 @@ class StructureGraph(MSONable):
                               properties=site_properties)
 
         mapping = {}
-        for j in range(len(self.structure)):
+        for j in range(len(self.structure) - 1):
             if j < i:
                 mapping[j] = j
             else:
                 mapping[j] = j + 1
-        nx.relabel_nodes(self.graph, mapping)
+        nx.relabel_nodes(self.graph, mapping, copy=False)
 
         self.graph.add_node(i)
         self.set_node_attributes()
@@ -520,10 +520,10 @@ class StructureGraph(MSONable):
         self.graph.remove_nodes_from(indices)
 
         mapping = {}
-        for correct, current in enumerate(self.graph.nodes):
+        for correct, current in enumerate(sorted(self.graph.nodes)):
             mapping[current] = correct
 
-        nx.relabel_nodes(self.graph, mapping)
+        nx.relabel_nodes(self.graph, mapping, copy=False)
         self.set_node_attributes()
 
     def substitute_group(self, index, func_grp, strategy, bond_order=1,
@@ -640,6 +640,7 @@ class StructureGraph(MSONable):
         """
 
         connected_sites = set()
+        connected_site_images = set()
 
         out_edges = [(u, v, d, 'out') for u, v, d in self.graph.out_edges(n, data=True)]
         in_edges = [(u, v, d, 'in') for u, v, d in self.graph.in_edges(n, data=True)]
@@ -663,13 +664,16 @@ class StructureGraph(MSONable):
 
             weight = d.get('weight', None)
 
-            connected_site = ConnectedSite(site=site,
-                                           jimage=to_jimage,
-                                           index=v,
-                                           weight=weight,
-                                           dist=dist)
+            if (v, to_jimage) not in connected_site_images:
 
-            connected_sites.add(connected_site)
+                connected_site = ConnectedSite(site=site,
+                                               jimage=to_jimage,
+                                               index=v,
+                                               weight=weight,
+                                               dist=dist)
+
+                connected_sites.add(connected_site)
+                connected_site_images.add((v, to_jimage))
 
         # return list sorted by closest sites first
         connected_sites = list(connected_sites)
@@ -1023,7 +1027,7 @@ class StructureGraph(MSONable):
 
             for idx, site in enumerate(self.structure):
 
-                s = PeriodicSite(site.species_and_occu, site.coords + v,
+                s = PeriodicSite(site.species, site.coords + v,
                                  new_lattice, properties=site.properties,
                                  coords_are_cartesian=True, to_unit_cell=False)
 
@@ -1770,12 +1774,12 @@ class MoleculeGraph(MSONable):
                              properties=site_properties)
 
         mapping = {}
-        for j in range(len(self.molecule)):
+        for j in range(len(self.molecule) - 1):
             if j < i:
                 mapping[j] = j
             else:
                 mapping[j] = j + 1
-        nx.relabel_nodes(self.graph, mapping)
+        nx.relabel_nodes(self.graph, mapping, copy=False)
 
         self.graph.add_node(i)
         self.set_node_attributes()
@@ -1890,10 +1894,10 @@ class MoleculeGraph(MSONable):
         self.graph.remove_nodes_from(indices)
 
         mapping = {}
-        for correct, current in enumerate(self.graph.nodes):
+        for correct, current in enumerate(sorted(self.graph.nodes)):
             mapping[current] = correct
 
-        nx.relabel_nodes(self.graph, mapping)
+        nx.relabel_nodes(self.graph, mapping, copy=False)
         self.set_node_attributes()
 
     def split_molecule_subgraphs(self, bonds, allow_reverse=False,

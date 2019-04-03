@@ -6,6 +6,7 @@
 import sys
 import itertools
 import json
+import platform
 import re
 import warnings
 from time import sleep
@@ -14,7 +15,7 @@ from monty.json import MontyDecoder, MontyEncoder
 
 from copy import deepcopy
 
-from pymatgen import SETTINGS
+from pymatgen import SETTINGS, __version__ as pmg_version
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
@@ -59,11 +60,8 @@ class MPRester:
     MPRester uses the "requests" package, which provides for HTTP connection
     pooling. All connections are made via https for security.
 
-    .. note::
-
-        The Materials Project recently switched to using string ids with a
-        "mp-" prefix for greater flexibility going forward. The MPRester
-        should still work as intended if you provide the proper string ids.
+    For more advanced uses of the Materials API, please consult the API
+    documentation at https://github.com/materialsproject/mapidoc.
 
     Args:
         api_key (str): A String API key for accessing the MaterialsProject
@@ -77,6 +75,11 @@ class MPRester:
             interface. Defaults to the standard Materials Project REST
             address at "https://materialsproject.org/rest/v2", but
             can be changed to other urls implementing a similar interface.
+        include_user_agent (bool): If True, will include a user agent with the
+            HTTP request including information on pymatgen and system version
+            making the API request. This helps MP support pymatgen users, and
+            is similar to what most web browsers send with each page request.
+            Set to False to disable the user agent.
     """
 
     supported_properties = ("energy", "energy_per_atom", "volume",
@@ -97,7 +100,7 @@ class MPRester:
                                  "is_compatible", "spacegroup",
                                  "band_gap", "density", "icsd_id", "cif")
 
-    def __init__(self, api_key=None, endpoint=None):
+    def __init__(self, api_key=None, endpoint=None, include_user_agent=True):
         if api_key is not None:
             self.api_key = api_key
         else:
@@ -107,6 +110,10 @@ class MPRester:
         else:
             self.preamble = SETTINGS.get("PMG_MAPI_ENDPOINT",
                                          "https://materialsproject.org/rest/v2")
+
+        if self.preamble != "https://materialsproject.org/rest/v2":
+            warnings.warn("Non-default endpoint used: {}".format(self.preamble))
+
         import requests
         if sys.version_info[0] < 3:
             try:
@@ -119,6 +126,13 @@ class MPRester:
                               "`pip install pymatgen[matproj.snl]`.")
         self.session = requests.Session()
         self.session.headers = {"x-api-key": self.api_key}
+        if include_user_agent:
+            pymatgen_info = "pymatgen/"+pmg_version
+            python_info = "Python/{}.{}.{}".format(
+                sys.version_info.major, sys.version_info.minor, sys.version_info.micro)
+            platform_info = "{}/{}".format(platform.system(), platform.release())
+            self.session.headers["user-agent"] = "{} ({} {})".format(
+                pymatgen_info, python_info, platform_info)
 
     def __enter__(self):
         """
@@ -196,6 +210,10 @@ class MPRester:
 
         [{"material_id": material_id, "property_name" : value}, ...]
 
+        This is generally a call to
+        https://www.materialsproject.org/rest/v2/materials/vasp/<prop>.
+        See https://github.com/materialsproject/mapidoc for details.
+
         Args:
             chemsys_formula_id (str): A chemical system (e.g., Li-Fe-O),
                 or formula (e.g., Fe2O3) or materials_id (e.g., mp-1234).
@@ -227,6 +245,8 @@ class MPRester:
     def get_doc(self, materials_id):
         """
         Get the entire data document for one materials id. Use this judiciously.
+
+        REST Endpoint: https://www.materialsproject.org/materials/<mp-id>/doc.
 
         Args:
             materials_id (str): E.g., mp-1143 for Al2O3
@@ -538,6 +558,8 @@ class MPRester:
         """
         Get a Dos corresponding to a material_id.
 
+        REST Endpoint: https://www.materialsproject.org/rest/v2/materials/<mp-id>/vasp/dos
+
         Args:
             material_id (str): Materials Project material_id (a string,
                 e.g., mp-1234).
@@ -551,6 +573,9 @@ class MPRester:
     def get_bandstructure_by_material_id(self, material_id, line_mode=True):
         """
         Get a BandStructure corresponding to a material_id.
+
+        REST Endpoint: https://www.materialsproject.org/rest/v2/materials/<mp-id>/vasp/bandstructure or
+        https://www.materialsproject.org/rest/v2/materials/<mp-id>/vasp/bandstructure_uniform
 
         Args:
             material_id (str): Materials Project material_id.
@@ -772,7 +797,7 @@ class MPRester:
                                            chunk_size=0, mp_decode=mp_decode))
                     break
                 except MPRestError as e:
-                    match = re.search("error status code (\d+)", e.message)
+                    match = re.search(r"error status code (\d+)", e.message)
                     if match:
                         if not match.group(1).startswith("5"):
                             raise e

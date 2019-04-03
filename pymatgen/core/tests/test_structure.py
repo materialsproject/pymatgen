@@ -2,7 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
+from pathlib import Path
 import warnings
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.periodic_table import Element, Specie
@@ -15,9 +15,6 @@ from pymatgen.electronic_structure.core import Magmom
 import random
 import os
 import numpy as np
-
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files')
 
 
 class IStructureTest(PymatgenTest):
@@ -76,8 +73,8 @@ class IStructureTest(PymatgenTest):
         s = IStructure(self.lattice, ["O", "Li"], coords,
                        site_properties={'charge': [-2, 1]})
         sorted_s = s.get_sorted_structure()
-        self.assertEqual(sorted_s[0].species_and_occu, Composition("Li"))
-        self.assertEqual(sorted_s[1].species_and_occu, Composition("O"))
+        self.assertEqual(sorted_s[0].species, Composition("Li"))
+        self.assertEqual(sorted_s[1].species, Composition("O"))
         self.assertEqual(sorted_s[0].charge, 1)
         self.assertEqual(sorted_s[1].charge, -2)
         s = IStructure(self.lattice, ["Se", "C", "Se", "C"],
@@ -178,7 +175,8 @@ class IStructureTest(PymatgenTest):
 
     def test_copy(self):
         new_struct = self.propertied_structure.copy(site_properties={'charge':
-                                                                     [2, 3]})
+                                                                         [2,
+                                                                          3]})
         self.assertEqual(new_struct[0].magmom, 5)
         self.assertEqual(new_struct[1].magmom, -5)
         self.assertEqual(new_struct[0].charge, 2)
@@ -259,7 +257,6 @@ class IStructureTest(PymatgenTest):
         s = Structure.from_spacegroup('R32:R', lattice, species, coordinate)
         self.assertEqual(s.formula, "Ni3 S2")
 
-
     def test_interpolate_lattice(self):
         coords = list()
         coords.append([0, 0, 0])
@@ -268,7 +265,7 @@ class IStructureTest(PymatgenTest):
         coords2 = list()
         coords2.append([0, 0, 0])
         coords2.append([0.5, 0.5, 0.5])
-        l2 = Lattice.from_lengths_and_angles([3,4,4], [100,100,70])
+        l2 = Lattice.from_lengths_and_angles([3, 4, 4], [100, 100, 70])
         struct2 = IStructure(l2, ["Si"] * 2, coords2)
         int_s = struct.interpolate(struct2, 2, interpolate_lattices=True)
         self.assertArrayAlmostEqual(struct.lattice.abc,
@@ -340,9 +337,10 @@ class IStructureTest(PymatgenTest):
 
     def test_primitive_positions(self):
         coords = [[0, 0, 0], [0.3, 0.35, 0.45]]
-        s = Structure(Lattice.from_parameters(1,2,3,50,66,88), ["Ag"] * 2, coords)
+        s = Structure(Lattice.from_parameters(1, 2, 3, 50, 66, 88), ["Ag"] * 2,
+                      coords)
 
-        a = [[-1,2,-3], [3,2,-4], [1,0,-1]]
+        a = [[-1, 2, -3], [3, 2, -4], [1, 0, -1]]
         b = [[4, 0, 0], [1, 1, 0], [3, 0, 1]]
         c = [[2, 0, 0], [1, 3, 0], [1, 1, 1]]
 
@@ -352,7 +350,8 @@ class IStructureTest(PymatgenTest):
             prim = sc.get_primitive_structure(0.01)
 
             self.assertEqual(len(prim), 2)
-            self.assertAlmostEqual(prim.distance_matrix[0,1], 1.0203432356739286)
+            self.assertAlmostEqual(prim.distance_matrix[0, 1],
+                                   1.0203432356739286)
 
     def test_primitive_structure_volume_check(self):
         l = Lattice.tetragonal(10, 30)
@@ -394,8 +393,8 @@ class IStructureTest(PymatgenTest):
                 d = sum((site.coords - nn[0].coords) ** 2) ** 0.5
                 self.assertAlmostEqual(d, nn[1])
 
-        s = Structure(Lattice.cubic(1), ['Li'], [[0,0,0]])
-        s.make_supercell([2,2,2])
+        s = Structure(Lattice.cubic(1), ['Li'], [[0, 0, 0]])
+        s.make_supercell([2, 2, 2])
         self.assertEqual(sum(map(len, s.get_all_neighbors(3))), 976)
 
     def test_get_all_neighbors_outside_cell(self):
@@ -434,6 +433,10 @@ class IStructureTest(PymatgenTest):
         self.struct.to(filename="Si_testing.yaml")
         self.assertTrue(os.path.exists("Si_testing.yaml"))
         s = Structure.from_file("Si_testing.yaml")
+        self.assertEqual(s, self.struct)
+
+        # Test Path support.
+        s = Structure.from_file(Path("Si_testing.yaml"))
         self.assertEqual(s, self.struct)
         os.remove("Si_testing.yaml")
 
@@ -503,7 +506,7 @@ class StructureTest(PymatgenTest):
         self.assertEqual(s.formula, "Si2 O1")
         self.assertTrue(s.ntypesp == 2)
         self.assertTrue(s.symbol_set == ("Si", "O"))
-        self.assertTrue(s.indices_from_symbol("Si") == (0,2))
+        self.assertTrue(s.indices_from_symbol("Si") == (0, 2))
         self.assertTrue(s.indices_from_symbol("O") == (1,))
         del s[2]
         self.assertEqual(s.formula, "Si1 O1")
@@ -525,7 +528,7 @@ class StructureTest(PymatgenTest):
 
         s.replace_species({"Si": {"Ge": 0.5, "Si": 0.5}})
         self.assertEqual(s.formula, "Si0.5 Ge0.5 N1 O1")
-        #this should change the .5Si .5Ge sites to .75Si .25Ge
+        # this should change the .5Si .5Ge sites to .75Si .25Ge
         s.replace_species({"Ge": {"Ge": 0.5, "Si": 0.5}})
         self.assertEqual(s.formula, "Si0.75 Ge0.25 N1 O1")
 
@@ -561,15 +564,15 @@ class StructureTest(PymatgenTest):
         self.assertRaises(AttributeError, getattr, s[0], "magmom")
 
     def test_propertied_structure(self):
-        #Make sure that site properties are set to None for missing values.
+        # Make sure that site properties are set to None for missing values.
         s = self.structure
         s.add_site_property("charge", [4.1, -5])
-        s.append("Li", [0.3, 0.3 ,0.3])
+        s.append("Li", [0.3, 0.3, 0.3])
         self.assertEqual(len(s.site_properties["charge"]), 3)
 
     def test_perturb(self):
         d = 0.1
-        pre_perturbation_sites = self.structure.sites[:]
+        pre_perturbation_sites = self.structure.copy()
         self.structure.perturb(distance=d)
         post_perturbation_sites = self.structure.sites
 
@@ -581,7 +584,7 @@ class StructureTest(PymatgenTest):
         oxidation_states = {"Si": -4}
         self.structure.add_oxidation_state_by_element(oxidation_states)
         for site in self.structure:
-            for k in site.species_and_occu.keys():
+            for k in site.species.keys():
                 self.assertEqual(k.oxi_state, oxidation_states[k.symbol],
                                  "Wrong oxidation state assigned!")
         oxidation_states = {"Fe": 2}
@@ -634,7 +637,7 @@ class StructureTest(PymatgenTest):
         nio.remove_spin()
         self.assertRaises(AttributeError, getattr, nio[0].specie, 'spin')
 
-        spins = [5, -5, -5, 5, 0, 0, 0, 0] # AFM on (001)
+        spins = [5, -5, -5, 5, 0, 0, 0, 0]  # AFM on (001)
         nio.add_spin_by_site(spins)
         self.assertEqual(nio[1].specie.spin, -5, "Failed to add spin states")
 
@@ -680,13 +683,13 @@ class StructureTest(PymatgenTest):
             self.structure.lattice.abc,
             (3.8785999130369997, 3.878600984287687, 3.8785999130549516))
         self.assertArrayAlmostEqual(self.structure[1].coords,
-            initial_coord * 1.01)
+                                    initial_coord * 1.01)
 
     def test_translate_sites(self):
         self.structure.translate_sites([0, 1], [0.5, 0.5, 0.5],
                                        frac_coords=True)
-        self.assertArrayEqual(self.structure.frac_coords[0],
-                              [0.5, 0.5, 0.5])
+        self.assertArrayAlmostEqual(self.structure.frac_coords[0],
+                                    [0.5, 0.5, 0.5])
 
         self.structure.translate_sites([0], [0.5, 0.5, 0.5],
                                        frac_coords=False)
@@ -700,14 +703,14 @@ class StructureTest(PymatgenTest):
 
     def test_rotate_sites(self):
         self.structure.rotate_sites(indices=[1],
-                                    theta=2.*np.pi/3.,
+                                    theta=2. * np.pi / 3.,
                                     anchor=self.structure.sites[0].coords,
                                     to_unit_cell=False)
         self.assertArrayAlmostEqual(self.structure.frac_coords[1],
                                     [-1.25, 1.5, 0.75],
                                     decimal=6)
         self.structure.rotate_sites(indices=[1],
-                                    theta=2.*np.pi/3.,
+                                    theta=2. * np.pi / 3.,
                                     anchor=self.structure.sites[0].coords,
                                     to_unit_cell=True)
         self.assertArrayAlmostEqual(self.structure.frac_coords[1],
@@ -740,12 +743,12 @@ class StructureTest(PymatgenTest):
         f = [[0.5, 0.5, 0.5]]
         sp = [{'Si': 0.54738}]
         s = Structure(l, sp, f)
-        #this supercell often breaks things
-        s.make_supercell([[0,-1,1],[-1,1,0],[1,1,1]])
+        # this supercell often breaks things
+        s.make_supercell([[0, -1, 1], [-1, 1, 0], [1, 1, 1]])
         self.assertEqual(len(s.get_primitive_structure()), 1)
 
     def test_another_supercell(self):
-        #this is included b/c for some reason the old algo was failing on it
+        # this is included b/c for some reason the old algo was failing on it
         s = self.structure.copy()
         s.make_supercell([[0, 2, 2], [2, 0, 2], [2, 2, 0]])
         self.assertEqual(s.formula, "Si32")
@@ -819,7 +822,8 @@ class StructureTest(PymatgenTest):
     def test_from_magnetic_spacegroup(self):
 
         # AFM MnF
-        s1 = Structure.from_magnetic_spacegroup("P4_2'/mnm'", Lattice.tetragonal(4.87, 3.30),
+        s1 = Structure.from_magnetic_spacegroup("P4_2'/mnm'",
+                                                Lattice.tetragonal(4.87, 3.30),
                                                 ["Mn", "F"],
                                                 [[0, 0, 0],
                                                  [0.30, 0.30, 0.00]],
@@ -831,13 +835,17 @@ class StructureTest(PymatgenTest):
         self.assertEqual(min(map(float, s1.site_properties['magmom'])), -4)
 
         # AFM LaMnO3, ordered on (001) planes
-        s2 = Structure.from_magnetic_spacegroup("Pn'ma'", Lattice.orthorhombic(5.75, 7.66, 5.53),
+        s2 = Structure.from_magnetic_spacegroup("Pn'ma'",
+                                                Lattice.orthorhombic(5.75, 7.66,
+                                                                     5.53),
                                                 ["La", "Mn", "O", "O"],
                                                 [[0.05, 0.25, 0.99],
                                                  [0.00, 0.00, 0.50],
                                                  [0.48, 0.25, 0.08],
                                                  [0.31, 0.04, 0.72]],
-                                                {'magmom': [0, Magmom([4, 0, 0]), 0, 0]})
+                                                {'magmom': [0,
+                                                            Magmom([4, 0, 0]),
+                                                            0, 0]})
 
         self.assertEqual(s2.formula, "La4 Mn4 O12")
         self.assertEqual(sum(map(float, s2.site_properties['magmom'])), 0)
@@ -852,7 +860,7 @@ class StructureTest(PymatgenTest):
         s = Structure(Lattice.cubic(1), species, coords)
         s.merge_sites(mode="s")
         self.assertEqual(s[0].specie.symbol, 'Ag')
-        self.assertEqual(s[1].species_and_occu,
+        self.assertEqual(s[1].species,
                          Composition({'Cl': 0.35, 'F': 0.25}))
         self.assertArrayAlmostEqual(s[1].frac_coords, [.5, .5, .5005])
 
@@ -860,7 +868,8 @@ class StructureTest(PymatgenTest):
         l = Lattice.from_lengths_and_angles([3.374351, 3.374351, 20.308941],
                                             [90.000000, 90.000000, 120.000000])
         species = ["Ta", "S", "S"]
-        coords = [[0.000000, 0.000000, 0.944333], [0.333333, 0.666667, 0.353424],
+        coords = [[0.000000, 0.000000, 0.944333],
+                  [0.333333, 0.666667, 0.353424],
                   [0.666667, 0.333333, 0.535243]]
         tas2 = Structure.from_spacegroup(160, l, species, coords)
         assert len(tas2) == 13
@@ -870,12 +879,28 @@ class StructureTest(PymatgenTest):
         l = Lattice.from_lengths_and_angles([3.587776, 3.587776, 19.622793],
                                             [90.000000, 90.000000, 120.000000])
         species = ["Na", "V", "S", "S"]
-        coords = [[0.333333, 0.666667, 0.165000], [0.000000, 0.000000, 0.998333],
-                  [0.333333, 0.666667, 0.399394], [0.666667, 0.333333, 0.597273]]
+        coords = [[0.333333, 0.666667, 0.165000],
+                  [0.000000, 0.000000, 0.998333],
+                  [0.333333, 0.666667, 0.399394],
+                  [0.666667, 0.333333, 0.597273]]
         navs2 = Structure.from_spacegroup(160, l, species, coords)
         assert len(navs2) == 18
         navs2.merge_sites(mode="d")
         assert len(navs2) == 12
+
+        # Test that we can average the site properties that are floats
+        l = Lattice.from_lengths_and_angles([3.587776, 3.587776, 19.622793],
+                                            [90.000000, 90.000000, 120.000000])
+        species = ["Na", "V", "S", "S"]
+        coords = [[0.333333, 0.666667, 0.165000], [0.000000, 0.000000, 0.998333],
+                  [0.333333, 0.666667, 0.399394], [0.666667, 0.333333, 0.597273]]
+        site_props = {'prop1' : [3.0, 5.0, 7.0, 11.0]}
+        navs2 = Structure.from_spacegroup(160, l, species, coords, site_properties=site_props)
+        navs2.insert(0, 'Na', coords[0], properties={'prop1': 100.})
+        navs2.merge_sites(mode="a")
+        self.assertEqual(len(navs2), 12)
+        self.assertEqual(51.5 in [itr.properties['prop1'] for itr in navs2.sites], True)
+
 
     def test_properties(self):
         self.assertEqual(self.structure.num_sites, len(self.structure))
@@ -904,7 +929,8 @@ class StructureTest(PymatgenTest):
         self.assertEqual(s.formula, "Si1.25 C0.125")
 
     def test_init_error(self):
-        self.assertRaises(StructureError, Structure, Lattice.cubic(3), ["Si"], [[0, 0, 0], [0.5, 0.5, 0.5]])
+        self.assertRaises(StructureError, Structure, Lattice.cubic(3), ["Si"],
+                          [[0, 0, 0], [0.5, 0.5, 0.5]])
 
     def test_from_sites(self):
         self.structure.add_site_property("hello", [1, 2])
@@ -921,29 +947,39 @@ class StructureTest(PymatgenTest):
 
     def test_charge(self):
         s = Structure.from_sites(self.structure)
-        self.assertEqual(s.charge,0,"Initial Structure not defaulting to behavior in SiteCollection")
-        s.add_oxidation_state_by_site([1,1])
-        self.assertEqual(s.charge,2,"Initial Structure not defaulting to behavior in SiteCollection")
-        s = Structure.from_sites(s,charge=1)
-        self.assertEqual(s.charge,1,"Overall charge not being stored in seperate property")
+        self.assertEqual(s.charge, 0,
+                         "Initial Structure not defaulting to behavior in SiteCollection")
+        s.add_oxidation_state_by_site([1, 1])
+        self.assertEqual(s.charge, 2,
+                         "Initial Structure not defaulting to behavior in SiteCollection")
+        s = Structure.from_sites(s, charge=1)
+        self.assertEqual(s.charge, 1,
+                         "Overall charge not being stored in seperate property")
         s = s.copy()
-        self.assertEqual(s.charge,1,"Overall charge not being copied properly with no sanitization")
+        self.assertEqual(s.charge, 1,
+                         "Overall charge not being copied properly with no sanitization")
         s = s.copy(sanitize=True)
-        self.assertEqual(s.charge,1,"Overall charge not being copied properly with sanitization")
-        super_cell = s*3
-        self.assertEqual(super_cell.charge,27,"Overall charge is not being properly multiplied in IStructure __mul__")
-        self.assertIn("Overall Charge: +1", str(s),"String representation not adding charge")
+        self.assertEqual(s.charge, 1,
+                         "Overall charge not being copied properly with sanitization")
+        super_cell = s * 3
+        self.assertEqual(super_cell.charge, 27,
+                         "Overall charge is not being properly multiplied in IStructure __mul__")
+        self.assertIn("Overall Charge: +1", str(s),
+                      "String representation not adding charge")
         sorted_s = super_cell.get_sorted_structure()
-        self.assertEqual(sorted_s.charge,27,"Overall charge is not properly copied during structure sorting")
+        self.assertEqual(sorted_s.charge, 27,
+                         "Overall charge is not properly copied during structure sorting")
         super_cell.set_charge(25)
-        self.assertEqual(super_cell.charge,25,"Set charge not properly modifying _charge")
-
+        self.assertEqual(super_cell.charge, 25,
+                         "Set charge not properly modifying _charge")
 
     def test_vesta_lattice_matrix(self):
-        silica_zeolite = Molecule.from_file(os.path.join(test_dir, "CON_vesta.xyz"))
+        silica_zeolite = Molecule.from_file(
+            self.TEST_FILES_DIR / "CON_vesta.xyz")
 
         s_vesta = Structure(
-            lattice=Lattice.from_parameters(22.6840, 13.3730, 12.5530, 90, 69.479, 90, True),
+            lattice=Lattice.from_parameters(22.6840, 13.3730, 12.5530, 90,
+                                            69.479, 90, True),
             species=silica_zeolite.species,
             coords=silica_zeolite.cart_coords,
             coords_are_cartesian=True,
@@ -955,7 +991,8 @@ class StructureTest(PymatgenTest):
         self.assertEqual(s_vesta.formula, 'Si56 O112')
 
         broken_s = Structure(
-            lattice=Lattice.from_parameters(22.6840, 13.3730, 12.5530, 90, 69.479, 90),
+            lattice=Lattice.from_parameters(22.6840, 13.3730, 12.5530, 90,
+                                            69.479, 90),
             species=silica_zeolite.species,
             coords=silica_zeolite.cart_coords,
             coords_are_cartesian=True,
@@ -964,6 +1001,29 @@ class StructureTest(PymatgenTest):
 
         broken_s.merge_sites(0.01, 'delete')
         self.assertEqual(broken_s.formula, 'Si56 O134')
+
+    def test_extract_cluster(self):
+        coords = [[0.000000, 0.000000, 0.000000],
+                  [0.000000, 0.000000, 1.089000],
+                  [1.026719, 0.000000, -0.363000],
+                  [-0.513360, -0.889165, -0.363000],
+                  [-0.513360, 0.889165, -0.363000]]
+        ch4 = ["C", "H", "H", "H", "H"]
+
+        species = []
+        allcoords = []
+        for vec in ([0, 0, 0], [4, 0, 0], [0, 4, 0], [4, 4, 0]):
+            species.extend(ch4)
+            for c in coords:
+                allcoords.append(np.array(c) + vec)
+
+        structure = Structure(Lattice.cubic(10), species, allcoords,
+                              coords_are_cartesian=True)
+
+        for site in structure:
+            if site.specie.symbol == "C":
+                cluster = Molecule.from_sites(structure.extract_cluster([site]))
+                self.assertEqual(cluster.formula, "H4 C1")
 
 
 class IMoleculeTest(PymatgenTest):
@@ -1049,7 +1109,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
     def test_site_properties(self):
         propertied_mol = Molecule(["C", "H", "H", "H", "H"], self.coords,
                                   site_properties={'magmom':
-                                                   [0.5, -0.5, 1, 2, 3]})
+                                                       [0.5, -0.5, 1, 2, 3]})
         self.assertEqual(propertied_mol[0].magmom, 0.5)
         self.assertEqual(propertied_mol[1].magmom, -0.5)
 
@@ -1057,21 +1117,21 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         s = self.mol.get_boxed_structure(9, 9, 9)
         # C atom should be in center of box.
         self.assertArrayAlmostEqual(s[4].frac_coords,
-                                    [0.50000001,  0.5,  0.5])
+                                    [0.50000001, 0.5, 0.5])
         self.assertArrayAlmostEqual(s[1].frac_coords,
-                                    [0.6140799, 0.5,  0.45966667])
+                                    [0.6140799, 0.5, 0.45966667])
         self.assertRaises(ValueError, self.mol.get_boxed_structure, 1, 1, 1)
         s2 = self.mol.get_boxed_structure(5, 5, 5, (2, 3, 4))
         self.assertEqual(len(s2), 24 * 5)
         self.assertEqual(s2.lattice.abc, (10, 15, 20))
 
         # Test offset option
-        s3 = self.mol.get_boxed_structure(9, 9, 9, offset=[0.5,0.5,0.5])
+        s3 = self.mol.get_boxed_structure(9, 9, 9, offset=[0.5, 0.5, 0.5])
         self.assertArrayAlmostEqual(s3[4].coords,
-                                    [5,5,5])
+                                    [5, 5, 5])
         # Test no_cross option
         self.assertRaises(ValueError, self.mol.get_boxed_structure,
-                          5, 5, 5, offset=[10,10,10],no_cross = True)
+                          5, 5, 5, offset=[10, 10, 10], no_cross=True)
 
     def test_get_distance(self):
         self.assertAlmostEqual(self.mol.get_distance(0, 1), 1.089)
@@ -1117,7 +1177,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         self.assertEqual(mol.spin_multiplicity, 2)
         self.assertEqual(mol.nelectrons, 9)
 
-        #Triplet O2
+        # Triplet O2
         mol = IMolecule(["O"] * 2, [[0, 0, 0], [0, 0, 1.2]],
                         spin_multiplicity=3)
         self.assertEqual(mol.spin_multiplicity, 3)
@@ -1139,7 +1199,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         propertied_mol = Molecule(["C", "H", "H", "H", "H"], self.coords,
                                   charge=1,
                                   site_properties={'magmom':
-                                                   [0.5, -0.5, 1, 2, 3]})
+                                                       [0.5, -0.5, 1, 2, 3]})
         d = propertied_mol.as_dict()
         self.assertEqual(d['sites'][0]['properties']['magmom'], 0.5)
         mol = Molecule.from_dict(d)
@@ -1191,7 +1251,7 @@ class MoleculeTest(PymatgenTest):
                                     [-0.513360, 0.889165, -0.363000])
         del s[1]
         self.assertEqual(s.formula, "H2 C1 F1")
-        s[3] = "N", [0,0,0], {"charge": 4}
+        s[3] = "N", [0, 0, 0], {"charge": 4}
         self.assertEqual(s.formula, "H2 N1 F1")
         self.assertEqual(s[3].charge, 4)
 
@@ -1217,7 +1277,7 @@ class MoleculeTest(PymatgenTest):
     def test_rotate_sites(self):
         self.mol.rotate_sites(theta=np.radians(30))
         self.assertArrayAlmostEqual(self.mol.cart_coords[2],
-                              [  0.889164737,   0.513359500,  -0.363000000])
+                                    [0.889164737, 0.513359500, -0.363000000])
 
     def test_replace(self):
         self.mol[0] = "Ge"
@@ -1227,7 +1287,7 @@ class MoleculeTest(PymatgenTest):
                                                   Element("Si"): 0.5}})
         self.assertEqual(self.mol.formula, "Si0.5 Ge0.5 H4")
 
-        #this should change the .5Si .5Ge sites to .75Si .25Ge
+        # this should change the .5Si .5Ge sites to .75Si .25Ge
         self.mol.replace_species({Element("Ge"): {Element("Ge"): 0.5,
                                                   Element("Si"): 0.5}})
         self.assertEqual(self.mol.formula, "Si0.75 Ge0.25 H4")
@@ -1253,9 +1313,11 @@ class MoleculeTest(PymatgenTest):
         self.assertRaises(AttributeError, getattr, self.mol[0], "magmom")
 
     def test_to_from_dict(self):
+        self.mol.append("X", [2, 0, 0])
         d = self.mol.as_dict()
         mol2 = Molecule.from_dict(d)
         self.assertEqual(type(mol2), Molecule)
+        self.assertMSONable(self.mol)
 
     def test_apply_operation(self):
         op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 90)
@@ -1321,7 +1383,7 @@ class MoleculeTest(PymatgenTest):
         coords = list(self.mol.cart_coords) + list(self.mol.cart_coords
                                                    + [10, 0, 0])
         mol = Molecule(species, coords)
-        cluster = mol.extract_cluster([mol[0]])
+        cluster = Molecule.from_sites(mol.extract_cluster([mol[0]]))
         self.assertEqual(mol.formula, "H8 C2")
         self.assertEqual(cluster.formula, "H4 C1")
 

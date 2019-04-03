@@ -36,7 +36,7 @@ class AbinitTimerParserError(Exception):
     """Errors raised by AbinitTimerParser"""
 
 
-class AbinitTimerParser(collections.Iterable):
+class AbinitTimerParser(collections.abc.Iterable):
     """
     Responsible for parsing a list of output files, extracting the timing results
     and analyzing the results.

@@ -31,7 +31,7 @@ if __name__ == '__main__':
     allcg = AllCoordinationGeometries()
     vis = None
     while True:
-        cg_symbol = raw_input('Enter symbol of the geometry you want to see, "l" to see the list '
+        cg_symbol = input('Enter symbol of the geometry you want to see, "l" to see the list '
                               'of existing geometries or "q" to quit : ')
         if cg_symbol == 'q':
             break
@@ -54,7 +54,7 @@ if __name__ == '__main__':
         # Visualize the separation plane of a given algorithm
         sepplane = False
         if any([algo.algorithm_type == SEPARATION_PLANE for algo in cg.algorithms]):
-            test = raw_input('Enter index of the algorithm for which you want to visualize the plane : ')
+            test = input('Enter index of the algorithm for which you want to visualize the plane : ')
             if test != '':
                 try:
                     ialgo = int(test)

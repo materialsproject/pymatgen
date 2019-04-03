@@ -11,6 +11,7 @@ import math
 import os
 import re
 import warnings
+from pathlib import Path
 import xml.etree.cElementTree as ET
 from collections import defaultdict
 from io import StringIO
@@ -38,6 +39,7 @@ from pymatgen.entries.computed_entries import \
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar
 from pymatgen.util.io_utils import clean_lines, micro_pyawk
 from pymatgen.util.num import make_symmetric_matrix_from_upper_tri
+from scipy.io import FortranFile
 
 """
 Classes for reading/manipulating/writing VASP ouput files.
@@ -646,8 +648,13 @@ class Vasprun(MSONable):
 
         TODO: Fix for other functional types like PW91, other vdW types, etc.
         """
+
+        METAGGA_TYPES = {"TPSS", "RTPSS", "M06L", "MBJL", "SCAN", "MS0", "MS1", "MS2"}
+
         if self.parameters.get("LHFCALC", False):
             rt = "HF"
+        elif self.parameters.get("METAGGA", "").strip().upper() in METAGGA_TYPES:
+            rt = self.parameters["METAGGA"].strip().upper()
         elif self.parameters.get("LUSE_VDW", False):
             vdw_gga = {"RE": "DF", "OR": "optPBE", "BO": "optB88",
                        "MK": "optB86b", "ML": "DF2"}
@@ -878,7 +885,8 @@ class Vasprun(MSONable):
             warnings.warn("No POTCAR file with matching TITEL fields"
                           " was found in {}".format(os.path.abspath(p)))
 
-        if isinstance(path, str):
+        if isinstance(path, (str, Path)):
+            path = str(path)
             if "POTCAR" in path:
                 potcar = Potcar.from_file(path)
                 if {d.TITEL for d in potcar} != \
@@ -1618,7 +1626,8 @@ class Outcar:
 
         # Check if the calculation type is DFPT
         self.dfpt = False
-        self.read_pattern({'ibrion': "IBRION =\s+([\-\d]+)"}, terminate_on_match=True,
+        self.read_pattern({'ibrion': r"IBRION =\s+([\-\d]+)"},
+                          terminate_on_match=True,
                           postprocess=int)
         if self.data.get("ibrion", [[0]])[0][0] > 6:
             self.dfpt = True
@@ -4365,6 +4374,79 @@ class Wavederf:
             raise ValueError("Band index out of bounds")
 
         return self.data[:, band_i - 1, band_j - 1, :]
+
+
+class Waveder:
+    """
+    Class for reading a WAVEDER file.
+    The LOPTICS tag produces a WAVEDER file.
+    The WAVEDER contains the derivative of the orbitals with respect to k.
+    Author: Kamal Choudhary, NIST
+
+    Args:
+        filename: Name of file containing WAVEDER.
+    """
+
+    def __init__(self, filename):
+        with FortranFile(filename, "r") as f:
+            val = (f.read_reals(dtype=np.int32))
+            nbands = int(val[0])
+            nelect = int(val[1])
+            nk = int(val[2])
+            ispin = int(val[3])
+            nodes_in_dielectric_function = (f.read_reals(dtype=np.float))
+            wplasmon = (f.read_reals(dtype=np.float))
+            cder = np.array((f.read_reals(dtype=np.float)))
+            cder_data = cder.reshape((nbands, nelect, nk, ispin, 3))
+            self.cder_data = cder_data
+            self.nkpoints = nk
+            self.ispin = ispin
+            self.nelect = nelect
+            self.nbands = nbands
+
+    @property
+    def nbands(self):
+        """
+        Returns the number of bands in the calculation
+        """
+        return self.nbands
+
+    @property
+    def nkpoints(self):
+        """
+        Returns the number of k-points in the calculation
+        """
+        return self.nkpoints
+
+    @property
+    def nelect(self):
+        """
+        Returns the number of electrons in the calculation
+        """
+        return self.nelect
+
+    def get_orbital_derivative_between_states(self, band_i, band_j, kpoint, spin, cart_dir):
+        """
+        Method returning a value
+        between bands band_i and band_j for k-point index, spin-channel and cartesian direction.
+        Args:
+            band_i (Integer): Index of band i
+            band_j (Integer): Index of band j
+            kpoint (Integer): Index of k-point
+            spin   (Integer): Index of spin-channel (0 or 1)
+            cart_dir (Integer): Index of cartesian direction (0,1,2)
+
+        Returns:
+            a float value
+        """
+        if band_i < 0 or band_i > self.nbands - 1 or band_j < 0 or band_j > self.nelect - 1:
+            raise ValueError("Band index out of bounds")
+        if kpoint > self.nkpoints:
+            raise ValueError("K-point index out of bounds")
+        if cart_dir > 2 or cart_dir < 0:
+            raise ValueError("cart_dir index out of bounds")
+
+        return self.cder_data[band_i, band_j, kpoint, spin, cart_dir]
 
 
 class UnconvergedVASPWarning(Warning):
