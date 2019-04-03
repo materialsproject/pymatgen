@@ -2068,41 +2068,61 @@ class MoleculeGraph(MSONable):
         graph = self.graph.to_undirected()
 
         # find all possible fragments, aka connected induced subgraphs
-        all_fragments = []
+        frag_dict = {}
         for ii in range(1, len(self.molecule)):
             for combination in combinations(graph.nodes, ii):
+                mycomp = []
+                for idx in combination:
+                    mycomp.append(str(self.molecule[idx].specie))
+                mycomp="".join(sorted(mycomp))
                 subgraph = nx.subgraph(graph, combination)
                 if nx.is_connected(subgraph):
-                    all_fragments.append(subgraph)
+                    mykey = mycomp+str(len(subgraph.edges()))
+                    if mykey not in frag_dict:
+                        frag_dict[mykey] = [copy.deepcopy(subgraph)]
+                    else:
+                        frag_dict[mykey].append(copy.deepcopy(subgraph))
 
         # narrow to all unique fragments using graph isomorphism
-        unique_fragments = []
-        for fragment in all_fragments:
-            if not [isomorphic(fragment, f, use_igraph=use_igraph)
-                    for f in unique_fragments].count(True) >= 1:
-                unique_fragments.append(fragment)
+        unique_frag_dict = {}
+        for key in frag_dict:
+            unique_frags = []
+            for frag in frag_dict[key]:
+                found = False
+                for f in unique_frags:
+                    if isomorphic(frag,f,use_igraph=use_igraph):
+                        found = True
+                        break
+                if not found:
+                    unique_frags.append(frag)
+            unique_frag_dict[key] = copy.deepcopy(unique_frags)
 
         # convert back to molecule graphs
-        unique_mol_graphs = []
-        for fragment in unique_fragments:
-            mapping = {e: i for i, e in enumerate(sorted(fragment.nodes))}
-            remapped = nx.relabel_nodes(fragment, mapping)
+        unique_mol_graph_dict = {}
+        for key in unique_frag_dict:
+            unique_mol_graph_list = []
+            for fragment in unique_frag_dict[key]:
+                mapping = {e: i for i, e in enumerate(sorted(fragment.nodes))}
+                remapped = nx.relabel_nodes(fragment, mapping)
 
-            species = nx.get_node_attributes(remapped, "specie")
-            coords = nx.get_node_attributes(remapped, "coords")
+                species = nx.get_node_attributes(remapped, "specie")
+                coords = nx.get_node_attributes(remapped, "coords")
 
-            edges = {}
+                edges = {}
 
-            for from_index, to_index, key in remapped.edges:
-                edge_props = fragment.get_edge_data(from_index, to_index, key=key)
+                for from_index, to_index, key in remapped.edges:
+                    edge_props = fragment.get_edge_data(from_index, to_index, key=key)
 
-                edges[(from_index, to_index)] = edge_props
+                    edges[(from_index, to_index)] = edge_props
 
-            unique_mol_graphs.append(self.with_edges(Molecule(species=species,
-                                                              coords=coords,
-                                                              charge=self.molecule.charge),
-                                                     edges))
-        return unique_mol_graphs
+                unique_mol_graph_list.append(self.with_edges(Molecule(species=species,
+                                                                      coords=coords,
+                                                                      charge=self.molecule.charge),
+                                                             edges))
+            # print(len(unique_mol_graph_list))
+            frag_key = str(unique_mol_graph_list[0].molecule.composition.alphabetical_formula)+" E"+str(len(unique_mol_graph_list[0].graph.edges()))
+            unique_mol_graph_dict[frag_key] = copy.deepcopy(unique_mol_graph_list)
+        return unique_mol_graph_dict
 
     def substitute_group(self, index, func_grp, strategy, bond_order=1,
                          graph_dict=None, strategy_params=None, reorder=True,
