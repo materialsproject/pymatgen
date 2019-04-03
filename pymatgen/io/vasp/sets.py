@@ -52,10 +52,11 @@ Read the following carefully before implementing new input sets:
 The above are recommendations. The following are UNBREAKABLE rules:
 1. All input sets must take in a structure or list of structures as the first
    argument.
-2. user_incar_settings and user_kpoints_settings are absolute. Any new sets you
-   implement must obey this. If a user wants to override your settings,
-   you assume he knows what he is doing. Do not magically override user
-   supplied settings. You can issue a warning if you think the user is wrong.
+2. user_incar_settings, user_kpoints_settings and user_<whatever>_settings are
+   ABSOLUTE. Any new sets you implement must obey this. If a user wants to
+   override your settings, you assume he knows what he is doing. Do not
+   magically override user supplied settings. You can issue a warning if you
+   think the user is wrong.
 3. All input sets must save all supplied args and kwargs as instance variables.
    E.g., self.my_arg = my_arg and self.kwargs = kwargs in the __init__. This
    ensures the as_dict and from_dict work correctly.
@@ -507,6 +508,27 @@ class MPRelaxSet(DictSet):
         self.kwargs = kwargs
 
 
+class MPMetalRelaxSet(MPRelaxSet):
+    """
+    Implementation of VaspInputSet utilizing parameters in the public
+    Materials Project, but with tuning for metals. Key things are a denser
+    k point density, and a
+    """
+    CONFIG = _load_yaml_config("MPRelaxSet")
+
+    def __init__(self, structure, **kwargs):
+        super(MPMetalRelaxSet, self).__init__(
+            structure, **kwargs)
+        self._config_dict["INCAR"].update({
+            "ISMEAR": 1,
+            "SIGMA": 0.2
+        })
+        self._config_dict["KPOINTS"].update({
+            "reciprocal_density": 200
+        })
+        self.kwargs = kwargs
+
+
 class MPHSERelaxSet(DictSet):
     """
     Same as the MPRelaxSet, but with HSE parameters.
@@ -656,6 +678,12 @@ class MPStaticSet(MPRelaxSet):
 
         prev_incar = vasprun.incar
         prev_kpoints = vasprun.kpoints
+
+        if standardize:
+            warnings.warn("Use of standardize=True with from_prev_run is not "
+                          "recommended as there is no guarantee the copied "
+                          "input files will be appropriate for the standardized"
+                          " structure. copy_chgcar is now enforced to be false.")
 
         # We will make a standard structure for the given symprec.
         prev_structure = get_structure_from_prev_run(
@@ -910,6 +938,12 @@ class MPNonSCFSet(MPRelaxSet):
                               style=Kpoints.supported_modes.Reciprocal,
                               num_kpts=len(ir_kpts),
                               kpts=kpts, kpts_weights=weights)
+
+        # override pymatgen kpoints if provided
+        user_kpoints = self.kwargs.get("user_kpoints_settings", None)
+        if isinstance(user_kpoints, Kpoints):
+            kpoints = user_kpoints
+
         return kpoints
 
     @classmethod
@@ -966,6 +1000,14 @@ class MPNonSCFSet(MPRelaxSet):
         incar.update({"ISPIN": ispin, "NBANDS": nbands})
 
         files_to_transfer = {}
+
+        if standardize:
+            warnings.warn("Use of standardize=True with from_prev_run is not "
+                          "recommended as there is no guarantee the copied "
+                          "input files will be appropriate for the standardized"
+                          " structure. copy_chgcar is now enforced to be false.")
+            copy_chgcar = False
+
         if copy_chgcar:
             chgcars = sorted(glob.glob(str(Path(prev_calc_dir) / "CHGCAR*")))
             if chgcars:
@@ -1088,6 +1130,13 @@ class MPSOCSet(MPStaticSet):
 
         nbands = int(np.ceil(vasprun.parameters["NBANDS"] * nbands_factor))
         incar.update({"NBANDS": nbands})
+
+        if standardize:
+            warnings.warn("Use of standardize=True with from_prev_run is not "
+                          "recommended as there is no guarantee the copied "
+                          "input files will be appropriate for the standardized"
+                          " structure. copy_chgcar is now enforced to be false.")
+            copy_chgcar = False
 
         files_to_transfer = {}
         if copy_chgcar:
