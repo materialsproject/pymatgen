@@ -16,6 +16,7 @@ __email__ = "andrius.merkys@gmail.com"
 __date__ = "Oct 9, 2015"
 
 from monty.dev import requires
+import warnings
 
 try:
     from aiida.orm import DataFactory
@@ -27,6 +28,11 @@ try:
     aiida_loaded = True
 except ImportError:
     aiida_loaded = False
+
+
+warnings.warn("The pymatgen.io.aiida module is deprecated and does not work with"
+              "Aiida >= 1.0. It will be removed in pmg 2020. Pls install the "
+              "aiida package if you need to convert pmg objects to Aiida objects.")
 
 
 @requires(aiida_loaded, "To use the AiidaStructureAdaptor, you need to have "

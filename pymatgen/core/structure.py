@@ -1416,15 +1416,16 @@ class IStructure(SiteCollection, MSONable):
                 as [0, 0, 0] for a tolerance of 0.25. Defaults to 0.25.
             use_site_props (bool): Whether to account for site properties in
                 differntiating sites.
-            constrain_latt (list of bools): Determines which lattice constant
-                we want to preserve (True), if any. Order of bools in the list
-                corresponds to [a, b, c, alpha, beta, gamme].
+            constrain_latt (list/dict): List of lattice parameters we want to
+                preserve, e.g. ["alpha", "c"] or dict with the lattice
+                parameter names as keys and values we want the parameters to
+                be e.g. {"alpha": 90, "c": 2.5}.
 
         Returns:
             The most primitive structure found.
         """
         if constrain_latt is None:
-            constrain_latt = [False, False, False, False, False, False]
+            constrain_latt = []
 
         def site_label(site):
             if not use_site_props:
@@ -1585,16 +1586,18 @@ class IStructure(SiteCollection, MSONable):
                         tolerance=tolerance, use_site_props=use_site_props,
                         constrain_latt=constrain_latt
                     ).get_reduced_structure()
-                    if not any(constrain_latt):
+                    if not constrain_latt:
                         return p
 
                     # Only return primitive structures that
                     # satisfy the restriction condition
-                    p_l, s_l = p._lattice, self._lattice
-                    p_latt = [p_l.a, p_l.b, p_l.c, p_l.alpha, p_l.beta, p_l.gamma]
-                    s_latt = [s_l.a, s_l.b, s_l.c, s_l.alpha, s_l.beta, s_l.gamma]
-                    if all([p_latt[i] == s_latt[i] for i, b in enumerate(constrain_latt) if b]):
-                        return p
+                    p_latt, s_latt = p.lattice, self.lattice
+                    if type(constrain_latt).__name__ == "list":
+                        if all([getattr(p_latt, p) == getattr(s_latt, p) for p in constrain_latt]):
+                            return p
+                    elif type(constrain_latt).__name__ == "dict":
+                        if all([getattr(p_latt, p) == constrain_latt[p] for p in constrain_latt.keys()]):
+                            return p
 
         return self.copy()
 
@@ -1712,7 +1715,7 @@ class IStructure(SiteCollection, MSONable):
             filename (str): If provided, output will be written to a file. If
                 fmt is not specified, the format is determined from the
                 filename. Defaults is None, i.e. string output.
-            \*\*kwargs: Kwargs passthru to relevant methods. E.g., This allows
+            \\*\\*kwargs: Kwargs passthru to relevant methods. E.g., This allows
                 the passing of parameters like symprec to the
                 CifWriter.__init__ method for generation of symmetric cifs.
 
@@ -2987,12 +2990,11 @@ class Structure(IStructure, collections.abc.MutableSequence):
         theta %= 2 * np.pi
 
         rm = expm(cross(eye(3), axis / norm(axis)) * theta)
-
         for i in indices:
             site = self._sites[i]
-            s = ((np.dot(rm, np.array(site.coords - anchor).T)).T + anchor).ravel()
+            coords = ((np.dot(rm, np.array(site.coords - anchor).T)).T + anchor).ravel()
             new_site = PeriodicSite(
-                site.species, s, self._lattice,
+                site.species, coords, self._lattice,
                 to_unit_cell=to_unit_cell, coords_are_cartesian=True,
                 properties=site.properties)
             self._sites[i] = new_site
@@ -3060,8 +3062,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         Args:
             tol (float): Tolerance for distance to merge sites.
-            mode (str): Two modes supported. "delete" means duplicate sites are
+            mode (str): Three modes supported. "delete" means duplicate sites are
                 deleted. "sum" means the occupancies are summed for the sites.
+                "average" means that the site is deleted but the properties are averaged
                 Only first letter is considered.
 
         """
@@ -3088,9 +3091,13 @@ class Structure(IStructure, collections.abc.MutableSequence):
                     coords.dtype)
                 for key in props.keys():
                     if props[key] is not None and self[i].properties[key] != props[key]:
-                        props[key] = None
-                        warnings.warn("Sites with different site property %s are merged. "
-                                      "So property is set to none" % key)
+                        if mode  == 'a' and isinstance(props[key], float):
+                            # update a running total
+                            props[key] = props[key]*(n+1)/(n+2) + self[i].properties[key]/(n+2)
+                        else:
+                            props[key] = None
+                            warnings.warn("Sites with different site property %s are merged. "
+                                        "So property is set to none" % key)
             sites.append(PeriodicSite(species, coords, self.lattice, properties=props))
 
         self._sites = sites

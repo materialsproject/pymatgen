@@ -1930,6 +1930,7 @@ class VaspInput(dict, MSONable):
         """
         self.write_input(output_dir=run_dir)
         vasp_cmd = vasp_cmd or SETTINGS.get("PMG_VASP_EXE")
+        vasp_cmd = [os.path.expanduser(os.path.expandvars(t)) for t in vasp_cmd]
         if not vasp_cmd:
             raise RuntimeError("You need to supply vasp_cmd or set the PMG_VASP_EXE in .pmgrc.yaml to run VASP.")
         with cd(run_dir):

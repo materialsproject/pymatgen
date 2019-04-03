@@ -1,12 +1,13 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
-
+import platform
+import re
 import unittest
 import warnings
 import random
-from pymatgen import SETTINGS
+import sys
+from pymatgen import SETTINGS, __version__ as pmg_version
 from pymatgen.ext.matproj import MPRester, MPRestError
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure, Composition
@@ -362,7 +363,7 @@ class MPResterTest(PymatgenTest):
         self.assertTrue(len(kinks) > 0)
         kink = kinks[0]
         self.assertIn("energy", kink)
-        self.assertIn("ratio", kink)
+        self.assertIn("ratio_atomic", kink)
         self.assertIn("rxn", kink)
         self.assertTrue(isinstance(kink['rxn'], Reaction))
         kinks_open_O = self.rester.get_interface_reactions(
@@ -403,6 +404,21 @@ class MPResterTest(PymatgenTest):
 
         crit = MPRester.parse_criteria("POPO2")
         self.assertIn("P2O3", crit["pretty_formula"]["$in"])
+
+    def test_include_user_agent(self):
+        headers = self.rester.session.headers
+        self.assertIn("user-agent", headers, msg="Include user-agent header by default")
+        m = re.match(
+            r"pymatgen/(\d+)\.(\d+)\.(\d+) \(Python/(\d+)\.(\d)+\.(\d+) ([^\/]*)/([^\)]*)\)",
+            headers['user-agent'])
+        self.assertIsNotNone(m, msg="Unexpected user-agent value {}".format(headers['user-agent']))
+        self.assertEqual(m.groups()[:3], tuple(pmg_version.split(".")))
+        self.assertEqual(
+            m.groups()[3:6],
+            tuple(str(n) for n in (sys.version_info.major, sys.version_info.minor, sys.version_info.micro))
+        )
+        self.rester = MPRester(include_user_agent=False)
+        self.assertNotIn("user-agent", self.rester.session.headers, msg="user-agent header unwanted")
 
 
 if __name__ == "__main__":
