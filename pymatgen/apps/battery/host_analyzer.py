@@ -405,35 +405,5 @@ class MigrationPathAnalyzer():
         total_chg = self._edgelist.apply(read_value_from_uniq, axis=1)
         self._edgelist['chg_total_tube'] = total_chg
 
-class MigrationPathAnalyzer_ChgOnly(MigrationPathAnalyzer_ChgOnly):
-    def __init__(self,
-                 base_aeccar,
-                 cation='Li',
-                 ltol=0.2,
-                 stol=0.3,
-                 angle_tol=5):
-        """Inherited from MigrationPathAnalyzer for cases where we only want to analyze the charge density of the host material
-
-        :param base_aeccar: Chgcar object that contains the AECCAR0 + AECCAR2
-        :param cation: a String symbol or Element for the cation. It must be positively charged, but can be 1+/2+/3+ etc.
-        :param ltol: parameter for StructureMatcher
-        :param stol: parameter for StructureMa
-        :param angle_tol: parameter for StructureMa
-
-        """
-        
-
-def main():
-    test_dir = os.path.join(
-        os.path.dirname(__file__), "..", "..", "..", 'test_files')
-    test_ents = loadfn(test_dir + '/Mn6O5F7_cat_migration.json')
-    aeccar = Chgcar.from_file(test_dir + '/AECCAR_Mn6O5F7.vasp')
-    mpa = MigrationPathAnalyzer(base_entry=test_ents['ent_base'], single_cat_entries=test_ents['one_cation'], base_aeccar=aeccar)
-    print(mpa.full_sites)
-    mpa.get_graph()
-    mpa.get_edges_labels()
-    print(mpa.unique_edges.chg_total)
-
-
 if __name__ == "__main__":
     main()
