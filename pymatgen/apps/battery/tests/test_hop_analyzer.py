@@ -17,9 +17,10 @@ import os
 import json
 
 from monty.serialization import loadfn
-from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.apps.battery.insertion_battery import InsertionElectrode
-from pymatgen import MontyEncoder, MontyDecoder
+from pymatgen.io.vasp import Chgcar
+from pymatgen.apps.battery.hop_analyzer import MigrationPathAnalyzer
+from pymatgen.analysis.structure_matcher import StructureMatcher, ElementComparator
+
 
 test_dir = os.path.join(
     os.path.dirname(__file__), "..", "..", "..", "..", 'test_files')
@@ -33,10 +34,28 @@ class HopTest(unittest.TestCase):
             base_entry=self.test_ents_MOF['ent_base'],
             single_cat_entries=self.test_ents_MOF['one_cation'],
             base_aeccar=self.aeccar_MOF)
-        self.assertEqual(True, False)
+        self.rough_sm = StructureMatcher(
+            comparator=ElementComparator(),
+            primitive_cell=False,
+            ltol=0.5,
+            stol=0.5,
+            angle_tol=7)
 
-    def test_sum_tuple(self):
-        self.assertEqual(sum((1, 2, 2)), 6, "Should be 6")
+    def test_get_all_sym_sites(self):
+        """
+        Once we apply all the symmetry operations to get the new positions the structures
+        with the Li in different positions should still match
+        (using sloppier tolerences)
+        """
+        for ent in self.mpa_MOF.translated_single_cat_entries:
+            li_sites = self.mpa_MOF.get_all_sym_sites(ent).sites
+            s0 = self.mpa_MOF.base_entry.structure.copy()
+            s0.insert(0, 'Li', li_sites[0].frac_coords)
+            for isite in li_sites[1:]:
+                s1 = self.mpa_MOF.base_entry.structure.copy()
+                s1.insert(0, 'Li', isite.frac_coords)
+                self.assertTrue(self.rough_sm.fit(s0, s1))
+
 
 if __name__ == '__main__':
     unittest.main()
