@@ -654,7 +654,7 @@ class Vasprun(MSONable):
         if self.parameters.get("LHFCALC", False):
             rt = "HF"
         elif self.parameters.get("METAGGA", "").strip().upper() in METAGGA_TYPES:
-            rt = incar["METAGGA"].strip().upper()
+            rt = self.parameters["METAGGA"].strip().upper()
         elif self.parameters.get("LUSE_VDW", False):
             vdw_gga = {"RE": "DF", "OR": "optPBE", "BO": "optB88",
                        "MK": "optB86b", "ML": "DF2"}
