@@ -70,9 +70,10 @@ def generic_groupby(list_in, comp=operator.eq, lab_num=True):
 
 class ConnectSitesNN(NearNeighbors):
     """
-    Local environment class to help look for migration paths through the lattice
-
-    Since we are interested in many migration pathways through the material, we need a more connections than other local_env classes offer
+    Local environment class to help look for migration paths through the lattice.
+    This allows us to use the StructureGraph.with_local_env_strategy function without any modifications
+    Since we are interested in many migration pathways through the material,
+    we need a more connections than other local_env classes offer.
 
     Args:
         cutoff (float): cutoff radius in Angstrom to look for trial
@@ -246,69 +247,6 @@ class MigrationPathAnalyzer():
         temp_struct2.insert(0, self.cation, self._edgelist.iloc[edge2]['i_pos'])
         temp_struct2.insert(0, self.cation, self._edgelist.iloc[edge2]['f_pos'])
         return grouper_sm.fit(temp_struct1, temp_struct2)
-
-    def get_edges_labels(self, mask_file=None):
-
-        d = [{"isite" : u, "fsite" : v, "to_jimage" : d['to_jimage'], 'edge_tuple' : (u, v)} for u, v, d in self.gt.graph.edges(data=True)]
-        self._edgelist = pd.DataFrame(d)
-
-        self._edgelist['i_pos'] = self._edgelist.apply(lambda u : self.full_sites.sites[u.isite].frac_coords, axis=1)
-        self._edgelist['f_pos'] = self._edgelist.apply(lambda u : self.full_sites.sites[u.fsite].frac_coords + u.to_jimage, axis=1)
-
-        edge_lab = generic_groupby(self._edgelist.index.values, comp = self.compare_edges)
-        self._edgelist.loc[:, 'edge_label'] = edge_lab
-
-        # write the image
-        self.unique_edges = self._edgelist.drop_duplicates('edge_label', keep='first').copy()
-
-        # set up the grid
-        aa = np.linspace(0, 1, len(self.base_aeccar.get_axis_grid(0)),
-                         endpoint=False)
-        bb = np.linspace(0, 1, len(self.base_aeccar.get_axis_grid(1)),
-                         endpoint=False)
-        cc = np.linspace(0, 1, len(self.base_aeccar.get_axis_grid(2)),
-                         endpoint=False)
-        AA, BB, CC = np.meshgrid(aa, bb, cc, indexing='ij')
-        fcoords = np.vstack([AA.flatten(), BB.flatten(), CC.flatten()]).T
-
-        IMA, IMB, IMC = np.meshgrid([-1, 0, 1], [-1, 0, 1], [-1, 0, 1], indexing='ij')
-        images = np.vstack([IMA.flatten(), IMB.flatten(), IMC.flatten()]).T
-
-        # get the charge density masks for each hop (for plotting and sanity check purposes)
-        idx_pbc_mask = np.zeros_like(AA)
-        surf_idx=0
-        total_chg=[]
-        if mask_file:
-            mask_out = copy(self.base_aeccar)
-            mask_out.data['total'] = np.zeros_like(AA)
-
-        for _, row in self.unique_edges.iterrows():
-            pbc_mask = np.zeros_like(AA).flatten()
-            e0 = row.i_pos.astype('float64')
-            e1 = row.f_pos.astype('float64')
-
-            cart_e0 = np.dot(e0, self.base_aeccar.structure.lattice.matrix)
-            cart_e1 = np.dot(e1, self.base_aeccar.structure.lattice.matrix)
-            pbc_mask = np.zeros_like(AA,dtype=bool).flatten()
-            for img in images:
-                grid_pos = np.dot(fcoords + img, self.base_aeccar.structure.lattice.matrix)
-                proj_on_line = np.dot(grid_pos - cart_e0, cart_e1 - cart_e0) / (np.linalg.norm(cart_e1 - cart_e0))
-                dist_to_line = np.linalg.norm(
-                    np.cross(grid_pos - cart_e0, cart_e1 - cart_e0) / (np.linalg.norm(cart_e1 - cart_e0)), axis=-1)
-
-                mask = (proj_on_line >= 0) * (proj_on_line < np.linalg.norm(cart_e1 - cart_e0)) * (dist_to_line < 0.5)
-                pbc_mask = pbc_mask + mask
-            pbc_mask = pbc_mask.reshape(AA.shape)
-            if mask_file:
-                mask_out.data['total'] = pbc_mask
-                mask_out.write_file('{}_{}.vasp'.format(mask_file,row['edge_tuple']))
-
-
-            total_chg.append(self.base_aeccar.data['total'][pbc_mask].sum() / self.base_aeccar.ngridpts / self.base_aeccar.structure.volume)
-
-        self.complete_mask=idx_pbc_mask
-        print('test')
-        self.unique_edges.loc[self.unique_edges.index, 'chg_total'] = total_chg
 
     def _setup_grids(self):
         """
