@@ -385,11 +385,9 @@ class MigrationPathAnalyzer():
             sites_idx = self.edgelist.loc[edge_index, ['isite', 'fsite'
                                                        ]].values
             mask_out.structure.insert(
-                0, "X",
-                self.full_sites.sites[sites_idx[0]].frac_coords)
+                0, "X", self.full_sites.sites[sites_idx[0]].frac_coords)
             mask_out.structure.insert(
-                0, "X",
-                self.full_sites.sites[sites_idx[1]].frac_coords)
+                0, "X", self.full_sites.sites[sites_idx[1]].frac_coords)
             mask_out.data['total'] = pbc_mask
             mask_out.write_file('{}_{}.vasp'.format(
                 mask_file_seedname, self.edgelist.iloc[edge_index].edge_tuple))
@@ -397,8 +395,11 @@ class MigrationPathAnalyzer():
         return self.base_aeccar.data['total'][pbc_mask].sum(
         ) / self.base_aeccar.ngridpts / self.base_aeccar.structure.volume
 
-    def _populate_unique_edge_df(self):
-        """Populate the self.unique_edges dataframe which is a subset of self.edgelist that are unique"""
+    def populate_unique_edges_df(self):
+        """
+        Save the data in self.gt to a dataframe (self.edgelist)
+        Populate the self.unique_edges dataframe which is a subset of self.edgelist that are unique
+        """
 
         if not hasattr(self, 'gt'):
             self._get_graph()
@@ -420,7 +421,7 @@ class MigrationPathAnalyzer():
             self.edgelist.index.values, comp=self.compare_edges)
         self.edgelist.loc[:, 'edge_label'] = edge_lab
 
-        # write the image
+        # cleanup all the symmetry equivalent duplicates
         self.unique_edges = self.edgelist.drop_duplicates(
             'edge_label', keep='first').copy()
 
@@ -438,8 +439,7 @@ class MigrationPathAnalyzer():
         """
         if not hasattr(self, '_uc_grid_shape'):
             self._setup_grids()
-        if not hasattr(self, 'tube_radius'):
-            self._tube_radius = tube_radius
+        self._tube_radius = tube_radius
 
         total_chg = self.unique_edges.apply(
             lambda row: self._get_chg_between_sites_tube(
