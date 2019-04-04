@@ -21,7 +21,6 @@ from pymatgen.io.vasp import Chgcar
 from pymatgen.apps.battery.hop_analyzer import MigrationPathAnalyzer
 from pymatgen.analysis.structure_matcher import StructureMatcher, ElementComparator
 
-
 test_dir = os.path.join(
     os.path.dirname(__file__), "..", "..", "..", "..", 'test_files')
 
@@ -70,9 +69,10 @@ class HopTest(unittest.TestCase):
         self.mpa_MOF.populate_unique_edges_df()
         self.mpa_MOF._setup_grids()
         self.mpa_MOF._tube_radius = 1000
-        total_chg_per_vol = self.mpa_MOF.base_aeccar.data['total'].sum() / self.mpa_MOF.base_aeccar.ngridpts / self.mpa_MOF.base_aeccar.structure.volume
-        self.assertAlmostEqual(self.mpa_MOF._get_chg_between_sites_tube(0), total_chg_per_vol)
-
+        total_chg_per_vol = self.mpa_MOF.base_aeccar.data['total'].sum(
+        ) / self.mpa_MOF.base_aeccar.ngridpts / self.mpa_MOF.base_aeccar.structure.volume
+        self.assertAlmostEqual(
+            self.mpa_MOF._get_chg_between_sites_tube(0), total_chg_per_vol)
 
     def test_unique_edges(self):
         """
@@ -84,8 +84,12 @@ class HopTest(unittest.TestCase):
         self.assertEqual(len(self.mpa_MOF.unique_edges), 16)
 
         self.mpa_MOF.get_chg_values_for_unique_hops()
-        self.assertAlmostEqual(self.mpa_MOF.unique_edges['chg_total_tube'].values.min(), 0.00033953800319920594)
-        self.assertAlmostEqual(self.mpa_MOF.unique_edges['chg_total_tube'].values.max(), 0.08161937859517454)
+        self.assertAlmostEqual(
+            self.mpa_MOF.unique_edges['chg_total_tube'].values.min(),
+            0.00033953800319920594)
+        self.assertAlmostEqual(
+            self.mpa_MOF.unique_edges['chg_total_tube'].values.max(),
+            0.08161937859517454)
 
 
 if __name__ == '__main__':
