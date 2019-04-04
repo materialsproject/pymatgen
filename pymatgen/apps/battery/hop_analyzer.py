@@ -32,17 +32,8 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 from pandas.io.json import json_normalize
-root = logging.getLogger()
-root.setLevel(logging.INFO)
-handler = logging.StreamHandler(sys.stdout)
-handler.setLevel(logging.DEBUG)
-formatter = logging.Formatter(
-    '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-root.addHandler(handler)
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 grouper_sm = StructureMatcher()
 
