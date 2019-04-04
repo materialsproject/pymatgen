@@ -48,15 +48,15 @@ grouper_sm = StructureMatcher()
 
 
 def generic_groupby(list_in, comp=operator.eq, lab_num=True):
-    """Group a list of unhasable objects
+    """
+    Group a list of unhasable objects
 
     Args:
-      list_in:
-      comp:  (Default value = operator.eq)
-      lab_num:  (Default value = True)
+      list_in: 
+      comp: (Default value = operator.eq)
+      lab_num: (Default value = True)
 
     Returns:
-
 
     """
     list_out = ['TODO'] * len(list_in)
@@ -77,7 +77,8 @@ def generic_groupby(list_in, comp=operator.eq, lab_num=True):
 
 
 class ConnectSitesNN(NearNeighbors):
-    """Local environment class to help look for migration paths through the lattice.
+    """
+    Local environment class to help look for migration paths through the lattice.
     This allows us to use the StructureGraph.with_local_env_strategy function without any modifications
     Since we are interested in many migration pathways through the material,
     we need a more connections than other local_env classes offer.
@@ -91,10 +92,20 @@ class ConnectSitesNN(NearNeighbors):
     """
 
     def __init__(self, cutoff=5.0):
+        """
+        
+
+        Args:
+          cutoff:  (Default value = 5.0)
+
+        Returns:
+
+        """
         self.cutoff = cutoff
 
     def get_nn_info(self, structure, n):
-        """Get all near-neighbor sites as well as the associated image locations
+        """
+        Get all near-neighbor sites as well as the associated image locations
         and weights of the site with index n using the closest neighbor
         distance-based method.
 
@@ -104,6 +115,9 @@ class ConnectSitesNN(NearNeighbors):
         neighbors.
 
         Returns:
+          list of tuples (Site: tuples, each one
+          list of tuples (Site: tuples, each one
+          of which represents a neighbor site, its image location,
           list of tuples (Site: tuples, each one
           of which represents a neighbor site, its image location,
           and its weight.
@@ -127,7 +141,8 @@ class ConnectSitesNN(NearNeighbors):
 
 
 class MigrationPathAnalyzer():
-    """Methods for analyzing the migration path of a material using the following scheme:
+    """
+    Methods for analyzing the migration path of a material using the following scheme:
     - Map the relaxed sites of a material back to the empty host lattice
     - Apply symmetry operations of the empty lattice to obtain the other positions of the intercollated atom
     - Get the symmetry inequivalent hops
@@ -151,13 +166,16 @@ class MigrationPathAnalyzer():
         Pass in a entries for analysis
 
         Args:
-            base_entry: the structure without a working ion for us to analyze the migration
-            single_cat_entries: list of structures containing a single cation at different positions
-            base_aeccar: Chgcar object that contains the AECCAR0 + AECCAR2
-            cation: a String symbol or Element for the cation.
-            ltol: parameter for StructureMatcher
-            stol: parameter for StructureMatcher
-            angle_tol: parameter for StructureMatcher
+          base_entry: the structure without a working ion for us to analyze the migration
+          single_cat_entries: list of structures containing a single cation at different positions
+          base_aeccar: Chgcar object that contains the AECCAR0 + AECCAR2 (Default value = None)
+          cation: a String symbol or Element for the cation. (Default value = 'Li')
+          ltol: parameter for StructureMatcher (Default value = 0.2)
+          stol: parameter for StructureMatcher (Default value = 0.3)
+          angle_tol: parameter for StructureMatcher (Default value = 5)
+
+        Returns:
+
         """
 
         self.sm = StructureMatcher(
@@ -186,10 +204,11 @@ class MigrationPathAnalyzer():
             self.base_entry.structure.sites)
 
     def match_ent_to_base(self, ent):
-        """Transform the structure of one entry to match the base structure
+        """
+        Transform the structure of one entry to match the base structure
 
         Args:
-          ent:
+          ent: 
 
         Returns:
           ComputedStructureEntry: entry with modified structure
@@ -202,7 +221,8 @@ class MigrationPathAnalyzer():
         return new_ent
 
     def get_all_sym_sites(self, ent):
-        """Return all of the symmetry equivalent sites
+        """
+        Return all of the symmetry equivalent sites
 
         Args:
           ent: ComputedStructureEntry that contains cation
@@ -245,7 +265,8 @@ class MigrationPathAnalyzer():
         return host_allsites
 
     def get_full_sites(self):
-        """Get each group of symmetry inequivalent sites and combine them
+        """
+        Get each group of symmetry inequivalent sites and combine them
 
         Args:
 
@@ -260,21 +281,23 @@ class MigrationPathAnalyzer():
         res.merge_sites(tol=1.0, mode='average')
         return res
 
-    def get_graph(self):
-        """ """
+    def _get_graph(self):
+        """Construct the self.s_graph object"""
         # Generate the graph edges between these sites
-        self.gt = StructureGraph.with_local_env_strategy(
+        self.s_graph = StructureGraph.with_local_env_strategy(
             self.full_sites, ConnectSitesNN())
-        self.gt.set_node_attributes()
+        self.s_graph.set_node_attributes()
 
     def compare_edges(self, edge1, edge2):
         """
+        Given two idexs in the self.edgelist dataframe, say if they are the same object
 
         Args:
-          edge1:
-          edge2:
+          edge1(int): index of one row in the self.edgelist dataframe
+          edge2(int): index of one row in the self.edgelist dataframe
 
         Returns:
+          bool: if the two structures, each contains two cations, match
 
         """
         # Test
@@ -282,17 +305,23 @@ class MigrationPathAnalyzer():
         temp_struct2 = self.base_entry.structure.copy()
 
         temp_struct1.insert(0, self.cation,
-                            self._edgelist.iloc[edge1]['i_pos'])
+                            self.edgelist.iloc[edge1]['i_pos'])
         temp_struct1.insert(0, self.cation,
-                            self._edgelist.iloc[edge1]['f_pos'])
+                            self.edgelist.iloc[edge1]['f_pos'])
         temp_struct2.insert(0, self.cation,
-                            self._edgelist.iloc[edge2]['i_pos'])
+                            self.edgelist.iloc[edge2]['i_pos'])
         temp_struct2.insert(0, self.cation,
-                            self._edgelist.iloc[edge2]['f_pos'])
+                            self.edgelist.iloc[edge2]['f_pos'])
         return grouper_sm.fit(temp_struct1, temp_struct2)
 
     def _setup_grids(self):
         """Populate the internal varialbes used for defining the grid points in the charge density analysis"""
+        def _shift_grid(vv):
+            """
+            Move the grid points by half a step so that they sit in the center
+            """
+            step = vv[1]-vv[0]
+            vv += step/2.
         # set up the grid
         aa = np.linspace(
             0, 1, len(self.base_aeccar.get_axis_grid(0)), endpoint=False)
@@ -300,29 +329,35 @@ class MigrationPathAnalyzer():
             0, 1, len(self.base_aeccar.get_axis_grid(1)), endpoint=False)
         cc = np.linspace(
             0, 1, len(self.base_aeccar.get_axis_grid(2)), endpoint=False)
+        # move the grid points to the center
+        _shift_grid(aa)
+        _shift_grid(bb)
+        _shift_grid(cc)
+
+        # mesh grid for each unit cell
         AA, BB, CC = np.meshgrid(aa, bb, cc, indexing='ij')
 
+        # mesh grid for 3x3x3 set of nearby cells
         IMA, IMB, IMC = np.meshgrid([-1, 0, 1], [-1, 0, 1], [-1, 0, 1],
                                     indexing='ij')
 
         # store these
-        self.uc_grid_shape = AA.shape
-        self.fcoords = np.vstack([AA.flatten(), BB.flatten(), CC.flatten()]).T
-        self.images = np.vstack([IMA.flatten(),
-                                 IMB.flatten(),
-                                 IMC.flatten()]).T
+        self._uc_grid_shape = AA.shape
+        self._fcoords = np.vstack([AA.flatten(), BB.flatten(), CC.flatten()]).T
+        self._images = np.vstack([IMA.flatten(),
+                                  IMB.flatten(),
+                                  IMC.flatten()]).T
 
     def _get_chg_between_sites_tube(self, edge_index, mask_file_seedname=None):
-        """Calculate the amount of charge that a cation has to move through in order to complete a hop
+        """
+        Calculate the amount of charge that a cation has to move through in order to complete a hop
 
         Args:
-          edge_index: the index value to read from self._edgelist
+          edge_index: the index value to read from self.edgelist
           mask_file_seedname: seedname for output of the migration path masks (for debugging and visualization) (Default value = None)
 
         Returns:
-          float
-
-# TODO use the cell centers as the positions for evaluating the tubes: total amount of chg in a tube connecting the endpoints
+          float: The total charge density in a tube that connects two sites of a given edges of the graph
 
         """
         try:
@@ -332,15 +367,15 @@ class MigrationPathAnalyzer():
                 "The radius of the tubes for charge analysis need to be first."
             )
 
-        pbc_mask = np.zeros(self.uc_grid_shape).flatten()
-        e0 = self._edgelist.iloc[edge_index].i_pos.astype('float64')
-        e1 = self._edgelist.iloc[edge_index].f_pos.astype('float64')
+        pbc_mask = np.zeros(self._uc_grid_shape).flatten()
+        e0 = self.edgelist.iloc[edge_index].i_pos.astype('float64')
+        e1 = self.edgelist.iloc[edge_index].f_pos.astype('float64')
 
         cart_e0 = np.dot(e0, self.base_aeccar.structure.lattice.matrix)
         cart_e1 = np.dot(e1, self.base_aeccar.structure.lattice.matrix)
-        pbc_mask = np.zeros(self.uc_grid_shape, dtype=bool).flatten()
-        for img in self.images:
-            grid_pos = np.dot(self.fcoords + img,
+        pbc_mask = np.zeros(self._uc_grid_shape, dtype=bool).flatten()
+        for img in self._images:
+            grid_pos = np.dot(self._fcoords + img,
                               self.base_aeccar.structure.lattice.matrix)
             proj_on_line = np.dot(grid_pos - cart_e0, cart_e1 - cart_e0) / (
                 np.linalg.norm(cart_e1 - cart_e0))
@@ -352,45 +387,46 @@ class MigrationPathAnalyzer():
             mask = (proj_on_line >= 0) * (proj_on_line < np.linalg.norm(
                 cart_e1 - cart_e0)) * (dist_to_line < self._tube_radius)
             pbc_mask = pbc_mask + mask
-        pbc_mask = pbc_mask.reshape(self.uc_grid_shape)
+        pbc_mask = pbc_mask.reshape(self._uc_grid_shape)
 
         if mask_file_seedname:
             mask_out.data['total'] = pbc_mask
             mask_out.write_file('{}_{}.vasp'.format(
-                mask_file, self._edgelist.iloc[edge_index].edge_tuple))
+                mask_file, self.edgelist.iloc[edge_index].edge_tuple))
 
         return self.base_aeccar.data['total'][pbc_mask].sum(
         ) / self.base_aeccar.ngridpts / self.base_aeccar.structure.volume
 
     def _populate_unique_edge_df(self):
-        """Populate the self.unique_edges dataframe which is a subset of self._edgelist that are unique"""
+        """Populate the self.unique_edges dataframe which is a subset of self.edgelist that are unique"""
 
         if not hasattr(self, 'gt'):
-            self.get_graph()
+            self._get_graph()
         d = [{
             "isite": u,
             "fsite": v,
             "to_jimage": d['to_jimage'],
             'edge_tuple': (u, v)
-        } for u, v, d in self.gt.graph.edges(data=True)]
-        self._edgelist = pd.DataFrame(d)
+        } for u, v, d in self.s_graph.graph.edges(data=True)]
+        self.edgelist = pd.DataFrame(d)
 
-        self._edgelist['i_pos'] = self._edgelist.apply(
+        self.edgelist['i_pos'] = self.edgelist.apply(
             lambda u: self.full_sites.sites[u.isite].frac_coords, axis=1)
-        self._edgelist['f_pos'] = self._edgelist.apply(
+        self.edgelist['f_pos'] = self.edgelist.apply(
             lambda u: self.full_sites.sites[u.fsite].frac_coords + u.to_jimage,
             axis=1)
 
         edge_lab = generic_groupby(
-            self._edgelist.index.values, comp=self.compare_edges)
-        self._edgelist.loc[:, 'edge_label'] = edge_lab
+            self.edgelist.index.values, comp=self.compare_edges)
+        self.edgelist.loc[:, 'edge_label'] = edge_lab
 
         # write the image
-        self.unique_edges = self._edgelist.drop_duplicates(
+        self.unique_edges = self.edgelist.drop_duplicates(
             'edge_label', keep='first').copy()
 
-    def _get_chg_values_for_unique_hops(self, tube_radius=0.5):
-        """Populate the charge density values for each
+    def get_chg_values_for_unique_hops(self, tube_radius=0.5):
+        """
+        Populate the charge density values for each unique hop in the crystal
 
         Args:
           tube_radius: The radius (in Angstroms) of the tube used to evaluate the total charge density for one hop (Default value = 0.5)
@@ -404,21 +440,24 @@ class MigrationPathAnalyzer():
             lambda row: self._get_chg_between_sites_tube(row.name), axis=1)
         self.unique_edges.loc[:, 'chg_total_tube'] = total_chg
 
-    def _get_chg_values_for_all_hops(self):
+
+    def _read_value_from_uniq(self, row, key):
+        """
+        Get the value from the self.unique_edges edges dataframe
+
+        Args:
+          row: the row from another dataframe from which we read the edge_label
+          key: The key of the quantity of interest
+
+        Returns:
+          : the value in the matching row of the self.unique_edges associated with the given key
+
+        """
+        select_uniq = self.unique_edges.edge_label == row.edge_label
+        return self.unique_edges.loc[select_uniq, key].values[0]
+
+    def get_chg_values_for_all_hops(self):
         """Populate the charge density values for each hop in the full list using the unque hops as a lookup table"""
 
-        def read_value_from_uniq(row):
-            """
-
-            Args:
-              row:
-
-            Returns:
-
-            """
-            select_uniq = self.unique_edges.edge_label == row.edge_label
-            return self.unique_edges.loc[select_uniq,
-                                         'chg_total_tube'].values[0]
-
-        total_chg = self._edgelist.apply(read_value_from_uniq, axis=1)
-        self._edgelist['chg_total_tube'] = total_chg
+        total_chg = self.edgelist.apply(lambda row : self._read_value_from_uniq(row, 'chg_total_tube'), axis=1)
+        self.edgelist['chg_total_tube'] = total_chg
