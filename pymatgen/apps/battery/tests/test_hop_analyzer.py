@@ -40,6 +40,7 @@ class HopTest(unittest.TestCase):
             ltol=0.5,
             stol=0.5,
             angle_tol=7)
+        self.mpa_MOF.get_full_sites()
 
     def test_get_all_sym_sites(self):
         """
@@ -56,20 +57,36 @@ class HopTest(unittest.TestCase):
                 s1.insert(0, 'Li', isite.frac_coords)
                 self.assertTrue(self.rough_sm.fit(s0, s1))
 
-    def test_get_all_sym_sites(self):
+    def test_get_full_sites(self):
         """
-        Once we apply all the symmetry operations to get the new positions the structures
-        with the Li in different positions should still match
-        (using sloppier tolerences)
+        For Mn6O5F7 there should be 8 symmetry inequivalent final relaxed positions
         """
-        for ent in self.mpa_MOF.translated_single_cat_entries:
-            li_sites = self.mpa_MOF.get_all_sym_sites(ent).sites
-            s0 = self.mpa_MOF.base_entry.structure.copy()
-            s0.insert(0, 'Li', li_sites[0].frac_coords)
-            for isite in li_sites[1:]:
-                s1 = self.mpa_MOF.base_entry.structure.copy()
-                s1.insert(0, 'Li', isite.frac_coords)
-                self.assertTrue(self.rough_sm.fit(s0, s1))
+        self.assertEqual(len(self.mpa_MOF.full_sites), 8)
+
+    def test_integration(self):
+        """
+        Sanity check: for a long enough diagonaly hop, if we turn the radius of the tube way up, it should cover the entire unit cell
+        """
+        self.mpa_MOF.populate_unique_edges_df()
+        self.mpa_MOF._setup_grids()
+        self.mpa_MOF._tube_radius = 1000
+        total_chg_per_vol = self.mpa_MOF.base_aeccar.data['total'].sum() / self.mpa_MOF.base_aeccar.ngridpts / self.mpa_MOF.base_aeccar.structure.volume
+        self.assertAlmostEqual(self.mpa_MOF._get_chg_between_sites_tube(0), total_chg_per_vol)
+
+
+    def test_unique_edges(self):
+        """
+        check that the edgelist and unique_edges has the right number of entries
+        """
+        self.mpa_MOF.populate_unique_edges_df()
+
+        self.assertEqual(len(self.mpa_MOF.edgelist), 87)
+        self.assertEqual(len(self.mpa_MOF.unique_edges), 16)
+
+        self.mpa_MOF.get_chg_values_for_unique_hops()
+        self.assertAlmostEqual(self.mpa_MOF.unique_edges['chg_total_tube'].values.min(), 0.00033953800319920594)
+        self.assertAlmostEqual(self.mpa_MOF.unique_edges['chg_total_tube'].values.max(), 0.08161937859517454)
+
 
 if __name__ == '__main__':
     unittest.main()
