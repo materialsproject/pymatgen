@@ -56,6 +56,20 @@ class HopTest(unittest.TestCase):
                 s1.insert(0, 'Li', isite.frac_coords)
                 self.assertTrue(self.rough_sm.fit(s0, s1))
 
+    def test_get_all_sym_sites(self):
+        """
+        Once we apply all the symmetry operations to get the new positions the structures
+        with the Li in different positions should still match
+        (using sloppier tolerences)
+        """
+        for ent in self.mpa_MOF.translated_single_cat_entries:
+            li_sites = self.mpa_MOF.get_all_sym_sites(ent).sites
+            s0 = self.mpa_MOF.base_entry.structure.copy()
+            s0.insert(0, 'Li', li_sites[0].frac_coords)
+            for isite in li_sites[1:]:
+                s1 = self.mpa_MOF.base_entry.structure.copy()
+                s1.insert(0, 'Li', isite.frac_coords)
+                self.assertTrue(self.rough_sm.fit(s0, s1))
 
 if __name__ == '__main__':
     unittest.main()
