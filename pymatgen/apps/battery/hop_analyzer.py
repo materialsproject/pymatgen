@@ -26,7 +26,7 @@ from pymatgen.analysis.structure_matcher import StructureMatcher, ElementCompara
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.analysis.local_env import NearNeighbors
-from pymatgen.io.vasp import Chgcar
+from pymatgen.io.vasp import Chgcar, VolumetricData
 import operator
 import networkx as nx
 import numpy as np
@@ -52,7 +52,7 @@ def generic_groupby(list_in, comp=operator.eq, lab_num=True):
     Group a list of unhasable objects
 
     Args:
-      list_in: 
+      list_in:
       comp: (Default value = operator.eq)
       lab_num: (Default value = True)
 
@@ -93,7 +93,7 @@ class ConnectSitesNN(NearNeighbors):
 
     def __init__(self, cutoff=5.0):
         """
-        
+
 
         Args:
           cutoff:  (Default value = 5.0)
@@ -208,7 +208,7 @@ class MigrationPathAnalyzer():
         Transform the structure of one entry to match the base structure
 
         Args:
-          ent: 
+          ent:
 
         Returns:
           ComputedStructureEntry: entry with modified structure
@@ -304,24 +304,22 @@ class MigrationPathAnalyzer():
         temp_struct1 = self.base_entry.structure.copy()
         temp_struct2 = self.base_entry.structure.copy()
 
-        temp_struct1.insert(0, self.cation,
-                            self.edgelist.iloc[edge1]['i_pos'])
-        temp_struct1.insert(0, self.cation,
-                            self.edgelist.iloc[edge1]['f_pos'])
-        temp_struct2.insert(0, self.cation,
-                            self.edgelist.iloc[edge2]['i_pos'])
-        temp_struct2.insert(0, self.cation,
-                            self.edgelist.iloc[edge2]['f_pos'])
+        temp_struct1.insert(0, self.cation, self.edgelist.iloc[edge1]['i_pos'])
+        temp_struct1.insert(0, self.cation, self.edgelist.iloc[edge1]['f_pos'])
+        temp_struct2.insert(0, self.cation, self.edgelist.iloc[edge2]['i_pos'])
+        temp_struct2.insert(0, self.cation, self.edgelist.iloc[edge2]['f_pos'])
         return grouper_sm.fit(temp_struct1, temp_struct2)
 
     def _setup_grids(self):
         """Populate the internal varialbes used for defining the grid points in the charge density analysis"""
+
         def _shift_grid(vv):
             """
             Move the grid points by half a step so that they sit in the center
             """
-            step = vv[1]-vv[0]
-            vv += step/2.
+            step = vv[1] - vv[0]
+            vv += step / 2.
+
         # set up the grid
         aa = np.linspace(
             0, 1, len(self.base_aeccar.get_axis_grid(0)), endpoint=False)
@@ -390,9 +388,20 @@ class MigrationPathAnalyzer():
         pbc_mask = pbc_mask.reshape(self._uc_grid_shape)
 
         if mask_file_seedname:
+            mask_out = VolumetricData(
+                structure=self.base_aeccar.structure.copy(),
+                data={'total': self.base_aeccar.data['total']})
+            sites_idx = self.edgelist.loc[edge_index, ['isite', 'fsite'
+                                                       ]].values
+            mask_out.structure.insert(
+                0, "X",
+                self.full_sites.sites[sites_idx[0]].frac_coords)
+            mask_out.structure.insert(
+                0, "X",
+                self.full_sites.sites[sites_idx[1]].frac_coords)
             mask_out.data['total'] = pbc_mask
             mask_out.write_file('{}_{}.vasp'.format(
-                mask_file, self.edgelist.iloc[edge_index].edge_tuple))
+                mask_file_seedname, self.edgelist.iloc[edge_index].edge_tuple))
 
         return self.base_aeccar.data['total'][pbc_mask].sum(
         ) / self.base_aeccar.ngridpts / self.base_aeccar.structure.volume
@@ -424,7 +433,9 @@ class MigrationPathAnalyzer():
         self.unique_edges = self.edgelist.drop_duplicates(
             'edge_label', keep='first').copy()
 
-    def get_chg_values_for_unique_hops(self, tube_radius=0.5):
+    def get_chg_values_for_unique_hops(self,
+                                       tube_radius=0.5,
+                                       mask_file_seedname=None):
         """
         Populate the charge density values for each unique hop in the crystal
 
@@ -434,12 +445,16 @@ class MigrationPathAnalyzer():
         Returns:
 
         """
-        self._tube_radius = tube_radius
-        self._setup_grids()
-        total_chg = self.unique_edges.apply(
-            lambda row: self._get_chg_between_sites_tube(row.name), axis=1)
-        self.unique_edges.loc[:, 'chg_total_tube'] = total_chg
+        if not hasattr(self, '_uc_grid_shape'):
+            self._setup_grids()
+        if not hasattr(self, 'tube_radius'):
+            self._tube_radius = tube_radius
 
+        total_chg = self.unique_edges.apply(
+            lambda row: self._get_chg_between_sites_tube(
+                row.name, mask_file_seedname=mask_file_seedname),
+            axis=1)
+        self.unique_edges.loc[:, 'chg_total_tube'] = total_chg
 
     def _read_value_from_uniq(self, row, key):
         """
@@ -459,5 +474,7 @@ class MigrationPathAnalyzer():
     def get_chg_values_for_all_hops(self):
         """Populate the charge density values for each hop in the full list using the unque hops as a lookup table"""
 
-        total_chg = self.edgelist.apply(lambda row : self._read_value_from_uniq(row, 'chg_total_tube'), axis=1)
+        total_chg = self.edgelist.apply(
+            lambda row: self._read_value_from_uniq(row, 'chg_total_tube'),
+            axis=1)
         self.edgelist['chg_total_tube'] = total_chg
