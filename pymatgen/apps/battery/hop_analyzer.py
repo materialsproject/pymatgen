@@ -27,6 +27,8 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.analysis.local_env import NearNeighbors
 from pymatgen.io.vasp import Chgcar, VolumetricData
+from pymatgen.entries.computed_entries import ComputedStructureEntry
+from pymatgen.analysis.defects.utils import ChargeDensityAnalyzer
 import operator
 import networkx as nx
 import numpy as np
@@ -46,8 +48,6 @@ def generic_groupby(list_in, comp=operator.eq, lab_num=True):
       list_in:
       comp: (Default value = operator.eq)
       lab_num: (Default value = True)
-
-    Returns:
 
     """
     list_out = ['TODO'] * len(list_in)
@@ -77,20 +77,12 @@ class ConnectSitesNN(NearNeighbors):
     Args:
       cutoff(float): cutoff radius in Angstrom to look for trial
     near-neighbor sites (default: 10.0).
-
-    Returns:
-
     """
 
     def __init__(self, cutoff=5.0):
         """
-
-
         Args:
-          cutoff:  (Default value = 5.0)
-
-        Returns:
-
+          cutoff: (Default value = 5.0)
         """
         self.cutoff = cutoff
 
@@ -106,12 +98,7 @@ class ConnectSitesNN(NearNeighbors):
         neighbors.
 
         Returns:
-          list of tuples (Site: tuples, each one
-          list of tuples (Site: tuples, each one
-          of which represents a neighbor site, its image location,
-          list of tuples (Site: tuples, each one
-          of which represents a neighbor site, its image location,
-          and its weight.
+          list dictionaries: each entry in the list contains a neighbor site, its image location, and its weight.
 
         """
 
@@ -138,15 +125,10 @@ class MigrationPathAnalyzer():
     - Apply symmetry operations of the empty lattice to obtain the other positions of the intercollated atom
     - Get the symmetry inequivalent hops
     - Get the migration barriers for each inequivalent hop
-
-    Args:
-
-    Returns:
-
     """
 
     def __init__(self,
-                 base_entry,
+                 base_struct_entry,
                  single_cat_entries,
                  base_aeccar=None,
                  cation='Li',
@@ -157,16 +139,13 @@ class MigrationPathAnalyzer():
         Pass in a entries for analysis
 
         Args:
-          base_entry: the structure without a working ion for us to analyze the migration
+          base_struct_entry: the structure without a working ion for us to analyze the migration
           single_cat_entries: list of structures containing a single cation at different positions
           base_aeccar: Chgcar object that contains the AECCAR0 + AECCAR2 (Default value = None)
           cation: a String symbol or Element for the cation. (Default value = 'Li')
           ltol: parameter for StructureMatcher (Default value = 0.2)
           stol: parameter for StructureMatcher (Default value = 0.3)
           angle_tol: parameter for StructureMatcher (Default value = 5)
-
-        Returns:
-
         """
 
         self.sm = StructureMatcher(
@@ -179,12 +158,13 @@ class MigrationPathAnalyzer():
 
         self.single_cat_entries = single_cat_entries
         self.cation = cation
-        self.base_entry = base_entry
+        self.base_struct_entry = base_struct_entry
         self.base_aeccar = base_aeccar
 
         logger.debug('See if the structures all match')
         for ent in self.single_cat_entries:
-            assert (self.sm.fit(self.base_entry.structure, ent.structure))
+            assert (self.sm.fit(self.base_struct_entry.structure,
+                                ent.structure))
 
         self.translated_single_cat_entries = list(
             map(self.match_ent_to_base, self.single_cat_entries))
@@ -254,7 +234,7 @@ class MigrationPathAnalyzer():
 
         """
         new_ent = deepcopy(ent)
-        new_struct = self.sm.get_s2_like_s1(self.base_entry.structure,
+        new_struct = self.sm.get_s2_like_s1(self.base_struct_entry.structure,
                                             ent.structure)
         new_ent.structure = new_struct
         return new_ent
@@ -264,16 +244,16 @@ class MigrationPathAnalyzer():
         Return all of the symmetry equivalent sites
 
         Args:
-          ent: ComputedStructureEntry that contains cation
+          ent(ComputedStructureEntry):  that contains cation
 
         Returns:
-          Structure: Structure containing all of the symmetry equivalent sites
+          Structure: containing all of the symmetry equivalent sites
 
         """
 
         sa = SpacegroupAnalyzer(
-            self.base_entry.structure, symprec=0.3, angle_tolerance=10)
-        host_allsites = self.base_entry.structure.copy()
+            self.base_struct_entry.structure, symprec=0.3, angle_tolerance=10)
+        host_allsites = self.base_struct_entry.structure.copy()
         host_allsites.remove_species(host_allsites.species)
         pos_Li = list(
             filter(lambda isite: isite.species_string == 'Li',
@@ -340,8 +320,8 @@ class MigrationPathAnalyzer():
 
         """
         # Test
-        temp_struct1 = self.base_entry.structure.copy()
-        temp_struct2 = self.base_entry.structure.copy()
+        temp_struct1 = self.base_struct_entry.structure.copy()
+        temp_struct2 = self.base_struct_entry.structure.copy()
 
         temp_struct1.insert(0, self.cation, self.edgelist.iloc[edge1]['i_pos'])
         temp_struct1.insert(0, self.cation, self.edgelist.iloc[edge1]['f_pos'])
@@ -355,6 +335,10 @@ class MigrationPathAnalyzer():
         def _shift_grid(vv):
             """
             Move the grid points by half a step so that they sit in the center
+
+            Args:
+              vv: equally space grid points in 1-D
+
             """
             step = vv[1] - vv[0]
             vv += step / 2.
@@ -391,7 +375,7 @@ class MigrationPathAnalyzer():
 
         Args:
           edge_index: the index value to read from self.edgelist
-          mask_file_seedname: seedname for output of the migration path masks (for debugging and visualization) (Default value = None)
+          mask_file_seedname(string): seedname for output of the migration path masks (for debugging and visualization) (Default value = None)
 
         Returns:
           float: The total charge density in a tube that connects two sites of a given edges of the graph
@@ -480,9 +464,8 @@ class MigrationPathAnalyzer():
         Populate the charge density values for each unique hop in the crystal
 
         Args:
-          tube_radius: The radius (in Angstroms) of the tube used to evaluate the total charge density for one hop (Default value = 0.5)
-
-        Returns:
+          tube_radius: (Default value = 0.5) The radius (in Angstroms) of the tube used to evaluate the total charge density for one hop (Default value = 0.5)
+          mask_file_seedname: (Default value = None)
 
         """
         if not hasattr(self, '_uc_grid_shape'):
