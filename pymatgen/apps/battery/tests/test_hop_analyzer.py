@@ -30,7 +30,7 @@ class HopTest(unittest.TestCase):
         self.test_ents_MOF = loadfn(test_dir + '/Mn6O5F7_cat_migration.json')
         self.aeccar_MOF = Chgcar.from_file(test_dir + '/AECCAR_Mn6O5F7.vasp')
         self.mpa_MOF = MigrationPathAnalyzer(
-            base_entry=self.test_ents_MOF['ent_base'],
+            base_struct_entry=self.test_ents_MOF['ent_base'],
             single_cat_entries=self.test_ents_MOF['one_cation'],
             base_aeccar=self.aeccar_MOF)
         self.rough_sm = StructureMatcher(
@@ -49,10 +49,10 @@ class HopTest(unittest.TestCase):
         """
         for ent in self.mpa_MOF.translated_single_cat_entries:
             li_sites = self.mpa_MOF.get_all_sym_sites(ent).sites
-            s0 = self.mpa_MOF.base_entry.structure.copy()
+            s0 = self.mpa_MOF.base_struct_entry.structure.copy()
             s0.insert(0, 'Li', li_sites[0].frac_coords)
             for isite in li_sites[1:]:
-                s1 = self.mpa_MOF.base_entry.structure.copy()
+                s1 = self.mpa_MOF.base_struct_entry.structure.copy()
                 s1.insert(0, 'Li', isite.frac_coords)
                 self.assertTrue(self.rough_sm.fit(s0, s1))
 
@@ -91,6 +91,9 @@ class HopTest(unittest.TestCase):
             self.mpa_MOF.unique_edges['chg_total_tube'].values.max(),
             0.08161937859517454)
 
+    def test_from_aeccar(self):
+        self.mpa_MOF_chgonly = MigrationPathAnalyzer.from_aeccar(base_aeccar=self.aeccar_MOF)
+        self.assertEqual(len(self.mpa_MOF_chgonly.full_sites), 16)
 
 if __name__ == '__main__':
     unittest.main()
