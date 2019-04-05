@@ -40,6 +40,18 @@ class MITMPRelaxSetTest(PymatgenTest):
     def tearDown(self):
         warnings.simplefilter("default")
 
+    def test_metal_check(self):
+        structure = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3),
+                                              ["Cu"], [[0, 0, 0]])
+
+        with warnings.catch_warnings(record=True) as w:
+            # Cause all warnings to always be triggered.
+            warnings.simplefilter("always")
+            # Trigger a warning.
+            vis = MITRelaxSet(structure)
+            # Verify some things
+            self.assertIn("Relaxation of metal", str(w[-1].message))
+
     def test_poscar(self):
         structure = Structure(self.lattice, ["Fe", "Mn"], self.coords)
         mitparamset = MITRelaxSet(structure, sort_structure=False)

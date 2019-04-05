@@ -283,6 +283,12 @@ class DictSet(VaspInputSet):
         self.user_potcar_settings = user_potcar_settings
         self.vdw = vdw.lower() if vdw is not None else None
         self.use_structure_charge = use_structure_charge
+
+        if structure.composition.is_element and list(structure.composition.keys())[0].is_metal:
+            if self.user_incar_settings.get("NSW", self._config_dict["INCAR"].get("NSW", 0)) > 0:
+                if self.user_incar_settings.get("ISMEAR", self._config_dict["INCAR"].get("ISMEAR", 1)) < 1:
+                    warnings.warn("Relaxation of metal with ISMEAR < 1 detected. Please see VASP recommendations on ISMEAR for metals.")
+
         if self.vdw:
             vdw_par = loadfn(str(MODULE_DIR / "vdW_parameters.yaml"))
             try:
