@@ -49,8 +49,9 @@ class MITMPRelaxSetTest(PymatgenTest):
             warnings.simplefilter("always")
             # Trigger a warning.
             vis = MITRelaxSet(structure)
+            incar = vis.incar
             # Verify some things
-            self.assertIn("Relaxation of metal", str(w[-1].message))
+            self.assertIn("ISMEAR", str(w[-1].message))
 
     def test_poscar(self):
         structure = Structure(self.lattice, ["Fe", "Mn"], self.coords)

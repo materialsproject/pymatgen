@@ -143,7 +143,9 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         Returns:
             VaspInput
         """
-        return VaspInput(incar=self.incar, kpoints=self.kpoints, poscar=self.poscar,
+        return VaspInput(incar=self.incar,
+                         kpoints=self.kpoints,
+                         poscar=self.poscar,
                          potcar=self.potcar)
 
     def write_input(self, output_dir,
@@ -284,11 +286,6 @@ class DictSet(VaspInputSet):
         self.vdw = vdw.lower() if vdw is not None else None
         self.use_structure_charge = use_structure_charge
 
-        if structure.composition.is_element and list(structure.composition.keys())[0].is_metal:
-            if self.user_incar_settings.get("NSW", self._config_dict["INCAR"].get("NSW", 0)) > 0:
-                if self.user_incar_settings.get("ISMEAR", self._config_dict["INCAR"].get("ISMEAR", 1)) < 1:
-                    warnings.warn("Relaxation of metal with ISMEAR < 1 detected. Please see VASP recommendations on ISMEAR for metals.")
-
         if self.vdw:
             vdw_par = loadfn(str(MODULE_DIR / "vdW_parameters.yaml"))
             try:
@@ -392,6 +389,12 @@ class DictSet(VaspInputSet):
 
         if np.product(self.kpoints.kpts) < 4 and incar.get("ISMEAR", 0) == -5:
             incar["ISMEAR"] = 0
+
+        if all([k.is_metal for k in structure.composition.keys()]):
+            if incar.get("NSW", 0) > 0 and incar.get("ISMEAR", 1) < 1:
+                warnings.warn("Relaxation of likely metal with ISMEAR < 1 "
+                              "detected. Please see VASP recommendations on "
+                              "ISMEAR for metals.")
         return incar
 
     @property
@@ -403,8 +406,8 @@ class DictSet(VaspInputSet):
         """
         Gets the default number of electrons for a given structure.
         """
-        # if structure is not sorted this can cause problems, so must take care to
-        # remove redundant symbols when counting electrons
+        # if structure is not sorted this can cause problems, so must take
+        # care to remove redundant symbols when counting electrons
         site_symbols = list(set(self.poscar.site_symbols))
         nelect = 0.
         for ps in self.potcar:
@@ -472,7 +475,8 @@ class DictSet(VaspInputSet):
             make_dir_if_not_present=make_dir_if_not_present,
             include_cif=include_cif)
         for k, v in self.files_to_transfer.items():
-            with zopen(v, "rb") as fin, zopen(str(Path(output_dir) / k), "wb") as fout:
+            with zopen(v, "rb") as fin, \
+                    zopen(str(Path(output_dir) / k), "wb") as fout:
                 shutil.copyfileobj(fin, fout)
 
 
@@ -688,8 +692,8 @@ class MPStaticSet(MPRelaxSet):
         if standardize:
             warnings.warn("Use of standardize=True with from_prev_run is not "
                           "recommended as there is no guarantee the copied "
-                          "input files will be appropriate for the standardized"
-                          " structure. copy_chgcar is now enforced to be false.")
+                          "files will be appropriate for the standardized "
+                          "structure. copy_chgcar is enforced to be false.")
 
         # We will make a standard structure for the given symprec.
         prev_structure = get_structure_from_prev_run(
@@ -752,7 +756,7 @@ class MPHSEBSSet(MPHSERelaxSet):
         self.added_kpoints = added_kpoints if added_kpoints is not None else []
         self.mode = mode
         self.reciprocal_density = reciprocal_density or \
-                                  self.kpoints_settings['reciprocal_density']
+            self.kpoints_settings['reciprocal_density']
         self.kpoints_line_density = kpoints_line_density
 
     @property
@@ -1010,8 +1014,8 @@ class MPNonSCFSet(MPRelaxSet):
         if standardize:
             warnings.warn("Use of standardize=True with from_prev_run is not "
                           "recommended as there is no guarantee the copied "
-                          "input files will be appropriate for the standardized"
-                          " structure. copy_chgcar is now enforced to be false.")
+                          "files will be appropriate for the standardized"
+                          " structure. copy_chgcar is enforced to be false.")
             copy_chgcar = False
 
         if copy_chgcar:
@@ -1025,7 +1029,7 @@ class MPNonSCFSet(MPRelaxSet):
             if gap <= small_gap_multiply[0]:
                 reciprocal_density = reciprocal_density * small_gap_multiply[1]
                 kpoints_line_density = kpoints_line_density * \
-                                       small_gap_multiply[1]
+                    small_gap_multiply[1]
 
         return cls(structure=structure, prev_incar=incar,
                    reciprocal_density=reciprocal_density,
@@ -1140,8 +1144,8 @@ class MPSOCSet(MPStaticSet):
         if standardize:
             warnings.warn("Use of standardize=True with from_prev_run is not "
                           "recommended as there is no guarantee the copied "
-                          "input files will be appropriate for the standardized"
-                          " structure. copy_chgcar is now enforced to be false.")
+                          "files will be appropriate for the standardized"
+                          " structure. copy_chgcar is enforced to be false.")
             copy_chgcar = False
 
         files_to_transfer = {}
@@ -1646,7 +1650,8 @@ class MITNEBSet(MITRelaxSet):
     def poscars(self):
         return [Poscar(s) for s in self.structures]
 
-    def _process_structures(self, structures):
+    @staticmethod
+    def _process_structures(structures):
         """
         Remove any atom jumps across the cell
         """
@@ -1727,7 +1732,7 @@ class MITMDSet(MITRelaxSet):
             structure (Structure): Input structure.
             start_temp (int): Starting temperature.
             end_temp (int): Final temperature.
-            nsteps (int): Number of time steps for simulations. The NSW parameter.
+            nsteps (int): Number of time steps for simulations. NSW parameter.
             time_step (int): The time step for the simulation. The POTIM
                 parameter. Defaults to 2fs.
             spin_polarized (bool): Whether to do spin polarized calculations.
@@ -1786,7 +1791,7 @@ class MPMDSet(MPRelaxSet):
             structure (Structure): Input structure.
             start_temp (int): Starting temperature.
             end_temp (int): Final temperature.
-            nsteps (int): Number of time steps for simulations. The NSW parameter.
+            nsteps (int): Number of time steps for simulations. NSW parameter.
             time_step (int): The time step for the simulation. The POTIM
                 parameter. Defaults to 2fs.
             spin_polarized (bool): Whether to do spin polarized calculations.
@@ -1845,7 +1850,7 @@ class MVLNPTMDSet(MITMDSet):
             structure (Structure): input structure.
             start_temp (int): Starting temperature.
             end_temp (int): Final temperature.
-            nsteps(int): Number of time steps for simulations. The NSW parameter.
+            nsteps(int): Number of time steps for simulations. NSW parameter.
             time_step (int): The time step for the simulation. The POTIM
                 parameter. Defaults to 2fs.
             spin_polarized (bool): Whether to do spin polarized calculations.
@@ -1937,8 +1942,8 @@ def get_vasprun_outcar(path, parse_dos=True, parse_eigen=True):
     vsfile = vsfile_fullpath if vsfile_fullpath in vruns else sorted(vruns)[-1]
     outcarfile = outcarfile_fullpath if outcarfile_fullpath in outcars else \
         sorted(outcars)[-1]
-    return Vasprun(str(vsfile), parse_dos=parse_dos, parse_eigen=parse_eigen), \
-           Outcar(str(outcarfile))
+    return (Vasprun(vsfile, parse_dos=parse_dos, parse_eigen=parse_eigen),
+            Outcar(outcarfile))
 
 
 def get_structure_from_prev_run(vasprun, outcar=None, sym_prec=0.1,
