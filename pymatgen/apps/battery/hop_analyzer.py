@@ -192,7 +192,55 @@ class MigrationPathAnalyzer():
         self.full_sites = self.get_full_sites()
         self.base_structure_full_sites = self.full_sites.copy()
         self.base_structure_full_sites.sites.extend(
-            self.base_entry.structure.sites)
+            self.base_struct_entry.structure.sites)
+
+    @classmethod
+    def from_aeccar(cls,
+                    base_aeccar,
+                    cation='Li',
+                    ltol=0.2,
+                    stol=0.3,
+                    angle_tol=5,
+                    max_avg_chg=1.0,
+                    rm_duplicates=True):
+        """
+        Create a MigrationPathAnalyzer using the local minima of the charge density as the inserted sites for the cation.
+        Note: For the sake of not reapeating the same constructor code as the parent class,
+        I'm using a different structure matcher to detect the duplicates in the fake inserted structures
+
+        Args:
+          base_aeccar: Chgcar object that contains the AECCAR0 + AECCAR2
+          cation: a String symbol or Element for the cation. (Default value = 'Li')
+          ltol: parameter for StructureMatcher (Default value = 0.2)
+          stol: parameter for StructureMatcher (Default value = 0.3)
+          angle_tol: parameter for StructureMatcher (Default value = 5)
+          max_avg_chg:  (Default value = 1.0)
+          rm_duplicates: (Default value = True)
+        """
+        # Get all the suggested sites
+        cda = ChargeDensityAnalyzer(base_aeccar)
+        cda.get_local_extrema()
+        if len(cda._extrema_df) > 1:
+            cda.cluster_nodes(tol=0.6)
+        cda.sort_sites_by_integrated_chg()
+
+        base_struct_entry = ComputedStructureEntry(
+            base_aeccar.structure, energy=0)
+        single_cat_entries = []
+
+        for _, row in cda._extrema_df.iterrows():
+            if row['avg_charge_den'] > max_avg_chg :
+                continue
+            new_struct = base_struct_entry.structure.copy()
+            new_struct.insert(0, cation, row[['a', 'b', 'c']].values)
+            if rm_duplicates:
+                if any(map(lambda ent: grouper_sm.fit(new_struct, ent.structure), single_cat_entries)):
+                    continue
+                single_cat_entries.append(ComputedStructureEntry(new_struct, energy=0))
+
+        return MigrationPathAnalyzer(base_struct_entry, single_cat_entries,
+                                        base_aeccar, cation, ltol, stol,
+                                        angle_tol)
 
     def match_ent_to_base(self, ent):
         """
