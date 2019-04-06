@@ -288,7 +288,13 @@ class Fragmenter(MSONable):
                                 new_frag_keys["0"].append(copy.deepcopy(frag_key))
                                 new_frag_key_dict[frag_key] = copy.deepcopy([new_fragment])
                             else:
-                                new_frag_key_dict[frag_key].append(copy.deepcopy(new_fragment))
+                                found = False
+                                for unique_fragment in new_frag_key_dict[frag_key]:
+                                    if isomorphic(unique_fragment.graph,new_fragment.graph,self.use_igraph):
+                                        found = True
+                                        break
+                                if not found:
+                                    new_frag_key_dict[frag_key].append(copy.deepcopy(new_fragment))
                         else:
                             found = False
                             for unique_fragment in self.all_unique_frag_dict[frag_key]:
@@ -316,7 +322,13 @@ class Fragmenter(MSONable):
                                     new_frag_keys[str(idx)].append(copy.deepcopy(frag_key))
                                     new_frag_key_dict[frag_key] = copy.deepcopy([new_fragment])
                                 else:
-                                    new_frag_key_dict[frag_key].append(copy.deepcopy(new_fragment))
+                                    found = False
+                                    for unique_fragment in new_frag_key_dict[frag_key]:
+                                        if isomorphic(unique_fragment.graph,new_fragment.graph,self.use_igraph):
+                                            found = True
+                                            break
+                                    if not found:
+                                        new_frag_key_dict[frag_key].append(copy.deepcopy(new_fragment))
                             else:
                                 found = False
                                 for unique_fragment in self.all_unique_frag_dict[frag_key]:
