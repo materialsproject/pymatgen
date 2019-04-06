@@ -431,6 +431,24 @@ class SlabGeneratorTest(PymatgenTest):
         self.assertAlmostEqual(norm_slab.lattice.angles[0], 90)
         self.assertAlmostEqual(norm_slab.lattice.angles[1], 90)
 
+    def test_get_orthogonal_c_slab_site_props(self):
+        TeI = Structure.from_file(get_path("icsd_TeI.cif"),
+                                  primitive=False)
+        trclnc_TeI = SlabGenerator(TeI, (0, 0, 1), 10, 10)
+        TeI_slabs = trclnc_TeI.get_slabs()
+        slab = TeI_slabs[0]
+        # Add site property to slab
+        sd_list = [[True, True, True] for site in slab.sites]
+        new_sp = slab.site_properties
+        new_sp['selective_dynamics'] = sd_list
+        slab_with_site_props = slab.copy(site_properties=new_sp)
+
+        # Get orthogonal slab
+        norm_slab = slab_with_site_props.get_orthogonal_c_slab()
+
+        # Check if site properties is consistent (or kept)
+        self.assertEqual(slab_with_site_props.site_properties, norm_slab.site_properties)
+
     def test_get_tasker2_slabs(self):
         # The uneven distribution of ions on the (111) facets of Halite
         # type slabs are typical examples of Tasker 3 structures. We

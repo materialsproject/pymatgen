@@ -170,7 +170,8 @@ class Slab(Structure):
                     oriented_unit_cell=self.oriented_unit_cell,
                     shift=self.shift, scale_factor=self.scale_factor,
                     coords_are_cartesian=True, energy=self.energy,
-                    reorient_lattice=self.reorient_lattice)
+                    reorient_lattice=self.reorient_lattice,
+                    site_properties=self.site_properties)
 
     def get_tasker2_slabs(self, tol=0.01, same_species_only=True):
         """
