@@ -303,6 +303,7 @@ class Fragmenter(MSONable):
         while len(new_frag_keys[str(idx)]) != 0:
             new_frag_key_dict = {}
             idx += 1
+            new_frag_keys[str(idx)] = []
             for key in new_frag_keys[str(idx-1)]:
                 for fragment in self.all_unique_frag_dict[key]:
                     ring_edges = fragment.find_rings()
