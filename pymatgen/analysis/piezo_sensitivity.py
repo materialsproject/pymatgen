@@ -1,5 +1,6 @@
 from pymatgen.core.tensors import Tensor
 from pymatgen.analysis.piezo import BornEffectiveChargeTensor, InternalStrainTensor
+from pymatgen.analysis.symmetry import sitesymmeties as ss
 import numpy as np
 import warnings
 
@@ -254,11 +255,11 @@ def get_FCM_symmetry(fcm, operations, sharedops, max_force = 1):
         fcm (numpy array): unsymmeterized force constant matrix 
         operations: list of operation mappings for indexed sites in the force
             constant matrix
-        sharedops: 
+        sharedops: symmetry operations share by a pair of atomic sites
         max_charge (float): maximum born effective charge value
 
     Return:
-        InternalStrainTensor object
+        numpy array representing the force constant matrix
     """
 
     # set max force in reciprocal space
@@ -296,6 +297,24 @@ def get_FCM_symmetry(fcm, operations, sharedops, max_force = 1):
 
 def get_stable_fcm(fcm, struc, operations, sharedops, asum = 10):
     
+    """
+    Generate a symmeterized force constant matrix 
+    that has no unstable modes and also obeys the acoustic sum rule through an
+    iterative procedure
+
+    Args:
+        fcm (numpy array): unsymmeterized force constant matrix 
+        operations: list of operation mappings for indexed sites in the force
+            constant matrix
+        sharedops: 
+        max_charge (float): maximum born effective charge value
+        asum (int): number of iterations to attempt to obey the acoustic sum
+            rule
+
+    Return:
+        numpy array representing the force constant matrix
+    """
+
     numsites = int(len(fcm)/3)
     
     
@@ -338,6 +357,23 @@ def get_stable_fcm(fcm, struc, operations, sharedops, asum = 10):
     #acoustic sum
 
 def get_asum_fcm(fcm, operations, sharedops, numiter):
+    """
+    Generate a symmeterized force constant matrix that also obeys the acoustic 
+    sum rule through an iterative procedure
+
+    Args:
+        fcm (numpy array): unsymmeterized force constant matrix 
+        operations: list of operation mappings for indexed sites in the force
+            constant matrix
+        sharedops: 
+        max_charge (float): maximum born effective charge value
+        numiter (int): number of iterations to attempt to obey the acoustic sum
+            rule
+
+    Return:
+        numpy array representing the force constant matrix
+    """
+
     # set max force in reciprocal space 
     numsites = int(len(fcm)/3)
     
@@ -399,13 +435,31 @@ def get_asum_fcm(fcm, operations, sharedops, numiter):
     return(fcm)
 
 
-def get_fullfcm(struc, fcm, sharedops, force = 1, asum = 10):    
-    
+def get_fullfcm(struc, fcm, force = 1, asum = 10):    
+    """
+    Generate a symmeterized force constant matrix from an unsymmeterized matrix
+    that has no unstable modes and also obeys the acoustic sum rule through an 
+    iterative procedure
+
+    Args:
+        fcm (numpy array): unsymmeterized force constant matrix 
+        operations: list of operation mappings for indexed sites in the force
+            constant matrix
+        sharedops: 
+        force (float): maximum force constant
+        asum (int): number of iterations to attempt to obey the acoustic sum
+            rule
+
+    Return:
+        force constant matrix representing the force constant matrix
+    """
     numsites = len(struc.sites)
     structure = phonopy.get_phonopy_structure(struc)
-    operations = get_operations(struc, fcm)
+    operations = get_fcm_operations(struc, fcm)
     pnstruc = pn.Phonopy(structure, np.eye(3), np.eye(3))
-    
+    symops = ss.get_site_symmetries(struc)
+    sharedops = ss.get_shared_symmetry_operations(strucs, symops)
+
     fcm  = get_FCM2(struc, sharedops, operations, force)
     fcm = get_asum_fcm(fcm, operations, sharedops, numiter = asum)
     fcm = get_stable_fcm(fcm, struc, operations, sharedops)
@@ -439,17 +493,110 @@ def get_fullfcm(struc, fcm, sharedops, force = 1, asum = 10):
         fc = converter.get_force_constants()
         fc = np.reshape(np.swapaxes(fc,1,2),(len(fc)*3,len(fc)*3))
         fc = get_FCM_symmetry(fc, operations, sharedops)
-    return fc
+    return ForceConstantMatrix(fc)
 
+def get_fcm_operations(struc, fcm):
+    """
+    Generate a mapping of symmetry operations which the force constant matrix must obey
+    Args:
+        struc (pymatgen structure): structure whose symmetry operations the piezo
+            tensor must obey
+        fcm (np.array): example force constant matrix whose symmetry operations 
+            the structure must obey
+    Return:
+        PiezoTensor object
+    """
 
-def rand_piezo(struc, symops, eqop, sharedops, fcm, anumiter = 20):
-    symops = symops
-    eqop = eqop
-    sharedops= sharedops
+#     fcm = np.reshape(fcm, (len(struc),3,len(struc),3)).swapaxes(1,2)
+    ops = sga(struc).get_symmetry_operations(cartesian = True)
+    structure = phonopy.get_phonopy_structure(struc)
+
+    pnstruc = pn.Phonopy(structure, np.eye(3), np.eye(3))
+    supercell = pnstruc.get_supercell()
+    primitive = pnstruc.get_primitive()
+
+    
+    converter = dyntofc.DynmatToForceConstants(primitive, supercell)
+    pnstruc.set_force_constants(fcm)
+    dyn = pnstruc.get_dynamical_matrix_at_q([0,0,0])
+    dyn = np.reshape(dyn, (len(struc),3,len(struc),3)).swapaxes(1,2)
+    passed = []
+    relations = []
+    for i in range(len(dyn)):
+        for j in range(i, len(dyn)):
+            eig1, vecs1 = np.linalg.eig(dyn[i][j])
+    #         eig2, vecs2 = np.linalg.eig(dyn[j][i])
+#             print(i,j, eig)
+            index = np.argsort(eig1)
+            neweig = np.real([eig1[index[0]],eig1[index[1]],eig1[index[2]]])
+            passed.append([i,j,np.real(neweig)])
+    #         passed.append([j,i,eig2])
+            for k in range(len(passed)):
+                if np.allclose(neweig,passed[k][2], atol = 1e-05):
+                    relations.append([i,j, passed[k][0], passed[k][1]])
+                    break
+    operations = []
+    for i in range(len(relations)):
+        good = 0
+        operations.append(relations[i])
+        if relations[i][2] == relations[i][0] and relations[i][1] == relations[i][3]:
+            operations[i].append([])
+            transpose = []
+            
+            for j in range(len(ops)):
+                new = ops[j].transform_tensor(dyn[relations[i][2]][relations[i][3]])
+                if np.allclose(new, dyn[relations[i][1]][relations[i][0]], atol = 1e-05):
+                    transpose.append(ops[j])
+            operations[i].append(transpose)        
+            transpose = []
+            continue
+        
+        for j in range(len(ops)):
+            new = ops[j].transform_tensor(dyn[relations[i][2]][relations[i][3]])
+            if np.allclose(new, dyn[relations[i][0]][relations[i][1]], atol = 1e-05):
+                operations[i].append(ops[j])
+                good = 1
+
+            elif np.allclose(new, dyn[relations[i][0]][relations[i][1]].T, atol = 1e-05):
+                operations[i].append(ops[j])
+                temp1 = operations[i][2]
+                temp2 = operations[i][3]
+                operations[i][2] = temp2
+                operations[i][3] = temp1
+                good = 1
+            if good ==1:
+                transpose = []
+            
+                for j in range(len(ops)):
+                    new = ops[j].transform_tensor(dyn[relations[i][2]][relations[i][3]])
+                    if np.allclose(new, dyn[relations[i][1]][relations[i][0]], atol = 1e-05):
+                        transpose.append(ops[j])
+                operations[i].append(transpose)
+                break
+        
+    return operations
+
+                    
+def rand_piezo(struc, fcm, anumiter = 10):
+    """
+    Generate a random piezoelectric tensor based on a structure and corresponding
+    symmetry
+
+    Args:
+        struc (pymatgen structure): structure whose symmetry operations the piezo
+            tensor must obey
+        fcm (np.array): example force constant matrix whose symmetry operations 
+            the structure must obey
+    Return:
+        PiezoTensor object
+    """
+    symops = ss.get_site_symmetries(struc)
+    eqop = ss.get_equivalent_atom_symmetrxies(struc)
+    sharedops = ss.get_shared_symmetry_operations(strucs, symops)
     numsites = len(struc.sites)
     BEC = get_rand_BEC(struc, eqop, symops, max_charge=20)
     IST = get_rand_IST(struc, eqop, symops, max_force=10)
     FCM = get_fullfcm(struc, fcm, sharedops, anumiter)
     FCM = np.reshape(FCM, (numsites,3,numsites,3)).swapaxes(1,2)
-    P = get_piezo(BEC,FCM,IST)*16.0216559424/struc.volume
+    P = PiezoTensor(get_piezo(BEC,FCM,IST)*16.0216559424/struc.volume)
     return (BEC,IST,FCM,P)
