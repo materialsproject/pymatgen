@@ -53,7 +53,7 @@ def igraph_from_nxgraph(graph):
     new_igraph.add_edges([(str(edge[0]),str(edge[1])) for edge in graph.edges()])
     return new_igraph
 
-def isomorphic(frag1, frag2, use_igraph):
+def isomorphic(frag1, frag2, use_igraph=True):
     f1_nodes = frag1.nodes(data=True)
     f2_nodes = frag2.nodes(data=True)
     if len(f1_nodes) != len(f2_nodes):
