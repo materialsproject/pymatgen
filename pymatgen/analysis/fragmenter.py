@@ -106,14 +106,11 @@ class Fragmenter(MSONable):
             for level in range(depth):
                 # If on the first level, perform one level of fragmentation on the principle molecule graph:
                 if level == 0:
-                    print("Level",level)
                     self.fragments_by_level["0"] = self._fragment_one_level({str(self.mol_graph.molecule.composition.alphabetical_formula)+" E"+str(len(self.mol_graph.graph.edges())): [self.mol_graph]})
                 else:
                     num_frags_prev_level = 0
                     for key in self.fragments_by_level[str(level-1)]:
                         num_frags_prev_level += len(self.fragments_by_level[str(level-1)][key])
-                    print(num_frags_prev_level,"unique fragments on level",level-1)
-                    print("Level",level)
                     if num_frags_prev_level == 0:
                         # Nothing left to fragment, so exit the loop:
                         break
