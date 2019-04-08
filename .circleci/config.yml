@@ -20,6 +20,7 @@ jobs:
             conda install --quiet --yes -c openbabel openbabel
             conda install --quiet --yes -c clinicalgraphics vtk
             conda install --quiet --yes cmake
+            conda install --quiet --yes -c conda-forge python-igraph
             # conda update --quiet --all
             mkdir coverage_reports
             pip install --upgrade pip
