@@ -369,7 +369,9 @@ class CombinedIcohpTest(unittest.TestCase):
                              '@class': 'IcohpValue', 'num': 1}
 
         for key, value in sorted(dict_Fe2.items()):
-            self.assertEqual(value.as_dict(), icohplist_Fe[key])
+            v = value.as_dict()
+            v.pop("@version")
+            self.assertEqual(v, icohplist_Fe[key])
 
         # Fe9
         dict_Fe3 = self.icohpcollection_Fe.get_icohp_dict_of_site(site=8)
@@ -384,7 +386,9 @@ class CombinedIcohpTest(unittest.TestCase):
         values = []
         for key, value in dict_Fe4.items():
             values.append(value)
-        self.assertDictEqual(values[0].as_dict(), icohplist_Fe["1"])
+        v = values[0].as_dict()
+        v.pop("@version")
+        self.assertDictEqual(v, icohplist_Fe["1"])
 
         dict_Fe5 = self.icohpcollection_Fe.get_icohp_dict_of_site(site=7, minsummedicohp=None,
                                                                   maxsummedicohp=-0.3, minbondlength=0.0,
@@ -393,7 +397,9 @@ class CombinedIcohpTest(unittest.TestCase):
         values = []
         for key, value in dict_Fe5.items():
             values.append(value)
-        self.assertDictEqual(values[0].as_dict(), icohplist_Fe["2"])
+        v = values[0].as_dict()
+        v.pop("@version")
+        self.assertDictEqual(v, icohplist_Fe["2"])
 
         dict_Fe6 = self.icohpcollection_Fe.get_icohp_dict_of_site(site=7, minsummedicohp=None,
                                                                   maxsummedicohp=None, minbondlength=0.0,
@@ -403,7 +409,9 @@ class CombinedIcohpTest(unittest.TestCase):
         values = []
         for key, value in dict_Fe6.items():
             values.append(value)
-        self.assertDictEqual(values[0].as_dict(), icohplist_Fe["2"])
+        v = values[0].as_dict()
+        v.pop("@version")
+        self.assertDictEqual(v, icohplist_Fe["2"])
 
         dict_Fe7 = self.icohpcollection_Fe.get_icohp_dict_of_site(site=7, minsummedicohp=None,
                                                                   maxsummedicohp=None, minbondlength=2.5,
@@ -412,7 +420,9 @@ class CombinedIcohpTest(unittest.TestCase):
         values = []
         for key, value in dict_Fe7.items():
             values.append(value)
-        self.assertDictEqual(values[0].as_dict(), icohplist_Fe["1"])
+        v = values[0].as_dict()
+        v.pop("@version")
+        self.assertDictEqual(v, icohplist_Fe["1"])
 
     def test_extremum_icohpvalue(self):
         # without spin polarization
