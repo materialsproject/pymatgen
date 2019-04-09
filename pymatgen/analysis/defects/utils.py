@@ -637,7 +637,7 @@ class TopographyAnalyzer:
         framework = []
         non_framework = []
         for site in structure:
-            if self.framework_ions.intersection(site.species_and_occu.keys()):
+            if self.framework_ions.intersection(site.species.keys()):
                 framework.append(site)
             else:
                 non_framework.append(site)
@@ -700,7 +700,7 @@ class TopographyAnalyzer:
         if len(cations) > 0:
             cation_coords = [
                 site.frac_coords for site in non_framework if
-                self.cations.intersection(site.species_and_occu.keys())
+                self.cations.intersection(site.species.keys())
             ]
 
             vertex_fcoords = [v.frac_coords for v in vnodes]

@@ -126,7 +126,7 @@ class QcTask(MSONable):
             if ghost_atoms:
                 for i in ghost_atoms:
                     site = self.mol.sites[i]
-                    for sp, amt in site.species_and_occu.items():
+                    for sp, amt in site.species.items():
                         ghost_nelectrons += sp.Z * amt
             nelectrons = self.mol.charge + self.mol.nelectrons - ghost_nelectrons - self.charge
             if spin_multiplicity is not None:

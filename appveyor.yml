@@ -11,8 +11,8 @@ environment:
       CONDA_PY: "36"
       CONDA_BUILD: "TRUE"
       SPLIT_RUN: "FALSE"
-  PMG_MAPI_KEY:
-    secure: XIbk1W27nucVUHTVpIL2B+FodL9w2Efyw5PqTdnfbHg=
+#  PMG_MAPI_KEY:
+#    secure: XIbk1W27nucVUHTVpIL2B+FodL9w2Efyw5PqTdnfbHg=
   PYPIPWD:
     secure: QPpXonUAeLJ8p3f936jh7g==
 install:

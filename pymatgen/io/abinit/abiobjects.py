@@ -140,10 +140,10 @@ def structure_from_abivars(cls=None, *args, **kwargs):
 
     znucl_type, typat = d["znucl"], d["typat"]
 
-    if not isinstance(znucl_type, collections.Iterable):
+    if not isinstance(znucl_type, collections.abc.Iterable):
         znucl_type = [znucl_type]
 
-    if not isinstance(typat, collections.Iterable):
+    if not isinstance(typat, collections.abc.Iterable):
         typat = [typat]
 
     if len(typat) != len(coords):

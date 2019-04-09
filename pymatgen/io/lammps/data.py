@@ -1188,7 +1188,7 @@ def structure_2_lmpdata(structure, ff_elements=None, atom_style="charge"):
     box_tilt = None if not any(box_tilt) else box_tilt
     box = LammpsBox(box_bounds, box_tilt)
     new_latt = Lattice([[xhi, 0, 0], [xy, yhi, 0], [xz, yz, zhi]])
-    s.modify_lattice(new_latt)
+    s.lattice = new_latt
 
     symbols = list(s.symbol_set)
     if ff_elements:

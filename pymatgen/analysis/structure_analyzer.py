@@ -357,7 +357,7 @@ class VoronoiConnectivity:
             site_index (int): index of the site (3 in the example)
             image_index (int): index of the image (12 in the example)
         """
-        atoms_n_occu = self.s[site_index].species_and_occu
+        atoms_n_occu = self.s[site_index].species
         lattice = self.s.lattice
         coords = self.s[site_index].frac_coords + self.offsets[image_index]
         return PeriodicSite(atoms_n_occu, coords, lattice)
@@ -534,14 +534,14 @@ class OxideType:
         elif isinstance(structure.composition.elements[0], Specie):
             elmap = collections.defaultdict(float)
             for site in structure:
-                for species, occu in site.species_and_occu.items():
+                for species, occu in site.species.items():
                     elmap[species.element] += occu
             comp = Composition(elmap)
         if Element("O") not in comp or comp.is_element:
             return "None", 0
 
         for site in structure:
-            syms = [sp.symbol for sp in site.species_and_occu.keys()]
+            syms = [sp.symbol for sp in site.species.keys()]
             if "O" in syms:
                 o_sites_frac_coords.append(site.frac_coords)
             if "H" in syms:
@@ -627,7 +627,17 @@ def sulfide_type(structure):
                sites[0].specie == s]
 
     def process_site(site):
-        neighbors = structure.get_neighbors(site, 4)
+
+        # in an exceptionally rare number of structures, the search
+        # radius needs to be increased to find a neighbor atom
+        search_radius = 4
+        neighbors = []
+        while len(neighbors) == 0:
+            neighbors = structure.get_neighbors(site, search_radius)
+            search_radius *= 2
+            if search_radius > max(structure.lattice.abc)*2:
+                break
+
         neighbors = sorted(neighbors, key=lambda n: n[1])
         nn, dist = neighbors[0]
         coord_elements = [site.specie for site, d in neighbors

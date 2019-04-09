@@ -1027,7 +1027,7 @@ class StructureGraph(MSONable):
 
             for idx, site in enumerate(self.structure):
 
-                s = PeriodicSite(site.species_and_occu, site.coords + v,
+                s = PeriodicSite(site.species, site.coords + v,
                                  new_lattice, properties=site.properties,
                                  coords_are_cartesian=True, to_unit_cell=False)
 

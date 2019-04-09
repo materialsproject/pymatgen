@@ -851,7 +851,7 @@ def unitized(unit):
             if isinstance(val, FloatWithUnit) or isinstance(val, ArrayWithUnit):
                 return val.to(unit)
 
-            elif isinstance(val, collections.Sequence):
+            elif isinstance(val, collections.abc.Sequence):
                 # TODO: why don't we return a ArrayWithUnit?
                 # This complicated way is to ensure the sequence type is
                 # preserved (list or tuple).

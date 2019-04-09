@@ -1337,7 +1337,7 @@ class Flow(Node, NodeContainer, MSONable):
 
             Invalid ids are ignored
         """
-        if not isinstance(nids, collections.Iterable): nids = [nids]
+        if not isinstance(nids, collections.abc.Iterable): nids = [nids]
 
         n2task = {task.node_id: task for task in self.iflat_tasks()}
         return [n2task[n] for n in nids if n in n2task]

@@ -19,6 +19,7 @@ from math import gcd
 
 import numpy as np
 
+from monty.dev import deprecated
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, get_el_sp, DummySpecie
@@ -46,7 +47,7 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 
-class SiteCollection(collections.Sequence, metaclass=ABCMeta):
+class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
     """
     Basic SiteCollection. Essentially a sequence of Sites or PeriodicSites.
     This serves as a base class for Molecule (a collection of Site, i.e., no
@@ -104,7 +105,7 @@ class SiteCollection(collections.Sequence, metaclass=ABCMeta):
         """
         List of species and occupancies at each site of the structure.
         """
-        return [site.species_and_occu for site in self]
+        return [site.species for site in self]
 
     @property
     def ntypesp(self):
@@ -218,7 +219,7 @@ to build an appropriate supercell from partial occupancies.""")
         """
         elmap = collections.defaultdict(float)
         for site in self:
-            for species, occu in site.species_and_occu.items():
+            for species, occu in site.species.items():
                 elmap[species] += occu
         return Composition(elmap)
 
@@ -230,7 +231,7 @@ to build an appropriate supercell from partial occupancies.""")
         """
         charge = 0
         for site in self:
-            for specie, amt in site.species_and_occu.items():
+            for specie, amt in site.species.items():
                 charge += getattr(specie, "oxi_state", 0) * amt
         return charge
 
@@ -321,6 +322,202 @@ to build an appropriate supercell from partial occupancies.""")
         Reads in SiteCollection from a filename.
         """
         pass
+
+    def add_site_property(self, property_name, values):
+        """
+        Adds a property to a site.
+
+        Args:
+            property_name (str): The name of the property to add.
+            values (list): A sequence of values. Must be same length as
+                number of sites.
+        """
+        if len(values) != len(self.sites):
+            raise ValueError("Values must be same length as sites.")
+        for site, val in zip(self.sites, values):
+            site.properties[property_name] = val
+
+    def remove_site_property(self, property_name):
+        """
+        Adds a property to a site.
+
+        Args:
+            property_name (str): The name of the property to add.
+        """
+        for site in self.sites:
+            del site.properties[property_name]
+
+    def replace_species(self, species_mapping):
+        """
+        Swap species.
+
+        Args:
+            species_mapping (dict): dict of species to swap. Species can be
+                elements too. E.g., {Element("Li"): Element("Na")} performs
+                a Li for Na substitution. The second species can be a
+                sp_and_occu dict. For example, a site with 0.5 Si that is
+                passed the mapping {Element('Si): {Element('Ge'):0.75,
+                Element('C'):0.25} } will have .375 Ge and .125 C.
+        """
+
+        species_mapping = {get_el_sp(k): v
+                           for k, v in species_mapping.items()}
+        sp_to_replace = set(species_mapping.keys())
+        sp_in_structure = set(self.composition.keys())
+        if not sp_in_structure.issuperset(sp_to_replace):
+            warnings.warn(
+                "Some species to be substituted are not present in "
+                "structure. Pls check your input. Species to be "
+                "substituted = %s; Species in structure = %s"
+                % (sp_to_replace, sp_in_structure))
+
+        for site in self._sites:
+            if sp_to_replace.intersection(site.species):
+                c = Composition()
+                for sp, amt in site.species.items():
+                    new_sp = species_mapping.get(sp, sp)
+                    try:
+                        c += Composition(new_sp) * amt
+                    except Exception:
+                        c += {new_sp: amt}
+                site.species = c
+
+    def add_oxidation_state_by_element(self, oxidation_states):
+        """
+        Add oxidation states.
+
+        Args:
+            oxidation_states (dict): Dict of oxidation states.
+                E.g., {"Li":1, "Fe":2, "P":5, "O":-2}
+        """
+        try:
+            for site in self.sites:
+                new_sp = {}
+                for el, occu in site.species.items():
+                    sym = el.symbol
+                    new_sp[Specie(sym, oxidation_states[sym])] = occu
+                site.species = new_sp
+        except KeyError:
+            raise ValueError("Oxidation state of all elements must be "
+                             "specified in the dictionary.")
+
+    def add_oxidation_state_by_site(self, oxidation_states):
+        """
+        Add oxidation states to a structure by site.
+
+        Args:
+            oxidation_states (list): List of oxidation states.
+                E.g., [1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, -2, -2, -2, -2]
+        """
+        if len(oxidation_states) != len(self.sites):
+            raise ValueError("Oxidation states of all sites must be "
+                             "specified.")
+        for site, ox in zip(self.sites, oxidation_states):
+            new_sp = {}
+            for el, occu in site.species.items():
+                sym = el.symbol
+                new_sp[Specie(sym, ox)] = occu
+            site.species = new_sp
+
+    def remove_oxidation_states(self):
+        """
+        Removes oxidation states from a structure.
+        """
+        for site in self.sites:
+            new_sp = collections.defaultdict(float)
+            for el, occu in site.species.items():
+                sym = el.symbol
+                new_sp[Element(sym)] += occu
+            site.species = new_sp
+
+    def add_oxidation_state_by_guess(self, **kwargs):
+        """
+        Decorates the structure with oxidation state, guessing
+        using Composition.oxi_state_guesses()
+
+        Args:
+            **kwargs: parameters to pass into oxi_state_guesses()
+        """
+        oxid_guess = self.composition.oxi_state_guesses(**kwargs)
+        oxid_guess = oxid_guess or \
+                     [dict([(e.symbol, 0) for e in self.composition])]
+        self.add_oxidation_state_by_element(oxid_guess[0])
+
+    def add_spin_by_element(self, spins):
+        """
+        Add spin states to a structure.
+
+        Args:
+            spisn (dict): Dict of spins associated with
+            elements or species, e.g. {"Ni":+5} or {"Ni2+":5}
+        """
+        for site in self.sites:
+            new_sp = {}
+            for sp, occu in site.species.items():
+                sym = sp.symbol
+                oxi_state = getattr(sp, "oxi_state", None)
+                new_sp[Specie(sym, oxidation_state=oxi_state,
+                              properties={'spin': spins.get(str(sp), spins.get(sym, None))})] = occu
+            site.species = new_sp
+
+    def add_spin_by_site(self, spins):
+        """
+        Add spin states to a structure by site.
+
+        Args:
+            spins (list): List of spins
+                E.g., [+5, -5, 0, 0]
+        """
+        if len(spins) != len(self.sites):
+            raise ValueError("Spin of all sites must be "
+                             "specified in the dictionary.")
+
+        for site, spin in zip(self.sites, spins):
+            new_sp = {}
+            for sp, occu in site.species.items():
+                sym = sp.symbol
+                oxi_state = getattr(sp, "oxi_state", None)
+                new_sp[Specie(sym, oxidation_state=oxi_state,
+                              properties={'spin': spin})] = occu
+            site.species = new_sp
+
+    def remove_spin(self):
+        """
+        Removes spin states from a structure.
+        """
+        for site in self.sites:
+            new_sp = collections.defaultdict(float)
+            for sp, occu in site.species.items():
+                oxi_state = getattr(sp, "oxi_state", None)
+                new_sp[Specie(sp.symbol, oxidation_state=oxi_state)] += occu
+            site.species = new_sp
+
+    def extract_cluster(self, target_sites, **kwargs):
+        """
+        Extracts a cluster of atoms based on bond lengths
+
+        Args:
+            target_sites ([Site]): List of initial sites to nucleate cluster.
+            \\*\\*kwargs: kwargs passed through to CovalentBond.is_bonded.
+
+        Returns:
+            [Site/PeriodicSite] Cluster of atoms.
+        """
+        cluster = list(target_sites)
+        others = [site for site in self if site not in cluster]
+        size = 0
+        while len(cluster) > size:
+            size = len(cluster)
+            new_others = []
+            for site in others:
+                for site2 in cluster:
+                    if CovalentBond.is_bonded(site, site2, **kwargs):
+                        cluster.append(site)
+                        break
+                else:
+                    new_others.append(site)
+            others = new_others
+        return cluster
 
 
 class IStructure(SiteCollection, MSONable):
@@ -422,17 +619,6 @@ class IStructure(SiteCollection, MSONable):
         if len(sites) < 1:
             raise ValueError("You need at least one site to construct a %s" %
                              cls)
-        if (not validate_proximity) and (not to_unit_cell):
-            # This is not really a good solution, but if we are not changing
-            # the sites, initializing an empty structure and setting _sites
-            # to be sites is much faster than doing the full initialization.
-            lattice = sites[0].lattice
-            for s in sites[1:]:
-                if s.lattice != lattice:
-                    raise ValueError("Sites must belong to the same lattice")
-            s_copy = cls(lattice=lattice, charge=charge, species=[], coords=[])
-            s_copy._sites = list(sites)
-            return s_copy
         prop_keys = []
         props = {}
         lattice = None
@@ -450,7 +636,7 @@ class IStructure(SiteCollection, MSONable):
             if any((vv is None for vv in v)):
                 warnings.warn("Not all sites have property %s. Missing values "
                               "are set to None." % k)
-        return cls(lattice, [site.species_and_occu for site in sites],
+        return cls(lattice, [site.species for site in sites],
                    [site.frac_coords for site in sites],
                    charge=charge,
                    site_properties=props,
@@ -783,7 +969,7 @@ class IStructure(SiteCollection, MSONable):
         new_sites = []
         for site in self:
             for v in c_lat:
-                s = PeriodicSite(site.species_and_occu, site.coords + v,
+                s = PeriodicSite(site.species, site.coords + v,
                                  new_lattice, properties=site.properties,
                                  coords_are_cartesian=True, to_unit_cell=False)
                 new_sites.append(s)
@@ -864,7 +1050,7 @@ class IStructure(SiteCollection, MSONable):
         neighbors = []
         for fcoord, dist, i, img in self._lattice.get_points_in_sphere(
                 site_fcoords, pt, r):
-            nnsite = PeriodicSite(self[i].species_and_occu,
+            nnsite = PeriodicSite(self[i].species,
                                   fcoord, self._lattice,
                                   properties=self[i].properties)
 
@@ -957,7 +1143,7 @@ class IStructure(SiteCollection, MSONable):
             all_within_r = np.bitwise_and(all_dists <= r, all_dists > 1e-8)
 
             for (j, d, within_r) in zip(indices, all_dists, all_within_r):
-                nnsite = PeriodicSite(self[j].species_and_occu, coords[j],
+                nnsite = PeriodicSite(self[j].species, coords[j],
                                       latt, properties=self[j].properties,
                                       coords_are_cartesian=True)
                 for i in indices[within_r]:
@@ -1061,15 +1247,6 @@ class IStructure(SiteCollection, MSONable):
             A copy of the Structure, with optionally new site_properties and
             optionally sanitized.
         """
-        if (not site_properties) and (not sanitize):
-            # This is not really a good solution, but if we are not changing
-            # the site_properties or sanitizing, initializing an empty
-            # structure and setting _sites to be sites is much faster (~100x)
-            # than doing the full initialization.
-            s_copy = self.__class__(lattice=self._lattice, species=[],
-                                    charge=self._charge, coords=[])
-            s_copy._sites = list(self._sites)
-            return s_copy
         props = self.site_properties
         if site_properties:
             props.update(site_properties)
@@ -1087,7 +1264,7 @@ class IStructure(SiteCollection, MSONable):
                 site_props = {}
                 for p in props:
                     site_props[p] = props[p][i]
-                new_sites.append(PeriodicSite(site.species_and_occu,
+                new_sites.append(PeriodicSite(site.species,
                                               frac_coords, reduced_latt,
                                               to_unit_cell=True,
                                               properties=site_props))
@@ -1129,7 +1306,7 @@ class IStructure(SiteCollection, MSONable):
 
         # Check that both structures have the same species
         for i in range(len(self)):
-            if self[i].species_and_occu != end_structure[i].species_and_occu:
+            if self[i].species != end_structure[i].species:
                 raise ValueError("Different species!\nStructure 1:\n" +
                                  str(self) + "\nStructure 2\n" +
                                  str(end_structure))
@@ -1239,15 +1416,16 @@ class IStructure(SiteCollection, MSONable):
                 as [0, 0, 0] for a tolerance of 0.25. Defaults to 0.25.
             use_site_props (bool): Whether to account for site properties in
                 differntiating sites.
-            constrain_latt (list of bools): Determines which lattice constant
-                we want to preserve (True), if any. Order of bools in the list
-                corresponds to [a, b, c, alpha, beta, gamme].
+            constrain_latt (list/dict): List of lattice parameters we want to
+                preserve, e.g. ["alpha", "c"] or dict with the lattice
+                parameter names as keys and values we want the parameters to
+                be e.g. {"alpha": 90, "c": 2.5}.
 
         Returns:
             The most primitive structure found.
         """
         if constrain_latt is None:
-            constrain_latt = [False, False, False, False, False, False]
+            constrain_latt = []
 
         def site_label(site):
             if not use_site_props:
@@ -1391,7 +1569,7 @@ class IStructure(SiteCollection, MSONable):
                             for n, j in enumerate(inds[1:]):
                                 offset = new_fcoords[j] - coords
                                 coords += (offset - np.round(offset)) / (n + 2)
-                            new_sp.append(gsites[inds[0]].species_and_occu)
+                            new_sp.append(gsites[inds[0]].species)
                             for k in gsites[inds[0]].properties:
                                 new_props[k].append(gsites[inds[0]].properties[k])
                             new_coords.append(coords)
@@ -1408,16 +1586,18 @@ class IStructure(SiteCollection, MSONable):
                         tolerance=tolerance, use_site_props=use_site_props,
                         constrain_latt=constrain_latt
                     ).get_reduced_structure()
-                    if not any(constrain_latt):
+                    if not constrain_latt:
                         return p
 
                     # Only return primitive structures that
                     # satisfy the restriction condition
-                    p_l, s_l = p._lattice, self._lattice
-                    p_latt = [p_l.a, p_l.b, p_l.c, p_l.alpha, p_l.beta, p_l.gamma]
-                    s_latt = [s_l.a, s_l.b, s_l.c, s_l.alpha, s_l.beta, s_l.gamma]
-                    if all([p_latt[i] == s_latt[i] for i, b in enumerate(constrain_latt) if b]):
-                        return p
+                    p_latt, s_latt = p.lattice, self.lattice
+                    if type(constrain_latt).__name__ == "list":
+                        if all([getattr(p_latt, p) == getattr(s_latt, p) for p in constrain_latt]):
+                            return p
+                    elif type(constrain_latt).__name__ == "dict":
+                        if all([getattr(p_latt, p) == constrain_latt[p] for p in constrain_latt.keys()]):
+                            return p
 
         return self.copy()
 
@@ -1535,7 +1715,7 @@ class IStructure(SiteCollection, MSONable):
             filename (str): If provided, output will be written to a file. If
                 fmt is not specified, the format is determined from the
                 filename. Defaults is None, i.e. string output.
-            \*\*kwargs: Kwargs passthru to relevant methods. E.g., This allows
+            \\*\\*kwargs: Kwargs passthru to relevant methods. E.g., This allows
                 the passing of parameters like symprec to the
                 CifWriter.__init__ method for generation of symmetric cifs.
 
@@ -1792,7 +1972,7 @@ class IMolecule(SiteCollection, MSONable):
         self._charge = charge
         nelectrons = 0
         for site in sites:
-            for sp, amt in site.species_and_occu.items():
+            for sp, amt in site.species.items():
                 if not isinstance(sp, DummySpecie):
                     nelectrons += sp.Z * amt
         nelectrons -= charge
@@ -1836,7 +2016,7 @@ class IMolecule(SiteCollection, MSONable):
         center = np.zeros(3)
         total_weight = 0
         for site in self:
-            wt = site.species_and_occu.weight
+            wt = site.species.weight
             center += site.coords * wt
             total_weight += wt
         return center / total_weight
@@ -1866,7 +2046,7 @@ class IMolecule(SiteCollection, MSONable):
         for site in sites:
             for k, v in site.properties.items():
                 props[k].append(v)
-        return cls([site.species_and_occu for site in sites],
+        return cls([site.species for site in sites],
                    [site.coords for site in sites],
                    charge=charge, spin_multiplicity=spin_multiplicity,
                    validate_proximity=validate_proximity,
@@ -2313,41 +2493,14 @@ class IMolecule(SiteCollection, MSONable):
 
         raise ValueError("Unrecognized file extension!")
 
-    def extract_cluster(self, target_sites, **kwargs):
-        """
-        Extracts a cluster of atoms from a molecule based on bond lengths
 
-        Args:
-            target_sites ([Site]): List of initial sites to nucleate cluster.
-            \\*\\*kwargs: kwargs passed through to CovalentBond.is_bonded.
-
-        Returns:
-            (Molecule) Cluster of atoms.
-        """
-        cluster = list(target_sites)
-        others = [site for site in self if site not in cluster]
-        size = 0
-        while len(cluster) > size:
-            size = len(cluster)
-            new_others = []
-            for site in others:
-                for site2 in cluster:
-                    if CovalentBond.is_bonded(site, site2, **kwargs):
-                        cluster.append(site)
-                        break
-                else:
-                    new_others.append(site)
-            others = new_others
-        return Molecule.from_sites(cluster)
-
-
-class Structure(IStructure, collections.MutableSequence):
+class Structure(IStructure, collections.abc.MutableSequence):
     """
     Mutable version of structure.
     """
     __hash__ = None
 
-    def __init__(self, lattice: Lattice, species: list, coords: list,
+    def __init__(self, lattice: Lattice, species: list, coords: np.ndarray,
                  charge: float = None, validate_proximity: bool = False,
                  to_unit_cell: bool = False,
                  coords_are_cartesian: bool = False,
@@ -2455,25 +2608,30 @@ class Structure(IStructure, collections.MutableSequence):
                 self._sites[ii] = site
             else:
                 if isinstance(site, str) or (
-                        not isinstance(site, collections.Sequence)):
-                    sp = site
-                    frac_coords = self._sites[ii].frac_coords
-                    properties = self._sites[ii].properties
+                        not isinstance(site, collections.abc.Sequence)):
+                    self._sites[ii].species = site
                 else:
-                    sp = site[0]
-                    frac_coords = site[1] if len(site) > 1 else \
-                        self._sites[ii].frac_coords
-                    properties = site[2] if len(site) > 2 else \
-                        self._sites[ii].properties
-
-                self._sites[ii] = PeriodicSite(sp, frac_coords, self._lattice,
-                                               properties=properties)
+                    self._sites[ii].species = site[0]
+                    if len(site) > 1:
+                        self._sites[ii].frac_coords = site[1]
+                    if len(site) > 2:
+                        self._sites[ii].properties = site[2]
 
     def __delitem__(self, i):
         """
         Deletes a site from the Structure.
         """
         self._sites.__delitem__(i)
+
+    @property
+    def lattice(self):
+        return self._lattice
+
+    @lattice.setter
+    def lattice(self, lattice):
+        self._lattice = lattice
+        for site in self._sites:
+            site.lattice = lattice
 
     def append(self, species, coords, coords_are_cartesian=False,
                validate_proximity=False, properties=None):
@@ -2530,87 +2688,6 @@ class Structure(IStructure, collections.MutableSequence):
                                      "site!")
 
         self._sites.insert(i, new_site)
-
-    def add_site_property(self, property_name, values):
-        """
-        Adds a property to all sites.
-
-        Args:
-            property_name (str): The name of the property to add.
-            values: A sequence of values. Must be same length as number of
-                sites.
-        """
-        if len(values) != len(self._sites):
-            raise ValueError("Values must be same length as sites.")
-        for i in range(len(self._sites)):
-            site = self._sites[i]
-            props = site.properties
-            if not props:
-                props = {}
-            props[property_name] = values[i]
-            self._sites[i] = PeriodicSite(site.species_and_occu,
-                                          site.frac_coords, self._lattice,
-                                          properties=props)
-
-    def remove_site_property(self, property_name):
-        """
-        Adds a property to a site.
-
-        Args:
-            property_name (str): The name of the property to add.
-            values (list): A sequence of values. Must be same length as
-                number of sites.
-        """
-        for i in range(len(self._sites)):
-            site = self._sites[i]
-            props = {k: v
-                     for k, v in site.properties.items()
-                     if k != property_name}
-            self._sites[i] = PeriodicSite(site.species_and_occu,
-                                          site.frac_coords, self._lattice,
-                                          properties=props)
-
-    def replace_species(self, species_mapping):
-        """
-        Swap species in a structure.
-
-        Args:
-            species_mapping (dict): Dict of species to swap. Species can be
-                elements too. e.g., {Element("Li"): Element("Na")} performs
-                a Li for Na substitution. The second species can be a
-                sp_and_occu dict. For example, a site with 0.5 Si that is
-                passed the mapping {Element('Si): {Element('Ge'):0.75,
-                Element('C'):0.25} } will have .375 Ge and .125 C. You can
-                also supply strings that represent elements or species and
-                the code will try to figure out the meaning. E.g.,
-                {"C": "C0.5Si0.5"} will replace all C with 0.5 C and 0.5 Si,
-                i.e., a disordered site.
-        """
-        latt = self._lattice
-        species_mapping = {get_el_sp(k): v
-                           for k, v in species_mapping.items()}
-        sp_to_replace = set(species_mapping.keys())
-        sp_in_structure = set(self.composition.keys())
-        if not sp_in_structure.issuperset(sp_to_replace):
-            warnings.warn("Some species to be substituted are not present in "
-                          "structure. Pls check your input. Species to be "
-                          "substituted = %s; Species in structure = %s"
-                          % (sp_to_replace, sp_in_structure))
-
-        def mod_site(site):
-            if sp_to_replace.intersection(site.species_and_occu):
-                c = Composition()
-                for sp, amt in site.species_and_occu.items():
-                    new_sp = species_mapping.get(sp, sp)
-                    try:
-                        c += Composition(new_sp) * amt
-                    except Exception:
-                        c += {new_sp: amt}
-                return PeriodicSite(c, site.frac_coords, latt,
-                                    properties=site.properties)
-            return site
-
-        self._sites = [mod_site(site) for site in self._sites]
 
     def replace(self, i, species, coords=None, coords_are_cartesian=False,
                 properties=None):
@@ -2730,14 +2807,14 @@ class Structure(IStructure, collections.MutableSequence):
             # We have a 180 degree angle. Simply do an inversion about the
             # origin
             for i in range(len(func_grp)):
-                func_grp[i] = (func_grp[i].species_and_occu,
+                func_grp[i] = (func_grp[i].species,
                                origin - (func_grp[i].coords - origin))
 
         # Remove the atom to be replaced, and add the rest of the functional
         # group.
         del self[index]
         for site in func_grp[1:]:
-            s_new = PeriodicSite(site.species_and_occu, site.coords,
+            s_new = PeriodicSite(site.species, site.coords,
                                  self.lattice, coords_are_cartesian=True)
             self._sites.append(s_new)
 
@@ -2752,7 +2829,7 @@ class Structure(IStructure, collections.MutableSequence):
         species = [get_el_sp(s) for s in species]
 
         for site in self._sites:
-            new_sp_occu = {sp: amt for sp, amt in site.species_and_occu.items()
+            new_sp_occu = {sp: amt for sp, amt in site.species.items()
                            if sp not in species}
             if len(new_sp_occu) > 0:
                 new_sites.append(PeriodicSite(
@@ -2789,7 +2866,7 @@ class Structure(IStructure, collections.MutableSequence):
             def operate_site(site):
                 new_cart = symmop.operate(site.coords)
                 new_frac = self._lattice.get_fractional_coords(new_cart)
-                return PeriodicSite(site.species_and_occu, new_frac,
+                return PeriodicSite(site.species, new_frac,
                                     self._lattice,
                                     properties=site.properties)
 
@@ -2798,13 +2875,14 @@ class Structure(IStructure, collections.MutableSequence):
             self._lattice = Lattice(new_latt)
 
             def operate_site(site):
-                return PeriodicSite(site.species_and_occu,
+                return PeriodicSite(site.species,
                                     symmop.operate(site.frac_coords),
                                     self._lattice,
                                     properties=site.properties)
 
         self._sites = [operate_site(s) for s in self._sites]
 
+    @deprecated(message="Simply set using Structure.lattice = lattice. This will be removed in pymatgen v2020.")
     def modify_lattice(self, new_lattice):
         """
         Modify the lattice of the structure.  Mainly used for changing the
@@ -2814,13 +2892,8 @@ class Structure(IStructure, collections.MutableSequence):
             new_lattice (Lattice): New lattice
         """
         self._lattice = new_lattice
-        new_sites = []
         for site in self._sites:
-            new_sites.append(PeriodicSite(site.species_and_occu,
-                                          site.frac_coords,
-                                          self._lattice,
-                                          properties=site.properties))
-        self._sites = new_sites
+            site.lattice = new_lattice
 
     def apply_strain(self, strain):
         """
@@ -2834,7 +2907,7 @@ class Structure(IStructure, collections.MutableSequence):
                 are 1% larger.
         """
         s = (1 + np.array(strain)) * np.eye(3)
-        self.modify_lattice(Lattice(np.dot(self._lattice.matrix.T, s).T))
+        self.lattice = Lattice(np.dot(self._lattice.matrix.T, s).T)
 
     def sort(self, key=None, reverse=False):
         """
@@ -2852,7 +2925,7 @@ class Structure(IStructure, collections.MutableSequence):
             reverse (bool): If set to True, then the list elements are sorted
                 as if each comparison were reversed.
         """
-        self._sites = sorted(self._sites, key=key, reverse=reverse)
+        self._sites.sort(key=key, reverse=reverse)
 
     def translate_sites(self, indices, vector, frac_coords=True,
                         to_unit_cell=True):
@@ -2869,7 +2942,7 @@ class Structure(IStructure, collections.MutableSequence):
             to_unit_cell (bool): Whether new sites are transformed to unit
                 cell
         """
-        if not isinstance(indices, collections.Iterable):
+        if not isinstance(indices, collections.abc.Iterable):
             indices = [indices]
 
         for i in indices:
@@ -2879,11 +2952,9 @@ class Structure(IStructure, collections.MutableSequence):
             else:
                 fcoords = self._lattice.get_fractional_coords(
                     site.coords + vector)
-            new_site = PeriodicSite(site.species_and_occu, fcoords,
-                                    self._lattice, to_unit_cell=to_unit_cell,
-                                    coords_are_cartesian=False,
-                                    properties=site.properties)
-            self._sites[i] = new_site
+            if to_unit_cell:
+                fcoords = np.mod(fcoords, 1)
+            self._sites[i].frac_coords = fcoords
 
     def rotate_sites(self, indices=None, theta=0, axis=None, anchor=None,
                      to_unit_cell=True):
@@ -2919,12 +2990,11 @@ class Structure(IStructure, collections.MutableSequence):
         theta %= 2 * np.pi
 
         rm = expm(cross(eye(3), axis / norm(axis)) * theta)
-
         for i in indices:
             site = self._sites[i]
-            s = ((np.dot(rm, np.array(site.coords - anchor).T)).T + anchor).ravel()
+            coords = ((np.dot(rm, np.array(site.coords - anchor).T)).T + anchor).ravel()
             new_site = PeriodicSite(
-                site.species_and_occu, s, self._lattice,
+                site.species, coords, self._lattice,
                 to_unit_cell=to_unit_cell, coords_are_cartesian=True,
                 properties=site.properties)
             self._sites[i] = new_site
@@ -2948,144 +3018,6 @@ class Structure(IStructure, collections.MutableSequence):
         for i in range(len(self._sites)):
             self.translate_sites([i], get_rand_vec(), frac_coords=False)
 
-    def add_oxidation_state_by_element(self, oxidation_states):
-        """
-        Add oxidation states to a structure.
-
-        Args:
-            oxidation_states (dict): Dict of oxidation states.
-                E.g., {"Li":1, "Fe":2, "P":5, "O":-2}
-        """
-        try:
-            for i, site in enumerate(self._sites):
-                new_sp = {}
-                for el, occu in site.species_and_occu.items():
-                    sym = el.symbol
-                    new_sp[Specie(sym, oxidation_states[sym])] = occu
-                new_site = PeriodicSite(new_sp, site.frac_coords,
-                                        self._lattice,
-                                        coords_are_cartesian=False,
-                                        properties=site.properties)
-                self._sites[i] = new_site
-
-        except KeyError:
-            raise ValueError("Oxidation state of all elements must be "
-                             "specified in the dictionary.")
-
-    def add_oxidation_state_by_site(self, oxidation_states):
-        """
-        Add oxidation states to a structure by site.
-
-        Args:
-            oxidation_states (list): List of oxidation states.
-                E.g., [1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, -2, -2, -2, -2]
-        """
-        try:
-            for i, site in enumerate(self._sites):
-                new_sp = {}
-                for el, occu in site.species_and_occu.items():
-                    sym = el.symbol
-                    new_sp[Specie(sym, oxidation_states[i])] = occu
-                new_site = PeriodicSite(new_sp, site.frac_coords,
-                                        self._lattice,
-                                        coords_are_cartesian=False,
-                                        properties=site.properties)
-                self._sites[i] = new_site
-
-        except IndexError:
-            raise ValueError("Oxidation state of all sites must be "
-                             "specified in the dictionary.")
-
-    def remove_oxidation_states(self):
-        """
-        Removes oxidation states from a structure.
-        """
-        for i, site in enumerate(self._sites):
-            new_sp = collections.defaultdict(float)
-            for el, occu in site.species_and_occu.items():
-                sym = el.symbol
-                new_sp[Element(sym)] += occu
-            new_site = PeriodicSite(new_sp, site.frac_coords,
-                                    self._lattice,
-                                    coords_are_cartesian=False,
-                                    properties=site.properties)
-            self._sites[i] = new_site
-
-    def add_oxidation_state_by_guess(self, **kwargs):
-        """
-        Decorates the structure with oxidation state, guessing
-        using Composition.oxi_state_guesses()
-
-        Args:
-            **kwargs: parameters to pass into oxi_state_guesses()
-        """
-        oxid_guess = self.composition.oxi_state_guesses(**kwargs)
-        oxid_guess = oxid_guess or \
-                     [dict([(e.symbol, 0) for e in self.composition])]
-        self.add_oxidation_state_by_element(oxid_guess[0])
-
-    def add_spin_by_element(self, spins):
-        """
-        Add spin states to a structure.
-
-        Args:
-            spisn (dict): Dict of spins associated with
-            elements or species, e.g. {"Ni":+5} or {"Ni2+":5}
-        """
-        for i, site in enumerate(self._sites):
-            new_sp = {}
-            for sp, occu in site.species_and_occu.items():
-                sym = sp.symbol
-                oxi_state = getattr(sp, "oxi_state", None)
-                new_sp[Specie(sym, oxidation_state=oxi_state,
-                              properties={'spin': spins.get(str(sp), spins.get(sym, None))})] = occu
-            new_site = PeriodicSite(new_sp, site.frac_coords,
-                                    self._lattice,
-                                    coords_are_cartesian=False,
-                                    properties=site.properties)
-            self._sites[i] = new_site
-
-    def add_spin_by_site(self, spins):
-        """
-        Add spin states to a structure by site.
-
-        Args:
-            spins (list): List of spins
-                E.g., [+5, -5, 0, 0]
-        """
-        try:
-            for i, site in enumerate(self._sites):
-                new_sp = {}
-                for sp, occu in site.species_and_occu.items():
-                    sym = sp.symbol
-                    oxi_state = getattr(sp, "oxi_state", None)
-                    new_sp[Specie(sym, oxidation_state=oxi_state,
-                                  properties={'spin': spins[i]})] = occu
-                new_site = PeriodicSite(new_sp, site.frac_coords,
-                                        self._lattice,
-                                        coords_are_cartesian=False,
-                                        properties=site.properties)
-                self._sites[i] = new_site
-
-        except IndexError:
-            raise ValueError("Spin of all sites must be "
-                             "specified in the dictionary.")
-
-    def remove_spin(self):
-        """
-        Removes spin states from a structure.
-        """
-        for i, site in enumerate(self._sites):
-            new_sp = collections.defaultdict(float)
-            for sp, occu in site.species_and_occu.items():
-                oxi_state = getattr(sp, "oxi_state", None)
-                new_sp[Specie(sp.symbol, oxidation_state=oxi_state)] += occu
-            new_site = PeriodicSite(new_sp, site.frac_coords,
-                                    self._lattice,
-                                    coords_are_cartesian=False,
-                                    properties=site.properties)
-            self._sites[i] = new_site
-
     def make_supercell(self, scaling_matrix, to_unit_cell=True):
         """
         Create a supercell.
@@ -3108,8 +3040,8 @@ class Structure(IStructure, collections.MutableSequence):
         """
         s = self * scaling_matrix
         if to_unit_cell:
-            for isite, site in enumerate(s):
-                s[isite] = site.to_unit_cell
+            for site in s:
+                site.to_unit_cell(in_place=True)
         self._sites = s.sites
         self._lattice = s.lattice
 
@@ -3121,7 +3053,7 @@ class Structure(IStructure, collections.MutableSequence):
         Args:
             volume (float): New volume of the unit cell in A^3.
         """
-        self.modify_lattice(self._lattice.scale(volume))
+        self.lattice = self._lattice.scale(volume)
 
     def merge_sites(self, tol=0.01, mode="sum"):
         """
@@ -3130,8 +3062,9 @@ class Structure(IStructure, collections.MutableSequence):
 
         Args:
             tol (float): Tolerance for distance to merge sites.
-            mode (str): Two modes supported. "delete" means duplicate sites are
+            mode (str): Three modes supported. "delete" means duplicate sites are
                 deleted. "sum" means the occupancies are summed for the sites.
+                "average" means that the site is deleted but the properties are averaged
                 Only first letter is considered.
 
         """
@@ -3146,11 +3079,11 @@ class Structure(IStructure, collections.MutableSequence):
         sites = []
         for c in np.unique(clusters):
             inds = np.where(clusters == c)[0]
-            species = self[inds[0]].species_and_occu
+            species = self[inds[0]].species
             coords = self[inds[0]].frac_coords
             props = self[inds[0]].properties
             for n, i in enumerate(inds[1:]):
-                sp = self[i].species_and_occu
+                sp = self[i].species
                 if mode == "s":
                     species += sp
                 offset = self[i].frac_coords - coords
@@ -3158,9 +3091,13 @@ class Structure(IStructure, collections.MutableSequence):
                     coords.dtype)
                 for key in props.keys():
                     if props[key] is not None and self[i].properties[key] != props[key]:
-                        props[key] = None
-                        warnings.warn("Sites with different site property %s are merged. "
-                                      "So property is set to none" % key)
+                        if mode  == 'a' and isinstance(props[key], float):
+                            # update a running total
+                            props[key] = props[key]*(n+1)/(n+2) + self[i].properties[key]/(n+2)
+                        else:
+                            props[key] = None
+                            warnings.warn("Sites with different site property %s are merged. "
+                                        "So property is set to none" % key)
             sites.append(PeriodicSite(species, coords, self.lattice, properties=props))
 
         self._sites = sites
@@ -3175,7 +3112,7 @@ class Structure(IStructure, collections.MutableSequence):
         self._charge = new_charge
 
 
-class Molecule(IMolecule, collections.MutableSequence):
+class Molecule(IMolecule, collections.abc.MutableSequence):
     """
     Mutable Molecule. It has all the methods in IMolecule, but in addition,
     it allows a user to perform edits on the molecule.
@@ -3244,18 +3181,14 @@ class Molecule(IMolecule, collections.MutableSequence):
                 self._sites[ii] = site
             else:
                 if isinstance(site, str) or (
-                        not isinstance(site, collections.Sequence)):
-                    sp = site
-                    coords = self._sites[ii].coords
-                    properties = self._sites[ii].properties
+                        not isinstance(site, collections.abc.Sequence)):
+                    self._sites[ii].species = site
                 else:
-                    sp = site[0]
-                    coords = site[1] if len(site) > 1 else self._sites[
-                        ii].coords
-                    properties = site[2] if len(site) > 2 else self._sites[ii] \
-                        .properties
-
-                self._sites[ii] = Site(sp, coords, properties=properties)
+                    self._sites[ii].species = site[0]
+                    if len(site) > 1:
+                        self._sites[ii].coords = site[1]
+                    if len(site) > 2:
+                        self._sites[ii].properties = site[2]
 
     def __delitem__(self, i):
         """
@@ -3295,7 +3228,7 @@ class Molecule(IMolecule, collections.MutableSequence):
         self._charge = charge
         nelectrons = 0
         for site in self._sites:
-            for sp, amt in site.species_and_occu.items():
+            for sp, amt in site.species.items():
                 if not isinstance(sp, DummySpecie):
                     nelectrons += sp.Z * amt
         nelectrons -= charge
@@ -3309,28 +3242,6 @@ class Molecule(IMolecule, collections.MutableSequence):
             self._spin_multiplicity = spin_multiplicity
         else:
             self._spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
-
-    def add_oxidation_state_by_element(self, oxidation_states):
-        """
-        Add oxidation states to a structure.
-
-        Args:
-            oxidation_states (dict): Dict of oxidation states.
-                E.g., {"Li":1, "Fe":2, "P":5, "O":-2}
-        """
-        try:
-            for i, site in enumerate(self._sites):
-                new_sp = {}
-                for el, occu in site.species_and_occu.items():
-                    sym = el.symbol
-                    new_sp[Specie(sym, oxidation_states[sym])] = occu
-                new_site = Site(new_sp, site.coords,
-                                properties=site.properties)
-                self._sites[i] = new_site
-
-        except KeyError:
-            raise ValueError("Oxidation state of all elements must be "
-                             "specified in the dictionary.")
 
     def insert(self, i, species, coords, validate_proximity=False,
                properties=None):
@@ -3356,68 +3267,6 @@ class Molecule(IMolecule, collections.MutableSequence):
                                      "site!")
         self._sites.insert(i, new_site)
 
-    def add_site_property(self, property_name, values):
-        """
-        Adds a property to a site.
-
-        Args:
-            property_name (str): The name of the property to add.
-            values (list): A sequence of values. Must be same length as
-                number of sites.
-        """
-        if len(values) != len(self._sites):
-            raise ValueError("Values must be same length as sites.")
-        for i in range(len(self._sites)):
-            site = self._sites[i]
-            props = site.properties
-            if not props:
-                props = {}
-            props[property_name] = values[i]
-            self._sites[i] = Site(site.species_and_occu, site.coords,
-                                  properties=props)
-
-    def remove_site_property(self, property_name):
-        """
-        Adds a property to a site.
-
-        Args:
-            property_name (str): The name of the property to add.
-        """
-        for i in range(len(self._sites)):
-            site = self._sites[i]
-            props = {k: v
-                     for k, v in site.properties.items()
-                     if k != property_name}
-            self._sites[i] = Site(site.species_and_occu, site.coords,
-                                  properties=props)
-
-    def replace_species(self, species_mapping):
-        """
-        Swap species in a molecule.
-
-        Args:
-            species_mapping (dict): dict of species to swap. Species can be
-                elements too. E.g., {Element("Li"): Element("Na")} performs
-                a Li for Na substitution. The second species can be a
-                sp_and_occu dict. For example, a site with 0.5 Si that is
-                passed the mapping {Element('Si): {Element('Ge'):0.75,
-                Element('C'):0.25} } will have .375 Ge and .125 C.
-        """
-        species_mapping = {get_el_sp(k): v
-                           for k, v in species_mapping.items()}
-
-        def mod_site(site):
-            c = Composition()
-            for sp, amt in site.species_and_occu.items():
-                new_sp = species_mapping.get(sp, sp)
-                try:
-                    c += Composition(new_sp) * amt
-                except TypeError:
-                    c += {new_sp: amt}
-            return Site(c, site.coords, properties=site.properties)
-
-        self._sites = [mod_site(site) for site in self._sites]
-
     def remove_species(self, species):
         """
         Remove all occurrences of a species from a molecule.
@@ -3428,7 +3277,7 @@ class Molecule(IMolecule, collections.MutableSequence):
         new_sites = []
         species = [get_el_sp(sp) for sp in species]
         for site in self._sites:
-            new_sp_occu = {sp: amt for sp, amt in site.species_and_occu.items()
+            new_sp_occu = {sp: amt for sp, amt in site.species.items()
                            if sp not in species}
             if len(new_sp_occu) > 0:
                 new_sites.append(Site(new_sp_occu, site.coords,
@@ -3461,7 +3310,7 @@ class Molecule(IMolecule, collections.MutableSequence):
             vector == [0, 0, 0]
         for i in indices:
             site = self._sites[i]
-            new_site = Site(site.species_and_occu, site.coords + vector,
+            new_site = Site(site.species, site.coords + vector,
                             properties=site.properties)
             self._sites[i] = new_site
 
@@ -3500,7 +3349,7 @@ class Molecule(IMolecule, collections.MutableSequence):
         for i in indices:
             site = self._sites[i]
             s = ((np.dot(rm, (site.coords - anchor).T)).T + anchor).ravel()
-            new_site = Site(site.species_and_occu, s,
+            new_site = Site(site.species, s,
                             properties=site.properties)
             self._sites[i] = new_site
 
@@ -3533,7 +3382,7 @@ class Molecule(IMolecule, collections.MutableSequence):
 
         def operate_site(site):
             new_cart = symmop.operate(site.coords)
-            return Site(site.species_and_occu, new_cart,
+            return Site(site.species, new_cart,
                         properties=site.properties)
 
         self._sites = [operate_site(s) for s in self._sites]
@@ -3634,7 +3483,7 @@ class Molecule(IMolecule, collections.MutableSequence):
             # We have a 180 degree angle. Simply do an inversion about the
             # origin
             for i in range(len(func_grp)):
-                func_grp[i] = (func_grp[i].species_and_occu,
+                func_grp[i] = (func_grp[i].species,
                                origin - (func_grp[i].coords - origin))
 
         # Remove the atom to be replaced, and add the rest of the functional

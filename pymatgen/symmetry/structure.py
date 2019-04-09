@@ -48,7 +48,7 @@ class SymmetrizedStructure(Structure):
         #               wyckoff_letters[i]) for i in range(len(structure))]
 
         super(SymmetrizedStructure, self).__init__(
-            structure.lattice, [site.species_and_occu for site in structure],
+            structure.lattice, [site.species for site in structure],
             structure.frac_coords, site_properties=structure.site_properties)
 
         self.equivalent_indices = [[] for i in range(len(u))]
