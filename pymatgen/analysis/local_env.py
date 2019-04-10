@@ -1099,7 +1099,7 @@ class MinimumDistanceNN(NearNeighbors):
     """
     Determine near-neighbor sites and coordination number using the
     nearest neighbor(s) at distance, d_min, plus all neighbors
-    within a distance (1 + delta) * d_min, where delta is a
+    within a distance (1 + tol) * d_min, where tol is a
     (relative) distance tolerance parameter.
 
     Args:
@@ -1137,7 +1137,7 @@ class MinimumDistanceNN(NearNeighbors):
 
         siw = []
         for s, dist in neighs_dists:
-            if self.tol == None or dist < (1.0 + self.tol) * min_dist:
+            if self.tol is None or dist < (1.0 + self.tol) * min_dist:
                 w = min_dist / dist
                 siw.append({'site': s,
                             'image': self._get_image(structure, s),
