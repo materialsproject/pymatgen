@@ -1105,6 +1105,7 @@ class MinimumDistanceNN(NearNeighbors):
     Args:
         tol (float): tolerance parameter for neighbor identification
             (default: 0.1).
+            If this is set to None then the neighbor sites are only determined by the cutoff radius
         cutoff (float): cutoff radius in Angstrom to look for trial
             near-neighbor sites (default: 10.0).
     """
@@ -1136,7 +1137,7 @@ class MinimumDistanceNN(NearNeighbors):
 
         siw = []
         for s, dist in neighs_dists:
-            if dist < (1.0 + self.tol) * min_dist:
+            if self.tol == None or dist < (1.0 + self.tol) * min_dist:
                 w = min_dist / dist
                 siw.append({'site': s,
                             'image': self._get_image(structure, s),
