@@ -1136,7 +1136,6 @@ class MinimumDistanceNN(NearNeighbors):
 
         site = structure[n]
         neighs_dists = structure.get_neighbors(site, self.cutoff)
-        min_dist = min([dist for neigh, dist in neighs_dists])
 
         siw = []
         if self.get_all_sites == True:
@@ -1148,6 +1147,7 @@ class MinimumDistanceNN(NearNeighbors):
                                 'site_index': self._get_original_site(structure,
                                                                   s)})
         else:
+            min_dist = min([dist for neigh, dist in neighs_dists])
             for s, dist in neighs_dists:
                 if dist < (1.0 + self.tol) * min_dist:
                     w = min_dist / dist
