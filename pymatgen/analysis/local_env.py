@@ -1099,7 +1099,7 @@ class MinimumDistanceNN(NearNeighbors):
     """
     Determine near-neighbor sites and coordination number using the
     nearest neighbor(s) at distance, d_min, plus all neighbors
-    within a distance (1 + delta) * d_min, where delta is a
+    within a distance (1 + tol) * d_min, where tol is a
     (relative) distance tolerance parameter.
 
     Args:
@@ -1107,11 +1107,15 @@ class MinimumDistanceNN(NearNeighbors):
             (default: 0.1).
         cutoff (float): cutoff radius in Angstrom to look for trial
             near-neighbor sites (default: 10.0).
+        get_all_sites (boolean): If this is set to True then the neighbor
+            sites are only determined by the cutoff radius, tol is ignored
+
     """
 
-    def __init__(self, tol=0.1, cutoff=10.0):
+    def __init__(self, tol=0.1, cutoff=10.0, get_all_sites=False):
         self.tol = tol
         self.cutoff = cutoff
+        self.get_all_sites = get_all_sites
 
     def get_nn_info(self, structure, n):
         """
@@ -1132,16 +1136,25 @@ class MinimumDistanceNN(NearNeighbors):
 
         site = structure[n]
         neighs_dists = structure.get_neighbors(site, self.cutoff)
-        min_dist = min([dist for neigh, dist in neighs_dists])
 
         siw = []
-        for s, dist in neighs_dists:
-            if dist < (1.0 + self.tol) * min_dist:
-                w = min_dist / dist
-                siw.append({'site': s,
-                            'image': self._get_image(structure, s),
-                            'weight': w,
-                            'site_index': self._get_original_site(structure,
+        if self.get_all_sites == True:
+            for s, dist in neighs_dists:
+                    w = dist
+                    siw.append({'site': s,
+                                'image': self._get_image(structure, s),
+                                'weight': w,
+                                'site_index': self._get_original_site(structure,
+                                                                  s)})
+        else:
+            min_dist = min([dist for neigh, dist in neighs_dists])
+            for s, dist in neighs_dists:
+                if dist < (1.0 + self.tol) * min_dist:
+                    w = min_dist / dist
+                    siw.append({'site': s,
+                                'image': self._get_image(structure, s),
+                                'weight': w,
+                                'site_index': self._get_original_site(structure,
                                                                   s)})
         return siw
 
