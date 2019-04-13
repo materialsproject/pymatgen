@@ -1809,36 +1809,50 @@ class Outcar:
         LOPTICS). Frequencies (in eV) are in self.frequencies, and dielectric
         tensor function is given as self.dielectric_tensor_function.
         """
-        header_pattern = r"\s+frequency dependent\s+IMAGINARY " \
-                         r"DIELECTRIC FUNCTION \(independent particle, " \
-                         r"no local field effects\)(\sdensity-density)*$"
-        row_pattern = r"\s+".join([r"([\.\-\d]+)"] * 7)
 
-        lines = []
-        for l in reverse_readfile(self.filename):
-            lines.append(l)
-            if re.match(header_pattern, l):
-                break
-
+        plasma_pattern = r"plasma frequency squared.*"
+        dielectric_pattern = r"frequency dependent\s+IMAGINARY " \
+                             r"DIELECTRIC FUNCTION \(independent particle, " \
+                             r"no local field effects\)(\sdensity-density)*$"
+        row_pattern = r"\s+".join([r"([\.\-\d]+)"] * 3)
+        import collections
+        plasma_frequencies = collections.defaultdict(list)
+        read_plasma = False
+        read_dielectric = False
         freq = []
         data = {"REAL": [], "IMAGINARY": []}
-        lines.reverse()
         count = 0
         component = "IMAGINARY"
-        for l in lines[3:]:  # Skip the preamble.
-            if re.match(row_pattern, l.strip()):
-                toks = l.strip().split()
-                if component == "IMAGINARY":
-                    freq.append(float(toks[0]))
-                xx, yy, zz, xy, yz, xz = [float(t) for t in toks[1:]]
-                matrix = [[xx, xy, xz], [xy, yy, yz], [xz, yz, zz]]
-                data[component].append(matrix)
-            elif re.match(r"\s*-+\s*", l):
-                count += 1
-            if count == 1:
-                component = "REAL"
-            elif count == 2:
-                break
+        with zopen(self.filename) as f:
+            for l in f:
+                l = l.strip()
+                if re.match(plasma_pattern, l):
+                    read_plasma = "intraband" if "intraband" in l else "interband"
+                elif re.match(dielectric_pattern, l):
+                    read_plasma = False
+                    read_dielectric = True
+                    row_pattern = r"\s+".join([r"([\.\-\d]+)"] * 7)
+
+                if read_plasma and re.match(row_pattern, l):
+                    plasma_frequencies[read_plasma].append(
+                        [float(t) for t in l.strip().split()])
+                elif read_dielectric:
+                    if re.match(row_pattern, l.strip()):
+                        toks = l.strip().split()
+                        if component == "IMAGINARY":
+                            freq.append(float(toks[0]))
+                        xx, yy, zz, xy, yz, xz = [float(t) for t in toks[1:]]
+                        matrix = [[xx, xy, xz], [xy, yy, yz], [xz, yz, zz]]
+                        data[component].append(matrix)
+                    elif re.match(r"\s*-+\s*", l):
+                        count += 1
+                    if count == 2:
+                        component = "REAL"
+                    elif count == 3:
+                        break
+
+        self.plasma_frequencies = {k: np.array(v[:3]).reshape(3, 3)
+                                   for k, v in plasma_frequencies.items()}
         self.frequencies = np.array(freq)
         self.dielectric_tensor_function = np.array(data["REAL"]) + \
             1j * np.array(data["IMAGINARY"])
