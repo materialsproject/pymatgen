@@ -1823,7 +1823,7 @@ class Outcar:
         data = {"REAL": [], "IMAGINARY": []}
         count = 0
         component = "IMAGINARY"
-        with zopen(self.filename) as f:
+        with zopen(self.filename, "rt") as f:
             for l in f:
                 l = l.strip()
                 if re.match(plasma_pattern, l):
