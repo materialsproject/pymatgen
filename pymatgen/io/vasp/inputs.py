@@ -13,7 +13,7 @@ import glob
 import subprocess
 
 import numpy as np
-from pymatgen.util.typing import PathLike
+
 from numpy.linalg import det
 from collections import OrderedDict, namedtuple
 from hashlib import md5
@@ -28,14 +28,14 @@ from tabulate import tabulate
 
 import scipy.constants as const
 
-from pymatgen import SETTINGS
+from pymatgen import SETTINGS, __version__
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element, get_el_sp
 from pymatgen.electronic_structure.core import Magmom
-from monty.design_patterns import cached_class
 from pymatgen.util.string import str_delimited
 from pymatgen.util.io_utils import clean_lines
+from pymatgen.util.typing import PathLike
 from monty.json import MSONable
 
 """
@@ -1056,8 +1056,8 @@ class Kpoints(MSONable):
         Returns:
             Kpoints
         """
-        comment = "pymatgen 4.7.6+ generated KPOINTS with grid density = " + \
-            "%.0f / atom" % kppa
+        comment = "pymatgen v%s with grid density = %.0f / atom" % (
+            __version__, kppa)
         if math.fabs((math.floor(kppa ** (1 / 3) + 0.5)) ** 3 - kppa) < 1:
             kppa += kppa * 0.01
         latt = structure.lattice

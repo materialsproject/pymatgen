@@ -40,6 +40,19 @@ class MITMPRelaxSetTest(PymatgenTest):
     def tearDown(self):
         warnings.simplefilter("default")
 
+    def test_metal_check(self):
+        structure = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3),
+                                              ["Cu"], [[0, 0, 0]])
+
+        with warnings.catch_warnings(record=True) as w:
+            # Cause all warnings to always be triggered.
+            warnings.simplefilter("always")
+            # Trigger a warning.
+            vis = MITRelaxSet(structure)
+            incar = vis.incar
+            # Verify some things
+            self.assertIn("ISMEAR", str(w[-1].message))
+
     def test_poscar(self):
         structure = Structure(self.lattice, ["Fe", "Mn"], self.coords)
         mitparamset = MITRelaxSet(structure, sort_structure=False)
@@ -270,6 +283,14 @@ class MITMPRelaxSetTest(PymatgenTest):
         d = paramset.get_vasp_input()
         self.assertEqual(d["INCAR"]["ISMEAR"], 0)
 
+    def test_MPMetalRelaxSet(self):
+        mpmetalset = MPMetalRelaxSet(self.get_structure("Sn"))
+        incar = mpmetalset.incar
+        self.assertEqual(incar["ISMEAR"], 1)
+        self.assertEqual(incar["SIGMA"], 0.2)
+        kpoints = mpmetalset.kpoints
+        self.assertArrayAlmostEqual(kpoints.kpts[0], [5, 5, 5])
+
     def test_as_from_dict(self):
         mitset = MITRelaxSet(self.structure)
         mpset = MPRelaxSet(self.structure)
@@ -402,6 +423,13 @@ class MPNonSCFSetTest(PymatgenTest):
                                          mode="Line", copy_chgcar=True)
         vis.write_input(self.tmp)
         self.assertTrue(os.path.exists(os.path.join(self.tmp, "CHGCAR")))
+        os.remove(os.path.join(self.tmp, "CHGCAR"))
+
+        vis = MPNonSCFSet.from_prev_calc(prev_calc_dir=prev_run,
+                                         standardize=True,
+                                         mode="Line", copy_chgcar=True)
+        vis.write_input(self.tmp)
+        self.assertFalse(os.path.exists(os.path.join(self.tmp, "CHGCAR")))
 
     def test_optics(self):
         prev_run = self.TEST_FILES_DIR / "relaxation"
@@ -419,6 +447,18 @@ class MPNonSCFSetTest(PymatgenTest):
 
         self.assertTrue(vis.incar["LOPTICS"])
         self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Reciprocal)
+
+    def test_user_kpoint_override(self):
+        user_kpoints_override = Kpoints(
+            style=Kpoints.supported_modes.Gamma,
+            kpts=((1, 1, 1),))  # the default kpoints style is reciprocal
+
+        prev_run = self.TEST_FILES_DIR / "relaxation"
+        vis = MPNonSCFSet.from_prev_calc(
+            prev_calc_dir=prev_run, copy_chgcar=False, optics=True,
+            mode="Uniform", nedos=2001,
+            user_kpoints_settings=user_kpoints_override)
+        self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Gamma)
 
     def tearDown(self):
         shutil.rmtree(self.tmp)

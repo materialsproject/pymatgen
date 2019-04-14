@@ -7,14 +7,14 @@ import os
 import json
 import numpy as np
 from pymatgen import Structure
-from pymatgen.io.lobster import Cohpcar, Icohplist, Doscar, Charge
+from pymatgen.io.lobster import Cohpcar, Icohplist, Doscar, Charge, Lobsterout
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.util.testing import PymatgenTest
 
-__author__ = "Marco Esters"
+__author__ = "Marco Esters, Janine George"
 __copyright__ = "Copyright 2017, The Materials Project"
 __version__ = "0.2"
-__email__ = "esters@uoregon.edu"
+__email__ = "esters@uoregon.edu, janine.george@uclouvain.be"
 __date__ = "Dec 10, 2017"
 
 test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -517,6 +517,301 @@ class ChargeTest(PymatgenTest):
                            'charge': None, '@module': 'pymatgen.core.structure'}
         s2 = Structure.from_dict(structure_dict2)
         self.assertEqual(s2, self.charge2.get_structure_with_charges(os.path.join(this_dir, "POSCAR.MnO")))
+
+
+class LobsteroutTest(PymatgenTest):
+    def setUp(self):
+        self.lobsterout_normal = Lobsterout(filename=os.path.join(test_dir, "lobsterout.normal"))
+        self.lobsterout_fatband_grosspop_densityofenergies = Lobsterout(
+            filename=os.path.join(test_dir, "lobsterout.fatband_grosspop_densityofenergy"))
+        self.lobsterout_saveprojection = Lobsterout(filename=os.path.join(test_dir, "lobsterout.saveprojection"))
+        self.lobsterout_skipping_all = Lobsterout(filename=os.path.join(test_dir, "lobsterout.skipping_all"))
+        self.lobsterout_twospins = Lobsterout(filename=os.path.join(test_dir, "lobsterout.twospins"))
+        self.lobsterout_GaAs = Lobsterout(filename=os.path.join(test_dir, "lobsterout.GaAs"))
+        self.lobsterout_from_projection = Lobsterout(filename=os.path.join(test_dir, "lobsterout_from_projection"))
+
+    def testattributes(self):
+        self.assertListEqual(self.lobsterout_normal.basis_functions,
+                             [['3s', '4s', '3p_y', '3p_z', '3p_x', '3d_xy', '3d_yz', '3d_z^2', '3d_xz', '3d_x^2-y^2']])
+        self.assertListEqual(self.lobsterout_normal.basis_type, ['pbeVaspFit2015'])
+        self.assertListEqual(self.lobsterout_normal.chargespilling, [0.0268])
+        self.assertEqual(self.lobsterout_normal.dftprogram, 'VASP')
+        self.assertListEqual(self.lobsterout_normal.elements, ['Ti'])
+        self.assertTrue(self.lobsterout_normal.has_CHARGE)
+        self.assertTrue(self.lobsterout_normal.has_COHPCAR)
+        self.assertTrue(self.lobsterout_normal.has_COOPCAR)
+        self.assertTrue(self.lobsterout_normal.has_DOSCAR)
+        self.assertFalse(self.lobsterout_normal.has_Projection)
+        self.assertTrue(self.lobsterout_normal.has_bandoverlaps)
+        self.assertFalse(self.lobsterout_normal.has_density_of_energies)
+        self.assertFalse(self.lobsterout_normal.has_fatbands)
+        self.assertFalse(self.lobsterout_normal.has_grosspopulation)
+        self.assertListEqual(self.lobsterout_normal.info_lines,
+                             ['There are more PAW bands than local basis functions available.',
+                              'To prevent trouble in orthonormalization and Hamiltonian reconstruction',
+                              'the PAW bands from 21 and upwards will be ignored.'])
+        self.assertListEqual(self.lobsterout_normal.info_orthonormalization,
+                             ['3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.'])
+        self.assertFalse(self.lobsterout_normal.is_restart_from_projection)
+        self.assertEqual(self.lobsterout_normal.lobster_version, 'v3.1.0')
+        self.assertEqual(self.lobsterout_normal.number_of_spins, 1)
+        self.assertEqual(self.lobsterout_normal.number_of_threads, 8)
+        self.assertDictEqual(self.lobsterout_normal.timing, {'walltime': {'h': '0', 'min': '0', 's': '2', 'ms': '702'},
+                                                             'usertime': {'h': '0', 'min': '0', 's': '20', 'ms': '330'},
+                                                             'sys_time': {'h': '0', 'min': '0', 's': '0', 'ms': '310'}})
+        self.assertAlmostEqual(self.lobsterout_normal.totalspilling[0], [0.044000000000000004][0])
+        self.assertListEqual(self.lobsterout_normal.warninglines,
+                             ['3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.',
+                              'Generally, this is not a critical error. But to help you analyze it,',
+                              'I dumped the band overlap matrices to the file bandOverlaps.lobster.',
+                              'Please check how much they deviate from the identity matrix and decide to',
+                              'use your results only, if you are sure that this is ok.'])
+
+        self.assertListEqual(self.lobsterout_fatband_grosspop_densityofenergies.basis_functions,
+                             [['3s', '4s', '3p_y', '3p_z', '3p_x', '3d_xy', '3d_yz', '3d_z^2', '3d_xz', '3d_x^2-y^2']])
+        self.assertListEqual(self.lobsterout_fatband_grosspop_densityofenergies.basis_type, ['pbeVaspFit2015'])
+        self.assertListEqual(self.lobsterout_fatband_grosspop_densityofenergies.chargespilling, [0.0268])
+        self.assertEqual(self.lobsterout_fatband_grosspop_densityofenergies.dftprogram, 'VASP')
+        self.assertListEqual(self.lobsterout_fatband_grosspop_densityofenergies.elements, ['Ti'])
+        self.assertTrue(self.lobsterout_fatband_grosspop_densityofenergies.has_CHARGE)
+        self.assertFalse(self.lobsterout_fatband_grosspop_densityofenergies.has_COHPCAR)
+        self.assertFalse(self.lobsterout_fatband_grosspop_densityofenergies.has_COOPCAR)
+        self.assertFalse(self.lobsterout_fatband_grosspop_densityofenergies.has_DOSCAR)
+        self.assertFalse(self.lobsterout_fatband_grosspop_densityofenergies.has_Projection)
+        self.assertTrue(self.lobsterout_fatband_grosspop_densityofenergies.has_bandoverlaps)
+        self.assertTrue(self.lobsterout_fatband_grosspop_densityofenergies.has_density_of_energies)
+        self.assertTrue(self.lobsterout_fatband_grosspop_densityofenergies.has_fatbands)
+        self.assertTrue(self.lobsterout_fatband_grosspop_densityofenergies.has_grosspopulation)
+        self.assertListEqual(self.lobsterout_fatband_grosspop_densityofenergies.info_lines,
+                             ['There are more PAW bands than local basis functions available.',
+                              'To prevent trouble in orthonormalization and Hamiltonian reconstruction',
+                              'the PAW bands from 21 and upwards will be ignored.'])
+        self.assertListEqual(self.lobsterout_fatband_grosspop_densityofenergies.info_orthonormalization,
+                             ['3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.'])
+        self.assertFalse(self.lobsterout_fatband_grosspop_densityofenergies.is_restart_from_projection)
+        self.assertEqual(self.lobsterout_fatband_grosspop_densityofenergies.lobster_version, 'v3.1.0')
+        self.assertEqual(self.lobsterout_fatband_grosspop_densityofenergies.number_of_spins, 1)
+        self.assertEqual(self.lobsterout_fatband_grosspop_densityofenergies.number_of_threads, 8)
+        self.assertDictEqual(self.lobsterout_fatband_grosspop_densityofenergies.timing,
+                             {'walltime': {'h': '0', 'min': '0', 's': '4', 'ms': '136'},
+                              'usertime': {'h': '0', 'min': '0', 's': '18', 'ms': '280'},
+                              'sys_time': {'h': '0', 'min': '0', 's': '0', 'ms': '290'}})
+        self.assertAlmostEqual(self.lobsterout_fatband_grosspop_densityofenergies.totalspilling[0],
+                               [0.044000000000000004][0])
+        self.assertListEqual(self.lobsterout_fatband_grosspop_densityofenergies.warninglines,
+                             ['3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.',
+                              'Generally, this is not a critical error. But to help you analyze it,',
+                              'I dumped the band overlap matrices to the file bandOverlaps.lobster.',
+                              'Please check how much they deviate from the identity matrix and decide to',
+                              'use your results only, if you are sure that this is ok.'])
+
+        self.assertListEqual(self.lobsterout_saveprojection.basis_functions,
+                             [['3s', '4s', '3p_y', '3p_z', '3p_x', '3d_xy', '3d_yz', '3d_z^2', '3d_xz', '3d_x^2-y^2']])
+        self.assertListEqual(self.lobsterout_saveprojection.basis_type, ['pbeVaspFit2015'])
+        self.assertListEqual(self.lobsterout_saveprojection.chargespilling, [0.0268])
+        self.assertEqual(self.lobsterout_saveprojection.dftprogram, 'VASP')
+        self.assertListEqual(self.lobsterout_saveprojection.elements, ['Ti'])
+        self.assertTrue(self.lobsterout_saveprojection.has_CHARGE)
+        self.assertFalse(self.lobsterout_saveprojection.has_COHPCAR)
+        self.assertFalse(self.lobsterout_saveprojection.has_COOPCAR)
+        self.assertFalse(self.lobsterout_saveprojection.has_DOSCAR)
+        self.assertTrue(self.lobsterout_saveprojection.has_Projection)
+        self.assertTrue(self.lobsterout_saveprojection.has_bandoverlaps)
+        self.assertTrue(self.lobsterout_saveprojection.has_density_of_energies)
+        self.assertFalse(self.lobsterout_saveprojection.has_fatbands)
+        self.assertFalse(self.lobsterout_saveprojection.has_grosspopulation)
+        self.assertListEqual(self.lobsterout_saveprojection.info_lines,
+                             ['There are more PAW bands than local basis functions available.',
+                              'To prevent trouble in orthonormalization and Hamiltonian reconstruction',
+                              'the PAW bands from 21 and upwards will be ignored.'])
+        self.assertListEqual(self.lobsterout_saveprojection.info_orthonormalization,
+                             ['3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.'])
+        self.assertFalse(self.lobsterout_saveprojection.is_restart_from_projection)
+        self.assertEqual(self.lobsterout_saveprojection.lobster_version, 'v3.1.0')
+        self.assertEqual(self.lobsterout_saveprojection.number_of_spins, 1)
+        self.assertEqual(self.lobsterout_saveprojection.number_of_threads, 8)
+        self.assertDictEqual(self.lobsterout_saveprojection.timing,
+                             {'walltime': {'h': '0', 'min': '0', 's': '2', 'ms': '574'},
+                              'usertime': {'h': '0', 'min': '0', 's': '18', 'ms': '250'},
+                              'sys_time': {'h': '0', 'min': '0', 's': '0', 'ms': '320'}})
+        self.assertAlmostEqual(self.lobsterout_saveprojection.totalspilling[0], [0.044000000000000004][0])
+        self.assertListEqual(self.lobsterout_saveprojection.warninglines,
+                             ['3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.',
+                              'Generally, this is not a critical error. But to help you analyze it,',
+                              'I dumped the band overlap matrices to the file bandOverlaps.lobster.',
+                              'Please check how much they deviate from the identity matrix and decide to',
+                              'use your results only, if you are sure that this is ok.'])
+
+        self.assertListEqual(self.lobsterout_skipping_all.basis_functions,
+                             [['3s', '4s', '3p_y', '3p_z', '3p_x', '3d_xy', '3d_yz', '3d_z^2', '3d_xz', '3d_x^2-y^2']])
+        self.assertListEqual(self.lobsterout_skipping_all.basis_type, ['pbeVaspFit2015'])
+        self.assertListEqual(self.lobsterout_skipping_all.chargespilling, [0.0268])
+        self.assertEqual(self.lobsterout_skipping_all.dftprogram, 'VASP')
+        self.assertListEqual(self.lobsterout_skipping_all.elements, ['Ti'])
+        self.assertFalse(self.lobsterout_skipping_all.has_CHARGE)
+        self.assertFalse(self.lobsterout_skipping_all.has_COHPCAR)
+        self.assertFalse(self.lobsterout_skipping_all.has_COOPCAR)
+        self.assertFalse(self.lobsterout_skipping_all.has_DOSCAR)
+        self.assertFalse(self.lobsterout_skipping_all.has_Projection)
+        self.assertTrue(self.lobsterout_skipping_all.has_bandoverlaps)
+        self.assertFalse(self.lobsterout_skipping_all.has_density_of_energies)
+        self.assertFalse(self.lobsterout_skipping_all.has_fatbands)
+        self.assertFalse(self.lobsterout_skipping_all.has_grosspopulation)
+        self.assertListEqual(self.lobsterout_skipping_all.info_lines,
+                             ['There are more PAW bands than local basis functions available.',
+                              'To prevent trouble in orthonormalization and Hamiltonian reconstruction',
+                              'the PAW bands from 21 and upwards will be ignored.'])
+        self.assertListEqual(self.lobsterout_skipping_all.info_orthonormalization,
+                             ['3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.'])
+        self.assertFalse(self.lobsterout_skipping_all.is_restart_from_projection)
+        self.assertEqual(self.lobsterout_skipping_all.lobster_version, 'v3.1.0')
+        self.assertEqual(self.lobsterout_skipping_all.number_of_spins, 1)
+        self.assertEqual(self.lobsterout_skipping_all.number_of_threads, 8)
+        self.assertDictEqual(self.lobsterout_skipping_all.timing,
+                             {'walltime': {'h': '0', 'min': '0', 's': '2', 'ms': '117'},
+                              'usertime': {'h': '0', 'min': '0', 's': '16', 'ms': '79'},
+                              'sys_time': {'h': '0', 'min': '0', 's': '0', 'ms': '320'}})
+        self.assertAlmostEqual(self.lobsterout_skipping_all.totalspilling[0], [0.044000000000000004][0])
+        self.assertListEqual(self.lobsterout_skipping_all.warninglines,
+                             ['3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.',
+                              'Generally, this is not a critical error. But to help you analyze it,',
+                              'I dumped the band overlap matrices to the file bandOverlaps.lobster.',
+                              'Please check how much they deviate from the identity matrix and decide to',
+                              'use your results only, if you are sure that this is ok.'])
+
+        self.assertListEqual(self.lobsterout_twospins.basis_functions,
+                             [['4s', '4p_y', '4p_z', '4p_x', '3d_xy', '3d_yz', '3d_z^2', '3d_xz', '3d_x^2-y^2']])
+        self.assertListEqual(self.lobsterout_twospins.basis_type, ['pbeVaspFit2015'])
+        self.assertAlmostEqual(self.lobsterout_twospins.chargespilling[0], 0.36619999999999997)
+        self.assertAlmostEqual(self.lobsterout_twospins.chargespilling[1], 0.36619999999999997)
+        self.assertEqual(self.lobsterout_twospins.dftprogram, 'VASP')
+        self.assertListEqual(self.lobsterout_twospins.elements, ['Ti'])
+        self.assertTrue(self.lobsterout_twospins.has_CHARGE)
+        self.assertTrue(self.lobsterout_twospins.has_COHPCAR)
+        self.assertTrue(self.lobsterout_twospins.has_COOPCAR)
+        self.assertTrue(self.lobsterout_twospins.has_DOSCAR)
+        self.assertFalse(self.lobsterout_twospins.has_Projection)
+        self.assertTrue(self.lobsterout_twospins.has_bandoverlaps)
+        self.assertFalse(self.lobsterout_twospins.has_density_of_energies)
+        self.assertFalse(self.lobsterout_twospins.has_fatbands)
+        self.assertFalse(self.lobsterout_twospins.has_grosspopulation)
+        self.assertListEqual(self.lobsterout_twospins.info_lines,
+                             ['There are more PAW bands than local basis functions available.',
+                              'To prevent trouble in orthonormalization and Hamiltonian reconstruction',
+                              'the PAW bands from 19 and upwards will be ignored.'])
+        self.assertListEqual(self.lobsterout_twospins.info_orthonormalization,
+                             ['60 of 294 k-points could not be orthonormalized with an accuracy of 1.0E-5.'])
+        self.assertFalse(self.lobsterout_twospins.is_restart_from_projection)
+        self.assertEqual(self.lobsterout_twospins.lobster_version, 'v3.1.0')
+        self.assertEqual(self.lobsterout_twospins.number_of_spins, 2)
+        self.assertEqual(self.lobsterout_twospins.number_of_threads, 8)
+        self.assertDictEqual(self.lobsterout_twospins.timing, {'walltime': {'h': '0', 'min': '0', 's': '3', 'ms': '71'},
+                                                               'usertime': {'h': '0', 'min': '0', 's': '22',
+                                                                            'ms': '660'},
+                                                               'sys_time': {'h': '0', 'min': '0', 's': '0',
+                                                                            'ms': '310'}})
+        self.assertAlmostEqual(self.lobsterout_twospins.totalspilling[0], [0.2567][0])
+        self.assertAlmostEqual(self.lobsterout_twospins.totalspilling[1], [0.2567][0])
+        self.assertListEqual(self.lobsterout_twospins.warninglines,
+                             ['60 of 294 k-points could not be orthonormalized with an accuracy of 1.0E-5.',
+                              'Generally, this is not a critical error. But to help you analyze it,',
+                              'I dumped the band overlap matrices to the file bandOverlaps.lobster.',
+                              'Please check how much they deviate from the identity matrix and decide to',
+                              'use your results only, if you are sure that this is ok.'])
+
+        self.assertListEqual(self.lobsterout_from_projection.basis_functions,
+                             [])
+        self.assertListEqual(self.lobsterout_from_projection.basis_type, [])
+        self.assertAlmostEqual(self.lobsterout_from_projection.chargespilling[0], 0.0177)
+        self.assertEqual(self.lobsterout_from_projection.dftprogram, None)
+        self.assertListEqual(self.lobsterout_from_projection.elements, [])
+        self.assertTrue(self.lobsterout_from_projection.has_CHARGE)
+        self.assertTrue(self.lobsterout_from_projection.has_COHPCAR)
+        self.assertTrue(self.lobsterout_from_projection.has_COOPCAR)
+        self.assertTrue(self.lobsterout_from_projection.has_DOSCAR)
+        self.assertFalse(self.lobsterout_from_projection.has_Projection)
+        self.assertFalse(self.lobsterout_from_projection.has_bandoverlaps)
+        self.assertFalse(self.lobsterout_from_projection.has_density_of_energies)
+        self.assertFalse(self.lobsterout_from_projection.has_fatbands)
+        self.assertFalse(self.lobsterout_from_projection.has_grosspopulation)
+        self.assertListEqual(self.lobsterout_from_projection.info_lines,
+                             [])
+        self.assertListEqual(self.lobsterout_from_projection.info_orthonormalization,
+                             [])
+        self.assertTrue(self.lobsterout_from_projection.is_restart_from_projection)
+        self.assertEqual(self.lobsterout_from_projection.lobster_version, 'v3.1.0')
+        self.assertEqual(self.lobsterout_from_projection.number_of_spins, 1)
+        self.assertEqual(self.lobsterout_from_projection.number_of_threads, 8)
+        self.assertDictEqual(self.lobsterout_from_projection.timing,
+                             {'walltime': {'h': '0', 'min': '2', 's': '1', 'ms': '890'},
+                              'usertime': {'h': '0', 'min': '15', 's': '10', 'ms': '530'},
+                              'sys_time': {'h': '0', 'min': '0', 's': '0', 'ms': '400'}})
+        self.assertAlmostEqual(self.lobsterout_from_projection.totalspilling[0], [0.1543][0])
+        self.assertListEqual(self.lobsterout_from_projection.warninglines,
+                             [])
+
+        self.assertListEqual(self.lobsterout_GaAs.basis_functions,
+                             [['4s', '4p_y', '4p_z', '4p_x'],
+                              ['4s', '4p_y', '4p_z', '4p_x', '3d_xy', '3d_yz', '3d_z^2', '3d_xz', '3d_x^2-y^2']])
+        self.assertListEqual(self.lobsterout_GaAs.basis_type, ['Bunge', 'Bunge'])
+        self.assertAlmostEqual(self.lobsterout_GaAs.chargespilling[0], 0.0089)
+        self.assertEqual(self.lobsterout_GaAs.dftprogram, 'VASP')
+        self.assertListEqual(self.lobsterout_GaAs.elements, ['As', 'Ga'])
+        self.assertTrue(self.lobsterout_GaAs.has_CHARGE)
+        self.assertTrue(self.lobsterout_GaAs.has_COHPCAR)
+        self.assertTrue(self.lobsterout_GaAs.has_COOPCAR)
+        self.assertTrue(self.lobsterout_GaAs.has_DOSCAR)
+        self.assertFalse(self.lobsterout_GaAs.has_Projection)
+        self.assertFalse(self.lobsterout_GaAs.has_bandoverlaps)
+        self.assertFalse(self.lobsterout_GaAs.has_density_of_energies)
+        self.assertFalse(self.lobsterout_GaAs.has_fatbands)
+        self.assertFalse(self.lobsterout_GaAs.has_grosspopulation)
+        self.assertListEqual(self.lobsterout_GaAs.info_lines,
+                             ['There are more PAW bands than local basis functions available.',
+                              'To prevent trouble in orthonormalization and Hamiltonian reconstruction',
+                              'the PAW bands from 14 and upwards will be ignored.'])
+        self.assertListEqual(self.lobsterout_GaAs.info_orthonormalization,
+                             [])
+        self.assertFalse(self.lobsterout_GaAs.is_restart_from_projection)
+        self.assertEqual(self.lobsterout_GaAs.lobster_version, 'v3.1.0')
+        self.assertEqual(self.lobsterout_GaAs.number_of_spins, 1)
+        self.assertEqual(self.lobsterout_GaAs.number_of_threads, 8)
+        self.assertDictEqual(self.lobsterout_GaAs.timing, {'walltime': {'h': '0', 'min': '0', 's': '2', 'ms': '726'},
+                                                           'usertime': {'h': '0', 'min': '0', 's': '12', 'ms': '370'},
+                                                           'sys_time': {'h': '0', 'min': '0', 's': '0', 'ms': '180'}})
+        self.assertAlmostEqual(self.lobsterout_GaAs.totalspilling[0], [0.0859][0])
+
+    def test_get_doc(self):
+        comparedict = {'restart_from_projection': False, 'lobster_version': 'v3.1.0', 'threads': 8,
+                       'Dftprogram': 'VASP', 'chargespilling': [0.0268], 'totalspilling': [0.044000000000000004],
+                       'elements': ['Ti'], 'basistype': ['pbeVaspFit2015'], 'basisfunctions': [
+                ['3s', '4s', '3p_y', '3p_z', '3p_x', '3d_xy', '3d_yz', '3d_z^2', '3d_xz', '3d_x^2-y^2']],
+                       'timing': {'walltime': {'h': '0', 'min': '0', 's': '2', 'ms': '702'},
+                                  'usertime': {'h': '0', 'min': '0', 's': '20', 'ms': '330'},
+                                  'sys_time': {'h': '0', 'min': '0', 's': '0', 'ms': '310'}},
+                       'warnings': ['3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.',
+                                    'Generally, this is not a critical error. But to help you analyze it,',
+                                    'I dumped the band overlap matrices to the file bandOverlaps.lobster.',
+                                    'Please check how much they deviate from the identity matrix and decide to',
+                                    'use your results only, if you are sure that this is ok.'], 'orthonormalization': [
+                '3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.'],
+                       'infos': ['There are more PAW bands than local basis functions available.',
+                                 'To prevent trouble in orthonormalization and Hamiltonian reconstruction',
+                                 'the PAW bands from 21 and upwards will be ignored.'], 'hasDOSCAR': True,
+                       'hasCOHPCAR': True, 'hasCOOPCAR': True, 'hasCHARGE': True, 'hasProjection': False,
+                       'hasbandoverlaps': True, 'hasfatband': False, 'hasGrossPopuliation': False,
+                       'hasDensityOfEnergies': False}
+        for key, item in self.lobsterout_normal.get_doc().items():
+            if type(item) == type(''):
+                self.assertTrue(comparedict[key], item)
+            elif type(item) == type(0):
+                self.assertEqual(comparedict[key], item)
+            elif key == 'chargespilling' or key == 'totalspilling':
+                self.assertAlmostEqual(item[0], comparedict[key][0])
+            elif type(item) == type(['']):
+                self.assertListEqual(item, comparedict[key])
+            elif type(item) == type({}):
+                self.assertDictEqual(item, comparedict[key])
 
 
 if __name__ == "__main__":
