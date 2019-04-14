@@ -22,8 +22,7 @@ from monty.json import MSONable
 from monty.json import jsanitize
 from monty.re import regrep
 from monty.os.path import zpath
-
-
+from monty.dev import deprecated
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
@@ -1819,7 +1818,7 @@ class Outcar:
         plasma_frequencies = collections.defaultdict(list)
         read_plasma = False
         read_dielectric = False
-        freq = []
+        energies = []
         data = {"REAL": [], "IMAGINARY": []}
         count = 0
         component = "IMAGINARY"
@@ -1840,7 +1839,7 @@ class Outcar:
                     if re.match(row_pattern, l.strip()):
                         toks = l.strip().split()
                         if component == "IMAGINARY":
-                            freq.append(float(toks[0]))
+                            energies.append(float(toks[0]))
                         xx, yy, zz, xy, yz, xz = [float(t) for t in toks[1:]]
                         matrix = [[xx, xy, xz], [xy, yy, yz], [xz, yz, zz]]
                         data[component].append(matrix)
@@ -1851,11 +1850,16 @@ class Outcar:
                     elif count == 3:
                         break
 
-        self.plasma_frequencies = {k: np.array(v[:3]).reshape(3, 3)
+        self.plasma_frequencies = {k: np.array(v[:3])
                                    for k, v in plasma_frequencies.items()}
-        self.frequencies = np.array(freq)
+        self.dielectric_energies = np.array(energies)
         self.dielectric_tensor_function = np.array(data["REAL"]) + \
             1j * np.array(data["IMAGINARY"])
+
+    @property
+    @deprecated(message="frequencies has been renamed to dielectric_energies.")
+    def frequencies(self):
+        return self.dielectric_energies
 
     def read_chemical_shielding(self):
         """

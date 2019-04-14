@@ -674,13 +674,13 @@ class OutcarTest(PymatgenTest):
         filepath = self.TEST_FILES_DIR / "OUTCAR.LOPTICS"
         outcar = Outcar(filepath)
         outcar.read_freq_dielectric()
-        self.assertAlmostEqual(outcar.frequencies[0], 0)
-        self.assertAlmostEqual(outcar.frequencies[-1], 39.826101)
+        self.assertAlmostEqual(outcar.dielectric_energies[0], 0)
+        self.assertAlmostEqual(outcar.dielectric_energies[-1], 39.826101)
         self.assertAlmostEqual(outcar.dielectric_tensor_function[0][0, 0],
                                8.96938800)
         self.assertAlmostEqual(outcar.dielectric_tensor_function[-1][0, 0],
                                7.36167000e-01 + 1.53800000e-03j)
-        self.assertEqual(len(outcar.frequencies),
+        self.assertEqual(len(outcar.dielectric_energies),
                          len(outcar.dielectric_tensor_function))
         np.testing.assert_array_equal(outcar.dielectric_tensor_function[0],
                                       outcar.dielectric_tensor_function[
@@ -697,13 +697,13 @@ class OutcarTest(PymatgenTest):
         filepath = self.TEST_FILES_DIR / "OUTCAR.LOPTICS.vasp544"
         outcar = Outcar(filepath)
         outcar.read_freq_dielectric()
-        self.assertAlmostEqual(outcar.frequencies[0], 0)
-        self.assertAlmostEqual(outcar.frequencies[-1], 39.63964)
+        self.assertAlmostEqual(outcar.dielectric_energies[0], 0)
+        self.assertAlmostEqual(outcar.dielectric_energies[-1], 39.63964)
         self.assertAlmostEqual(outcar.dielectric_tensor_function[0][0, 0],
                                12.769435 + 0j)
         self.assertAlmostEqual(outcar.dielectric_tensor_function[-1][0, 0],
                                0.828615 + 0.016594j)
-        self.assertEqual(len(outcar.frequencies),
+        self.assertEqual(len(outcar.dielectric_energies),
                          len(outcar.dielectric_tensor_function))
         np.testing.assert_array_equal(outcar.dielectric_tensor_function[0],
                                       outcar.dielectric_tensor_function[
