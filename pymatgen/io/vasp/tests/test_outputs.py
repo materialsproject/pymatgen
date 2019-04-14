@@ -686,6 +686,13 @@ class OutcarTest(PymatgenTest):
                                       outcar.dielectric_tensor_function[
                                           0].transpose())
 
+        plasma_freq = outcar.plasma_frequencies
+        self.assertArrayAlmostEqual(plasma_freq["intraband"], np.zeros((3,3)))
+        self.assertArrayAlmostEqual(plasma_freq["interband"],
+                                    [[367.49, 63.939, 11.976],
+                                     [63.939, 381.155, -24.461],
+                                     [11.976, -24.461, 297.844]])
+
     def test_freq_dielectric_vasp544(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.LOPTICS.vasp544"
         outcar = Outcar(filepath)

@@ -301,7 +301,8 @@ class DictSet(VaspInputSet):
                 "compatibility with other calculations done with the same "
                 "input set. In many instances, it is better to write a "
                 "subclass of a desired input set and override the POTCAR in "
-                "the subclass to be explicit on the differences.")
+                "the subclass to be explicit on the differences.",
+                BadInputSetWarning)
             for k, v in self.user_potcar_settings.items():
                 self._config_dict["POTCAR"][k] = v
 
@@ -394,7 +395,7 @@ class DictSet(VaspInputSet):
             if incar.get("NSW", 0) > 0 and incar.get("ISMEAR", 1) < 1:
                 warnings.warn("Relaxation of likely metal with ISMEAR < 1 "
                               "detected. Please see VASP recommendations on "
-                              "ISMEAR for metals.")
+                              "ISMEAR for metals.", BadInputSetWarning)
         return incar
 
     @property
@@ -2014,6 +2015,10 @@ def get_structure_from_prev_run(vasprun, outcar=None, sym_prec=0.1,
         structure = new_structure
 
     return structure
+
+
+class BadInputSetWarning(UserWarning):
+    pass
 
 
 def batch_write_input(structures, vasp_input_set=MPRelaxSet, output_dir=".",
