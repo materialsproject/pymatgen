@@ -1006,9 +1006,8 @@ class VoronoiNN_modified(VoronoiNN):
                 available in get_voronoi_polyhedra)
             extra_nn_info (bool) - Add all polyhedron info to `get_nn_info`
         """
-        super().__init__(0.5, targets, cutoff,
-                                                 allow_pathological,
-                                                 weight, extra_nn_info)
+        super().__init__(0.5, targets, cutoff, allow_pathological, weight,
+                         extra_nn_info)
 
 
 class JmolNN(NearNeighbors):

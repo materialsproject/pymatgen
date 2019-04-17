@@ -528,8 +528,7 @@ class MPMetalRelaxSet(MPRelaxSet):
     CONFIG = _load_yaml_config("MPRelaxSet")
 
     def __init__(self, structure, **kwargs):
-        super().__init__(
-            structure, **kwargs)
+        super().__init__(structure, **kwargs)
         self._config_dict["INCAR"].update({
             "ISMEAR": 1,
             "SIGMA": 0.2
@@ -547,8 +546,7 @@ class MPHSERelaxSet(DictSet):
     CONFIG = _load_yaml_config("MPHSERelaxSet")
 
     def __init__(self, structure, **kwargs):
-        super().__init__(
-            structure, MPHSERelaxSet.CONFIG, **kwargs)
+        super().__init__(structure, MPHSERelaxSet.CONFIG, **kwargs)
         self.kwargs = kwargs
 
 
@@ -1061,9 +1059,8 @@ class MPSOCSet(MPStaticSet):
                 "property and each magnetic moment value must have 3 "
                 "components. eg:- magmom = [0,0,2]")
         self.saxis = saxis
-        super().__init__(
-            structure, prev_incar=prev_incar,
-            reciprocal_density=reciprocal_density, **kwargs)
+        super().__init__(structure, prev_incar=prev_incar,
+                         reciprocal_density=reciprocal_density, **kwargs)
 
     @property
     def incar(self):
@@ -1185,9 +1182,8 @@ class MPNMRSet(MPStaticSet):
         """
         self.mode = mode
         self.isotopes = isotopes if isotopes else []
-        super().__init__(
-            structure, prev_incar=prev_incar,
-            reciprocal_density=reciprocal_density, **kwargs)
+        super().__init__(structure, prev_incar=prev_incar,
+                         reciprocal_density=reciprocal_density, **kwargs)
 
     @property
     def incar(self):
@@ -1292,8 +1288,7 @@ class MVLGWSet(DictSet):
             \\*\\*kwargs: All kwargs supported by DictSet. Typically,
                 user_incar_settings is a commonly used option.
         """
-        super().__init__(
-            structure, MVLGWSet.CONFIG, **kwargs)
+        super().__init__(structure, MVLGWSet.CONFIG, **kwargs)
         self.prev_incar = prev_incar
         self.nbands = nbands
         self.potcar_functional = potcar_functional
@@ -1552,7 +1547,6 @@ class MVLGBSet(MPRelaxSet):
 
     @property
     def incar(self):
-
         incar = super().incar
 
         # The default incar setting is used for metallic system, for
@@ -1609,8 +1603,7 @@ class MVLRelax52Set(DictSet):
             raise ValueError("Please select from PBE_52 and PBE_54!")
 
         super().__init__(structure, MVLRelax52Set.CONFIG,
-                                            potcar_functional=potcar_functional,
-                                            **kwargs)
+                         potcar_functional=potcar_functional, **kwargs)
         self.kwargs = kwargs
 
 
@@ -1874,8 +1867,7 @@ class MVLNPTMDSet(MITMDSet):
         kwargs["user_incar_settings"] = defaults
 
         super().__init__(structure, start_temp, end_temp,
-                                          nsteps, time_step, spin_polarized,
-                                          **kwargs)
+                         nsteps, time_step, spin_polarized, **kwargs)
 
         # Set NPT-AIMD ENCUT = 1.5 * VASP_default
         enmax = [self.potcar[i].keywords['ENMAX']
@@ -1916,9 +1908,8 @@ class MVLScanRelaxSet(MPRelaxSet):
         if potcar_functional not in ["PBE_52", "PBE_54"]:
             raise ValueError("SCAN calculations required PBE_52 or PBE_54!")
 
-        super().__init__(
-            structure, potcar_functional=potcar_functional,
-            **kwargs)
+        super().__init__(structure, potcar_functional=potcar_functional,
+                         **kwargs)
 
         self._config_dict["INCAR"].update({"ADDGRID": True,
                                            "EDIFF": 1e-05,

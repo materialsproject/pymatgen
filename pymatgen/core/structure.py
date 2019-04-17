@@ -3145,9 +3145,9 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                 and fractional_coords. Defaults to None for no properties.
         """
         super().__init__(species, coords, charge=charge,
-                                       spin_multiplicity=spin_multiplicity,
-                                       validate_proximity=validate_proximity,
-                                       site_properties=site_properties)
+                         spin_multiplicity=spin_multiplicity,
+                         validate_proximity=validate_proximity,
+                         site_properties=site_properties)
         self._sites = list(self._sites)
 
     def __setitem__(self, i, site):

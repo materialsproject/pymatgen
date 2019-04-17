@@ -279,8 +279,8 @@ class CifTransmuter(StandardTransmuter):
             tstruct = TransformedStructure.from_cif_string("\n".join(data), [],
                                                            primitive)
             transformed_structures.append(tstruct)
-        super().__init__(transformed_structures,
-                                    transformations, extend_collection)
+        super().__init__(transformed_structures, transformations,
+                         extend_collection)
 
     @staticmethod
     def from_filenames(filenames, transformations=None, primitive=True,
@@ -322,7 +322,7 @@ class PoscarTransmuter(StandardTransmuter):
                  extend_collection=False):
         tstruct = TransformedStructure.from_poscar_string(poscar_string, [])
         super().__init__([tstruct], transformations,
-                                    extend_collection=extend_collection)
+                         extend_collection=extend_collection)
 
     @staticmethod
     def from_filenames(poscar_filenames, transformations=None,

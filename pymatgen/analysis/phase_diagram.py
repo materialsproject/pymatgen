@@ -147,8 +147,7 @@ class GrandPotPDEntry(PDEntry):
         self.chempots = chempots
         new_comp_map = {el: comp[el] for el in comp.elements
                         if el not in chempots}
-        super().__init__(new_comp_map, grandpot,
-                                              entry.name)
+        super().__init__(new_comp_map, grandpot, entry.name)
         self.name = name if name else entry.name
 
     @property

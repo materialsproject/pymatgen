@@ -324,9 +324,9 @@ class MPXANESSet(FEFFDictSet):
             user_tag_settings (dict): override default tag settings
         """
         super().__init__(absorbing_atom, structure, radius,
-                                         MPXANESSet.CONFIG, edge=edge,
-                                         spectrum="XANES", nkpts=nkpts,
-                                         user_tag_settings=user_tag_settings)
+                         MPXANESSet.CONFIG, edge=edge,
+                         spectrum="XANES", nkpts=nkpts,
+                         user_tag_settings=user_tag_settings)
 
 
 class MPEXAFSSet(FEFFDictSet):
@@ -349,9 +349,9 @@ class MPEXAFSSet(FEFFDictSet):
             user_tag_settings (dict): override default tag settings
         """
         super().__init__(absorbing_atom, structure, radius,
-                                         MPEXAFSSet.CONFIG, edge=edge,
-                                         spectrum="EXAFS", nkpts=nkpts,
-                                         user_tag_settings=user_tag_settings)
+                         MPEXAFSSet.CONFIG, edge=edge,
+                         spectrum="EXAFS", nkpts=nkpts,
+                         user_tag_settings=user_tag_settings)
 
 
 class MPEELSDictSet(FEFFDictSet):
@@ -402,9 +402,9 @@ class MPEELSDictSet(FEFFDictSet):
             eels_config_dict[spectrum].update(user_eels_settings)
 
         super().__init__(absorbing_atom, structure, radius,
-                                            eels_config_dict, edge=edge,
-                                            spectrum=spectrum, nkpts=nkpts,
-                                            user_tag_settings=user_tag_settings)
+                         eels_config_dict, edge=edge,
+                         spectrum=spectrum, nkpts=nkpts,
+                         user_tag_settings=user_tag_settings)
 
 
 class MPELNESSet(MPEELSDictSet):
@@ -437,11 +437,11 @@ class MPELNESSet(MPEELSDictSet):
         """
 
         super().__init__(absorbing_atom, structure, edge,
-                                         "ELNES", radius, beam_energy,
-                                         beam_direction, collection_angle,
-                                         convergence_angle, MPELNESSet.CONFIG,
-                                         user_eels_settings=user_eels_settings,
-                                         nkpts=nkpts, user_tag_settings=user_tag_settings)
+                         "ELNES", radius, beam_energy,
+                         beam_direction, collection_angle,
+                         convergence_angle, MPELNESSet.CONFIG,
+                         user_eels_settings=user_eels_settings,
+                         nkpts=nkpts, user_tag_settings=user_tag_settings)
 
 
 class MPEXELFSSet(MPEELSDictSet):
@@ -474,8 +474,8 @@ class MPEXELFSSet(MPEELSDictSet):
         """
 
         super().__init__(absorbing_atom, structure, edge,
-                                          "EXELFS", radius, beam_energy,
-                                          beam_direction, collection_angle,
-                                          convergence_angle, MPEXELFSSet.CONFIG,
-                                          user_eels_settings=user_eels_settings,
-                                          nkpts=nkpts, user_tag_settings=user_tag_settings)
+                         "EXELFS", radius, beam_energy,
+                         beam_direction, collection_angle,
+                         convergence_angle, MPEXELFSSet.CONFIG,
+                         user_eels_settings=user_eels_settings,
+                         nkpts=nkpts, user_tag_settings=user_tag_settings)
