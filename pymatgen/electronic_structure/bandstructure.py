@@ -681,7 +681,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
     def __init__(self, kpoints, eigenvals, lattice, efermi, labels_dict,
                  coords_are_cartesian=False, structure=None,
                  projections=None):
-        super(BandStructureSymmLine, self).__init__(
+        super().__init__(
             kpoints, eigenvals, lattice, efermi, labels_dict,
             coords_are_cartesian, structure, projections)
         self.distance = []

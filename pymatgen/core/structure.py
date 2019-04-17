@@ -839,7 +839,7 @@ class IStructure(SiteCollection, MSONable):
         Overall charge of the structure
         """
         if self._charge is None:
-            return super(IStructure, self).charge
+            return super().charge
         else:
             return self._charge
 
@@ -1715,7 +1715,7 @@ class IStructure(SiteCollection, MSONable):
             filename (str): If provided, output will be written to a file. If
                 fmt is not specified, the format is determined from the
                 filename. Defaults is None, i.e. string output.
-            \*\*kwargs: Kwargs passthru to relevant methods. E.g., This allows
+            \\*\\*kwargs: Kwargs passthru to relevant methods. E.g., This allows
                 the passing of parameters like symprec to the
                 CifWriter.__init__ method for generation of symmetric cifs.
 
@@ -2539,7 +2539,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 have to be the same length as the atomic species and
                 fractional_coords. Defaults to None for no properties.
         """
-        super(Structure, self).__init__(
+        super().__init__(
             lattice, species, coords, charge=charge,
             validate_proximity=validate_proximity, to_unit_cell=to_unit_cell,
             coords_are_cartesian=coords_are_cartesian,
@@ -3062,8 +3062,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         Args:
             tol (float): Tolerance for distance to merge sites.
-            mode (str): Two modes supported. "delete" means duplicate sites are
+            mode (str): Three modes supported. "delete" means duplicate sites are
                 deleted. "sum" means the occupancies are summed for the sites.
+                "average" means that the site is deleted but the properties are averaged
                 Only first letter is considered.
 
         """
@@ -3090,9 +3091,13 @@ class Structure(IStructure, collections.abc.MutableSequence):
                     coords.dtype)
                 for key in props.keys():
                     if props[key] is not None and self[i].properties[key] != props[key]:
-                        props[key] = None
-                        warnings.warn("Sites with different site property %s are merged. "
-                                      "So property is set to none" % key)
+                        if mode  == 'a' and isinstance(props[key], float):
+                            # update a running total
+                            props[key] = props[key]*(n+1)/(n+2) + self[i].properties[key]/(n+2)
+                        else:
+                            props[key] = None
+                            warnings.warn("Sites with different site property %s are merged. "
+                                        "So property is set to none" % key)
             sites.append(PeriodicSite(species, coords, self.lattice, properties=props))
 
         self._sites = sites
@@ -3139,10 +3144,10 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                 sequences have to be the same length as the atomic species
                 and fractional_coords. Defaults to None for no properties.
         """
-        super(Molecule, self).__init__(species, coords, charge=charge,
-                                       spin_multiplicity=spin_multiplicity,
-                                       validate_proximity=validate_proximity,
-                                       site_properties=site_properties)
+        super().__init__(species, coords, charge=charge,
+                         spin_multiplicity=spin_multiplicity,
+                         validate_proximity=validate_proximity,
+                         site_properties=site_properties)
         self._sites = list(self._sites)
 
     def __setitem__(self, i, site):
