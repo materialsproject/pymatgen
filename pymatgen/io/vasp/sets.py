@@ -471,7 +471,7 @@ class DictSet(VaspInputSet):
 
     def write_input(self, output_dir,
                     make_dir_if_not_present=True, include_cif=False):
-        super(DictSet, self).write_input(
+        super().write_input(
             output_dir=output_dir,
             make_dir_if_not_present=make_dir_if_not_present,
             include_cif=include_cif)
@@ -498,7 +498,7 @@ class MITRelaxSet(DictSet):
     CONFIG = _load_yaml_config("MITRelaxSet")
 
     def __init__(self, structure, **kwargs):
-        super(MITRelaxSet, self).__init__(
+        super().__init__(
             structure, MITRelaxSet.CONFIG, **kwargs)
         self.kwargs = kwargs
 
@@ -514,7 +514,7 @@ class MPRelaxSet(DictSet):
     CONFIG = _load_yaml_config("MPRelaxSet")
 
     def __init__(self, structure, **kwargs):
-        super(MPRelaxSet, self).__init__(
+        super().__init__(
             structure, MPRelaxSet.CONFIG, **kwargs)
         self.kwargs = kwargs
 
@@ -528,7 +528,7 @@ class MPMetalRelaxSet(MPRelaxSet):
     CONFIG = _load_yaml_config("MPRelaxSet")
 
     def __init__(self, structure, **kwargs):
-        super(MPMetalRelaxSet, self).__init__(
+        super().__init__(
             structure, **kwargs)
         self._config_dict["INCAR"].update({
             "ISMEAR": 1,
@@ -547,7 +547,7 @@ class MPHSERelaxSet(DictSet):
     CONFIG = _load_yaml_config("MPHSERelaxSet")
 
     def __init__(self, structure, **kwargs):
-        super(MPHSERelaxSet, self).__init__(
+        super().__init__(
             structure, MPHSERelaxSet.CONFIG, **kwargs)
         self.kwargs = kwargs
 
@@ -571,7 +571,7 @@ class MPStaticSet(MPRelaxSet):
                 that of standard relaxation calculations.
             \\*\\*kwargs: kwargs supported by MPRelaxSet.
         """
-        super(MPStaticSet, self).__init__(structure, **kwargs)
+        super().__init__(structure, **kwargs)
         if isinstance(prev_incar, str):
             prev_incar = Incar.from_file(prev_incar)
         if isinstance(prev_kpoints, str):
@@ -587,7 +587,7 @@ class MPStaticSet(MPRelaxSet):
 
     @property
     def incar(self):
-        parent_incar = super(MPStaticSet, self).incar
+        parent_incar = super().incar
         incar = Incar(self.prev_incar) if self.prev_incar is not None else \
             Incar(parent_incar)
 
@@ -643,7 +643,7 @@ class MPStaticSet(MPRelaxSet):
     def kpoints(self):
         self._config_dict["KPOINTS"]["reciprocal_density"] = \
             self.reciprocal_density
-        kpoints = super(MPStaticSet, self).kpoints
+        kpoints = super().kpoints
 
         # Prefer to use k-point scheme from previous run
         # except for when lepsilon = True is specified
@@ -743,7 +743,7 @@ class MPHSEBSSet(MPHSERelaxSet):
             **kwargs (dict): Any other parameters to pass into DictVaspInputSet
 
         """
-        super(MPHSEBSSet, self).__init__(structure, **kwargs)
+        super().__init__(structure, **kwargs)
         self.structure = structure
         self.user_incar_settings = user_incar_settings or {}
         self._config_dict["INCAR"].update({
@@ -870,7 +870,7 @@ class MPNonSCFSet(MPRelaxSet):
             optics (bool): whether to add dielectric function
             \\*\\*kwargs: kwargs supported by MPVaspInputSet.
         """
-        super(MPNonSCFSet, self).__init__(structure, **kwargs)
+        super().__init__(structure, **kwargs)
         if isinstance(prev_incar, str):
             prev_incar = Incar.from_file(prev_incar)
         self.prev_incar = prev_incar
@@ -891,7 +891,7 @@ class MPNonSCFSet(MPRelaxSet):
 
     @property
     def incar(self):
-        incar = super(MPNonSCFSet, self).incar
+        incar = super().incar
         if self.prev_incar is not None:
             incar.update({k: v for k, v in self.prev_incar.items()})
 
@@ -1061,13 +1061,13 @@ class MPSOCSet(MPStaticSet):
                 "property and each magnetic moment value must have 3 "
                 "components. eg:- magmom = [0,0,2]")
         self.saxis = saxis
-        super(MPSOCSet, self).__init__(
+        super().__init__(
             structure, prev_incar=prev_incar,
             reciprocal_density=reciprocal_density, **kwargs)
 
     @property
     def incar(self):
-        incar = super(MPSOCSet, self).incar
+        incar = super().incar
         if self.prev_incar is not None:
             incar.update({k: v for k, v in self.prev_incar.items()})
 
@@ -1185,13 +1185,13 @@ class MPNMRSet(MPStaticSet):
         """
         self.mode = mode
         self.isotopes = isotopes if isotopes else []
-        super(MPNMRSet, self).__init__(
+        super().__init__(
             structure, prev_incar=prev_incar,
             reciprocal_density=reciprocal_density, **kwargs)
 
     @property
     def incar(self):
-        incar = super(MPNMRSet, self).incar
+        incar = super().incar
 
         if self.mode.lower() == "cs":
             incar.update({"LCHIMAG": True,
@@ -1249,7 +1249,7 @@ class MVLElasticSet(MPRelaxSet):
     """
 
     def __init__(self, structure, potim=0.015, **kwargs):
-        super(MVLElasticSet, self).__init__(structure, **kwargs)
+        super().__init__(structure, **kwargs)
         self._config_dict["INCAR"].update({"IBRION": 6, "NFREE": 2,
                                            "POTIM": potim})
         self._config_dict["INCAR"].pop("NPAR", None)
@@ -1292,7 +1292,7 @@ class MVLGWSet(DictSet):
             \\*\\*kwargs: All kwargs supported by DictSet. Typically,
                 user_incar_settings is a commonly used option.
         """
-        super(MVLGWSet, self).__init__(
+        super().__init__(
             structure, MVLGWSet.CONFIG, **kwargs)
         self.prev_incar = prev_incar
         self.nbands = nbands
@@ -1316,7 +1316,7 @@ class MVLGWSet(DictSet):
 
     @property
     def incar(self):
-        parent_incar = super(MVLGWSet, self).incar
+        parent_incar = super().incar
         incar = Incar(self.prev_incar) if self.prev_incar is not None else \
             Incar(parent_incar)
 
@@ -1423,7 +1423,7 @@ class MVLSlabSet(MPRelaxSet):
     def __init__(self, structure, k_product=50, bulk=False,
                  auto_dipole=False, set_mix=True, sort_structure=True,
                  **kwargs):
-        super(MVLSlabSet, self).__init__(structure, **kwargs)
+        super().__init__(structure, **kwargs)
 
         if sort_structure:
             structure = structure.get_sorted_structure()
@@ -1469,7 +1469,7 @@ class MVLSlabSet(MPRelaxSet):
         # attributes aren't going to affect the VASP inputs anyways so
         # converting the slab into a structure should not matter
 
-        kpt = super(MVLSlabSet, self).kpoints
+        kpt = super().kpoints
         kpt.comment = "Automatic mesh"
         kpt.style = 'Gamma'
 
@@ -1516,7 +1516,7 @@ class MVLGBSet(MPRelaxSet):
 
     def __init__(self, structure, k_product=40, slab_mode=False, is_metal=True,
                  **kwargs):
-        super(MVLGBSet, self).__init__(structure, **kwargs)
+        super().__init__(structure, **kwargs)
         self.structure = structure
         self.k_product = k_product
         self.slab_mode = slab_mode
@@ -1533,7 +1533,7 @@ class MVLGBSet(MPRelaxSet):
         # To get input sets, the input structure has to has the same number
         # of required parameters as a Structure object.
 
-        kpt = super(MVLGBSet, self).kpoints
+        kpt = super().kpoints
         kpt.comment = "Generated by pymatgen's MVLGBSet"
         kpt.style = 'Gamma'
 
@@ -1553,7 +1553,7 @@ class MVLGBSet(MPRelaxSet):
     @property
     def incar(self):
 
-        incar = super(MVLGBSet, self).incar
+        incar = super().incar
 
         # The default incar setting is used for metallic system, for
         # insulator or semiconductor, ISMEAR need to be changed.
@@ -1608,7 +1608,7 @@ class MVLRelax52Set(DictSet):
         if potcar_functional not in ["PBE_52", "PBE_54"]:
             raise ValueError("Please select from PBE_52 and PBE_54!")
 
-        super(MVLRelax52Set, self).__init__(structure, MVLRelax52Set.CONFIG,
+        super().__init__(structure, MVLRelax52Set.CONFIG,
                                             potcar_functional=potcar_functional,
                                             **kwargs)
         self.kwargs = kwargs
@@ -1628,7 +1628,7 @@ class MITNEBSet(MITRelaxSet):
         if len(structures) < 3:
             raise ValueError("You need at least 3 structures for an NEB.")
         kwargs["sort_structure"] = False
-        super(MITNEBSet, self).__init__(structures[0], **kwargs)
+        super().__init__(structures[0], **kwargs)
         self.structures = self._process_structures(structures)
         self.unset_encut = False
         if unset_encut:
@@ -1753,7 +1753,7 @@ class MITMDSet(MITRelaxSet):
                     'ISPIN': 2 if spin_polarized else 1,
                     "LDAU": False}
 
-        super(MITMDSet, self).__init__(structure, **kwargs)
+        super().__init__(structure, **kwargs)
 
         self.start_temp = start_temp
         self.end_temp = end_temp
@@ -1816,7 +1816,7 @@ class MPMDSet(MPRelaxSet):
             defaults['POTIM'] = 0.5
         defaults['NSW'] = defaults['NSW'] * 4
 
-        super(MPMDSet, self).__init__(structure, **kwargs)
+        super().__init__(structure, **kwargs)
 
         self.start_temp = start_temp
         self.end_temp = end_temp
@@ -1873,7 +1873,7 @@ class MVLNPTMDSet(MITMDSet):
         defaults.update(user_incar_settings)
         kwargs["user_incar_settings"] = defaults
 
-        super(MVLNPTMDSet, self).__init__(structure, start_temp, end_temp,
+        super().__init__(structure, start_temp, end_temp,
                                           nsteps, time_step, spin_polarized,
                                           **kwargs)
 
@@ -1916,7 +1916,7 @@ class MVLScanRelaxSet(MPRelaxSet):
         if potcar_functional not in ["PBE_52", "PBE_54"]:
             raise ValueError("SCAN calculations required PBE_52 or PBE_54!")
 
-        super(MVLScanRelaxSet, self).__init__(
+        super().__init__(
             structure, potcar_functional=potcar_functional,
             **kwargs)
 

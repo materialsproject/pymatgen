@@ -279,7 +279,7 @@ class CifTransmuter(StandardTransmuter):
             tstruct = TransformedStructure.from_cif_string("\n".join(data), [],
                                                            primitive)
             transformed_structures.append(tstruct)
-        super(CifTransmuter, self).__init__(transformed_structures,
+        super().__init__(transformed_structures,
                                     transformations, extend_collection)
 
     @staticmethod
@@ -321,7 +321,7 @@ class PoscarTransmuter(StandardTransmuter):
     def __init__(self, poscar_string, transformations=None,
                  extend_collection=False):
         tstruct = TransformedStructure.from_poscar_string(poscar_string, [])
-        super(PoscarTransmuter, self).__init__([tstruct], transformations,
+        super().__init__([tstruct], transformations,
                                     extend_collection=extend_collection)
 
     @staticmethod

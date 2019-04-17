@@ -287,7 +287,7 @@ class CompleteCohp(Cohp):
 
     def __init__(self, structure, avg_cohp, cohp_dict, bonds=None,
                  are_coops=False, orb_res_cohp=None):
-        super(CompleteCohp, self).__init__(avg_cohp.efermi,
+        super().__init__(avg_cohp.efermi,
                                            avg_cohp.energies,
                                            avg_cohp.cohp,
                                            are_coops=are_coops,

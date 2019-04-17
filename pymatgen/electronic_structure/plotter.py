@@ -705,7 +705,7 @@ class BSPlotterProjected(BSPlotter):
         if len(bs.projections) == 0:
             raise ValueError("try to plot projections"
                              " on a band structure without any")
-        super(BSPlotterProjected, self).__init__(bs)
+        super().__init__(bs)
 
     def _get_projections_by_branches(self, dictio):
         proj = self._bs.get_projections_on_elements_and_orbitals(dictio)
