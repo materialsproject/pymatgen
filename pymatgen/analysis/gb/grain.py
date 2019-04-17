@@ -102,7 +102,7 @@ class GrainBoundary(Structure):
         self.init_cell = init_cell
         self.vacuum_thickness = vacuum_thickness
         self.ab_shift = ab_shift
-        super(GrainBoundary, self).__init__(
+        super().__init__(
             lattice, species, coords, validate_proximity=validate_proximity,
             coords_are_cartesian=coords_are_cartesian,
             site_properties=site_properties)
@@ -221,7 +221,7 @@ class GrainBoundary(Structure):
         return "\n".join(outs)
 
     def as_dict(self):
-        d = super(GrainBoundary, self).as_dict()
+        d = super().as_dict()
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         d["init_cell"] = self.init_cell.as_dict()

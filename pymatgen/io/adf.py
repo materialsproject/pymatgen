@@ -342,7 +342,7 @@ class AdfKey(MSONable):
         """
         Return a json string representation of the MSONable AdfKey object.
         """
-        return super(AdfKey, self).to_json()
+        return super().to_json()
 
     @classmethod
     def from_dict(cls, d):
@@ -583,7 +583,7 @@ class AdfTask(MSONable):
         """
         Return a json string representation of the MSONable AdfTask object.
         """
-        return super(AdfTask, self).to_json()
+        return super().to_json()
 
     @classmethod
     def from_dict(cls, d):
