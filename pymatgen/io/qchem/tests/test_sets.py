@@ -102,25 +102,6 @@ class QChemDictSetTest(PymatgenTest):
             })
         self.assertEqual(test_DictSet.smx, {'solvent': 'water'})
 
-    def test_overwrite_input_addition(self):
-        test_molecule = QCInput.from_file(
-            os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
-        overwrite_inputs = {"rem": {'thresh': 14}}
-        test_OptSet = OptSet(
-            molecule=test_molecule, overwrite_inputs=overwrite_inputs)
-        act_rem = {
-            'job_type': 'opt',
-            'gen_scfman': 'true',
-            'basis': '6-311++g*',
-            'max_scf_cycles': 200,
-            'method': 'wb97xd',
-            'scf_algorithm': 'diis_gdm',
-            'xc_grid': '3',
-            'geom_opt_max_cycles': 200,
-            'thresh': 14
-        }
-        self.assertDictEqual(act_rem, test_OptSet.rem)
-
     def test_overwrite_input(self):
         test_molecule = QCInput.from_file(
             os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
@@ -128,7 +109,8 @@ class QChemDictSetTest(PymatgenTest):
             "rem": {
                 'method': 'b3lyp',
                 'basis': '6-31g*',
-                'thresh': 14
+                'thresh': 10,
+                "xc_grid": "000150000302"
             }
         }
         test_OptSet = OptSet(
@@ -140,9 +122,9 @@ class QChemDictSetTest(PymatgenTest):
             'max_scf_cycles': 200,
             'method': 'b3lyp',
             'scf_algorithm': 'diis_gdm',
-            'xc_grid': '3',
+            'xc_grid': '000150000302',
             'geom_opt_max_cycles': 200,
-            'thresh': 14
+            'thresh': 10
         }
         self.assertDictEqual(act_rem, test_OptSet.rem)
 
@@ -234,7 +216,6 @@ class OptSetTest(PymatgenTest):
             })
         self.assertEqual(test_OptSet.smx, {'solvent': 'water'})
         self.assertEqual(test_OptSet.molecule, test_molecule)
-
 
 class SinglePointSetTest(PymatgenTest):
     def test_init(self):
