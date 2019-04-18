@@ -13,7 +13,6 @@ from monty.json import MSONable
 from monty.dev import deprecated
 from ruamel.yaml import YAML
 
-
 from pymatgen.util.io_utils import clean_lines
 from pymatgen import Molecule, Element, Lattice, Structure, SymmOp
 
@@ -737,6 +736,70 @@ class LammpsData(MSONable):
         items.update({"atoms": atoms, "velocities": velocities,
                       "topology": topology})
         return cls(**items)
+
+    @classmethod
+    def from_xyz(cls, input_file, output_file="lammps.data", charge=False, charges={}):
+
+        from pymatgen.core.periodic_table import Element
+
+        f_in = open(input_file, "r")
+        f_out = open(output_file, "w")
+
+        f1 = f_in.readlines()
+        f_in.close()
+
+        Natoms = f1[0].strip()
+        coords = []
+        for i in f1[2:]:
+            coords.append(i.split())
+        atoms = []
+        for i in coords:
+            if i[0] not in atoms:
+                atoms.append(i[0])
+        # --------------------------------------------------------------------------#
+        # WRITE HEADER SECTION
+        # --------------------------------------------------------------------------#
+        f_out.write("LAMMPS DATA FILE GENERATED FOR " + str(atoms) + " SYSTEM \n \n")
+        f_out.write("{} atoms\n".format(Natoms))
+        f_out.write("0 bonds\n")
+        f_out.write("0 angles\n")
+        f_out.write("0 dihedrals\n")
+        f_out.write("0 impropers\n\n")
+        f_out.write(str(len(atoms)) + " atom types\n")
+        f_out.write(str(box_size[0]) + " " + str(box_size[1]) + " xlo xhi\n")
+        f_out.write(str(box_size[2]) + " " + str(box_size[3]) + " ylo yhi\n")
+        f_out.write(str(box_size[4]) + " " + str(box_size[5]) + " zlo zhi\n\n")
+
+        # --------------------------------------------------------------------------#
+        # WRITE MASSES
+        # --------------------------------------------------------------------------#
+
+        f_out.write("Masses \n \n")
+        for i in range(len(atoms)):
+            mass = Element(atoms[i]).atomic_mass
+            f_out.write(str(i + 1) + " " + str(mass) + "\n")
+        f_out.write("\n")
+
+        # --------------------------------------------------------------------------#
+        # WRITE COORDINATES
+        # --------------------------------------------------------------------------#
+
+        f_out.write("Atoms \n \n")
+        for i in range(len(coords)):
+            for j in range(len(atoms)):
+                if coords[i][0] == atoms[j]:
+                    x = j
+                    break
+            if charge == True:
+                f_out.write(
+                    str(i + 1) + " " + str(x + 1) + " " + str(charges[atoms[x]]) + " " + str(coords[i][1]) + " " + str(
+                        coords[i][2]) + " " + str(coords[i][3]) + "\n")
+            else:
+                f_out.write(str(i + 1) + " " + str(x + 1) + " " + str(coords[i][1]) + " " + str(coords[i][2]) + " " + str(
+                    coords[i][3]) + "\n")
+        f_out.close()
+
+        return LammpsData.from_file(output_file)
 
     @classmethod
     def from_structure(cls, structure, ff_elements=None, atom_style="charge"):
