@@ -372,10 +372,9 @@ class SpacegroupAnalyzer:
             np.array(mesh), self._cell, is_shift=shift, symprec=self._symprec)
 
         results = []
-        tmp_map = list(mapping)
-        for i in np.unique(mapping):
+        for i, count in zip(*np.unique(mapping, return_counts=True)):
             results.append(((grid[i] + shift * (0.5, 0.5, 0.5)) / mesh,
-                            tmp_map.count(i)))
+                            count))
         return results
 
     def get_conventional_to_primitive_transformation_matrix(self, international_monoclinic=True):
