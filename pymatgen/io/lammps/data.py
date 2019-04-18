@@ -738,7 +738,18 @@ class LammpsData(MSONable):
         return cls(**items)
 
     @classmethod
-    def from_xyz(cls, input_file, output_file="lammps.data", charge=False, charges={}):
+    def from_xyz(cls, input_file, box_size, output_file="lammps.data", charges={}):
+        """
+        Converts an input xyz file into a LammpsData file and returns a LammpsData object
+
+        :param input_file: (str) filename of the xyz file to be processed
+        :param box_size: ([array]) a list containing the box dimensions for the cell.
+                        Format: [xlo, xhi, ylo, yhi, zlo, zhi]
+        :param output_file: (str) Name of the lammps data file to write. Default="lammps.data"
+        :param charges: (dict) Charges associated with the atoms in the xyz file.
+
+        :return: (LammpsData) Object of the Lammps Data
+        """
 
         from pymatgen.core.periodic_table import Element
 
@@ -790,7 +801,7 @@ class LammpsData(MSONable):
                 if coords[i][0] == atoms[j]:
                     x = j
                     break
-            if charge == True:
+            if bool(charges):
                 f_out.write(
                     str(i + 1) + " " + str(x + 1) + " " + str(charges[atoms[x]]) + " " + str(coords[i][1]) + " " + str(
                         coords[i][2]) + " " + str(coords[i][3]) + "\n")
