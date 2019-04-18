@@ -108,7 +108,7 @@ class TaskResults(NodeResults):
     @classmethod
     def from_node(cls, task):
         """Initialize an instance from an :class:`AbinitTask` instance."""
-        new = super(TaskResults, cls).from_node(task)
+        new = super().from_node(task)
 
         new.update(
             executable=task.executable,
@@ -168,7 +168,7 @@ class ParalConf(AttrDict):
     }
 
     def __init__(self, *args, **kwargs):
-        super(ParalConf, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Add default values if not already in self.
         for k, v in self._DEFAULTS.items():
@@ -1221,7 +1221,7 @@ class MyTimedelta(datetime.timedelta):
 
     def __str__(self):
         """Remove microseconds from timedelta default __str__"""
-        s = super(MyTimedelta, self).__str__()
+        s = super().__str__()
         microsec = s.find(".")
         if microsec != -1: s = s[:microsec]
         return s
@@ -1334,7 +1334,7 @@ class Task(Node, metaclass=abc.ABCMeta):
                   None means that this Task has no dependency.
         """
         # Init the node
-        super(Task, self).__init__()
+        super().__init__()
 
         self._input = input
 
@@ -3286,7 +3286,7 @@ class ScfTask(GsTask):
         return None
 
     def get_results(self, **kwargs):
-        results = super(ScfTask, self).get_results(**kwargs)
+        results = super().get_results(**kwargs)
 
         # Open the GSR file and add its data to results.out
         with self.open_gsr() as gsr:
@@ -3304,7 +3304,7 @@ class CollinearThenNonCollinearScfTask(ScfTask):
     initialized from the previous WFK file.
     """
     def __init__(self, input, workdir=None, manager=None, deps=None):
-        super(CollinearThenNonCollinearScfTask, self).__init__(input, workdir=workdir, manager=manager, deps=deps)
+        super().__init__(input, workdir=workdir, manager=manager, deps=deps)
         # Enforce nspinor = 1, nsppol = 2 and prtwf = 1.
         self._input = self.input.deepcopy()
         self.input.set_spin_mode("polarized")
@@ -3312,7 +3312,7 @@ class CollinearThenNonCollinearScfTask(ScfTask):
         self.collinear_done = False
 
     def _on_ok(self):
-        results = super(CollinearThenNonCollinearScfTask, self)._on_ok()
+        results = super()._on_ok()
         if not self.collinear_done:
             self.input.set_spin_mode("spinor")
             self.collinear_done = True
@@ -3355,7 +3355,7 @@ class NscfTask(GsTask):
             else:
                 self.set_vars(ngfft=den_mesh)
 
-        super(NscfTask, self).setup()
+        super().setup()
 
     def restart(self):
         """NSCF calculations can be restarted only if we have the WFK file."""
@@ -3376,7 +3376,7 @@ class NscfTask(GsTask):
         return self._restart()
 
     def get_results(self, **kwargs):
-        results = super(NscfTask, self).get_results(**kwargs)
+        results = super().get_results(**kwargs)
 
         # Read the GSR file.
         with self.open_gsr() as gsr:
@@ -3507,7 +3507,7 @@ class RelaxTask(GsTask, ProduceHist):
             raise ValueError("Wrong value for what %s" % what)
 
     def get_results(self, **kwargs):
-        results = super(RelaxTask, self).get_results(**kwargs)
+        results = super().get_results(**kwargs)
 
         # Open the GSR file and add its data to results.out
         with self.open_gsr() as gsr:
@@ -3530,7 +3530,7 @@ class RelaxTask(GsTask, ProduceHist):
         This change is needed so that we can specify dependencies with the syntax {node: "DEN"}
         without having to know the number of iterations needed to converge the run in node!
         """
-        super(RelaxTask, self).fix_ofiles()
+        super().fix_ofiles()
 
         # Find the last TIM?_DEN file.
         last_timden = self.outdir.find_last_timden_file()
@@ -3748,7 +3748,7 @@ class DdeTask(DfptTask):
     color_rgb = np.array((61, 158, 255)) / 255
 
     def get_results(self, **kwargs):
-        results = super(DdeTask, self).get_results(**kwargs)
+        results = super().get_results(**kwargs)
         return results.register_gridfs_file(DDB=(self.outdir.has_abiext("DDE"), "t"))
 
 
@@ -3759,10 +3759,10 @@ class DteTask(DfptTask):
     # @check_spectator
     def start(self, **kwargs):
         kwargs['autoparal'] = False
-        return super(DteTask, self).start(**kwargs)
+        return super().start(**kwargs)
 
     def get_results(self, **kwargs):
-        results = super(DteTask, self).get_results(**kwargs)
+        results = super().get_results(**kwargs)
         return results.register_gridfs_file(DDB=(self.outdir.has_abiext("DDE"), "t"))
 
 
@@ -3772,7 +3772,7 @@ class DdkTask(DfptTask):
 
     #@check_spectator
     def _on_ok(self):
-        super(DdkTask, self)._on_ok()
+        super()._on_ok()
         # Client code expects to find du/dk in DDK file.
         # Here I create a symbolic link out_1WF13 --> out_DDK
         # so that we can use deps={ddk_task: "DDK"} in the high-level API.
@@ -3781,7 +3781,7 @@ class DdkTask(DfptTask):
         self.outdir.symlink_abiext('1WF', 'DDK')
 
     def get_results(self, **kwargs):
-        results = super(DdkTask, self).get_results(**kwargs)
+        results = super().get_results(**kwargs)
         return results.register_gridfs_file(DDK=(self.outdir.has_abiext("DDK"), "t"))
 
 
@@ -3815,7 +3815,7 @@ class PhononTask(DfptTask):
             return scf_cycle.plot(**kwargs)
 
     def get_results(self, **kwargs):
-        results = super(PhononTask, self).get_results(**kwargs)
+        results = super().get_results(**kwargs)
         return results.register_gridfs_files(DDB=(self.outdir.has_abiext("DDB"), "t"))
 
 
@@ -3979,7 +3979,7 @@ class SigmaTask(ManyBodyTask):
             raise RuntimeError("Cannot find SIGRES file!")
 
     def get_results(self, **kwargs):
-        results = super(SigmaTask, self).get_results(**kwargs)
+        results = super().get_results(**kwargs)
 
         # Open the SIGRES file and add its data to results.out
         with self.open_sigres() as sigres:
@@ -4101,7 +4101,7 @@ class BseTask(ManyBodyTask):
             return None
 
     def get_results(self, **kwargs):
-        results = super(BseTask, self).get_results(**kwargs)
+        results = super().get_results(**kwargs)
 
         with self.open_mdf() as mdf:
             #results["out"].update(mdf.as_dict())
@@ -4144,11 +4144,11 @@ class OpticTask(Task):
 
         deps.update({self.nscf_node: "WFK"})
 
-        super(OpticTask, self).__init__(optic_input, workdir=workdir, manager=manager, deps=deps)
+        super().__init__(optic_input, workdir=workdir, manager=manager, deps=deps)
 
     def set_workdir(self, workdir, chroot=False):
         """Set the working directory of the task."""
-        super(OpticTask, self).set_workdir(workdir, chroot=chroot)
+        super().set_workdir(workdir, chroot=chroot)
         # Small hack: the log file of optics is actually the main output file.
         self.output_file = self.log_file
 
@@ -4226,7 +4226,7 @@ class OpticTask(Task):
         """
 
     def get_results(self, **kwargs):
-        return super(OpticTask, self).get_results(**kwargs)
+        return super().get_results(**kwargs)
 
     def fix_abicritical(self):
         """
@@ -4518,7 +4518,7 @@ class AnaddbTask(Task):
         if self.ddk_node is not None:
             deps.update({self.ddk_node: "DDK"})
 
-        super(AnaddbTask, self).__init__(input=anaddb_input, workdir=workdir, manager=manager, deps=deps)
+        super().__init__(input=anaddb_input, workdir=workdir, manager=manager, deps=deps)
 
     @classmethod
     def temp_shell_task(cls, inp, ddb_node, mpi_procs=1,
@@ -4643,5 +4643,5 @@ class AnaddbTask(Task):
             return None
 
     def get_results(self, **kwargs):
-        results = super(AnaddbTask, self).get_results(**kwargs)
+        results = super().get_results(**kwargs)
         return results

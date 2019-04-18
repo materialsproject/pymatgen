@@ -1561,7 +1561,7 @@ class SpacegroupOperations(list):
     def __init__(self, int_symbol, int_number, symmops):
         self.int_symbol = int_symbol
         self.int_number = int_number
-        super(SpacegroupOperations, self).__init__(symmops)
+        super().__init__(symmops)
 
     def are_symmetrically_equivalent(self, sites1, sites2, symm_prec=1e-3):
         """
@@ -1623,7 +1623,7 @@ class PointGroupOperations(list):
     """
     def __init__(self, sch_symbol, operations, tol=0.1):
         self.sch_symbol = sch_symbol
-        super(PointGroupOperations, self).__init__(
+        super().__init__(
             generate_full_symmops(operations, tol))
 
     def __str__(self):

@@ -82,7 +82,7 @@ class Critic2OutputTest(unittest.TestCase):
                                                  'to_idx': 0, 'to_lvec': (1, 0, 0)})
         # test as/from dict
         d = self.c2o.as_dict()
-        self.assertEqual(set(d.keys()), {'@module', '@class',
+        self.assertEqual(set(d.keys()), {'@module', '@class', '@version',
                                          'structure', 'critic2_stdout'})
         self.c2o.from_dict(d)
 

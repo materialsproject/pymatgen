@@ -441,7 +441,7 @@ class Tags(dict):
         Args:
             params: A set of input parameters as a dictionary.
         """
-        super(Tags, self).__init__()
+        super().__init__()
         if params:
             self.update(params)
 
@@ -457,7 +457,7 @@ class Tags(dict):
         """
         if key.strip().upper() not in VALID_FEFF_TAGS:
             warnings.warn(key.strip() + " not in VALID_FEFF_TAGS list")
-        super(Tags, self).__setitem__(key.strip(),
+        super().__setitem__(key.strip(),
                                       Tags.proc_val(key.strip(), val.strip())
                                       if isinstance(val, str) else val)
 
