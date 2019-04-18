@@ -738,7 +738,7 @@ class LammpsData(MSONable):
         return cls(**items)
 
     @classmethod
-    def from_xyz(cls, input_file, box_size, output_file="lammps.data", charges={}):
+    def from_xyz(cls, input_file, box_size, output_file="lammps.data", atom_style='full', charges={}):
         """
         Converts an input xyz file into a LammpsData file and returns a LammpsData object
 
@@ -810,7 +810,7 @@ class LammpsData(MSONable):
                     coords[i][3]) + "\n")
         f_out.close()
 
-        return LammpsData.from_file(output_file)
+        return LammpsData.from_file(output_file, atom_style=atom_style)
 
     @classmethod
     def from_structure(cls, structure, ff_elements=None, atom_style="charge"):
