@@ -720,7 +720,7 @@ class Vasprun(MSONable):
                                  data=data)
 
     def get_band_structure(self, kpoints_filename=None, efermi=None,
-                           line_mode=False):
+                           line_mode=False, force_hybrid_mode=False):
         """
         Returns the band structure as a BandStructure object
 
@@ -736,6 +736,7 @@ class Vasprun(MSONable):
                 means the code will get it from the vasprun.
             line_mode (bool): Force the band structure to be considered as
                 a run along symmetry lines.
+            force_hybrid_mode (bool): Makes it possible to read in self-consistent band structure calculations for every type of functional
 
         Returns:
             a BandStructure object (or more specifically a
@@ -807,7 +808,7 @@ class Vasprun(MSONable):
 
         if line_mode:
             labels_dict = {}
-            if hybrid_band:
+            if hybrid_band or force_hybrid_mode:
                 start_bs_index = 0
                 for i in range(len(self.actual_kpoints)):
                     if self.actual_kpoints_weights[i] == 0.0:

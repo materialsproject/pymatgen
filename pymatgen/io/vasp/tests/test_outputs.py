@@ -430,6 +430,13 @@ class VasprunTest(PymatgenTest):
             self.assertAlmostEqual(vbm['energy'], 2.8218)
             self.assertEqual(vbm['kpoint'].label, None)
 
+            #test self-consistent band structure calculation for non-hybrid functionals
+            vasprun = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.forcehybridlikecalc",
+                              parse_projected_eigen=True,
+                              parse_potcar_file=False)
+            bs=vasprun.get_band_structure(kpoints_filename=self.TEST_FILES_DIR / "KPOINTS.forcehybridlikecalc",force_hybrid_mode=True,line_mode=True)
+            self.assertDictEqual(bs.get_band_gap(), {'direct': True, 'energy': 6.0058, 'transition': 'Gamma-Gamma'})
+
     def test_sc_step_overflow(self):
         filepath = self.TEST_FILES_DIR / 'vasprun.xml.sc_overflow'
         # with warnings.catch_warnings(record=True) as w:

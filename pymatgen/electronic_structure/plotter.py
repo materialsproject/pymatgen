@@ -2092,6 +2092,8 @@ class BSPlotterProjected(BSPlotter):
         return plt, shift
 
 
+
+
 class BSDOSPlotter:
     """
     A joint, aligned band structure and density of states plot. Contributions 
@@ -4183,3 +4185,5 @@ def plot_ellipsoid(hessian, center, lattice=None, rescale=1.0, ax=None,
                         color=color[i])
 
     return fig, ax
+
+
