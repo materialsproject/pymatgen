@@ -363,10 +363,11 @@ class LammpsData(MSONable):
                       "q": map_charges}
         section_template = "{kw}\n\n{df}\n"
         parts = []
+
         for k, v in body_dict.items():
             index = True if k != "PairIJ Coeffs" else False
             df_string = v.to_string(header=False, formatters=formatters,
-                                    index_names=False, index=index)
+                                    index_names=False, index=False)
             parts.append(section_template.format(kw=k, df=df_string))
         body = "\n".join(parts)
 
@@ -738,79 +739,51 @@ class LammpsData(MSONable):
         return cls(**items)
 
     @classmethod
-    def from_xyz(cls, input_file, box_size, output_file="lammps.data", atom_style='full', charges={}):
+    def from_xyz(cls, input_file, box, atom_style='full', charges={}):
         """
         Converts an input xyz file into a LammpsData file and returns a LammpsData object
 
         :param input_file: (str) filename of the xyz file to be processed
-        :param box_size: ([array]) a list containing the box dimensions for the cell.
-                        Format: [xlo, xhi, ylo, yhi, zlo, zhi]
+        :param box: ([3,2]) a list containing the box dimensions for the cell.
+                        Format: [(xlo, xhi), (ylo, yhi), (zlo, zhi)]
         :param output_file: (str) Name of the lammps data file to write. Default="lammps.data"
         :param charges: (dict) Charges associated with the atoms in the xyz file.
 
         :return: (LammpsData) Object of the Lammps Data
         """
 
-        from pymatgen.core.periodic_table import Element
-
         f_in = open(input_file, "r")
-        f_out = open(output_file, "w")
-
         f1 = f_in.readlines()
         f_in.close()
 
         Natoms = f1[0].strip()
-        coords = []
-        for i in f1[2:]:
-            coords.append(i.split())
-        atoms = []
-        for i in coords:
-            if i[0] not in atoms:
-                atoms.append(i[0])
-        # --------------------------------------------------------------------------#
-        # WRITE HEADER SECTION
-        # --------------------------------------------------------------------------#
-        f_out.write("LAMMPS DATA FILE GENERATED FOR " + str(atoms) + " SYSTEM \n \n")
-        f_out.write("{} atoms\n".format(Natoms))
-        f_out.write("0 bonds\n")
-        f_out.write("0 angles\n")
-        f_out.write("0 dihedrals\n")
-        f_out.write("0 impropers\n\n")
-        f_out.write(str(len(atoms)) + " atom types\n")
-        f_out.write(str(box_size[0]) + " " + str(box_size[1]) + " xlo xhi\n")
-        f_out.write(str(box_size[2]) + " " + str(box_size[3]) + " ylo yhi\n")
-        f_out.write(str(box_size[4]) + " " + str(box_size[5]) + " zlo zhi\n\n")
+        atoms  = {}
+        masses = {}
+        atom_types = {}
+        post_lines = f1[2:]
+        for atom_id in range(len(post_lines)):
+            line = post_lines[atom_id].split()
+            atom_type = line[0]
 
-        # --------------------------------------------------------------------------#
-        # WRITE MASSES
-        # --------------------------------------------------------------------------#
+            coords = [float(x) for x in line[1:]]
 
-        f_out.write("Masses \n \n")
-        for i in range(len(atoms)):
-            mass = Element(atoms[i]).atomic_mass
-            f_out.write(str(i + 1) + " " + str(mass) + "\n")
-        f_out.write("\n")
+            if atom_type not in masses:
+                masses[atom_type] = Element(atom_type).atomic_mass
 
-        # --------------------------------------------------------------------------#
-        # WRITE COORDINATES
-        # --------------------------------------------------------------------------#
+            atoms[atom_id] = {'id': atom_id+1, 'type': atom_type, 'x': coords[0], 'y': coords[1], 'z': coords[2]}
+            if charges:
+                atoms[atom_id]['charge'] = charges[atom_type]
 
-        f_out.write("Atoms \n \n")
-        for i in range(len(coords)):
-            for j in range(len(atoms)):
-                if coords[i][0] == atoms[j]:
-                    x = j
-                    break
-            if bool(charges):
-                f_out.write(
-                    str(i + 1) + " " + str(x + 1) + " " + str(charges[atoms[x]]) + " " + str(coords[i][1]) + " " + str(
-                        coords[i][2]) + " " + str(coords[i][3]) + "\n")
-            else:
-                f_out.write(str(i + 1) + " " + str(x + 1) + " " + str(coords[i][1]) + " " + str(coords[i][2]) + " " + str(
-                    coords[i][3]) + "\n")
-        f_out.close()
+        atoms_df = pd.DataFrame.from_dict(atoms, orient='index')
+        masses_df = pd.Series(masses).to_frame()
 
-        return LammpsData.from_file(output_file, atom_style=atom_style)
+
+        count = 1
+        for key, value in masses.items():
+            atoms_df = atoms_df.replace(key, count)
+            count += 1
+
+        return LammpsData(box=LammpsBox(box), masses=masses_df, atoms=atoms_df, atom_style=atom_style)
 
     @classmethod
     def from_structure(cls, structure, ff_elements=None, atom_style="charge"):
