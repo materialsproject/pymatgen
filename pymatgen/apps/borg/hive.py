@@ -248,14 +248,14 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
             ) if incar is not None else False
             param["run_type"] = None
             if incar is not None:
-                param["run_type"] = "GGA+U" if param["is_hubbard"] else "GGA"
+                param["run_type"] = "GGA+U" if param["is_hubbard"] else Vasprun.run_type
             # param["history"] = _get_transformation_history(path)
             param["potcar_spec"] = potcar.spec if potcar is not None else None
-            energy = oszicar.final_energy if oszicar is not None else 1e10
+            energy = oszicar.final_energy if oszicar is not None else Vasprun.final_energy
             structure = contcar.structure if contcar is not None\
                 else poscar.structure
             initial_vol = poscar.structure.volume if poscar is not None else \
-                None
+
             final_vol = contcar.structure.volume if contcar is not None else \
                 None
             delta_volume = None

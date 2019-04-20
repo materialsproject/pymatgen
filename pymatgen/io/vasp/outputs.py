@@ -647,10 +647,11 @@ class Vasprun(MSONable):
 
         TODO: Fix for other functional types like PW91, other vdW types, etc.
         """
+        GGA_TYPES = {"RE": "revPBE", "PE": "PBE", "PS": "PBESol", "RP": "RevPBE+PADE", "AM": "AM05", "OR": "optPBE",
+                     "BO": "optB88", "MK": "optB86b"}
 
-        GGA_TYPES = {"PE": "PBE", "PS": "PBESol", "RP": "RevPBE"}
-
-        METAGGA_TYPES = {"TPSS", "RTPSS", "M06L", "MBJL", "SCAN", "MS0", "MS1", "MS2"}
+        METAGGA_TYPES = {"TPSS": "TPSS", "RTPSS": "revTPSS", "M06L": "M06-L", "MBJ": "modified Becke-Johnson",
+                         "SCAN": "SCAN", "MS0": "MadeSimple0", "MS1": "MadeSimple1", "MS2": "MadeSimple2"}
 
         if self.parameters.get("AEXX", 1.00) == 1.00:
             rt = "HF"
@@ -660,20 +661,21 @@ class Vasprun(MSONable):
             rt = "HSE06"
         elif self.parameters.get("AEXX", 0.20) == 0.20:
             rt = "B3LYP"
-        elif self.parameters.get("GGA", "").strip().upper() in GGA_TYPES:
-            gga = self.parameters.get("GGA", "").strip().upper()
-            rt = GGA_TYPES[gga]
-        elif self.parameters.get("METAGGA", "").strip().upper() in METAGGA_TYPES:
-            rt = incar["METAGGA"].strip().upper()
-        elif self.parameters.get("LUSE_VDW", True):
-            vdw_gga = {"RE": "DF", "OR": "optPBE", "BO": "optB88",
-                       "MK": "optB86b", "ML": "DF2", "SCAN": "rVV10"}
-            gga = self.parameters.get("GGA", "").strip().upper() in GGA_TYPES
-            rt = "vdW-" + vdw_gga[gga]
+        elif self.parameters.get("BPARAM", 15.70) == 15.70:
+            if self.incar.get("METAGGA", "").strip().upper() in METAGGA_TYPES:
+                rt = GGA_TYPES[self.parameters.get("GGA", "").strip().upper()]+"+"+\
+                     METAGGA_TYPES[self.incar.get("METAGGA", "").strip().upper()]+"+rVV10"
+            else:
+                rt = GGA_TYPES[self.parameters.get("GGA", "").strip().upper()]+"+rVV10"
+        elif self.incar.get("METAGGA", "").strip().upper() in METAGGA_TYPES:
+            rt = GGA_TYPES[self.parameters.get("GGA", "").strip().upper()]+"+"+\
+                 METAGGA_TYPES[self.incar.get("METAGGA", "").strip().upper()]
+            if self.is_hubbard:
+                rt += "+U"
         elif self.potcar_symbols[0].split()[0] == 'PAW':
             rt = "LDA"
-        else:
-            rt = "GGA"
+        elif self.parameters.get("GGA", "").strip().upper() in GGA_TYPES:
+            rt = GGA_TYPES[self.parameters.get("GGA", "").strip().upper()]
             if self.is_hubbard:
                 rt += "+U"
         return rt
