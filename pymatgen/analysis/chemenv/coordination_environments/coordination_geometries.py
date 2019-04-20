@@ -67,7 +67,7 @@ class ExplicitPermutationsAlgorithm(AbstractChemenvAlgorithm):
         """
             Initializes a separation plane for a given perfect coordination geometry
         """
-        super(ExplicitPermutationsAlgorithm, self).__init__(
+        super().__init__(
             algorithm_type=EXPLICIT_PERMUTATIONS)
         self._permutations = permutations
 
@@ -119,7 +119,7 @@ class SeparationPlane(AbstractChemenvAlgorithm):
              mirror plane, 'EQUILIBRATED', if the plane cuts the geometry in two groups of points of the same size, is not
              going through the centre but is not a mirror plane.
             """
-        super(SeparationPlane, self).__init__(algorithm_type=SEPARATION_PLANE)
+        super().__init__(algorithm_type=SEPARATION_PLANE)
         self.mirror_plane = mirror_plane
         self.plane_points = plane_points
         self.point_groups = point_groups

@@ -839,7 +839,7 @@ class IStructure(SiteCollection, MSONable):
         Overall charge of the structure
         """
         if self._charge is None:
-            return super(IStructure, self).charge
+            return super().charge
         else:
             return self._charge
 
@@ -2539,7 +2539,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 have to be the same length as the atomic species and
                 fractional_coords. Defaults to None for no properties.
         """
-        super(Structure, self).__init__(
+        super().__init__(
             lattice, species, coords, charge=charge,
             validate_proximity=validate_proximity, to_unit_cell=to_unit_cell,
             coords_are_cartesian=coords_are_cartesian,
@@ -3144,10 +3144,10 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                 sequences have to be the same length as the atomic species
                 and fractional_coords. Defaults to None for no properties.
         """
-        super(Molecule, self).__init__(species, coords, charge=charge,
-                                       spin_multiplicity=spin_multiplicity,
-                                       validate_proximity=validate_proximity,
-                                       site_properties=site_properties)
+        super().__init__(species, coords, charge=charge,
+                         spin_multiplicity=spin_multiplicity,
+                         validate_proximity=validate_proximity,
+                         site_properties=site_properties)
         self._sites = list(self._sites)
 
     def __setitem__(self, i, site):

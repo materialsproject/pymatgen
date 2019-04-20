@@ -372,10 +372,9 @@ class SpacegroupAnalyzer:
             np.array(mesh), self._cell, is_shift=shift, symprec=self._symprec)
 
         results = []
-        tmp_map = list(mapping)
-        for i in np.unique(mapping):
+        for i, count in zip(*np.unique(mapping, return_counts=True)):
             results.append(((grid[i] + shift * (0.5, 0.5, 0.5)) / mesh,
-                            tmp_map.count(i)))
+                            count))
         return results
 
     def get_conventional_to_primitive_transformation_matrix(self, international_monoclinic=True):
@@ -1562,7 +1561,7 @@ class SpacegroupOperations(list):
     def __init__(self, int_symbol, int_number, symmops):
         self.int_symbol = int_symbol
         self.int_number = int_number
-        super(SpacegroupOperations, self).__init__(symmops)
+        super().__init__(symmops)
 
     def are_symmetrically_equivalent(self, sites1, sites2, symm_prec=1e-3):
         """
@@ -1624,7 +1623,7 @@ class PointGroupOperations(list):
     """
     def __init__(self, sch_symbol, operations, tol=0.1):
         self.sch_symbol = sch_symbol
-        super(PointGroupOperations, self).__init__(
+        super().__init__(
             generate_full_symmops(operations, tol))
 
     def __str__(self):

@@ -611,7 +611,7 @@ class VoronoiNN(NearNeighbors):
     def __init__(self, tol=0, targets=None, cutoff=13.0,
                  allow_pathological=False, weight='solid_angle',
                  extra_nn_info=True, compute_adj_neighbors=True):
-        super(VoronoiNN, self).__init__()
+        super().__init__()
         self.tol = tol
         self.cutoff = cutoff
         self.allow_pathological = allow_pathological
@@ -1006,9 +1006,8 @@ class VoronoiNN_modified(VoronoiNN):
                 available in get_voronoi_polyhedra)
             extra_nn_info (bool) - Add all polyhedron info to `get_nn_info`
         """
-        super(VoronoiNN_modified, self).__init__(0.5, targets, cutoff,
-                                                 allow_pathological,
-                                                 weight, extra_nn_info)
+        super().__init__(0.5, targets, cutoff, allow_pathological, weight,
+                         extra_nn_info)
 
 
 class JmolNN(NearNeighbors):
@@ -3440,7 +3439,7 @@ class CrystalNN(NearNeighbors):
             raise ValueError("The weighted_cn parameter and use_weights "
                              "parameter should match!")
 
-        return super(CrystalNN, self).get_cn(structure, n, use_weights)
+        return super().get_cn(structure, n, use_weights)
 
     def get_cn_dict(self, structure, n, use_weights=False):
         """
@@ -3461,7 +3460,7 @@ class CrystalNN(NearNeighbors):
             raise ValueError("The weighted_cn parameter and use_weights "
                              "parameter should match!")
 
-        return super(CrystalNN, self).get_cn_dict(structure, n, use_weights)
+        return super().get_cn_dict(structure, n, use_weights)
 
     @staticmethod
     def _semicircle_integral(dist_bins, idx):

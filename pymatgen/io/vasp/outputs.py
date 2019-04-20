@@ -3137,7 +3137,7 @@ class Locpot(VolumetricData):
     """
 
     def __init__(self, poscar, data):
-        super(Locpot, self).__init__(poscar.structure, data)
+        super().__init__(poscar.structure, data)
         self.name = poscar.comment
 
     @staticmethod
@@ -3156,7 +3156,7 @@ class Chgcar(VolumetricData):
     """
 
     def __init__(self, poscar, data, data_aug=None):
-        super(Chgcar, self).__init__(poscar.structure, data, data_aug=data_aug)
+        super().__init__(poscar.structure, data, data_aug=data_aug)
         self.poscar = poscar
         self.name = poscar.comment
         self._distance_matrix = {}
