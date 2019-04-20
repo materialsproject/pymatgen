@@ -15,6 +15,7 @@ from pathlib import Path
 import xml.etree.cElementTree as ET
 from collections import defaultdict
 from io import StringIO
+import collections
 
 import numpy as np
 from monty.io import zopen, reverse_readfile
@@ -1814,7 +1815,6 @@ class Outcar:
                              r"DIELECTRIC FUNCTION \(independent particle, " \
                              r"no local field effects\)(\sdensity-density)*$"
         row_pattern = r"\s+".join([r"([\.\-\d]+)"] * 3)
-        import collections
         plasma_frequencies = collections.defaultdict(list)
         read_plasma = False
         read_dielectric = False
