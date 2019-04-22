@@ -634,8 +634,8 @@ class PourbaixDiagram(MSONable):
 
             if len(comp_dict) > 1:
                 self._multielement = True
-                self._processed_entries = self._preprocess_pourbaix_entries(self._filtered_entries, \
-                        nproc = nproc)
+                self._processed_entries = self._preprocess_pourbaix_entries(
+                    self._filtered_entries, nproc=nproc)
             else:
                 self._processed_entries = self._filtered_entries
                 self._multielement = False
@@ -652,12 +652,20 @@ class PourbaixDiagram(MSONable):
             entries ([PourbaixEntry]): list of PourbaixEntries to construct
                 the convex hull
 
-        Returns: list of stable Mult
+        Returns: list of stable MultiEntries
 
         """
+        # Pre-filter based on composition
+        sorted_entries = sorted(
+            entries, key=lambda x: (x.composition.reduced_composition,
+                                    x.entry.energy_per_atom))
+        grouped_by_composition = itertools.groupby(
+            sorted_entries, key=lambda x: x.composition.reduced_composition)
+        min_entries = [grouped_entries[0]
+                       for grouped_entries in grouped_by_composition]
         vecs = [[entry.npH, entry.nPhi, entry.energy] +
                 [entry.composition.get(elt) for elt in self.pbx_elts[:-1]]
-                for entry in entries]
+                for entry in min_entries]
         vecs = np.array(vecs)
         norms = np.transpose([[entry.normalization_factor
                                for entry in entries]])
