@@ -238,38 +238,72 @@ class LobsterBandStructureSymmLine_test(PymatgenTest):
 
     def setUp(self):
         warnings.simplefilter("ignore")
-        with open(os.path.join(test_dir,"cohp/Fatband_SiO2/Test_p/lobster_band_structure_spin.json"),'r') as f:
-           bs_spin_dict=json.load(f)
-        self.bs_spin=LobsterBandStructureSymmLine.from_dict(bs_spin_dict)
+        with open(os.path.join(test_dir, "cohp/Fatband_SiO2/Test_p/lobster_band_structure_spin.json"), 'r') as f:
+            bs_spin_dict = json.load(f)
+        self.bs_spin = LobsterBandStructureSymmLine.from_dict(bs_spin_dict)
 
         with open(os.path.join(test_dir, "cohp/Fatband_SiO2/Test_p/lobster_band_structure.json"), 'r') as f:
             bs_dict = json.load(f)
         self.bs_p = LobsterBandStructureSymmLine.from_dict(bs_dict)
 
-
     def tearDown(self):
         warnings.simplefilter("default")
 
     def test_basic(self):
-        bs_p=self.bs_p
-        bs_spin=self.bs_spin
-        self.assertDictEqual(bs_p.structure.as_dict(),{'@module': 'pymatgen.core.structure', '@class': 'Structure', 'charge': None, 'lattice': {'matrix': [[5.02189789, 0.0, 0.0], [-2.51094844, 4.34909098, 0.0], [0.0, 0.0, 5.51192941]], 'a': 5.02189789, 'b': 5.021897492049772, 'c': 5.51192941, 'alpha': 90.0, 'beta': 90.0, 'gamma': 119.99999596836791, 'volume': 120.38434604276603}, 'sites': [{'species': [{'element': 'Si', 'occu': 1}], 'abc': [0.0, 0.47634315, 0.666667], 'xyz': [-1.196073089397186, 2.0716596970497867, 3.67462144397647], 'label': 'Si', 'properties': {}}, {'species': [{'element': 'Si', 'occu': 1}], 'abc': [0.52365685, 0.52365685, 0.0], 'xyz': [1.3148758794962323, 2.2774312829502126, 0.0], 'label': 'Si', 'properties': {}}, {'species': [{'element': 'Si', 'occu': 1}], 'abc': [0.47634315, 0.0, 0.333333], 'xyz': [2.3921466599009533, 0.0, 1.8373079660235299], 'label': 'Si', 'properties': {}}, {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.15890378, 0.74400316, 0.46134773], 'xyz': [-1.0701550164620461, 3.2357374322474968, 2.542916121223739], 'label': 'O', 'properties': {}}, {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.25599684, 0.41490062, 0.79468073], 'xyz': [0.24379592609863487, 1.8044405440384075, 4.380224087247269], 'label': 'O', 'properties': {}}, {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.58509938, 0.84109622, 0.12801473], 'xyz': [0.8263601003634116, 3.658003983714095, 0.7056081552002093], 'label': 'O', 'properties': {}}, {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.74400316, 0.15890378, 0.53865227], 'xyz': [3.337308700856229, 0.6910869962859043, 2.9690132887762606], 'label': 'O', 'properties': {}}, {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.41490062, 0.25599684, 0.20531927], 'xyz': [1.4407936820947622, 1.1133535477525032, 1.1317053227527305], 'label': 'O', 'properties': {}}, {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.84109622, 0.58509938, 0.87198527], 'xyz': [2.7547449570490086, 2.544650435961592, 4.806321254799791], 'label': 'O', 'properties': {}}]})
-        self.assertAlmostEqual(bs_p.efermi,1.06470288)
-        self.assertDictEqual(bs_p.lattice_rec.as_dict(),{'@module': 'pymatgen.core.lattice', '@class': 'Lattice', 'matrix': [[1.2511575194890285, 0.7223560132915973, 0.0], [0.0, 1.4447123171425553, 0.0], [0.0, 0.0, 1.1399248502312707]]})
-        self.assertAlmostEqual(bs_p.kpoints[8].frac_coords[0],0.09090909 )
+        bs_p = self.bs_p
+        bs_spin = self.bs_spin
+        self.assertDictEqual(bs_p.structure.as_dict(),
+                             {'@module': 'pymatgen.core.structure', '@class': 'Structure', 'charge': None, 'lattice': {
+                                 'matrix': [[5.02189789, 0.0, 0.0], [-2.51094844, 4.34909098, 0.0],
+                                            [0.0, 0.0, 5.51192941]], 'a': 5.02189789, 'b': 5.021897492049772,
+                                 'c': 5.51192941, 'alpha': 90.0, 'beta': 90.0, 'gamma': 119.99999596836791,
+                                 'volume': 120.38434604276603}, 'sites': [
+                                 {'species': [{'element': 'Si', 'occu': 1}], 'abc': [0.0, 0.47634315, 0.666667],
+                                  'xyz': [-1.196073089397186, 2.0716596970497867, 3.67462144397647], 'label': 'Si',
+                                  'properties': {}},
+                                 {'species': [{'element': 'Si', 'occu': 1}], 'abc': [0.52365685, 0.52365685, 0.0],
+                                  'xyz': [1.3148758794962323, 2.2774312829502126, 0.0], 'label': 'Si',
+                                  'properties': {}},
+                                 {'species': [{'element': 'Si', 'occu': 1}], 'abc': [0.47634315, 0.0, 0.333333],
+                                  'xyz': [2.3921466599009533, 0.0, 1.8373079660235299], 'label': 'Si',
+                                  'properties': {}},
+                                 {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.15890378, 0.74400316, 0.46134773],
+                                  'xyz': [-1.0701550164620461, 3.2357374322474968, 2.542916121223739], 'label': 'O',
+                                  'properties': {}},
+                                 {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.25599684, 0.41490062, 0.79468073],
+                                  'xyz': [0.24379592609863487, 1.8044405440384075, 4.380224087247269], 'label': 'O',
+                                  'properties': {}},
+                                 {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.58509938, 0.84109622, 0.12801473],
+                                  'xyz': [0.8263601003634116, 3.658003983714095, 0.7056081552002093], 'label': 'O',
+                                  'properties': {}},
+                                 {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.74400316, 0.15890378, 0.53865227],
+                                  'xyz': [3.337308700856229, 0.6910869962859043, 2.9690132887762606], 'label': 'O',
+                                  'properties': {}},
+                                 {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.41490062, 0.25599684, 0.20531927],
+                                  'xyz': [1.4407936820947622, 1.1133535477525032, 1.1317053227527305], 'label': 'O',
+                                  'properties': {}},
+                                 {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.84109622, 0.58509938, 0.87198527],
+                                  'xyz': [2.7547449570490086, 2.544650435961592, 4.806321254799791], 'label': 'O',
+                                  'properties': {}}]})
+        self.assertAlmostEqual(bs_p.efermi, 1.06470288)
+        self.assertDictEqual(bs_p.lattice_rec.as_dict(), {'@module': 'pymatgen.core.lattice', '@class': 'Lattice',
+                                                          'matrix': [[1.2511575194890285, 0.7223560132915973, 0.0],
+                                                                     [0.0, 1.4447123171425553, 0.0],
+                                                                     [0.0, 0.0, 1.1399248502312707]]})
+        self.assertAlmostEqual(bs_p.kpoints[8].frac_coords[0], 0.09090909)
         self.assertAlmostEqual(bs_p.kpoints[8].frac_coords[1], 0.0)
         self.assertAlmostEqual(bs_p.kpoints[8].frac_coords[2], 0.0)
         self.assertAlmostEqual(bs_p.kpoints[8].cart_coords[0], 0.11374159)
         self.assertAlmostEqual(bs_p.kpoints[8].cart_coords[1], 0.06566873)
         self.assertAlmostEqual(bs_p.kpoints[8].cart_coords[2], 0.)
         self.assertAlmostEqual(bs_p.kpoints[50].frac_coords[0], 0.46153846)
-        self.assertAlmostEqual(bs_p.kpoints[50].frac_coords[1],  0.07692308)
+        self.assertAlmostEqual(bs_p.kpoints[50].frac_coords[1], 0.07692308)
         self.assertAlmostEqual(bs_p.kpoints[50].frac_coords[2], 0.0)
         self.assertAlmostEqual(bs_p.kpoints[50].cart_coords[0], 0.57745732)
         self.assertAlmostEqual(bs_p.kpoints[50].cart_coords[1], 0.4445268)
         self.assertAlmostEqual(bs_p.kpoints[50].cart_coords[2], 0.0)
-        self.assertAlmostEqual(bs_p.distance[30],0.49251552363382556)
-        self.assertTrue(bs_p.branches[0]["name"],'\\Gamma-K')
+        self.assertAlmostEqual(bs_p.distance[30], 0.49251552363382556)
+        self.assertTrue(bs_p.branches[0]["name"], '\\Gamma-K')
         self.assertAlmostEqual(bs_p.get_band_gap()["energy"], 5.6739999999999995)
         self.assertAlmostEqual(bs_p.get_projection_on_elements()[Spin.up][0][0]["Si"], 3 * (0.001 + 0.064))
         self.assertAlmostEqual(bs_p.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.up][0][0]["Si"]["3p"],
@@ -301,22 +335,22 @@ class LobsterBandStructureSymmLine_test(PymatgenTest):
             bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.down][0][0],
             {'Si': {'3p': 0.003, '3s': 0.192}, 'O': {'2p': 0.015, '2s': 0.792}})
 
-
-
     def test_get_branch(self):
-        self.assertDictEqual(self.bs_p.get_branch(0)[0],{'name': '\\Gamma-K', 'start_index': 0, 'end_index': 70, 'index': 0})
-        #self.assertAlmostEqual(self.bs2.get_branch(110)[0]['name'], "U-W")
+        self.assertDictEqual(self.bs_p.get_branch(0)[0],
+                             {'name': '\\Gamma-K', 'start_index': 0, 'end_index': 70, 'index': 0})
+        # self.assertAlmostEqual(self.bs2.get_branch(110)[0]['name'], "U-W")
 
     def test_get_direct_band_gap_dict(self):
         direct_dict = self.bs_p.get_direct_band_gap_dict()
-        self.assertDictEqual(direct_dict,{Spin.up: {'value': 6.005999999999999, 'kpoint_index': 0, 'band_indices': [22, 24]}})
+        self.assertDictEqual(direct_dict,
+                             {Spin.up: {'value': 6.005999999999999, 'kpoint_index': 0, 'band_indices': [22, 24]}})
         direct_dict = self.bs_spin.get_direct_band_gap_dict()
-        self.assertDictEqual(direct_dict,{Spin.up: {'value': 6.006, 'kpoint_index': 0, 'band_indices': [22, 24]}, Spin.down: {'value': 6.006, 'kpoint_index': 0, 'band_indices': [22, 24]}})
-
+        self.assertDictEqual(direct_dict, {Spin.up: {'value': 6.006, 'kpoint_index': 0, 'band_indices': [22, 24]},
+                                           Spin.down: {'value': 6.006, 'kpoint_index': 0, 'band_indices': [22, 24]}})
 
     def test_get_direct_band_gap(self):
-        self.assertAlmostEqual(self.bs_p.get_direct_band_gap(),6.005999999999999)
-        self.assertAlmostEqual(self.bs_spin.get_direct_band_gap(),6.005999999999999)
+        self.assertAlmostEqual(self.bs_p.get_direct_band_gap(), 6.005999999999999)
+        self.assertAlmostEqual(self.bs_spin.get_direct_band_gap(), 6.005999999999999)
 
     def test_is_metal(self):
         self.assertFalse(self.bs_p.is_metal(), "wrong metal assignment")
@@ -332,7 +366,7 @@ class LobsterBandStructureSymmLine_test(PymatgenTest):
         self.assertEqual(cbm['kpoint'].frac_coords[2], 0.0, "wrong CBM kpoint frac coords")
         self.assertEqual(cbm['kpoint'].label, "\\Gamma", "wrong CBM kpoint label")
         cbm_spin = self.bs_spin.get_cbm()
-        self.assertAlmostEqual(cbm_spin['energy'],6.30370274, "wrong CBM energy")
+        self.assertAlmostEqual(cbm_spin['energy'], 6.30370274, "wrong CBM energy")
         self.assertEqual(cbm_spin['band_index'][Spin.up][0], 24, "wrong CBM band index")
         self.assertEqual(len(cbm_spin['band_index'][Spin.down]), 1, "wrong CBM band index")
         self.assertEqual(cbm_spin['kpoint_index'][0], 0, "wrong CBM kpoint index")
@@ -343,7 +377,7 @@ class LobsterBandStructureSymmLine_test(PymatgenTest):
 
     def test_get_vbm(self):
         vbm = self.bs_p.get_vbm()
-        self.assertAlmostEqual(vbm['energy'],0.62970288, "wrong VBM energy")
+        self.assertAlmostEqual(vbm['energy'], 0.62970288, "wrong VBM energy")
         self.assertEqual(len(vbm['band_index'][Spin.up]), 1, "wrong VBM number of bands")
         self.assertEqual(vbm['band_index'][Spin.up][0], 23, "wrong VBM band index")
         self.assertEqual(vbm['kpoint_index'][0], 68, "wrong VBM kpoint index")
@@ -357,8 +391,8 @@ class LobsterBandStructureSymmLine_test(PymatgenTest):
         self.assertEqual(len(vbm_spin['band_index'][Spin.down]), 1, "wrong VBM number of bands")
         self.assertEqual(vbm_spin['band_index'][Spin.up][0], 23, "wrong VBM band index")
         self.assertEqual(vbm_spin['kpoint_index'][0], 68, "wrong VBM kpoint index")
-        self.assertEqual(vbm_spin['kpoint'].frac_coords[0],0.34615384615385, "wrong VBM kpoint frac coords")
-        self.assertEqual(vbm_spin['kpoint'].frac_coords[1],0.30769230769231, "wrong VBM kpoint frac coords")
+        self.assertEqual(vbm_spin['kpoint'].frac_coords[0], 0.34615384615385, "wrong VBM kpoint frac coords")
+        self.assertEqual(vbm_spin['kpoint'].frac_coords[1], 0.30769230769231, "wrong VBM kpoint frac coords")
         self.assertEqual(vbm_spin['kpoint'].frac_coords[2], 0.0, "wrong VBM kpoint frac coords")
         self.assertEqual(vbm_spin['kpoint'].label, None, "wrong VBM kpoint label")
 
@@ -368,7 +402,7 @@ class LobsterBandStructureSymmLine_test(PymatgenTest):
         self.assertEqual(bg['transition'], "(0.346,0.308,0.000)-\\Gamma", "wrong kpoint transition")
         self.assertFalse(bg['direct'], "wrong nature of the gap")
         bg_spin = self.bs_spin.get_band_gap()
-        self.assertAlmostEqual(bg_spin['energy'],5.674, "wrong gap energy")
+        self.assertAlmostEqual(bg_spin['energy'], 5.674, "wrong gap energy")
         self.assertEqual(bg_spin['transition'], "(0.346,0.308,0.000)-\\Gamma", "wrong kpoint transition")
         self.assertFalse(bg_spin['direct'], "wrong nature of the gap")
 
@@ -386,8 +420,9 @@ class LobsterBandStructureSymmLine_test(PymatgenTest):
         self.assertIsNotNone(s)
 
     def test_old_format_load(self):
-        #this method will use the loading from the old dict
+        # this method will use the loading from the old dict
         self.bs_spin.apply_scissor(3.0)
+
 
 if __name__ == '__main__':
     unittest.main()

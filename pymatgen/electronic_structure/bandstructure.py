@@ -446,7 +446,7 @@ class BandStructure:
         if (cbm["kpoint"].label is not None and cbm["kpoint"].label == vbm[
             "kpoint"].label) \
                 or np.linalg.norm(cbm["kpoint"].cart_coords
-                                          - vbm["kpoint"].cart_coords) < 0.01:
+                                  - vbm["kpoint"].cart_coords) < 0.01:
             result["direct"] = True
 
         result["transition"] = "-".join(
@@ -636,7 +636,7 @@ class BandStructure:
                             for l in range(len(d['projections'][spin][i][j][
                                                    orb])):
                                 ddddd.append(d['projections'][spin][i][j][
-                                                orb][l])
+                                                 orb][l])
                             dddd.append(np.array(ddddd))
                         ddd.append(np.array(dddd))
                     dd.append(np.array(ddd))
@@ -946,7 +946,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
                             for l in range(len(d['projections'][spin][i][j][
                                                    orb])):
                                 ddddd.append(d['projections'][spin][i][j][
-                                                orb][l])
+                                                 orb][l])
                             dddd.append(np.array(ddddd))
                         ddd.append(np.array(dddd))
                     dd.append(np.array(ddd))
@@ -1107,7 +1107,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
                     "kpoint_index": [int(x) for x in vbm["kpoint_index"]],
                     "band_index": {str(int(spin)): vbm["band_index"][spin]
                                    for spin in vbm["band_index"]},
-                    'projections': {str(spin): v  for spin, v in vbm[
+                    'projections': {str(spin): v for spin, v in vbm[
                         'projections'].items()}}
         cbm = self.get_cbm()
         d['cbm'] = {'energy': cbm['energy'],
@@ -1165,7 +1165,6 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
                           "5.0.")
             return LobsterBandStructureSymmLine.from_old_dict(d)
 
-
     @classmethod
     def from_old_dict(cls, d):
         """
@@ -1198,8 +1197,6 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
             Lattice(d['lattice_rec']['matrix']), d['efermi'],
             labels_dict, structure=structure, projections=projections)
 
-
-
     def get_projection_on_elements(self):
         """
         Method returning a dictionary of projections on elements.
@@ -1218,7 +1215,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
                              for i in range(len(self.kpoints))]
                             for j in range(self.nb_bands)]
             for i, j in itertools.product(range(self.nb_bands),
-                                             range(len(self.kpoints))):
+                                          range(len(self.kpoints))):
                 for key, item in v[i][j].items():
                     for key2, item2 in item.items():
                         specie = str(Specie(re.split(r"[0-9]+", key)[0]))
