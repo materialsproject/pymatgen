@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.outputs &#8212; pymatgen 2019.3.13 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.io.vasp.outputs &#8212; pymatgen 2019.4.11 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.4.11 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -88,6 +86,7 @@
 <span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="k">import</span> <span class="n">Incar</span><span class="p">,</span> <span class="n">Kpoints</span><span class="p">,</span> <span class="n">Poscar</span><span class="p">,</span> <span class="n">Potcar</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.io_utils</span> <span class="k">import</span> <span class="n">clean_lines</span><span class="p">,</span> <span class="n">micro_pyawk</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.num</span> <span class="k">import</span> <span class="n">make_symmetric_matrix_from_upper_tri</span>
+<span class="kn">from</span> <span class="nn">scipy.io</span> <span class="k">import</span> <span class="n">FortranFile</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Classes for reading/manipulating/writing VASP ouput files.</span>
@@ -702,7 +701,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LHFCALC&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
             <span class="n">rt</span> <span class="o">=</span> <span class="s2">&quot;HF&quot;</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;METAGGA&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="ow">in</span> <span class="n">METAGGA_TYPES</span><span class="p">:</span>
-            <span class="n">rt</span> <span class="o">=</span> <span class="n">incar</span><span class="p">[</span><span class="s2">&quot;METAGGA&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+            <span class="n">rt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;METAGGA&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LUSE_VDW&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
             <span class="n">vdw_gga</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;RE&quot;</span><span class="p">:</span> <span class="s2">&quot;DF&quot;</span><span class="p">,</span> <span class="s2">&quot;OR&quot;</span><span class="p">:</span> <span class="s2">&quot;optPBE&quot;</span><span class="p">,</span> <span class="s2">&quot;BO&quot;</span><span class="p">:</span> <span class="s2">&quot;optB88&quot;</span><span class="p">,</span>
                        <span class="s2">&quot;MK&quot;</span><span class="p">:</span> <span class="s2">&quot;optB86b&quot;</span><span class="p">,</span> <span class="s2">&quot;ML&quot;</span><span class="p">:</span> <span class="s2">&quot;DF2&quot;</span><span class="p">}</span>
@@ -1674,7 +1673,8 @@
 
         <span class="c1"># Check if the calculation type is DFPT</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dfpt</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">read_pattern</span><span class="p">({</span><span class="s1">&#39;ibrion&#39;</span><span class="p">:</span> <span class="s2">&quot;IBRION =\s+([\-\d]+)&quot;</span><span class="p">},</span> <span class="n">terminate_on_match</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">read_pattern</span><span class="p">({</span><span class="s1">&#39;ibrion&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;IBRION =\s+([\-\d]+)&quot;</span><span class="p">},</span>
+                          <span class="n">terminate_on_match</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                           <span class="n">postprocess</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ibrion&quot;</span><span class="p">,</span> <span class="p">[[</span><span class="mi">0</span><span class="p">]])[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">6</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dfpt</span> <span class="o">=</span> <span class="kc">True</span>
@@ -4423,6 +4423,79 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="n">band_i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">band_j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:]</span></div></div>
 
 
+<div class="viewcode-block" id="Waveder"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Waveder">[docs]</a><span class="k">class</span> <span class="nc">Waveder</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for reading a WAVEDER file.</span>
+<span class="sd">    The LOPTICS tag produces a WAVEDER file.</span>
+<span class="sd">    The WAVEDER contains the derivative of the orbitals with respect to k.</span>
+<span class="sd">    Author: Kamal Choudhary, NIST</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filename: Name of file containing WAVEDER.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">FortranFile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read_reals</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">))</span>
+            <span class="n">nbands</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">nelect</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">nk</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="n">ispin</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+            <span class="n">nodes_in_dielectric_function</span> <span class="o">=</span> <span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read_reals</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">))</span>
+            <span class="n">wplasmon</span> <span class="o">=</span> <span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read_reals</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">))</span>
+            <span class="n">cder</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">f</span><span class="o">.</span><span class="n">read_reals</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)))</span>
+            <span class="n">cder_data</span> <span class="o">=</span> <span class="n">cder</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">nbands</span><span class="p">,</span> <span class="n">nelect</span><span class="p">,</span> <span class="n">nk</span><span class="p">,</span> <span class="n">ispin</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cder_data</span> <span class="o">=</span> <span class="n">cder_data</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nkpoints</span> <span class="o">=</span> <span class="n">nk</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ispin</span> <span class="o">=</span> <span class="n">ispin</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nelect</span> <span class="o">=</span> <span class="n">nelect</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nbands</span> <span class="o">=</span> <span class="n">nbands</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">nbands</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the number of bands in the calculation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nbands</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">nkpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the number of k-points in the calculation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nkpoints</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">nelect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the number of electrons in the calculation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nelect</span>
+
+<div class="viewcode-block" id="Waveder.get_orbital_derivative_between_states"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Waveder.get_orbital_derivative_between_states">[docs]</a>    <span class="k">def</span> <span class="nf">get_orbital_derivative_between_states</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">band_i</span><span class="p">,</span> <span class="n">band_j</span><span class="p">,</span> <span class="n">kpoint</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="n">cart_dir</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method returning a value</span>
+<span class="sd">        between bands band_i and band_j for k-point index, spin-channel and cartesian direction.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            band_i (Integer): Index of band i</span>
+<span class="sd">            band_j (Integer): Index of band j</span>
+<span class="sd">            kpoint (Integer): Index of k-point</span>
+<span class="sd">            spin   (Integer): Index of spin-channel (0 or 1)</span>
+<span class="sd">            cart_dir (Integer): Index of cartesian direction (0,1,2)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            a float value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">band_i</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">band_i</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">nbands</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">band_j</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">band_j</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">nelect</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Band index out of bounds&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">kpoint</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">nkpoints</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;K-point index out of bounds&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cart_dir</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">cart_dir</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;cart_dir index out of bounds&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cder_data</span><span class="p">[</span><span class="n">band_i</span><span class="p">,</span> <span class="n">band_j</span><span class="p">,</span> <span class="n">kpoint</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="n">cart_dir</span><span class="p">]</span></div></div>
+
+
 <div class="viewcode-block" id="UnconvergedVASPWarning"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.UnconvergedVASPWarning">[docs]</a><span class="k">class</span> <span class="nc">UnconvergedVASPWarning</span><span class="p">(</span><span class="ne">Warning</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Warning for unconverged vasp run.</span>
@@ -4441,8 +4514,6 @@
     <form class="search" action="../../../../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -4460,7 +4531,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.4.11 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -4468,7 +4539,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

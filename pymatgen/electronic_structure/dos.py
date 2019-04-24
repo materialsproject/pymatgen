@@ -54,7 +54,7 @@ class DOS(Spectrum):
     YLABEL = "Density"
 
     def __init__(self, energies, densities, efermi):
-        super(DOS, self).__init__(energies, densities, efermi)
+        super().__init__(energies, densities, efermi)
         self.efermi = efermi
 
     def get_interpolated_gap(self, tol=0.001, abs_tol=False, spin=None):
@@ -432,7 +432,7 @@ class FermiDos(Dos):
     """
 
     def __init__(self, dos, structure=None, nelecs=None, bandgap=None):
-        super(FermiDos, self).__init__(
+        super().__init__(
             dos.efermi, energies=dos.energies,
             densities={k: np.array(d) for k, d in dos.densities.items()})
         if structure is None:
@@ -580,7 +580,7 @@ class CompleteDos(Dos):
     """
 
     def __init__(self, structure, total_dos, pdoss):
-        super(CompleteDos, self).__init__(
+        super().__init__(
             total_dos.efermi, energies=total_dos.energies,
             densities={k: np.array(d) for k, d in total_dos.densities.items()})
         self.pdos = pdoss
