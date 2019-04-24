@@ -6,6 +6,7 @@
 import re
 import numpy as np
 import warnings
+import collections
 import os
 from monty.io import zopen
 import fnmatch
@@ -18,6 +19,7 @@ from pymatgen.electronic_structure.bandstructure import Kpoint
 from pymatgen.io.vasp.inputs import Kpoints
 from collections import OrderedDict
 from pymatgen.electronic_structure.bandstructure import LobsterBandStructureSymmLine
+
 """
 Module for reading Lobster output files. For more information
 on LOBSTER see www.cohp.de.
@@ -908,48 +910,119 @@ class Lobsterout(object):
 
 
 class Fatband(object):
-    """reads in fatband files from Lobster and VASP and can return a bandstructure object with summed projections which can be plotted"""
+    """
+    reads in FATBAND_x_y.lobster files
+    Args:
+      filenames (list or string): can be a list of file names or a path to a folder folder from which all "FATBAND_*" files will be read
+      vasprun: corresponding vasprun file
+      Kpointsfile: KPOINTS file for bandstructure calculation, typically "KPOINTS"
 
-    def __init__(self, filenames=[], vasprun='vasprun.xml', Kpointsfile='KPOINTS'):
+      .. attribute: efermi
+      efermi that was read in from vasprun.xml
 
-        #("Make sure all relevant FATBAND files for your final plot were generated and read in!")
-        self.VASPRUN = Vasprun(filename=vasprun, ionic_step_skip=None,
-                               ionic_step_offset=0, parse_dos=True,
-                               parse_eigen=False, parse_projected_eigen=False,
-                               parse_potcar_file=False, occu_tol=1e-8,
-                               exception_on_bad_xml=True)
-        self.final_structure = self.VASPRUN.final_structure
-        self.lattice = self.final_structure.lattice
-        self.efermi=self.VASPRUN.efermi
-        self.kpoints_here = Kpoints.from_file(Kpointsfile)
+      .. attribute: eigenvals
+      {Spin.up:[][],Spin.down:[][]}, the first index of the array
+            [][] refers to the band and the second to the index of the
+            kpoint. The kpoints are ordered according to the order of the
+            kpoints array. If the band structure is not spin polarized, we
+            only store one data set under Spin.up.
 
-        self._atomtype = []
-        self._atomname = []
-        self._orbital = []
-        self.Fatband = {}
-        self.Energies = {}
+      .. attribute: is_spinpolarized
+      Boolean that tells you whether this was a spin-polarized calculation
+
+      .. attribute: kpoints_array
+        list of kpoint as numpy arrays, in frac_coords of the
+            given lattice by default
+            
+      .. attribute: label_dict
+     (dict) of {} this link a kpoint (in frac coords or
+            cartesian coordinates depending on the coords).
+
+      .. attribute: lattice
+      lattice object of reciprocal lattice as read in from vasprun.xml
+
+      .. attribute: nbands
+      number of bands used in the calculation
+
+      .. attribute: p_eigenvals
+      dict of orbital projections as {spin: array of dict}. 
+      The indices of the array are [band_index, kpoint_index]. 
+      The dict is then built the following way: 
+      {"string of element": "string of orbital as read in from FATBAND file"}
+      If the band structure is not spin polarized, we only store one data set under Spin.up.
+
+      .. attribute: structure
+      structure read in from vasprun.xml
+
+
+    """
+
+    def __init__(self, filenames=".", vasprun='vasprun.xml', Kpointsfile='KPOINTS'):
+
+        warnings.warn('Make sure all relevant FATBAND files were generated and read in!')
+        warnings.warn('Use Lobster 3.2.0 or newer for fatband calculations!')
+
+        VASPRUN = Vasprun(filename=vasprun, ionic_step_skip=None,
+                          ionic_step_offset=0, parse_dos=True,
+                          parse_eigen=False, parse_projected_eigen=False,
+                          parse_potcar_file=False, occu_tol=1e-8,
+                          exception_on_bad_xml=True)
+        self.structure = VASPRUN.final_structure
+        self.lattice = self.structure.lattice.reciprocal_lattice
+        self.efermi = VASPRUN.efermi
+        kpoints_object = Kpoints.from_file(Kpointsfile)
+
+        atomtype = []
+        atomnames = []
+        orbital_names = []
 
         if type(filenames) is not type([]) or filenames is None:
             filenames_new = []
             if filenames is None:
-                filenames='.'
+                filenames = '.'
             for file in os.listdir(filenames):
                 if fnmatch.fnmatch(file, 'FATBAND_*.lobster'):
-                    filenames_new.append(os.path.join(filenames,file))
-            filenames=filenames_new
-
+                    filenames_new.append(os.path.join(filenames, file))
+            filenames = filenames_new
+        if (len(filenames)) == 0:
+            raise ValueError("No FATBAND files in folder or given")
         for ifilename, filename in enumerate(filenames):
-
             with zopen(filename, "rt") as f:
                 contents = f.read().split("\n")
 
-            #TODO: could be replaced for future versions of Lobster, get atomname from filename
-            self._atomname.append(os.path.split(filename)[1].split('_')[1].capitalize())
+            # TODO: could be replaced for future versions of Lobster, get atomname from filename
+            atomnames.append(os.path.split(filename)[1].split('_')[1].capitalize())
             parameters = contents[0].split()
-            self._atomtype.append(re.split(r"[0-9]+",parameters[3])[0].capitalize())
-            self._orbital.append(parameters[4])
+            atomtype.append(re.split(r"[0-9]+", parameters[3])[0].capitalize())
+            orbital_names.append(parameters[4])
+
+        # get atomtype orbital dict
+        atom_orbital_dict = {}
+        for iatom, atom in enumerate(atomnames):
+            if atom not in atom_orbital_dict:
+                atom_orbital_dict[atom] = []
+            atom_orbital_dict[atom].append(orbital_names[iatom])
+        # test if there are the same orbitals twice or if two different formats were used or if all necessary orbitals are there
+        for key, items in atom_orbital_dict.items():
+            if len(set(items)) != len(items):
+                raise (ValueError("The are two FATBAND files for the same atom and orbital. The program will stop."))
+            split = []
+            for item in items:
+                split.append(item.split("_")[0])
+            for orb, number in collections.Counter(split).items():
+                if number != 1 and number != 3 and number != 5 and number != 7:
+                    raise (ValueError(
+                        "Make sure all relevant orbitals were generated and that no duplicates (2p and 2p_x) are present"))
+
+        kpoints_array = []
+        for ifilename, filename in enumerate(filenames):
+            with zopen(filename, "rt") as f:
+                contents = f.read().split("\n")
+
             if ifilename == 0:
                 self.nbands = int(parameters[6])
+                self.number_kpts = kpoints_object.num_kpts - int(contents[1].split()[2]) + 1
+
             if len(contents[1:]) == self.nbands + 2:
                 self.is_spinpolarized = False
             elif len(contents[1:]) == self.nbands * 2 + 2:
@@ -968,236 +1041,81 @@ class Fatband(object):
                         self.is_spinpolarized = True
                     else:
                         self.is_spinpolarized = False
-            #directly save this?
-            Fatband = OrderedDict({})
-            Energies = OrderedDict({})
+
+            if ifilename == 0:
+                eigenvals = {}
+                eigenvals[Spin.up] = [[collections.defaultdict(float)
+                                       for i in range(self.number_kpts)]
+                                      for j in range(self.nbands)]
+                if self.is_spinpolarized:
+                    eigenvals[Spin.down] = [[collections.defaultdict(float)
+                                             for i in range(self.number_kpts)]
+                                            for j in range(self.nbands)]
+
+                p_eigenvals = {}
+                p_eigenvals[Spin.up] = [
+                    [{str(e): {str(orb): collections.defaultdict(float) for orb in atom_orbital_dict[e]}
+                      for e in atomnames}
+                     for i in range(self.number_kpts)]
+                    for j in range(self.nbands)]
+
+                if self.is_spinpolarized:
+                    p_eigenvals[Spin.down] = [
+                        [{str(e): {str(orb): collections.defaultdict(float) for orb in atom_orbital_dict[e]}
+                          for e in atomnames}
+                         for i in range(self.number_kpts)]
+                        for j in range(self.nbands)]
+
+            ikpoint = -1
             for iline, line in enumerate(contents[1:-1]):
                 if line.split()[0] == '#':
                     Kpointnumber = int(line.split()[2])
                     KPOINT = np.array([float(line.split()[4]), float(line.split()[5]), float(line.split()[6])])
+                    if ifilename == 0:
+                        kpoints_array.append(KPOINT)
+
                     linenumber = 0
+                    iband = 0
+                    ikpoint += 1
+                if linenumber == self.nbands:
+                    iband = 0
                 if line.split()[0] != '#':
-                    if Kpointnumber not in Fatband:
-                        Fatband[Kpointnumber] = {}
-                        Energies[Kpointnumber] = {}
-                        Fatband[Kpointnumber]['kpoint'] = KPOINT
-                        Energies[Kpointnumber]['kpoint'] = KPOINT
-                        Fatband[Kpointnumber][Spin.up] = []
-                        Energies[Kpointnumber][Spin.up] = []
-                        if self.is_spinpolarized == True:
-                            Fatband[Kpointnumber][Spin.down] = []
-                            Energies[Kpointnumber][Spin.down] = []
+
                     if linenumber < self.nbands:
-                        Fatband[Kpointnumber][Spin.up].append(float(line.split()[2]))
-                        Energies[Kpointnumber][Spin.up].append(float(line.split()[1]))
+                        if ifilename == 0:
+                            eigenvals[Spin.up][iband][ikpoint] = float(line.split()[1]) + self.efermi
+
+                        p_eigenvals[Spin.up][iband][ikpoint][atomnames[ifilename]][orbital_names[ifilename]] = float(
+                            line.split()[2])
                     if linenumber >= self.nbands and self.is_spinpolarized:
-                        Fatband[Kpointnumber][Spin.down].append(float(line.split()[2]))
-                        Energies[Kpointnumber][Spin.down].append(float(line.split()[1]))
-                    linenumber = linenumber + 1
+                        # print(line.split())
+                        # print(iband)
+                        if ifilename == 0:
+                            eigenvals[Spin.down][iband][ikpoint] = float(line.split()[1]) + self.efermi
+                        p_eigenvals[Spin.down][iband][ikpoint][atomnames[ifilename]][
+                            orbital_names[ifilename]] = float(line.split()[2])
 
-            if self._atomname[ifilename] not in self.Fatband:
-                print(self._atomname[ifilename])
-                self.Fatband[self._atomname[ifilename]] = {}
-                self.Energies[self._atomname[ifilename]] = {}
-            self.Fatband[self._atomname[ifilename]][self._orbital[ifilename]] = Fatband
-            self.Energies[self._atomname[ifilename]][self._orbital[ifilename]] = Energies
+                    linenumber += 1
+                    iband += 1
 
-            if ifilename == 0:
-                kpoints_array = []
-                kpoint_numbers = []
-                for key, item in Fatband.items():
-                    kpoints_array.append(item['kpoint'])
-                    kpoint_numbers.append(key)
-                self._kpoints_array = kpoints_array
-                self._kpoint_numbers = kpoint_numbers
-                self._kpoints = []
-                for k in self._kpoints_array:
-                    self._kpoints.append(
-                        Kpoint(k, self.lattice.reciprocal_lattice, label='',
-                               coords_are_cartesian=False))
+        self.kpoints_array = kpoints_array
+        self.eigenvals = eigenvals
+        self.p_eigenvals = p_eigenvals
 
-                self.kpointlabels = []
-                for kpoint_number in kpoint_numbers:
-                    self.kpointlabels.append(self.kpoints_here.labels[kpoint_number - 1])
+        label_dict = {}
+        for ilabel, label in enumerate(kpoints_object.labels[-self.number_kpts:], start=0):
 
-                previous_kpoint = self._kpoints[0]
-                previous_distance = 0.0
-                self._distance = []
-                self._distance.append(previous_distance)
-                for i in range(1, len(self._kpoints)):
-                    # hier ist was falsch
-                    # print(self._kpoints[i].cart_coords)
-                    self._distance.append(
-                        float(np.abs(np.linalg.norm(self._kpoints[i].cart_coords - previous_kpoint.cart_coords) +
-                                     previous_distance)))
-                    previous_distance = float(np.linalg.norm(
-                        np.abs(self._kpoints[i].cart_coords - previous_kpoint.cart_coords)) + previous_distance)
-                    previous_kpoint = self._kpoints[i]
+            if label is not None:
+                label_dict[label] = kpoints_array[ilabel]
 
-
-        # create a bandstructure object
-
-    def orbitals_by_atom(self, atomname):
-        """
-        :param atomname: Name of atom in string format, e.g. "Mn1"
-        :return: list of orbitals corresponding to the specific atom name
-        """
-        orbitals_here = []
-        for iatom, atom in enumerate(self._atomtype):
-            if atom == atomname:
-                orbitals_here.append(self._orbital[iatom])
-        return orbitals_here
-
-    def orbitals_dict_by_atom(self, atomname):
-        """
-
-        :param atomname: Name of atom in string format, e.g. "Mn1"
-        :return: dict of the following format:  {'In': ['5s', '4s', ...]']
-        """
-        orbitals_here = {}
-        orbitals_here[type] = []
-        for iatom, atom in enumerate(self._atomtype):
-            if atom == atomname:
-                orbitals_here[atomname].append(self._orbital[iatom])
-
-        return orbitals_here
-
-    @property
-    def atomtypes(self):
-        """
-        :return: list of all types of atoms in the order of filenames, e.g. ['Mn','Mn' ,...]
-        """
-        return self._atomtype
-
-    @property
-    def atomnames(self):
-        """
-
-        :return: list of all names of atoms in the order of filenames, e.g. ["Mn1", "Mn2",...]
-        """
-        return self._atomname
-
-    def orbitals(self):
-        """
-
-        :return: list of all orbitals in the order of filenames, e.g. ["2s","3s, ...]
-        """
-        return self._orbital
-
-    @property
-    def Kpoints(self):
-        # kpoints as a Kpoint object
-        return self._kpoints
-
-    @property
-    def kpoints_array(self):
-        return self._kpoints_array
-
-    @property
-    def kpoint_numbers(self):
-        return self._kpoint_numbers
-
-    @property
-    def distance(self):
-        return self._distance
+        self.label_dict = label_dict
 
     def get_bandstructure(self):
         """
-        returns a Bandstructure object which can be plotted
-        :param list_atoms: will be used to sum the projection
-        :param list_orbitals: will be used to sum the projection
-        :return:
+        returns a LobsterBandStructureSymmLine object which can be plotted with a normal BSPlotter
         """
-        # new_list_orbitals=["s", "p_y", "p_z", "p_x", "d_xy", "d_yz", "d_z^2",
-        #             "d_xz", "d_x^2-y^2", "f_y(3x^2-y^2)", "f_xyz",
-        #             "f_yz^2", "f_z^3", "f_xz^2", "f_z(x^2-y^2)", "f_x(x^2-3y^2)","p","d","f"]
-        kpoint_np_array=np.array(self.kpoints_array)
-        #reformat the energies
-        #print(self.Energies["O4"]['2p'])
 
-
-        eigenvals = {}
-        eigenvals[Spin.up] = []
-        if self.is_spinpolarized:
-            eigenvals[Spin.down] = []
-        for band in range(0,self.nbands):
-            eigenvals[Spin.up].append([])
-            if self.is_spinpolarized:
-                eigenvals[Spin.down].append([])
-            for kpoint in range(0,len(self.Kpoints)):
-                eigenvals[Spin.up][band].append(np.nan)
-                if self.is_spinpolarized:
-                    eigenvals[Spin.down][band].append(np.nan)
-
-        kpointcounter = 0
-        for key,items in self.Energies.items():
-            for key2 in items:
-                for kpointnumber,item in self.Energies[key][key2].items():
-                    for ienergy,energy in enumerate(item[Spin.up]):
-                        eigenvals[Spin.up][ienergy][kpointcounter]=energy
-                    if self.is_spinpolarized:
-                        for ienergy, energy in item[Spin.down].items():
-                            eigenvals[Spin.down][ienergy][kpointcounter] = energy
-                    kpointcounter+=1
-                break;
-            break;
-
-
-        p_eigenvals = {}
-        p_eigenvals[Spin.up] = []
-        if self.is_spinpolarized:
-            p_eigenvals[Spin.down] = []
-        for band in range(0,self.nbands):
-            p_eigenvals[Spin.up].append([])
-            if self.is_spinpolarized:
-                p_eigenvals[Spin.down].append([])
-            for kpoint in range(0,len(self.Kpoints)):
-                p_eigenvals[Spin.up][band].append({})
-                if self.is_spinpolarized:
-                    p_eigenvals[Spin.down][band].append({})
-                #initialisiere orbitale
-                # for orb in range(0,len(new_list_orbitals)):
-                #     p_eigenvals[Spin.up][band][kpoint].append([])
-                #     if self.is_spinpolarized:
-                #         p_eigenvals[Spin.down][band][kpoint].append([])
-                #     for atom in range(len(self.final_structure)):
-                #         p_eigenvals[Spin.up][band][kpoint][orb].append(np.nan)
-                #         if self.is_spinpolarized:
-                #             p_eigenvals[Spin.up][band][kpoint][orb].append(np.nan)
-
-        for key,items in self.Fatband.items():
-            for key2 in items:
-                kpointcounter = 0
-                for kpointnumber,item in self.Fatband[key][key2].items():
-                    for ienergy,energy in enumerate(item[Spin.up]):
-                        if not key in p_eigenvals[Spin.up][ienergy][kpointcounter]:
-                            p_eigenvals[Spin.up][ienergy][kpointcounter][key]={}
-                        p_eigenvals[Spin.up][ienergy][kpointcounter][key][key2]=energy
-                    if self.is_spinpolarized:
-                        for ienergy, energy in item[Spin.down].items():
-                            if not key in p_eigenvals[Spin.down][ienergy][kpointcounter]:
-                                p_eigenvals[Spin.down][ienergy][kpointcounter][key] = {}
-                            p_eigenvals[Spin.down][ienergy][kpointcounter][key][key2] = energy
-
-
-                    kpointcounter+=1
-
-        # print(self._kpoints_array)
-        # print(type(self._kpoints_array))
-        # print(self._kpoints_array[0])
-        # #should be some array to proceed
-        label_dict={}
-        for ilabel,label in enumerate(list(self.kpointlabels)):
-            if label is not None:
-                print(self._kpoints_array[ilabel])
-                label_dict[label]=self._kpoints_array[ilabel]
-
-
-        return LobsterBandStructureSymmLine(kpoints=kpoint_np_array, eigenvals=eigenvals, lattice=self.lattice,
-                                   efermi=self.efermi, labels_dict=label_dict,
-                                  structure=self.final_structure,
-                                   projections=p_eigenvals)
-
-
-
-        
+        return LobsterBandStructureSymmLine(kpoints=self.kpoints_array, eigenvals=self.eigenvals, lattice=self.lattice,
+                                            efermi=self.efermi, labels_dict=self.label_dict,
+                                            structure=self.structure,
+                                            projections=self.p_eigenvals)

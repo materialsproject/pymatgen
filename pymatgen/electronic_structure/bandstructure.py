@@ -1104,14 +1104,14 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
         d["is_metal"] = self.is_metal()
         vbm = self.get_vbm()
         d["vbm"] = {"energy": vbm["energy"],
-                    "kpoint_index": vbm["kpoint_index"],
+                    "kpoint_index": [int(x) for x in vbm["kpoint_index"]],
                     "band_index": {str(int(spin)): vbm["band_index"][spin]
                                    for spin in vbm["band_index"]},
-                    'projections': {str(spin): v for spin, v in vbm[
+                    'projections': {str(spin): v  for spin, v in vbm[
                         'projections'].items()}}
         cbm = self.get_cbm()
         d['cbm'] = {'energy': cbm['energy'],
-                    'kpoint_index': cbm['kpoint_index'],
+                    'kpoint_index': [int(x) for x in cbm["kpoint_index"]],
                     'band_index': {str(int(spin)): cbm['band_index'][spin]
                                    for spin in cbm['band_index']},
                     'projections': {str(spin): v for spin, v in cbm[
@@ -1151,8 +1151,9 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
                 structure = Structure.from_dict(d['structure'])
                 projections = {Spin(int(spin)): np.array(v)
                                for spin, v in d["projections"].items()}
+                print(projections)
 
-            return BandStructureSymmLine(
+            return LobsterBandStructureSymmLine(
                 d['kpoints'], {Spin(int(k)): d['bands'][k]
                                for k in d['bands']},
                 Lattice(d['lattice_rec']['matrix']), d['efermi'],
@@ -1187,30 +1188,22 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
                     ddd = []
                     for j in range(len(d['projections'][spin][i])):
                         dddd = []
-                        #TODO: rework this part and make it a dict
-                        #print(d['projections'][spin][i][j])
-                        # for k in range(len(d['projections'][spin][i][j])):
-                        #     ddddd = []
-                        #     orb = Orbital(k).name
-                        #     for l in range(len(d['projections'][spin][i][j][
-                        #                            orb])):
-                        #         ddddd.append(d['projections'][spin][i][j][
-                        #                         orb][l])
-                        #     dddd.append(np.array(ddddd))
                         ddd.append(d['projections'][spin][i][j])
                     dd.append(np.array(ddd))
                 projections[Spin(int(spin))] = np.array(dd)
 
-        return BandStructureSymmLine(
+        return LobsterBandStructureSymmLine(
             d['kpoints'], {Spin(int(k)): d['bands'][k]
                            for k in d['bands']},
             Lattice(d['lattice_rec']['matrix']), d['efermi'],
             labels_dict, structure=structure, projections=projections)
 
+
+
     def get_projection_on_elements(self):
         """
         Method returning a dictionary of projections on elements.
-        It very much depends on which FATBAND files you have read in.
+        It sums over all available orbitals for each element.
 
         Returns:
             a dictionary in the {Spin.up:[][{Element:values}],
@@ -1218,7 +1211,6 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
             if there is no projections in the band structure
             returns an empty dict
         """
-        #TODO: rework this stuff
         result = {}
         structure = self.structure
         for spin, v in self.projections.items():
@@ -1231,10 +1223,6 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
                     for key2, item2 in item.items():
                         specie = str(Specie(re.split(r"[0-9]+", key)[0]))
                         result[spin][i][j][specie] += item2
-
-                        #also: make it possible to access atoms individually
-                        #result[spin][i][j][key] += item2
-
         return result
 
     def get_projections_on_elements_and_orbitals(self, el_orb_spec):
@@ -1245,7 +1233,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
         Args:
             el_orb_spec: A dictionary of Elements and Orbitals for which we want
                 to have projections on. It is given as: {Element:[orbitals]},
-                e.g., {'Cu':['d','s']}
+                e.g., {'Si':['3s','3p']} or {'Si':['3s','3p_x', '3p_y', '3p_z']} depending on input files
 
         Returns:
             A dictionary of projections on elements in the
@@ -1254,9 +1242,6 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
             if there is no projections in the band structure returns an empty
             dict.
         """
-        #TODO: implement a warning when there is no data for all atoms of the relevant element
-        #implement a way to assess d, p, s, if p_x,p_y,p_z is given
-        #or make it possible to only access O4 instead of O!
         result = {}
         structure = self.structure
         el_orb_spec = {get_el_sp(el): orbs for el, orbs in el_orb_spec.items()}
@@ -1271,22 +1256,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
                 for key, item in v[i][j].items():
                     for key2, item2 in item.items():
                         specie = str(Specie(re.split(r"[0-9]+", key)[0]))
-                        result[spin][i][j][specie][key2] += item2
-                        # also: make it possible to access atoms individually
-                        #result[spin][i][j][key][key2] += item2
-
+                        if get_el_sp(str(specie)) in el_orb_spec:
+                            if key2 in el_orb_spec[get_el_sp(str(specie))]:
+                                result[spin][i][j][specie][key2] += item2
         return result
-    #
-    # for spin, v in self.projections.items():
-    #     result[spin] = [[collections.defaultdict(float)
-    #                      for i in range(len(self.kpoints))]
-    #                     for j in range(self.nb_bands)]
-
-    # def __init__(self):
-    #     pass
-    #
-    # def get_projection_on_elements(self):
-    #     pass
-    #
-    # def get_projections_on_elements_and_orbitals(self, el_orb_spec):
-    #     pass
