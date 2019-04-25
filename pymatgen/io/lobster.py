@@ -545,7 +545,7 @@ class Charge:
         return new_struct
 
 
-class Lobsterout(object):
+class Lobsterout:
     """
     Class to read in the lobsterout and evaluate the spilling, save the basis, save warnings, save infos
     Args:
@@ -909,7 +909,7 @@ class Lobsterout(object):
         return infos
 
 
-class Fatband(object):
+class Fatband:
     """
     reads in FATBAND_x_y.lobster files
     Args:
