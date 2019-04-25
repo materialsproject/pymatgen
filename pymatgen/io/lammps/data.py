@@ -1248,3 +1248,5 @@ def structure_2_lmpdata(structure, ff_elements=None, atom_style="charge"):
     topo = Topology(s)
     return LammpsData.from_ff_and_topologies(box=box, ff=ff, topologies=[topo],
                                              atom_style=atom_style)
+
+data = LammpsData.from_file("/Users/nwinner/calculations/sandbox/packingwf/lammps.data", atom_style='charge')
