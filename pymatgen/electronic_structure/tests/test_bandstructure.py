@@ -59,10 +59,10 @@ class BandStructureSymmLine_test(PymatgenTest):
 
     def test_basic(self):
         self.assertArrayAlmostEqual(self.bs.projections[Spin.up][10][12][0],
-                             [0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+                                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
         self.assertArrayAlmostEqual(self.bs.projections[Spin.up][25][0][
-                                 Orbital.dyz.value],
-                             [0.0, 0.0, 0.0011, 0.0219, 0.0219, 0.069])
+                                        Orbital.dyz.value],
+                                    [0.0, 0.0, 0.0011, 0.0219, 0.0219, 0.069])
         self.assertAlmostEqual(
             self.bs.get_projection_on_elements()[Spin.up][25][10]['O'], 0.0328)
         self.assertAlmostEqual(
@@ -225,7 +225,6 @@ class ReconstructBandStructureTest(PymatgenTest):
         self.assertEqual(bs.bands[Spin.up].shape, (20, 700), "wrong number of bands or kpoints")
 
     def test_vasprun_bs(self):
-
         bsv = BSVasprun(os.path.join(test_dir, "vasprun.xml"),
                         parse_projected_eigen=True,
                         parse_potcar_file=True)
@@ -338,7 +337,6 @@ class LobsterBandStructureSymmLine_test(PymatgenTest):
     def test_get_branch(self):
         self.assertDictEqual(self.bs_p.get_branch(0)[0],
                              {'name': '\\Gamma-K', 'start_index': 0, 'end_index': 70, 'index': 0})
-        # self.assertAlmostEqual(self.bs2.get_branch(110)[0]['name'], "U-W")
 
     def test_get_direct_band_gap_dict(self):
         direct_dict = self.bs_p.get_direct_band_gap_dict()
