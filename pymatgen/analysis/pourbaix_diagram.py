@@ -714,7 +714,6 @@ class PourbaixDiagram(MSONable):
 
         """
         # Get composition
-        N = len(self._elt_comp)  # No. of elements
         tot_comp = Composition(self._elt_comp)
 
         valid_facets = self._get_hull_in_nph_nphi_space(entries)
@@ -968,31 +967,40 @@ class PourbaixDiagram(MSONable):
 
         # Check composition consistency between forced entry and Pourbaix diagram:
         comp_warning = 'Composition of stability entry does not match Pourbaix Diagram'
+        comp_bool = True
         total_comp = Composition(self._elt_comp)
         elts = list(self._elt_comp.keys())
         n_atoms_forced = 0
         n_atoms_total = 0
         forced_compdict = dict()
-        for elt in entry.composition.elements:
+        entry_elts = set(entry.composition.elements) - elements_HO
+        for elt in entry_elts:
             forced_compdict[elt] = entry.composition.get(elt, 0.0)
             n_atoms_forced += forced_compdict[elt]
             try:
                 n_atoms_total += total_comp.get(elt, 0.0)
             except KeyError:
                 warnings.warn(comp_warning)
-        if len(forced_compdict.keys()) != len(self._elt_comp.keys()):
+                comp_bool = False
+        if len(forced_compdict.keys()) != len(elts):
             warnings.warn(comp_warning)
+            comp_bool = False
         else:
             for elt in forced_compdict.keys():
                 reduced_forced_elt = forced_compdict[elt]/n_atoms_forced
                 reduced_total_elt = total_comp.get(elt,0.0)/n_atoms_total
                 if not np.isclose(reduced_forced_elt,reduced_total_elt, rtol = 1e-3):
                     warnings.warn(comp_warning)
+                    comp_bool = False
 
         # Find representative multientry
         if self._multielement and not isinstance(entry, MultiEntry):
-            possible_entries = self._generate_multielement_entries(
-                self._filtered_entries, forced_include=[entry])
+            if comp_bool:
+                possible_entries = self._preprocess_pourbaix_entries(self._filtered_entries, \
+                        forced_include=[entry])
+            else:
+                possible_entries = self._generate_multielement_entries(
+                    self._filtered_entries, forced_include=[entry])
 
             # Filter to only include materials where the entry is only solid
             if entry.phase_type == "solid":
