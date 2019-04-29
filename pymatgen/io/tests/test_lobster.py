@@ -5,9 +5,11 @@
 import unittest
 import os
 import json
+import warnings
 import numpy as np
 from pymatgen import Structure
-from pymatgen.io.lobster import Cohpcar, Icohplist, Doscar, Charge, Lobsterout
+from pymatgen.io.lobster import Cohpcar, Icohplist, Doscar, Charge, Lobsterout, Fatband
+from pymatgen.io.vasp import Vasprun
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.util.testing import PymatgenTest
 
@@ -812,6 +814,239 @@ class LobsteroutTest(PymatgenTest):
                 self.assertListEqual(item, comparedict[key])
             elif type(item) == type({}):
                 self.assertDictEqual(item, comparedict[key])
+
+
+class FatbandTest(PymatgenTest):
+    def setUp(self):
+        warnings.simplefilter("ignore")
+        self.fatband_SiO2_p_x = Fatband(filenames=os.path.join(test_dir, "Fatband_SiO2/Test_p_x"),
+                                        Kpointsfile=os.path.join(test_dir, "Fatband_SiO2/Test_p_x/KPOINTS"),
+                                        vasprun=os.path.join(test_dir, "Fatband_SiO2/Test_p_x/vasprun.xml"))
+        self.vasprun_SiO2_p_x = Vasprun(filename=os.path.join(test_dir, "Fatband_SiO2/Test_p_x/vasprun.xml"))
+        self.bs_symmline = self.vasprun_SiO2_p_x.get_band_structure(line_mode=True, force_hybrid_mode=True)
+        self.fatband_SiO2_p = Fatband(filenames=os.path.join(test_dir, "Fatband_SiO2/Test_p"),
+                                      Kpointsfile=os.path.join(test_dir, "Fatband_SiO2/Test_p/KPOINTS"),
+                                      vasprun=os.path.join(test_dir, "Fatband_SiO2/Test_p/vasprun.xml"))
+        self.vasprun_SiO2_p = Vasprun(filename=os.path.join(test_dir, "Fatband_SiO2/Test_p/vasprun.xml"))
+        self.bs_symmline2 = self.vasprun_SiO2_p.get_band_structure(line_mode=True, force_hybrid_mode=True)
+        self.fatband_SiO2_spin = Fatband(filenames=os.path.join(test_dir, "Fatband_SiO2/Test_Spin"),
+                                         Kpointsfile=os.path.join(test_dir, "Fatband_SiO2/Test_Spin/KPOINTS"),
+                                         vasprun=os.path.join(test_dir, "Fatband_SiO2/Test_Spin/vasprun.xml"))
+        self.vasprun_SiO2_spin = Vasprun(filename=os.path.join(test_dir, "Fatband_SiO2/Test_Spin/vasprun.xml"))
+        self.bs_symmline_spin = self.vasprun_SiO2_p.get_band_structure(line_mode=True, force_hybrid_mode=True)
+
+    def tearDown(self):
+        warnings.simplefilter("default")
+
+    def test_attributes(self):
+        self.assertListEqual(list(self.fatband_SiO2_p_x.label_dict['M']), [0.5, 0., 0.])
+        self.assertEqual(self.fatband_SiO2_p_x.efermi, self.vasprun_SiO2_p_x.efermi)
+        self.assertDictEqual(self.bs_symmline.lattice_rec.as_dict(), self.fatband_SiO2_p_x.lattice.as_dict())
+        self.assertEqual(self.fatband_SiO2_p_x.eigenvals[Spin.up][1][1] - self.fatband_SiO2_p_x.efermi, -18.245)
+        self.assertEqual(self.fatband_SiO2_p_x.is_spinpolarized, False)
+        self.assertAlmostEqual(self.fatband_SiO2_p_x.kpoints_array[3][0], 0.03409091)
+        self.assertEqual(self.fatband_SiO2_p_x.kpoints_array[3][1], 0.0)
+        self.assertEqual(self.fatband_SiO2_p_x.kpoints_array[3][2], 0.0)
+        self.assertEqual(self.fatband_SiO2_p_x.nbands, 36)
+        self.assertEqual(self.fatband_SiO2_p_x.p_eigenvals[Spin.up][2][1]["Si1"]["3p_x"], 0.002)
+        self.assertDictEqual(self.fatband_SiO2_p_x.structure.as_dict(),
+                             {'@module': 'pymatgen.core.structure', '@class': 'Structure', 'charge': None, 'lattice': {
+                                 'matrix': [[5.02189789, 0.0, 0.0], [-2.51094844, 4.34909098, 0.0],
+                                            [0.0, 0.0, 5.51192941]], 'a': 5.02189789, 'b': 5.021897492049772,
+                                 'c': 5.51192941, 'alpha': 90.0, 'beta': 90.0, 'gamma': 119.99999596836791,
+                                 'volume': 120.38434604276603}, 'sites': [
+                                 {'species': [{'element': 'Si', 'occu': 1}], 'abc': [0.0, 0.47634315, 0.666667],
+                                  'xyz': [-1.196073089397186, 2.0716596970497867, 3.67462144397647], 'label': 'Si',
+                                  'properties': {}},
+                                 {'species': [{'element': 'Si', 'occu': 1}], 'abc': [0.52365685, 0.52365685, 0.0],
+                                  'xyz': [1.3148758794962323, 2.2774312829502126, 0.0], 'label': 'Si',
+                                  'properties': {}},
+                                 {'species': [{'element': 'Si', 'occu': 1}], 'abc': [0.47634315, 0.0, 0.333333],
+                                  'xyz': [2.3921466599009533, 0.0, 1.8373079660235299], 'label': 'Si',
+                                  'properties': {}},
+                                 {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.15890378, 0.74400316, 0.46134773],
+                                  'xyz': [-1.0701550164620461, 3.2357374322474968, 2.542916121223739], 'label': 'O',
+                                  'properties': {}},
+                                 {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.25599684, 0.41490062, 0.79468073],
+                                  'xyz': [0.24379592609863487, 1.8044405440384075, 4.380224087247269], 'label': 'O',
+                                  'properties': {}},
+                                 {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.58509938, 0.84109622, 0.12801473],
+                                  'xyz': [0.8263601003634116, 3.658003983714095, 0.7056081552002093], 'label': 'O',
+                                  'properties': {}},
+                                 {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.74400316, 0.15890378, 0.53865227],
+                                  'xyz': [3.337308700856229, 0.6910869962859043, 2.9690132887762606], 'label': 'O',
+                                  'properties': {}},
+                                 {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.41490062, 0.25599684, 0.20531927],
+                                  'xyz': [1.4407936820947622, 1.1133535477525032, 1.1317053227527305], 'label': 'O',
+                                  'properties': {}},
+                                 {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.84109622, 0.58509938, 0.87198527],
+                                  'xyz': [2.7547449570490086, 2.544650435961592, 4.806321254799791], 'label': 'O',
+                                  'properties': {}}]})
+
+        self.assertListEqual(list(self.fatband_SiO2_p.label_dict['M']), [0.5, 0., 0.])
+        self.assertEqual(self.fatband_SiO2_p.efermi, self.vasprun_SiO2_p.efermi)
+        self.assertDictEqual(self.bs_symmline2.lattice_rec.as_dict(), self.fatband_SiO2_p.lattice.as_dict())
+        self.assertEqual(self.fatband_SiO2_p.eigenvals[Spin.up][1][1] - self.fatband_SiO2_p.efermi, -18.245)
+        self.assertEqual(self.fatband_SiO2_p.is_spinpolarized, False)
+        self.assertAlmostEqual(self.fatband_SiO2_p.kpoints_array[3][0], 0.03409091)
+        self.assertEqual(self.fatband_SiO2_p.kpoints_array[3][1], 0.0)
+        self.assertEqual(self.fatband_SiO2_p.kpoints_array[3][2], 0.0)
+        self.assertEqual(self.fatband_SiO2_p.nbands, 36)
+        self.assertEqual(self.fatband_SiO2_p.p_eigenvals[Spin.up][2][1]["Si1"]["3p"], 0.042)
+        self.assertDictEqual(self.fatband_SiO2_p.structure.as_dict(),
+                             {'@module': 'pymatgen.core.structure', '@class': 'Structure', 'charge': None, 'lattice': {
+                                 'matrix': [[5.02189789, 0.0, 0.0], [-2.51094844, 4.34909098, 0.0],
+                                            [0.0, 0.0, 5.51192941]], 'a': 5.02189789, 'b': 5.021897492049772,
+                                 'c': 5.51192941, 'alpha': 90.0, 'beta': 90.0, 'gamma': 119.99999596836791,
+                                 'volume': 120.38434604276603}, 'sites': [
+                                 {'species': [{'element': 'Si', 'occu': 1}], 'abc': [0.0, 0.47634315, 0.666667],
+                                  'xyz': [-1.196073089397186, 2.0716596970497867, 3.67462144397647], 'label': 'Si',
+                                  'properties': {}},
+                                 {'species': [{'element': 'Si', 'occu': 1}], 'abc': [0.52365685, 0.52365685, 0.0],
+                                  'xyz': [1.3148758794962323, 2.2774312829502126, 0.0], 'label': 'Si',
+                                  'properties': {}},
+                                 {'species': [{'element': 'Si', 'occu': 1}], 'abc': [0.47634315, 0.0, 0.333333],
+                                  'xyz': [2.3921466599009533, 0.0, 1.8373079660235299], 'label': 'Si',
+                                  'properties': {}},
+                                 {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.15890378, 0.74400316, 0.46134773],
+                                  'xyz': [-1.0701550164620461, 3.2357374322474968, 2.542916121223739], 'label': 'O',
+                                  'properties': {}},
+                                 {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.25599684, 0.41490062, 0.79468073],
+                                  'xyz': [0.24379592609863487, 1.8044405440384075, 4.380224087247269], 'label': 'O',
+                                  'properties': {}},
+                                 {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.58509938, 0.84109622, 0.12801473],
+                                  'xyz': [0.8263601003634116, 3.658003983714095, 0.7056081552002093], 'label': 'O',
+                                  'properties': {}},
+                                 {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.74400316, 0.15890378, 0.53865227],
+                                  'xyz': [3.337308700856229, 0.6910869962859043, 2.9690132887762606], 'label': 'O',
+                                  'properties': {}},
+                                 {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.41490062, 0.25599684, 0.20531927],
+                                  'xyz': [1.4407936820947622, 1.1133535477525032, 1.1317053227527305], 'label': 'O',
+                                  'properties': {}},
+                                 {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.84109622, 0.58509938, 0.87198527],
+                                  'xyz': [2.7547449570490086, 2.544650435961592, 4.806321254799791], 'label': 'O',
+                                  'properties': {}}]})
+
+        self.assertListEqual(list(self.fatband_SiO2_spin.label_dict['M']), [0.5, 0., 0.])
+        self.assertEqual(self.fatband_SiO2_spin.efermi, self.vasprun_SiO2_spin.efermi)
+
+        self.assertDictEqual(self.bs_symmline_spin.lattice_rec.as_dict(), self.fatband_SiO2_spin.lattice.as_dict())
+        self.assertEqual(self.fatband_SiO2_spin.eigenvals[Spin.up][1][1] - self.fatband_SiO2_spin.efermi, -18.245)
+        self.assertEqual(self.fatband_SiO2_spin.eigenvals[Spin.down][1][1] - self.fatband_SiO2_spin.efermi, -18.245)
+        self.assertEqual(self.fatband_SiO2_spin.is_spinpolarized, True)
+        self.assertAlmostEqual(self.fatband_SiO2_spin.kpoints_array[3][0], 0.03409091)
+        self.assertEqual(self.fatband_SiO2_spin.kpoints_array[3][1], 0.0)
+        self.assertEqual(self.fatband_SiO2_spin.kpoints_array[3][2], 0.0)
+        self.assertEqual(self.fatband_SiO2_spin.nbands, 36)
+
+        self.assertEqual(self.fatband_SiO2_spin.p_eigenvals[Spin.up][2][1]["Si1"]["3p"], 0.042)
+        self.assertDictEqual(self.fatband_SiO2_spin.structure.as_dict(),
+                             {'@module': 'pymatgen.core.structure', '@class': 'Structure', 'charge': None, 'lattice': {
+                                 'matrix': [[5.02189789, 0.0, 0.0], [-2.51094844, 4.34909098, 0.0],
+                                            [0.0, 0.0, 5.51192941]], 'a': 5.02189789, 'b': 5.021897492049772,
+                                 'c': 5.51192941, 'alpha': 90.0, 'beta': 90.0, 'gamma': 119.99999596836791,
+                                 'volume': 120.38434604276603}, 'sites': [
+                                 {'species': [{'element': 'Si', 'occu': 1}], 'abc': [0.0, 0.47634315, 0.666667],
+                                  'xyz': [-1.196073089397186, 2.0716596970497867, 3.67462144397647], 'label': 'Si',
+                                  'properties': {}},
+                                 {'species': [{'element': 'Si', 'occu': 1}], 'abc': [0.52365685, 0.52365685, 0.0],
+                                  'xyz': [1.3148758794962323, 2.2774312829502126, 0.0], 'label': 'Si',
+                                  'properties': {}},
+                                 {'species': [{'element': 'Si', 'occu': 1}], 'abc': [0.47634315, 0.0, 0.333333],
+                                  'xyz': [2.3921466599009533, 0.0, 1.8373079660235299], 'label': 'Si',
+                                  'properties': {}},
+                                 {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.15890378, 0.74400316, 0.46134773],
+                                  'xyz': [-1.0701550164620461, 3.2357374322474968, 2.542916121223739], 'label': 'O',
+                                  'properties': {}},
+                                 {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.25599684, 0.41490062, 0.79468073],
+                                  'xyz': [0.24379592609863487, 1.8044405440384075, 4.380224087247269], 'label': 'O',
+                                  'properties': {}},
+                                 {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.58509938, 0.84109622, 0.12801473],
+                                  'xyz': [0.8263601003634116, 3.658003983714095, 0.7056081552002093], 'label': 'O',
+                                  'properties': {}},
+                                 {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.74400316, 0.15890378, 0.53865227],
+                                  'xyz': [3.337308700856229, 0.6910869962859043, 2.9690132887762606], 'label': 'O',
+                                  'properties': {}},
+                                 {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.41490062, 0.25599684, 0.20531927],
+                                  'xyz': [1.4407936820947622, 1.1133535477525032, 1.1317053227527305], 'label': 'O',
+                                  'properties': {}},
+                                 {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.84109622, 0.58509938, 0.87198527],
+                                  'xyz': [2.7547449570490086, 2.544650435961592, 4.806321254799791], 'label': 'O',
+                                  'properties': {}}]})
+
+    def test_raises(self):
+        with self.assertRaises(ValueError):
+            self.fatband_SiO2_p_x = Fatband(
+                filenames=[os.path.join(test_dir, "Fatband_SiO2/Test_p_x/FATBAND_si1_3p_x.lobster"),
+                           os.path.join(test_dir, "Fatband_SiO2/Test_p_x/FATBAND_si1_3p_x.lobster")],
+                Kpointsfile=os.path.join(test_dir, "Fatband_SiO2/Test_p_x/KPOINTS"),
+                vasprun=os.path.join(test_dir, "Fatband_SiO2/Test_p_x/vasprun.xml"))
+
+        with self.assertRaises(ValueError):
+            self.fatband_SiO2_p_x = Fatband(
+                filenames=[os.path.join(test_dir, "Fatband_SiO2/Test_p_x/FATBAND_si1_3p_x.lobster"),
+                           os.path.join(test_dir, "Fatband_SiO2/Test_p/FATBAND_si1_3p.lobster")],
+                Kpointsfile=os.path.join(test_dir, "Fatband_SiO2/Test_p_x/KPOINTS"),
+                vasprun=os.path.join(test_dir, "Fatband_SiO2/Test_p_x/vasprun.xml"))
+
+        with self.assertRaises(ValueError):
+            self.fatband_SiO2_p_x = Fatband(filenames='.',
+                                            Kpointsfile=os.path.join(test_dir, "Fatband_SiO2/Test_p_x/KPOINTS"),
+                                            vasprun=os.path.join(test_dir, "Fatband_SiO2/Test_p_x/vasprun.xml"))
+
+    def test_get_bandstructure(self):
+        bs_p = self.fatband_SiO2_p.get_bandstructure()
+        self.assertDictEqual(bs_p.structure.as_dict(), self.bs_symmline2.structure.as_dict())
+        self.assertEqual(bs_p.efermi, self.bs_symmline2.efermi)
+        self.assertDictEqual(bs_p.branches[0], self.bs_symmline2.branches[0])
+        self.assertAlmostEqual(bs_p.distance[30], self.bs_symmline2.distance[30])
+        self.assertDictEqual(bs_p.lattice_rec.as_dict(), self.bs_symmline2.lattice_rec.as_dict())
+        self.assertAlmostEqual(bs_p.kpoints[8].frac_coords[0], self.bs_symmline2.kpoints[8].frac_coords[0])
+        self.assertAlmostEqual(bs_p.kpoints[8].frac_coords[1], self.bs_symmline2.kpoints[8].frac_coords[1])
+        self.assertAlmostEqual(bs_p.kpoints[8].frac_coords[2], self.bs_symmline2.kpoints[8].frac_coords[2])
+        self.assertAlmostEqual(bs_p.kpoints[8].cart_coords[0], self.bs_symmline2.kpoints[8].cart_coords[0])
+        self.assertAlmostEqual(bs_p.kpoints[8].cart_coords[1], self.bs_symmline2.kpoints[8].cart_coords[1])
+        self.assertAlmostEqual(bs_p.kpoints[8].cart_coords[2], self.bs_symmline2.kpoints[8].cart_coords[2])
+        self.assertAlmostEqual(bs_p.kpoints[50].frac_coords[0], self.bs_symmline2.kpoints[50].frac_coords[0])
+        self.assertAlmostEqual(bs_p.kpoints[50].frac_coords[1], self.bs_symmline2.kpoints[50].frac_coords[1])
+        self.assertAlmostEqual(bs_p.kpoints[50].frac_coords[2], self.bs_symmline2.kpoints[50].frac_coords[2])
+        self.assertAlmostEqual(bs_p.kpoints[50].cart_coords[0], self.bs_symmline2.kpoints[50].cart_coords[0])
+        self.assertAlmostEqual(bs_p.kpoints[50].cart_coords[1], self.bs_symmline2.kpoints[50].cart_coords[1])
+        self.assertAlmostEqual(bs_p.kpoints[50].cart_coords[2], self.bs_symmline2.kpoints[50].cart_coords[2])
+        self.assertAlmostEqual(bs_p.get_band_gap()["energy"], self.bs_symmline2.get_band_gap()["energy"], places=2)
+        self.assertAlmostEqual(bs_p.get_projection_on_elements()[Spin.up][0][0]["Si"], 3 * (0.001 + 0.064))
+        self.assertAlmostEqual(bs_p.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.up][0][0]["Si"]["3p"],
+                               0.003)
+        self.assertAlmostEqual(bs_p.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.up][0][0]["O"]["2p"],
+                               0.002 * 3 + 0.003 * 3)
+        self.assertDictEqual(
+            bs_p.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.up][0][0],
+            {'Si': {'3p': 0.003, '3s': 0.192}, 'O': {'2p': 0.015, '2s': 0.792}})
+
+        bs_spin = self.fatband_SiO2_spin.get_bandstructure()
+        self.assertAlmostEqual(bs_spin.get_projection_on_elements()[Spin.up][0][0]["Si"], 3 * (0.001 + 0.064))
+        self.assertAlmostEqual(
+            bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.up][0][0]["Si"]["3p"],
+            0.003)
+        self.assertAlmostEqual(
+            bs_spin.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.up][0][0]["O"]["2p"],
+            0.002 * 3 + 0.003 * 3)
+        self.assertDictEqual(
+            bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.up][0][0],
+            {'Si': {'3p': 0.003, '3s': 0.192}, 'O': {'2p': 0.015, '2s': 0.792}})
+        self.assertAlmostEqual(bs_spin.get_projection_on_elements()[Spin.up][0][0]["Si"], 3 * (0.001 + 0.064))
+        self.assertAlmostEqual(
+            bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.down][0][0]["Si"]["3p"],
+            0.003)
+        self.assertAlmostEqual(
+            bs_spin.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.down][0][0]["O"]["2p"],
+            0.002 * 3 + 0.003 * 3)
+        self.assertDictEqual(
+            bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.down][0][0],
+            {'Si': {'3p': 0.003, '3s': 0.192}, 'O': {'2p': 0.015, '2s': 0.792}})
+
+        bs_p_x = self.fatband_SiO2_p_x.get_bandstructure()
+        self.assertAlmostEqual(bs_p_x.get_projection_on_elements()[Spin.up][0][0]["Si"], 3 * (0.001 + 0.064), 2)
 
 
 if __name__ == "__main__":
