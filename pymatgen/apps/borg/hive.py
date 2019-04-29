@@ -255,7 +255,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
             structure = contcar.structure if contcar is not None\
                 else poscar.structure
             initial_vol = poscar.structure.volume if poscar is not None else \
-
+		None
             final_vol = contcar.structure.volume if contcar is not None else \
                 None
             delta_volume = None
