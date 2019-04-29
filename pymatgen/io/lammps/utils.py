@@ -437,7 +437,7 @@ class PackmolRunner:
                 resid.atoms, residue_name=resid.name,
                 site_property=site_property)
             for site in mol:
-                packed_mol.append(site.species_and_occu, site.coords,
+                packed_mol.append(site.species, site.coords,
                                   properties=site.properties)
 
         return packed_mol

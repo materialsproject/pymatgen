@@ -571,9 +571,10 @@ class PourbaixDiagram(MSONable):
         entries = deepcopy(entries)
 
         # Get non-OH elements
-        pbx_elts = set(itertools.chain.from_iterable(
+        self.pbx_elts = set(itertools.chain.from_iterable(
             [entry.composition.elements for entry in entries]))
-        pbx_elts = list(pbx_elts - elements_HO)
+        self.pbx_elts = list(self.pbx_elts - elements_HO)
+        self.dim = len(self.pbx_elts) - 1
 
         # Process multientry inputs
         if isinstance(entries[0], MultiEntry):
@@ -592,13 +593,13 @@ class PourbaixDiagram(MSONable):
         else:
             # Set default conc/comp dicts
             if not comp_dict:
-                comp_dict = {elt.symbol: 1. / len(pbx_elts) for elt in pbx_elts}
+                comp_dict = {elt.symbol: 1. / len(self.pbx_elts) for elt in self.pbx_elts}
             if not conc_dict:
-                conc_dict = {elt.symbol: 1e-6 for elt in pbx_elts}
+                conc_dict = {elt.symbol: 1e-6 for elt in self.pbx_elts}
             self._conc_dict = conc_dict
 
             self._elt_comp = comp_dict
-            self.pourbaix_elements = pbx_elts
+            self.pourbaix_elements = self.pbx_elts
 
             solid_entries = [entry for entry in entries
                              if entry.phase_type == "Solid"]
@@ -633,7 +634,7 @@ class PourbaixDiagram(MSONable):
 
             if len(comp_dict) > 1:
                 self._multielement = True
-                self._processed_entries = self._generate_multielement_entries(
+                self._processed_entries = self._preprocess_pourbaix_entries(
                     self._filtered_entries, nproc=nproc)
             else:
                 self._processed_entries = self._filtered_entries
@@ -641,6 +642,119 @@ class PourbaixDiagram(MSONable):
 
         self._stable_domains, self._stable_domain_vertices = \
             self.get_pourbaix_domains(self._processed_entries)
+
+    def _get_hull_in_nph_nphi_space(self, entries):
+        """
+        Generates convex hull of pourbaix diagram entries in composition,
+        npH, and nphi space.
+
+        Args:
+            entries ([PourbaixEntry]): list of PourbaixEntries to construct
+                the convex hull
+
+        Returns: list of stable MultiEntries
+
+        """
+        # Pre-filter based on composition
+        sorted_entries = sorted(
+            entries, key=lambda x: (x.composition.reduced_composition,
+                                    x.entry.energy_per_atom))
+        grouped_by_composition = itertools.groupby(
+            sorted_entries, key=lambda x: x.composition.reduced_composition)
+        min_entries = [grouped_entries[0]
+                       for grouped_entries in grouped_by_composition]
+        vecs = [[entry.npH, entry.nPhi, entry.energy] +
+                [entry.composition.get(elt) for elt in self.pbx_elts[:-1]]
+                for entry in min_entries]
+        vecs = np.array(vecs)
+        norms = np.transpose([[entry.normalization_factor
+                               for entry in entries]])
+        vecs *= norms
+        maxes = np.max(vecs[:, :3], axis=0)
+        extra_point = np.concatenate([maxes, np.ones(self.dim) / self.dim], axis=0)
+
+        # Add padding for extra point
+        pad = 1000
+        extra_point[2] += pad
+        points = np.concatenate([vecs, np.array([extra_point])], axis=0)
+        hull = ConvexHull(points, qhull_options="QJ i")
+
+        # Create facets and remove top
+        facets = [facet for facet in hull.simplices
+                  if not len(points) - 1 in facet]
+
+        if self.dim > 1:
+            valid_facets = []
+            for facet in facets:
+                comps = vecs[facet][:, 3:]
+                full_comps = np.concatenate([
+                    comps, 1 - np.sum(comps, axis=1).reshape(len(comps), 1)], axis=1)
+                # Ensure an compositional interior point exists in the simplex
+                if np.linalg.matrix_rank(full_comps) > self.dim:
+                    valid_facets.append(facet)
+        else:
+            valid_facets = facets
+
+        return valid_facets
+
+    def _preprocess_pourbaix_entries(self, entries, forced_include=None, nproc=None):
+        """
+        Generates multi-entries for pourbaix diagram
+
+        Args:
+            entries ([PourbaixEntry]): list of PourbaixEntries to preprocess
+                into MultiEntries
+            forced_include ([PourbaixEntries]) list of pourbaix entries
+                that must be included in multielement entries
+            nproc (int): number of processes to be used in parallel
+                treatment of entry combos
+
+        Returns:
+            ([MultiEntry]) list of stable MultiEntry candidates
+
+        """
+        # Get composition
+        tot_comp = Composition(self._elt_comp)
+
+        valid_facets = self._get_hull_in_nph_nphi_space(entries)
+
+        combos = []
+        for facet in valid_facets:
+            for i in range(1, self.dim + 2):
+                these_combos = list()
+                for combo in itertools.combinations(facet, i):
+                    these_entries = [entries[i] for i in combo]
+                    if forced_include:
+                        these_entries += forced_include
+                    these_combos.append(frozenset(these_entries))
+                combos.append(these_combos)
+
+        if forced_include:
+            combos.append([frozenset(forced_include)])
+
+        all_combos = set(itertools.chain.from_iterable(combos))
+
+        list_combos = []
+        for i in all_combos:
+            list_combos.append(list(i))
+        all_combos = list_combos
+
+        multi_entries = []
+
+        # Parallel processing of multi-entry generation
+        if nproc is not None:
+            f = partial(self.process_multientry, prod_comp=tot_comp)
+            with Pool(nproc) as p:
+                multi_entries = list(tqdm(p.imap(f, all_combos), total=len(all_combos)))
+            multi_entries = list(filter(bool, multi_entries))
+        else:
+            # Serial processing of multi-entry generation
+            for combo in tqdm(all_combos):
+                mentry = self.process_multientry(combo, prod_comp=tot_comp)
+                if mentry:
+                    multi_entries.append(mentry)
+
+        return multi_entries
 
     def _generate_multielement_entries(self, entries, forced_include=None,
                                        nproc=None):
@@ -659,6 +773,7 @@ class PourbaixDiagram(MSONable):
             nproc (int): number of processes to be used in parallel
                 treatment of entry combos
         """
+
         N = len(self._elt_comp)  # No. of elements
         total_comp = Composition(self._elt_comp)
         forced_include = forced_include or []
@@ -667,8 +782,11 @@ class PourbaixDiagram(MSONable):
         entry_combos = [itertools.combinations(
             entries, j + 1 - len(forced_include)) for j in range(N)]
         entry_combos = itertools.chain.from_iterable(entry_combos)
+
         if forced_include:
             entry_combos = [forced_include + list(ec) for ec in entry_combos]
+
+
         entry_combos = filter(lambda x: total_comp < MultiEntry(x).composition,
                               entry_combos)
 
@@ -724,9 +842,11 @@ class PourbaixDiagram(MSONable):
             entry_comps = [e.composition for e in entry_list]
             rxn = Reaction(entry_comps + dummy_oh, [prod_comp])
             coeffs = -np.array([rxn.get_coeff(comp) for comp in entry_comps])
+
             # Return None if reaction coeff threshold is not met
             # TODO: this filtration step might be put somewhere else
             if (coeffs > coeff_threshold).all():
+
                 return MultiEntry(entry_list, weights=coeffs.tolist())
             else:
                 return None
@@ -844,10 +964,43 @@ class PourbaixDiagram(MSONable):
         Returns:
             reaction corresponding to the decomposition
         """
+
+        # Check composition consistency between forced entry and Pourbaix diagram:
+        comp_warning = 'Composition of stability entry does not match Pourbaix Diagram'
+        comp_bool = True
+        total_comp = Composition(self._elt_comp)
+        elts = list(self._elt_comp.keys())
+        n_atoms_forced = 0
+        n_atoms_total = 0
+        forced_compdict = dict()
+        entry_elts = set(entry.composition.elements) - elements_HO
+        for elt in entry_elts:
+            forced_compdict[elt] = entry.composition.get(elt, 0.0)
+            n_atoms_forced += forced_compdict[elt]
+            try:
+                n_atoms_total += total_comp.get(elt, 0.0)
+            except KeyError:
+                warnings.warn(comp_warning)
+                comp_bool = False
+        if len(forced_compdict.keys()) != len(elts):
+            warnings.warn(comp_warning)
+            comp_bool = False
+        else:
+            for elt in forced_compdict.keys():
+                reduced_forced_elt = forced_compdict[elt]/n_atoms_forced
+                reduced_total_elt = total_comp.get(elt,0.0)/n_atoms_total
+                if not np.isclose(reduced_forced_elt,reduced_total_elt, rtol = 1e-3):
+                    warnings.warn(comp_warning)
+                    comp_bool = False
+
         # Find representative multientry
         if self._multielement and not isinstance(entry, MultiEntry):
-            possible_entries = self._generate_multielement_entries(
-                self._filtered_entries, forced_include=[entry])
+            if comp_bool:
+                possible_entries = self._preprocess_pourbaix_entries(self._filtered_entries, \
+                        forced_include=[entry])
+            else:
+                possible_entries = self._generate_multielement_entries(
+                    self._filtered_entries, forced_include=[entry])
 
             # Filter to only include materials where the entry is only solid
             if entry.phase_type == "solid":
@@ -855,6 +1008,7 @@ class PourbaixDiagram(MSONable):
                                     if e.phase_type.count("Solid") == 1]
             possible_energies = [e.normalized_energy_at_conditions(pH, V)
                                  for e in possible_entries]
+
         else:
             possible_energies = [entry.normalized_energy_at_conditions(pH, V)]
 
@@ -993,9 +1147,10 @@ class PourbaixPlotter:
             center = np.average(vertices, axis=0)
             x, y = np.transpose(np.vstack([vertices, vertices[0]]))
             plt.plot(x, y, 'k-', linewidth=lw)
+
             if label_domains:
                 plt.annotate(generate_entry_label(entry), center, ha='center',
-                             va='center', fontsize=20, color="b")
+                             va='center', fontsize=20, color="b").draggable()
 
         plt.xlabel("pH")
         plt.ylabel("E (V)")
@@ -1094,6 +1249,7 @@ class PourbaixPlotter:
                 V_range[0]:V_range[1]:V_resolution * 1j]
 
         stability = self._pd.get_decomposition_energy(entry, pH, V)
+
         # Plot stability map
         plt.pcolor(pH, V, stability, cmap=cmap, vmin=0, vmax=e_hull_max)
         cbar = plt.colorbar()

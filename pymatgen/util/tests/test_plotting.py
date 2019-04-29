@@ -1,5 +1,5 @@
 import unittest
-from pymatgen.util.plotting import periodic_table_heatmap
+from pymatgen.util.plotting import periodic_table_heatmap, van_arkel_triangle
 from pymatgen.util.testing import PymatgenTest
 import matplotlib
 
@@ -13,6 +13,11 @@ class FuncTestCase(PymatgenTest):
         plt = periodic_table_heatmap(random_data)
         plt = periodic_table_heatmap(random_data, max_row=7)
         plt = periodic_table_heatmap(random_data, max_row=10)
+
+    def test_van_arkel_triangle(self):
+        random_list = [("Fe", "C"), ("Ni", "F")]
+        plt = van_arkel_triangle(random_list)
+        plt = van_arkel_triangle(random_list, annotate=True)
 
 
 if __name__ == "__main__":

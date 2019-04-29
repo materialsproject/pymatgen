@@ -14,10 +14,11 @@ import numpy as np
 from pathlib import Path
 from monty.serialization import loadfn
 from monty.io import zopen
+from monty.dev import deprecated
 
 from pymatgen.core.periodic_table import Specie, Element
 from pymatgen.core.structure import Structure
-from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints
+from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints, VaspInput
 from pymatgen.io.vasp.outputs import Vasprun, Outcar
 from monty.json import MSONable
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -51,10 +52,11 @@ Read the following carefully before implementing new input sets:
 The above are recommendations. The following are UNBREAKABLE rules:
 1. All input sets must take in a structure or list of structures as the first
    argument.
-2. user_incar_settings and user_kpoints_settings are absolute. Any new sets you
-   implement must obey this. If a user wants to override your settings,
-   you assume he knows what he is doing. Do not magically override user
-   supplied settings. You can issue a warning if you think the user is wrong.
+2. user_incar_settings, user_kpoints_settings and user_<whatever>_settings are
+   ABSOLUTE. Any new sets you implement must obey this. If a user wants to
+   override your settings, you assume he knows what he is doing. Do not
+   magically override user supplied settings. You can issue a warning if you
+   think the user is wrong.
 3. All input sets must save all supplied args and kwargs as instance variables.
    E.g., self.my_arg = my_arg and self.kwargs = kwargs in the __init__. This
    ensures the as_dict and from_dict work correctly.
@@ -122,6 +124,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         return Potcar(self.potcar_symbols, functional=self.potcar_functional)
 
     @property
+    @deprecated(message="Use the get_vasp_input() method instead.")
     def all_input(self):
         """
         Returns all input files as a dict of {filename: vasp object}
@@ -129,15 +132,19 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         Returns:
             dict of {filename: object}, e.g., {'INCAR': Incar object, ...}
         """
-        kpoints = self.kpoints
-        incar = self.incar
-        if np.product(kpoints.kpts) < 4 and incar.get("ISMEAR", 0) == -5:
-            incar["ISMEAR"] = 0
-
-        return {'INCAR': incar,
-                'KPOINTS': kpoints,
+        return {'INCAR': self.incar,
+                'KPOINTS': self.kpoints,
                 'POSCAR': self.poscar,
                 'POTCAR': self.potcar}
+
+    def get_vasp_input(self) -> VaspInput:
+        """
+
+        Returns:
+            VaspInput
+        """
+        return VaspInput(incar=self.incar, kpoints=self.kpoints, poscar=self.poscar,
+                         potcar=self.potcar)
 
     def write_input(self, output_dir,
                     make_dir_if_not_present=True, include_cif=False):
@@ -152,14 +159,12 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
             include_cif (bool): Whether to write a CIF file in the output
                 directory for easier opening by VESTA.
         """
-        output_dir = Path(output_dir)
-        if make_dir_if_not_present and not output_dir.exists():
-            output_dir.mkdir(parents=True)
-        for k, v in self.all_input.items():
-            v.write_file(str(output_dir / k))
+        vinput = self.get_vasp_input()
+        vinput.write_input(
+            output_dir, make_dir_if_not_present=make_dir_if_not_present)
         if include_cif:
-            s = self.all_input["POSCAR"].structure
-            fname = str(output_dir / ("%s.cif" % re.sub(r'\s', "", s.formula)))
+            s = vinput["POSCAR"].structure
+            fname = Path(output_dir) / ("%s.cif" % re.sub(r'\s', "", s.formula))
             s.to(filename=fname)
 
     def as_dict(self, verbosity=2):
@@ -379,6 +384,8 @@ class DictSet(VaspInputSet):
         if self.use_structure_charge:
             incar["NELECT"] = self.nelect
 
+        if np.product(self.kpoints.kpts) < 4 and incar.get("ISMEAR", 0) == -5:
+            incar["ISMEAR"] = 0
         return incar
 
     @property
@@ -498,6 +505,27 @@ class MPRelaxSet(DictSet):
     def __init__(self, structure, **kwargs):
         super(MPRelaxSet, self).__init__(
             structure, MPRelaxSet.CONFIG, **kwargs)
+        self.kwargs = kwargs
+
+
+class MPMetalRelaxSet(MPRelaxSet):
+    """
+    Implementation of VaspInputSet utilizing parameters in the public
+    Materials Project, but with tuning for metals. Key things are a denser
+    k point density, and a
+    """
+    CONFIG = _load_yaml_config("MPRelaxSet")
+
+    def __init__(self, structure, **kwargs):
+        super(MPMetalRelaxSet, self).__init__(
+            structure, **kwargs)
+        self._config_dict["INCAR"].update({
+            "ISMEAR": 1,
+            "SIGMA": 0.2
+        })
+        self._config_dict["KPOINTS"].update({
+            "reciprocal_density": 200
+        })
         self.kwargs = kwargs
 
 
@@ -650,6 +678,12 @@ class MPStaticSet(MPRelaxSet):
 
         prev_incar = vasprun.incar
         prev_kpoints = vasprun.kpoints
+
+        if standardize:
+            warnings.warn("Use of standardize=True with from_prev_run is not "
+                          "recommended as there is no guarantee the copied "
+                          "input files will be appropriate for the standardized"
+                          " structure. copy_chgcar is now enforced to be false.")
 
         # We will make a standard structure for the given symprec.
         prev_structure = get_structure_from_prev_run(
@@ -904,6 +938,12 @@ class MPNonSCFSet(MPRelaxSet):
                               style=Kpoints.supported_modes.Reciprocal,
                               num_kpts=len(ir_kpts),
                               kpts=kpts, kpts_weights=weights)
+
+        # override pymatgen kpoints if provided
+        user_kpoints = self.kwargs.get("user_kpoints_settings", None)
+        if isinstance(user_kpoints, Kpoints):
+            kpoints = user_kpoints
+
         return kpoints
 
     @classmethod
@@ -960,6 +1000,14 @@ class MPNonSCFSet(MPRelaxSet):
         incar.update({"ISPIN": ispin, "NBANDS": nbands})
 
         files_to_transfer = {}
+
+        if standardize:
+            warnings.warn("Use of standardize=True with from_prev_run is not "
+                          "recommended as there is no guarantee the copied "
+                          "input files will be appropriate for the standardized"
+                          " structure. copy_chgcar is now enforced to be false.")
+            copy_chgcar = False
+
         if copy_chgcar:
             chgcars = sorted(glob.glob(str(Path(prev_calc_dir) / "CHGCAR*")))
             if chgcars:
@@ -1055,6 +1103,13 @@ class MPSOCSet(MPStaticSet):
         vasprun, outcar = get_vasprun_outcar(prev_calc_dir)
 
         incar = vasprun.incar
+      
+        # Remove magmoms from previous INCAR, since we will prefer
+        # the final calculated magmoms
+        # TODO: revisit in context of MPStaticSet incar logic
+        if 'MAGMOM' in incar:
+            del incar['magmom']
+      
         # Get a magmom-decorated structure
         structure = get_structure_from_prev_run(
             vasprun, outcar, sym_prec=standardize and sym_prec,
@@ -1075,6 +1130,13 @@ class MPSOCSet(MPStaticSet):
 
         nbands = int(np.ceil(vasprun.parameters["NBANDS"] * nbands_factor))
         incar.update({"NBANDS": nbands})
+
+        if standardize:
+            warnings.warn("Use of standardize=True with from_prev_run is not "
+                          "recommended as there is no guarantee the copied "
+                          "input files will be appropriate for the standardized"
+                          " structure. copy_chgcar is now enforced to be false.")
+            copy_chgcar = False
 
         files_to_transfer = {}
         if copy_chgcar:
@@ -1373,7 +1435,7 @@ class MVLSlabSet(MPRelaxSet):
                 slab_incar["BMIX"] = 0.001
             slab_incar["NELMIN"] = 8
             if self.auto_dipole:
-                weights = [s.species_and_occu.weight for s in structure]
+                weights = [s.species.weight for s in structure]
                 center_of_mass = np.average(structure.frac_coords,
                                             weights=weights, axis=0)
 
@@ -1641,14 +1703,14 @@ class MITNEBSet(MITRelaxSet):
             l = self.structures[0].lattice
             for site in chain(*(s.sites for s in self.structures)):
                 sites.add(
-                    PeriodicSite(site.species_and_occu, site.frac_coords, l))
+                    PeriodicSite(site.species, site.frac_coords, l))
             nebpath = Structure.from_sites(sorted(sites))
             nebpath.to(filename=str(output_dir / 'path.cif'))
 
 
 class MITMDSet(MITRelaxSet):
     """
-    Class for writing a vasp md run. This DOES NOT do multiple stage
+    Clas for writing a vasp md run. This DOES NOT do multiple stage
     runs.
     """
 

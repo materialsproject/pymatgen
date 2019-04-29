@@ -607,7 +607,7 @@ class DisorderedOrderedTransformationTest(PymatgenTest):
         output = trans.apply_transformation(struct)
 
         self.assertFalse(output.is_ordered)
-        self.assertDictEqual(output.species_and_occu[-1].as_dict(),
+        self.assertDictEqual(output[-1].species.as_dict(),
                              {'Ni': 0.5, 'Ba': 0.5})
 
 

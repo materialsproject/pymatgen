@@ -256,7 +256,7 @@ _BASE_CLASSES = [
 ]
 
 
-class EventReport(collections.Iterable, MSONable):
+class EventReport(collections.abc.Iterable, MSONable):
     """
     Iterable storing the events raised by an ABINIT calculation.
 

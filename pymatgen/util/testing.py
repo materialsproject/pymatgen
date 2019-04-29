@@ -33,7 +33,7 @@ class PymatgenTest(unittest.TestCase):
     _multiprocess_shared_ = True
     MODULE_DIR = Path(__file__).absolute().parent
     STRUCTURES_DIR = MODULE_DIR / "structures"
-
+    TEST_FILES_DIR = MODULE_DIR / ".." / ".." / "test_files"
     """
     Dict for test structures to aid testing.
     """
