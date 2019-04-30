@@ -5,7 +5,9 @@ A number of different algorithms are implemented. These are based on the
 following publications:
 
 get_dimensionality_larsen:
-  - P. Larsen, M. Pandey, M. Strange, K. W. Jacobsen, 2018, arXiv:1808.02114
+  - P. M. Larsen, M. Pandey, M. Strange, K. W. Jacobsen. Definition of a
+    scoring parameter to identify low-dimensional materials components.
+    Phys. Rev. Materials 3, 034003 (2019).
 
 get_dimensionality_cheon:
   - Cheon, G.; Duerloo, K.-A. N.; Sendek, A. D.; Porter, C.; Chen, Y.; Reed,
@@ -56,7 +58,9 @@ def get_dimensionality_larsen(bonded_structure):
 
     Based on the modified breadth-first-search algorithm described in:
 
-    P. Larsem, M. Pandey, M. Strange, K. W. Jacobsen, 2018, arXiv:1808.02114
+    P. M. Larsen, M. Pandey, M. Strange, K. W. Jacobsen. Definition of a
+    scoring parameter to identify low-dimensional materials components.
+    Phys. Rev. Materials 3, 034003 (2019).
 
     Args:
         bonded_structure (StructureGraph): A structure with bonds, represented
@@ -85,7 +89,9 @@ def get_structure_components(bonded_structure, inc_orientation=False,
 
     Based on the modified breadth-first-search algorithm described in:
 
-    P. Larsem, M. Pandey, M. Strange, K. W. Jacobsen, 2018, arXiv:1808.02114
+    P. M. Larsen, M. Pandey, M. Strange, K. W. Jacobsen. Definition of a
+    scoring parameter to identify low-dimensional materials components.
+    Phys. Rev. Materials 3, 034003 (2019).
 
     Args:
         bonded_structure (StructureGraph): A structure with bonds, represented
@@ -173,7 +179,9 @@ def calculate_dimensionality_of_site(bonded_structure, site_index,
     Implements directly the modified breadth-first-search algorithm described in
     Algorithm 1 of:
 
-    P. Larsem, M. Pandey, M. Strange, K. W. Jacobsen, 2018, arXiv:1808.02114
+    P. M. Larsen, M. Pandey, M. Strange, K. W. Jacobsen. Definition of a
+    scoring parameter to identify low-dimensional materials components.
+    Phys. Rev. Materials 3, 034003 (2019).
 
     Args:
         bonded_structure (StructureGraph): A structure with bonds, represented
@@ -202,6 +210,12 @@ def calculate_dimensionality_of_site(bonded_structure, site_index,
             vertices = np.array(list(vertices))
             return np.linalg.matrix_rank(vertices[1:] - vertices[0])
 
+    def rank_increase(seen, candidate):
+
+        rank0 = len(seen) - 1
+        rank1 = rank(seen.union({candidate}))
+        return rank1 > rank0
+
     connected_sites = {i: neighbours(i) for i in
                        range(bonded_structure.structure.num_sites)}
 
@@ -216,9 +230,10 @@ def calculate_dimensionality_of_site(bonded_structure, site_index,
             continue
         seen_vertices.add((comp_i, image_i))
 
-        if (rank(seen_comp_vertices[comp_i].union({image_i})) >
-                rank(seen_comp_vertices[comp_i])):
-            seen_comp_vertices[comp_i].add(image_i)
+        if not rank_increase(seen_comp_vertices[comp_i], image_i):
+            continue
+
+        seen_comp_vertices[comp_i].add(image_i)
 
         for comp_j, image_j in connected_sites[comp_i]:
 
@@ -227,8 +242,7 @@ def calculate_dimensionality_of_site(bonded_structure, site_index,
             if (comp_j, image_j) in seen_vertices:
                 continue
 
-            if (rank(seen_comp_vertices[comp_j].union({image_j})) >
-                    rank(seen_comp_vertices[comp_j])):
+            if rank_increase(seen_comp_vertices[comp_j], image_j):
                 queue.append((comp_j, image_j))
 
     if inc_vertices:
