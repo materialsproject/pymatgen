@@ -42,18 +42,51 @@ class DefectCompatibility(MSONable):
     """
 
     def __init__(self,
-                 plnr_avg_var_tol=0.1,
+                 plnr_avg_var_tol=0.0001,
                  plnr_avg_minmax_tol=0.1,
-                 atomic_site_var_tol=0.1,
+                 atomic_site_var_tol=0.005,
                  atomic_site_minmax_tol=0.1,
                  tot_relax_tol=1.0,
-                 perc_relax_tol=20.,
-                 defect_tot_relax_tol=0.1,
+                 perc_relax_tol=50.,
+                 defect_tot_relax_tol=2.,
                  preferred_cc='freysoldt',
-                 free_chg_cutoff=2.,
+                 free_chg_cutoff=2.1,
                  use_bandfilling=True,
                  use_bandedgeshift=True):
-        # TODO: tune defaults for qualifiers a bit more after benchmarking
+        """
+        Initializes the DefectCompatibility class
+
+        Each argument helps decide whether a DefectEntry is flagged as compatible or not
+        Args:
+            plnr_avg_var_tol (float): compatibility tolerance for variance of the sampling region
+                in the planar averaged electrostatic potential (FreysoldtCorrection)
+            plnr_avg_minmax_tol (float): compatibility tolerance for max/min difference of the
+                sampling region in the planar averaged electrostatic potential (FreysoldtCorrection)
+            atomic_site_var_tol (float): compatibility tolerance for variance of the sampling
+                region in the atomic site averaged electrostatic potential (KumagaiCorrection)
+            atomic_site_minmax_tol (float): compatibility tolerance for max/min difference
+                of the sampling region in the atomic site averaged electrostatic
+                potential (KumagaiCorrection)
+            tot_relax_tol (float): compatibility tolerance for total integrated relaxation
+                amount outside of a given radius from the defect (in Angstrom).
+                Radius is supplied as 'sampling_radius' within parameters of DefectEntry.
+            perc_relax_tol (float): compatibility tolerance for percentage of total relaxation
+                outside of a given radius from the defect (percentage amount),
+                assuming a total integration relaxation greater than 1 Angstrom.
+                Radius is supplied as 'sampling_radius' within parameters of DefectEntry.
+            defect_tot_relax_tol (float): compatibility tolerance for displacement of defect site
+                itself (in Angstrom).
+            preferred_cc (str): Charge correction that is preferred to be used.
+                If only one is available based on metadata, then that charge correction will be used.
+                Options are: 'freysoldt' and 'kumagai'
+            free_chg_cutoff (float): compatibility tolerance for total amount of host band occupation
+                outside of band edges, given by eigenvalue data. Extra occupation in the CB would be
+                free electrons, while lost occupation in VB would be free holes.
+            use_bandfilling (bool): Whether to include BandFillingCorrection or not (assuming
+                sufficient metadata is supplied to perform BandFillingCorrection).
+            use_bandedgeshift (bool): Whether to perform a BandEdgeShiftingCorrection or not (assuming
+                sufficient metadata is supplied to perform BandEdgeShiftingCorrection).
+        """
         self.plnr_avg_var_tol = plnr_avg_var_tol
         self.plnr_avg_minmax_tol = plnr_avg_minmax_tol
         self.atomic_site_var_tol = atomic_site_var_tol
@@ -67,14 +100,14 @@ class DefectCompatibility(MSONable):
         self.use_bandfilling = use_bandfilling
         self.use_bandedgeshift = use_bandedgeshift
 
-    def process_entry(self, defect_entry):
+    def process_entry(self, defect_entry, perform_corrections = True):
         """
-        Process a given Defect entry with qualifiers given from initialization of class.
+        Process a given DefectEntry with qualifiers given from initialization of class.
         Order of processing is:
             1) perform all possible defect corrections with information given
             2) consider delocalization analyses based on qualifier metrics
             given initialization of class. If delocalized, flag entry as delocalized
-            3) update corrections to defect entry and flag as del
+            3) update corrections to defect entry and flag as delocalized
 
         Corrections are applied based on:
             i) if free charges are more than free_chg_cutoff then will not apply charge correction,
@@ -87,7 +120,8 @@ class DefectCompatibility(MSONable):
             if struct_key in defect_entry.parameters.keys() and isinstance(defect_entry.parameters[struct_key], dict):
                 defect_entry.parameters[struct_key] = Structure.from_dict(defect_entry.parameters[struct_key])
 
-        self.perform_all_corrections(defect_entry)
+        if perform_corrections:
+            self.perform_all_corrections(defect_entry)
 
         self.delocalization_analysis(defect_entry)
 
@@ -425,7 +459,7 @@ class DefectCompatibility(MSONable):
                 perc_relax_outside_rad += distdata[newind][3]
 
         structure_tot_relax_compatible = True if tot_relax_outside_rad <= self.tot_relax_tol else False
-        structure_perc_relax_compatible = True if perc_relax_outside_rad <= self.perc_relax_tol else False
+        structure_perc_relax_compatible = False if (perc_relax_outside_rad > self.perc_relax_tol and totpert >= 1.) else True
         structure_relax_analyze_meta.update({'structure_tot_relax_compatible': structure_tot_relax_compatible,
                                              'tot_relax_outside_rad': tot_relax_outside_rad,
                                              'tot_relax_tol': self.tot_relax_tol,

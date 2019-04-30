@@ -9,7 +9,7 @@ import numpy as np
 import random
 
 from pymatgen.analysis.defects.utils import QModel, eV_to_k, \
-    generate_reciprocal_vectors_squared, \
+    generate_reciprocal_vectors_squared, genrecip, \
     closestsites, StructureMotifInterstitial, TopographyAnalyzer, \
     ChargeDensityAnalyzer, converge, calculate_vol, \
     tune_for_gamma, generate_R_and_G_vecs
@@ -20,6 +20,7 @@ from pymatgen.core import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 
+from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.outputs import Chgcar
 
 try:
@@ -28,7 +29,7 @@ except ImportError:
     peak_local_max = None
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
-                        'test_files', "chgden")
+                        'test_files', 'chgden')
 
 
 class DefectsUtilsTest(PymatgenTest):
@@ -48,8 +49,12 @@ class DefectsUtilsTest(PymatgenTest):
         self.assertAlmostEqual(eV_to_k(1.), 0.9681404248678961)
 
     def test_genrecip(self):
-        # TODO
-        pass
+        a = 6.
+        lattconsts = [a, a / 2., 3. * a]
+        lattvectors = [[lattconsts[i] if i == j else 0. for j in range(3)] for i
+                       in range(3)]
+        recip_list = list( genrecip(lattvectors[0], lattvectors[1], lattvectors[2], 300))
+        self.assertEqual( len(recip_list), 25620)
 
     def test_generate_reciprocal_vectors_squared(self):
         # test cubic case

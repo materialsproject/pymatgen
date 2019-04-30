@@ -83,8 +83,6 @@ class DefectCompatibilityTest(PymatgenTest):
         self.assertAlmostEqual( dentry.corrections['bandfilling_correction'], 0.0)
         self.assertAlmostEqual( dentry.corrections['charge_correction'], 5.44595036)
 
-        #TODO: add correction analysis with Kumagai correction
-
         # test over delocalized free carriers which forces skipping charge correction
         # modify the eigenvalue list to have free holes
         hole_eigenvalues = {}
@@ -231,7 +229,6 @@ class DefectCompatibilityTest(PymatgenTest):
         self.assertFalse( dentry.parameters['is_compatible'])
 
     def test_check_kumagai_delocalized(self):
-        # pass
         de = DefectEntry( self.kumagai_vac, 0., parameters=self.kumagai_params)
         de.parameters.update( {'is_compatible': True}) #needs to be initialized with this here for unittest
         dc = DefectCompatibility( atomic_site_var_tol=13.3, atomic_site_minmax_tol=20.95)

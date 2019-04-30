@@ -794,6 +794,9 @@ class BandEdgeShiftingCorrection(DefectCorrection):
     """
 
     def __init__(self):
+        """
+        Initializes the BandEdgeShiftingCorrection class
+        """
         self.metadata = {
             "vbmshift": 0.,
             "cbmshift": 0.,
