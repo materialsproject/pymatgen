@@ -213,7 +213,7 @@ def calculate_dimensionality_of_site(bonded_structure, site_index,
     def rank_increase(seen, candidate):
 
         rank0 = len(seen) - 1
-        rank1 = rank(seen.union({candidate})
+        rank1 = rank(seen.union({candidate}))
         return rank1 > rank0
 
     connected_sites = {i: neighbours(i) for i in
