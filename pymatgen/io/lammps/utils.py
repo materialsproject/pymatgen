@@ -23,6 +23,7 @@ from pymatgen import Molecule
 from pymatgen.core.operations import SymmOp
 from pymatgen.util.coord import get_angle
 from pymatgen.io.babel import BabelMolAdaptor
+from pymatgen.io.xyz import XYZ
 
 from monty.os.path import which
 from monty.tempfile import ScratchDir
@@ -199,6 +200,8 @@ class PackmolRunner:
                     according to the filetype
         """
         self.packmol_bin = bin.split()
+
+        """
         if not which(self.packmol_bin[-1]):
             raise RuntimeError(
                 "PackmolRunner requires the executable 'packmol' to be in "
@@ -206,6 +209,8 @@ class PackmolRunner:
                 "https://github.com/leandromartinez98/packmol "
                 "and follow the instructions in the README to compile. "
                 "Don't forget to add the packmol binary to your path")
+        """
+
         self.mols = mols
         self.param_list = param_list
         self.input_file = input_file
@@ -273,7 +278,8 @@ class PackmolRunner:
                     self.write_pdb(mol, filename, num=idx+1)
                 # all other filetypes
                 else:
-                    a = BabelMolAdaptor(mol)
+                    XYZ(mol).write_file(filename=filename)
+                    #a = BabelMolAdaptor(mol)
                     #pm = pb.Molecule(a.openbabel_mol)
                     #pm.write(self.control_params["filetype"], filename=filename,
                     #        overwrite=True)
@@ -496,4 +502,16 @@ if __name__ == '__main__':
                         filetype="xyz",
                         control_params={"nloop": 1000},
                         auto_box=False, output_file="cocktail.xyz")
-    s = pmr.run()
+    #s = pmr.run()
+
+lif = Molecule.from_file("/Users/nwinner/calculations/flibe/md_equilibriation/inputs/lif.xyz")
+bef2 = Molecule.from_file("/Users/nwinner/calculations/flibe/md_equilibriation/inputs/bef2.xyz")
+dir = "/Users/nwinner/calculations/sandbox/packingwf/"
+constituent_molecules = [lif, bef2]
+packing_config = [{'number': 28, 'inside_box': [0,0,0,10,10,10]}, {'number': 14, 'inside_box': [0,0,0,10,10,10]}]
+
+p = PackmolRunner(mols=constituent_molecules, input_file="pack.inp", bin="./packmol", param_list=packing_config, auto_box=False)
+
+print(packing_config)
+
+p._write_input("/Users/nwinner/calculations/flibe/md_equilibriation/inputs")
