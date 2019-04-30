@@ -37,7 +37,7 @@ class FreysoldtCorrection(DefectCorrection):
         Initializes the FreysoldtCorrection class
         Args:
             dielectric_const (float or 3x3 matrix): Dielectric constant for the structure
-            q_mode (QModel): instantiated QModel object or None.
+            q_model (QModel): instantiated QModel object or None.
                 Uses default parameters to instantiate QModel if None supplied
             energy_cutoff (int): Maximum energy in eV in reciprocal space to perform
                 integration for potential correction.
@@ -620,8 +620,7 @@ class KumagaiCorrection(DefectCorrection):
     def plot(self, title=None, saved=False):
         """
         Plots the AtomicSite electrostatic potential against the Long range and short range models
-        from Kumagai and Oba
-
+        from Kumagai and Oba (doi: 10.1103/PhysRevB.89.195205)
         """
         if "pot_plot_data" not in self.metadata.keys():
             raise ValueError("Cannot plot potential alignment before running correction!")
@@ -713,12 +712,14 @@ class BandFillingCorrection(DefectCorrection):
                         dictionary of defect eigenvalues, as stored in a Vasprun object
 
                     kpoint_weights (list of floats)
-                        kpoint weights corresponding to the dictionary of eigenvalues
+                        kpoint weights corresponding to the dictionary of eigenvalues,
+                        as stored in a Vasprun object
 
                     potalign (float)
                         potential alignment for the defect calculation
                         Only applies to non-zero charge,
-                        When using potential alignment correction (freysoldt or kumagai), need to divide by -q
+                        When using potential alignment correction (freysoldt or kumagai),
+                        need to divide by -q
 
                     cbm (float)
                         CBM of bulk calculation (or band structure calculation of bulk);
@@ -750,7 +751,8 @@ class BandFillingCorrection(DefectCorrection):
         This calculates the band filling correction based on excess of electrons/holes in CB/VB...
 
         Note that the total free holes and electrons may also be used for a "shallow donor/acceptor"
-               correction with specified band shifts: +num_elec_cbm * Delta E_CBM (or -num_hole_vbm * Delta E_VBM)
+               correction with specified band shifts:
+                +num_elec_cbm * Delta E_CBM (or -num_hole_vbm * Delta E_VBM)
         """
         bf_corr = 0.
 
@@ -830,9 +832,9 @@ class BandEdgeShiftingCorrection(DefectCorrection):
         self.metadata["cbmshift"] = hybrid_cbm - cbm  # note cbmshift has UPWARD as positive convention
 
         charge = entry.charge
-        vbm_shift_correction = charge * self.metadata["vbmshift"]
+        bandedgeshifting_correction = charge * self.metadata["vbmshift"]
         entry.parameters["bandshift_meta"] = dict(self.metadata)
 
         return {
-            "bandedgeshifting_correction": vbm_shift_correction
+            "bandedgeshifting_correction": bandedgeshifting_correction
         }
