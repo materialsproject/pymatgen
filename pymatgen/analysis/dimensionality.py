@@ -5,7 +5,9 @@ A number of different algorithms are implemented. These are based on the
 following publications:
 
 get_dimensionality_larsen:
-  - P. Larsen, M. Pandey, M. Strange, K. W. Jacobsen, 2018, arXiv:1808.02114
+  - P. M. Larsen, M. Pandey, M. Strange, K. W. Jacobsen. Definition of a
+    scoring parameter to identify low-dimensional materials components.
+    Phys. Rev. Materials 3, 034003 (2019).
 
 get_dimensionality_cheon:
   - Cheon, G.; Duerloo, K.-A. N.; Sendek, A. D.; Porter, C.; Chen, Y.; Reed,
@@ -56,7 +58,9 @@ def get_dimensionality_larsen(bonded_structure):
 
     Based on the modified breadth-first-search algorithm described in:
 
-    P. Larsem, M. Pandey, M. Strange, K. W. Jacobsen, 2018, arXiv:1808.02114
+    P. M. Larsen, M. Pandey, M. Strange, K. W. Jacobsen. Definition of a
+    scoring parameter to identify low-dimensional materials components.
+    Phys. Rev. Materials 3, 034003 (2019).
 
     Args:
         bonded_structure (StructureGraph): A structure with bonds, represented
@@ -85,7 +89,9 @@ def get_structure_components(bonded_structure, inc_orientation=False,
 
     Based on the modified breadth-first-search algorithm described in:
 
-    P. Larsem, M. Pandey, M. Strange, K. W. Jacobsen, 2018, arXiv:1808.02114
+    P. M. Larsen, M. Pandey, M. Strange, K. W. Jacobsen. Definition of a
+    scoring parameter to identify low-dimensional materials components.
+    Phys. Rev. Materials 3, 034003 (2019).
 
     Args:
         bonded_structure (StructureGraph): A structure with bonds, represented
@@ -173,7 +179,9 @@ def calculate_dimensionality_of_site(bonded_structure, site_index,
     Implements directly the modified breadth-first-search algorithm described in
     Algorithm 1 of:
 
-    P. Larsem, M. Pandey, M. Strange, K. W. Jacobsen, 2018, arXiv:1808.02114
+    P. M. Larsen, M. Pandey, M. Strange, K. W. Jacobsen. Definition of a
+    scoring parameter to identify low-dimensional materials components.
+    Phys. Rev. Materials 3, 034003 (2019).
 
     Args:
         bonded_structure (StructureGraph): A structure with bonds, represented
