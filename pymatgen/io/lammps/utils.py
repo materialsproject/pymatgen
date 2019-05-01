@@ -176,7 +176,7 @@ class PackmolRunner:
     def __init__(self, mols, param_list, input_file="pack.inp",
                  tolerance=2.0, filetype="xyz",
                  control_params={"maxit": 20, "nloop": 600},
-                 auto_box=True, output_file="packed.xyz",
+                 auto_box=False, output_file="packed.xyz",
                  bin="packmol"):
         """
         Args:
@@ -313,7 +313,6 @@ class PackmolRunner:
             output_file = os.path.join(scratch_dir, self.control_params["output"])
             if os.path.isfile(output_file):
                 packed_mol = XYZ.from_file(output_file)
-                packed_mol = packed_mol.pymatgen_mol
                 print("packed molecule written to {}".format(
                     self.control_params["output"]))
                 if site_property:
@@ -471,30 +470,3 @@ class LammpsRunner:
         p = Popen(lammps_cmd, stdout=PIPE, stderr=PIPE)
         (stdout, stderr) = p.communicate()
         return stdout, stderr
-
-
-if __name__ == '__main__':
-    ethanol_coords = [[0.00720, -0.56870, 0.00000],
-                      [-1.28540, 0.24990, 0.00000],
-                      [1.13040, 0.31470, 0.00000],
-                      [0.03920, -1.19720, 0.89000],
-                      [0.03920, -1.19720, -0.89000],
-                      [-1.31750, 0.87840, 0.89000],
-                      [-1.31750, 0.87840, -0.89000],
-                      [-2.14220, -0.42390, -0.00000],
-                      [1.98570, -0.13650, -0.00000]]
-    ethanol = Molecule(["C", "C", "O", "H", "H", "H", "H", "H", "H"],
-                       ethanol_coords)
-    water_coords = [[9.626, 6.787, 12.673],
-                    [9.626, 8.420, 12.673],
-                    [10.203, 7.604, 12.673]]
-    water = Molecule(["H", "H", "O"], water_coords)
-    pmr = PackmolRunner([ethanol, water],
-                        [{"number": 1, "fixed": [0, 0, 0, 0, 0, 0],
-                          "centerofmass": ""},
-                         {"number": 15, "inside sphere": [0, 0, 0, 5]}],
-                        input_file="packmol_input.inp", tolerance=2.0,
-                        filetype="xyz",
-                        control_params={"nloop": 1000},
-                        auto_box=False, output_file="cocktail.xyz")
-    s = pmr.run()
