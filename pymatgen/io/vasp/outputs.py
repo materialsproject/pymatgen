@@ -3330,6 +3330,7 @@ class Procar:
         return {spin: np.sum(d[:, :, atom_index, orbital_index] * self.weights[:, None])
                 for spin, d in self.data.items()}
 
+
 class Oszicar:
     """
     A basic parser for an OSZICAR output from VASP.  In general, while the
