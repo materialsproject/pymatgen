@@ -459,6 +459,8 @@ class FermiDos(Dos):
             else:
                 eref = (evbm + ecbm) / 2.0
             idx_fermi = np.argmin(abs(self.energies - eref))
+            if idx_fermi == self.idx_vbm: #need fermi level and vbm to be different indices
+                idx_fermi += 1
             self.energies[:idx_fermi] -= (bandgap - (ecbm - evbm)) / 2.0
             self.energies[idx_fermi:] += (bandgap - (ecbm - evbm)) / 2.0
 

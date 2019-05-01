@@ -70,6 +70,12 @@ class FermiDosTest(unittest.TestCase):
             self.assertAlmostEqual(calc_fermis[j], f_ref, 4)
 
         sci_dos = FermiDos(self.dos, bandgap=3.0)
+        self.assertEqual( sci_dos.get_gap(), 3.)
+        old_cbm, old_vbm = self.dos.get_cbm_vbm()
+        old_gap = old_cbm - old_vbm
+        new_cbm, new_vbm = sci_dos.get_cbm_vbm()
+        self.assertAlmostEqual( new_cbm - old_cbm, (3. - old_gap) / 2.)
+        self.assertAlmostEqual( old_vbm - new_vbm, (3. - old_gap) / 2.)
         for i, c_ref in enumerate(ref_dopings):
             if c_ref < 0:
                 self.assertAlmostEqual(
@@ -81,9 +87,9 @@ class FermiDosTest(unittest.TestCase):
         self.assertAlmostEqual(sci_dos.get_fermi_interextrapolated(-1e26, 300),
                                7.5108, 4)
         self.assertAlmostEqual(sci_dos.get_fermi_interextrapolated(1e26, 300),
-                               -1.6884, 4)
+                               -1.4182, 4)
         self.assertAlmostEqual(sci_dos.get_fermi_interextrapolated(0.0, 300),
-                               3.2382, 4)
+                               2.5226, 4)
 
 
 class CompleteDosTest(unittest.TestCase):
