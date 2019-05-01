@@ -22,7 +22,7 @@ from pymatgen.io.vasp.inputs import Kpoints, Poscar
 from pymatgen.io.vasp.outputs import Chgcar, Locpot, Oszicar, Outcar, \
     Vasprun, Procar, Xdatcar, Dynmat, BSVasprun, UnconvergedVASPWarning, \
     VaspParserError, Wavecar
-from pymatgen import Spin, Orbital, Lattice, Structure, PeriodicSite
+from pymatgen import Spin, Orbital, Lattice, Structure
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.testing import PymatgenTest
