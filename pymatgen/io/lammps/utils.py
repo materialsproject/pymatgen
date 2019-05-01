@@ -23,6 +23,7 @@ from pymatgen import Molecule
 from pymatgen.core.operations import SymmOp
 from pymatgen.util.coord import get_angle
 from pymatgen.io.babel import BabelMolAdaptor
+from pymatgen.io.xyz import XYZ
 
 from monty.os.path import which
 from monty.tempfile import ScratchDir
@@ -199,6 +200,8 @@ class PackmolRunner:
                     according to the filetype
         """
         self.packmol_bin = bin.split()
+
+        """
         if not which(self.packmol_bin[-1]):
             raise RuntimeError(
                 "PackmolRunner requires the executable 'packmol' to be in "
@@ -206,6 +209,8 @@ class PackmolRunner:
                 "https://github.com/leandromartinez98/packmol "
                 "and follow the instructions in the README to compile. "
                 "Don't forget to add the packmol binary to your path")
+        """
+
         self.mols = mols
         self.param_list = param_list
         self.input_file = input_file
@@ -273,10 +278,7 @@ class PackmolRunner:
                     self.write_pdb(mol, filename, num=idx+1)
                 # all other filetypes
                 else:
-                    a = BabelMolAdaptor(mol)
-                    #pm = pb.Molecule(a.openbabel_mol)
-                    #pm.write(self.control_params["filetype"], filename=filename,
-                    #        overwrite=True)
+                    XYZ(mol).write_file(filename=filename)
 
                 inp.write("\n")
                 inp.write(
@@ -310,8 +312,7 @@ class PackmolRunner:
             (stdout, stderr) = p.communicate()
             output_file = os.path.join(scratch_dir, self.control_params["output"])
             if os.path.isfile(output_file):
-                packed_mol = BabelMolAdaptor.from_file(output_file,
-                                                       self.control_params["filetype"])
+                packed_mol = XYZ.from_file(output_file)
                 packed_mol = packed_mol.pymatgen_mol
                 print("packed molecule written to {}".format(
                     self.control_params["output"]))
