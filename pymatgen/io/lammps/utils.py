@@ -279,10 +279,6 @@ class PackmolRunner:
                 # all other filetypes
                 else:
                     XYZ(mol).write_file(filename=filename)
-                    #a = BabelMolAdaptor(mol)
-                    #pm = pb.Molecule(a.openbabel_mol)
-                    #pm.write(self.control_params["filetype"], filename=filename,
-                    #        overwrite=True)
 
                 inp.write("\n")
                 inp.write(
@@ -316,8 +312,7 @@ class PackmolRunner:
             (stdout, stderr) = p.communicate()
             output_file = os.path.join(scratch_dir, self.control_params["output"])
             if os.path.isfile(output_file):
-                packed_mol = BabelMolAdaptor.from_file(output_file,
-                                                       self.control_params["filetype"])
+                packed_mol = XYZ.from_file(output_file)
                 packed_mol = packed_mol.pymatgen_mol
                 print("packed molecule written to {}".format(
                     self.control_params["output"]))
@@ -502,16 +497,4 @@ if __name__ == '__main__':
                         filetype="xyz",
                         control_params={"nloop": 1000},
                         auto_box=False, output_file="cocktail.xyz")
-    #s = pmr.run()
-
-lif = Molecule.from_file("/Users/nwinner/calculations/flibe/md_equilibriation/inputs/lif.xyz")
-bef2 = Molecule.from_file("/Users/nwinner/calculations/flibe/md_equilibriation/inputs/bef2.xyz")
-dir = "/Users/nwinner/calculations/sandbox/packingwf/"
-constituent_molecules = [lif, bef2]
-packing_config = [{'number': 28, 'inside_box': [0,0,0,10,10,10]}, {'number': 14, 'inside_box': [0,0,0,10,10,10]}]
-
-p = PackmolRunner(mols=constituent_molecules, input_file="pack.inp", bin="./packmol", param_list=packing_config, auto_box=False)
-
-print(packing_config)
-
-p._write_input("/Users/nwinner/calculations/flibe/md_equilibriation/inputs")
+    s = pmr.run()
