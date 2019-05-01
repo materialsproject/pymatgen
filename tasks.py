@@ -147,6 +147,7 @@ def update_doc(ctx):
     except:
         pass
     ctx.run("cp docs_rst/conf-normal.py docs_rst/conf.py")
+    ctx.run("mv pymatgen.tgz ..")
     make_doc(ctx)
     ctx.run("git add .")
     ctx.run("git commit -a -m \"Update docs\"")
