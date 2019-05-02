@@ -335,7 +335,7 @@ class KumagaiCorrection(DefectCorrection):
     (doi: 10.1103/PhysRevB.89.195205) as well as Freysoldt's original
     paper (doi: 10.1103/PhysRevLett.102.016402)
 
-    NOTE that equations 8 and 9 from Kumagai et al. reverence are divided by (4 pi) to get SI units
+    NOTE that equations 8 and 9 from Kumagai et al. reference are divided by (4 pi) to get SI units
     """
 
     def __init__(self,
