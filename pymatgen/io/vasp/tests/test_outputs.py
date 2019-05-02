@@ -440,7 +440,7 @@ class VasprunTest(PymatgenTest):
             dict_to_test=bs.get_band_gap()
             self.assertTrue(dict_to_test['direct'])
             self.assertAlmostEqual(dict_to_test['energy'],6.007899999999999)
-            self.assertAlmostEqual(dict_to_test['transition'],"\\Gamma-\\Gamma")
+            self.assertEqual(dict_to_test['transition'],"\\Gamma-\\Gamma")
 
     def test_sc_step_overflow(self):
         filepath = self.TEST_FILES_DIR / 'vasprun.xml.sc_overflow'
