@@ -13,8 +13,8 @@ from pymatgen.electronic_structure.bandstructure import Kpoint
 from pymatgen import Lattice
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.io.vasp import BSVasprun
-from pymatgen.electronic_structure.bandstructure import (BandStructureSymmLine,
-                                                         get_reconstructed_band_structure, LobsterBandStructureSymmLine)
+from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine, get_reconstructed_band_structure, \
+    LobsterBandStructureSymmLine
 from pymatgen.util.testing import PymatgenTest
 
 from monty.serialization import loadfn
@@ -251,39 +251,13 @@ class LobsterBandStructureSymmLine_test(PymatgenTest):
     def test_basic(self):
         bs_p = self.bs_p
         bs_spin = self.bs_spin
-        self.assertDictEqual(bs_p.structure.as_dict(),
-                             {'@module': 'pymatgen.core.structure', '@class': 'Structure', 'charge': None, 'lattice': {
-                                 'matrix': [[5.02189789, 0.0, 0.0], [-2.51094844, 4.34909098, 0.0],
-                                            [0.0, 0.0, 5.51192941]], 'a': 5.02189789, 'b': 5.021897492049772,
-                                 'c': 5.51192941, 'alpha': 90.0, 'beta': 90.0, 'gamma': 119.99999596836791,
-                                 'volume': 120.38434604276603}, 'sites': [
-                                 {'species': [{'element': 'Si', 'occu': 1}], 'abc': [0.0, 0.47634315, 0.666667],
-                                  'xyz': [-1.196073089397186, 2.0716596970497867, 3.67462144397647], 'label': 'Si',
-                                  'properties': {}},
-                                 {'species': [{'element': 'Si', 'occu': 1}], 'abc': [0.52365685, 0.52365685, 0.0],
-                                  'xyz': [1.3148758794962323, 2.2774312829502126, 0.0], 'label': 'Si',
-                                  'properties': {}},
-                                 {'species': [{'element': 'Si', 'occu': 1}], 'abc': [0.47634315, 0.0, 0.333333],
-                                  'xyz': [2.3921466599009533, 0.0, 1.8373079660235299], 'label': 'Si',
-                                  'properties': {}},
-                                 {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.15890378, 0.74400316, 0.46134773],
-                                  'xyz': [-1.0701550164620461, 3.2357374322474968, 2.542916121223739], 'label': 'O',
-                                  'properties': {}},
-                                 {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.25599684, 0.41490062, 0.79468073],
-                                  'xyz': [0.24379592609863487, 1.8044405440384075, 4.380224087247269], 'label': 'O',
-                                  'properties': {}},
-                                 {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.58509938, 0.84109622, 0.12801473],
-                                  'xyz': [0.8263601003634116, 3.658003983714095, 0.7056081552002093], 'label': 'O',
-                                  'properties': {}},
-                                 {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.74400316, 0.15890378, 0.53865227],
-                                  'xyz': [3.337308700856229, 0.6910869962859043, 2.9690132887762606], 'label': 'O',
-                                  'properties': {}},
-                                 {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.41490062, 0.25599684, 0.20531927],
-                                  'xyz': [1.4407936820947622, 1.1133535477525032, 1.1317053227527305], 'label': 'O',
-                                  'properties': {}},
-                                 {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.84109622, 0.58509938, 0.87198527],
-                                  'xyz': [2.7547449570490086, 2.544650435961592, 4.806321254799791], 'label': 'O',
-                                  'properties': {}}]})
+        self.assertAlmostEqual(bs_p.structure[0].frac_coords[0],0.)
+        self.assertAlmostEqual(bs_p.structure[0].frac_coords[1],0.47634315)
+        self.assertAlmostEqual(bs_p.structure[0].frac_coords[2],0.666667)
+        self.assertEqual(bs_p.structure[0].species_string,'Si')
+        self.assertAlmostEqual(bs_p.structure[0].coords[0],-1.19607309)
+        self.assertAlmostEqual(bs_p.structure[0].coords[1],2.0716597)
+        self.assertAlmostEqual(bs_p.structure[0].coords[2],3.67462144)
         self.assertAlmostEqual(bs_p.efermi, 1.06470288)
         self.assertDictEqual(bs_p.lattice_rec.as_dict(), {'@module': 'pymatgen.core.lattice', '@class': 'Lattice',
                                                           'matrix': [[1.2511575194890285, 0.7223560132915973, 0.0],
