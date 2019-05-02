@@ -43,7 +43,9 @@ class DefectPhaseDiagram(MSONable):
         dentries ([DefectEntry]): A list of DefectEntry objects
         vbm (float): Valence Band energy to use for all defect entries.
             NOTE if using band shifting-type correction then this VBM
-            should still be that of the GGA calculation (correction accounts for shift).
+            should still be that of the GGA calculation
+            (the bandedgeshifting_correction accounts for shift's
+            contribution to formation energy).
         band_gap (float): Band gap to use for all defect entries.
             NOTE if using band shifting-type correction then this gap
             should still be that of the Hybrid calculation you are shifting to.
@@ -68,7 +70,8 @@ class DefectPhaseDiagram(MSONable):
 
         for ent_ind, ent in enumerate(self.entries):
             if 'vbm' not in ent.parameters.keys() or ent.parameters['vbm'] != vbm:
-                # print("Entry did not have vbm equal to DefectPhaseDiagram value. Manually overriding.")
+                logger.info("Entry {} did not have vbm equal to given DefectPhaseDiagram value."
+                            " Manually overriding.".format( ent.name))
                 new_ent = ent.copy()
                 new_ent.parameters['vbm'] = vbm
                 self.entries[ent_ind] = new_ent
@@ -140,8 +143,8 @@ class DefectPhaseDiagram(MSONable):
             grp_def_sets = []
             grp_def_indices = []
             for ent_ind, ent in enumerate( entryset):
-                #TODO: more pythonic way of grouping entry sets with PointDefectComparator.
-                #this is currently most time intensive part of DefectPhaseDiagram
+                # TODO: more pythonic way of grouping entry sets with PointDefectComparator.
+                # this is currently most time intensive part of DefectPhaseDiagram
                 matched_ind = None
                 for grp_ind, defgrp in enumerate(grp_def_sets):
                     if pdc.are_equal( ent.defect, defgrp[0].defect):
@@ -343,9 +346,10 @@ class DefectPhaseDiagram(MSONable):
 
     def suggest_larger_supercells(self, tolerance=0.1):
         """
-        Suggest larger supercells for defect+chg combinations.
-        This is done by considering compatibility of all entries along with whether the
-        charge becomes stable outside of the given tolerance distance from the band edges.
+        Suggest larger supercells for different defect+chg combinations based on use of
+        compatibility analysis. Does this for any charged defects which have is_compatible = False,
+        and the defect+chg formation energy is stable at fermi levels within the band gap.
+
         NOTE: Requires self.filter_compatible = False
         Args:
             tolerance (float): tolerance with respect to the VBM and CBM for considering
@@ -376,9 +380,12 @@ class DefectPhaseDiagram(MSONable):
                     # tolerance of band edges
                     suggest_bigger_supercell = True
                     for tl, chgset in self.transition_level_map.items():
-                        if charge in chgset:
-                            if tl < tolerance or tl > (self.band_gap - tolerance):
-                                suggest_bigger_supercell = False
+                        sorted_chgset = list(chgset)
+                        sorted_chgset.sort(reverse=True)
+                        if charge == sorted_chgset[0] and tl < tolerance:
+                            suggest_bigger_supercell = False
+                        elif charge == sorted_chgset[1] and tl > (self.band_gap - tolerance):
+                            suggest_bigger_supercell = False
 
                 if suggest_bigger_supercell:
                     if def_type not in recommendations:
@@ -390,18 +397,17 @@ class DefectPhaseDiagram(MSONable):
     def solve_for_fermi_energy(self, temperature, chemical_potentials, bulk_dos):
         """
         Solve for the Fermi energy self-consistently as a function of T
-        and p_O2
         Observations are Defect concentrations, electron and hole conc
         Args:
+            temperature: Temperature to equilibrate fermi energies for
+            chemical_potentials: dict of chemical potentials to use for calculation fermi level
             bulk_dos: bulk system dos (pymatgen Dos object)
-            gap: Can be used to specify experimental gap.
-                Will be useful if the self consistent Fermi level
-                is > DFT gap
         Returns:
-            Fermi energy
+            Fermi energy dictated by charge neutrality
         """
 
         fdos = FermiDos(bulk_dos, bandgap=self.band_gap)
+        _,fdos_vbm = fdos.get_cbm_vbm()
 
         def _get_total_q(ef):
 
@@ -410,10 +416,95 @@ class DefectPhaseDiagram(MSONable):
                 for d in self.defect_concentrations(
                     chemical_potentials=chemical_potentials, temperature=temperature, fermi_level=ef)
             ])
-            qd_tot += fdos.get_doping(fermi=ef + self.vbm, T=temperature)
+            qd_tot += fdos.get_doping(fermi=ef + fdos_vbm, T=temperature)
             return qd_tot
 
         return bisect(_get_total_q, -1., self.band_gap + 1.)
+
+
+    def solve_for_non_equilibrium_fermi_energy(self, temperature, quench_temperature,
+                                               chemical_potentials, bulk_dos):
+        """
+        Solve for the Fermi energy after quenching in the defect concentrations at a higher
+        temperature (the quench temperature),
+        as outlined in P. Canepa et al (2017) Chemistry of Materials (doi: 10.1021/acs.chemmater.7b02909)
+
+        Args:
+            temperature: Temperature to equilibrate fermi energy at after quenching in defects
+            quench_temperature: Temperature to equilibrate defect concentrations at (higher temperature)
+            chemical_potentials: dict of chemical potentials to use for calculation fermi level
+            bulk_dos: bulk system dos (pymatgen Dos object)
+        Returns:
+            Fermi energy dictated by charge neutrality with respect to frozen in defect concentrations
+        """
+
+        high_temp_fermi_level = self.solve_for_fermi_energy( quench_temperature, chemical_potentials,
+                                                             bulk_dos)
+        fixed_defect_charge = sum([
+            d['charge'] * d['conc']
+            for d in self.defect_concentrations(
+                chemical_potentials=chemical_potentials, temperature=quench_temperature,
+                fermi_level=high_temp_fermi_level)
+            ])
+
+        fdos = FermiDos(bulk_dos, bandgap=self.band_gap)
+        _,fdos_vbm = fdos.get_cbm_vbm()
+
+        def _get_total_q(ef):
+
+            qd_tot = fixed_defect_charge
+            qd_tot += fdos.get_doping(fermi=ef + fdos_vbm, T=temperature)
+            return qd_tot
+
+        return bisect(_get_total_q, -1., self.band_gap + 1.)
+
+        return
+
+    def get_dopability_limits(self, chemical_potentials):
+        """
+        Find Dopability limits for a given chemical potential.
+        This is defined by the defect formation energies which first cross zero
+        in formation energies.
+        This determine bounds on the fermi level.
+
+        Does this by computing formation energy for every stable defect with non-zero charge.
+        If the formation energy value changes sign on either side of the band gap, then
+        compute the fermi level value where the formation energy is zero
+        (formation energies are lines and basic algebra shows: x_crossing = x1 - (y1 / q)
+        for fermi level, x1, producing formation energy y1)
+
+        Args:
+            chemical_potentials: dict of chemical potentials to use for calculation fermi level
+        Returns:
+             lower dopability limit, upper dopability limit
+            (returns None if no limit exists for upper or lower i.e. no negative defect
+            crossing before +/- 20 of band edges OR defect formation energies are entirely zero)
+        """
+        min_fl_range = -20.
+        max_fl_range = self.band_gap + 20.
+
+        lower_lim = None
+        upper_lim = None
+        for def_entry in self.all_stable_entries:
+            min_fl_formen = def_entry.formation_energy(chemical_potentials = chemical_potentials,
+                                                    fermi_level=min_fl_range)
+            max_fl_formen = def_entry.formation_energy(chemical_potentials = chemical_potentials,
+                                                    fermi_level=max_fl_range)
+
+            if min_fl_formen < 0. and max_fl_formen < 0.:
+                logger.error("Formation energy is negative through entire gap for entry {} q={}." \
+                             " Cannot return dopability limits.".format( def_entry.name, def_entry.charge))
+                return None, None
+            elif np.sign( min_fl_formen) != np.sign( max_fl_formen):
+                x_crossing = min_fl_range - (min_fl_formen / def_entry.charge)
+                if min_fl_formen < 0.:
+                    if lower_lim is None or lower_lim < x_crossing:
+                        lower_lim = x_crossing
+                else:
+                    if upper_lim is None or upper_lim > x_crossing:
+                        upper_lim = x_crossing
+
+        return lower_lim, upper_lim
 
     def plot(self, mu_elts=None, xlim=None, ylim=None, ax_fontsize=1.3, lg_fontsize=1.,
              lg_position=None, fermi_level = None, title=None, saved=False):

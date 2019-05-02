@@ -20,11 +20,12 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 class DefectsThermodynamicsTest(PymatgenTest):
     def setUp(self):
         self.vbm_val = 2.6682
-        self.gap = 2.
+        self.gap = 1.5
         self.entries = list(loadfn(os.path.join(os.path.dirname(__file__), "GaAs_test_defentries.json")).values())
         for entry in self.entries:
             entry.parameters.update( {'vbm': self.vbm_val})
         self.pd = DefectPhaseDiagram(self.entries, self.vbm_val, self.gap)
+        self.mu_elts = {Element("As"): -4.658070555, Element("Ga"): -3.7317319750000006}
 
         # make Vac_As (q= -2) only defect test single-stable-charge exceptions
         self.extra_entry = DefectEntry(self.entries[5].defect.copy(), 100.)
@@ -44,11 +45,6 @@ class DefectsThermodynamicsTest(PymatgenTest):
         # load complete dos for fermi energy solving
         with open(os.path.join(test_dir, "complete_dos.json"), "r") as f:
             dos_dict = json.load(f)
-        tmp_dos = CompleteDos.from_dict(dos_dict)
-        tmp_vbm = tmp_dos.get_cbm_vbm()[1]
-        en_shift = self.vbm_val - tmp_vbm
-        dos_dict["energies"] += en_shift
-        dos_dict["efermi"] = self.vbm_val
         self.dos = CompleteDos.from_dict(dos_dict)
 
 
@@ -95,13 +91,29 @@ class DefectsThermodynamicsTest(PymatgenTest):
         self.assertEqual( len(self.sep_pd.transition_level_map['Vac_As_mult4@0-43']), 0)
         self.assertEqual( len(self.sep_pd.stable_entries['Vac_As_mult4@0-43']), 1)
         self.assertEqual( len(self.sep_pd.finished_charges['Vac_As_mult4@0-43']), 2)
-
+    #
     def test_solve_for_fermi_energy(self):
-        mu_elts = {Element("As"): -4.658070555, Element("Ga"): -3.7317319750000006}
-        fermi_energy = self.pd.solve_for_fermi_energy( 100., mu_elts, self.dos)
-        self.assertAlmostEqual( fermi_energy, 0.57224289)
-        fermi_energy = self.pd.solve_for_fermi_energy( 1000., mu_elts, self.dos)
-        self.assertAlmostEqual( fermi_energy, 0.68430342)
+        fermi_energy = self.pd.solve_for_fermi_energy( 100., self.mu_elts, self.dos)
+        self.assertAlmostEqual( fermi_energy, 0.57387314)
+        fermi_energy = self.pd.solve_for_fermi_energy( 1000., self.mu_elts, self.dos)
+        self.assertAlmostEqual( fermi_energy, 0.74139553)
+
+    def test_solve_for_non_equilibrium_fermi_energy(self):
+        fermi_energy = self.pd.solve_for_non_equilibrium_fermi_energy( 300., 1000., self.mu_elts, self.dos)
+        self.assertAlmostEqual( fermi_energy, 0.29500637)
+        fermi_energy = self.pd.solve_for_non_equilibrium_fermi_energy( 1000., 1000., self.mu_elts, self.dos)
+        self.assertAlmostEqual( fermi_energy, 0.74139553)
+
+    def test_get_dopability_limits(self):
+        lower_lim, upper_lim = self.pd.get_dopability_limits( self.mu_elts)
+        self.assertAlmostEqual( lower_lim, -0.39996272)
+        self.assertAlmostEqual( upper_lim, 1.064193047)
+        # raise error if defects are negative across gap
+        bad_mu_elts = self.mu_elts.copy()
+        bad_mu_elts[Element("Ga")] += 10.
+        lower_lim, upper_lim = self.pd.get_dopability_limits( bad_mu_elts)
+        self.assertIsNone( lower_lim)
+        self.assertIsNone( upper_lim)
 
     def test_plot(self):
         #simple test that plot is produced
