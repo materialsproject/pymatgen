@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.bonds module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.core.bonds module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -52,42 +50,37 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Defines a covalent bond between two sites.</p>
 <p>Initializes a covalent bond between two sites.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>site1</strong> (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a>) – First site.</li>
-<li><strong>site2</strong> (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a>) – Second site.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>site1</strong> (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a>) – First site.</p></li>
+<li><p><strong>site2</strong> (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a>) – Second site.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.core.bonds.CovalentBond.get_bond_order">
 <code class="descname">get_bond_order</code><span class="sig-paren">(</span><em>tol=0.2</em>, <em>default_bl=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/bonds.html#CovalentBond.get_bond_order"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.bonds.CovalentBond.get_bond_order" title="Permalink to this definition">¶</a></dt>
 <dd><p>The bond order according the distance between the two sites
 :param tol: Relative tolerance to test.</p>
 <blockquote>
-<div>(1 + tol) * the longest bond distance is considered
+<div><p>(1 + tol) * the longest bond distance is considered
 to be the threshold length for a bond to exist.
 (1 - tol) * the shortest bond distance is considered
 to be the shortest possible bond length
-Defaults to 0.2.</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>default_bl</strong> – If a particular type of bond does not exist,
+Defaults to 0.2.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>default_bl</strong> – If a particular type of bond does not exist,
 use this bond length as a default value
-(bond order = 1). If None, a ValueError will be thrown.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Float value of bond order. For example, for C-C bond in
-benzene, return 1.7.</td>
-</tr>
-</tbody>
-</table>
+(bond order = 1). If None, a ValueError will be thrown.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Float value of bond order. For example, for C-C bond in
+benzene, return 1.7.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="staticmethod">
@@ -100,26 +93,23 @@ benzene, return 1.7.</td>
 :type site2: Site
 :param tol: Relative tolerance to test. Basically, the code</p>
 <blockquote>
-<div>checks if the distance between the sites is less than (1 +
+<div><p>checks if the distance between the sites is less than (1 +
 tol) * typical bond distances. Defaults to 0.2, i.e.,
-20% longer.</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>bond_order</strong> – Bond order to test. If None, the code simply checks
-against all possible bond data. Defaults to None.</li>
-<li><strong>default_bl</strong> – If a particular type of bond does not exist, use this
-bond length. If None, a ValueError will be thrown.</li>
+20% longer.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bond_order</strong> – Bond order to test. If None, the code simply checks
+against all possible bond data. Defaults to None.</p></li>
+<li><p><strong>default_bl</strong> – If a particular type of bond does not exist, use this
+bond length. If None, a ValueError will be thrown.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Boolean indicating whether two sites are bonded.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Boolean indicating whether two sites are bonded.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -134,81 +124,69 @@ bond length. If None, a ValueError will be thrown.</li>
 <dt id="pymatgen.core.bonds.get_bond_length">
 <code class="descname">get_bond_length</code><span class="sig-paren">(</span><em>sp1</em>, <em>sp2</em>, <em>bond_order=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/bonds.html#get_bond_length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.bonds.get_bond_length" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the bond length between two species.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>sp1</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a>) – First specie.</li>
-<li><strong>sp2</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a>) – Second specie.</li>
-<li><strong>bond_order</strong> – For species with different possible bond orders,
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sp1</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a>) – First specie.</p></li>
+<li><p><strong>sp2</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a>) – Second specie.</p></li>
+<li><p><strong>bond_order</strong> – For species with different possible bond orders,
 this allows one to obtain the bond length for a particular bond
 order. For example, to get the C=C bond length instead of the
-C-C bond length, this should be set to 2. Defaults to 1.</li>
+C-C bond length, this should be set to 2. Defaults to 1.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Bond length in Angstrom. If no data is available, the sum of the atomic
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Bond length in Angstrom. If no data is available, the sum of the atomic
 radius is used.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.core.bonds.get_bond_order">
 <code class="descname">get_bond_order</code><span class="sig-paren">(</span><em>sp1</em>, <em>sp2</em>, <em>dist</em>, <em>tol=0.2</em>, <em>default_bl=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/bonds.html#get_bond_order"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.bonds.get_bond_order" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the bond order given the distance of 2 species</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>sp1</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a>) – First specie.</li>
-<li><strong>sp2</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a>) – Second specie.</li>
-<li><strong>dist</strong> – Their distance in angstrom</li>
-<li><strong>tol</strong> (<em>float</em>) – Relative tolerance to test. Basically, the code
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sp1</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a>) – First specie.</p></li>
+<li><p><strong>sp2</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a>) – Second specie.</p></li>
+<li><p><strong>dist</strong> – Their distance in angstrom</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – Relative tolerance to test. Basically, the code
 checks if the distance between the sites is larger than
 (1 + tol) * the longest bond distance or smaller than
 (1 - tol) * the shortest bond distance to determine if
 they are bonded or the distance is too short.
-Defaults to 0.2.</li>
-<li><strong>default_bl</strong> – If a particular type of bond does not exist, use this
-bond length (bond order = 1). If None, a ValueError will be thrown.</li>
+Defaults to 0.2.</p></li>
+<li><p><strong>default_bl</strong> – If a particular type of bond does not exist, use this
+bond length (bond order = 1). If None, a ValueError will be thrown.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Float value of bond order. For example, for C-C bond in benzene,
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Float value of bond order. For example, for C-C bond in benzene,
 return 1.7.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.core.bonds.obtain_all_bond_lengths">
 <code class="descname">obtain_all_bond_lengths</code><span class="sig-paren">(</span><em>sp1</em>, <em>sp2</em>, <em>default_bl=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/bonds.html#obtain_all_bond_lengths"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.bonds.obtain_all_bond_lengths" title="Permalink to this definition">¶</a></dt>
 <dd><p>Obtain bond lengths for all bond orders from bond length database</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>sp1</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a>) – First specie.</li>
-<li><strong>sp2</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a>) – Second specie.</li>
-<li><strong>default_bl</strong> – If a particular type of bond does not exist, use this
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sp1</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a>) – First specie.</p></li>
+<li><p><strong>sp2</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a>) – Second specie.</p></li>
+<li><p><strong>default_bl</strong> – If a particular type of bond does not exist, use this
 bond length as a default value (bond order = 1).
-If None, a ValueError will be thrown.</li>
+If None, a ValueError will be thrown.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A dict mapping bond order to bond length in angstrom</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dict mapping bond order to bond length in angstrom</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -232,8 +210,6 @@ If None, a ValueError will be thrown.</li>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -251,13 +227,13 @@ If None, a ValueError will be thrown.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

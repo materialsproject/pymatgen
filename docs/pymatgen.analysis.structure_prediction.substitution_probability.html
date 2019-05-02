@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.structure_prediction.substitution_probability module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.structure_prediction.substitution_probability module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -57,53 +55,45 @@ or species list using the SubstitutionProbability</p>
 <code class="descname">composition_prediction</code><span class="sig-paren">(</span><em>composition</em>, <em>to_this_composition=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/substitution_probability.html#SubstitutionPredictor.composition_prediction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor.composition_prediction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns charged balanced substitutions from a starting or ending
 composition.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>composition</strong> – starting or ending composition</li>
-<li><strong>to_this_composition</strong> – If true, substitutions with this as a final composition
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>composition</strong> – starting or ending composition</p></li>
+<li><p><strong>to_this_composition</strong> – If true, substitutions with this as a final composition
 will be found. If false, substitutions with this as a
 starting composition will be found (these are slightly
-different)</li>
+different)</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">List of predictions in the form of dictionaries.
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of predictions in the form of dictionaries.
 If to_this_composition is true, the values of the dictionary
 will be from the list species. If false, the keys will be
 from that list.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor.list_prediction">
 <code class="descname">list_prediction</code><span class="sig-paren">(</span><em>species</em>, <em>to_this_composition=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/substitution_probability.html#SubstitutionPredictor.list_prediction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor.list_prediction" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>species</strong> – list of species</li>
-<li><strong>to_this_composition</strong> – If true, substitutions with this as a final composition
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>species</strong> – list of species</p></li>
+<li><p><strong>to_this_composition</strong> – If true, substitutions with this as a final composition
 will be found. If false, substitutions with this as a
 starting composition will be found (these are slightly
-different)</li>
+different)</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">List of predictions in the form of dictionaries.
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of predictions in the form of dictionaries.
 If to_this_composition is true, the values of the dictionary
 will be from the list species. If false, the keys will be
 from that list.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -119,19 +109,15 @@ from_defaults static method.</p>
 Hautier, G., Fischer, C., Ehrlacher, V., Jain, A., and Ceder, G. (2011)
 Data Mined Ionic Substitutions for the Discovery of New Compounds.
 Inorganic Chemistry, 50(2), 656-663. doi:10.1021/ic102031h</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>lambda_table</strong> – json table of the weight functions lambda if None,
-will use the default lambda.json table</li>
-<li><strong>alpha</strong> – weight function for never observed substitutions</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lambda_table</strong> – json table of the weight functions lambda if None,
+will use the default lambda.json table</p></li>
+<li><p><strong>alpha</strong> – weight function for never observed substitutions</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -155,8 +141,6 @@ will use the default lambda.json table</li>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -174,13 +158,13 @@ will use the default lambda.json table</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

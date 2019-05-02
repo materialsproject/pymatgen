@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.transition_state module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.transition_state module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -54,36 +52,29 @@
 <p>Initializes an NEBAnalysis from the cumulative root mean squared distances
 between structures, the energies, the forces, the structures and the
 interpolation_order for the analysis.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>r</strong> – Root mean square distances between structures</li>
-<li><strong>energies</strong> – Energies of each structure along reaction coordinate</li>
-<li><strong>forces</strong> – Tangent forces along the reaction coordinate.</li>
-<li><strong>structures</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a><em>]</em>) – List of Structures along reaction
-coordinate.</li>
-<li><strong>spline_options</strong> (<em>dict</em>) – Options for cubic spline. For example,
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>r</strong> – Root mean square distances between structures</p></li>
+<li><p><strong>energies</strong> – Energies of each structure along reaction coordinate</p></li>
+<li><p><strong>forces</strong> – Tangent forces along the reaction coordinate.</p></li>
+<li><p><strong>structures</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a><em>]</em>) – List of Structures along reaction
+coordinate.</p></li>
+<li><p><strong>spline_options</strong> (<em>dict</em>) – Options for cubic spline. For example,
 {“saddle_point”: “zero_slope”} forces the slope at the saddle to
-be zero.</li>
+be zero.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.analysis.transition_state.NEBAnalysis.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/transition_state.html#NEBAnalysis.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.transition_state.NEBAnalysis.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dict representation of NEBAnalysis.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">JSON serializable dict representation.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>JSON serializable dict representation.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
@@ -112,23 +103,19 @@ a 5-image example is shown):</p>
 06:
 - POSCAR
 - OUTCAR</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>root_dir</strong> (<em>str</em>) – Path to the root directory of the NEB calculation.</li>
-<li><strong>relaxation_dirs</strong> (<em>tuple</em>) – This specifies the starting and ending
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root_dir</strong> (<em>str</em>) – Path to the root directory of the NEB calculation.</p></li>
+<li><p><strong>relaxation_dirs</strong> (<em>tuple</em>) – This specifies the starting and ending
 relaxation directories from which the OUTCARs are read for the
-terminal points for the energies.</li>
+terminal points for the energies.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">NEBAnalysis object.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>NEBAnalysis object.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
@@ -138,23 +125,19 @@ terminal points for the energies.</li>
 the static constructors, e.g., <a class="reference internal" href="#pymatgen.analysis.transition_state.NEBAnalysis.from_dir" title="pymatgen.analysis.transition_state.NEBAnalysis.from_dir"><code class="xref py py-class docutils literal notranslate"><span class="pre">from_dir</span></code></a> instead if you
 prefer to have these automatically generated from a directory of NEB
 calculations.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>outcars</strong> (<em>[</em><a class="reference internal" href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Outcar" title="pymatgen.io.vasp.outputs.Outcar"><em>Outcar</em></a><em>]</em>) – List of Outcar objects. Note that these have
-to be ordered from start to end along reaction coordinates.</li>
-<li><strong>structures</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a><em>]</em>) – List of Structures along reaction
-coordinate. Must be same length as outcar.</li>
-<li><strong>interpolation_order</strong> (<em>int</em>) – Order of polynomial to use to
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>outcars</strong> (<em>[</em><a class="reference internal" href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Outcar" title="pymatgen.io.vasp.outputs.Outcar"><em>Outcar</em></a><em>]</em>) – List of Outcar objects. Note that these have
+to be ordered from start to end along reaction coordinates.</p></li>
+<li><p><strong>structures</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a><em>]</em>) – List of Structures along reaction
+coordinate. Must be same length as outcar.</p></li>
+<li><p><strong>interpolation_order</strong> (<em>int</em>) – Order of polynomial to use to
 interpolate between images. Same format as order parameter in
-scipy.interplotate.PiecewisePolynomial.</li>
+scipy.interplotate.PiecewisePolynomial.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -162,18 +145,16 @@ scipy.interplotate.PiecewisePolynomial.</li>
 <code class="descname">get_extrema</code><span class="sig-paren">(</span><em>normalize_rxn_coordinate=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/transition_state.html#NEBAnalysis.get_extrema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.transition_state.NEBAnalysis.get_extrema" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the positions of the extrema along the MEP. Both local
 minimums and maximums are returned.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>normalize_rxn_coordinate</strong> (<em>bool</em>) – Whether to normalize the
-reaction coordinate to between 0 and 1. Defaults to True.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(min_extrema, max_extrema), where the extrema are given as
-[(x1, y1), (x2, y2), …].</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>normalize_rxn_coordinate</strong> (<em>bool</em>) – Whether to normalize the
+reaction coordinate to between 0 and 1. Defaults to True.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(min_extrema, max_extrema), where the extrema are given as
+[(x1, y1), (x2, y2), …].</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -181,38 +162,31 @@ reaction coordinate to between 0 and 1. Defaults to True.</td>
 <code class="descname">get_plot</code><span class="sig-paren">(</span><em>normalize_rxn_coordinate=True</em>, <em>label_barrier=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/transition_state.html#NEBAnalysis.get_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.transition_state.NEBAnalysis.get_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the NEB plot. Uses Henkelman’s approach of spline fitting
 each section of the reaction path based on tangent force and energies.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>normalize_rxn_coordinate</strong> (<em>bool</em>) – Whether to normalize the
-reaction coordinate to between 0 and 1. Defaults to True.</li>
-<li><strong>label_barrier</strong> (<em>bool</em>) – Whether to label the maximum barrier.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>normalize_rxn_coordinate</strong> (<em>bool</em>) – Whether to normalize the
+reaction coordinate to between 0 and 1. Defaults to True.</p></li>
+<li><p><strong>label_barrier</strong> (<em>bool</em>) – Whether to label the maximum barrier.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">matplotlib.pyplot object.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>matplotlib.pyplot object.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.transition_state.NEBAnalysis.setup_spline">
 <code class="descname">setup_spline</code><span class="sig-paren">(</span><em>spline_options=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/transition_state.html#NEBAnalysis.setup_spline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.transition_state.NEBAnalysis.setup_spline" title="Permalink to this definition">¶</a></dt>
 <dd><p>Setup of the options for the spline interpolation</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>spline_options</strong> (<em>dict</em>) – Options for cubic spline. For example,
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>spline_options</strong> (<em>dict</em>) – Options for cubic spline. For example,
 {“saddle_point”: “zero_slope”} forces the slope at the saddle to
-be zero.</td>
-</tr>
-</tbody>
-</table>
+be zero.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -255,8 +229,6 @@ return: a NEBAnalysis object</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -274,13 +246,13 @@ return: a NEBAnalysis object</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

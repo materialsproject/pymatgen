@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.path_finder module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.path_finder module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -59,22 +57,18 @@ following work:</p>
 <em class="property">class </em><code class="descname">ChgcarPotential</code><span class="sig-paren">(</span><em>chgcar</em>, <em>smear=False</em>, <em>normalize=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/path_finder.html#ChgcarPotential"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.path_finder.ChgcarPotential" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.path_finder.StaticPotential" title="pymatgen.analysis.path_finder.StaticPotential"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.path_finder.StaticPotential</span></code></a></p>
 <p>Implements a potential field based on the charge density output from VASP.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>chgcar</strong> – Chgcar object based on a VASP run of the structure of
-interest (Chgcar.from_file(“CHGCAR”))</li>
-<li><strong>smear</strong> – Whether or not to apply a Gaussian smearing to the
-potential</li>
-<li><strong>normalize</strong> – Whether or not to normalize the potential to range
-from 0 to 1</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>chgcar</strong> – Chgcar object based on a VASP run of the structure of
+interest (Chgcar.from_file(“CHGCAR”))</p></li>
+<li><p><strong>smear</strong> – Whether or not to apply a Gaussian smearing to the
+potential</p></li>
+<li><p><strong>normalize</strong> – Whether or not to normalize the potential to range
+from 0 to 1</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="class">
@@ -84,22 +78,18 @@ from 0 to 1</li>
 <p>Implements a potential field based on geometric distances from atoms in the
 structure - basically, the potential
 is lower at points farther away from any atoms in the structure.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>struct</strong> – Unit cell on which to base the potential</li>
-<li><strong>dim</strong> – Grid size for the potential</li>
-<li><strong>smear</strong> – Whether or not to apply a Gaussian smearing to the
-potential</li>
-<li><strong>normalize</strong> – Whether or not to normalize the potential to range
-from 0 to 1</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>struct</strong> – Unit cell on which to base the potential</p></li>
+<li><p><strong>dim</strong> – Grid size for the potential</p></li>
+<li><p><strong>smear</strong> – Whether or not to apply a Gaussian smearing to the
+potential</p></li>
+<li><p><strong>normalize</strong> – Whether or not to normalize the potential to range
+from 0 to 1</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="class">
@@ -107,21 +97,17 @@ from 0 to 1</li>
 <em class="property">class </em><code class="descname">MixedPotential</code><span class="sig-paren">(</span><em>potentials</em>, <em>coefficients</em>, <em>smear=False</em>, <em>normalize=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/path_finder.html#MixedPotential"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.path_finder.MixedPotential" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.path_finder.StaticPotential" title="pymatgen.analysis.path_finder.StaticPotential"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.path_finder.StaticPotential</span></code></a></p>
 <p>Implements a potential that is a weighted sum of some other potentials</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>potentials</strong> – List of objects extending the StaticPotential superclass</li>
-<li><strong>coefficients</strong> – Mixing weights for the elements of the potentials list</li>
-<li><strong>smear</strong> – Whether or not to apply a Gaussian smearing to the potential</li>
-<li><strong>normalize</strong> – Whether or not to normalize the potential to range from
-0 to 1</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>potentials</strong> – List of objects extending the StaticPotential superclass</p></li>
+<li><p><strong>coefficients</strong> – Mixing weights for the elements of the potentials list</p></li>
+<li><p><strong>smear</strong> – Whether or not to apply a Gaussian smearing to the potential</p></li>
+<li><p><strong>normalize</strong> – Whether or not to normalize the potential to range from
+0 to 1</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="class">
@@ -132,21 +118,17 @@ from 0 to 1</li>
 interpolating path is calculated with the elastic band method with
 respect to the given static potential for sites whose indices are given
 in relax_sites, and is linear otherwise.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>end_struct</strong> (<em>start_struct</em><em>,</em>) – Endpoint structures to interpolate</li>
-<li><strong>relax_sites</strong> – List of site indices whose interpolation paths should
-be relaxed</li>
-<li><strong>v</strong> – Static potential field to use for the elastic band relaxation</li>
-<li><strong>n_images</strong> – Number of interpolation images to generate</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>end_struct</strong> (<em>start_struct</em><em>,</em>) – Endpoint structures to interpolate</p></li>
+<li><p><strong>relax_sites</strong> – List of site indices whose interpolation paths should
+be relaxed</p></li>
+<li><p><strong>v</strong> – Static potential field to use for the elastic band relaxation</p></li>
+<li><p><strong>n_images</strong> – Number of interpolation images to generate</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.analysis.path_finder.NEBPathfinder.images">
 <code class="descname">images</code><a class="headerlink" href="#pymatgen.analysis.path_finder.NEBPathfinder.images" title="Permalink to this definition">¶</a></dt>
@@ -181,34 +163,30 @@ forces found in the potential field V, counterbalanced by the elastic
 response of the elastic band. In general the endpoints of the band can
 be allowed to relax also to their local minima, but in this calculation
 they are kept fixed.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>end</strong> (<em>start</em><em>,</em>) – Endpoints of the path calculation given in discrete
-coordinates with respect to the grid in V</li>
-<li><strong>V</strong> – potential field through which to calculate the path</li>
-<li><strong>n_images</strong> – number of images used to define the path. In general
-anywhere from 20 to 40 seems to be good.</li>
-<li><strong>dr</strong> – Conversion ratio from discrete coordinates to real coordinates
-for each of the three coordinate vectors</li>
-<li><strong>h</strong> – Step size for the relaxation. h = 0.1 works reliably, but is
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>end</strong> (<em>start</em><em>,</em>) – Endpoints of the path calculation given in discrete
+coordinates with respect to the grid in V</p></li>
+<li><p><strong>V</strong> – potential field through which to calculate the path</p></li>
+<li><p><strong>n_images</strong> – number of images used to define the path. In general
+anywhere from 20 to 40 seems to be good.</p></li>
+<li><p><strong>dr</strong> – Conversion ratio from discrete coordinates to real coordinates
+for each of the three coordinate vectors</p></li>
+<li><p><strong>h</strong> – Step size for the relaxation. h = 0.1 works reliably, but is
 slow. h=10 diverges with large gradients but for the types of
-gradients seen in CHGCARs, works pretty reliably</li>
-<li><strong>k</strong> – Elastic constant for the band (in real units, not discrete)</li>
-<li><strong>max_iter</strong> (<em>min_iter</em><em>,</em>) – Number of optimization steps the string will
-take before exiting (even if unconverged)</li>
-<li><strong>max_tol</strong> – Convergence threshold such that if the string moves by
+gradients seen in CHGCARs, works pretty reliably</p></li>
+<li><p><strong>k</strong> – Elastic constant for the band (in real units, not discrete)</p></li>
+<li><p><strong>max_iter</strong> (<em>min_iter</em><em>,</em>) – Number of optimization steps the string will
+take before exiting (even if unconverged)</p></li>
+<li><p><strong>max_tol</strong> – Convergence threshold such that if the string moves by
 less than max_tol in a step, and at least min_iter steps have
 passed, the algorithm will terminate. Depends strongly on the
 size of the gradients in V, but 5e-6 works reasonably well for
-CHGCARs.</li>
+CHGCARs.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -229,9 +207,9 @@ narrow minima or nodes that may exist in the field (although any
 potential or charge distribution generated from GGA should be
 relatively smooth anyway). The smearing obeys periodic
 boundary conditions at the edges of the cell.</p>
-<dl class="docutils">
-<dt>:param r - Smearing width in cartesian coordinates, in the same units</dt>
-<dd>as the structure lattice vectors</dd>
+<dl class="simple">
+<dt>:param r - Smearing width in cartesian coordinates, in the same units</dt><dd><p>as the structure lattice vectors</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -256,14 +234,11 @@ obtained from DFT is strangely skewed, or is too fine or coarse. Obeys
 periodic boundary conditions at the edges of
 the cell. Alternatively useful for mixing potentials that originally
 are on different grids.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_dim</strong> – tuple giving the numpy shape of the new grid</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>new_dim</strong> – tuple giving the numpy shape of the new grid</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -289,8 +264,6 @@ are on different grids.</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -308,13 +281,13 @@ are on different grids.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

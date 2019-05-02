@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.ion &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.core.ion &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.2.28 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.5.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -84,7 +82,7 @@
 <span class="sd">        Flexible Ion construction, similar to Composition.</span>
 <span class="sd">        For more information, please see pymatgen.core.Composition</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">Ion</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">composition</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">composition</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_charge</span> <span class="o">=</span> <span class="n">charge</span>
 
 <div class="viewcode-block" id="Ion.from_formula"><a class="viewcode-back" href="../../../pymatgen.core.ion.html#pymatgen.core.ion.Ion.from_formula">[docs]</a>    <span class="nd">@classmethod</span>
@@ -121,7 +119,7 @@
 <span class="sd">        Returns a formula string, with elements sorted by electronegativity,</span>
 <span class="sd">        e.g., Li4 Fe4 P4 O16.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">formula</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">Ion</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">formula</span>
+        <span class="n">formula</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">formula</span>
         <span class="n">chg_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">chg_str</span> <span class="o">=</span> <span class="s2">&quot; +&quot;</span> <span class="o">+</span> <span class="n">formula_double_format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
@@ -135,7 +133,7 @@
 <span class="sd">        An anonymized formula. Appends charge to the end</span>
 <span class="sd">        of anonymized composition</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">anon_formula</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">Ion</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">anonymized_formula</span>
+        <span class="n">anon_formula</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">anonymized_formula</span>
         <span class="n">chg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_charge</span>
         <span class="n">chg_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="k">if</span> <span class="n">chg</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -149,7 +147,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a reduced formula string with appended charge.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">reduced_formula</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">Ion</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">reduced_formula</span>
+        <span class="n">reduced_formula</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">reduced_formula</span>
         <span class="n">charge</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_charge</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_reduced_composition_and_factor</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">charge</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">charge</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
@@ -171,7 +169,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a reduced formula string with appended charge</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">alph_formula</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">Ion</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">alphabetical_formula</span>
+        <span class="n">alph_formula</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">alphabetical_formula</span>
         <span class="n">chg_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">chg_str</span> <span class="o">=</span> <span class="s2">&quot; +&quot;</span> <span class="o">+</span> <span class="n">formula_double_format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
@@ -191,7 +189,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            dict with composition, as well as charge</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">Ion</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
         <span class="n">d</span><span class="p">[</span><span class="s1">&#39;charge&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">charge</span>
         <span class="k">return</span> <span class="n">d</span></div>
 
@@ -275,8 +273,6 @@
     <form class="search" action="../../../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -294,7 +290,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.2.28 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.5.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -302,7 +298,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

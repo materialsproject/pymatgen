@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.bond_valence module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.bond_valence module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -65,31 +63,27 @@ analysis of the ICSD.
 and the oxidation state combination that result in a charge neutral cell
 is selected.</p>
 <p>Initializes the BV analyzer, with useful defaults.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>symm_tol</strong> – Symmetry tolerance used to determine which sites are
-symmetrically equivalent. Set to 0 to turn off symmetry.</li>
-<li><strong>max_radius</strong> – Maximum radius in Angstrom used to find nearest neighbors.</li>
-<li><strong>max_permutations</strong> – The maximum number of permutations of oxidation states to test.</li>
-<li><strong>distance_scale_factor</strong> – A scale factor to be applied. This is useful for scaling
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>symm_tol</strong> – Symmetry tolerance used to determine which sites are
+symmetrically equivalent. Set to 0 to turn off symmetry.</p></li>
+<li><p><strong>max_radius</strong> – Maximum radius in Angstrom used to find nearest neighbors.</p></li>
+<li><p><strong>max_permutations</strong> – The maximum number of permutations of oxidation states to test.</p></li>
+<li><p><strong>distance_scale_factor</strong> – A scale factor to be applied. This is useful for scaling
 distances, esp in the case of calculation-relaxed structures
 which may tend to under (GGA) or over bind (LDA). The default
 of 1.015 works for GGA. For experimental structure, set this to
-1.</li>
-<li><strong>charge_neutrality_tolerance</strong> – Tolerance on the charge neutrality when unordered structures
-are at stake.</li>
-<li><strong>forbidden_species</strong> – List of species that are forbidden (example : [“O-“] cannot be
+1.</p></li>
+<li><p><strong>charge_neutrality_tolerance</strong> – Tolerance on the charge neutrality when unordered structures
+are at stake.</p></li>
+<li><p><strong>forbidden_species</strong> – List of species that are forbidden (example : [“O-“] cannot be
 used) It is used when e.g. someone knows that some oxidation
 state cannot occur for some atom in a structure or list of
-structures.</li>
+structures.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.analysis.bond_valence.BVAnalyzer.CHARGE_NEUTRALITY_TOLERANCE">
 <code class="descname">CHARGE_NEUTRALITY_TOLERANCE</code><em class="property"> = 1e-05</em><a class="headerlink" href="#pymatgen.analysis.bond_valence.BVAnalyzer.CHARGE_NEUTRALITY_TOLERANCE" title="Permalink to this definition">¶</a></dt>
@@ -100,18 +94,17 @@ structures.</li>
 <code class="descname">get_oxi_state_decorated_structure</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/bond_valence.html#BVAnalyzer.get_oxi_state_decorated_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.bond_valence.BVAnalyzer.get_oxi_state_decorated_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get an oxidation state decorated structure. This currently works only
 for ordered structures only.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> – Structure to analyze</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A modified structure that is oxidation state decorated.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body">ValueError if the valences cannot be determined.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>structure</strong> – Structure to analyze</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A modified structure that is oxidation state decorated.</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>ValueError if the valences cannot be determined.</strong> – </p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -119,22 +112,21 @@ for ordered structures only.</p>
 <code class="descname">get_valences</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/bond_valence.html#BVAnalyzer.get_valences"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.bond_valence.BVAnalyzer.get_valences" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of valences for the structure. This currently works only
 for ordered structures only.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> – Structure to analyze</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of valences for each site in the structure (for an ordered
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>structure</strong> – Structure to analyze</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of valences for each site in the structure (for an ordered
 structure), e.g., [1, 1, -2] or a list of lists with the
 valences for each fractional element of each site in the
 structure (for an unordered structure),
-e.g., [[2, 4], [3], [-2], [-2], [-2]]</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body">A ValueError if the valences cannot be determined.</td>
-</tr>
-</tbody>
-</table>
+e.g., [[2, 4], [3], [-2], [-2], [-2]]</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>A ValueError if the valences cannot be determined.</strong> – </p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -143,58 +135,47 @@ e.g., [[2, 4], [3], [-2], [-2], [-2]]</td>
 <dt id="pymatgen.analysis.bond_valence.add_oxidation_state_by_site_fraction">
 <code class="descname">add_oxidation_state_by_site_fraction</code><span class="sig-paren">(</span><em>structure</em>, <em>oxidation_states</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/bond_valence.html#add_oxidation_state_by_site_fraction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.bond_valence.add_oxidation_state_by_site_fraction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add oxidation states to a structure by fractional site.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>oxidation_states</strong> (<em>list</em>) – List of list of oxidation states for each
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>oxidation_states</strong> (<em>list</em>) – List of list of oxidation states for each
 site fraction for each site.
-E.g., [[2, 4], [3], [-2], [-2], [-2]]</td>
-</tr>
-</tbody>
-</table>
+E.g., [[2, 4], [3], [-2], [-2], [-2]]</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.analysis.bond_valence.calculate_bv_sum">
 <code class="descname">calculate_bv_sum</code><span class="sig-paren">(</span><em>site</em>, <em>nn_list</em>, <em>scale_factor=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/bond_valence.html#calculate_bv_sum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.bond_valence.calculate_bv_sum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the BV sum of a site.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>site</strong> – The site</li>
-<li><strong>nn_list</strong> – List of nearest neighbors in the format [(nn_site, dist), …].</li>
-<li><strong>scale_factor</strong> – A scale factor to be applied. This is useful for scaling distance,
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>site</strong> – The site</p></li>
+<li><p><strong>nn_list</strong> – List of nearest neighbors in the format [(nn_site, dist), …].</p></li>
+<li><p><strong>scale_factor</strong> – A scale factor to be applied. This is useful for scaling distance,
 esp in the case of calculation-relaxed structures which may tend
-to under (GGA) or over bind (LDA).</li>
+to under (GGA) or over bind (LDA).</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.analysis.bond_valence.calculate_bv_sum_unordered">
 <code class="descname">calculate_bv_sum_unordered</code><span class="sig-paren">(</span><em>site</em>, <em>nn_list</em>, <em>scale_factor=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/bond_valence.html#calculate_bv_sum_unordered"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.bond_valence.calculate_bv_sum_unordered" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the BV sum of a site for unordered structures.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>site</strong> – The site</li>
-<li><strong>nn_list</strong> – List of nearest neighbors in the format [(nn_site, dist), …].</li>
-<li><strong>scale_factor</strong> – A scale factor to be applied. This is useful for scaling distance,
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>site</strong> – The site</p></li>
+<li><p><strong>nn_list</strong> – List of nearest neighbors in the format [(nn_site, dist), …].</p></li>
+<li><p><strong>scale_factor</strong> – A scale factor to be applied. This is useful for scaling distance,
 esp in the case of calculation-relaxed structures which may tend
-to under (GGA) or over bind (LDA).</li>
+to under (GGA) or over bind (LDA).</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -232,8 +213,6 @@ Cr4+, Cr3+, Ni4+, Ni3+, Zn2+</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -251,13 +230,13 @@ Cr4+, Cr3+, Ni4+, Ni3+, Zn2+</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

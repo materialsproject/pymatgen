@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="../../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.2.28 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.5.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -237,7 +235,7 @@
             <span class="n">isite</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure_environments</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">psite</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">uc_psite</span> <span class="o">=</span> <span class="n">psite</span><span class="o">.</span><span class="n">to_unit_cell</span>
+                <span class="n">uc_psite</span> <span class="o">=</span> <span class="n">psite</span><span class="o">.</span><span class="n">to_unit_cell</span><span class="p">()</span>
                 <span class="n">isite</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure_environments</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">uc_psite</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">isite2</span><span class="p">,</span> <span class="n">site2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure_environments</span><span class="o">.</span><span class="n">structure</span><span class="p">):</span>
@@ -249,7 +247,7 @@
         <span class="n">dthissite</span> <span class="o">=</span> <span class="n">psite</span><span class="o">.</span><span class="n">frac_coords</span> <span class="o">-</span> <span class="n">thissite</span><span class="o">.</span><span class="n">frac_coords</span>
         <span class="c1"># Get the translation between the equivalent site for which the neighbors have been computed and the site in</span>
         <span class="c1"># the unit cell that corresponds to psite (Translation II)</span>
-        <span class="n">equivsite</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure_environments</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">structure_environments</span><span class="o">.</span><span class="n">sites_map</span><span class="p">[</span><span class="n">isite</span><span class="p">]]</span><span class="o">.</span><span class="n">to_unit_cell</span>
+        <span class="n">equivsite</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure_environments</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">structure_environments</span><span class="o">.</span><span class="n">sites_map</span><span class="p">[</span><span class="n">isite</span><span class="p">]]</span><span class="o">.</span><span class="n">to_unit_cell</span><span class="p">()</span>
         <span class="c1">#equivsite = self.structure_environments.structure[self.structure_environments.sites_map[isite]]</span>
         <span class="n">dequivsite</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure_environments</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">structure_environments</span><span class="o">.</span><span class="n">sites_map</span><span class="p">[</span><span class="n">isite</span><span class="p">]]</span><span class="o">.</span><span class="n">frac_coords</span>
                       <span class="o">-</span> <span class="n">equivsite</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
@@ -2024,8 +2022,6 @@
     <form class="search" action="../../../../../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -2043,7 +2039,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.2.28 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.5.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -2051,7 +2047,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

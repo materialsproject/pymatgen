@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.spectrum module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.core.spectrum module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -57,24 +55,20 @@ multiplication, etc.</p>
 <p>Subclasses should extend this object and ensure that super is called with
 ALL args and kwargs. That ensures subsequent things like add and mult work
 properly.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>x</strong> (<em>ndarray</em>) – A ndarray of N values.</li>
-<li><strong>y</strong> (<em>ndarray</em>) – A ndarray of N x k values. The first dimension must be
-the same as that of x. Each of the k values are interpreted as</li>
-<li><strong>*args</strong> – All subclasses should provide args other than x and y
-when calling super, e.g., super(Subclass, self).__init__(
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>ndarray</em>) – A ndarray of N values.</p></li>
+<li><p><strong>y</strong> (<em>ndarray</em>) – A ndarray of N x k values. The first dimension must be
+the same as that of x. Each of the k values are interpreted as</p></li>
+<li><p><strong>*args</strong> – All subclasses should provide args other than x and y
+when calling super, e.g., super().__init__(
 x, y, arg1, arg2, kwarg1=val1, ..). This guarantees the +, -, <a href="#id1"><span class="problematic" id="id2">*</span></a>,
-etc. operators work properly.</li>
-<li><strong>**kwargs</strong> – Same as that for *args.</li>
+etc. operators work properly.</p></li>
+<li><p><strong>**kwargs</strong> – Same as that for *args.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.core.spectrum.Spectrum.XLABEL">
 <code class="descname">XLABEL</code><em class="property"> = 'x'</em><a class="headerlink" href="#pymatgen.core.spectrum.Spectrum.XLABEL" title="Permalink to this definition">¶</a></dt>
@@ -88,64 +82,52 @@ etc. operators work properly.</li>
 <dl class="method">
 <dt id="pymatgen.core.spectrum.Spectrum.copy">
 <code class="descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/spectrum.html#Spectrum.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.spectrum.Spectrum.copy" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Copy of Spectrum object.</td>
-</tr>
-</tbody>
-</table>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Copy of Spectrum object.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.spectrum.Spectrum.get_interpolated_value">
 <code class="descname">get_interpolated_value</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/spectrum.html#Spectrum.get_interpolated_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.spectrum.Spectrum.get_interpolated_value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an interpolated y value for a particular x value.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>x</strong> – x value to return the y value for</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Value of y at x</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – x value to return the y value for</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Value of y at x</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.spectrum.Spectrum.normalize">
 <code class="descname">normalize</code><span class="sig-paren">(</span><em>mode='max'</em>, <em>value=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/spectrum.html#Spectrum.normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.spectrum.Spectrum.normalize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Normalize the spectrum with respect to the sum of intensity</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>mode</strong> (<em>str</em>) – Normalization mode. Supported modes are “max” (set the
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mode</strong> (<em>str</em>) – Normalization mode. Supported modes are “max” (set the
 max y value to value, e.g., in XRD patterns), “sum” (set the
-sum of y to a value, i.e., like a probability density).</li>
-<li><strong>value</strong> (<em>float</em>) – Value to normalize to. Defaults to 1.</li>
+sum of y to a value, i.e., like a probability density).</p></li>
+<li><p><strong>value</strong> (<em>float</em>) – Value to normalize to. Defaults to 1.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.spectrum.Spectrum.smear">
 <code class="descname">smear</code><span class="sig-paren">(</span><em>sigma</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/spectrum.html#Spectrum.smear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.spectrum.Spectrum.smear" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply Gaussian smearing to spectrum y value.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sigma</strong> – Std dev for Gaussian smear function</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>sigma</strong> – Std dev for Gaussian smear function</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -171,8 +153,6 @@ sum of y to a value, i.e., like a probability density).</li>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -190,13 +170,13 @@ sum of y to a value, i.e., like a probability density).</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

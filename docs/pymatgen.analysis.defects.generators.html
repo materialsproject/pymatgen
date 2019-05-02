@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.defects.generators module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.defects.generators module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -79,22 +77,19 @@ and it is used by the Python Charged Defect Toolkit
 <em class="property">class </em><code class="descname">SimpleChargeGenerator</code><span class="sig-paren">(</span><em>defect</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/generators.html#SimpleChargeGenerator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.generators.SimpleChargeGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.defects.generators.DefectGenerator" title="pymatgen.analysis.defects.generators.DefectGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.defects.generators.DefectGenerator</span></code></a></p>
 <p>Does an extremely simple/limited charge generation scheme (only one charge generated)</p>
-<dl class="docutils">
-<dt>for vacancies: use bond valence method to assign oxidation states and consider</dt>
-<dd>negative of the vacant site’s oxidation state as single charge to try</dd>
-<dt>for antisites and subs: use bond valence method to assign oxidation states and consider</dt>
-<dd>negative of the vacant site’s oxidation state as single charge to try +
-added to likely charge of substitutional site (closest to zero)</dd>
+<dl class="simple">
+<dt>for vacancies: use bond valence method to assign oxidation states and consider</dt><dd><p>negative of the vacant site’s oxidation state as single charge to try</p>
+</dd>
+<dt>for antisites and subs: use bond valence method to assign oxidation states and consider</dt><dd><p>negative of the vacant site’s oxidation state as single charge to try +
+added to likely charge of substitutional site (closest to zero)</p>
+</dd>
 </dl>
 <p>for interstitial: charge zero</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>defect</strong> (<a class="reference internal" href="pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.Defect" title="pymatgen.analysis.defects.core.Defect"><em>Defect</em></a>) – pymatgen Defect object</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>defect</strong> (<a class="reference internal" href="pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.Defect" title="pymatgen.analysis.defects.core.Defect"><em>Defect</em></a>) – pymatgen Defect object</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="class">
@@ -155,8 +150,6 @@ equivalent sites</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -174,13 +167,13 @@ equivalent sites</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

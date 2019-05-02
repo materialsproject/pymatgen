@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.substrate_analyzer module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.substrate_analyzer module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -59,48 +57,41 @@ elastic strain energy of the super-lattices</p>
 <p>Initializes the substrate analyzer
 :param zslgen: Defaults to a ZSLGenerator with standard</p>
 <blockquote>
-<div>tolerances, but can be fed one with custom tolerances</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>film_max_miller</strong> (<em>int</em>) – maximum miller index to generate for film
-surfaces</li>
-<li><strong>substrate_max_miller</strong> (<em>int</em>) – maximum miller index to generate for
-substrate surfaces</li>
+<div><p>tolerances, but can be fed one with custom tolerances</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>film_max_miller</strong> (<em>int</em>) – maximum miller index to generate for film
+surfaces</p></li>
+<li><p><strong>substrate_max_miller</strong> (<em>int</em>) – maximum miller index to generate for
+substrate surfaces</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.analysis.substrate_analyzer.SubstrateAnalyzer.calculate">
 <code class="descname">calculate</code><span class="sig-paren">(</span><em>film</em>, <em>substrate</em>, <em>elasticity_tensor=None</em>, <em>film_millers=None</em>, <em>substrate_millers=None</em>, <em>ground_state_energy=0</em>, <em>lowest=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/substrate_analyzer.html#SubstrateAnalyzer.calculate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.SubstrateAnalyzer.calculate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds all topological matches for the substrate and calculates elastic
 strain energy and total energy for the film if elasticity tensor and
 ground state energy are provided:</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>film</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – conventional standard structure for the film</li>
-<li><strong>substrate</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – conventional standard structure for the
-substrate</li>
-<li><strong>elasticity_tensor</strong> (<a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor" title="pymatgen.analysis.elasticity.elastic.ElasticTensor"><em>ElasticTensor</em></a>) – elasticity tensor for the film
-in the IEEE orientation</li>
-<li><strong>film_millers</strong> (<em>array</em>) – film facets to consider in search as defined by
-miller indicies</li>
-<li><strong>substrate_millers</strong> (<em>array</em>) – substrate facets to consider in search as
-defined by miller indicies</li>
-<li><strong>ground_state_energy</strong> (<em>float</em>) – ground state energy for the film</li>
-<li><strong>lowest</strong> (<em>bool</em>) – only consider lowest matching area for each surface</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>film</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – conventional standard structure for the film</p></li>
+<li><p><strong>substrate</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – conventional standard structure for the
+substrate</p></li>
+<li><p><strong>elasticity_tensor</strong> (<a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor" title="pymatgen.analysis.elasticity.elastic.ElasticTensor"><em>ElasticTensor</em></a>) – elasticity tensor for the film
+in the IEEE orientation</p></li>
+<li><p><strong>film_millers</strong> (<em>array</em>) – film facets to consider in search as defined by
+miller indicies</p></li>
+<li><p><strong>substrate_millers</strong> (<em>array</em>) – substrate facets to consider in search as
+defined by miller indicies</p></li>
+<li><p><strong>ground_state_energy</strong> (<em>float</em>) – ground state energy for the film</p></li>
+<li><p><strong>lowest</strong> (<em>bool</em>) – only consider lowest matching area for each surface</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -108,22 +99,18 @@ defined by miller indicies</li>
 <code class="descname">calculate_3D_elastic_energy</code><span class="sig-paren">(</span><em>film</em>, <em>match</em>, <em>elasticity_tensor=None</em>, <em>include_strain=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/substrate_analyzer.html#SubstrateAnalyzer.calculate_3D_elastic_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.SubstrateAnalyzer.calculate_3D_elastic_energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the multi-plane elastic energy. Returns 999 if no elastic
 tensor was given on init</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>film</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – conventional standard structure for the film</li>
-<li><strong>match</strong> (<em>dictionary</em>) – match dictionary from substrate analyzer</li>
-<li><strong>elasticity_tensor</strong> (<a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor" title="pymatgen.analysis.elasticity.elastic.ElasticTensor"><em>ElasticTensor</em></a>) – elasticity tensor for the film</li>
-<li><strong>include_strain</strong> (<em>bool</em>) – include strain in the output or not; changes
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>film</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – conventional standard structure for the film</p></li>
+<li><p><strong>match</strong> (<em>dictionary</em>) – match dictionary from substrate analyzer</p></li>
+<li><p><strong>elasticity_tensor</strong> (<a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor" title="pymatgen.analysis.elasticity.elastic.ElasticTensor"><em>ElasticTensor</em></a>) – elasticity tensor for the film</p></li>
+<li><p><strong>include_strain</strong> (<em>bool</em>) – include strain in the output or not; changes
 return from just the energy to a tuple with the energy and strain
-in voigt notation</li>
+in voigt notation</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -131,20 +118,16 @@ in voigt notation</li>
 <code class="descname">generate_surface_vectors</code><span class="sig-paren">(</span><em>film_millers</em>, <em>substrate_millers</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/substrate_analyzer.html#SubstrateAnalyzer.generate_surface_vectors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.SubstrateAnalyzer.generate_surface_vectors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates the film/substrate slab combinations for a set of given
 miller indicies</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>film_millers</strong> (<em>array</em>) – all miller indices to generate slabs for
-film</li>
-<li><strong>substrate_millers</strong> (<em>array</em>) – all miller indicies to generate slabs
-for substrate</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>film_millers</strong> (<em>array</em>) – all miller indices to generate slabs for
+film</p></li>
+<li><p><strong>substrate_millers</strong> (<em>array</em>) – all miller indicies to generate slabs
+for substrate</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -161,36 +144,33 @@ Journal of Applied Physics 55 (1984), 378 ; doi: 10.1063/1.333084</p>
 <p>1.) Reduce the surface lattice vectors and calculate area for the surfaces
 2.) Generate all super lattice transformations within a maximum allowed area</p>
 <blockquote>
-<div>limit that give nearly equal area super-lattices for the two
-surfaces - generate_sl_transformation_sets</div></blockquote>
-<dl class="docutils">
-<dt>3.) For each superlattice set:</dt>
-<dd><p class="first">1.) Reduce super lattice vectors
+<div><p>limit that give nearly equal area super-lattices for the two
+surfaces - generate_sl_transformation_sets</p>
+</div></blockquote>
+<dl>
+<dt>3.) For each superlattice set:</dt><dd><p>1.) Reduce super lattice vectors
 2.) Check length and angle between film and substrate super lattice</p>
-<blockquote class="last">
-<div>vectors to determine if the super lattices are the nearly same
-and therefore coincident - get_equiv_transformations</div></blockquote>
+<blockquote>
+<div><p>vectors to determine if the super lattices are the nearly same
+and therefore coincident - get_equiv_transformations</p>
+</div></blockquote>
 </dd>
-<dt>Intialize a Zur Super Lattice Generator for a specific film and</dt>
-<dd>substrate</dd>
+<dt>Intialize a Zur Super Lattice Generator for a specific film and</dt><dd><p>substrate</p>
+</dd>
 </dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>max_area_ratio_tol</strong> (<em>float</em>) – Max tolerance on ratio of
-super-lattices to consider equal</li>
-<li><strong>max_area</strong> (<em>float</em>) – max super lattice area to generate in search</li>
-<li><strong>max_length_tol</strong> – maximum length tolerance in checking if two
-vectors are of nearly the same length</li>
-<li><strong>max_angle_tol</strong> – maximum angle tolerance in checking of two sets
-of vectors have nearly the same angle between them</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_area_ratio_tol</strong> (<em>float</em>) – Max tolerance on ratio of
+super-lattices to consider equal</p></li>
+<li><p><strong>max_area</strong> (<em>float</em>) – max super lattice area to generate in search</p></li>
+<li><p><strong>max_length_tol</strong> – maximum length tolerance in checking if two
+vectors are of nearly the same length</p></li>
+<li><p><strong>max_angle_tol</strong> – maximum angle tolerance in checking of two sets
+of vectors have nearly the same angle between them</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.analysis.substrate_analyzer.ZSLGenerator.generate_sl_transformation_sets">
 <code class="descname">generate_sl_transformation_sets</code><span class="sig-paren">(</span><em>film_area</em>, <em>substrate_area</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/substrate_analyzer.html#ZSLGenerator.generate_sl_transformation_sets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.ZSLGenerator.generate_sl_transformation_sets" title="Permalink to this definition">¶</a></dt>
@@ -198,32 +178,27 @@ of vectors have nearly the same angle between them</li>
 area of the unit cell area for the film and substrate. The
 transformation sets map the film and substrate unit cells to super
 lattices with a maximum area</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>film_area</strong> (<em>int</em>) – the unit cell area for the film</li>
-<li><strong>substrate_area</strong> (<em>int</em>) – the unit cell area for the substrate</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>film_area</strong> (<em>int</em>) – the unit cell area for the film</p></li>
+<li><p><strong>substrate_area</strong> (<em>int</em>) – the unit cell area for the substrate</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
-<dt>a set of transformation_sets defined as:</dt>
-<dd><p class="first last">1.) the transformation matricies for the film to create a
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>a set of transformation_sets defined as:</dt><dd><p>1.) the transformation matricies for the film to create a
 super lattice of area i*film area
 2.) the tranformation matricies for the substrate to create
 a super lattice of area j*film area</p>
 </dd>
 </dl>
 </p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">transformation_sets</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>transformation_sets</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -232,25 +207,21 @@ a super lattice of area j*film area</p>
 <dd><p>Applies the transformation_sets to the film and substrate vectors
 to generate super-lattices and checks if they matches.
 Returns all matching vectors sets.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>transformation_sets</strong> (<em>array</em>) – an array of transformation sets:
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>transformation_sets</strong> (<em>array</em>) – an array of transformation sets:
 each transformation set is an array with the (i,j)
 indicating the area multipes of the film and subtrate it
 corresponds to, an array with all possible transformations
 for the film area multiple i and another array for the
-substrate area multiple j.</li>
-<li><strong>film_vectors</strong> (<em>array</em>) – film vectors to generate super lattices</li>
-<li><strong>substrate_vectors</strong> (<em>array</em>) – substrate vectors to generate super
-lattices</li>
+substrate area multiple j.</p></li>
+<li><p><strong>film_vectors</strong> (<em>array</em>) – film vectors to generate super lattices</p></li>
+<li><p><strong>substrate_vectors</strong> (<em>array</em>) – substrate vectors to generate super
+lattices</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -258,36 +229,28 @@ lattices</li>
 <code class="descname">is_same_vectors</code><span class="sig-paren">(</span><em>vec_set1</em>, <em>vec_set2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/substrate_analyzer.html#ZSLGenerator.is_same_vectors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.ZSLGenerator.is_same_vectors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine if two sets of vectors are the same within length and angle
 tolerances</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>vec_set1</strong> (<em>array</em><em>[</em><em>array</em><em>]</em>) – an array of two vectors</li>
-<li><strong>vec_set2</strong> (<em>array</em><em>[</em><em>array</em><em>]</em>) – second array of two vectors</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vec_set1</strong> (<em>array</em><em>[</em><em>array</em><em>]</em>) – an array of two vectors</p></li>
+<li><p><strong>vec_set2</strong> (<em>array</em><em>[</em><em>array</em><em>]</em>) – second array of two vectors</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.substrate_analyzer.ZSLGenerator.match_as_dict">
 <code class="descname">match_as_dict</code><span class="sig-paren">(</span><em>film_sl_vectors</em>, <em>substrate_sl_vectors</em>, <em>film_vectors</em>, <em>substrate_vectors</em>, <em>match_area</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/substrate_analyzer.html#ZSLGenerator.match_as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.ZSLGenerator.match_as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns dict which contains ZSL match</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>film_miller</strong> (<em>array</em>) – </li>
-<li><strong>substrate_miller</strong> (<em>array</em>) – </li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>film_miller</strong> (<em>array</em>) – </p></li>
+<li><p><strong>substrate_miller</strong> (<em>array</em>) – </p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -306,25 +269,21 @@ vectors into a super lattice of integer area multiple as proven
 in Cassels:</p>
 <p>Cassels, John William Scott. An introduction to the geometry of
 numbers. Springer Science &amp; Business Media, 2012.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>area_multiple</strong> (<em>int</em>) – integer multiple of unit cell area for super</li>
-<li><strong>area</strong> (<em>lattice</em>) – </li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>area_multiple</strong> (<em>int</em>) – integer multiple of unit cell area for super</p></li>
+<li><p><strong>area</strong> (<em>lattice</em>) – </p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">transformation matricies to covert unit vectors to
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>transformation matricies to covert unit vectors to
 super lattice vectors</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">matrix_list</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>matrix_list</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -344,18 +303,14 @@ methodology of Zur and McGill</p>
 <dt id="pymatgen.analysis.substrate_analyzer.rel_angle">
 <code class="descname">rel_angle</code><span class="sig-paren">(</span><em>vec_set1</em>, <em>vec_set2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/substrate_analyzer.html#rel_angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.rel_angle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the relative angle between two vector sets</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>vec_set1</strong> (<em>array</em><em>[</em><em>array</em><em>]</em>) – an array of two vectors</li>
-<li><strong>vec_set2</strong> (<em>array</em><em>[</em><em>array</em><em>]</em>) – second array of two vectors</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vec_set1</strong> (<em>array</em><em>[</em><em>array</em><em>]</em>) – an array of two vectors</p></li>
+<li><p><strong>vec_set2</strong> (<em>array</em><em>[</em><em>array</em><em>]</em>) – second array of two vectors</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -397,8 +352,6 @@ methodology of Zur and McGill</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -416,13 +369,13 @@ methodology of Zur and McGill</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.wulff module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.wulff module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -73,12 +71,11 @@ surface energy (Jm^2) is the length of normal.</p>
 <p>Wulff shape is the convex hull.
 Based on:
 <a class="reference external" href="http://scipy.github.io/devdocs/generated/scipy.spatial.ConvexHull.html">http://scipy.github.io/devdocs/generated/scipy.spatial.ConvexHull.html</a></p>
-<dl class="docutils">
-<dt>Process:</dt>
-<dd><ol class="first last arabic simple">
-<li>get wulff simplices</li>
-<li>label with color</li>
-<li>get wulff_area and other properties</li>
+<dl class="simple">
+<dt>Process:</dt><dd><ol class="arabic simple">
+<li><p>get wulff simplices</p></li>
+<li><p>label with color</p></li>
+<li><p>get wulff_area and other properties</p></li>
 </ol>
 </dd>
 </dl>
@@ -203,49 +200,29 @@ Based on:
 <code class="descname">($hkl$): area for all input_miller</code></dt>
 <dd></dd></dl>
 
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>lattice</strong> – Lattice object of the conventional unit cell</li>
-<li><strong>miller_list</strong> (<em>[</em><em>(</em><em>hkl</em>) – list of hkl or hkil for hcp</li>
-<li><strong>e_surf_list</strong> (<em>[</em><em>float</em><em>]</em>) – list of corresponding surface energies</li>
-<li><strong>symprec</strong> (<em>float</em>) – for recp_operation, default is 1e-5.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lattice</strong> – Lattice object of the conventional unit cell</p></li>
+<li><p><strong>miller_list</strong> (<em>[</em><em>(</em><em>hkl</em>) – list of hkl or hkil for hcp</p></li>
+<li><p><strong>e_surf_list</strong> (<em>[</em><em>float</em><em>]</em>) – list of corresponding surface energies</p></li>
+<li><p><strong>symprec</strong> (<em>float</em>) – for recp_operation, default is 1e-5.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.analysis.wulff.WulffShape.anisotropy">
 <code class="descname">anisotropy</code><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.anisotropy" title="Permalink to this definition">¶</a></dt>
-<dd><p>(float) Coefficient of Variation from weighted surface energy
+<dd><p>Returns:
+(float) Coefficient of Variation from weighted surface energy
 The ideal sphere is 0.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">Returns</td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.wulff.WulffShape.area_fraction_dict">
 <code class="descname">area_fraction_dict</code><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.area_fraction_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>{hkl: area_hkl/total area on wulff}</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">Returns</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Type:</th><td class="field-body">(dict)</td>
-</tr>
-</tbody>
-</table>
+<dd><p>Returns:
+(dict): {hkl: area_hkl/total area on wulff}</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -253,14 +230,11 @@ The ideal sphere is 0.</p>
 <code class="descname">effective_radius</code><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.effective_radius" title="Permalink to this definition">¶</a></dt>
 <dd><p>Radius of the Wulffshape when the
 Wulffshape is approximated as a sphere.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(float) radius.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(float) radius.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -273,63 +247,53 @@ Wulffshape is approximated as a sphere.</p>
 <dt id="pymatgen.analysis.wulff.WulffShape.get_plot">
 <code class="descname">get_plot</code><span class="sig-paren">(</span><em>color_set='PuBu'</em>, <em>grid_off=True</em>, <em>axis_off=True</em>, <em>show_area=False</em>, <em>alpha=1</em>, <em>off_color='red'</em>, <em>direction=None</em>, <em>bar_pos=(0.75</em>, <em>0.15</em>, <em>0.05</em>, <em>0.65)</em>, <em>bar_on=False</em>, <em>units_in_JPERM2=True</em>, <em>legend_on=True</em>, <em>aspect_ratio=(8</em>, <em>8)</em>, <em>custom_colors={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/wulff.html#WulffShape.get_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.get_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the Wulff shape plot.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>color_set</strong> – default is ‘PuBu’</li>
-<li><strong>grid_off</strong> (<em>bool</em>) – default is True</li>
-<li><strong>axis_off</strong> (<em>bool</em>) – default is Ture</li>
-<li><strong>show_area</strong> (<em>bool</em>) – default is False</li>
-<li><strong>alpha</strong> (<em>float</em>) – chosen from 0 to 1 (float), default is 1</li>
-<li><strong>off_color</strong> – Default color for facets not present on the Wulff shape.</li>
-<li><strong>direction</strong> – default is (1, 1, 1)</li>
-<li><strong>bar_pos</strong> – default is [0.75, 0.15, 0.05, 0.65]</li>
-<li><strong>bar_on</strong> (<em>bool</em>) – default is False</li>
-<li><strong>legend_on</strong> (<em>bool</em>) – default is True</li>
-<li><strong>aspect_ratio</strong> – default is (8, 8)</li>
-<li><strong>(</strong><strong>{</strong><strong>(</strong><strong>h</strong><strong>,</strong><strong>k</strong><strong>,</strong><strong>l}</strong> (<em>custom_colors</em>) – [r,g,b,alpha}): Customize color of each
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>color_set</strong> – default is ‘PuBu’</p></li>
+<li><p><strong>grid_off</strong> (<em>bool</em>) – default is True</p></li>
+<li><p><strong>axis_off</strong> (<em>bool</em>) – default is Ture</p></li>
+<li><p><strong>show_area</strong> (<em>bool</em>) – default is False</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – chosen from 0 to 1 (float), default is 1</p></li>
+<li><p><strong>off_color</strong> – Default color for facets not present on the Wulff shape.</p></li>
+<li><p><strong>direction</strong> – default is (1, 1, 1)</p></li>
+<li><p><strong>bar_pos</strong> – default is [0.75, 0.15, 0.05, 0.65]</p></li>
+<li><p><strong>bar_on</strong> (<em>bool</em>) – default is False</p></li>
+<li><p><strong>legend_on</strong> (<em>bool</em>) – default is True</p></li>
+<li><p><strong>aspect_ratio</strong> – default is (8, 8)</p></li>
+<li><p><strong>(</strong><strong>{</strong><strong>(</strong><strong>h</strong><strong>,</strong><strong>k</strong><strong>,</strong><strong>l}</strong> (<em>custom_colors</em>) – [r,g,b,alpha}): Customize color of each
 facet with a dictionary. The key is the corresponding Miller
 index and value is the color. Undefined facets will use default
 color site. Note: If you decide to set your own colors, it
-probably won’t make any sense to have the color bar on.</li>
+probably won’t make any sense to have the color bar on.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(matplotlib.pyplot)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(matplotlib.pyplot)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.wulff.WulffShape.miller_area_dict">
 <code class="descname">miller_area_dict</code><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.miller_area_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>area_hkl on wulff}</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">Returns {hkl</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns {hkl</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.wulff.WulffShape.miller_energy_dict">
 <code class="descname">miller_energy_dict</code><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.miller_energy_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>surface energy_hkl}</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">Returns {hkl</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns {hkl</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -339,33 +303,27 @@ probably won’t make any sense to have the color bar on.</li>
 A large shape factor indicates great anisotropy.
 See Ballufi, R. W., Allen, S. M. &amp; Carter, W. C. Kinetics</p>
 <blockquote>
-<div>of Materials. (John Wiley &amp; Sons, 2005), p.461</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(float) Shape factor.</td>
-</tr>
-</tbody>
-</table>
+<div><p>of Materials. (John Wiley &amp; Sons, 2005), p.461</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(float) Shape factor.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.wulff.WulffShape.show">
 <code class="descname">show</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/wulff.html#WulffShape.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.show" title="Permalink to this definition">¶</a></dt>
 <dd><p>Show the Wulff plot.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>*args</strong> – Passed to get_plot.</li>
-<li><strong>**kwargs</strong> – Passed to get_plot.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>*args</strong> – Passed to get_plot.</p></li>
+<li><p><strong>**kwargs</strong> – Passed to get_plot.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -392,14 +350,11 @@ Useful for identifying catalytically active sites.</p>
 <dt id="pymatgen.analysis.wulff.WulffShape.total_surface_energy">
 <code class="descname">total_surface_energy</code><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.total_surface_energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Total surface energy of the Wulff shape.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(float) sum(surface_energy_hkl * area_hkl)</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(float) sum(surface_energy_hkl * area_hkl)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -411,15 +366,8 @@ Useful for identifying catalytically active sites.</p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.wulff.WulffShape.weighted_surface_energy">
 <code class="descname">weighted_surface_energy</code><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.weighted_surface_energy" title="Permalink to this definition">¶</a></dt>
-<dd><p>sum(surface_energy_hkl * area_hkl)/ sum(area_hkl)</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">Returns</td>
-</tr>
-</tbody>
-</table>
+<dd><p>Returns:
+sum(surface_energy_hkl * area_hkl)/ sum(area_hkl)</p>
 </dd></dl>
 
 </dd></dl>
@@ -429,14 +377,11 @@ Useful for identifying catalytically active sites.</p>
 <code class="descname">get_tri_area</code><span class="sig-paren">(</span><em>pts</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/wulff.html#get_tri_area"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.wulff.get_tri_area" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a list of coords for 3 points,
 Compute the area of this triangle.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pts</strong> – [a, b, c] three points</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pts</strong> – [a, b, c] three points</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -446,7 +391,8 @@ Compute the area of this triangle.</p>
 “(hkl)” for surfaces
 Agrs:</p>
 <blockquote>
-<div>hkl: in the form of [h, k, l] or (h, k, l)</div></blockquote>
+<div><p>hkl: in the form of [h, k, l] or (h, k, l)</p>
+</div></blockquote>
 </dd></dl>
 
 </div>
@@ -470,8 +416,6 @@ Agrs:</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -489,13 +433,13 @@ Agrs:</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

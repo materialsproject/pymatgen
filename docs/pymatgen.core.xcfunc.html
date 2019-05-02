@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.xcfunc module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.core.xcfunc module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -55,34 +53,34 @@
 Client code usually creates the object by calling the class methods:</p>
 <blockquote>
 <div><ul class="simple">
-<li>from_name</li>
-<li>from_type_name</li>
+<li><p>from_name</p></li>
+<li><p>from_type_name</p></li>
 </ul>
 </div></blockquote>
 <p>or code-specific methods such as:</p>
 <blockquote>
 <div><ul class="simple">
-<li>from_abinit_ixc</li>
+<li><p>from_abinit_ixc</p></li>
 </ul>
 </div></blockquote>
 <p>Ax XcFunc instance is hashable and can therefore be used as key in dictionaries.</p>
 <p>The implementation is based on the libxc conventions
 and is inspired to the XML specification for atomic PAW datasets documented at:</p>
 <blockquote>
-<div><a class="reference external" href="https://wiki.fysik.dtu.dk/gpaw/setups/pawxml.html">https://wiki.fysik.dtu.dk/gpaw/setups/pawxml.html</a></div></blockquote>
+<div><p><a class="reference external" href="https://wiki.fysik.dtu.dk/gpaw/setups/pawxml.html">https://wiki.fysik.dtu.dk/gpaw/setups/pawxml.html</a></p>
+</div></blockquote>
 <p>For convenience, part of the pawxml documentation is reported here.</p>
 <p>The xc_functional element defines the exchange-correlation functional used for
 generating the dataset. It has the two attributes type and name.</p>
 <p>The type attribute can be LDA, GGA, MGGA or HYB.
 The name attribute designates the exchange-correlation functional
 and can be specified in the following ways:</p>
-<dl class="docutils">
-<dt>[1] Taking the names from the LibXC library. The correlation and exchange names</dt>
-<dd><p class="first">are stripped from their <a href="#id1"><span class="problematic" id="id2">XC_</span></a> part and combined with a + sign.
+<dl>
+<dt>[1] Taking the names from the LibXC library. The correlation and exchange names</dt><dd><p>are stripped from their <a href="#id1"><span class="problematic" id="id2">XC_</span></a> part and combined with a + sign.
 Here is an example for an LDA functional:</p>
 <p>&lt;xc_functional type=”LDA”, name=”LDA_X+LDA_C_PW”/&gt;</p>
 <p>and this is what PBE will look like:</p>
-<p class="last">&lt;xc_functional type=”GGA”, name=”GGA_X_PBE+GGA_C_PBE”/&gt;</p>
+<p>&lt;xc_functional type=”GGA”, name=”GGA_X_PBE+GGA_C_PBE”/&gt;</p>
 </dd>
 </dl>
 <p>[2] Using one of the following pre-defined aliases:</p>
@@ -95,18 +93,14 @@ GGA     revPBE  GGA_X_PBE_R+GGA_C_PBE        Zhang, Yang, PRL 80, 890 (1998)
 GGA     PBEsol  GGA_X_PBE_SOL+GGA_C_PBE_SOL  Perdew et al, PRL 100, 136406 (2008)
 GGA     AM05    GGA_X_AM05+GGA_C_AM05        Armiento, Mattsson, PRB 72, 085108 (2005)
 GGA     BLYP    GGA_X_B88+GGA_C_LYP          Becke, PRA 38, 3098 (1988); Lee, Yang, Parr, PRB 37, 785</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>xc</strong> – LibxcFunc for XC functional.</li>
-<li><strong>c</strong> (<em>x</em><em>,</em>) – LibxcFunc for exchange and correlation part. Mutually exclusive with xc.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xc</strong> – LibxcFunc for XC functional.</p></li>
+<li><p><strong>c</strong> (<em>x</em><em>,</em>) – LibxcFunc for exchange and correlation part. Mutually exclusive with xc.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.core.xcfunc.XcFunc.abinitixc_to_libxc">
 <code class="descname">abinitixc_to_libxc</code><em class="property"> = {1: {'xc': &lt;LibxcFunc.LDA_XC_TETER93: 20&gt;}, 2: {'c': &lt;LibxcFunc.LDA_C_PZ: 9&gt;, 'x': &lt;LibxcFunc.LDA_X: 1&gt;}, 4: {'c': &lt;LibxcFunc.LDA_C_WIGNER: 2&gt;, 'x': &lt;LibxcFunc.LDA_X: 1&gt;}, 5: {'c': &lt;LibxcFunc.LDA_C_HL: 4&gt;, 'x': &lt;LibxcFunc.LDA_X: 1&gt;}, 7: {'c': &lt;LibxcFunc.LDA_C_PW: 12&gt;, 'x': &lt;LibxcFunc.LDA_X: 1&gt;}, 11: {'c': &lt;LibxcFunc.GGA_C_PBE: 130&gt;, 'x': &lt;LibxcFunc.GGA_X_PBE: 101&gt;}, 14: {'c': &lt;LibxcFunc.GGA_C_PBE: 130&gt;, 'x': &lt;LibxcFunc.GGA_X_PBE_R: 102&gt;}, 15: {'c': &lt;LibxcFunc.GGA_C_PBE: 130&gt;, 'x': &lt;LibxcFunc.GGA_X_RPBE: 117&gt;}}</em><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.abinitixc_to_libxc" title="Permalink to this definition">¶</a></dt>
@@ -195,8 +189,6 @@ the string has the form X_NAME+C_NAME</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -214,13 +206,13 @@ the string has the form X_NAME+C_NAME</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

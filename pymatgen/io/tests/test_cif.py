@@ -876,6 +876,73 @@ loop_
             self.assertIn("Some fractional co-ordinates rounded to ideal values to "
                           "avoid finite precision errors.", p.errors)
 
+    def test_empty_deque(self):
+        s = """data_1526655
+_journal_name_full
+_space_group_IT_number           227
+_symmetry_space_group_name_Hall  'F 4d 2 3 -1d'
+_symmetry_space_group_name_H-M   'F d -3 m :1'
+_cell_angle_alpha                90
+_cell_angle_beta                 90
+_cell_angle_gamma                90
+_cell_formula_units_Z            8
+_cell_length_a                   5.381
+_cell_length_b                   5.381
+_cell_length_c                   5.381
+_cell_volume                     155.808
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_U_iso_or_equiv
+Si1 Si 0 0 0 1 0.0
+_iucr_refine_fcf_details
+;
+data_symmetries
+loop_
+  _space_group_symop_id
+  _space_group_symop_operation_xyz
+  1  x,y,z
+  2  -x+1/2,y+1/2,-z+1/2
+  3  -x,-y,-z
+  4  x-1/2,-y-1/2,z-1/2
+;"""
+        p = CifParser.from_string(s)
+        self.assertEqual(p.get_structures()[0].formula, "Si1")
+        cif = """
+data_1526655
+_journal_name_full
+_space_group_IT_number           227
+_symmetry_space_group_name_Hall  'F 4d 2 3 -1d'
+_symmetry_space_group_name_H-M   'F d -3 m :1'
+_cell_angle_alpha                90
+_cell_angle_beta                 90
+_cell_angle_gamma                90
+_cell_formula_units_Z            8
+_cell_length_a                   5.381
+_cell_length_b                   5.381
+_cell_length_c                   5.381
+_cell_volume                     155.808
+_iucr_refine_fcf_details
+;
+data_symmetries
+Some arbitrary multiline string
+;
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_U_iso_or_equiv
+Si1 Si 0 0 0 1 0.0
+"""
+        parser = CifParser.from_string(cif)
+        self.assertEqual(p.get_structures()[0].formula, "Si1")
 
 class MagCifTest(PymatgenTest):
 

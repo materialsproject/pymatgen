@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.units module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.core.units module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -75,14 +73,11 @@ leftmost quantity).</p>
 <dt id="pymatgen.core.units.ArrayWithUnit.as_base_units">
 <code class="descname">as_base_units</code><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit.as_base_units" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns this ArrayWithUnit in base SI units, including derived units.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An ArrayWithUnit object in base SI units</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>An ArrayWithUnit object in base SI units</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -102,16 +97,14 @@ Useful tool in interactive mode.</p>
 <dt id="pymatgen.core.units.ArrayWithUnit.to">
 <code class="descname">to</code><span class="sig-paren">(</span><em>new_unit</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/units.html#ArrayWithUnit.to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit.to" title="Permalink to this definition">¶</a></dt>
 <dd><p>Conversion to a new_unit.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_unit</strong> – New unit type.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A ArrayWithFloatWithUnit object in the new units.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>new_unit</strong> – New unit type.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A ArrayWithFloatWithUnit object in the new units.</p>
+</dd>
+</dl>
 <p>Example usage:
 &gt;&gt;&gt; e = EnergyArray([1, 1.1], “Ha”)
 &gt;&gt;&gt; e.to(“eV”)
@@ -134,37 +127,29 @@ array([ 27.21138386,  29.93252225]) eV</p>
 <dt id="pymatgen.core.units.Charge">
 <code class="descname">Charge</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.FloatWithUnit'&gt;, unit_type='charge')</em><a class="headerlink" href="#pymatgen.core.units.Charge" title="Permalink to this definition">¶</a></dt>
 <dd><p>A float with a charge unit.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>val</strong> (<em>float</em>) – Value</li>
-<li><strong>unit</strong> (<a class="reference internal" href="#pymatgen.core.units.Unit" title="pymatgen.core.units.Unit"><em>Unit</em></a>) – E.g., C, e (electron charge). Must be valid unit or UnitError
-is raised.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>val</strong> (<em>float</em>) – Value</p></li>
+<li><p><strong>unit</strong> (<a class="reference internal" href="#pymatgen.core.units.Unit" title="pymatgen.core.units.Unit"><em>Unit</em></a>) – E.g., C, e (electron charge). Must be valid unit or UnitError
+is raised.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="data">
 <dt id="pymatgen.core.units.Energy">
 <code class="descname">Energy</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.FloatWithUnit'&gt;, unit_type='energy')</em><a class="headerlink" href="#pymatgen.core.units.Energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>A float with an energy unit.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>val</strong> (<em>float</em>) – Value</li>
-<li><strong>unit</strong> (<a class="reference internal" href="#pymatgen.core.units.Unit" title="pymatgen.core.units.Unit"><em>Unit</em></a>) – E.g., eV, kJ, etc. Must be valid unit or UnitError is raised.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>val</strong> (<em>float</em>) – Value</p></li>
+<li><p><strong>unit</strong> (<a class="reference internal" href="#pymatgen.core.units.Unit" title="pymatgen.core.units.Unit"><em>Unit</em></a>) – E.g., eV, kJ, etc. Must be valid unit or UnitError is raised.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="class">
@@ -191,19 +176,15 @@ are expected.</p>
 </pre></div>
 </div>
 <p>Initializes a float with unit.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>val</strong> (<em>float</em>) – Value</li>
-<li><strong>unit</strong> (<a class="reference internal" href="#pymatgen.core.units.Unit" title="pymatgen.core.units.Unit"><em>Unit</em></a>) – A unit. E.g., “C”.</li>
-<li><strong>unit_type</strong> (<em>str</em>) – A type of unit. E.g., “charge”</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>val</strong> (<em>float</em>) – Value</p></li>
+<li><p><strong>unit</strong> (<a class="reference internal" href="#pymatgen.core.units.Unit" title="pymatgen.core.units.Unit"><em>Unit</em></a>) – A unit. E.g., “C”.</p></li>
+<li><p><strong>unit_type</strong> (<em>str</em>) – A type of unit. E.g., “charge”</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.core.units.FloatWithUnit.Error">
 <code class="descname">Error</code><a class="headerlink" href="#pymatgen.core.units.FloatWithUnit.Error" title="Permalink to this definition">¶</a></dt>
@@ -214,14 +195,11 @@ are expected.</p>
 <dt id="pymatgen.core.units.FloatWithUnit.as_base_units">
 <code class="descname">as_base_units</code><a class="headerlink" href="#pymatgen.core.units.FloatWithUnit.as_base_units" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns this FloatWithUnit in base SI units, including derived units.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A FloatWithUnit object in base SI units</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A FloatWithUnit object in base SI units</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
@@ -241,16 +219,14 @@ are expected.</p>
 <code class="descname">to</code><span class="sig-paren">(</span><em>new_unit</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/units.html#FloatWithUnit.to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.FloatWithUnit.to" title="Permalink to this definition">¶</a></dt>
 <dd><p>Conversion to a new_unit. Right now, only supports 1 to 1 mapping of
 units of each type.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_unit</strong> – New unit type.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A FloatWithUnit object in the new units.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>new_unit</strong> – New unit type.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A FloatWithUnit object in the new units.</p>
+</dd>
+</dl>
 <p>Example usage:
 &gt;&gt;&gt; e = Energy(1.1, “eV”)
 &gt;&gt;&gt; e = Energy(1.1, “Ha”)
@@ -274,94 +250,74 @@ units of each type.</p>
 <dt id="pymatgen.core.units.Length">
 <code class="descname">Length</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.FloatWithUnit'&gt;, unit_type='length')</em><a class="headerlink" href="#pymatgen.core.units.Length" title="Permalink to this definition">¶</a></dt>
 <dd><p>A float with a length unit.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>val</strong> (<em>float</em>) – Value</li>
-<li><strong>unit</strong> (<a class="reference internal" href="#pymatgen.core.units.Unit" title="pymatgen.core.units.Unit"><em>Unit</em></a>) – E.g., m, ang, bohr, etc. Must be valid unit or UnitError is
-raised.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>val</strong> (<em>float</em>) – Value</p></li>
+<li><p><strong>unit</strong> (<a class="reference internal" href="#pymatgen.core.units.Unit" title="pymatgen.core.units.Unit"><em>Unit</em></a>) – E.g., m, ang, bohr, etc. Must be valid unit or UnitError is
+raised.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="data">
 <dt id="pymatgen.core.units.Mass">
 <code class="descname">Mass</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.FloatWithUnit'&gt;, unit_type='mass')</em><a class="headerlink" href="#pymatgen.core.units.Mass" title="Permalink to this definition">¶</a></dt>
 <dd><p>A float with a mass unit.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>val</strong> (<em>float</em>) – Value</li>
-<li><strong>unit</strong> (<a class="reference internal" href="#pymatgen.core.units.Unit" title="pymatgen.core.units.Unit"><em>Unit</em></a>) – E.g., amu, kg, etc. Must be valid unit or UnitError is
-raised.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>val</strong> (<em>float</em>) – Value</p></li>
+<li><p><strong>unit</strong> (<a class="reference internal" href="#pymatgen.core.units.Unit" title="pymatgen.core.units.Unit"><em>Unit</em></a>) – E.g., amu, kg, etc. Must be valid unit or UnitError is
+raised.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="data">
 <dt id="pymatgen.core.units.Memory">
 <code class="descname">Memory</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.FloatWithUnit'&gt;, unit_type='memory')</em><a class="headerlink" href="#pymatgen.core.units.Memory" title="Permalink to this definition">¶</a></dt>
 <dd><p>A float with a memory unit.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>val</strong> (<em>float</em>) – Value</li>
-<li><strong>unit</strong> (<a class="reference internal" href="#pymatgen.core.units.Unit" title="pymatgen.core.units.Unit"><em>Unit</em></a>) – E.g., Kb, Mb, Gb, Tb. Must be valid unit or UnitError
-is raised.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>val</strong> (<em>float</em>) – Value</p></li>
+<li><p><strong>unit</strong> (<a class="reference internal" href="#pymatgen.core.units.Unit" title="pymatgen.core.units.Unit"><em>Unit</em></a>) – E.g., Kb, Mb, Gb, Tb. Must be valid unit or UnitError
+is raised.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="data">
 <dt id="pymatgen.core.units.Temp">
 <code class="descname">Temp</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.FloatWithUnit'&gt;, unit_type='temperature')</em><a class="headerlink" href="#pymatgen.core.units.Temp" title="Permalink to this definition">¶</a></dt>
 <dd><p>A float with a temperature unit.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>val</strong> (<em>float</em>) – Value</li>
-<li><strong>unit</strong> (<a class="reference internal" href="#pymatgen.core.units.Unit" title="pymatgen.core.units.Unit"><em>Unit</em></a>) – E.g., K. Only K (kelvin) is supported.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>val</strong> (<em>float</em>) – Value</p></li>
+<li><p><strong>unit</strong> (<a class="reference internal" href="#pymatgen.core.units.Unit" title="pymatgen.core.units.Unit"><em>Unit</em></a>) – E.g., K. Only K (kelvin) is supported.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="data">
 <dt id="pymatgen.core.units.Time">
 <code class="descname">Time</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.FloatWithUnit'&gt;, unit_type='time')</em><a class="headerlink" href="#pymatgen.core.units.Time" title="Permalink to this definition">¶</a></dt>
 <dd><p>A float with a time unit.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>val</strong> (<em>float</em>) – Value</li>
-<li><strong>unit</strong> (<a class="reference internal" href="#pymatgen.core.units.Unit" title="pymatgen.core.units.Unit"><em>Unit</em></a>) – E.g., s, min, h. Must be valid unit or UnitError is
-raised.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>val</strong> (<em>float</em>) – Value</p></li>
+<li><p><strong>unit</strong> (<a class="reference internal" href="#pymatgen.core.units.Unit" title="pymatgen.core.units.Unit"><em>Unit</em></a>) – E.g., s, min, h. Must be valid unit or UnitError is
+raised.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="class">
@@ -371,18 +327,15 @@ raised.</li>
 <p>Represents a unit, e.g., “m” for meters, etc. Supports compound units.
 Only integer powers are supported for units.</p>
 <p>Constructs a unit.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>unit_def</strong> – A definition for the unit. Either a mapping of unit to
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>unit_def</strong> – A definition for the unit. Either a mapping of unit to
 powers, e.g., {“m”: 2, “s”: -1} represents “m^2 s^-1”,
 or simply as a string “kg m^2 s^-1”. Note that the supported
 format uses “^” as the power operator and all units must be
-space-separated.</td>
-</tr>
-</tbody>
-</table>
+space-separated.</p>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.core.units.Unit.Error">
 <code class="descname">Error</code><a class="headerlink" href="#pymatgen.core.units.Unit.Error" title="Permalink to this definition">¶</a></dt>
@@ -393,15 +346,12 @@ space-separated.</td>
 <dt id="pymatgen.core.units.Unit.as_base_units">
 <code class="descname">as_base_units</code><a class="headerlink" href="#pymatgen.core.units.Unit.as_base_units" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts all units to base SI units, including derived units.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(base_units_dict, scaling factor). base_units_dict will not
-contain any constants, which are gathered in the scaling factor.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(base_units_dict, scaling factor). base_units_dict will not
+contain any constants, which are gathered in the scaling factor.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -410,14 +360,11 @@ contain any constants, which are gathered in the scaling factor.</td>
 <dd><p>Returns a conversion factor between this unit and a new unit.
 Compound units are supported, but must have the same powers in each
 unit type.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_unit</strong> – The new unit.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>new_unit</strong> – The new unit.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -448,14 +395,11 @@ The SI units must have factor 1.</p>
 <dd><p>Returns a <cite>FloatWithUnit</cite> instance if obj is scalar, a dictionary of
 objects with units if obj is a dict, else an instance of
 <cite>ArrayWithFloatWithUnit</cite>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>unit</strong> – Specific units (eV, Ha, m, ang, etc.).</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>unit</strong> – Specific units (eV, Ha, m, ang, etc.).</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -467,14 +411,11 @@ a FloatWithUnit or ArrayWithUnit. For sequences, all values in the sequences
 are assigned the same unit. It works with Python sequences only. The creation
 of numpy arrays loses all unit information. For mapping types, the values
 are assigned units.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>unit</strong> – Specific unit (eV, Ha, m, ang, etc.).</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>unit</strong> – Specific unit (eV, Ha, m, ang, etc.).</p>
+</dd>
+</dl>
 <p>Example usage:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@unitized</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s2">&quot;kg&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">get_mass</span><span class="p">():</span>
@@ -504,8 +445,6 @@ are assigned units.</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -523,13 +462,13 @@ are assigned units.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

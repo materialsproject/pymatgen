@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.zeopp module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.io.zeopp module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -54,44 +52,37 @@
 input CSSR format. The coordinate system is rorated from xyz to zyx.
 This change aligns the pivot axis of pymatgen (z-axis) to pivot axis
 of Zeo++ (x-axis) for structurural modifications.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> – A structure to create ZeoCssr object</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>structure</strong> – A structure to create ZeoCssr object</p>
+</dd>
+</dl>
 <dl class="staticmethod">
 <dt id="pymatgen.io.zeopp.ZeoCssr.from_file">
 <em class="property">static </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/zeopp.html#ZeoCssr.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeopp.ZeoCssr.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads a CSSR file to a ZeoCssr object.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – Filename to read from.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">ZeoCssr object.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> – Filename to read from.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>ZeoCssr object.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="pymatgen.io.zeopp.ZeoCssr.from_string">
 <em class="property">static </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/zeopp.html#ZeoCssr.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeopp.ZeoCssr.from_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads a string representation to a ZeoCssr object.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>string</strong> – A string representation of a ZeoCSSR.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">ZeoCssr object.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>string</strong> – A string representation of a ZeoCSSR.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>ZeoCssr object.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -103,28 +94,23 @@ of Zeo++ (x-axis) for structurural modifications.</p>
 <p>Class to read Voronoi Nodes from XYZ file written by Zeo++.
 The sites have an additional column representing the voronoi node radius.
 The voronoi node radius is represented by the site property voronoi_radius.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mol</strong> – Input molecule holding the voronoi node information</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>mol</strong> – Input molecule holding the voronoi node information</p>
+</dd>
+</dl>
 <dl class="staticmethod">
 <dt id="pymatgen.io.zeopp.ZeoVoronoiXYZ.from_file">
 <em class="property">static </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/zeopp.html#ZeoVoronoiXYZ.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeopp.ZeoVoronoiXYZ.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates XYZ object from a file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – XYZ filename</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">XYZ object</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> – XYZ filename</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>XYZ object</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="staticmethod">
@@ -132,16 +118,14 @@ The voronoi node radius is represented by the site property voronoi_radius.</p>
 <em class="property">static </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>contents</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/zeopp.html#ZeoVoronoiXYZ.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeopp.ZeoVoronoiXYZ.from_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates Zeo++ Voronoi XYZ object from a string.
 from_string method of XYZ class is being redefined.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>contents</strong> – String representing Zeo++ Voronoi XYZ file.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">ZeoVoronoiXYZ object</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>contents</strong> – String representing Zeo++ Voronoi XYZ file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>ZeoVoronoiXYZ object</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -151,29 +135,25 @@ from_string method of XYZ class is being redefined.</p>
 <code class="descname">get_free_sphere_params</code><span class="sig-paren">(</span><em>structure</em>, <em>rad_dict=None</em>, <em>probe_rad=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/zeopp.html#get_free_sphere_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeopp.get_free_sphere_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Analyze the void space in the input structure using voronoi decomposition
 Calls Zeo++ for Voronoi decomposition.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> – pymatgen.core.structure.Structure</li>
-<li><strong>rad_dict</strong> (<em>optional</em>) – Dictionary of radii of elements in structure.
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – pymatgen.core.structure.Structure</p></li>
+<li><p><strong>rad_dict</strong> (<em>optional</em>) – Dictionary of radii of elements in structure.
 If not given, Zeo++ default values are used.
 Note: Zeo++ uses atomic radii of elements.
-For ionic structures, pass rad_dict with ionic radii</li>
-<li><strong>probe_rad</strong> (<em>optional</em>) – Sampling probe radius in Angstroms. Default is
-0.1 A</li>
+For ionic structures, pass rad_dict with ionic radii</p></li>
+<li><p><strong>probe_rad</strong> (<em>optional</em>) – Sampling probe radius in Angstroms. Default is
+0.1 A</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">voronoi nodes as pymatgen.core.structure.Strucutre within the
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>voronoi nodes as pymatgen.core.structure.Strucutre within the
 unit cell defined by the lattice of input structure
 voronoi face centers as pymatgen.core.structure.Strucutre within the
 unit cell defined by the lattice of input structure</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -182,29 +162,25 @@ unit cell defined by the lattice of input structure</p>
 <dd><p>Analyze the void space in the input structure using high accuracy
 voronoi decomposition.
 Calls Zeo++ for Voronoi decomposition.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> – pymatgen.core.structure.Structure</li>
-<li><strong>rad_dict</strong> (<em>optional</em>) – Dictionary of radii of elements in structure.
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – pymatgen.core.structure.Structure</p></li>
+<li><p><strong>rad_dict</strong> (<em>optional</em>) – Dictionary of radii of elements in structure.
 If not given, Zeo++ default values are used.
 Note: Zeo++ uses atomic radii of elements.
-For ionic structures, pass rad_dict with ionic radii</li>
-<li><strong>probe_rad</strong> (<em>optional</em>) – Sampling probe radius in Angstroms.
-Default is 0.1 A</li>
+For ionic structures, pass rad_dict with ionic radii</p></li>
+<li><p><strong>probe_rad</strong> (<em>optional</em>) – Sampling probe radius in Angstroms.
+Default is 0.1 A</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">voronoi nodes as pymatgen.core.structure.Strucutre within the
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>voronoi nodes as pymatgen.core.structure.Strucutre within the
 unit cell defined by the lattice of input structure
 voronoi face centers as pymatgen.core.structure.Strucutre within the
 unit cell defined by the lattice of input structure</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -212,27 +188,23 @@ unit cell defined by the lattice of input structure</p>
 <code class="descname">get_void_volume_surfarea</code><span class="sig-paren">(</span><em>structure</em>, <em>rad_dict=None</em>, <em>chan_rad=0.3</em>, <em>probe_rad=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/zeopp.html#get_void_volume_surfarea"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeopp.get_void_volume_surfarea" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes the volume and surface area of isolated void using Zeo++.
 Useful to compute the volume and surface area of vacant site.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> – pymatgen Structure containing vacancy</li>
-<li><strong>rad_dict</strong> (<em>optional</em>) – Dictionary with short name of elements and their
-radii.</li>
-<li><strong>chan_rad</strong> (<em>optional</em>) – Minimum channel Radius.</li>
-<li><strong>probe_rad</strong> (<em>optional</em>) – Probe radius for Monte Carlo sampling.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – pymatgen Structure containing vacancy</p></li>
+<li><p><strong>rad_dict</strong> (<em>optional</em>) – Dictionary with short name of elements and their
+radii.</p></li>
+<li><p><strong>chan_rad</strong> (<em>optional</em>) – Minimum channel Radius.</p></li>
+<li><p><strong>probe_rad</strong> (<em>optional</em>) – Probe radius for Monte Carlo sampling.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">floating number representing the volume of void</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">volume</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>floating number representing the volume of void</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>volume</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -240,29 +212,25 @@ radii.</li>
 <code class="descname">get_voronoi_nodes</code><span class="sig-paren">(</span><em>structure</em>, <em>rad_dict=None</em>, <em>probe_rad=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/zeopp.html#get_voronoi_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeopp.get_voronoi_nodes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Analyze the void space in the input structure using voronoi decomposition
 Calls Zeo++ for Voronoi decomposition.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> – pymatgen.core.structure.Structure</li>
-<li><strong>rad_dict</strong> (<em>optional</em>) – Dictionary of radii of elements in structure.
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – pymatgen.core.structure.Structure</p></li>
+<li><p><strong>rad_dict</strong> (<em>optional</em>) – Dictionary of radii of elements in structure.
 If not given, Zeo++ default values are used.
 Note: Zeo++ uses atomic radii of elements.
-For ionic structures, pass rad_dict with ionic radii</li>
-<li><strong>probe_rad</strong> (<em>optional</em>) – Sampling probe radius in Angstroms. Default is
-0.1 A</li>
+For ionic structures, pass rad_dict with ionic radii</p></li>
+<li><p><strong>probe_rad</strong> (<em>optional</em>) – Sampling probe radius in Angstroms. Default is
+0.1 A</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">voronoi nodes as pymatgen.core.structure.Strucutre within the
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>voronoi nodes as pymatgen.core.structure.Strucutre within the
 unit cell defined by the lattice of input structure
 voronoi face centers as pymatgen.core.structure.Strucutre within the
 unit cell defined by the lattice of input structure</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -286,8 +254,6 @@ unit cell defined by the lattice of input structure</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -305,13 +271,13 @@ unit cell defined by the lattice of input structure</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.lammps.data module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.io.lammps.data module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -55,14 +53,11 @@
 <dt id="pymatgen.io.lammps.data.ForceField.masses">
 <code class="descname">masses</code><a class="headerlink" href="#pymatgen.io.lammps.data.ForceField.masses" title="Permalink to this definition">¶</a></dt>
 <dd><p>DataFrame for Masses section.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">pandas.DataFrame</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -70,47 +65,39 @@
 <code class="descname">force_field</code><a class="headerlink" href="#pymatgen.io.lammps.data.ForceField.force_field" title="Permalink to this definition">¶</a></dt>
 <dd><p>Force field section keywords (keys) and
 data (values) as DataFrames.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">dict</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.lammps.data.ForceField.maps">
 <code class="descname">maps</code><a class="headerlink" href="#pymatgen.io.lammps.data.ForceField.maps" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dict for labeling atoms and topologies.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">dict</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
 </dd></dl>
 
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>mass_into</strong> (<em>list</em>) – List of atomic mass info. Elements,
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mass_into</strong> (<em>list</em>) – List of atomic mass info. Elements,
 strings (symbols) and floats are all acceptable for the
 values, with the first two converted to the atomic mass
 of an element. It is recommended to use
 OrderedDict.items() to prevent key duplications.
-[(“C”, 12.01), (“H”, Element(“H”)), (“O”, “O”), …]</li>
-<li><strong>[</strong><strong>coeffs</strong><strong>]</strong> (<em>nonbond_coeffs</em>) – List of pair or pairij
+[(“C”, 12.01), (“H”, Element(“H”)), (“O”, “O”), …]</p></li>
+<li><p><strong>[</strong><strong>coeffs</strong><strong>]</strong> (<em>nonbond_coeffs</em>) – List of pair or pairij
 coefficients, of which the sequence must be sorted
 according to the species in mass_dict. Pair or PairIJ
 determined by the length of list. Optional with default
-to None.</li>
-<li><strong>topo_coeffs</strong> (<em>dict</em>) – <p>Dict with force field coefficients for
+to None.</p></li>
+<li><p><strong>topo_coeffs</strong> (<em>dict</em>) – <p>Dict with force field coefficients for
 molecular topologies. Optional with default
 to None. All four valid keys listed below are optional.
 Each value is a list of dicts with non optional keys
@@ -118,32 +105,28 @@ Each value is a list of dicts with non optional keys
 keywords as optional keys.
 {</p>
 <blockquote>
-<div><dl class="docutils">
-<dt>”Bond Coeffs”:</dt>
-<dd><dl class="first last docutils">
-<dt>[{“coeffs”: [coeff],</dt>
-<dd>”types”: [(“C”, “C”), …]}, …],</dd>
+<div><dl class="simple">
+<dt>”Bond Coeffs”:</dt><dd><dl class="simple">
+<dt>[{“coeffs”: [coeff],</dt><dd><p>”types”: [(“C”, “C”), …]}, …],</p>
+</dd>
 </dl>
 </dd>
-<dt>”Angle Coeffs”:</dt>
-<dd><dl class="first last docutils">
-<dt>[{“coeffs”: [coeff],</dt>
-<dd>”BondBond Coeffs”: [coeff],
-“types”: [(“H”, “C”, “H”), …]}, …],</dd>
+<dt>”Angle Coeffs”:</dt><dd><dl class="simple">
+<dt>[{“coeffs”: [coeff],</dt><dd><p>”BondBond Coeffs”: [coeff],
+“types”: [(“H”, “C”, “H”), …]}, …],</p>
+</dd>
 </dl>
 </dd>
-<dt>”Dihedral Coeffs”:</dt>
-<dd><dl class="first last docutils">
-<dt>[{“coeffs”: [coeff],</dt>
-<dd>”BondBond13 Coeffs”: [coeff],
-“types”: [(“H”, “C”, “C”, “H”), …]}, …],</dd>
+<dt>”Dihedral Coeffs”:</dt><dd><dl class="simple">
+<dt>[{“coeffs”: [coeff],</dt><dd><p>”BondBond13 Coeffs”: [coeff],
+“types”: [(“H”, “C”, “C”, “H”), …]}, …],</p>
+</dd>
 </dl>
 </dd>
-<dt>”Improper Coeffs”:</dt>
-<dd><dl class="first last docutils">
-<dt>[{“coeffs”: [coeff],</dt>
-<dd>”AngleAngle Coeffs”: [coeff],
-“types”: [(“H”, “C”, “C”, “H”), …]}, …],</dd>
+<dt>”Improper Coeffs”:</dt><dd><dl class="simple">
+<dt>[{“coeffs”: [coeff],</dt><dd><p>”AngleAngle Coeffs”: [coeff],
+“types”: [(“H”, “C”, “C”, “H”), …]}, …],</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -152,12 +135,10 @@ keywords as optional keys.
 Topology of same type or equivalent types (e.g.,
 (“C”, “H”) and (“H”, “C”) bonds) are NOT ALLOWED to
 be defined MORE THAN ONCE with DIFFERENT coefficients.</p>
-</li>
+</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="classmethod">
 <dt id="pymatgen.io.lammps.data.ForceField.from_dict">
 <em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#ForceField.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.ForceField.from_dict" title="Permalink to this definition">¶</a></dt>
@@ -167,28 +148,22 @@ be defined MORE THAN ONCE with DIFFERENT coefficients.</p>
 <dt id="pymatgen.io.lammps.data.ForceField.from_file">
 <em class="property">classmethod </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#ForceField.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.ForceField.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor that reads in a file in YAML format.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) – Filename.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Filename.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.lammps.data.ForceField.to_file">
 <code class="descname">to_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#ForceField.to_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.ForceField.to_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Saves object to a file in YAML format.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) – Filename.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Filename.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -198,40 +173,32 @@ be defined MORE THAN ONCE with DIFFERENT coefficients.</p>
 <em class="property">class </em><code class="descname">LammpsBox</code><span class="sig-paren">(</span><em>bounds</em>, <em>tilt=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsBox"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsBox" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Object for representing a simulation box in LAMMPS settings.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>bounds</strong> – A (3, 2) array/list of floats setting the
-boundaries of simulation box.</li>
-<li><strong>tilt</strong> – A (3,) array/list of floats setting the tilt of
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bounds</strong> – A (3, 2) array/list of floats setting the
+boundaries of simulation box.</p></li>
+<li><p><strong>tilt</strong> – A (3,) array/list of floats setting the tilt of
 simulation box. Default to None, i.e., use an
-orthogonal box.</li>
+orthogonal box.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.lammps.data.LammpsBox.get_box_shift">
 <code class="descname">get_box_shift</code><span class="sig-paren">(</span><em>i</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsBox.get_box_shift"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsBox.get_box_shift" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the coordinate shift due to PBC.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>i</strong> – A (n, 3) integer array containing the labels for box</li>
-<li><strong>of n entries.</strong> (<em>images</em>) – </li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>i</strong> – A (n, 3) integer array containing the labels for box</p></li>
+<li><p><strong>of n entries.</strong> (<em>images</em>) – </p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Coorindate shift array with the same shape of i</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Coorindate shift array with the same shape of i</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -239,17 +206,15 @@ orthogonal box.</li>
 <code class="descname">get_string</code><span class="sig-paren">(</span><em>significant_figures=6</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsBox.get_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsBox.get_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the string representation of simulation box in LAMMPS
 data file format.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>significant_figures</strong> (<em>int</em>) – No. of significant figures to
-output for box settings. Default to 6.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">String representation</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>significant_figures</strong> (<em>int</em>) – No. of significant figures to
+output for box settings. Default to 6.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>String representation</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -258,14 +223,11 @@ output for box settings. Default to 6.</td>
 <dd><p>Converts the simulation box to a more powerful Lattice backend.
 Note that Lattice is always periodic in 3D space while a
 simulation box is not necessarily periodic in all dimensions.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Lattice</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Lattice</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -284,33 +246,29 @@ simulation box is not necessarily periodic in all dimensions.</p>
 <p>This is a low level constructor designed to work with parsed
 data or other bridging objects (ForceField and Topology). Not
 recommended to use directly.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>box</strong> (<a class="reference internal" href="#pymatgen.io.lammps.data.LammpsBox" title="pymatgen.io.lammps.data.LammpsBox"><em>LammpsBox</em></a>) – Simulation box.</li>
-<li><strong>masses</strong> (<em>pandas.DataFrame</em>) – DataFrame with one column
-[“mass”] for Masses section.</li>
-<li><strong>atoms</strong> (<em>pandas.DataFrame</em>) – DataFrame with multiple columns
-for Atoms section. Column names vary with atom_style.</li>
-<li><strong>velocities</strong> (<em>pandas.DataFrame</em>) – DataFrame with three columns
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>box</strong> (<a class="reference internal" href="#pymatgen.io.lammps.data.LammpsBox" title="pymatgen.io.lammps.data.LammpsBox"><em>LammpsBox</em></a>) – Simulation box.</p></li>
+<li><p><strong>masses</strong> (<em>pandas.DataFrame</em>) – DataFrame with one column
+[“mass”] for Masses section.</p></li>
+<li><p><strong>atoms</strong> (<em>pandas.DataFrame</em>) – DataFrame with multiple columns
+for Atoms section. Column names vary with atom_style.</p></li>
+<li><p><strong>velocities</strong> (<em>pandas.DataFrame</em>) – DataFrame with three columns
 [“vx”, “vy”, “vz”] for Velocities section. Optional
 with default to None. If not None, its index should be
-consistent with atoms.</li>
-<li><strong>force_field</strong> (<em>dict</em>) – Data for force field sections. Optional
+consistent with atoms.</p></li>
+<li><p><strong>force_field</strong> (<em>dict</em>) – Data for force field sections. Optional
 with default to None. Only keywords in force field and
 class 2 force field are valid keys, and each value is a
-DataFrame.</li>
-<li><strong>topology</strong> (<em>dict</em>) – Data for topology sections. Optional with
+DataFrame.</p></li>
+<li><p><strong>topology</strong> (<em>dict</em>) – Data for topology sections. Optional with
 default to None. Only keywords in topology are valid
-keys, and each value is a DataFrame.</li>
-<li><strong>atom_style</strong> (<em>str</em>) – Output atom_style. Default to “full”.</li>
+keys, and each value is a DataFrame.</p></li>
+<li><p><strong>atom_style</strong> (<em>str</em>) – Output atom_style. Default to “full”.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.lammps.data.LammpsData.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.as_dict" title="Permalink to this definition">¶</a></dt>
@@ -324,45 +282,41 @@ keys, and each value is a DataFrame.</li>
 (LammpsBox, ForceField and a series of Topology).
 RESTRICTIONS APPLIED:</p>
 <ol class="arabic simple">
-<li><dl class="first docutils">
-<dt>No complex force field defined not just on atom</dt>
-<dd>types, where the same type or equivalent types of topology
-may have more than one set of coefficients.</dd>
+<li><dl class="simple">
+<dt>No complex force field defined not just on atom</dt><dd><p>types, where the same type or equivalent types of topology
+may have more than one set of coefficients.</p>
+</dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt>No intermolecular topologies (with atoms from different</dt>
-<dd>molecule-ID) since a Topology object includes data for ONE
-molecule or structure only.</dd>
+<li><dl class="simple">
+<dt>No intermolecular topologies (with atoms from different</dt><dd><p>molecule-ID) since a Topology object includes data for ONE
+molecule or structure only.</p>
+</dd>
 </dl>
 </li>
 </ol>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>atom_labels</strong> (<em>[</em><em>str</em><em>]</em>) – List of strings (must be different
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>atom_labels</strong> (<em>[</em><em>str</em><em>]</em>) – List of strings (must be different
 from one another) for labelling each atom type found in
 Masses section. Default to None, where the labels are
 automaticaly added based on either element guess or
-dummy specie assignment.</li>
-<li><strong>guess_element</strong> (<em>bool</em>) – Whether to guess the element based on
+dummy specie assignment.</p></li>
+<li><p><strong>guess_element</strong> (<em>bool</em>) – Whether to guess the element based on
 its atomic mass. Default to True, otherwise dummy
 species “Qa”, “Qb”, … will be assigned to various
 atom types. The guessed or assigned elements will be
 reflected on atom labels if atom_labels is None, as
-well as on the species of molecule in each Topology.</li>
-<li><strong>ff_label</strong> (<em>str</em>) – Site property key for labeling atoms of
-different types. Default to “ff_map”.</li>
+well as on the species of molecule in each Topology.</p></li>
+<li><p><strong>ff_label</strong> (<em>str</em>) – Site property key for labeling atoms of
+different types. Default to “ff_map”.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">LammpsBox, ForceField, [Topology]</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>LammpsBox, ForceField, [Topology]</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
@@ -377,42 +331,34 @@ different types. Default to “ff_map”.</li>
 list of Topology objects. Do not support intermolecular
 topologies since a Topology object includes data for ONE
 molecule or structure only.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>box</strong> (<a class="reference internal" href="#pymatgen.io.lammps.data.LammpsBox" title="pymatgen.io.lammps.data.LammpsBox"><em>LammpsBox</em></a>) – Simulation box.</li>
-<li><strong>ff</strong> (<a class="reference internal" href="#pymatgen.io.lammps.data.ForceField" title="pymatgen.io.lammps.data.ForceField"><em>ForceField</em></a>) – ForceField object with data for Masses and
-force field sections.</li>
-<li><strong>topologies</strong> (<em>[</em><a class="reference internal" href="#pymatgen.io.lammps.data.Topology" title="pymatgen.io.lammps.data.Topology"><em>Topology</em></a><em>]</em>) – List of Topology objects with data
-for Atoms, Velocities and topology sections.</li>
-<li><strong>atom_style</strong> (<em>str</em>) – Output atom_style. Default to “full”.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>box</strong> (<a class="reference internal" href="#pymatgen.io.lammps.data.LammpsBox" title="pymatgen.io.lammps.data.LammpsBox"><em>LammpsBox</em></a>) – Simulation box.</p></li>
+<li><p><strong>ff</strong> (<a class="reference internal" href="#pymatgen.io.lammps.data.ForceField" title="pymatgen.io.lammps.data.ForceField"><em>ForceField</em></a>) – ForceField object with data for Masses and
+force field sections.</p></li>
+<li><p><strong>topologies</strong> (<em>[</em><a class="reference internal" href="#pymatgen.io.lammps.data.Topology" title="pymatgen.io.lammps.data.Topology"><em>Topology</em></a><em>]</em>) – List of Topology objects with data
+for Atoms, Velocities and topology sections.</p></li>
+<li><p><strong>atom_style</strong> (<em>str</em>) – Output atom_style. Default to “full”.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
 <dt id="pymatgen.io.lammps.data.LammpsData.from_file">
 <em class="property">classmethod </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em>, <em>atom_style='full'</em>, <em>sort_id=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor that parses a file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> (<em>str</em>) – Filename to read.</li>
-<li><strong>atom_style</strong> (<em>str</em>) – Associated atom_style. Default to “full”.</li>
-<li><strong>sort_id</strong> (<em>bool</em>) – Whether sort each section by id. Default to
-True.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – Filename to read.</p></li>
+<li><p><strong>atom_style</strong> (<em>str</em>) – Associated atom_style. Default to “full”.</p></li>
+<li><p><strong>sort_id</strong> (<em>bool</em>) – Whether sort each section by id. Default to
+True.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
@@ -420,22 +366,18 @@ True.</li>
 <em class="property">classmethod </em><code class="descname">from_structure</code><span class="sig-paren">(</span><em>structure</em>, <em>ff_elements=None</em>, <em>atom_style='charge'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.from_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.from_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Simple constructor building LammpsData from a structure without
 force field parameters and topologies.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure.</li>
-<li><strong>ff_elements</strong> (<em>[</em><em>str</em><em>]</em>) – List of strings of elements that must
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure.</p></li>
+<li><p><strong>ff_elements</strong> (<em>[</em><em>str</em><em>]</em>) – List of strings of elements that must
 be present due to force field settings but not
-necessarily in the structure. Default to None.</li>
-<li><strong>atom_style</strong> (<em>str</em>) – Choose between “atomic” (neutral) and</li>
-<li><strong>&quot;charge&quot;</strong> (<em>charged</em>) – </li>
+necessarily in the structure. Default to None.</p></li>
+<li><p><strong>atom_style</strong> (<em>str</em>) – Choose between “atomic” (neutral) and</p></li>
+<li><p><strong>&quot;charge&quot;</strong> (<em>charged</em>) – </p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -443,26 +385,22 @@ necessarily in the structure. Default to None.</li>
 <code class="descname">get_string</code><span class="sig-paren">(</span><em>distance=6</em>, <em>velocity=8</em>, <em>charge=3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.get_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.get_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the string representation of LammpsData, essentially
 the string to be written to a file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>distance</strong> (<em>int</em>) – No. of significant figures to output for
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>distance</strong> (<em>int</em>) – No. of significant figures to output for
 box settings (bounds and tilt) and atomic coordinates.
-Default to 6.</li>
-<li><strong>velocity</strong> (<em>int</em>) – No. of significant figures to output for
-velocities. Default to 8.</li>
-<li><strong>charge</strong> (<em>int</em>) – No. of significant figures to output for
-charges. Default to 3.</li>
+Default to 6.</p></li>
+<li><p><strong>velocity</strong> (<em>int</em>) – No. of significant figures to output for
+velocities. Default to 8.</p></li>
+<li><p><strong>charge</strong> (<em>int</em>) – No. of significant figures to output for
+charges. Default to 3.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">String representation</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>String representation</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -470,38 +408,31 @@ charges. Default to 3.</li>
 <code class="descname">structure</code><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Exports a periodic structure object representing the simulation
 box.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Structure</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Structure</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.lammps.data.LammpsData.write_file">
 <code class="descname">write_file</code><span class="sig-paren">(</span><em>filename</em>, <em>distance=6</em>, <em>velocity=8</em>, <em>charge=3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.write_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes LammpsData to file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> (<em>str</em>) – Filename.</li>
-<li><strong>distance</strong> (<em>int</em>) – No. of significant figures to output for
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – Filename.</p></li>
+<li><p><strong>distance</strong> (<em>int</em>) – No. of significant figures to output for
 box settings (bounds and tilt) and atomic coordinates.
-Default to 6.</li>
-<li><strong>velocity</strong> (<em>int</em>) – No. of significant figures to output for
-velocities. Default to 8.</li>
-<li><strong>charge</strong> (<em>int</em>) – No. of significant figures to output for
-charges. Default to 3.</li>
+Default to 6.</p></li>
+<li><p><strong>velocity</strong> (<em>int</em>) – No. of significant figures to output for
+velocities. Default to 8.</p></li>
+<li><p><strong>charge</strong> (<em>int</em>) – No. of significant figures to output for
+charges. Default to 3.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -513,40 +444,37 @@ charges. Default to 3.</li>
 <p>Class carrying most data in Atoms, Velocities and molecular
 topology sections for ONE SINGLE Molecule or Structure
 object, or a plain list of Sites.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>sites</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a><em>] or </em><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection" title="pymatgen.core.structure.SiteCollection"><em>SiteCollection</em></a>) – A group of sites in a
-list or as a Molecule/Structure.</li>
-<li><strong>ff_label</strong> (<em>str</em>) – Site property key for labeling atoms of
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sites</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a><em>] or </em><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection" title="pymatgen.core.structure.SiteCollection"><em>SiteCollection</em></a>) – A group of sites in a
+list or as a Molecule/Structure.</p></li>
+<li><p><strong>ff_label</strong> (<em>str</em>) – Site property key for labeling atoms of
 different types. Default to None, i.e., use
-site.species_string.</li>
-<li><strong>charges</strong> (<em>[</em><em>q</em><em>, </em><em>..</em><em>]</em>) – Charge of each site in a (n,)
+site.species_string.</p></li>
+<li><p><strong>charges</strong> (<em>[</em><em>q</em><em>, </em><em>..</em><em>]</em>) – Charge of each site in a (n,)
 array/list, where n is the No. of sites. Default to
-None, i.e., search site property for charges.</li>
-<li><strong>velocities</strong> (<em>[</em><em>[</em><em>vx</em><em>, </em><em>vy</em><em>, </em><em>vz</em><em>]</em><em>, </em><em>..</em><em>]</em>) – Velocity of each site in
+None, i.e., search site property for charges.</p></li>
+<li><p><strong>velocities</strong> (<em>[</em><em>[</em><em>vx</em><em>, </em><em>vy</em><em>, </em><em>vz</em><em>]</em><em>, </em><em>..</em><em>]</em>) – Velocity of each site in
 a (n, 3) array/list, where n is the No. of sites.
 Default to None, i.e., search site property for
-velocities.</li>
-<li><strong>topologies</strong> (<em>dict</em>) – <p>Bonds, angles, dihedrals and improper
+velocities.</p></li>
+<li><p><strong>topologies</strong> (<em>dict</em>) – <p>Bonds, angles, dihedrals and improper
 dihedrals defined by site indices. Default to None,
 i.e., no additional topology. All four valid keys
 listed below are optional.
 {</p>
 <blockquote>
-<div>”Bonds”: [[i, j], …],
+<div><p>”Bonds”: [[i, j], …],
 “Angles”: [[i, j, k], …],
 “Dihedrals”: [[i, j, k, l], …],
-“Impropers”: [[i, j, k, l], …]</div></blockquote>
+“Impropers”: [[i, j, k, l], …]</p>
+</div></blockquote>
 <p>}</p>
-</li>
+</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="classmethod">
 <dt id="pymatgen.io.lammps.data.Topology.from_bonding">
 <em class="property">classmethod </em><code class="descname">from_bonding</code><span class="sig-paren">(</span><em>molecule</em>, <em>bond=True</em>, <em>angle=True</em>, <em>dihedral=True</em>, <em>tol=0.1</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#Topology.from_bonding"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.Topology.from_bonding" title="Permalink to this definition">¶</a></dt>
@@ -554,24 +482,20 @@ listed below are optional.
 Covalent bonds and other bond-based topologies (angles and
 dihedrals) can be automatically determined. Cannot be used for
 non bond-based topologies, e.g., improper dihedrals.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>molecule</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) – Input molecule.</li>
-<li><strong>bond</strong> (<em>bool</em>) – Whether find bonds. If set to False, angle and
-dihedral searching will be skipped. Default to True.</li>
-<li><strong>angle</strong> (<em>bool</em>) – Whether find angles. Default to True.</li>
-<li><strong>dihedral</strong> (<em>bool</em>) – Whether find dihedrals. Default to True.</li>
-<li><strong>tol</strong> (<em>float</em>) – Bond distance tolerance. Default to 0.1.
-Not recommended to alter.</li>
-<li><strong>**kwargs</strong> – Other kwargs supported by Topology.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>molecule</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) – Input molecule.</p></li>
+<li><p><strong>bond</strong> (<em>bool</em>) – Whether find bonds. If set to False, angle and
+dihedral searching will be skipped. Default to True.</p></li>
+<li><p><strong>angle</strong> (<em>bool</em>) – Whether find angles. Default to True.</p></li>
+<li><p><strong>dihedral</strong> (<em>bool</em>) – Whether find dihedrals. Default to True.</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – Bond distance tolerance. Default to 0.1.
+Not recommended to alter.</p></li>
+<li><p><strong>**kwargs</strong> – Other kwargs supported by Topology.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -581,22 +505,18 @@ Not recommended to alter.</li>
 <code class="descname">lattice_2_lmpbox</code><span class="sig-paren">(</span><em>lattice</em>, <em>origin=(0</em>, <em>0</em>, <em>0)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#lattice_2_lmpbox"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.lattice_2_lmpbox" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts a lattice object to LammpsBox, and calculates the symmetry
 operation used.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>lattice</strong> (<a class="reference internal" href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><em>Lattice</em></a>) – Input lattice.</li>
-<li><strong>origin</strong> – A (3,) array/list of floats setting lower bounds of
-simulation box. Default to (0, 0, 0).</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lattice</strong> (<a class="reference internal" href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><em>Lattice</em></a>) – Input lattice.</p></li>
+<li><p><strong>origin</strong> – A (3,) array/list of floats setting lower bounds of
+simulation box. Default to (0, 0, 0).</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">LammpsBox, SymmOp</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>LammpsBox, SymmOp</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -620,8 +540,6 @@ simulation box. Default to (0, 0, 0).</li>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -639,13 +557,13 @@ simulation box. Default to (0, 0, 0).</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

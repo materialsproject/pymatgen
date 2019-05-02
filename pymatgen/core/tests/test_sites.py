@@ -223,6 +223,8 @@ class PeriodicSiteTest(PymatgenTest):
 
         site.frac_coords = [0, 0, 0.1]
         self.assertArrayAlmostEqual(site.coords, [0, 0, 10])
+        site.coords = [1.5, 3.25, 5]
+        self.assertArrayAlmostEqual(site.frac_coords, [0.015, 0.0325, 0.05])
 
     def test_repr(self):
         self.assertEqual(self.propertied_site.__repr__(), "PeriodicSite: Fe2+ (2.5000, 3.5000, 4.5000) [0.2500, 0.3500, 0.4500]")

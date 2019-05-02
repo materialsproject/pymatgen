@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.command_line.enumlib_caller &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.command_line.enumlib_caller &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.2.28 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.5.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -234,7 +232,7 @@
                 <span class="n">ordered_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sites</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">sp_label</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="n">species</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">species_and_occu</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+                <span class="n">species</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
                 <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">species</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">EnumlibAdaptor</span><span class="o">.</span><span class="n">amount_tol</span><span class="p">:</span>
                     <span class="c1"># Let us first make add a dummy element for every single</span>
                     <span class="c1"># site whose total occupancies don&#39;t sum to 1.</span>
@@ -414,7 +412,7 @@
                         <span class="n">site_properties</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="p">]</span>
             <span class="n">ordered_structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span>
                 <span class="n">original_latt</span><span class="p">,</span>
-                <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">species_and_occu</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordered_sites</span><span class="p">],</span>
+                <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">species</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordered_sites</span><span class="p">],</span>
                 <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordered_sites</span><span class="p">],</span>
                 <span class="n">site_properties</span><span class="o">=</span><span class="n">site_properties</span>
             <span class="p">)</span>
@@ -440,18 +438,20 @@
                                       <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">transformation</span><span class="p">]</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Supercell matrix: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">transformation</span><span class="p">))</span>
                     <span class="n">s</span> <span class="o">=</span> <span class="n">ordered_structure</span> <span class="o">*</span> <span class="n">transformation</span>
-                    <span class="n">sites</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">site</span><span class="o">.</span><span class="n">to_unit_cell</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">s</span><span class="p">])</span>
+                    <span class="n">sites</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">site</span><span class="o">.</span><span class="n">to_unit_cell</span><span class="p">()</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">s</span><span class="p">])</span>
                     <span class="n">super_latt</span> <span class="o">=</span> <span class="n">sites</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lattice</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">super_latt</span> <span class="o">=</span> <span class="n">new_latt</span>
 
                 <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">sub_structure</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span> <span class="o">!=</span> <span class="s2">&quot;X&quot;</span><span class="p">:</span>  <span class="c1"># We exclude vacancies.</span>
-                        <span class="n">sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PeriodicSite</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">,</span>
-                                                  <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
-                                                  <span class="n">super_latt</span><span class="p">,</span>
-                                                  <span class="n">properties</span><span class="o">=</span><span class="n">disordered_site_properties</span><span class="p">)</span>
-                                     <span class="o">.</span><span class="n">to_unit_cell</span><span class="p">)</span>
+                        <span class="n">sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="n">PeriodicSite</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">species</span><span class="p">,</span>
+                                         <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
+                                         <span class="n">super_latt</span><span class="p">,</span>
+                                         <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                         <span class="n">properties</span><span class="o">=</span><span class="n">disordered_site_properties</span><span class="p">)</span>
+                        <span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Skipping sites that include species X.&quot;</span><span class="p">)</span>
                 <span class="n">structs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">sites</span><span class="p">)))</span>
@@ -475,8 +475,6 @@
     <form class="search" action="../../../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -494,7 +492,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.2.28 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.5.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -502,7 +500,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

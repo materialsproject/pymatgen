@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.magnetism.analyzer module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.magnetism.analyzer module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -62,34 +60,31 @@ kwarg. This can be:
 * “none” to do nothing,
 * “respect_sign” which will overwrite existing magmoms with</p>
 <blockquote>
-<div>those from default_magmoms but will keep sites with positive magmoms
-positive, negative magmoms negative and zero magmoms zero,</div></blockquote>
+<div><p>those from default_magmoms but will keep sites with positive magmoms
+positive, negative magmoms negative and zero magmoms zero,</p>
+</div></blockquote>
 <ul class="simple">
-<li>“respect_zeros”, which will give a ferromagnetic structure
+<li><p>“respect_zeros”, which will give a ferromagnetic structure
 (all positive magmoms from default_magmoms) but still keep sites with
-zero magmoms as zero,</li>
-<li>“replace_all” which will try to guess initial magmoms for
+zero magmoms as zero,</p></li>
+<li><p>“replace_all” which will try to guess initial magmoms for
 all sites in the structure irrespective of input structure
-(this is most suitable for an initial DFT calculation),</li>
-<li>“replace_all_if_undefined” is the same as “replace_all” but only if
+(this is most suitable for an initial DFT calculation),</p></li>
+<li><p>“replace_all_if_undefined” is the same as “replace_all” but only if
 no magmoms are defined in input structure, otherwise it will respect
-existing magmoms.</li>
-<li>“normalize” will normalize magmoms to unity, but will respect sign
-(used for comparing orderings), magmoms &lt; theshold will be set to zero</li>
+existing magmoms.</p></li>
+<li><p>“normalize” will normalize magmoms to unity, but will respect sign
+(used for comparing orderings), magmoms &lt; theshold will be set to zero</p></li>
 </ul>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> – Structure object</li>
-<li><strong>(</strong><strong>str</strong><strong>)</strong> (<em>overwrite_magmom_mode</em>) – default “none”</li>
-<li><strong>(</strong><strong>int</strong><strong> or </strong><strong>bool</strong><strong>)</strong> (<em>round_magmoms</em>) – will round input magmoms to</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – Structure object</p></li>
+<li><p><strong>(</strong><strong>str</strong><strong>)</strong> (<em>overwrite_magmom_mode</em>) – default “none”</p></li>
+<li><p><strong>(</strong><strong>int</strong><strong> or </strong><strong>bool</strong><strong>)</strong> (<em>round_magmoms</em>) – will round input magmoms to</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p>specified number of decimal places if integer is supplied, if set
 to a float will try and group magmoms together using a kernel density
 estimator of provided width, and extracting peaks of the estimator
@@ -115,21 +110,17 @@ absolute direction.</p>
 have zero magnetic moments), but defining symmetry this
 way is a useful way of keeping track of distinct magnetic
 orderings within pymatgen.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>symprec</strong> – same as SpacegroupAnalyzer</li>
-<li><strong>angle_tolerance</strong> – same as SpacegroupAnalyzer</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>symprec</strong> – same as SpacegroupAnalyzer</p></li>
+<li><p><strong>angle_tolerance</strong> – same as SpacegroupAnalyzer</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">spacegroup_symbol, international_number</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>spacegroup_symbol, international_number</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -186,14 +177,11 @@ of using magmom site properties.
 <dd><p>Returns a dict of magnetic species and the magnitude of
 their associated magmoms. Will return a set if there are
 multiple magmoms per species.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">dict of magnetic species and magmoms</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dict of magnetic species and magmoms</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -208,34 +196,27 @@ multiple magmoms per species.</p>
 <dt id="pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.number_of_magnetic_sites">
 <code class="descname">number_of_magnetic_sites</code><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.number_of_magnetic_sites" title="Permalink to this definition">¶</a></dt>
 <dd><p>Number of magnetic sites present in structure.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">return (int)</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return (int)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.number_of_unique_magnetic_sites">
 <code class="descname">number_of_unique_magnetic_sites</code><span class="sig-paren">(</span><em>symprec=0.001</em>, <em>angle_tolerance=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/magnetism/analyzer.html#CollinearMagneticStructureAnalyzer.number_of_unique_magnetic_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.number_of_unique_magnetic_sites" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>(</strong><strong>float</strong><strong>)</strong> (<em>angle_tolerance</em>) – same as in SpacegroupAnalyzer</li>
-<li><strong>(</strong><strong>float</strong><strong>)</strong> – same as in SpacegroupAnalyzer</li>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>float</strong><strong>)</strong> (<em>angle_tolerance</em>) – same as in SpacegroupAnalyzer</p></li>
+<li><p><strong>(</strong><strong>float</strong><strong>)</strong> – same as in SpacegroupAnalyzer</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return (int):</th><td class="field-body"><p class="first last">Number of symmetrically-distinct magnetic sites present</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Return (int)</dt>
+<dd class="field-even"><p>Number of symmetrically-distinct magnetic sites present</p>
+</dd>
+</dl>
 <p>in structure.</p>
 </dd></dl>
 
@@ -249,11 +230,6 @@ ferrimagnetic)</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.propagation_vector">
-<code class="descname">propagation_vector</code><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.propagation_vector" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
 <dt id="pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.types_of_magnetic_specie">
 <code class="descname">types_of_magnetic_specie</code><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.types_of_magnetic_specie" title="Permalink to this definition">¶</a></dt>
 <dd><p>Equivalent to Structure.types_of_specie but only returns
@@ -264,10 +240,50 @@ magnetic species.
 </dd></dl>
 
 <dl class="class">
-<dt id="pymatgen.analysis.magnetism.analyzer.MagneticOrderingEnumerationStrategy">
-<em class="property">class </em><code class="descname">MagneticOrderingEnumerationStrategy</code><a class="reference internal" href="_modules/pymatgen/analysis/magnetism/analyzer.html#MagneticOrderingEnumerationStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.MagneticOrderingEnumerationStrategy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
-<p>An enumeration.</p>
+<dt id="pymatgen.analysis.magnetism.analyzer.MagneticStructureEnumerator">
+<em class="property">class </em><code class="descname">MagneticStructureEnumerator</code><span class="sig-paren">(</span><em>structure</em>, <em>default_magmoms=None</em>, <em>strategies=('ferromagnetic'</em>, <em>'antiferromagnetic')</em>, <em>automatic=True</em>, <em>truncate_by_symmetry=True</em>, <em>transformation_kwargs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/magnetism/analyzer.html#MagneticStructureEnumerator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.MagneticStructureEnumerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Combines MagneticStructureAnalyzer and MagOrderingTransformation to
+automatically generate a set of transformations for a given structure
+and produce a list of plausible magnetic orderings.</p>
+<p>This class will try generated different collinear
+magnetic orderings for a given input structure.</p>
+<p>If the input structure has magnetic moments defined, it
+is possible to use these as a hint as to which elements are
+magnetic, otherwise magnetic elements will be guessed
+(this can be changed using default_magmoms kwarg).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – input structure</p></li>
+<li><p><strong>default_magmoms</strong> – (optional, defaults provided) dict of</p></li>
+</ul>
+</dd>
+</dl>
+<p>magnetic elements to their initial magnetic moments in µB, generally
+these are chosen to be high-spin since they can relax to a low-spin
+configuration during a DFT electronic configuration</p>
+<blockquote>
+<div><p>strategies: different ordering strategies to use, choose from:</p>
+</div></blockquote>
+<p>ferromagnetic, antiferromagnetic, antiferromagnetic_by_motif,
+ferrimagnetic_by_motif and ferrimagnetic_by_species (here, “motif”,
+means to use a different ordering parameter for symmetry inequivalent
+sites)</p>
+<blockquote>
+<div><p>automatic: if True, will automatically choose sensible strategies
+truncate_by_symmetry: if True, will remove very unsymmetrical</p>
+</div></blockquote>
+<dl class="simple">
+<dt>orderings that are likely physically implausible</dt><dd><p>transformation_kwargs: keyword arguments to pass to</p>
+</dd>
+</dl>
+<p>MagOrderingTransformation, to change automatic cell size limits, etc.</p>
+<dl class="attribute">
+<dt id="pymatgen.analysis.magnetism.analyzer.MagneticStructureEnumerator.available_strategies">
+<code class="descname">available_strategies</code><em class="property"> = ('ferromagnetic', 'antiferromagnetic', 'ferrimagnetic_by_motif', 'ferrimagnetic_by_species', 'antiferromagnetic_by_motif', 'nonmagnetic')</em><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.MagneticStructureEnumerator.available_strategies" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -343,21 +359,17 @@ between ‘non-magnetic’ (non-spin-polarized) and
 ferromagnetic structures.</p>
 <p>Adapted from Bocarsly et al. 2017,
 doi: 10.1021/acs.chemmater.6b04729</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure_A</strong> – Structure</li>
-<li><strong>structure_B</strong> – Structure</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure_A</strong> – Structure</p></li>
+<li><p><strong>structure_B</strong> – Structure</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -381,8 +393,6 @@ doi: 10.1021/acs.chemmater.6b04729</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -400,13 +410,13 @@ doi: 10.1021/acs.chemmater.6b04729</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

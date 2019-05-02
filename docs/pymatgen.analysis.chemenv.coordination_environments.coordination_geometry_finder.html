@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -64,15 +62,13 @@ DOI: 10.1021/acs.chemmater.7b02766</p>
 :param centering_type: How to center the abstract geometry
 :param include_central_site_in_centroid: When the centering is on the centroid, the central site is included</p>
 <blockquote>
-<div>if this parameter is set to True.</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Raise:</th><td class="field-body">ValueError if the parameters are not consistent</td>
-</tr>
-</tbody>
-</table>
+<div><p>if this parameter is set to True.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Raise</dt>
+<dd class="field-odd"><p>ValueError if the parameters are not consistent</p>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.cn">
 <code class="descname">cn</code><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.cn" title="Permalink to this definition">¶</a></dt>
@@ -185,40 +181,37 @@ environments in the structure
 :param only_indices: If not set to None, will only compute environments the atoms of the given indices
 :param maximum_distance_factor: If not set to None, neighbors beyond</p>
 <blockquote>
-<div>maximum_distance_factor*closest_neighbor_distance are not considered</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>minimum_angle_factor</strong> – If not set to None, neighbors for which the angle is lower than
-minimum_angle_factor*largest_angle_neighbor are not considered</li>
-<li><strong>max_cn</strong> – maximum coordination number to be considered</li>
-<li><strong>min_cn</strong> – minimum coordination number to be considered</li>
-<li><strong>only_symbols</strong> – if not set to None, consider only coordination environments with the given symbols</li>
-<li><strong>valences</strong> – valences of the atoms</li>
-<li><strong>additional_conditions</strong> – additional conditions to be considered in the bonds (example : only bonds
-between cation and anion</li>
-<li><strong>info</strong> – additional info about the calculation</li>
-<li><strong>timelimit</strong> – time limit (in secs) after which the calculation of the StructureEnvironments object stops</li>
-<li><strong>initial_structure_environments</strong> – initial StructureEnvironments object (most probably incomplete)</li>
-<li><strong>get_from_hints</strong> – whether to add neighbors sets from “hints” (e.g. capped environment =&gt; test the
-neighbors without the cap)</li>
-<li><strong>voronoi_normalized_distance_tolerance</strong> – tolerance for the normalized distance used to distinguish
-neighbors sets</li>
-<li><strong>voronoi_normalized_angle_tolerance</strong> – tolerance for the normalized angle used to distinguish
-neighbors sets</li>
-<li><strong>recompute</strong> – whether to recompute the sites already computed (when initial_structure_environments
-is not None)</li>
-<li><strong>optimization</strong> – optimization algorithm</li>
+<div><p>maximum_distance_factor*closest_neighbor_distance are not considered</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>minimum_angle_factor</strong> – If not set to None, neighbors for which the angle is lower than
+minimum_angle_factor*largest_angle_neighbor are not considered</p></li>
+<li><p><strong>max_cn</strong> – maximum coordination number to be considered</p></li>
+<li><p><strong>min_cn</strong> – minimum coordination number to be considered</p></li>
+<li><p><strong>only_symbols</strong> – if not set to None, consider only coordination environments with the given symbols</p></li>
+<li><p><strong>valences</strong> – valences of the atoms</p></li>
+<li><p><strong>additional_conditions</strong> – additional conditions to be considered in the bonds (example : only bonds
+between cation and anion</p></li>
+<li><p><strong>info</strong> – additional info about the calculation</p></li>
+<li><p><strong>timelimit</strong> – time limit (in secs) after which the calculation of the StructureEnvironments object stops</p></li>
+<li><p><strong>initial_structure_environments</strong> – initial StructureEnvironments object (most probably incomplete)</p></li>
+<li><p><strong>get_from_hints</strong> – whether to add neighbors sets from “hints” (e.g. capped environment =&gt; test the
+neighbors without the cap)</p></li>
+<li><p><strong>voronoi_normalized_distance_tolerance</strong> – tolerance for the normalized distance used to distinguish
+neighbors sets</p></li>
+<li><p><strong>voronoi_normalized_angle_tolerance</strong> – tolerance for the normalized angle used to distinguish
+neighbors sets</p></li>
+<li><p><strong>recompute</strong> – whether to recompute the sites already computed (when initial_structure_environments
+is not None)</p></li>
+<li><p><strong>optimization</strong> – optimization algorithm</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The StructureEnvironments object containing all the information about the coordination</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The StructureEnvironments object containing all the information about the coordination</p>
+</dd>
+</dl>
 <p>environments in the structure</p>
 </dd></dl>
 
@@ -228,19 +221,19 @@ is not None)</li>
 <dd><p>Returns the symmetry measures of a given coordination_geometry for a set of permutations depending on
 the permutation setup. Depending on the parameters of the LocalGeometryFinder and on the coordination</p>
 <blockquote>
-<div>geometry, different methods are called.</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>coordination_geometry</strong> – Coordination geometry for which the symmetry measures are looked for</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the symmetry measures of a given coordination_geometry for a set of permutations</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raise:</th><td class="field-body">NotImplementedError if the permutation_setup does not exists</td>
-</tr>
-</tbody>
-</table>
+<div><p>geometry, different methods are called.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>coordination_geometry</strong> – Coordination geometry for which the symmetry measures are looked for</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the symmetry measures of a given coordination_geometry for a set of permutations</p>
+</dd>
+<dt class="field-odd">Raise</dt>
+<dd class="field-odd"><p>NotImplementedError if the permutation_setup does not exists</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -249,21 +242,17 @@ the permutation setup. Depending on the parameters of the LocalGeometryFinder an
 <dd><p>Returns the symmetry measures for a random set of permutations for the coordination geometry
 “coordination_geometry”. Fallback implementation for the plane separation algorithms measures
 of each permutation</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>coordination_geometry</strong> – The coordination geometry to be investigated</li>
-<li><strong>NRANDOM</strong> – Number of random permutations to be tested</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coordination_geometry</strong> – The coordination geometry to be investigated</p></li>
+<li><p><strong>NRANDOM</strong> – Number of random permutations to be tested</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The symmetry measures for the given coordination geometry for each permutation investigated</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The symmetry measures for the given coordination geometry for each permutation investigated</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -290,19 +279,19 @@ facets to reduce the complexity of the system. Caller to the refined 2POINTS, 3P
 <dd><p>Returns the symmetry measures of a given coordination_geometry for a set of permutations depending on
 the permutation setup. Depending on the parameters of the LocalGeometryFinder and on the coordination</p>
 <blockquote>
-<div>geometry, different methods are called.</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>coordination_geometry</strong> – Coordination geometry for which the symmetry measures are looked for</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the symmetry measures of a given coordination_geometry for a set of permutations</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raise:</th><td class="field-body">NotImplementedError if the permutation_setup does not exists</td>
-</tr>
-</tbody>
-</table>
+<div><p>geometry, different methods are called.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>coordination_geometry</strong> – Coordination geometry for which the symmetry measures are looked for</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the symmetry measures of a given coordination_geometry for a set of permutations</p>
+</dd>
+<dt class="field-odd">Raise</dt>
+<dd class="field-odd"><p>NotImplementedError if the permutation_setup does not exists</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -311,16 +300,14 @@ the permutation setup. Depending on the parameters of the LocalGeometryFinder an
 <dd><p>Returns the symmetry measures for a set of permutations (whose setup depends on the coordination geometry)
 for the coordination geometry “coordination_geometry”. Standard implementation looking for the symmetry
 measures of each permutation</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>coordination_geometry</strong> – The coordination geometry to be investigated</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The symmetry measures for the given coordination geometry for each permutation investigated</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>coordination_geometry</strong> – The coordination geometry to be investigated</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The symmetry measures for the given coordination geometry for each permutation investigated</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -399,24 +386,21 @@ atom for coordination numbers 1, 2, 3 and 4 and the centroid for coordination nu
 :param centering_type: Type of the reference point (centering) ‘standard’, ‘centroid’ or ‘central_site’
 :param include_central_site_in_centroid: In case centering_type is ‘centroid’, the central site is included if</p>
 <blockquote>
-<div>this value is set to True.</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>bva_distance_scale_factor</strong> – Scaling factor for the bond valence analyzer (this might be different whether
+<div><p>this value is set to True.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bva_distance_scale_factor</strong> – Scaling factor for the bond valence analyzer (this might be different whether
 the structure is an experimental one, an LDA or a GGA relaxed one, or any
 other relaxation scheme (where under- or over-estimation of bond lengths
-is known).</li>
-<li><strong>structure_refinement</strong> – Refinement of the structure. Can be “none”, “refined” or “symmetrized”.</li>
-<li><strong>spg_analyzer_options</strong> – Options for the SpaceGroupAnalyzer (dictionary specifying “symprec”
-and “angle_tolerance”. See pymatgen’s SpaceGroupAnalyzer for more information.</li>
+is known).</p></li>
+<li><p><strong>structure_refinement</strong> – Refinement of the structure. Can be “none”, “refined” or “symmetrized”.</p></li>
+<li><p><strong>spg_analyzer_options</strong> – Options for the SpaceGroupAnalyzer (dictionary specifying “symprec”
+and “angle_tolerance”. See pymatgen’s SpaceGroupAnalyzer for more information.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -461,17 +445,16 @@ with the space group analyzer and a refined structure is used
 (perfect) set of points “points_perfect” in a least-square sense.
 :param points_distorted: List of points describing a given (distorted) polyhedron for which the rotation that</p>
 <blockquote>
-<div>aligns these points in a least-square sense to the set of perfect points “points_perfect”</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>points_perfect</strong> – List of “perfect” points describing a given model polyhedron.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The rotation matrix</td>
-</tr>
-</tbody>
-</table>
+<div><p>aligns these points in a least-square sense to the set of perfect points “points_perfect”</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>points_perfect</strong> – List of “perfect” points describing a given model polyhedron.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The rotation matrix</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -481,22 +464,19 @@ with the space group analyzer and a refined structure is used
 (perfect) set of points “points_perfect” in a least-square sense.
 :param points_distorted: List of points describing a given (distorted) polyhedron for which the scaling factor has</p>
 <blockquote>
-<div>to be obtained.</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>points_perfect</strong> – List of “perfect” points describing a given model polyhedron.</li>
-<li><strong>rot</strong> – The rotation matrix</li>
+<div><p>to be obtained.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>points_perfect</strong> – List of “perfect” points describing a given model polyhedron.</p></li>
+<li><p><strong>rot</strong> – The rotation matrix</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The scaling factor between the two structures and the rotated set of (distorted) points.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The scaling factor between the two structures and the rotated set of (distorted) points.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -506,18 +486,17 @@ with the space group analyzer and a refined structure is used
 (perfect) set of points “points_perfect”.
 :param points_distorted: List of points describing a given (distorted) polyhedron for which the symmetry measure</p>
 <blockquote>
-<div>has to be computed with respect to the model polyhedron described by the list of points
-“points_perfect”.</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>points_perfect</strong> – List of “perfect” points describing a given model polyhedron.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The continuous symmetry measure of the distorted polyhedron with respect to the perfect polyhedron</td>
-</tr>
-</tbody>
-</table>
+<div><p>has to be computed with respect to the model polyhedron described by the list of points
+“points_perfect”.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>points_perfect</strong> – List of “perfect” points describing a given model polyhedron.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The continuous symmetry measure of the distorted polyhedron with respect to the perfect polyhedron</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -541,8 +520,6 @@ with the space group analyzer and a refined structure is used
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -560,13 +537,13 @@ with the space group analyzer and a refined structure is used
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

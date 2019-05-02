@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.phonon.dos module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.phonon.dos module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -51,19 +49,15 @@
 <em class="property">class </em><code class="descname">CompletePhononDos</code><span class="sig-paren">(</span><em>structure</em>, <em>total_dos</em>, <em>pdoss</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/dos.html#CompletePhononDos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.dos.CompletePhononDos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.phonon.dos.PhononDos" title="pymatgen.phonon.dos.PhononDos"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.phonon.dos.PhononDos</span></code></a></p>
 <p>This wrapper class defines a total dos, and also provides a list of PDos.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> – Structure associated with this particular DOS.</li>
-<li><strong>total_dos</strong> – total Dos for structure</li>
-<li><strong>pdoss</strong> – The pdoss are supplied as an {Site: Densities}</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – Structure associated with this particular DOS.</p></li>
+<li><p><strong>total_dos</strong> – total Dos for structure</p></li>
+<li><p><strong>pdoss</strong> – The pdoss are supplied as an {Site: Densities}</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.phonon.dos.CompletePhononDos.pdos">
 <code class="descname">pdos</code><a class="headerlink" href="#pymatgen.phonon.dos.CompletePhononDos.pdos" title="Permalink to this definition">¶</a></dt>
@@ -86,32 +80,28 @@
 <dt id="pymatgen.phonon.dos.CompletePhononDos.get_element_dos">
 <code class="descname">get_element_dos</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/dos.html#CompletePhononDos.get_element_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.dos.CompletePhononDos.get_element_dos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get element projected Dos.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Dos}</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dict of {Element</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dos}</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict of {Element</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.phonon.dos.CompletePhononDos.get_site_dos">
 <code class="descname">get_site_dos</code><span class="sig-paren">(</span><em>site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/dos.html#CompletePhononDos.get_site_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.dos.CompletePhononDos.get_site_dos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the Dos for a site.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>site</strong> – Site in Structure associated with CompletePhononDos.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">PhononDos containing summed orbital densities for site.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>site</strong> – Site in Structure associated with CompletePhononDos.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>PhononDos containing summed orbital densities for site.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -122,18 +112,14 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Basic DOS object. All other DOS objects are extended versions of this
 object.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>frequencies</strong> – A sequences of frequencies in THz</li>
-<li><strong>densities</strong> – A list representing the density of states.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frequencies</strong> – A sequences of frequencies in THz</p></li>
+<li><p><strong>densities</strong> – A list representing the density of states.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.phonon.dos.PhononDos.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/dos.html#PhononDos.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.as_dict" title="Permalink to this definition">¶</a></dt>
@@ -149,22 +135,18 @@ Result in J/(K*mol-c). A mol-c is the abbreviation of a mole-cell, that is, the 
 of Avogadro times the atoms in a unit cell. To compare with experimental data the result
 should be divided by the number of unit formulas in the cell. If the structure is provided
 the division is performed internally and the result is in J/(K*mol)</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>t</strong> – a temperature in K</li>
-<li><strong>structure</strong> – the structure of the system. If not None it will be used to determine the numer of
-formula units</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> – a temperature in K</p></li>
+<li><p><strong>structure</strong> – the structure of the system. If not None it will be used to determine the numer of
+formula units</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Constant volume specific heat C_v</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Constant volume specific heat C_v</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -176,22 +158,18 @@ Result in J/(K*mol-c). A mol-c is the abbreviation of a mole-cell, that is, the 
 of Avogadro times the atoms in a unit cell. To compare with experimental data the result
 should be divided by the number of unit formulas in the cell. If the structure is provided
 the division is performed internally and the result is in J/(K*mol)</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>t</strong> – a temperature in K</li>
-<li><strong>structure</strong> – the structure of the system. If not None it will be used to determine the numer of
-formula units</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> – a temperature in K</p></li>
+<li><p><strong>structure</strong> – the structure of the system. If not None it will be used to determine the numer of
+formula units</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Vibrational entropy</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Vibrational entropy</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
@@ -204,14 +182,11 @@ formula units</li>
 <dt id="pymatgen.phonon.dos.PhononDos.get_interpolated_value">
 <code class="descname">get_interpolated_value</code><span class="sig-paren">(</span><em>frequency</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/dos.html#PhononDos.get_interpolated_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.get_interpolated_value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns interpolated density for a particular frequency.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>frequency</strong> – frequency to return the density for.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>frequency</strong> – frequency to return the density for.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -219,16 +194,14 @@ formula units</li>
 <code class="descname">get_smeared_densities</code><span class="sig-paren">(</span><em>sigma</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/dos.html#PhononDos.get_smeared_densities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.get_smeared_densities" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the densities, but with a Gaussian smearing of
 std dev sigma applied.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sigma</strong> – Std dev of Gaussian smearing function.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Gaussian-smeared densities.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>sigma</strong> – Std dev of Gaussian smearing function.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Gaussian-smeared densities.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -240,22 +213,18 @@ Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the numb
 of Avogadro times the atoms in a unit cell. To compare with experimental data the result
 should be divided by the number of unit formulas in the cell. If the structure is provided
 the division is performed internally and the result is in J/mol</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>t</strong> – a temperature in K</li>
-<li><strong>structure</strong> – the structure of the system. If not None it will be used to determine the numer of
-formula units</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> – a temperature in K</p></li>
+<li><p><strong>structure</strong> – the structure of the system. If not None it will be used to determine the numer of
+formula units</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Phonon contribution to the Helmholtz free energy</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Phonon contribution to the Helmholtz free energy</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -273,22 +242,18 @@ Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the numb
 of Avogadro times the atoms in a unit cell. To compare with experimental data the result
 should be divided by the number of unit formulas in the cell. If the structure is provided
 the division is performed internally and the result is in J/mol</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>t</strong> – a temperature in K</li>
-<li><strong>structure</strong> – the structure of the system. If not None it will be used to determine the numer of
-formula units</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> – a temperature in K</p></li>
+<li><p><strong>structure</strong> – the structure of the system. If not None it will be used to determine the numer of
+formula units</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Phonon contribution to the internal energy</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Phonon contribution to the internal energy</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -299,22 +264,18 @@ Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the numb
 of Avogadro times the atoms in a unit cell. To compare with experimental data the result
 should be divided by the number of unit formulas in the cell. If the structure is provided
 the division is performed internally and the result is in J/mol</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>t</strong> – a temperature in K</li>
-<li><strong>structure</strong> – the structure of the system. If not None it will be used to determine the numer of
-formula units</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> – a temperature in K</p></li>
+<li><p><strong>structure</strong> – the structure of the system. If not None it will be used to determine the numer of
+formula units</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Phonon contribution to the internal energy</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Phonon contribution to the internal energy</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -340,8 +301,6 @@ formula units</li>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -359,13 +318,13 @@ formula units</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

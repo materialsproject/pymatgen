@@ -28,6 +28,12 @@ class ElementTestCase(PymatgenTest):
         # Test caching
         self.assertEqual(id(Element("Fe")), id(Element("Fe")))
 
+    def test_is_metal(self):
+        for metal in ["Fe", "Eu", "Li", "Ca", "In"]:
+            self.assertTrue(Element(metal).is_metal)
+        for non_metal in ["Ge", "Si", "O", "He"]:
+            self.assertFalse(Element(non_metal).is_metal)
+
     def test_nan_X(self):
         self.assertTrue(math.isnan(Element.He.X))
         els = sorted([Element.He, Element.H, Element.F])

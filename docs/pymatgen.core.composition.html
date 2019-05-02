@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.composition module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.core.composition module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -54,31 +52,24 @@
 multiplied/divided by a Number
 multiplied by a Composition (returns an energy)
 added/subtracted with other ChemicalPotentials.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>**kwargs</strong> (<em>*args</em><em>,</em>) – <p>any valid dict init arguments</p>
-</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> (<em>*args</em><em>,</em>) – <p>any valid dict init arguments</p>
+</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.core.composition.ChemicalPotential.get_energy">
 <code class="descname">get_energy</code><span class="sig-paren">(</span><em>composition</em>, <em>strict=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#ChemicalPotential.get_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.ChemicalPotential.get_energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the energy of a composition.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>composition</strong> (<a class="reference internal" href="#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – input composition</li>
-<li><strong>strict</strong> (<em>bool</em>) – Whether all potentials must be specified</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>composition</strong> (<a class="reference internal" href="#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – input composition</p></li>
+<li><p><strong>strict</strong> (<em>bool</em>) – Whether all potentials must be specified</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -121,28 +112,24 @@ simply by comp[“Fe”] instead of the more verbose comp[Element(“Fe”)].</p
 </div>
 <p>Very flexible Composition construction, similar to the built-in Python
 dict(). Also extended to allow simple string init.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>form supported by the Python built-in dict</strong><strong>(</strong><strong>) </strong><strong>function.</strong> (<em>Any</em>) – </li>
-<li><strong>A dict of either {Element/Specie</strong> (<em>1.</em>) – <p>amount},</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>form supported by the Python built-in dict</strong><strong>(</strong><strong>) </strong><strong>function.</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>A dict of either {Element/Specie</strong> (<em>1.</em>) – <p>amount},</p>
 <p>{string symbol:amount}, or {atomic number:amount} or any mixture
 of these. E.g., {Element(“Li”):2 ,Element(“O”):1},
 {“Li”:2, “O”:1}, {3:2, 8:1} all result in a Li2O composition.</p>
-</li>
-<li><strong>Keyword arg initialization</strong><strong>, </strong><strong>similar to a dict</strong><strong>, </strong><strong>e.g.</strong><strong>,</strong> (<em>2.</em>) – Composition(Li = 2, O = 1)</li>
-<li><strong>addition</strong><strong>, </strong><strong>the Composition constructor also allows a single</strong> (<em>In</em>) – </li>
-<li><strong>as an input formula. E.g.</strong><strong>, </strong><strong>Composition</strong> (<em>string</em>) – </li>
-<li><strong>allow_negative</strong> – Whether to allow negative compositions. This
+</p></li>
+<li><p><strong>Keyword arg initialization</strong><strong>, </strong><strong>similar to a dict</strong><strong>, </strong><strong>e.g.</strong><strong>,</strong> (<em>2.</em>) – Composition(Li = 2, O = 1)</p></li>
+<li><p><strong>addition</strong><strong>, </strong><strong>the Composition constructor also allows a single</strong> (<em>In</em>) – </p></li>
+<li><p><strong>as an input formula. E.g.</strong><strong>, </strong><strong>Composition</strong> (<em>string</em>) – </p></li>
+<li><p><strong>allow_negative</strong> – Whether to allow negative compositions. This
 argument must be popped from the **kwargs due to *args
-ambiguity.</li>
+ambiguity.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.core.composition.Composition.add_charges_from_oxi_state_guesses">
 <code class="descname">add_charges_from_oxi_state_guesses</code><span class="sig-paren">(</span><em>oxi_states_override=None</em>, <em>target_charge=0</em>, <em>all_oxi_states=False</em>, <em>max_sites=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.add_charges_from_oxi_state_guesses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.add_charges_from_oxi_state_guesses" title="Permalink to this definition">¶</a></dt>
@@ -151,56 +138,48 @@ ambiguity.</li>
 guessed. This operation uses the set of oxidation states for each site
 that were determined to be most likley from the oxidation state guessing
 routine.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>oxi_states_override</strong> (<em>dict</em>) – dict of str-&gt;list to override an
-element’s common oxidation states, e.g. {“V”: [2,3,4,5]}</li>
-<li><strong>target_charge</strong> (<em>int</em>) – the desired total charge on the structure.
-Default is 0 signifying charge balance.</li>
-<li><strong>all_oxi_states</strong> (<em>bool</em>) – if True, an element defaults to
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>oxi_states_override</strong> (<em>dict</em>) – dict of str-&gt;list to override an
+element’s common oxidation states, e.g. {“V”: [2,3,4,5]}</p></li>
+<li><p><strong>target_charge</strong> (<em>int</em>) – the desired total charge on the structure.
+Default is 0 signifying charge balance.</p></li>
+<li><p><strong>all_oxi_states</strong> (<em>bool</em>) – if True, an element defaults to
 all oxidation states in pymatgen Element.icsd_oxidation_states.
 Otherwise, default is Element.common_oxidation_states. Note
 that the full oxidation state list is <em>very</em> inclusive and
-can produce nonsensical results.</li>
-<li><strong>max_sites</strong> (<em>int</em>) – if possible, will reduce Compositions to at most
+can produce nonsensical results.</p></li>
+<li><p><strong>max_sites</strong> (<em>int</em>) – if possible, will reduce Compositions to at most
 this many sites to speed up oxidation state guesses. If the
 composition cannot be reduced to this many sites a ValueError
 will be raised. Set to -1 to just reduce fully. If set to a
 number less than -1, the formula will be fully reduced but a
 ValueError will be thrown if the number of atoms in the reduced
-formula is greater than abs(max_sites).</li>
+formula is greater than abs(max_sites).</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Composition, where the elements are assigned oxidation states based
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Composition, where the elements are assigned oxidation states based
 on the results form guessing oxidation states. If no oxidation state
 is possible, returns a Composition where all oxidation states are 0.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.composition.Composition.almost_equals">
 <code class="descname">almost_equals</code><span class="sig-paren">(</span><em>other</em>, <em>rtol=0.1</em>, <em>atol=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.almost_equals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.almost_equals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns true if compositions are equal within a tolerance.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>other</strong> (<a class="reference internal" href="#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – Other composition to check</li>
-<li><strong>rtol</strong> (<em>float</em>) – Relative tolerance</li>
-<li><strong>atol</strong> (<em>float</em>) – Absolute tolerance</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> (<a class="reference internal" href="#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – Other composition to check</p></li>
+<li><p><strong>rtol</strong> (<em>float</em>) – Relative tolerance</p></li>
+<li><p><strong>atol</strong> (<em>float</em>) – Absolute tolerance</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -229,15 +208,12 @@ anonymized_formula ABC3.</p>
 <dl class="method">
 <dt id="pymatgen.core.composition.Composition.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">dict with species symbol and (unreduced) amount e.g.,
-{“Fe”: 4.0, “O”:6.0} or {“Fe3+”: 4.0, “O2-“:6.0}</td>
-</tr>
-</tbody>
-</table>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dict with species symbol and (unreduced) amount e.g.,
+{“Fe”: 4.0, “O”:6.0} or {“Fe3+”: 4.0, “O2-“:6.0}</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -275,14 +251,11 @@ e.g., Li4 Fe4 P4 O16.</p>
 <code class="descname">fractional_composition</code><a class="headerlink" href="#pymatgen.core.composition.Composition.fractional_composition" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the normalized composition which the number of species sum to
 1.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Normalized composition which the number of species sum to 1.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Normalized composition which the number of species sum to 1.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
@@ -293,129 +266,110 @@ necessary given that the standard constructor already takes in such an
 input, but this method preserves the standard pymatgen API of having
 from_dict methods to reconstitute objects generated by as_dict(). Allows
 for easier introspection.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>d</strong> (<em>dict</em>) – {symbol: amount} dict.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – {symbol: amount} dict.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.composition.Composition.get_atomic_fraction">
 <code class="descname">get_atomic_fraction</code><span class="sig-paren">(</span><em>el</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.get_atomic_fraction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.get_atomic_fraction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate atomic fraction of an Element or Specie.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>el</strong> (<em>Element/Specie</em>) – Element or Specie to get fraction for.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Atomic fraction for element el in Composition</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>el</strong> (<em>Element/Specie</em>) – Element or Specie to get fraction for.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Atomic fraction for element el in Composition</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.composition.Composition.get_el_amt_dict">
 <code class="descname">get_el_amt_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.get_el_amt_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.get_el_amt_dict" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Dict with element symbol and (unreduced) amount e.g.,
-{“Fe”: 4.0, “O”:6.0} or {“Fe3+”: 4.0, “O2-“:6.0}</td>
-</tr>
-</tbody>
-</table>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dict with element symbol and (unreduced) amount e.g.,
+{“Fe”: 4.0, “O”:6.0} or {“Fe3+”: 4.0, “O2-“:6.0}</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.composition.Composition.get_integer_formula_and_factor">
 <code class="descname">get_integer_formula_and_factor</code><span class="sig-paren">(</span><em>max_denominator=10000</em>, <em>iupac_ordering=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.get_integer_formula_and_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.get_integer_formula_and_factor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates an integer formula and factor.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>max_denominator</strong> (<em>int</em>) – all amounts in the el:amt dict are
-first converted to a Fraction with this maximum denominator</li>
-<li><strong>iupac_ordering</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to order the
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_denominator</strong> (<em>int</em>) – all amounts in the el:amt dict are
+first converted to a Fraction with this maximum denominator</p></li>
+<li><p><strong>iupac_ordering</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to order the
 formula by the iupac “electronegativity” series, defined in
 Table VI of “Nomenclature of Inorganic Chemistry (IUPAC
 Recommendations 2005)”. This ordering effectively follows
 the groups and rows of the periodic table, except the
 Lanthanides, Actanides and hydrogen. Note that polyanions
 will still be determined based on the true electronegativity of
-the elements.</li>
+the elements.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A pretty normalized formula and a multiplicative factor, i.e.,
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A pretty normalized formula and a multiplicative factor, i.e.,
 Li0.5O0.25 returns (Li2O, 0.25). O0.25 returns (O2, 0.125)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.composition.Composition.get_reduced_composition_and_factor">
 <code class="descname">get_reduced_composition_and_factor</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.get_reduced_composition_and_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.get_reduced_composition_and_factor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates a reduced composition and factor.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A normalized composition and a multiplicative factor, i.e.,
-Li4Fe4P4O16 returns (Composition(“LiFePO4”), 4).</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A normalized composition and a multiplicative factor, i.e.,
+Li4Fe4P4O16 returns (Composition(“LiFePO4”), 4).</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.composition.Composition.get_reduced_formula_and_factor">
 <code class="descname">get_reduced_formula_and_factor</code><span class="sig-paren">(</span><em>iupac_ordering=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.get_reduced_formula_and_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.get_reduced_formula_and_factor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates a reduced formula and factor.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>iupac_ordering</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to order the
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>iupac_ordering</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to order the
 formula by the iupac “electronegativity” series, defined in
 Table VI of “Nomenclature of Inorganic Chemistry (IUPAC
 Recommendations 2005)”. This ordering effectively follows
 the groups and rows of the periodic table, except the
 Lanthanides, Actanides and hydrogen. Note that polyanions
 will still be determined based on the true electronegativity of
-the elements.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A pretty normalized formula and a multiplicative factor, i.e.,
-Li4Fe4P4O16 returns (LiFePO4, 4).</td>
-</tr>
-</tbody>
-</table>
+the elements.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A pretty normalized formula and a multiplicative factor, i.e.,
+Li4Fe4P4O16 returns (LiFePO4, 4).</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.composition.Composition.get_wt_fraction">
 <code class="descname">get_wt_fraction</code><span class="sig-paren">(</span><em>el</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.get_wt_fraction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.get_wt_fraction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate weight fraction of an Element or Specie.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>el</strong> (<em>Element/Specie</em>) – Element or Specie to get fraction for.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Weight fraction for element el in Composition</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>el</strong> (<em>Element/Specie</em>) – Element or Specie to get fraction for.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Weight fraction for element el in Composition</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -463,41 +417,36 @@ more degrees of freedom. e.g., if possible oxidation states of
 element X are [2,4] and Y are [-3], then XY is not charge balanced
 but X2Y2 is. Results are returned from most to least probable based
 on ICSD statistics. Use max_sites to improve performance if needed.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>oxi_states_override</strong> (<em>dict</em>) – dict of str-&gt;list to override an
-element’s common oxidation states, e.g. {“V”: [2,3,4,5]}</li>
-<li><strong>target_charge</strong> (<em>int</em>) – the desired total charge on the structure.
-Default is 0 signifying charge balance.</li>
-<li><strong>all_oxi_states</strong> (<em>bool</em>) – if True, an element defaults to
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>oxi_states_override</strong> (<em>dict</em>) – dict of str-&gt;list to override an
+element’s common oxidation states, e.g. {“V”: [2,3,4,5]}</p></li>
+<li><p><strong>target_charge</strong> (<em>int</em>) – the desired total charge on the structure.
+Default is 0 signifying charge balance.</p></li>
+<li><p><strong>all_oxi_states</strong> (<em>bool</em>) – if True, an element defaults to
 all oxidation states in pymatgen Element.icsd_oxidation_states.
 Otherwise, default is Element.common_oxidation_states. Note
 that the full oxidation state list is <em>very</em> inclusive and
-can produce nonsensical results.</li>
-<li><strong>max_sites</strong> (<em>int</em>) – if possible, will reduce Compositions to at most
+can produce nonsensical results.</p></li>
+<li><p><strong>max_sites</strong> (<em>int</em>) – if possible, will reduce Compositions to at most
 this many sites to speed up oxidation state guesses. If the
 composition cannot be reduced to this many sites a ValueError
 will be raised. Set to -1 to just reduce fully. If set to a
 number less than -1, the formula will be fully reduced but a
 ValueError will be thrown if the number of atoms in the reduced
-formula is greater than abs(max_sites).</li>
+formula is greater than abs(max_sites).</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><dl class="docutils">
-<dt>A list of dicts - each dict reports an element symbol and average</dt>
-<dd><p class="first last">oxidation state across all sites in that composition. If the
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A list of dicts - each dict reports an element symbol and average</dt><dd><p>oxidation state across all sites in that composition. If the
 composition is not charge balanced, an empty list is returned.</p>
 </dd>
 </dl>
 </p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="staticmethod">
@@ -506,25 +455,21 @@ composition is not charge balanced, an empty list is returned.</p>
 <dd><p>Takes in a formula where capitilization might not be correctly entered,
 and suggests a ranked list of potential Composition matches.
 Author: Anubhav Jain</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>fuzzy_formula</strong> (<em>str</em>) – A formula string, such as “co2o3” or “MN”,
-that may or may not have multiple interpretations</li>
-<li><strong>lock_if_strict</strong> (<em>bool</em>) – If true, a properly entered formula will
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fuzzy_formula</strong> (<em>str</em>) – A formula string, such as “co2o3” or “MN”,
+that may or may not have multiple interpretations</p></li>
+<li><p><strong>lock_if_strict</strong> (<em>bool</em>) – If true, a properly entered formula will
 only return the one correct interpretation. For example,
 “Co1” will only return “Co1” if true, but will return both
-“Co1” and “C1 O1” if false.</li>
+“Co1” and “C1 O1” if false.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A ranked list of potential Composition matches</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A ranked list of potential Composition matches</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -550,32 +495,18 @@ Li4Fe4P4O16.</p>
 <dl class="attribute">
 <dt id="pymatgen.core.composition.Composition.to_data_dict">
 <code class="descname">to_data_dict</code><a class="headerlink" href="#pymatgen.core.composition.Composition.to_data_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A dict with many keys and values relating to Composition/Formula,
+<dd><p>Returns:
+A dict with many keys and values relating to Composition/Formula,
 including reduced_cell_composition, unit_cell_composition,
 reduced_cell_formula, elements and nelements.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">Returns</td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.composition.Composition.to_reduced_dict">
 <code class="descname">to_reduced_dict</code><a class="headerlink" href="#pymatgen.core.composition.Composition.to_reduced_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Dict with element symbol and reduced amount e.g.,
+<dd><p>Returns:
+Dict with element symbol and reduced amount e.g.,
 {“Fe”: 2.0, “O”:3.0}</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">Returns</td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 <dl class="attribute">
@@ -601,28 +532,24 @@ reduced_cell_formula, elements and nelements.</p>
 <dt id="pymatgen.core.composition.reduce_formula">
 <code class="descname">reduce_formula</code><span class="sig-paren">(</span><em>sym_amt</em>, <em>iupac_ordering=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#reduce_formula"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.reduce_formula" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper method to reduce a sym_amt dict to a reduced formula and factor.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>sym_amt</strong> (<em>dict</em>) – {symbol: amount}.</li>
-<li><strong>iupac_ordering</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to order the
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sym_amt</strong> (<em>dict</em>) – {symbol: amount}.</p></li>
+<li><p><strong>iupac_ordering</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to order the
 formula by the iupac “electronegativity” series, defined in
 Table VI of “Nomenclature of Inorganic Chemistry (IUPAC
 Recommendations 2005)”. This ordering effectively follows
 the groups and rows of the periodic table, except the
 Lanthanides, Actanides and hydrogen. Note that polyanions
 will still be determined based on the true electronegativity of
-the elements.</li>
+the elements.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(reduced_formula, factor).</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(reduced_formula, factor).</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -646,8 +573,6 @@ the elements.</li>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -665,13 +590,13 @@ the elements.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

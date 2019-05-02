@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.nodes module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.io.abinit.nodes module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -60,29 +58,26 @@ One usually creates the object by calling work.register</p>
 scf_task = work.register(scf_strategy)</p>
 <p># Register the NSCF calculation and its dependency on the SCF run via deps.
 nscf_task = work.register(nscf_strategy, deps={scf_task: “DEN”})</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>node</strong> – The task or the worfklow associated to the dependency or string with a filepath.</li>
-<li><strong>exts</strong> – Extensions of the output files that are needed for running the other tasks.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node</strong> – The task or the worfklow associated to the dependency or string with a filepath.</p></li>
+<li><p><strong>exts</strong> – Extensions of the output files that are needed for running the other tasks.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.abinit.nodes.Dependency.apply_getters">
 <code class="descname">apply_getters</code><span class="sig-paren">(</span><em>task</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/nodes.html#Dependency.apply_getters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.nodes.Dependency.apply_getters" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function is called when we specify the task dependencies with the syntax:</p>
 <blockquote>
-<div>deps={node: “&#64;property”}</div></blockquote>
+<div><p>deps={node: “&#64;property”}</p>
+</div></blockquote>
 <p>In this case the task has to the get <cite>property</cite> from <cite>node</cite> before starting the calculation.</p>
 <p>At present, the following properties are supported:</p>
 <blockquote>
 <div><ul class="simple">
-<li>&#64;structure</li>
+<li><p>&#64;structure</p></li>
 </ul>
 </div></blockquote>
 </dd></dl>
@@ -294,18 +289,14 @@ the source line where the logging call was made</p>
 <dt id="pymatgen.io.abinit.nodes.HistoryRecord.get_message">
 <code class="descname">get_message</code><span class="sig-paren">(</span><em>metadata=False</em>, <em>asctime=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/nodes.html#HistoryRecord.get_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.nodes.HistoryRecord.get_message" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the message after merging any user-supplied arguments with the message.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>metadata</strong> – True if function and module name should be added.</li>
-<li><strong>asctime</strong> – True if time string should be added.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>metadata</strong> – True if function and module name should be added.</p></li>
+<li><p><strong>asctime</strong> – True if time string should be added.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -319,7 +310,7 @@ implemented by the nodes of the calculation.</p>
 <p>Nodes are hashable and can be tested for equality</p>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.ALL_STATUS">
-<code class="descname">ALL_STATUS</code><em class="property"> = [&lt;Status: Initialized, at 120940138312&gt;, &lt;Status: Locked, at 120940191880&gt;, &lt;Status: Ready, at 120940191944&gt;, &lt;Status: Submitted, at 120940192008&gt;, &lt;Status: Running, at 120940192072&gt;, &lt;Status: Done, at 120940192136&gt;, &lt;Status: AbiCritical, at 120940192200&gt;, &lt;Status: QCritical, at 120940192264&gt;, &lt;Status: Unconverged, at 120940192328&gt;, &lt;Status: Error, at 120940192392&gt;, &lt;Status: Completed, at 120940192456&gt;]</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.ALL_STATUS" title="Permalink to this definition">¶</a></dt>
+<code class="descname">ALL_STATUS</code><em class="property"> = [&lt;Status: Initialized, at 121034905800&gt;, &lt;Status: Locked, at 121035785544&gt;, &lt;Status: Ready, at 121035786504&gt;, &lt;Status: Submitted, at 121031587080&gt;, &lt;Status: Running, at 121045873416&gt;, &lt;Status: Done, at 121045872840&gt;, &lt;Status: AbiCritical, at 121029509192&gt;, &lt;Status: QCritical, at 121029512648&gt;, &lt;Status: Unconverged, at 121029510728&gt;, &lt;Status: Error, at 121029509704&gt;, &lt;Status: Completed, at 121038908232&gt;]</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.ALL_STATUS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -336,57 +327,57 @@ implemented by the nodes of the calculation.</p>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.S_ABICRITICAL">
-<code class="descname">S_ABICRITICAL</code><em class="property"> = &lt;Status: AbiCritical, at 120940192200&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_ABICRITICAL" title="Permalink to this definition">¶</a></dt>
+<code class="descname">S_ABICRITICAL</code><em class="property"> = &lt;Status: AbiCritical, at 121029509192&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_ABICRITICAL" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.S_DONE">
-<code class="descname">S_DONE</code><em class="property"> = &lt;Status: Done, at 120940192136&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_DONE" title="Permalink to this definition">¶</a></dt>
+<code class="descname">S_DONE</code><em class="property"> = &lt;Status: Done, at 121045872840&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_DONE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.S_ERROR">
-<code class="descname">S_ERROR</code><em class="property"> = &lt;Status: Error, at 120940192392&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_ERROR" title="Permalink to this definition">¶</a></dt>
+<code class="descname">S_ERROR</code><em class="property"> = &lt;Status: Error, at 121029509704&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_ERROR" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.S_INIT">
-<code class="descname">S_INIT</code><em class="property"> = &lt;Status: Initialized, at 120940138312&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_INIT" title="Permalink to this definition">¶</a></dt>
+<code class="descname">S_INIT</code><em class="property"> = &lt;Status: Initialized, at 121034905800&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_INIT" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.S_LOCKED">
-<code class="descname">S_LOCKED</code><em class="property"> = &lt;Status: Locked, at 120940191880&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_LOCKED" title="Permalink to this definition">¶</a></dt>
+<code class="descname">S_LOCKED</code><em class="property"> = &lt;Status: Locked, at 121035785544&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_LOCKED" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.S_OK">
-<code class="descname">S_OK</code><em class="property"> = &lt;Status: Completed, at 120940192456&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_OK" title="Permalink to this definition">¶</a></dt>
+<code class="descname">S_OK</code><em class="property"> = &lt;Status: Completed, at 121038908232&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_OK" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.S_QCRITICAL">
-<code class="descname">S_QCRITICAL</code><em class="property"> = &lt;Status: QCritical, at 120940192264&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_QCRITICAL" title="Permalink to this definition">¶</a></dt>
+<code class="descname">S_QCRITICAL</code><em class="property"> = &lt;Status: QCritical, at 121029512648&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_QCRITICAL" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.S_READY">
-<code class="descname">S_READY</code><em class="property"> = &lt;Status: Ready, at 120940191944&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_READY" title="Permalink to this definition">¶</a></dt>
+<code class="descname">S_READY</code><em class="property"> = &lt;Status: Ready, at 121035786504&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_READY" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.S_RUN">
-<code class="descname">S_RUN</code><em class="property"> = &lt;Status: Running, at 120940192072&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_RUN" title="Permalink to this definition">¶</a></dt>
+<code class="descname">S_RUN</code><em class="property"> = &lt;Status: Running, at 121045873416&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_RUN" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.S_SUB">
-<code class="descname">S_SUB</code><em class="property"> = &lt;Status: Submitted, at 120940192008&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_SUB" title="Permalink to this definition">¶</a></dt>
+<code class="descname">S_SUB</code><em class="property"> = &lt;Status: Submitted, at 121031587080&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_SUB" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.S_UNCONVERGED">
-<code class="descname">S_UNCONVERGED</code><em class="property"> = &lt;Status: Unconverged, at 120940192328&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_UNCONVERGED" title="Permalink to this definition">¶</a></dt>
+<code class="descname">S_UNCONVERGED</code><em class="property"> = &lt;Status: Unconverged, at 121029510728&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_UNCONVERGED" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -399,31 +390,25 @@ implemented by the nodes of the calculation.</p>
 <dt id="pymatgen.io.abinit.nodes.Node.add_deps">
 <code class="descname">add_deps</code><span class="sig-paren">(</span><em>deps</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/nodes.html#Node.add_deps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.add_deps" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a list of dependencies to the <a class="reference internal" href="#pymatgen.io.abinit.nodes.Node" title="pymatgen.io.abinit.nodes.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>deps</strong> – List of <a class="reference internal" href="#pymatgen.io.abinit.nodes.Dependency" title="pymatgen.io.abinit.nodes.Dependency"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dependency</span></code></a> objects specifying the dependencies of the node.
-or dictionary mapping nodes to file extensions e.g. {task: “DEN”}</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>deps</strong> – List of <a class="reference internal" href="#pymatgen.io.abinit.nodes.Dependency" title="pymatgen.io.abinit.nodes.Dependency"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dependency</span></code></a> objects specifying the dependencies of the node.
+or dictionary mapping nodes to file extensions e.g. {task: “DEN”}</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
 <dt id="pymatgen.io.abinit.nodes.Node.as_node">
 <em class="property">classmethod </em><code class="descname">as_node</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/nodes.html#Node.as_node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.as_node" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert obj into a Node instance.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">obj if obj is a Node instance,
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>obj if obj is a Node instance,
 cast obj to <a class="reference internal" href="#pymatgen.io.abinit.nodes.FileNode" title="pymatgen.io.abinit.nodes.FileNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">FileNode</span></code></a> instance of obj is a string.
-None if obj is None</td>
-</tr>
-</tbody>
-</table>
+None if obj is None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -436,14 +421,11 @@ None if obj is None</td>
 <dt id="pymatgen.io.abinit.nodes.Node.color_hex">
 <code class="descname">color_hex</code><a class="reference internal" href="_modules/pymatgen/io/abinit/nodes.html#Node.color_hex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.color_hex" title="Permalink to this definition">¶</a></dt>
 <dd><p>//en.wikipedia.org/wiki/Web_colors#Hex_triplet</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">Node color as Hex Triplet https</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Node color as Hex Triplet https</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -508,8 +490,8 @@ Use flow.set_garbage_collector to initialize the object.</p>
 <code class="descname">get_children</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/nodes.html#Node.get_children"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.get_children" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the list of nodes in the <code class="xref py py-class docutils literal notranslate"><span class="pre">Flow</span></code> that depends on this <a class="reference internal" href="#pymatgen.io.abinit.nodes.Node" title="pymatgen.io.abinit.nodes.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a></p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">This routine assumes the entire flow has been allocated.</p>
+<p class="admonition-title">Note</p>
+<p>This routine assumes the entire flow has been allocated.</p>
 </div>
 </dd></dl>
 
@@ -544,22 +526,18 @@ Can be used for task/works/flow. It’s recursive!</p>
 <code class="descname">install_event_handlers</code><span class="sig-paren">(</span><em>categories=None</em>, <em>handlers=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/nodes.html#Node.install_event_handlers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.install_event_handlers" title="Permalink to this definition">¶</a></dt>
 <dd><p>Install the <cite>EventHandlers for this `Node</cite>. If no argument is provided
 the default list of handlers is installed.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>categories</strong> – List of categories to install e.g. base + can_change_physics</li>
-<li><strong>handlers</strong> – explicit list of <code class="xref py py-class docutils literal notranslate"><span class="pre">EventHandler</span></code> instances.
-This is the most flexible way to install handlers.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>categories</strong> – List of categories to install e.g. base + can_change_physics</p></li>
+<li><p><strong>handlers</strong> – explicit list of <code class="xref py py-class docutils literal notranslate"><span class="pre">EventHandler</span></code> instances.
+This is the most flexible way to install handlers.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">categories and handlers are mutually exclusive.</p>
+<p class="admonition-title">Note</p>
+<p>categories and handlers are mutually exclusive.</p>
 </div>
 </dd></dl>
 
@@ -600,18 +578,14 @@ In the later case, the string is compared with self.__class__.__name__ (case ins
 <code class="descname">log_correction</code><span class="sig-paren">(</span><em>event</em>, <em>action</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/nodes.html#Node.log_correction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.log_correction" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method should be called once we have fixed the problem associated to this event.
 It adds a new entry in the correction history of the node.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>event</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">AbinitEvent</span></code> that triggered the correction.</li>
-<li><strong>action</strong> (<em>str</em>) – Human-readable string with info on the action perfomed to solve the problem.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>event</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">AbinitEvent</span></code> that triggered the correction.</p></li>
+<li><p><strong>action</strong> (<em>str</em>) – Human-readable string with info on the action perfomed to solve the problem.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -642,14 +616,11 @@ It adds a new entry in the correction history of the node.</p>
 <dt id="pymatgen.io.abinit.nodes.Node.remove_deps">
 <code class="descname">remove_deps</code><span class="sig-paren">(</span><em>deps</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/nodes.html#Node.remove_deps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.remove_deps" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove a list of dependencies from the <a class="reference internal" href="#pymatgen.io.abinit.nodes.Node" title="pymatgen.io.abinit.nodes.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>deps</strong> – List of <a class="reference internal" href="#pymatgen.io.abinit.nodes.Dependency" title="pymatgen.io.abinit.nodes.Dependency"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dependency</span></code></a> objects specifying the  dependencies of the node.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>deps</strong> – List of <a class="reference internal" href="#pymatgen.io.abinit.nodes.Dependency" title="pymatgen.io.abinit.nodes.Dependency"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dependency</span></code></a> objects specifying the  dependencies of the node.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -833,18 +804,14 @@ one should pass a tuple (“filepath”, “t”).</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A product represents an output file produced by ABINIT instance.
 This file is needed to start another <cite>Task</cite> or another <cite>Work</cite>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>ext</strong> – ABINIT file extension</li>
-<li><strong>path</strong> – (asbolute) filepath</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ext</strong> – ABINIT file extension</p></li>
+<li><p><strong>path</strong> – (asbolute) filepath</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.abinit.nodes.Product.connecting_vars">
 <code class="descname">connecting_vars</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/nodes.html#Product.connecting_vars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.nodes.Product.connecting_vars" title="Permalink to this definition">¶</a></dt>
@@ -960,8 +927,6 @@ and we are calling a method with side effects.</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -979,13 +944,13 @@ and we are calling a method with side effects.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

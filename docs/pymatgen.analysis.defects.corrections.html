@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.defects.corrections module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.defects.corrections module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,174 +42,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-pymatgen.analysis.defects.corrections">
-<span id="pymatgen-analysis-defects-corrections-module"></span><h1>pymatgen.analysis.defects.corrections module<a class="headerlink" href="#module-pymatgen.analysis.defects.corrections" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="pymatgen.analysis.defects.corrections.BandEdgeShiftingCorrection">
-<em class="property">class </em><code class="descname">BandEdgeShiftingCorrection</code><a class="reference internal" href="_modules/pymatgen/analysis/defects/corrections.html#BandEdgeShiftingCorrection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.BandEdgeShiftingCorrection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.DefectCorrection" title="pymatgen.analysis.defects.core.DefectCorrection"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.defects.core.DefectCorrection</span></code></a></p>
-<p>A class for BandEdgeShiftingCorrection class. Largely adapted from PyCDT code</p>
-<dl class="docutils">
-<dt>Requires some parameters in the DefectEntry to properly function:</dt>
-<dd><dl class="first last docutils">
-<dt>hybrid_cbm</dt>
-<dd>CBM of HYBRID bulk calculation</dd>
-<dt>hybrid_vbm</dt>
-<dd>VBM of HYBRID bulk calculation</dd>
-<dt>cbm</dt>
-<dd>CBM of bulk calculation (or band structure calculation of bulk);
-calculated on same level of theory as the eigenvalues list (ex. GGA defects -&gt; need GGA cbm</dd>
-<dt>vbm</dt>
-<dd>VBM of bulk calculation (or band structure calculation of bulk);
-calculated on same level of theory as the eigenvalues list (ex. GGA defects -&gt; need GGA vbm</dd>
-<dt>num_hole_vbm</dt>
-<dd>number of free holes that were found in valence band for the defect calculation
-calculated in the metadata of the BandFilling Correction</dd>
-<dt>num_elec_cbm</dt>
-<dd>number of free electrons that were found in the conduction band for the defect calculation
-calculated in the metadata of the BandFilling Correction</dd>
-</dl>
-</dd>
-</dl>
-<dl class="method">
-<dt id="pymatgen.analysis.defects.corrections.BandEdgeShiftingCorrection.get_correction">
-<code class="descname">get_correction</code><span class="sig-paren">(</span><em>entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/corrections.html#BandEdgeShiftingCorrection.get_correction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.BandEdgeShiftingCorrection.get_correction" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets the BandEdge correction for a defect entry</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="pymatgen.analysis.defects.corrections.BandFillingCorrection">
-<em class="property">class </em><code class="descname">BandFillingCorrection</code><span class="sig-paren">(</span><em>resolution=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/corrections.html#BandFillingCorrection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.BandFillingCorrection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.DefectCorrection" title="pymatgen.analysis.defects.core.DefectCorrection"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.defects.core.DefectCorrection</span></code></a></p>
-<p>A class for BandFillingCorrection class. Largely adapted from PyCDT code</p>
-<dl class="docutils">
-<dt>Requires some parameters in the DefectEntry to properly function:</dt>
-<dd><dl class="first last docutils">
-<dt>eigenvalues</dt>
-<dd>dictionary of defect eigenvalues, as stored in a Vasprun</dd>
-<dt>kpoint_weights</dt>
-<dd>kpoint weights corresponding to the dictionary of eigenvalues</dd>
-<dt>potalign</dt>
-<dd>potential alignment for the defect calculation
-Only applies to non-zero charge,
-When using potential alignment Correction (freysoldt or kumagai), need to divide by -q</dd>
-<dt>cbm</dt>
-<dd>CBM of bulk calculation (or band structure calculation of bulk);
-calculated on same level of theory as the eigenvalues list (ex. GGA defects -&gt; need GGA cbm</dd>
-<dt>vbm</dt>
-<dd>VBM of bulk calculation (or band structure calculation of bulk);
-calculated on same level of theory as the eigenvalues list (ex. GGA defects -&gt; need GGA vbm</dd>
-</dl>
-</dd>
-</dl>
-<p>Initializes the Bandfilling correction</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>resolution</strong> (<em>float</em>) – energy resolution to maintain for gap states</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="pymatgen.analysis.defects.corrections.BandFillingCorrection.get_correction">
-<code class="descname">get_correction</code><span class="sig-paren">(</span><em>entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/corrections.html#BandFillingCorrection.get_correction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.BandFillingCorrection.get_correction" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets the BandFilling correction for a defect entry</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.defects.corrections.BandFillingCorrection.perform_bandfill_corr">
-<code class="descname">perform_bandfill_corr</code><span class="sig-paren">(</span><em>eigenvalues</em>, <em>kpoint_weights</em>, <em>potalign</em>, <em>vbm</em>, <em>cbm</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/corrections.html#BandFillingCorrection.perform_bandfill_corr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.BandFillingCorrection.perform_bandfill_corr" title="Permalink to this definition">¶</a></dt>
-<dd><p>This calculates the band filling correction based on excess of electrons/holes in CB/VB…</p>
-<dl class="docutils">
-<dt>Note that the total free holes and electrons may also be used for a “shallow donor/acceptor”</dt>
-<dd>correction with specified band shifts: +num_elec_cbm * Delta E_CBM (or -num_hole_vbm * Delta E_VBM)
-[this is done in the LevelShiftingCorrection class]</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="pymatgen.analysis.defects.corrections.FreysoldtCorrection">
-<em class="property">class </em><code class="descname">FreysoldtCorrection</code><span class="sig-paren">(</span><em>dielectric_const</em>, <em>q_model=None</em>, <em>energy_cutoff=520</em>, <em>madetol=0.0001</em>, <em>axis=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/corrections.html#FreysoldtCorrection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.FreysoldtCorrection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.DefectCorrection" title="pymatgen.analysis.defects.core.DefectCorrection"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.defects.core.DefectCorrection</span></code></a></p>
-<p>A class for FreysoldtCorrection class. Largely adapated from PyCDT code</p>
-<p>Initializes the Freysoldt Correction
-:param dielectric_const: Dielectric constant for the structure
-:type dielectric_const: float or 3x3 matrix
-:param q_mode: instantiated QModel object or None. Uses default parameters to instantiate QModel if None supplied
-:type q_mode: QModel
-:param energy_cutoff: Maximum energy in eV in recipripcol space to perform integration for potential correction
-:type energy_cutoff: int
-:param madeltol: Convergence criteria for the Madelung energy for potential correction
-:type madeltol: float
-:param axis: Axis to calculate correction. Averages over all three if not supplied.
-:type axis: int</p>
-<dl class="method">
-<dt id="pymatgen.analysis.defects.corrections.FreysoldtCorrection.get_correction">
-<code class="descname">get_correction</code><span class="sig-paren">(</span><em>entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/corrections.html#FreysoldtCorrection.get_correction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.FreysoldtCorrection.get_correction" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets the Freysoldt correction for a defect entry
-:param entry: defect entry to compute Freysoldt correction on.</p>
-<blockquote>
-<div><p>Requires following parameters in the DefectEntry to exist:</p>
-<blockquote>
-<div><p>axis_grid (3 x NGX where NGX is the length of the NGX grid
-in the x,y and z axis directions. Same length as planar
-average lists):</p>
-<blockquote>
-<div>A list of 3 numpy arrays which contain the cartesian axis
-values (in angstroms) that correspond to each planar avg
-potential supplied.</div></blockquote>
-<p>bulk_planar_averages (3 x NGX where NGX is the length of
-the NGX grid in the x,y and z axis directions.):</p>
-<blockquote>
-<div>A list of 3 numpy arrays which contain the planar averaged
-electrostatic potential for the bulk supercell.</div></blockquote>
-<p>defect_planar_averages (3 x NGX where NGX is the length of
-the NGX grid in the x,y and z axis directions.):</p>
-<blockquote>
-<div>A list of 3 numpy arrays which contain the planar averaged
-electrostatic potential for the defective supercell.</div></blockquote>
-<dl class="docutils">
-<dt>scaling_matrix (3 x 1 matrix): scaling matrix required to convert the</dt>
-<dd>entry.defect.bulk_structure object into the lattice which is used by
-the bulk_planar_average and defect_planar_average</dd>
-</dl>
-</div></blockquote>
-</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.defects.corrections.FreysoldtCorrection.perform_es_corr">
-<code class="descname">perform_es_corr</code><span class="sig-paren">(</span><em>lattice</em>, <em>q</em>, <em>step=0.0001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/corrections.html#FreysoldtCorrection.perform_es_corr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.FreysoldtCorrection.perform_es_corr" title="Permalink to this definition">¶</a></dt>
-<dd><p>Peform Electrostatic Freysoldt Correction</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.defects.corrections.FreysoldtCorrection.perform_pot_corr">
-<code class="descname">perform_pot_corr</code><span class="sig-paren">(</span><em>axis_grid</em>, <em>pureavg</em>, <em>defavg</em>, <em>lattice</em>, <em>q</em>, <em>defect_position</em>, <em>axis</em>, <em>madetol=0.0001</em>, <em>widthsample=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/corrections.html#FreysoldtCorrection.perform_pot_corr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.FreysoldtCorrection.perform_pot_corr" title="Permalink to this definition">¶</a></dt>
-<dd><p>For performing planar averaging potential alignment</p>
-<p>title is for name of plot, if you dont want a plot then leave it as None
-widthsample is the width (in Angstroms) of the region in between defects where the potential alignment correction is averaged</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.defects.corrections.FreysoldtCorrection.plot">
-<code class="descname">plot</code><span class="sig-paren">(</span><em>axis</em>, <em>title=None</em>, <em>saved=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/corrections.html#FreysoldtCorrection.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.FreysoldtCorrection.plot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plots the planar average electrostatic potential against the Long range and short range models from Freysoldt</p>
-</dd></dl>
-
-</dd></dl>
-
+  <div class="section" id="pymatgen-analysis-defects-corrections-module">
+<h1>pymatgen.analysis.defects.corrections module<a class="headerlink" href="#pymatgen-analysis-defects-corrections-module" title="Permalink to this headline">¶</a></h1>
 </div>
 
 
@@ -233,8 +65,6 @@ widthsample is the width (in Angstroms) of the region in between defects where t
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -252,13 +82,13 @@ widthsample is the width (in Angstroms) of the region in between defects where t
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

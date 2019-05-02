@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Collaborative Github Workflow &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>Collaborative Github Workflow &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -51,21 +49,18 @@ recommend forking pymatgen directly from the
 <a class="reference external" href="https://github.com/materialsproject/pymatgen">pymatgen GitHub repo</a>. Here’s a typical workflow (adapted from
 <a class="reference external" href="http://www.eqqon.com/index.php/Collaborative_Github_Workflow">http://www.eqqon.com/index.php/Collaborative_Github_Workflow</a>):</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Ignore the Github fork queue. Let the maintainer of pymatgen worry about
+<p class="admonition-title">Note</p>
+<p>Ignore the Github fork queue. Let the maintainer of pymatgen worry about
 the fork queue.</p>
 </div>
 <ol class="arabic">
-<li><p class="first">Create a free GitHub account (if you don’t already have one) and perform the
-necessary setup (e.g., install SSH keys etc.).</p>
-</li>
-<li><p class="first">Fork the pymatgen GitHub repo, i.e., go to the main
+<li><p>Create a free GitHub account (if you don’t already have one) and perform the
+necessary setup (e.g., install SSH keys etc.).</p></li>
+<li><p>Fork the pymatgen GitHub repo, i.e., go to the main
 <a class="reference external" href="https://github.com/materialsproject/pymatgen">pymatgen GitHub repo</a> and click fork to create a copy of the pymatgen code
-base on your own Github account.</p>
-</li>
-<li><p class="first">Install git on your local machine (if you don’t already have it).</p>
-</li>
-<li><p class="first">Clone <em>your forked repo</em> to your local machine. You will work mostly with
+base on your own Github account.</p></li>
+<li><p>Install git on your local machine (if you don’t already have it).</p></li>
+<li><p>Clone <em>your forked repo</em> to your local machine. You will work mostly with
 your local repo and only publish changes when they are ready to be merged:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">git</span><span class="nd">@github</span><span class="o">.</span><span class="n">com</span><span class="p">:</span><span class="n">YOURNAME</span><span class="o">/</span><span class="n">pymatgen</span><span class="o">.</span><span class="n">git</span>
 </pre></div>
@@ -74,9 +69,8 @@ your local repo and only publish changes when they are ready to be merged:</p>
 test files, but these are absolutely necessary for rigorous testing of the
 code.</p>
 </li>
-<li><p class="first">It is highly recommended you install all the optional dependencies as well.</p>
-</li>
-<li><p class="first">Code (see <a class="reference internal" href="#coding-guidelines">Coding Guidelines</a>). Commit early and commit often. Keep your
+<li><p>It is highly recommended you install all the optional dependencies as well.</p></li>
+<li><p>Code (see <a class="reference internal" href="#coding-guidelines">Coding Guidelines</a>). Commit early and commit often. Keep your
 code up to date. You need to add the main repository to the list of your
 remotes. Let’s name the upstream repo as mpmaster (materialsproject master).</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">remote</span> <span class="n">add</span> <span class="n">mpmaster</span> <span class="n">git</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">materialsproject</span><span class="o">/</span><span class="n">pymatgen</span><span class="o">.</span><span class="n">git</span>
@@ -95,33 +89,30 @@ master.</p>
 <p>Remember, pull is a combination of the commands fetch and merge, so there may
 be merge conflicts to be manually resolved.</p>
 </li>
-<li><p class="first">Publish your contributions. Assuming that you now have a couple of commits
+<li><p>Publish your contributions. Assuming that you now have a couple of commits
 that you would like to contribute to the main repository. Please follow the
 following steps:</p>
 <ol class="loweralpha">
-<li><p class="first">If your change is based on a relatively old state of the main repository,
+<li><p>If your change is based on a relatively old state of the main repository,
 then you should probably bring your repository up-to-date first to see if
-the change is not creating any merge conflicts.</p>
-</li>
-<li><p class="first">Check that everything compiles cleanly and passes all tests.
+the change is not creating any merge conflicts.</p></li>
+<li><p>Check that everything compiles cleanly and passes all tests.
 The pymatgen repo comes with a complete set of tests for all modules. If
 you have written new modules or methods, you must write tests for the new
 code as well (see <a class="reference internal" href="#coding-guidelines">Coding Guidelines</a>). Install and run nosetest in your
 local repo directory and fix all errors before continuing further. There
-must be <strong>no errors</strong> for the nosetest.</p>
-</li>
-<li><p class="first">If everything is ok, publish the commits to your github repository.</p>
+must be <strong>no errors</strong> for the nosetest.</p></li>
+<li><p>If everything is ok, publish the commits to your github repository.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">push</span> <span class="n">origin</span> <span class="n">master</span>
 </pre></div>
 </div>
 </li>
 </ol>
 </li>
-<li><p class="first">Now that your commit is published, it doesn’t mean that it has already been
+<li><p>Now that your commit is published, it doesn’t mean that it has already been
 merged into the main repository. You should issue a merge request to
 pymatgen’ maintainers. They will pull your commits and run their own tests
-before releasing.</p>
-</li>
+before releasing.</p></li>
 </ol>
 </div>
 <div class="section" id="coding-guidelines">
@@ -130,26 +121,26 @@ before releasing.</p>
 quality control and coding guidelines for all contributions to pymatgen. The
 following must be satisfied for your contributions to be accepted into pymatgen.</p>
 <ol class="arabic simple">
-<li><strong>Unittests</strong> are required for all new modules and methods. The only way to
+<li><p><strong>Unittests</strong> are required for all new modules and methods. The only way to
 minimize code regression is to ensure that all code are well-tested. If the
-maintainer cannot test your code, the contribution will be rejected.</li>
-<li><strong>Python PEP 8</strong> <a class="reference external" href="http://www.python.org/dev/peps/pep-0008/">code style</a>.
+maintainer cannot test your code, the contribution will be rejected.</p></li>
+<li><p><strong>Python PEP 8</strong> <a class="reference external" href="http://www.python.org/dev/peps/pep-0008/">code style</a>.
 We allow a few exceptions when they are well-justified (e.g., Element’s
 atomic number is given a variable name of capital Z, in line with accepted
-scientific convention), but generally, PEP 8 must be observed.</li>
-<li><strong>Python 3</strong>. All code should seamless work with Python 2.7 and Python 3.x.
+scientific convention), but generally, PEP 8 must be observed.</p></li>
+<li><p><strong>Python 3</strong>. All code should seamless work with Python 2.7 and Python 3.x.
 Please read <a class="reference external" href="https://docs.python.org/3/howto/pyporting.html">Python’s official guidelines</a> on how to write Python 3.x
 compatible code, including the usage of the “six” package. It is recommended
 that you install the “python-modernize” package and run it before submitting
-any pull requests.</li>
-<li><strong>Documentation</strong> required for all modules, classes and methods. In
+any pull requests.</p></li>
+<li><p><strong>Documentation</strong> required for all modules, classes and methods. In
 particular, the method docstrings should make clear the arguments expected
 and the return values. For complex algorithms (e.g., an Ewald summation), a
 summary of the alogirthm should be provided, and preferably with a link to a
-publication outlining the method in detail.</li>
-<li><strong>IDE</strong>. We highly recommend the use of Pycharm or Eclipse + PyDev. You
+publication outlining the method in detail.</p></li>
+<li><p><strong>IDE</strong>. We highly recommend the use of Pycharm or Eclipse + PyDev. You
 should also set up pylint and pep8 and turn those on within the IDE setup.
-This will warn of any issues with coding styles.</li>
+This will warn of any issues with coding styles.</p></li>
 </ol>
 <p>For the above, if in doubt, please refer to the core classes in pymatgen for
 examples of what is expected.</p>
@@ -159,7 +150,7 @@ examples of what is expected.</p>
 compatible. Specifically, we have adopted the following practices throughout
 pymatgen.</p>
 <ol class="arabic">
-<li><p class="first"><strong>Unicode-always.</strong> Unless you are absolutely sure you need byte literals
+<li><p><strong>Unicode-always.</strong> Unless you are absolutely sure you need byte literals
 (rare for pymatgen), always use unicode. In particular, the following should
 be the first line of all pymatgen modules:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
@@ -172,18 +163,15 @@ of the print statement. And unicode_literals makes it such that all
 strings are treated as unicode by default. If you need to use bytes,
 those should be marked up explicitly as b’byte literal’.</p>
 </li>
-<li><p class="first"><strong>Use of the six package</strong>. Where necessary, use the six package to handle
+<li><p><strong>Use of the six package</strong>. Where necessary, use the six package to handle
 interoperability between Python 2 and 3. Examples include the six.moves
 functions (common ones are zip, filter, map), and six.stringtypes (testing
-for string types, which should be rarely done).</p>
-</li>
-<li><p class="first"><strong>Python-modernize</strong>. Use python-modernize to check your code for any
-potential changes that need to be made.</p>
-</li>
-<li><p class="first"><strong>Unit testing</strong>. The entire pymatgen code base is continuously being
+for string types, which should be rarely done).</p></li>
+<li><p><strong>Python-modernize</strong>. Use python-modernize to check your code for any
+potential changes that need to be made.</p></li>
+<li><p><strong>Unit testing</strong>. The entire pymatgen code base is continuously being
 tested in both Python 2.7 and &gt;=3.3. If your code fails either of the
-tests, you need to fix it.</p>
-</li>
+tests, you need to fix it.</p></li>
 </ol>
 </div>
 </div>
@@ -216,8 +204,6 @@ tests, you need to fix it.</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -235,13 +221,13 @@ tests, you need to fix it.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

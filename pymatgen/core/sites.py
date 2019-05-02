@@ -331,10 +331,24 @@ class PeriodicSite(Site, MSONable):
         if to_unit_cell:
             frac_coords = np.mod(frac_coords, 1)
             cart_coords = lattice.get_cartesian_coords(frac_coords)
+        if isinstance(atoms_n_occu, Composition):
+            # Compositions are immutable, so don't need to copy (much faster)
+            species = atoms_n_occu
+        else:
+            try:
+                species = Composition({get_el_sp(atoms_n_occu): 1})
+            except TypeError:
+                species = Composition(atoms_n_occu)
+
+        totaloccu = species.num_atoms
+        if totaloccu > 1 + Composition.amount_tolerance:
+            raise ValueError("Species occupancies sum to more than 1!")
 
         self._lattice = lattice
         self._frac_coords = frac_coords
-        super(PeriodicSite, self).__init__(atoms_n_occu, cart_coords, properties)
+        self._species = species
+        self._coords = np.array(cart_coords)
+        self.properties = properties or {}
 
     def __hash__(self):
         """
@@ -356,7 +370,22 @@ class PeriodicSite(Site, MSONable):
         Sets Lattice associated with PeriodicSite
         """
         self._lattice = lattice
-        self.coords = self._lattice.get_cartesian_coords(self._frac_coords)
+        self._coords = self._lattice.get_cartesian_coords(self._frac_coords)
+
+    @property
+    def coords(self):
+        """
+        Fractional coordinates
+        """
+        return self._coords
+
+    @coords.setter
+    def coords(self, coords):
+        """
+        Fractional a coordinate
+        """
+        self._coords = np.array(coords)
+        self._frac_coords = self._lattice.get_fractional_coords(self._coords)
 
     @property
     def frac_coords(self):
@@ -371,7 +400,7 @@ class PeriodicSite(Site, MSONable):
         Fractional a coordinate
         """
         self._frac_coords = np.array(frac_coords)
-        self.coords = self._lattice.get_cartesian_coords(self._frac_coords)
+        self._coords = self._lattice.get_cartesian_coords(self._frac_coords)
 
     @property
     def a(self):
@@ -383,7 +412,7 @@ class PeriodicSite(Site, MSONable):
     @a.setter
     def a(self, a):
         self._frac_coords[0] = a
-        self.coords = self._lattice.get_cartesian_coords(self._frac_coords)
+        self._coords = self._lattice.get_cartesian_coords(self._frac_coords)
 
     @property
     def b(self):
@@ -395,7 +424,7 @@ class PeriodicSite(Site, MSONable):
     @b.setter
     def b(self, b):
         self._frac_coords[1] = b
-        self.coords = self._lattice.get_cartesian_coords(self._frac_coords)
+        self._coords = self._lattice.get_cartesian_coords(self._frac_coords)
 
     @property
     def c(self):
@@ -407,18 +436,18 @@ class PeriodicSite(Site, MSONable):
     @c.setter
     def c(self, c):
         self._frac_coords[2] = c
-        self.coords = self._lattice.get_cartesian_coords(self._frac_coords)
+        self._coords = self._lattice.get_cartesian_coords(self._frac_coords)
 
     @property
     def x(self):
         """
         Cartesian x coordinate
         """
-        return self.coords[0]
+        return self._coords[0]
 
     @x.setter
     def x(self, x):
-        self.coords[0] = x
+        self._coords[0] = x
         self._frac_coords = self._lattice.get_fractional_coords(self.coords)
 
     @property
@@ -426,11 +455,11 @@ class PeriodicSite(Site, MSONable):
         """
         Cartesian y coordinate
         """
-        return self.coords[1]
+        return self._coords[1]
 
     @y.setter
     def y(self, y):
-        self.coords[1] = y
+        self._coords[1] = y
         self._frac_coords = self._lattice.get_fractional_coords(self.coords)
 
     @property
@@ -438,11 +467,11 @@ class PeriodicSite(Site, MSONable):
         """
         Cartesian z coordinate
         """
-        return self.coords[2]
+        return self._coords[2]
 
     @z.setter
     def z(self, z):
-        self.coords[2] = z
+        self._coords[2] = z
         self._frac_coords = self._lattice.get_fractional_coords(self.coords)
 
     def to_unit_cell(self, in_place=False):
@@ -565,7 +594,7 @@ class PeriodicSite(Site, MSONable):
                 cartesian coordinates, etc.
         """
         species_list = []
-        for spec, occu in self.species.items():
+        for spec, occu in self._species.items():
             d = spec.as_dict()
             del d["@module"]
             del d["@class"]
@@ -573,8 +602,8 @@ class PeriodicSite(Site, MSONable):
             species_list.append(d)
 
         d = {"species": species_list,
-             "abc": [float(c) for c in self.frac_coords],
-             "lattice": self.lattice.as_dict(verbosity=verbosity),
+             "abc": [float(c) for c in self._frac_coords],
+             "lattice": self._lattice.as_dict(verbosity=verbosity),
              "@module": self.__class__.__module__,
              "@class": self.__class__.__name__}
 

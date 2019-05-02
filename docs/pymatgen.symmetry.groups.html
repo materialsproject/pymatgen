@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.symmetry.groups module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.symmetry.groups module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -112,32 +110,28 @@ Groups.</p>
 <dt id="pymatgen.symmetry.groups.SymmetryGroup.is_subgroup">
 <code class="descname">is_subgroup</code><span class="sig-paren">(</span><em>supergroup</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/groups.html#SymmetryGroup.is_subgroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SymmetryGroup.is_subgroup" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if this group is a subgroup of the supplied group.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>supergroup</strong> (<a class="reference internal" href="#pymatgen.symmetry.groups.SymmetryGroup" title="pymatgen.symmetry.groups.SymmetryGroup"><em>SymmetryGroup</em></a>) – Supergroup to test.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if this group is a subgroup of the supplied group.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>supergroup</strong> (<a class="reference internal" href="#pymatgen.symmetry.groups.SymmetryGroup" title="pymatgen.symmetry.groups.SymmetryGroup"><em>SymmetryGroup</em></a>) – Supergroup to test.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if this group is a subgroup of the supplied group.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.symmetry.groups.SymmetryGroup.is_supergroup">
 <code class="descname">is_supergroup</code><span class="sig-paren">(</span><em>subgroup</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/groups.html#SymmetryGroup.is_supergroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SymmetryGroup.is_supergroup" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if this group is a supergroup of the supplied group.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>subgroup</strong> (<a class="reference internal" href="#pymatgen.symmetry.groups.SymmetryGroup" title="pymatgen.symmetry.groups.SymmetryGroup"><em>SymmetryGroup</em></a>) – Subgroup to test.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if this group is a supergroup of the supplied group.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>subgroup</strong> (<a class="reference internal" href="#pymatgen.symmetry.groups.SymmetryGroup" title="pymatgen.symmetry.groups.SymmetryGroup"><em>SymmetryGroup</em></a>) – Subgroup to test.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if this group is a supergroup of the supplied group.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -158,45 +152,37 @@ Groups.</p>
 <dd><p>Extremely efficient nd-array comparison using numpy’s broadcasting. This
 function checks if a particular array a, is present in a list of arrays.
 It works for arrays of any size, e.g., even matrix searches.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>array_list</strong> (<em>[</em><em>array</em><em>]</em>) – A list of arrays to compare to.</li>
-<li><strong>a</strong> (<em>array</em>) – The test array for comparison.</li>
-<li><strong>tol</strong> (<em>float</em>) – The tolerance. Defaults to 1e-5. If 0, an exact match is
-done.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>array_list</strong> (<em>[</em><em>array</em><em>]</em>) – A list of arrays to compare to.</p></li>
+<li><p><strong>a</strong> (<em>array</em>) – The test array for comparison.</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – The tolerance. Defaults to 1e-5. If 0, an exact match is
+done.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(bool)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(bool)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.symmetry.groups.sg_symbol_from_int_number">
 <code class="descname">sg_symbol_from_int_number</code><span class="sig-paren">(</span><em>int_number</em>, <em>hexagonal=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/groups.html#sg_symbol_from_int_number"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.sg_symbol_from_int_number" title="Permalink to this definition">¶</a></dt>
 <dd><p>Obtains a SpaceGroup name from its international number.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>int_number</strong> (<em>int</em>) – International number.</li>
-<li><strong>hexagonal</strong> (<em>bool</em>) – For rhombohedral groups, whether to return the
-hexagonal setting (default) or rhombohedral setting.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>int_number</strong> (<em>int</em>) – International number.</p></li>
+<li><p><strong>hexagonal</strong> (<em>bool</em>) – For rhombohedral groups, whether to return the
+hexagonal setting (default) or rhombohedral setting.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(str) Spacegroup symbol</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(str) Spacegroup symbol</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -220,8 +206,6 @@ hexagonal setting (default) or rhombohedral setting.</li>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -239,13 +223,13 @@ hexagonal setting (default) or rhombohedral setting.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

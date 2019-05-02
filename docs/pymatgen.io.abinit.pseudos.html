@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.pseudos module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.io.abinit.pseudos module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -78,8 +76,8 @@ implemented by the concrete pseudopotential sub-classes.</p>
 <dd><p>Convert obj into a pseudo. Accepts:</p>
 <blockquote>
 <div><ul class="simple">
-<li>Pseudo object.</li>
-<li>string defining a valid path.</li>
+<li><p>Pseudo object.</p></li>
+<li><p>string defining a valid path.</p></li>
 </ul>
 </div></blockquote>
 </dd></dl>
@@ -89,15 +87,12 @@ implemented by the concrete pseudopotential sub-classes.</p>
 <code class="descname">as_tmpfile</code><span class="sig-paren">(</span><em>tmpdir=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/pseudos.html#Pseudo.as_tmpfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.Pseudo.as_tmpfile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Copy the pseudopotential to a temporary a file and returns a new pseudopotential object.
 Useful for unit tests in which we have to change the content of the file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tmpdir</strong> – If None, a new temporary directory is created and files are copied here
-else tmpdir is used.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tmpdir</strong> – If None, a new temporary directory is created and files are copied here
+else tmpdir is used.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -160,14 +155,11 @@ Client code should rely on the abstract interface provided by Pseudo.</p>
 <dd><p>Returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">Hint</span></code> object with the suggested value of ecut [Ha] and
 pawecutdg [Ha] for the given accuracy.
 ecut and pawecutdg are set to zero if no hint is available.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>accuracy</strong> – [“low”, “normal”, “high”]</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>accuracy</strong> – [“low”, “normal”, “high”]</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -206,18 +198,14 @@ ecut and pawecutdg are set to zero if no hint is available.</p>
 <dd><p>Calls Abinit to compute the internal tables for the application of the
 pseudopotential part. Returns <code class="xref py py-class docutils literal notranslate"><span class="pre">PspsFile</span></code> object providing methods
 to plot and analyze the data or None if file is not found or it’s not readable.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>ecut</strong> – Cutoff energy in Hartree.</li>
-<li><strong>pawecutdg</strong> – Cutoff energy for the PAW double grid.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ecut</strong> – Cutoff energy in Hartree.</p></li>
+<li><p><strong>pawecutdg</strong> – Cutoff energy for the PAW double grid.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -269,14 +257,11 @@ print elements.name(‘iron’)
 Fe
 print elements.isotope(‘Fe’)
 Fe</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pseudos</strong> – List of pseudopotentials or filepaths</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pseudos</strong> – List of pseudopotentials or filepaths</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.abinit.pseudos.PseudoTable.all_combinations_for_elements">
 <code class="descname">all_combinations_for_elements</code><span class="sig-paren">(</span><em>element_symbols</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/pseudos.html#PseudoTable.all_combinations_for_elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.PseudoTable.all_combinations_for_elements" title="Permalink to this definition">¶</a></dt>
@@ -322,20 +307,16 @@ Each item is a list of pseudopotential objects.</p>
 <dt id="pymatgen.io.abinit.pseudos.PseudoTable.from_dir">
 <em class="property">classmethod </em><code class="descname">from_dir</code><span class="sig-paren">(</span><em>top</em>, <em>exts=None</em>, <em>exclude_dirs='_*'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/pseudos.html#PseudoTable.from_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.PseudoTable.from_dir" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find all pseudos in the directory tree starting from top.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>top</strong> – Top of the directory tree</li>
-<li><strong>exts</strong> – List of files extensions. if exts == “all_files”
-we try to open all files in top</li>
-<li><strong>exclude_dirs</strong> – Wildcard used to exclude directories.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>top</strong> – Top of the directory tree</p></li>
+<li><p><strong>exts</strong> – List of files extensions. if exts == “all_files”
+we try to open all files in top</p></li>
+<li><p><strong>exclude_dirs</strong> – Wildcard used to exclude directories.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p>return: <a class="reference internal" href="#pymatgen.io.abinit.pseudos.PseudoTable" title="pymatgen.io.abinit.pseudos.PseudoTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">PseudoTable</span></code></a> sorted by atomic number Z.</p>
 </dd></dl>
 
@@ -343,21 +324,17 @@ we try to open all files in top</li>
 <dt id="pymatgen.io.abinit.pseudos.PseudoTable.get_pseudos_for_structure">
 <code class="descname">get_pseudos_for_structure</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/pseudos.html#PseudoTable.get_pseudos_for_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.PseudoTable.get_pseudos_for_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the list of <a class="reference internal" href="#pymatgen.io.abinit.pseudos.Pseudo" title="pymatgen.io.abinit.pseudos.Pseudo"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pseudo</span></code></a> objects to be used for this <code class="xref py py-class docutils literal notranslate"><span class="pre">Structure</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>structure</strong> – pymatgen <code class="xref py py-class docutils literal notranslate"><span class="pre">Structure</span></code>.</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><cite>ValueError</cite> if one of the chemical symbols is not found or</li>
-<li>multiple occurences are present in the table.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>structure</strong> – pymatgen <code class="xref py py-class docutils literal notranslate"><span class="pre">Structure</span></code>.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – </p></li>
+<li><p><strong>multiple occurences are present in the table.</strong> – </p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -370,56 +347,45 @@ we try to open all files in top</li>
 <dt id="pymatgen.io.abinit.pseudos.PseudoTable.print_table">
 <code class="descname">print_table</code><span class="sig-paren">(</span><em>stream=&lt;_io.TextIOWrapper name='&lt;stdout&gt;' mode='w' encoding='UTF-8'&gt;</em>, <em>filter_function=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/pseudos.html#PseudoTable.print_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.PseudoTable.print_table" title="Permalink to this definition">¶</a></dt>
 <dd><p>A pretty ASCII printer for the periodic table, based on some filter_function.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>stream</strong> – file-like object</li>
-<li><strong>filter_function</strong> – A filtering function that take a Pseudo as input and returns a boolean.
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stream</strong> – file-like object</p></li>
+<li><p><strong>filter_function</strong> – A filtering function that take a Pseudo as input and returns a boolean.
 For example, setting filter_function = lambda p: p.Z_val &gt; 2 will print
-a periodic table containing only pseudos with Z_val &gt; 2.</li>
+a periodic table containing only pseudos with Z_val &gt; 2.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.pseudos.PseudoTable.pseudo_with_symbol">
 <code class="descname">pseudo_with_symbol</code><span class="sig-paren">(</span><em>symbol</em>, <em>allow_multi=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/pseudos.html#PseudoTable.pseudo_with_symbol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.PseudoTable.pseudo_with_symbol" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the pseudo with the given chemical symbol.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>symbols</strong> – String with the chemical symbol of the element</li>
-<li><strong>allow_multi</strong> – By default, the method raises ValueError
-if multiple occurrences are found. Use allow_multi to prevent this.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>symbols</strong> – String with the chemical symbol of the element</p></li>
+<li><p><strong>allow_multi</strong> – By default, the method raises ValueError
+if multiple occurrences are found. Use allow_multi to prevent this.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last">ValueError if symbol is not found or multiple occurences are present and not allow_multi</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError if symbol is not found</strong><strong> or </strong><strong>multiple occurences are present and not allow_multi</strong> – </p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.pseudos.PseudoTable.pseudos_with_symbols">
 <code class="descname">pseudos_with_symbols</code><span class="sig-paren">(</span><em>symbols</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/pseudos.html#PseudoTable.pseudos_with_symbols"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.PseudoTable.pseudos_with_symbols" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the pseudos with the given chemical symbols.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body">ValueError if one of the symbols is not found or multiple occurences are present.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>ValueError if one of the symbols is not found</strong><strong> or </strong><strong>multiple occurences are present.</strong> – </p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -427,14 +393,11 @@ if multiple occurrences are found. Use allow_multi to prevent this.</li>
 <code class="descname">select</code><span class="sig-paren">(</span><em>condition</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/pseudos.html#PseudoTable.select"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.PseudoTable.select" title="Permalink to this definition">¶</a></dt>
 <dd><p>Select only those pseudopotentials for which condition is True.
 Return new class:<cite>PseudoTable</cite> object.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>condition</strong> – Function that accepts a <a class="reference internal" href="#pymatgen.io.abinit.pseudos.Pseudo" title="pymatgen.io.abinit.pseudos.Pseudo"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pseudo</span></code></a> object and returns True or False.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>condition</strong> – Function that accepts a <a class="reference internal" href="#pymatgen.io.abinit.pseudos.Pseudo" title="pymatgen.io.abinit.pseudos.Pseudo"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pseudo</span></code></a> object and returns True or False.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -453,19 +416,15 @@ rows can be either a int or a list of integers.</p>
 <dt id="pymatgen.io.abinit.pseudos.PseudoTable.select_symbols">
 <code class="descname">select_symbols</code><span class="sig-paren">(</span><em>symbols</em>, <em>ret_list=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/pseudos.html#PseudoTable.select_symbols"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.PseudoTable.select_symbols" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a <a class="reference internal" href="#pymatgen.io.abinit.pseudos.PseudoTable" title="pymatgen.io.abinit.pseudos.PseudoTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">PseudoTable</span></code></a> with the pseudopotentials with the given list of chemical symbols.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>symbols</strong> – str or list of symbols
-Prepend the symbol string with “-“, to exclude pseudos.</li>
-<li><strong>ret_list</strong> – if True a list of pseudos is returned instead of a <a class="reference internal" href="#pymatgen.io.abinit.pseudos.PseudoTable" title="pymatgen.io.abinit.pseudos.PseudoTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">PseudoTable</span></code></a></li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>symbols</strong> – str or list of symbols
+Prepend the symbol string with “-“, to exclude pseudos.</p></li>
+<li><p><strong>ret_list</strong> – if True a list of pseudos is returned instead of a <a class="reference internal" href="#pymatgen.io.abinit.pseudos.PseudoTable" title="pymatgen.io.abinit.pseudos.PseudoTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">PseudoTable</span></code></a></p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -478,16 +437,14 @@ Prepend the symbol string with “-“, to exclude pseudos.</li>
 <dt id="pymatgen.io.abinit.pseudos.PseudoTable.sorted">
 <code class="descname">sorted</code><span class="sig-paren">(</span><em>attrname</em>, <em>reverse=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/pseudos.html#PseudoTable.sorted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.PseudoTable.sorted" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sort the table according to the value of attribute attrname.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><cite>PseudoTable</cite> object</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">New class</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><cite>PseudoTable</cite> object</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>New class</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -531,8 +488,6 @@ Prepend the symbol string with “-“, to exclude pseudos.</li>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -550,13 +505,13 @@ Prepend the symbol string with “-“, to exclude pseudos.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.xr module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.io.xr module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -57,95 +55,79 @@ that employed core-shell models.</p>
 <em class="property">class </em><code class="descname">Xr</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/xr.html#Xr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xr.Xr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Basic object for working with xr files.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> (<em>Structure/IStructure</em>) – Structure object to create the
-Xr object.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>structure</strong> (<em>Structure/IStructure</em>) – Structure object to create the
+Xr object.</p>
+</dd>
+</dl>
 <dl class="staticmethod">
 <dt id="pymatgen.io.xr.Xr.from_file">
 <em class="property">static </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em>, <em>use_cores=True</em>, <em>thresh=0.0001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/xr.html#Xr.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xr.Xr.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads an xr-formatted file to create an Xr object.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>filename</strong> (<em>str</em>) – name of file to read from.</li>
-<li><strong>use_cores</strong> (<em>bool</em>) – use core positions and discard shell
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – name of file to read from.</p></li>
+<li><p><strong>use_cores</strong> (<em>bool</em>) – use core positions and discard shell
 positions if set to True (default).  Otherwise,
-use shell positions and discard core positions.</li>
-<li><strong>thresh</strong> (<em>float</em>) – relative threshold for consistency check
+use shell positions and discard core positions.</p></li>
+<li><p><strong>thresh</strong> (<em>float</em>) – relative threshold for consistency check
 between cell parameters (lengths and angles) from
-header information and cell vectors, respectively.</li>
+header information and cell vectors, respectively.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
-<dt>Xr object corresponding to the input</dt>
-<dd><p class="first last">file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Xr object corresponding to the input</dt><dd><p>file.</p>
 </dd>
 </dl>
 </p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">xr (<a class="reference internal" href="#pymatgen.io.xr.Xr" title="pymatgen.io.xr.Xr">Xr</a>)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>xr (<a class="reference internal" href="#pymatgen.io.xr.Xr" title="pymatgen.io.xr.Xr">Xr</a>)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="pymatgen.io.xr.Xr.from_string">
 <em class="property">static </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>string</em>, <em>use_cores=True</em>, <em>thresh=0.0001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/xr.html#Xr.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xr.Xr.from_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates an Xr object from a string representation.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>string</strong> (<em>str</em>) – string representation of an Xr object.</li>
-<li><strong>use_cores</strong> (<em>bool</em>) – use core positions and discard shell
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>string</strong> (<em>str</em>) – string representation of an Xr object.</p></li>
+<li><p><strong>use_cores</strong> (<em>bool</em>) – use core positions and discard shell
 positions if set to True (default).  Otherwise,
-use shell positions and discard core positions.</li>
-<li><strong>thresh</strong> (<em>float</em>) – relative threshold for consistency check
+use shell positions and discard core positions.</p></li>
+<li><p><strong>thresh</strong> (<em>float</em>) – relative threshold for consistency check
 between cell parameters (lengths and angles) from
-header information and cell vectors, respectively.</li>
+header information and cell vectors, respectively.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
-<dt>Xr object corresponding to the input</dt>
-<dd><p class="first last">string representation.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Xr object corresponding to the input</dt><dd><p>string representation.</p>
 </dd>
 </dl>
 </p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">xr (<a class="reference internal" href="#pymatgen.io.xr.Xr" title="pymatgen.io.xr.Xr">Xr</a>)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>xr (<a class="reference internal" href="#pymatgen.io.xr.Xr" title="pymatgen.io.xr.Xr">Xr</a>)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.xr.Xr.write_file">
 <code class="descname">write_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/xr.html#Xr.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xr.Xr.write_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write out an xr file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) – name of the file to write to.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – name of the file to write to.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -171,8 +153,6 @@ header information and cell vectors, respectively.</li>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -190,13 +170,13 @@ header information and cell vectors, respectively.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

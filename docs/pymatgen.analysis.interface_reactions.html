@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.interface_reactions module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.interface_reactions module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,181 +42,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-pymatgen.analysis.interface_reactions">
-<span id="pymatgen-analysis-interface-reactions-module"></span><h1>pymatgen.analysis.interface_reactions module<a class="headerlink" href="#module-pymatgen.analysis.interface_reactions" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity">
-<em class="property">class </em><code class="descname">InterfacialReactivity</code><span class="sig-paren">(</span><em>c1</em>, <em>c2</em>, <em>pd</em>, <em>norm=True</em>, <em>include_no_mixing_energy=False</em>, <em>pd_non_grand=None</em>, <em>use_hull_energy=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface_reactions.html#InterfacialReactivity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>An object encompassing all relevant data for interface reactions.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>c1</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – Composition object for reactant 1.</li>
-<li><strong>c2</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – Composition object for reactant 2.</li>
-<li><strong>pd</strong> (<a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PhaseDiagram" title="pymatgen.analysis.phase_diagram.PhaseDiagram"><em>PhaseDiagram</em></a>) – PhaseDiagram object or GrandPotentialPhaseDiagram
-object built from all elements in composition c1 and c2.</li>
-<li><strong>norm</strong> (<em>bool</em>) – Whether or not the total number of atoms in composition
-of reactant will be normalized to 1.</li>
-<li><strong>include_no_mixing_energy</strong> (<em>bool</em>) – No_mixing_energy for a reactant is the
-opposite number of its energy above grand potential convex hull. In
-cases where reactions involve elements reservoir, this param
-determines whether no_mixing_energy of reactants will be included
-in the final reaction energy calculation. By definition, if pd is
-not a GrandPotentialPhaseDiagram object, this param is False.</li>
-<li><strong>pd_non_grand</strong> (<a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PhaseDiagram" title="pymatgen.analysis.phase_diagram.PhaseDiagram"><em>PhaseDiagram</em></a>) – PhaseDiagram object but not
-GrandPotentialPhaseDiagram object built from elements in c1 and c2.</li>
-<li><strong>use_hull_energy</strong> (<em>bool</em>) – Whether or not use the convex hull energy for
-a given composition for reaction energy calculation. If false,
-the energy of ground state structure will be used instead.
-Note that in case when ground state can not be found for a
-composition, convex hull energy will be used associated with a
-warning message.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="attribute">
-<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.EV_TO_KJ_PER_MOL">
-<code class="descname">EV_TO_KJ_PER_MOL</code><em class="property"> = 96.4853</em><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.EV_TO_KJ_PER_MOL" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="staticmethod">
-<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.get_chempot_correction">
-<em class="property">static </em><code class="descname">get_chempot_correction</code><span class="sig-paren">(</span><em>element</em>, <em>temp</em>, <em>pres</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface_reactions.html#InterfacialReactivity.get_chempot_correction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.get_chempot_correction" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the normalized correction term Δμ for chemical potential of a gas
-phase consisting of element at given temperature and pressure,
-referenced to that in the standard state (T_std = 298.15 K,
-T_std = 1 bar). The gas phase is limited to be one of O2, N2, Cl2,
-F2, H2. Calculation formula can be found in the documentation of
-Materials Project website.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>element</strong> (<em>string</em>) – The string representing the element.</li>
-<li><strong>temp</strong> (<em>float</em>) – The temperature of the gas phase.</li>
-<li><strong>pres</strong> (<em>float</em>) – The pressure of the gas phase.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The correction of chemical potential in eV/atom of the gas
-phase at given temperature and pressure.</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.get_critical_original_kink_ratio">
-<code class="descname">get_critical_original_kink_ratio</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface_reactions.html#InterfacialReactivity.get_critical_original_kink_ratio"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.get_critical_original_kink_ratio" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a list of molar mixing ratio for each kink between ORIGINAL
-(instead of processed) reactant compositions. This is the
-same list as mixing ratio obtained from get_kinks method
-if self.norm = False.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A list of floats representing molar mixing ratios between
-the original reactant compositions for each kink.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.get_kinks">
-<code class="descname">get_kinks</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface_reactions.html#InterfacialReactivity.get_kinks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.get_kinks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Finds all the kinks in mixing ratio where reaction products changes
-along the tie line of composition self.c1 and composition self.c2.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
-<dt>Zip object of tuples (index, mixing ratio,</dt>
-<dd>reaction energy per atom in eV/atom,
-reaction formula,
-reaction energy per mol of reaction
-formula in kJ/mol).</dd>
-</dl>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.get_no_mixing_energy">
-<code class="descname">get_no_mixing_energy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface_reactions.html#InterfacialReactivity.get_no_mixing_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.get_no_mixing_energy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generates the opposite number of energy above grand potential
-convex hull for both reactants.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">[(reactant1, no_mixing_energy1),(reactant2,no_mixing_energy2)].</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.get_products">
-<code class="descname">get_products</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface_reactions.html#InterfacialReactivity.get_products"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.get_products" title="Permalink to this definition">¶</a></dt>
-<dd><p>List of formulas of potential products. E.g., [‘Li’,’O2’,’Mn’].</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.labels">
-<code class="descname">labels</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface_reactions.html#InterfacialReactivity.labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.labels" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a dictionary containing kink information:
-{index: ‘x= mixing_ratio energy= reaction_energy reaction_equation’}.
-E.g., {1: ‘x= 0.0 energy = 0.0 Mn -&gt; Mn’,</p>
-<blockquote>
-<div>2: ‘x= 0.5 energy = -15.0 O2 + Mn -&gt; MnO2’,
-3: ‘x= 1.0 energy = 0.0 O2 -&gt; O2’}.</div></blockquote>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.minimum">
-<code class="descname">minimum</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface_reactions.html#InterfacialReactivity.minimum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.minimum" title="Permalink to this definition">¶</a></dt>
-<dd><p>Finds the minimum reaction energy E_min and corresponding
-mixing ratio x_min.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Tuple (x_min, E_min).</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.plot">
-<code class="descname">plot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface_reactions.html#InterfacialReactivity.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.plot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plots reaction energy as a function of mixing ratio x in
-self.c1 - self.c2 tie line using pylab.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Pylab object that plots reaction energy as a function of
-mixing ratio x.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
+  <div class="section" id="pymatgen-analysis-interface-reactions-module">
+<h1>pymatgen.analysis.interface_reactions module<a class="headerlink" href="#pymatgen-analysis-interface-reactions-module" title="Permalink to this headline">¶</a></h1>
 </div>
 
 
@@ -240,8 +65,6 @@ mixing ratio x.</td>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -259,13 +82,13 @@ mixing ratio x.</td>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

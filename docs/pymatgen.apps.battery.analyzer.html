@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.apps.battery.analyzer module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.apps.battery.analyzer module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -60,43 +58,35 @@
 <dd><p>Give max capacity in mAh/g for inserting and removing a charged cation
 Note that the weight is normalized to the most lithiated state,
 thus removal of 1 Li from LiFePO4 gives the same capacity as insertion of 1 Li into FePO4.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>remove</strong> – (bool) whether to allow cation removal</li>
-<li><strong>insert</strong> – (bool) whether to allow cation insertion</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>remove</strong> – (bool) whether to allow cation removal</p></li>
+<li><p><strong>insert</strong> – (bool) whether to allow cation insertion</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">max grav capacity in mAh/g</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>max grav capacity in mAh/g</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.apps.battery.analyzer.BatteryAnalyzer.get_max_capvol">
 <code class="descname">get_max_capvol</code><span class="sig-paren">(</span><em>remove=True</em>, <em>insert=True</em>, <em>volume=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/analyzer.html#BatteryAnalyzer.get_max_capvol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.BatteryAnalyzer.get_max_capvol" title="Permalink to this definition">¶</a></dt>
 <dd><p>Give max capacity in mAh/cc for inserting and removing a charged cation into base structure.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>remove</strong> – (bool) whether to allow cation removal</li>
-<li><strong>insert</strong> – (bool) whether to allow cation insertion</li>
-<li><strong>volume</strong> – (float) volume to use for normalization (default=volume of initial structure)</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>remove</strong> – (bool) whether to allow cation removal</p></li>
+<li><p><strong>insert</strong> – (bool) whether to allow cation insertion</p></li>
+<li><p><strong>volume</strong> – (float) volume to use for normalization (default=volume of initial structure)</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">max vol capacity in mAh/cc</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>max vol capacity in mAh/cc</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -110,14 +100,11 @@ Note that having more than 3 redox metals will likely slow down the algorithm.</
 <p>LiFePO4 will return [1.0]
 Li4Fe3Mn1(PO4)4 will return [1.0, 2.0, 3.0, 4.0])
 Li6V4(PO4)6 will return [4.0, 6.0])  <em>note that this example is not normalized</em></p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">array of integer cation removals. If you double the unit cell, your answers will be twice as large!</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>array of integer cation removals. If you double the unit cell, your answers will be twice as large!</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -125,28 +112,22 @@ Li6V4(PO4)6 will return [4.0, 6.0])  <em>note that this example is not normalize
 <code class="descname">max_cation_insertion</code><a class="headerlink" href="#pymatgen.apps.battery.analyzer.BatteryAnalyzer.max_cation_insertion" title="Permalink to this definition">¶</a></dt>
 <dd><p>Maximum number of cation A that can be inserted while maintaining charge-balance.
 No consideration is given to whether there (geometrically speaking) are Li sites to actually accommodate the extra Li.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">integer amount of cation. Depends on cell size (this is an ‘extrinsic’ function!)</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>integer amount of cation. Depends on cell size (this is an ‘extrinsic’ function!)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.apps.battery.analyzer.BatteryAnalyzer.max_cation_removal">
 <code class="descname">max_cation_removal</code><a class="headerlink" href="#pymatgen.apps.battery.analyzer.BatteryAnalyzer.max_cation_removal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Maximum number of cation A that can be removed while maintaining charge-balance.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">integer amount of cation. Depends on cell size (this is an ‘extrinsic’ function!)</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>integer amount of cation. Depends on cell size (this is an ‘extrinsic’ function!)</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -155,14 +136,11 @@ No consideration is given to whether there (geometrically speaking) are Li sites
 <dt id="pymatgen.apps.battery.analyzer.is_redox_active_intercalation">
 <code class="descname">is_redox_active_intercalation</code><span class="sig-paren">(</span><em>element</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/analyzer.html#is_redox_active_intercalation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.is_redox_active_intercalation" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if element is redox active and interesting for intercalation materials</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>element</strong> – Element object</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>element</strong> – Element object</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -186,8 +164,6 @@ No consideration is given to whether there (geometrically speaking) are Li sites
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -205,13 +181,13 @@ No consideration is given to whether there (geometrically speaking) are Li sites
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

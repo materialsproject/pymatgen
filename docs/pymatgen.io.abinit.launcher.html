@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.launcher module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.io.abinit.launcher module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -140,19 +138,15 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This object handle the submission of the tasks contained in a <code class="xref py py-class docutils literal notranslate"><span class="pre">Flow</span></code></p>
 <p>Initialize the object</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>flow</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">Flow</span></code> object</li>
-<li><strong>max_njobs_inqueue</strong> – The launcher will stop submitting jobs when the
-number of jobs in the queue is &gt;= Max number of jobs</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>flow</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">Flow</span></code> object</p></li>
+<li><p><strong>max_njobs_inqueue</strong> – The launcher will stop submitting jobs when the
+number of jobs in the queue is &gt;= Max number of jobs</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.launcher.PyLauncher.Error">
 <code class="descname">Error</code><a class="headerlink" href="#pymatgen.io.abinit.launcher.PyLauncher.Error" title="Permalink to this definition">¶</a></dt>
@@ -170,36 +164,29 @@ Empty list if no task has been found.</p>
 <dt id="pymatgen.io.abinit.launcher.PyLauncher.rapidfire">
 <code class="descname">rapidfire</code><span class="sig-paren">(</span><em>max_nlaunch=-1</em>, <em>max_loops=1</em>, <em>sleep_time=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/launcher.html#PyLauncher.rapidfire"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.launcher.PyLauncher.rapidfire" title="Permalink to this definition">¶</a></dt>
 <dd><p>Keeps submitting <cite>Tasks</cite> until we are out of jobs or no job is ready to run.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>max_nlaunch</strong> – Maximum number of launches. default: no limit.</li>
-<li><strong>max_loops</strong> – Maximum number of loops</li>
-<li><strong>sleep_time</strong> – seconds to sleep between rapidfire loop iterations</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_nlaunch</strong> – Maximum number of launches. default: no limit.</p></li>
+<li><p><strong>max_loops</strong> – Maximum number of loops</p></li>
+<li><p><strong>sleep_time</strong> – seconds to sleep between rapidfire loop iterations</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The number of tasks launched.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The number of tasks launched.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.launcher.PyLauncher.single_shot">
 <code class="descname">single_shot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/launcher.html#PyLauncher.single_shot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.launcher.PyLauncher.single_shot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run the first <code class="xref py py-class docutils literal notranslate"><span class="pre">Task</span></code> than is ready for execution.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Number of jobs launched.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Number of jobs launched.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -212,8 +199,8 @@ Empty list if no task has been found.</p>
 There are two types of errors that might occur during the execution of the jobs:</p>
 <blockquote>
 <div><ol class="arabic simple">
-<li>Python exceptions</li>
-<li>Errors in the ab-initio code</li>
+<li><p>Python exceptions</p></li>
+<li><p>Errors in the ab-initio code</p></li>
 </ol>
 </div></blockquote>
 <p>Python exceptions are easy to detect and are usually due to a bug in the python code or random errors such as IOError.
@@ -223,52 +210,48 @@ but there’s still a lot of room for improvement.
 Note, in particular, that <cite>PyFlowScheduler</cite> will shutdown automatically in the following cases:</p>
 <blockquote>
 <div><ol class="arabic simple">
-<li>The number of python exceptions is &gt; max_num_pyexcs</li>
-<li>The number of task errors (i.e. the number of tasks whose status is S_ERROR) is &gt; max_num_abierrs</li>
-<li>The number of jobs launched becomes greater than (<cite>safety_ratio</cite> * total_number_of_tasks).</li>
-<li>The scheduler will send an email to the user (specified by <cite>mailto</cite>) every <cite>remindme_s</cite> seconds.
+<li><p>The number of python exceptions is &gt; max_num_pyexcs</p></li>
+<li><p>The number of task errors (i.e. the number of tasks whose status is S_ERROR) is &gt; max_num_abierrs</p></li>
+<li><p>The number of jobs launched becomes greater than (<cite>safety_ratio</cite> * total_number_of_tasks).</p></li>
+<li><p>The scheduler will send an email to the user (specified by <cite>mailto</cite>) every <cite>remindme_s</cite> seconds.
 If the mail cannot be sent, the scheduler will shutdown automatically.
-This check prevents the scheduler from being trapped in an infinite loop.</li>
+This check prevents the scheduler from being trapped in an infinite loop.</p></li>
 </ol>
 </div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>weeks</strong> – number of weeks to wait (DEFAULT: 0).</li>
-<li><strong>days</strong> – number of days to wait (DEFAULT: 0).</li>
-<li><strong>hours</strong> – number of hours to wait (DEFAULT: 0).</li>
-<li><strong>minutes</strong> – number of minutes to wait (DEFAULT: 0).</li>
-<li><strong>seconds</strong> – number of seconds to wait (DEFAULT: 0).</li>
-<li><strong>mailto</strong> – The scheduler will send an email to <cite>mailto</cite> every <cite>remindme_s</cite> seconds.
-(DEFAULT: None i.e. not used).</li>
-<li><strong>verbose</strong> – (int) verbosity level. (DEFAULT: 0)</li>
-<li><strong>use_dynamic_manager</strong> – “yes” if the <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> must be re-initialized from
-file before launching the jobs. (DEFAULT: “no”)</li>
-<li><strong>max_njobs_inqueue</strong> – Limit on the number of jobs that can be present in the queue. (DEFAULT: 200)</li>
-<li><strong>max_ncores_used</strong> – Maximum number of cores that can be used by the scheduler.</li>
-<li><strong>remindme_s</strong> – The scheduler will send an email to the user specified
-by <cite>mailto</cite> every <cite>remindme_s</cite> seconds. (int, DEFAULT: 1 day).</li>
-<li><strong>max_num_pyexcs</strong> – The scheduler will exit if the number of python exceptions is &gt; max_num_pyexcs
-(int, DEFAULT: 0)</li>
-<li><strong>max_num_abierrs</strong> – The scheduler will exit if the number of errored tasks is &gt; max_num_abierrs
-(int, DEFAULT: 0)</li>
-<li><strong>safety_ratio</strong> – The scheduler will exits if the number of jobs launched becomes greater than
-<cite>safety_ratio</cite> * total_number_of_tasks_in_flow. (int, DEFAULT: 5)</li>
-<li><strong>max_nlaunches</strong> – Maximum number of tasks launched in a single iteration of the scheduler.
-(DEFAULT: -1 i.e. no limit)</li>
-<li><strong>debug</strong> – Debug level. Use 0 for production (int, DEFAULT: 0)</li>
-<li><strong>fix_qcritical</strong> – “yes” if the launcher should try to fix QCritical Errors (DEFAULT: “no”)</li>
-<li><strong>rmflow</strong> – If “yes”, the scheduler will remove the flow directory if the calculation
-completed successfully. (DEFAULT: “no”)</li>
-<li><strong>killjobs_if_errors</strong> – “yes” if the scheduler should try to kill all the runnnig jobs
-before exiting due to an error. (DEFAULT: “yes”)</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>weeks</strong> – number of weeks to wait (DEFAULT: 0).</p></li>
+<li><p><strong>days</strong> – number of days to wait (DEFAULT: 0).</p></li>
+<li><p><strong>hours</strong> – number of hours to wait (DEFAULT: 0).</p></li>
+<li><p><strong>minutes</strong> – number of minutes to wait (DEFAULT: 0).</p></li>
+<li><p><strong>seconds</strong> – number of seconds to wait (DEFAULT: 0).</p></li>
+<li><p><strong>mailto</strong> – The scheduler will send an email to <cite>mailto</cite> every <cite>remindme_s</cite> seconds.
+(DEFAULT: None i.e. not used).</p></li>
+<li><p><strong>verbose</strong> – (int) verbosity level. (DEFAULT: 0)</p></li>
+<li><p><strong>use_dynamic_manager</strong> – “yes” if the <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> must be re-initialized from
+file before launching the jobs. (DEFAULT: “no”)</p></li>
+<li><p><strong>max_njobs_inqueue</strong> – Limit on the number of jobs that can be present in the queue. (DEFAULT: 200)</p></li>
+<li><p><strong>max_ncores_used</strong> – Maximum number of cores that can be used by the scheduler.</p></li>
+<li><p><strong>remindme_s</strong> – The scheduler will send an email to the user specified
+by <cite>mailto</cite> every <cite>remindme_s</cite> seconds. (int, DEFAULT: 1 day).</p></li>
+<li><p><strong>max_num_pyexcs</strong> – The scheduler will exit if the number of python exceptions is &gt; max_num_pyexcs
+(int, DEFAULT: 0)</p></li>
+<li><p><strong>max_num_abierrs</strong> – The scheduler will exit if the number of errored tasks is &gt; max_num_abierrs
+(int, DEFAULT: 0)</p></li>
+<li><p><strong>safety_ratio</strong> – The scheduler will exits if the number of jobs launched becomes greater than
+<cite>safety_ratio</cite> * total_number_of_tasks_in_flow. (int, DEFAULT: 5)</p></li>
+<li><p><strong>max_nlaunches</strong> – Maximum number of tasks launched in a single iteration of the scheduler.
+(DEFAULT: -1 i.e. no limit)</p></li>
+<li><p><strong>debug</strong> – Debug level. Use 0 for production (int, DEFAULT: 0)</p></li>
+<li><p><strong>fix_qcritical</strong> – “yes” if the launcher should try to fix QCritical Errors (DEFAULT: “no”)</p></li>
+<li><p><strong>rmflow</strong> – If “yes”, the scheduler will remove the flow directory if the calculation
+completed successfully. (DEFAULT: “no”)</p></li>
+<li><p><strong>killjobs_if_errors</strong> – “yes” if the scheduler should try to kill all the runnnig jobs
+before exiting due to an error. (DEFAULT: “yes”)</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.launcher.PyFlowScheduler.Error">
 <code class="descname">Error</code><a class="headerlink" href="#pymatgen.io.abinit.launcher.PyFlowScheduler.Error" title="Permalink to this definition">¶</a></dt>
@@ -331,14 +314,11 @@ before exiting due to an error. (DEFAULT: “yes”)</li>
 <em class="property">classmethod </em><code class="descname">from_user_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/launcher.html#PyFlowScheduler.from_user_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.launcher.PyFlowScheduler.from_user_config" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize the <a class="reference internal" href="#pymatgen.io.abinit.launcher.PyFlowScheduler" title="pymatgen.io.abinit.launcher.PyFlowScheduler"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyFlowScheduler</span></code></a> from the YAML file ‘scheduler.yml’.
 Search first in the working directory and then in the configuration directory of abipy.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><cite>RuntimeError</cite> if file is not found.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>RuntimeError</strong> – </p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -409,8 +389,6 @@ In standalone mode, this method will block until there are no more scheduled job
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -428,13 +406,13 @@ In standalone mode, this method will block until there are no more scheduled job
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

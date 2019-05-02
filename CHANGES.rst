@@ -1,6 +1,75 @@
 Change log
 ==========
 
+v2019.5.1
+---------
+* Small speeds to Structure.get_all_neighbors.
+* Big fixes for gulp_caller. (@kmu)
+* Plot fatbands from Lobster. (@jageo)
+* Speed up get_ir_mesh (@utf)
+* Parsing of plasma frequencies from Outcar.
+* Miscellaneous bug fixes.
+
+v2019.4.11
+----------
+* Improvements to MimimumDistanceNN (@jmmshn)
+* Improvements to Lobster. (@JaGeo)
+* Implement a metal warning for ISMEAR < 1 and NSW > 0.
+* Misc bug fixes to input sets, including detection of metal systems and 
+  checking for standardization. 
+
+v2019.3.27
+----------
+* Bug fixes for OrderDisorderComparator (@utf), custom k-points
+in MPNonSCFSet (@dyllamt), battery app (@jmmshn), MPSOCSet (@mkhorton),
+more
+* Improvements to COHP (@JaGeo)
+* Support to read WAVEDER files (@knc6)
+* Addition of van Arkel-Ketelaar triangle plots (@richardtran415)
+* Addition of optional user agent to MPRester API calls, see documentation
+for more information (@dwinston)
+
+v2019.3.13
+----------
+* Streamlined Site, PeriodicSite, Molecule and Structure code by abandoning
+  immutability for Site and PeriodicSite.
+* VaspInput class now supports a run_vasp method, which can be used to code
+  runnable python scripts for running simple calculations (custodian still
+  recommended for more complex calculations.). For example, the following is a
+  kpoint convergence script that can be submitted in a queue
+
+.. code-block:: pycon
+
+    from pymatgen import MPRester
+    from pymatgen.io.vasp.sets import MPRelaxSet
+
+
+    VASP_CMD = ["mpirun", "-machinefile", "$PBS_NODEFILE", "-np", "16", "vasp"]
+
+
+    def main():
+        mpr = MPRester()
+        structure = mpr.get_structures("Li2O")[0]
+        for k_dens in [100, 200, 400, 800]:
+            vis = MPRelaxSet(structure, 
+                user_kpoints_settings={"reciprocal_density": k_dens})
+            vi = vis.get_vasp_input()
+            kpoints = vi["KPOINTS"].kpts[0][0]
+            d = "Li2O_kpoints_%d" % kpoints
+ 
+            # Directly run vasp.
+            vi.run_vasp(d, vasp_cmd=VASP_CMD)
+            # Use the final structure as the new initial structure to speed up calculations.
+            structure = Vasprun("%s/vasprun.xml" % d).final_structure
+
+
+    if __name__ == "__main__":
+        main()
+
+* Many pymatgen from_file methods now support pathlib.Path as well as strings.
+* Misc bug fixes.
+
+
 v2019.2.28
 ----------
 * Type hints now available for core classes.

@@ -705,7 +705,7 @@ class BSPlotterProjected(BSPlotter):
         if len(bs.projections) == 0:
             raise ValueError("try to plot projections"
                              " on a band structure without any")
-        super(BSPlotterProjected, self).__init__(bs)
+        super().__init__(bs)
 
     def _get_projections_by_branches(self, dictio):
         proj = self._bs.get_projections_on_elements_and_orbitals(dictio)
@@ -746,6 +746,9 @@ class BSPlotterProjected(BSPlotter):
                 format is {Element:[Orbitals]} for instance
                 {'Cu':['d','s'],'O':['p']} will give projections for Cu on
                 d and s orbitals and on oxygen p.
+                If you use this class to plot LobsterBandStructureSymmLine,
+                the orbitals are named as in the FATBAND filename, e.g.
+                "2p" or "2p_x"
 
         Returns:
             a pylab object with different subfigures for each projection
@@ -2090,6 +2093,8 @@ class BSPlotterProjected(BSPlotter):
             shift.append(distance[branch] - rf_distance[br])
 
         return plt, shift
+
+
 
 
 class BSDOSPlotter:
@@ -4183,3 +4188,5 @@ def plot_ellipsoid(hessian, center, lattice=None, rescale=1.0, ax=None,
                         color=color[i])
 
     return fig, ax
+
+

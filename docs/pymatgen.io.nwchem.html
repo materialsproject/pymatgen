@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.nwchem module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.io.nwchem module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -52,29 +50,25 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>An object representing a Nwchem input file, which is essentially a list
 of tasks on a particular molecule.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>mol</strong> – Input molecule. If molecule is a single string, it is used as a
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mol</strong> – Input molecule. If molecule is a single string, it is used as a
 direct input to the geometry section of the Gaussian input
-file.</li>
-<li><strong>tasks</strong> – List of NwTasks.</li>
-<li><strong>directives</strong> – List of root level directives as tuple. E.g.,
-[(“start”, “water”), (“print”, “high”)]</li>
-<li><strong>geometry_options</strong> – Additional list of options to be supplied to the
+file.</p></li>
+<li><p><strong>tasks</strong> – List of NwTasks.</p></li>
+<li><p><strong>directives</strong> – List of root level directives as tuple. E.g.,
+[(“start”, “water”), (“print”, “high”)]</p></li>
+<li><p><strong>geometry_options</strong> – Additional list of options to be supplied to the
 geometry. E.g., [“units”, “angstroms”, “noautoz”]. Defaults to
-(“units”, “angstroms”).</li>
-<li><strong>symmetry_options</strong> – Addition list of option to be supplied to the
-symmetry. E.g. [“c1”] to turn off the symmetry</li>
-<li><strong>memory_options</strong> – Memory controlling options. str.
-E.g “total 1000 mb stack 400 mb”</li>
+(“units”, “angstroms”).</p></li>
+<li><p><strong>symmetry_options</strong> – Addition list of option to be supplied to the
+symmetry. E.g. [“c1”] to turn off the symmetry</p></li>
+<li><p><strong>memory_options</strong> – Memory controlling options. str.
+E.g “total 1000 mb stack 400 mb”</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.nwchem.NwInput.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwInput.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInput.as_dict" title="Permalink to this definition">¶</a></dt>
@@ -91,16 +85,14 @@ E.g “total 1000 mb stack 400 mb”</li>
 <em class="property">classmethod </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwInput.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInput.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read an NwInput from a file. Currently tested to work with
 files generated from this class itself.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – Filename to parse.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">NwInput object</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> – Filename to parse.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>NwInput object</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
@@ -108,16 +100,14 @@ files generated from this class itself.</p>
 <em class="property">classmethod </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>string_input</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwInput.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInput.from_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read an NwInput from a string. Currently tested to work with
 files generated from this class itself.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>string_input</strong> – string_input to parse.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">NwInput object</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>string_input</strong> – string_input to parse.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>NwInput object</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -148,79 +138,66 @@ files generated from this class itself.</p>
 only parses energies and geometries. Please note that Nwchem typically
 outputs energies in either au or kJ/mol. All energies are converted to
 eV in the parser.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – Filename to read.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> – Filename to read.</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.nwchem.NwOutput.get_excitation_spectrum">
 <code class="descname">get_excitation_spectrum</code><span class="sig-paren">(</span><em>width=0.1</em>, <em>npoints=2000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwOutput.get_excitation_spectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwOutput.get_excitation_spectrum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate an excitation spectra from the singlet roots of TDDFT
 calculations.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>width</strong> (<em>float</em>) – Width for Gaussian smearing.</li>
-<li><strong>npoints</strong> (<em>int</em>) – Number of energy points. More points =&gt; smoother
-curve.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>width</strong> (<em>float</em>) – Width for Gaussian smearing.</p></li>
+<li><p><strong>npoints</strong> (<em>int</em>) – Number of energy points. More points =&gt; smoother
+curve.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><dl class="docutils">
-<dt>(ExcitationSpectrum) which can be plotted using</dt>
-<dd><p class="first last">pymatgen.vis.plotters.SpectrumPlotter.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>(ExcitationSpectrum) which can be plotted using</dt><dd><p>pymatgen.vis.plotters.SpectrumPlotter.</p>
 </dd>
 </dl>
 </p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.nwchem.NwOutput.parse_tddft">
 <code class="descname">parse_tddft</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwOutput.parse_tddft"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwOutput.parse_tddft" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parses TDDFT roots. Adapted from nw_spectrum.py script.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
-<dt>{</dt>
-<dd><dl class="first docutils">
-<dt>“singlet”: [</dt>
-<dd><dl class="first docutils">
-<dt>{</dt>
-<dd>“energy”: float,
-“osc_strength: float</dd>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl>
+<dt>{</dt><dd><dl>
+<dt>“singlet”: [</dt><dd><dl class="simple">
+<dt>{</dt><dd><p>“energy”: float,
+“osc_strength: float</p>
+</dd>
 </dl>
-<p class="last">}</p>
+<p>}</p>
 </dd>
 </dl>
 <p>],
 “triplet”: [</p>
 <blockquote>
-<div><dl class="docutils">
-<dt>{</dt>
-<dd>“energy”: float</dd>
-</dl>
-<p>}</p>
-</div></blockquote>
-<p class="last">]</p>
+<div><dl class="simple">
+<dt>{</dt><dd><p>“energy”: float</p>
 </dd>
 </dl>
 <p>}</p>
-</td>
-</tr>
-</tbody>
-</table>
+</div></blockquote>
+<p>]</p>
+</dd>
+</dl>
+<p>}</p>
+</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -233,37 +210,33 @@ curve.</li>
 <p>Very flexible arguments to support many types of potential setups.
 Users should use more friendly static methods unless they need the
 flexibility.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>charge</strong> – Charge of the molecule. If None, charge on molecule is
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>charge</strong> – Charge of the molecule. If None, charge on molecule is
 used. Defaults to None. This allows the input file to be set a
-charge independently from the molecule itself.</li>
-<li><strong>spin_multiplicity</strong> – Spin multiplicity of molecule. Defaults to None,
+charge independently from the molecule itself.</p></li>
+<li><p><strong>spin_multiplicity</strong> – Spin multiplicity of molecule. Defaults to None,
 which means that the spin multiplicity is set to 1 if the
 molecule has no unpaired electrons and to 2 if there are
-unpaired electrons.</li>
-<li><strong>basis_set</strong> – The basis set used for the task as a dict. E.g.,
-{“C”: “6-311++G**”, “H”: “6-31++G**”}.</li>
-<li><strong>basis_set_option</strong> – cartesian (default) | spherical,</li>
-<li><strong>title</strong> – Title for the task. Defaults to None, which means a title
+unpaired electrons.</p></li>
+<li><p><strong>basis_set</strong> – The basis set used for the task as a dict. E.g.,
+{“C”: “6-311++G**”, “H”: “6-31++G**”}.</p></li>
+<li><p><strong>basis_set_option</strong> – cartesian (default) | spherical,</p></li>
+<li><p><strong>title</strong> – Title for the task. Defaults to None, which means a title
 based on the theory and operation of the task is
-autogenerated.</li>
-<li><strong>theory</strong> – The theory used for the task. Defaults to “dft”.</li>
-<li><strong>operation</strong> – The operation for the task. Defaults to “optimize”.</li>
-<li><strong>theory_directives</strong> – A dict of theory directives. For example,
+autogenerated.</p></li>
+<li><p><strong>theory</strong> – The theory used for the task. Defaults to “dft”.</p></li>
+<li><p><strong>operation</strong> – The operation for the task. Defaults to “optimize”.</p></li>
+<li><p><strong>theory_directives</strong> – A dict of theory directives. For example,
 if you are running dft calculations, you may specify the
-exchange correlation functional using {“xc”: “b3lyp”}.</li>
-<li><strong>alternate_directives</strong> – A dict of alternate directives. For
+exchange correlation functional using {“xc”: “b3lyp”}.</p></li>
+<li><p><strong>alternate_directives</strong> – A dict of alternate directives. For
 example, to perform cosmo calculations and dielectric
-constant of 78, you’d supply {‘cosmo’: {“dielectric”: 78}}.</li>
+constant of 78, you’d supply {‘cosmo’: {“dielectric”: 78}}.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.nwchem.NwTask.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwTask.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.as_dict" title="Permalink to this definition">¶</a></dt>
@@ -275,20 +248,16 @@ constant of 78, you’d supply {‘cosmo’: {“dielectric”: 78}}.</li>
 <em class="property">classmethod </em><code class="descname">dft_task</code><span class="sig-paren">(</span><em>mol</em>, <em>xc='b3lyp'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwTask.dft_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.dft_task" title="Permalink to this definition">¶</a></dt>
 <dd><p>A class method for quickly creating DFT tasks with optional
 cosmo parameter .</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>mol</strong> – Input molecule</li>
-<li><strong>xc</strong> – Exchange correlation to use.</li>
-<li><strong>**kwargs</strong> – Any of the other kwargs supported by NwTask. Note the
-theory is always “dft” for a dft task.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mol</strong> – Input molecule</p></li>
+<li><p><strong>xc</strong> – Exchange correlation to use.</p></li>
+<li><p><strong>**kwargs</strong> – Any of the other kwargs supported by NwTask. Note the
+theory is always “dft” for a dft task.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
@@ -296,19 +265,15 @@ theory is always “dft” for a dft task.</li>
 <em class="property">classmethod </em><code class="descname">esp_task</code><span class="sig-paren">(</span><em>mol</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwTask.esp_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.esp_task" title="Permalink to this definition">¶</a></dt>
 <dd><p>A class method for quickly creating ESP tasks with RESP
 charge fitting.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>mol</strong> – Input molecule</li>
-<li><strong>**kwargs</strong> – Any of the other kwargs supported by NwTask. Note the
-theory is always “dft” for a dft task.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mol</strong> – Input molecule</p></li>
+<li><p><strong>**kwargs</strong> – Any of the other kwargs supported by NwTask. Note the
+theory is always “dft” for a dft task.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
@@ -322,39 +287,35 @@ theory is always “dft” for a dft task.</li>
 <dd><p>Very flexible arguments to support many types of potential setups.
 Users should use more friendly static methods unless they need the
 flexibility.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>mol</strong> – Input molecule</li>
-<li><strong>charge</strong> – Charge of the molecule. If None, charge on molecule is
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mol</strong> – Input molecule</p></li>
+<li><p><strong>charge</strong> – Charge of the molecule. If None, charge on molecule is
 used. Defaults to None. This allows the input file to be set a
-charge independently from the molecule itself.</li>
-<li><strong>spin_multiplicity</strong> – Spin multiplicity of molecule. Defaults to None,
+charge independently from the molecule itself.</p></li>
+<li><p><strong>spin_multiplicity</strong> – Spin multiplicity of molecule. Defaults to None,
 which means that the spin multiplicity is set to 1 if the
 molecule has no unpaired electrons and to 2 if there are
-unpaired electrons.</li>
-<li><strong>basis_set</strong> – The basis set to be used as string or a dict. E.g.,
+unpaired electrons.</p></li>
+<li><p><strong>basis_set</strong> – The basis set to be used as string or a dict. E.g.,
 {“C”: “6-311++G**”, “H”: “6-31++G**”} or “6-31G”. If string,
-same basis set is used for all elements.</li>
-<li><strong>basis_set_option</strong> – cartesian (default) | spherical,</li>
-<li><strong>title</strong> – Title for the task. Defaults to None, which means a title
+same basis set is used for all elements.</p></li>
+<li><p><strong>basis_set_option</strong> – cartesian (default) | spherical,</p></li>
+<li><p><strong>title</strong> – Title for the task. Defaults to None, which means a title
 based on the theory and operation of the task is
-autogenerated.</li>
-<li><strong>theory</strong> – The theory used for the task. Defaults to “dft”.</li>
-<li><strong>operation</strong> – The operation for the task. Defaults to “optimize”.</li>
-<li><strong>theory_directives</strong> – A dict of theory directives. For example,
+autogenerated.</p></li>
+<li><p><strong>theory</strong> – The theory used for the task. Defaults to “dft”.</p></li>
+<li><p><strong>operation</strong> – The operation for the task. Defaults to “optimize”.</p></li>
+<li><p><strong>theory_directives</strong> – A dict of theory directives. For example,
 if you are running dft calculations, you may specify the
-exchange correlation functional using {“xc”: “b3lyp”}.</li>
-<li><strong>alternate_directives</strong> – A dict of alternate directives. For
+exchange correlation functional using {“xc”: “b3lyp”}.</p></li>
+<li><p><strong>alternate_directives</strong> – A dict of alternate directives. For
 example, to perform cosmo calculations with DFT, you’d supply
-{‘cosmo’: “cosmo”}.</li>
+{‘cosmo’: “cosmo”}.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -390,8 +351,6 @@ example, to perform cosmo calculations with DFT, you’d supply
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -409,13 +368,13 @@ example, to perform cosmo calculations with DFT, you’d supply
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

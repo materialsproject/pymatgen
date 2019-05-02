@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.lattice module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.core.lattice module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -56,11 +54,9 @@ degrees unless otherwise stated.</p>
 <p>Create a lattice from any sequence of 9 numbers. Note that the sequence
 is assumed to be read one row at a time. Each row represents one
 lattice vector.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>matrix</strong> – Sequence of numbers in any form. Examples of acceptable
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>matrix</strong> – Sequence of numbers in any form. Examples of acceptable
 input.
 i) An actual numpy array.
 ii) [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
@@ -68,10 +64,9 @@ iii) [1, 0, 0 , 0, 1, 0, 0, 0, 1]
 iv) (1, 0, 0, 0, 1, 0, 0, 0, 1)
 Each row should correspond to a lattice vector.
 E.g., [[10, 0, 0], [20, 10, 0], [0, 0, 30]] specifies a lattice
-with lattice vectors [10, 0, 0], [20, 10, 0] and [0, 0, 30].</td>
-</tr>
-</tbody>
-</table>
+with lattice vectors [10, 0, 0], [20, 10, 0] and [0, 0, 30].</p>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.core.lattice.Lattice.a">
 <code class="descname">a</code><a class="headerlink" href="#pymatgen.core.lattice.Lattice.a" title="Permalink to this definition">¶</a></dt>
@@ -101,15 +96,12 @@ with lattice vectors [10, 0, 0], [20, 10, 0] and [0, 0, 30].</td>
 <code class="descname">as_dict</code><span class="sig-paren">(</span><em>verbosity: int = 0</em><span class="sig-paren">)</span> &#x2192; Dict[KT, VT]<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>“”
 Json-serialization dict representation of the Lattice.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>verbosity</strong> (<em>int</em>) – Verbosity level. Default of 0 only includes the
-matrix representation. Set to 1 for more details.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>verbosity</strong> (<em>int</em>) – Verbosity level. Default of 0 only includes the
+matrix representation. Set to 1 for more details.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -140,75 +132,65 @@ matrix representation. Set to 1 for more details.</td>
 <dt id="pymatgen.core.lattice.Lattice.cubic">
 <em class="property">static </em><code class="descname">cubic</code><span class="sig-paren">(</span><em>a: float</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.cubic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience constructor for a cubic lattice.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>a</strong> (<em>float</em>) – The <em>a</em> lattice parameter of the cubic cell.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Cubic lattice of dimensions a x a x a.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>a</strong> (<em>float</em>) – The <em>a</em> lattice parameter of the cubic cell.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Cubic lattice of dimensions a x a x a.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.d_hkl">
 <code class="descname">d_hkl</code><span class="sig-paren">(</span><em>miller_index: Union[List[float], numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.d_hkl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.d_hkl" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the distance between the hkl plane and the origin</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>miller_index</strong> (<em>[</em><em>h</em><em>,</em><em>k</em><em>,</em><em>l</em><em>]</em>) – Miller index of plane</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">d_hkl (float)</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>miller_index</strong> (<em>[</em><em>h</em><em>,</em><em>k</em><em>,</em><em>l</em><em>]</em>) – Miller index of plane</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>d_hkl (float)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.dot">
 <code class="descname">dot</code><span class="sig-paren">(</span><em>coords_a: Union[List[float], numpy.ndarray], coords_b: Union[List[float], numpy.ndarray], frac_coords: bool = False</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.dot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.dot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the scalar product of vector(s).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>coords_b</strong> (<em>coords_a</em><em>,</em>) – Array-like objects with the coordinates.</li>
-<li><strong>frac_coords</strong> (<em>bool</em>) – Boolean stating whether the vector
-corresponds to fractional or cartesian coordinates.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coords_b</strong> (<em>coords_a</em><em>,</em>) – Array-like objects with the coordinates.</p></li>
+<li><p><strong>frac_coords</strong> (<em>bool</em>) – Boolean stating whether the vector
+corresponds to fractional or cartesian coordinates.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">one-dimensional <cite>numpy</cite> array.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>one-dimensional <cite>numpy</cite> array.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.find_all_mappings">
 <code class="descname">find_all_mappings</code><span class="sig-paren">(</span><em>other_lattice: pymatgen.core.lattice.Lattice</em>, <em>ltol: float = 1e-05</em>, <em>atol: float = 1</em>, <em>skip_rotation_matrix: bool = False</em><span class="sig-paren">)</span> &#x2192; Iterator[Tuple[pymatgen.core.lattice.Lattice, Optional[numpy.ndarray], numpy.ndarray]]<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.find_all_mappings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.find_all_mappings" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds all mappings between current lattice and another lattice.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>other_lattice</strong> (<a class="reference internal" href="#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><em>Lattice</em></a>) – Another lattice that is equivalent to
-this one.</li>
-<li><strong>ltol</strong> (<em>float</em>) – Tolerance for matching lengths. Defaults to 1e-5.</li>
-<li><strong>atol</strong> (<em>float</em>) – Tolerance for matching angles. Defaults to 1.</li>
-<li><strong>skip_rotation_matrix</strong> (<em>bool</em>) – Whether to skip calculation of the
-rotation matrix</li>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other_lattice</strong> (<a class="reference internal" href="#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><em>Lattice</em></a>) – Another lattice that is equivalent to
+this one.</p></li>
+<li><p><strong>ltol</strong> (<em>float</em>) – Tolerance for matching lengths. Defaults to 1e-5.</p></li>
+<li><p><strong>atol</strong> (<em>float</em>) – Tolerance for matching angles. Defaults to 1.</p></li>
+<li><p><strong>skip_rotation_matrix</strong> (<em>bool</em>) – Whether to skip calculation of the
+rotation matrix</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Yields:</th><td class="field-body"><p class="first">(aligned_lattice, rotation_matrix, scale_matrix) if a mapping is
+</dd>
+<dt class="field-even">Yields</dt>
+<dd class="field-even"><p>(aligned_lattice, rotation_matrix, scale_matrix) if a mapping is
 found. aligned_lattice is a rotated version of other_lattice that
 has the same lattice parameters, but which is aligned in the
 coordinate system of this lattice so that translational points
@@ -220,11 +202,9 @@ aligned_matrix = op.operate_multi(latt.matrix)
 Finally, scale_matrix is the integer matrix that expresses
 aligned_matrix as a linear combination of this
 lattice, i.e., aligned_matrix = np.dot(scale_matrix, self.matrix)</p>
-<p class="last">None is returned if no matches are found.</p>
-</td>
-</tr>
-</tbody>
-</table>
+<p>None is returned if no matches are found.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -234,19 +214,17 @@ lattice, i.e., aligned_matrix = np.dot(scale_matrix, self.matrix)</p>
 are an infinite number of choices of basis vectors for two entirely
 equivalent lattices. This method returns a mapping that maps
 other_lattice to this lattice.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>other_lattice</strong> (<a class="reference internal" href="#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><em>Lattice</em></a>) – Another lattice that is equivalent to
-this one.</li>
-<li><strong>ltol</strong> (<em>float</em>) – Tolerance for matching lengths. Defaults to 1e-5.</li>
-<li><strong>atol</strong> (<em>float</em>) – Tolerance for matching angles. Defaults to 1.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other_lattice</strong> (<a class="reference internal" href="#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><em>Lattice</em></a>) – Another lattice that is equivalent to
+this one.</p></li>
+<li><p><strong>ltol</strong> (<em>float</em>) – Tolerance for matching lengths. Defaults to 1e-5.</p></li>
+<li><p><strong>atol</strong> (<em>float</em>) – Tolerance for matching angles. Defaults to 1.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>(aligned_lattice, rotation_matrix, scale_matrix) if a mapping is
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>(aligned_lattice, rotation_matrix, scale_matrix) if a mapping is
 found. aligned_lattice is a rotated version of other_lattice that
 has the same lattice parameters, but which is aligned in the
 coordinate system of this lattice so that translational points
@@ -260,10 +238,8 @@ aligned_matrix as a linear combination of this
 lattice, i.e., aligned_matrix = np.dot(scale_matrix, self.matrix)</p>
 <p>None is returned if no matches are found.</p>
 </p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
@@ -282,47 +258,39 @@ If acell is not given, the Abinit default is used i.e. [1,1,1] Bohr</p>
 <dt id="pymatgen.core.lattice.Lattice.from_lengths_and_angles">
 <em class="property">static </em><code class="descname">from_lengths_and_angles</code><span class="sig-paren">(</span><em>abc: List[float], ang: List[float]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.from_lengths_and_angles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.from_lengths_and_angles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a Lattice using unit cell lengths and angles (in degrees).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>abc</strong> (<em>3x1 array</em>) – Lattice parameters, e.g. (4, 4, 5).</li>
-<li><strong>ang</strong> (<em>3x1 array</em>) – Lattice angles in degrees, e.g., (90,90,120).</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>abc</strong> (<em>3x1 array</em>) – Lattice parameters, e.g. (4, 4, 5).</p></li>
+<li><p><strong>ang</strong> (<em>3x1 array</em>) – Lattice angles in degrees, e.g., (90,90,120).</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A Lattice with the specified lattice parameters.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A Lattice with the specified lattice parameters.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="classmethod">
 <dt id="pymatgen.core.lattice.Lattice.from_parameters">
-<em class="property">static </em><code class="descname">from_parameters</code><span class="sig-paren">(</span><em>a: float</em>, <em>b: float</em>, <em>c: float</em>, <em>alpha: float</em>, <em>beta: float</em>, <em>gamma: float</em>, <em>vesta: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.from_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.from_parameters" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">from_parameters</code><span class="sig-paren">(</span><em>a: float</em>, <em>b: float</em>, <em>c: float</em>, <em>alpha: float</em>, <em>beta: float</em>, <em>gamma: float</em>, <em>vesta: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.from_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.from_parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a Lattice using unit cell lengths and angles (in degrees).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>a</strong> (<em>float</em>) – <em>a</em> lattice parameter.</li>
-<li><strong>b</strong> (<em>float</em>) – <em>b</em> lattice parameter.</li>
-<li><strong>c</strong> (<em>float</em>) – <em>c</em> lattice parameter.</li>
-<li><strong>alpha</strong> (<em>float</em>) – <em>alpha</em> angle in degrees.</li>
-<li><strong>beta</strong> (<em>float</em>) – <em>beta</em> angle in degrees.</li>
-<li><strong>gamma</strong> (<em>float</em>) – <em>gamma</em> angle in degrees.</li>
-<li><strong>vesta</strong> – True if you import Cartesian coordinates from VESTA.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>float</em>) – <em>a</em> lattice parameter.</p></li>
+<li><p><strong>b</strong> (<em>float</em>) – <em>b</em> lattice parameter.</p></li>
+<li><p><strong>c</strong> (<em>float</em>) – <em>c</em> lattice parameter.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – <em>alpha</em> angle in degrees.</p></li>
+<li><p><strong>beta</strong> (<em>float</em>) – <em>beta</em> angle in degrees.</p></li>
+<li><p><strong>gamma</strong> (<em>float</em>) – <em>gamma</em> angle in degrees.</p></li>
+<li><p><strong>vesta</strong> – True if you import Cartesian coordinates from VESTA.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Lattice with the specified lattice parameters.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Lattice with the specified lattice parameters.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -339,24 +307,20 @@ account periodic boundary conditions and the lattice. Note that this
 computes an MxN array of distances (i.e. the distance between each
 point in fcoords1 and every coordinate in fcoords2). This is
 different functionality from pbc_diff.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>fcoords1</strong> – First set of fractional coordinates. e.g., [0.5, 0.6,
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fcoords1</strong> – First set of fractional coordinates. e.g., [0.5, 0.6,
 0.7] or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. It can be a single
-coord or any array of coords.</li>
-<li><strong>fcoords2</strong> – Second set of fractional coordinates.</li>
+coord or any array of coords.</p></li>
+<li><p><strong>fcoords2</strong> – Second set of fractional coordinates.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">2d array of cartesian distances. E.g the distance between
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>2d array of cartesian distances. E.g the distance between
 fcoords1[i] and fcoords2[j] is distances[i,j]</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -364,33 +328,28 @@ fcoords1[i] and fcoords2[j] is distances[i,j]</p>
 <code class="descname">get_brillouin_zone</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List[List[numpy.ndarray]]<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.get_brillouin_zone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_brillouin_zone" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the Wigner-Seitz cell for the reciprocal lattice, aka the
 Brillouin Zone.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A list of list of coordinates.
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A list of list of coordinates.
 Each element in the list is a “facet” of the boundary of the
 Brillouin Zone. For instance, a list of four coordinates will
-represent a square facet.</td>
-</tr>
-</tbody>
-</table>
+represent a square facet.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.get_cartesian_coords">
 <code class="descname">get_cartesian_coords</code><span class="sig-paren">(</span><em>fractional_coords: Union[List[float], numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.get_cartesian_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_cartesian_coords" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the cartesian coordinates given fractional coordinates.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fractional_coords</strong> (<em>3x1 array</em>) – Fractional coords.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Cartesian coordinates</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>fractional_coords</strong> (<em>3x1 array</em>) – Fractional coords.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Cartesian coordinates</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -403,31 +362,27 @@ indices in terms of lattice vector translations. If the index jimage
 is specified it returns the distance between the frac_coords1 and
 the specified jimage of frac_coords2, and the given jimage is also
 returned.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>fcoords1</strong> (<em>3x1 array</em>) – Reference fcoords to get distance from.</li>
-<li><strong>fcoords2</strong> (<em>3x1 array</em>) – fcoords to get distance from.</li>
-<li><strong>jimage</strong> (<em>3x1 array</em>) – Specific periodic image in terms of
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fcoords1</strong> (<em>3x1 array</em>) – Reference fcoords to get distance from.</p></li>
+<li><p><strong>fcoords2</strong> (<em>3x1 array</em>) – fcoords to get distance from.</p></li>
+<li><p><strong>jimage</strong> (<em>3x1 array</em>) – Specific periodic image in terms of
 lattice translations, e.g., [1,0,0] implies to take periodic
 image that is one a-lattice vector away. If jimage is None,
-the image that is nearest to the site is found.</li>
+the image that is nearest to the site is found.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">distance and periodic lattice translations
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>distance and periodic lattice translations
 of the other site for which the distance applies. This means that
 the distance between frac_coords1 and (jimage + frac_coords2) is
 equal to distance.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">(distance, jimage)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(distance, jimage)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -441,16 +396,14 @@ fractional coordinates in the lattice basis.</p>
 <dt id="pymatgen.core.lattice.Lattice.get_fractional_coords">
 <code class="descname">get_fractional_coords</code><span class="sig-paren">(</span><em>cart_coords: Union[List[float], numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.get_fractional_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_fractional_coords" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the fractional coordinates given cartesian coordinates.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cart_coords</strong> (<em>3x1 array</em>) – Cartesian coords.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Fractional coordinates.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cart_coords</strong> (<em>3x1 array</em>) – Cartesian coords.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Fractional coordinates.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -472,32 +425,28 @@ fractional coordinates in the lll basis.</p>
 <p>A minimum of 3 sets of coordinates are required. If more than 3 sets of
 coordinates are given, the best plane that minimises the distance to all
 points will be calculated.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>coords</strong> (<em>iterable</em>) – A list or numpy array of coordinates. Can be
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coords</strong> (<em>iterable</em>) – A list or numpy array of coordinates. Can be
 cartesian or fractional coordinates. If more than three sets of
 coordinates are provided, the best plane that minimises the
-distance to all sites will be calculated.</li>
-<li><strong>coords_are_cartesian</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether the coordinates are
+distance to all sites will be calculated.</p></li>
+<li><p><strong>coords_are_cartesian</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether the coordinates are
 in cartesian space. If using fractional coordinates set to
-False.</li>
-<li><strong>round_dp</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of decimal places to round the
-miller index to.</li>
-<li><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to print warnings.</li>
+False.</p></li>
+<li><p><strong>round_dp</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of decimal places to round the
+miller index to.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to print warnings.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The Miller index.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">(tuple)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The Miller index.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(tuple)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -507,17 +456,15 @@ miller index to.</li>
 proposed by R. W. Grosse-Kunstleve, N. K. Sauter, &amp; P. D. Adams,
 Acta Crystallographica Section A Foundations of Crystallography, 2003,
 60(1), 1-6. doi:10.1107/S010876730302186X</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tol</strong> (<em>float</em>) – The numerical tolerance. The default of 1e-5 should
-result in stable behavior for most cases.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Niggli-reduced lattice.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tol</strong> (<em>float</em>) – The numerical tolerance. The default of 1e-5 should
+result in stable behavior for most cases.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Niggli-reduced lattice.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -528,45 +475,38 @@ periodic boundary conditions. This includes sites in other periodic
 images.</p>
 <p>Algorithm:</p>
 <ol class="arabic">
-<li><p class="first">place sphere of radius r in crystal and determine minimum supercell
+<li><p>place sphere of radius r in crystal and determine minimum supercell
 (parallelpiped) which would contain a sphere of radius r. for this
 we need the projection of a_1 on a unit vector perpendicular
 to a_2 &amp; a_3 (i.e. the unit vector in the direction b_1) to
 determine how many a_1”s it will take to contain the sphere.</p>
 <p>Nxmax = r * length_of_b_1 / (2 Pi)</p>
 </li>
-<li><p class="first">keep points falling within r.</p>
-</li>
+<li><p>keep points falling within r.</p></li>
 </ol>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>frac_points</strong> – All points in the lattice in fractional coordinates.</li>
-<li><strong>center</strong> – Cartesian coordinates of center of sphere.</li>
-<li><strong>r</strong> – radius of sphere.</li>
-<li><strong>zip_results</strong> (<em>bool</em>) – Whether to zip the results together to group by
-point, or return the raw fcoord, dist, index arrays</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frac_points</strong> – All points in the lattice in fractional coordinates.</p></li>
+<li><p><strong>center</strong> – Cartesian coordinates of center of sphere.</p></li>
+<li><p><strong>r</strong> – radius of sphere.</p></li>
+<li><p><strong>zip_results</strong> (<em>bool</em>) – Whether to zip the results together to group by
+point, or return the raw fcoord, dist, index arrays</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
-<dt>[(fcoord, dist, index, supercell_image) …] since most of the time, subsequent</dt>
-<dd><p class="first last">processing requires the distance, index number of the atom, or index of the image</p>
 </dd>
-<dt>else:</dt>
-<dd><p class="first last">fcoords, dists, inds, image</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>[(fcoord, dist, index, supercell_image) …] since most of the time, subsequent</dt><dd><p>processing requires the distance, index number of the atom, or index of the image</p>
+</dd>
+<dt>else:</dt><dd><p>fcoords, dists, inds, image</p>
 </dd>
 </dl>
 </p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">if zip_results</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>if zip_results</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -579,54 +519,45 @@ lattice vector magnitudes.</p>
 <p>For example, this method is helpful when analyzing the dipole moment (in
 units of electron Angstroms) of a ferroelectric crystal. See the <cite>Polarization</cite>
 class in <cite>pymatgen.analysis.ferroelectricity.polarization</cite>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cart_coords</strong> (<em>3x1 array</em>) – Cartesian coords.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Lattice coordinates.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cart_coords</strong> (<em>3x1 array</em>) – Cartesian coords.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Lattice coordinates.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.get_wigner_seitz_cell">
 <code class="descname">get_wigner_seitz_cell</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List[List[numpy.ndarray]]<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.get_wigner_seitz_cell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_wigner_seitz_cell" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the Wigner-Seitz cell for the given lattice.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A list of list of coordinates.
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A list of list of coordinates.
 Each element in the list is a “facet” of the boundary of the
 Wigner Seitz cell. For instance, a list of four coordinates will
-represent a square facet.</td>
-</tr>
-</tbody>
-</table>
+represent a square facet.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="pymatgen.core.lattice.Lattice.hexagonal">
 <em class="property">static </em><code class="descname">hexagonal</code><span class="sig-paren">(</span><em>a: float</em>, <em>c: float</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.hexagonal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.hexagonal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience constructor for a hexagonal lattice.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>a</strong> (<em>float</em>) – <em>a</em> lattice parameter of the hexagonal cell.</li>
-<li><strong>c</strong> (<em>float</em>) – <em>c</em> lattice parameter of the hexagonal cell.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>float</em>) – <em>a</em> lattice parameter of the hexagonal cell.</p></li>
+<li><p><strong>c</strong> (<em>float</em>) – <em>c</em> lattice parameter of the hexagonal cell.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Hexagonal lattice of dimensions a x a x c.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Hexagonal lattice of dimensions a x a x c.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -638,6 +569,16 @@ represent a square facet.</td>
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.is_hexagonal">
 <code class="descname">is_hexagonal</code><span class="sig-paren">(</span><em>hex_angle_tol: float = 5</em>, <em>hex_length_tol: float = 0.01</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.is_hexagonal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.is_hexagonal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.lattice.Lattice.is_orthogonal">
+<code class="descname">is_orthogonal</code><a class="headerlink" href="#pymatgen.core.lattice.Lattice.is_orthogonal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.lattice.Lattice.lengths">
+<code class="descname">lengths</code><a class="headerlink" href="#pymatgen.core.lattice.Lattice.lengths" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -677,69 +618,57 @@ represent a square facet.</td>
 <dt id="pymatgen.core.lattice.Lattice.monoclinic">
 <em class="property">static </em><code class="descname">monoclinic</code><span class="sig-paren">(</span><em>a: float</em>, <em>b: float</em>, <em>c: float</em>, <em>beta: float</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.monoclinic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.monoclinic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience constructor for a monoclinic lattice.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>a</strong> (<em>float</em>) – <em>a</em> lattice parameter of the monoclinc cell.</li>
-<li><strong>b</strong> (<em>float</em>) – <em>b</em> lattice parameter of the monoclinc cell.</li>
-<li><strong>c</strong> (<em>float</em>) – <em>c</em> lattice parameter of the monoclinc cell.</li>
-<li><strong>beta</strong> (<em>float</em>) – <em>beta</em> angle between lattice vectors b and c in
-degrees.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>float</em>) – <em>a</em> lattice parameter of the monoclinc cell.</p></li>
+<li><p><strong>b</strong> (<em>float</em>) – <em>b</em> lattice parameter of the monoclinc cell.</p></li>
+<li><p><strong>c</strong> (<em>float</em>) – <em>c</em> lattice parameter of the monoclinc cell.</p></li>
+<li><p><strong>beta</strong> (<em>float</em>) – <em>beta</em> angle between lattice vectors b and c in
+degrees.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Monoclinic lattice of dimensions a x b x c with non right-angle
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Monoclinic lattice of dimensions a x b x c with non right-angle
 beta between lattice vectors a and c.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.norm">
 <code class="descname">norm</code><span class="sig-paren">(</span><em>coords: Union[List[float], numpy.ndarray], frac_coords: bool = True</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.norm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.norm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the norm of vector(s).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>coords</strong> – Array-like object with the coordinates.</li>
-<li><strong>frac_coords</strong> – Boolean stating whether the vector corresponds to fractional or
-cartesian coordinates.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coords</strong> – Array-like object with the coordinates.</p></li>
+<li><p><strong>frac_coords</strong> – Boolean stating whether the vector corresponds to fractional or
+cartesian coordinates.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">one-dimensional <cite>numpy</cite> array.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>one-dimensional <cite>numpy</cite> array.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="pymatgen.core.lattice.Lattice.orthorhombic">
 <em class="property">static </em><code class="descname">orthorhombic</code><span class="sig-paren">(</span><em>a: float</em>, <em>b: float</em>, <em>c: float</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.orthorhombic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.orthorhombic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience constructor for an orthorhombic lattice.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>a</strong> (<em>float</em>) – <em>a</em> lattice parameter of the orthorhombic cell.</li>
-<li><strong>b</strong> (<em>float</em>) – <em>b</em> lattice parameter of the orthorhombic cell.</li>
-<li><strong>c</strong> (<em>float</em>) – <em>c</em> lattice parameter of the orthorhombic cell.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>float</em>) – <em>a</em> lattice parameter of the orthorhombic cell.</p></li>
+<li><p><strong>b</strong> (<em>float</em>) – <em>b</em> lattice parameter of the orthorhombic cell.</p></li>
+<li><p><strong>c</strong> (<em>float</em>) – <em>c</em> lattice parameter of the orthorhombic cell.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Orthorhombic lattice of dimensions a x b x c.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Orthorhombic lattice of dimensions a x b x c.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -763,21 +692,17 @@ The property is lazily generated for efficiency.</p>
 <dt id="pymatgen.core.lattice.Lattice.rhombohedral">
 <em class="property">static </em><code class="descname">rhombohedral</code><span class="sig-paren">(</span><em>a: float</em>, <em>alpha: float</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.rhombohedral"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.rhombohedral" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience constructor for a rhombohedral lattice.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>a</strong> (<em>float</em>) – <em>a</em> lattice parameter of the rhombohedral cell.</li>
-<li><strong>alpha</strong> (<em>float</em>) – Angle for the rhombohedral lattice in degrees.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>float</em>) – <em>a</em> lattice parameter of the rhombohedral cell.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – Angle for the rhombohedral lattice in degrees.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Rhombohedral lattice of dimensions a x a x a.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Rhombohedral lattice of dimensions a x a x a.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -786,37 +711,31 @@ The property is lazily generated for efficiency.</p>
 <dd><p>Return a new Lattice with volume new_volume by performing a
 scaling of the lattice vectors so that length proportions and angles
 are preserved.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_volume</strong> – New volume to scale to.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">New lattice with desired volume.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>new_volume</strong> – New volume to scale to.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>New lattice with desired volume.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="pymatgen.core.lattice.Lattice.tetragonal">
 <em class="property">static </em><code class="descname">tetragonal</code><span class="sig-paren">(</span><em>a: float</em>, <em>c: float</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.tetragonal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.tetragonal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience constructor for a tetragonal lattice.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>a</strong> (<em>float</em>) – <em>a</em> lattice parameter of the tetragonal cell.</li>
-<li><strong>c</strong> (<em>float</em>) – <em>c</em> lattice parameter of the tetragonal cell.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>float</em>) – <em>a</em> lattice parameter of the tetragonal cell.</p></li>
+<li><p><strong>c</strong> (<em>float</em>) – <em>c</em> lattice parameter of the tetragonal cell.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Tetragonal lattice of dimensions a x a x c.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Tetragonal lattice of dimensions a x a x c.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -831,26 +750,22 @@ are preserved.</p>
 <dt id="pymatgen.core.lattice.get_integer_index">
 <code class="descname">get_integer_index</code><span class="sig-paren">(</span><em>miller_index: bool</em>, <em>round_dp: int = 4</em>, <em>verbose: bool = True</em><span class="sig-paren">)</span> &#x2192; Tuple[int, int, int]<a class="reference internal" href="_modules/pymatgen/core/lattice.html#get_integer_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.get_integer_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Attempt to convert a vector of floats to whole numbers.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>miller_index</strong> (<em>list of float</em>) – A list miller indexes.</li>
-<li><strong>round_dp</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of decimal places to round the
-miller index to.</li>
-<li><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to print warnings.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>miller_index</strong> (<em>list of float</em>) – A list miller indexes.</p></li>
+<li><p><strong>round_dp</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of decimal places to round the
+miller index to.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to print warnings.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The Miller index.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">(tuple)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The Miller index.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(tuple)</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -874,8 +789,6 @@ miller index to.</li>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -893,13 +806,13 @@ miller index to.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

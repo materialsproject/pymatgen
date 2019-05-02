@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.dimensionality &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.dimensionality &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.2.28 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.5.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -54,7 +52,9 @@
 <span class="sd">following publications:</span>
 
 <span class="sd">get_dimensionality_larsen:</span>
-<span class="sd">  - P. Larsen, M. Pandey, M. Strange, K. W. Jacobsen, 2018, arXiv:1808.02114</span>
+<span class="sd">  - P. M. Larsen, M. Pandey, M. Strange, K. W. Jacobsen. Definition of a</span>
+<span class="sd">    scoring parameter to identify low-dimensional materials components.</span>
+<span class="sd">    Phys. Rev. Materials 3, 034003 (2019).</span>
 
 <span class="sd">get_dimensionality_cheon:</span>
 <span class="sd">  - Cheon, G.; Duerloo, K.-A. N.; Sendek, A. D.; Porter, C.; Chen, Y.; Reed,</span>
@@ -105,7 +105,9 @@
 
 <span class="sd">    Based on the modified breadth-first-search algorithm described in:</span>
 
-<span class="sd">    P. Larsem, M. Pandey, M. Strange, K. W. Jacobsen, 2018, arXiv:1808.02114</span>
+<span class="sd">    P. M. Larsen, M. Pandey, M. Strange, K. W. Jacobsen. Definition of a</span>
+<span class="sd">    scoring parameter to identify low-dimensional materials components.</span>
+<span class="sd">    Phys. Rev. Materials 3, 034003 (2019).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        bonded_structure (StructureGraph): A structure with bonds, represented</span>
@@ -134,7 +136,9 @@
 
 <span class="sd">    Based on the modified breadth-first-search algorithm described in:</span>
 
-<span class="sd">    P. Larsem, M. Pandey, M. Strange, K. W. Jacobsen, 2018, arXiv:1808.02114</span>
+<span class="sd">    P. M. Larsen, M. Pandey, M. Strange, K. W. Jacobsen. Definition of a</span>
+<span class="sd">    scoring parameter to identify low-dimensional materials components.</span>
+<span class="sd">    Phys. Rev. Materials 3, 034003 (2019).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        bonded_structure (StructureGraph): A structure with bonds, represented</span>
@@ -222,7 +226,9 @@
 <span class="sd">    Implements directly the modified breadth-first-search algorithm described in</span>
 <span class="sd">    Algorithm 1 of:</span>
 
-<span class="sd">    P. Larsem, M. Pandey, M. Strange, K. W. Jacobsen, 2018, arXiv:1808.02114</span>
+<span class="sd">    P. M. Larsen, M. Pandey, M. Strange, K. W. Jacobsen. Definition of a</span>
+<span class="sd">    scoring parameter to identify low-dimensional materials components.</span>
+<span class="sd">    Phys. Rev. Materials 3, 034003 (2019).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        bonded_structure (StructureGraph): A structure with bonds, represented</span>
@@ -251,6 +257,12 @@
             <span class="n">vertices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">vertices</span><span class="p">))</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">matrix_rank</span><span class="p">(</span><span class="n">vertices</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">-</span> <span class="n">vertices</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
+    <span class="k">def</span> <span class="nf">rank_increase</span><span class="p">(</span><span class="n">seen</span><span class="p">,</span> <span class="n">candidate</span><span class="p">):</span>
+
+        <span class="n">rank0</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">seen</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">rank1</span> <span class="o">=</span> <span class="n">rank</span><span class="p">(</span><span class="n">seen</span><span class="o">.</span><span class="n">union</span><span class="p">({</span><span class="n">candidate</span><span class="p">}))</span>
+        <span class="k">return</span> <span class="n">rank1</span> <span class="o">&gt;</span> <span class="n">rank0</span>
+
     <span class="n">connected_sites</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="n">neighbours</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span>
                        <span class="nb">range</span><span class="p">(</span><span class="n">bonded_structure</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">num_sites</span><span class="p">)}</span>
 
@@ -265,9 +277,10 @@
             <span class="k">continue</span>
         <span class="n">seen_vertices</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">comp_i</span><span class="p">,</span> <span class="n">image_i</span><span class="p">))</span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="n">rank</span><span class="p">(</span><span class="n">seen_comp_vertices</span><span class="p">[</span><span class="n">comp_i</span><span class="p">]</span><span class="o">.</span><span class="n">union</span><span class="p">({</span><span class="n">image_i</span><span class="p">}))</span> <span class="o">&gt;</span>
-                <span class="n">rank</span><span class="p">(</span><span class="n">seen_comp_vertices</span><span class="p">[</span><span class="n">comp_i</span><span class="p">])):</span>
-            <span class="n">seen_comp_vertices</span><span class="p">[</span><span class="n">comp_i</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">image_i</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">rank_increase</span><span class="p">(</span><span class="n">seen_comp_vertices</span><span class="p">[</span><span class="n">comp_i</span><span class="p">],</span> <span class="n">image_i</span><span class="p">):</span>
+            <span class="k">continue</span>
+
+        <span class="n">seen_comp_vertices</span><span class="p">[</span><span class="n">comp_i</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">image_i</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">comp_j</span><span class="p">,</span> <span class="n">image_j</span> <span class="ow">in</span> <span class="n">connected_sites</span><span class="p">[</span><span class="n">comp_i</span><span class="p">]:</span>
 
@@ -276,8 +289,7 @@
             <span class="k">if</span> <span class="p">(</span><span class="n">comp_j</span><span class="p">,</span> <span class="n">image_j</span><span class="p">)</span> <span class="ow">in</span> <span class="n">seen_vertices</span><span class="p">:</span>
                 <span class="k">continue</span>
 
-            <span class="k">if</span> <span class="p">(</span><span class="n">rank</span><span class="p">(</span><span class="n">seen_comp_vertices</span><span class="p">[</span><span class="n">comp_j</span><span class="p">]</span><span class="o">.</span><span class="n">union</span><span class="p">({</span><span class="n">image_j</span><span class="p">}))</span> <span class="o">&gt;</span>
-                    <span class="n">rank</span><span class="p">(</span><span class="n">seen_comp_vertices</span><span class="p">[</span><span class="n">comp_j</span><span class="p">])):</span>
+            <span class="k">if</span> <span class="n">rank_increase</span><span class="p">(</span><span class="n">seen_comp_vertices</span><span class="p">[</span><span class="n">comp_j</span><span class="p">],</span> <span class="n">image_j</span><span class="p">):</span>
                 <span class="n">queue</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">comp_j</span><span class="p">,</span> <span class="n">image_j</span><span class="p">))</span>
 
     <span class="k">if</span> <span class="n">inc_vertices</span><span class="p">:</span>
@@ -604,8 +616,6 @@
     <form class="search" action="../../../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -623,7 +633,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.2.28 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.5.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -631,7 +641,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

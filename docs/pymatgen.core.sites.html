@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.sites module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.core.sites module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -53,36 +51,32 @@
 <p>Extension of generic Site object to periodic systems.
 PeriodicSite includes a lattice system.</p>
 <p>Create a periodic site.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>atoms_n_occu</strong> – <p>Species on the site. Can be:</p>
-<ol class="lowerroman">
-<li>A sequence of element / specie specified either as string
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>atoms_n_occu</strong> – <p>Species on the site. Can be:</p>
+<ol class="lowerroman simple">
+<li><p>A sequence of element / specie specified either as string
 symbols, e.g. [“Li”, “Fe2+”, “P”, …] or atomic numbers,
-e.g., (3, 56, …) or actual Element or Specie objects.</li>
-<li>List of dict of elements/species and occupancies, e.g.,
+e.g., (3, 56, …) or actual Element or Specie objects.</p></li>
+<li><p>List of dict of elements/species and occupancies, e.g.,
 [{“Fe” : 0.5, “Mn”:0.5}, …]. This allows the setup of
-disordered structures.</li>
+disordered structures.</p></li>
 </ol>
-</li>
-<li><strong>coords</strong> (<em>3x1 array</em><em> or </em><em>sequence</em>) – Coordinates of site as fractional
-or cartesian coordinates.</li>
-<li><strong>lattice</strong> – Lattice associated with the site</li>
-<li><strong>to_unit_cell</strong> (<em>bool</em>) – Translates fractional coordinate to the
+</p></li>
+<li><p><strong>coords</strong> (<em>3x1 array</em><em> or </em><em>sequence</em>) – Coordinates of site as fractional
+or cartesian coordinates.</p></li>
+<li><p><strong>lattice</strong> – Lattice associated with the site</p></li>
+<li><p><strong>to_unit_cell</strong> (<em>bool</em>) – Translates fractional coordinate to the
 basic unit cell, i.e. all fractional coordinates satisfy 0
-&lt;= a &lt; 1. Defaults to False.</li>
-<li><strong>coords_are_cartesian</strong> (<em>bool</em>) – Set to True if you are providing
-cartesian coordinates. Defaults to False.</li>
-<li><strong>properties</strong> (<em>dict</em>) – Properties associated with the PeriodicSite,
-e.g., {“magmom”:5}. Defaults to None.</li>
+&lt;= a &lt; 1. Defaults to False.</p></li>
+<li><p><strong>coords_are_cartesian</strong> (<em>bool</em>) – Set to True if you are providing
+cartesian coordinates. Defaults to False.</p></li>
+<li><p><strong>properties</strong> (<em>dict</em>) – Properties associated with the PeriodicSite,
+e.g., {“magmom”:5}. Defaults to None.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.core.sites.PeriodicSite.a">
 <code class="descname">a</code><a class="headerlink" href="#pymatgen.core.sites.PeriodicSite.a" title="Permalink to this definition">¶</a></dt>
@@ -93,16 +87,13 @@ e.g., {“magmom”:5}. Defaults to None.</li>
 <dt id="pymatgen.core.sites.PeriodicSite.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><em>verbosity=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/sites.html#PeriodicSite.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.sites.PeriodicSite.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Json-serializable dict representation of PeriodicSite.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>verbosity</strong> (<em>int</em>) – Verbosity level. Default of 0 only includes the
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>verbosity</strong> (<em>int</em>) – Verbosity level. Default of 0 only includes the
 matrix representation. Set to 1 for more details such as
-cartesian coordinates, etc.</td>
-</tr>
-</tbody>
-</table>
+cartesian coordinates, etc.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -117,31 +108,33 @@ cartesian coordinates, etc.</td>
 <dd><p>Fractional c coordinate</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="pymatgen.core.sites.PeriodicSite.coords">
+<code class="descname">coords</code><a class="headerlink" href="#pymatgen.core.sites.PeriodicSite.coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fractional coordinates</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="pymatgen.core.sites.PeriodicSite.distance">
 <code class="descname">distance</code><span class="sig-paren">(</span><em>other</em>, <em>jimage=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/sites.html#PeriodicSite.distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.sites.PeriodicSite.distance" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get distance between two sites assuming periodic boundary conditions.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>other</strong> (<a class="reference internal" href="#pymatgen.core.sites.PeriodicSite" title="pymatgen.core.sites.PeriodicSite"><em>PeriodicSite</em></a>) – Other site to get distance from.</li>
-<li><strong>jimage</strong> (<em>3x1 array</em>) – Specific periodic image in terms of lattice
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> (<a class="reference internal" href="#pymatgen.core.sites.PeriodicSite" title="pymatgen.core.sites.PeriodicSite"><em>PeriodicSite</em></a>) – Other site to get distance from.</p></li>
+<li><p><strong>jimage</strong> (<em>3x1 array</em>) – Specific periodic image in terms of lattice
 translations, e.g., [1,0,0] implies to take periodic image
 that is one a-lattice vector away. If jimage is None,
-the image that is nearest to the site is found.</li>
+the image that is nearest to the site is found.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Distance between the two sites</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">distance (float)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Distance between the two sites</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>distance (float)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -153,28 +146,24 @@ selects the j image nearest to the i atom and returns the distance and
 jimage indices in terms of lattice vector translations. If the index
 jimage of atom j is specified it returns the distance between the ith
 atom and the specified jimage atom, the given jimage is also returned.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>other</strong> (<a class="reference internal" href="#pymatgen.core.sites.PeriodicSite" title="pymatgen.core.sites.PeriodicSite"><em>PeriodicSite</em></a>) – Other site to get distance from.</li>
-<li><strong>jimage</strong> (<em>3x1 array</em>) – Specific periodic image in terms of lattice
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> (<a class="reference internal" href="#pymatgen.core.sites.PeriodicSite" title="pymatgen.core.sites.PeriodicSite"><em>PeriodicSite</em></a>) – Other site to get distance from.</p></li>
+<li><p><strong>jimage</strong> (<em>3x1 array</em>) – Specific periodic image in terms of lattice
 translations, e.g., [1,0,0] implies to take periodic image
 that is one a-lattice vector away. If jimage is None,
-the image that is nearest to the site is found.</li>
+the image that is nearest to the site is found.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">distance and periodic lattice translations
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>distance and periodic lattice translations
 of the other site for which the distance applies.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">(distance, jimage)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(distance, jimage)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -187,95 +176,101 @@ returns the distance and jimage indices in terms of lattice vector
 translations. If the index jimage of atom j is specified it returns the
 distance between the i atom and the specified jimage atom, the given
 jimage is also returned.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>fcoords</strong> (<em>3x1 array</em>) – fcoords to get distance from.</li>
-<li><strong>jimage</strong> (<em>3x1 array</em>) – Specific periodic image in terms of
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fcoords</strong> (<em>3x1 array</em>) – fcoords to get distance from.</p></li>
+<li><p><strong>jimage</strong> (<em>3x1 array</em>) – Specific periodic image in terms of
 lattice translations, e.g., [1,0,0] implies to take periodic
 image that is one a-lattice vector away. If jimage is None,
-the image that is nearest to the site is found.</li>
+the image that is nearest to the site is found.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">distance and periodic lattice translations
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>distance and periodic lattice translations
 of the other site for which the distance applies.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">(distance, jimage)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(distance, jimage)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.sites.PeriodicSite.frac_coords">
 <code class="descname">frac_coords</code><a class="headerlink" href="#pymatgen.core.sites.PeriodicSite.frac_coords" title="Permalink to this definition">¶</a></dt>
-<dd><p>A copy of the fractional coordinates of the site.</p>
+<dd><p>Fractional coordinates</p>
 </dd></dl>
 
 <dl class="classmethod">
 <dt id="pymatgen.core.sites.PeriodicSite.from_dict">
 <em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em>, <em>lattice=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/sites.html#PeriodicSite.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.sites.PeriodicSite.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create PeriodicSite from dict representation.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>d</strong> (<em>dict</em>) – dict representation of PeriodicSite</li>
-<li><strong>lattice</strong> – Optional lattice to override lattice specified in d.
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>d</strong> (<em>dict</em>) – dict representation of PeriodicSite</p></li>
+<li><p><strong>lattice</strong> – Optional lattice to override lattice specified in d.
 Useful for ensuring all sites in a structure share the same
-lattice.</li>
+lattice.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">PeriodicSite</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>PeriodicSite</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.sites.PeriodicSite.is_periodic_image">
 <code class="descname">is_periodic_image</code><span class="sig-paren">(</span><em>other</em>, <em>tolerance=1e-08</em>, <em>check_lattice=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/sites.html#PeriodicSite.is_periodic_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.sites.PeriodicSite.is_periodic_image" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns True if sites are periodic images of each other.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>other</strong> (<a class="reference internal" href="#pymatgen.core.sites.PeriodicSite" title="pymatgen.core.sites.PeriodicSite"><em>PeriodicSite</em></a>) – Other site</li>
-<li><strong>tolerance</strong> (<em>float</em>) – Tolerance to compare fractional coordinates</li>
-<li><strong>check_lattice</strong> (<em>bool</em>) – Whether to check if the two sites have the
-same lattice.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> (<a class="reference internal" href="#pymatgen.core.sites.PeriodicSite" title="pymatgen.core.sites.PeriodicSite"><em>PeriodicSite</em></a>) – Other site</p></li>
+<li><p><strong>tolerance</strong> (<em>float</em>) – Tolerance to compare fractional coordinates</p></li>
+<li><p><strong>check_lattice</strong> (<em>bool</em>) – Whether to check if the two sites have the
+same lattice.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">True if sites are periodic images of each other.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">bool</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if sites are periodic images of each other.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.sites.PeriodicSite.lattice">
 <code class="descname">lattice</code><a class="headerlink" href="#pymatgen.core.sites.PeriodicSite.lattice" title="Permalink to this definition">¶</a></dt>
-<dd><p>The lattice associated with the site.</p>
+<dd><p>Lattice associated with PeriodicSite</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.sites.PeriodicSite.to_unit_cell">
+<code class="descname">to_unit_cell</code><span class="sig-paren">(</span><em>in_place=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/sites.html#PeriodicSite.to_unit_cell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.sites.PeriodicSite.to_unit_cell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move frac coords to within the unit cell cell.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pymatgen.core.sites.PeriodicSite.to_unit_cell">
-<code class="descname">to_unit_cell</code><a class="headerlink" href="#pymatgen.core.sites.PeriodicSite.to_unit_cell" title="Permalink to this definition">¶</a></dt>
-<dd><p>Copy of PeriodicSite translated to the unit cell.</p>
+<dt id="pymatgen.core.sites.PeriodicSite.x">
+<code class="descname">x</code><a class="headerlink" href="#pymatgen.core.sites.PeriodicSite.x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cartesian x coordinate</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.sites.PeriodicSite.y">
+<code class="descname">y</code><a class="headerlink" href="#pymatgen.core.sites.PeriodicSite.y" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cartesian y coordinate</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.sites.PeriodicSite.z">
+<code class="descname">z</code><a class="headerlink" href="#pymatgen.core.sites.PeriodicSite.z" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cartesian z coordinate</p>
 </dd></dl>
 
 </dd></dl>
@@ -290,73 +285,60 @@ Composition is used to represent the atoms and occupancy, which allows for
 disordered site representation. Coords are given in standard cartesian
 coordinates.</p>
 <p>Create a <em>non-periodic</em> site.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>atoms_n_occu</strong> – <p>Species on the site. Can be:
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>atoms_n_occu</strong> – <p>Species on the site. Can be:
 i.  A Composition object (preferred)
 ii. An  element / specie specified either as a string</p>
 <blockquote>
-<div>symbols, e.g. “Li”, “Fe2+”, “P” or atomic numbers,
-e.g., 3, 56, or actual Element or Specie objects.</div></blockquote>
-<dl class="docutils">
-<dt>iii.Dict of elements/species and occupancies, e.g.,</dt>
-<dd>{“Fe” : 0.5, “Mn”:0.5}. This allows the setup of
-disordered structures.</dd>
+<div><p>symbols, e.g. “Li”, “Fe2+”, “P” or atomic numbers,
+e.g., 3, 56, or actual Element or Specie objects.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>iii.Dict of elements/species and occupancies, e.g.,</dt><dd><p>{“Fe” : 0.5, “Mn”:0.5}. This allows the setup of
+disordered structures.</p>
+</dd>
 </dl>
-</li>
-<li><strong>coords</strong> – Cartesian coordinates of site.</li>
-<li><strong>properties</strong> – Properties associated with the site as a dict, e.g.
-{“magmom”: 5}. Defaults to None.</li>
+</p></li>
+<li><p><strong>coords</strong> – Cartesian coordinates of site.</p></li>
+<li><p><strong>properties</strong> – Properties associated with the site as a dict, e.g.
+{“magmom”: 5}. Defaults to None.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.core.sites.Site.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/sites.html#Site.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.sites.Site.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Json-serializable dict representation for Site.</p>
 </dd></dl>
 
-<dl class="attribute">
-<dt id="pymatgen.core.sites.Site.coords">
-<code class="descname">coords</code><a class="headerlink" href="#pymatgen.core.sites.Site.coords" title="Permalink to this definition">¶</a></dt>
-<dd><p>A copy of the cartesian coordinates of the site as a numpy array.</p>
-</dd></dl>
-
 <dl class="method">
 <dt id="pymatgen.core.sites.Site.distance">
 <code class="descname">distance</code><span class="sig-paren">(</span><em>other</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/sites.html#Site.distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.sites.Site.distance" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get distance between two sites.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>other</strong> – Other site.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Distance (float)</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> – Other site.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Distance (float)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.sites.Site.distance_from_point">
 <code class="descname">distance_from_point</code><span class="sig-paren">(</span><em>pt</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/sites.html#Site.distance_from_point"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.sites.Site.distance_from_point" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns distance between the site and a point in space.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pt</strong> – Cartesian coordinates of point.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Distance (float)</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pt</strong> – Cartesian coordinates of point.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Distance (float)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
@@ -378,33 +360,27 @@ occupancy 1.</p>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="pymatgen.core.sites.Site.properties">
-<code class="descname">properties</code><a class="headerlink" href="#pymatgen.core.sites.Site.properties" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a view of properties as a dict.</p>
-</dd></dl>
-
-<dl class="attribute">
 <dt id="pymatgen.core.sites.Site.specie">
 <code class="descname">specie</code><a class="headerlink" href="#pymatgen.core.sites.Site.specie" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Specie/Element at the site. Only works for ordered sites. Otherwise
 an AttributeError is raised. Use this property sparingly.  Robust
 design should make use of the property species_and_occu instead.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body">AttributeError if Site is not ordered.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>AttributeError if Site is not ordered.</strong> – </p>
+</dd>
+</dl>
 </dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.sites.Site.species">
+<code class="descname">species</code><a class="headerlink" href="#pymatgen.core.sites.Site.species" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.sites.Site.species_and_occu">
 <code class="descname">species_and_occu</code><a class="headerlink" href="#pymatgen.core.sites.Site.species_and_occu" title="Permalink to this definition">¶</a></dt>
-<dd><p>The species at the site, i.e., a Composition mapping type of
-element/species to occupancy.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.sites.Site.species_string">
@@ -453,8 +429,6 @@ element/species to occupancy.</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -472,13 +446,13 @@ element/species to occupancy.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

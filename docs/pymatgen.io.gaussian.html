@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.gaussian module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.io.gaussian module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -51,38 +49,34 @@
 <em class="property">class </em><code class="descname">GaussianInput</code><span class="sig-paren">(</span><em>mol</em>, <em>charge=None</em>, <em>spin_multiplicity=None</em>, <em>title=None</em>, <em>functional='HF'</em>, <em>basis_set='6-31G(d)'</em>, <em>route_parameters=None</em>, <em>input_parameters=None</em>, <em>link0_parameters=None</em>, <em>dieze_tag='#P'</em>, <em>gen_basis=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/gaussian.html#GaussianInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.gaussian.GaussianInput" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>An object representing a Gaussian input file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>mol</strong> – Input molecule. If molecule is a single string, it is used as a
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mol</strong> – Input molecule. If molecule is a single string, it is used as a
 direct input to the geometry section of the Gaussian input
-file.</li>
-<li><strong>charge</strong> – Charge of the molecule. If None, charge on molecule is used.
+file.</p></li>
+<li><p><strong>charge</strong> – Charge of the molecule. If None, charge on molecule is used.
 Defaults to None. This allows the input file to be set a
-charge independently from the molecule itself.</li>
-<li><strong>spin_multiplicity</strong> – Spin multiplicity of molecule. Defaults to None,
+charge independently from the molecule itself.</p></li>
+<li><p><strong>spin_multiplicity</strong> – Spin multiplicity of molecule. Defaults to None,
 which means that the spin multiplicity is set to 1 if the
 molecule has no unpaired electrons and to 2 if there are
-unpaired electrons.</li>
-<li><strong>title</strong> – Title for run. Defaults to formula of molecule if None.</li>
-<li><strong>functional</strong> – Functional for run.</li>
-<li><strong>basis_set</strong> – Basis set for run.</li>
-<li><strong>route_parameters</strong> – Additional route parameters as a dict. For example,
-{‘SP’:”“, “SCF”:”Tight”}</li>
-<li><strong>input_parameters</strong> – Additional input parameters for run as a dict. Used
-for example, in PCM calculations.  E.g., {“EPS”:12}</li>
-<li><strong>link0_parameters</strong> – Link0 parameters as a dict. E.g., {“%mem”: “1000MW”}</li>
-<li><strong>dieze_tag</strong> – # preceding the route line. E.g. “#p”</li>
-<li><strong>gen_basis</strong> – allows a user-specified basis set to be used in a Gaussian
+unpaired electrons.</p></li>
+<li><p><strong>title</strong> – Title for run. Defaults to formula of molecule if None.</p></li>
+<li><p><strong>functional</strong> – Functional for run.</p></li>
+<li><p><strong>basis_set</strong> – Basis set for run.</p></li>
+<li><p><strong>route_parameters</strong> – Additional route parameters as a dict. For example,
+{‘SP’:”“, “SCF”:”Tight”}</p></li>
+<li><p><strong>input_parameters</strong> – Additional input parameters for run as a dict. Used
+for example, in PCM calculations.  E.g., {“EPS”:12}</p></li>
+<li><p><strong>link0_parameters</strong> – Link0 parameters as a dict. E.g., {“%mem”: “1000MW”}</p></li>
+<li><p><strong>dieze_tag</strong> – # preceding the route line. E.g. “#p”</p></li>
+<li><p><strong>gen_basis</strong> – allows a user-specified basis set to be used in a Gaussian
 calculation. If this is not None, the attribute <code class="docutils literal notranslate"><span class="pre">basis_set</span></code> will
-be set to “Gen”.</li>
+be set to “Gen”.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.gaussian.GaussianInput.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/gaussian.html#GaussianInput.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.gaussian.GaussianInput.as_dict" title="Permalink to this definition">¶</a></dt>
@@ -97,32 +91,28 @@ be set to “Gen”.</li>
 <dt id="pymatgen.io.gaussian.GaussianInput.from_file">
 <em class="property">static </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/gaussian.html#GaussianInput.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.gaussian.GaussianInput.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates GaussianInput from a file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – Gaussian input filename</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">GaussianInput object</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> – Gaussian input filename</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>GaussianInput object</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="pymatgen.io.gaussian.GaussianInput.from_string">
 <em class="property">static </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>contents</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/gaussian.html#GaussianInput.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.gaussian.GaussianInput.from_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates GaussianInput from a string.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>contents</strong> – String representing an Gaussian input file.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">GaussianInput object</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>contents</strong> – String representing an Gaussian input file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>GaussianInput object</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -147,9 +137,9 @@ be set to “Gen”.</li>
 <dt id="pymatgen.io.gaussian.GaussianInput.to_string">
 <code class="descname">to_string</code><span class="sig-paren">(</span><em>cart_coords=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/gaussian.html#GaussianInput.to_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.gaussian.GaussianInput.to_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return GaussianInput string</p>
-<dl class="docutils">
-<dt>Option: whe cart_coords sets to True return the cartesian coordinates</dt>
-<dd>instead of the z-matrix</dd>
+<dl class="simple">
+<dt>Option: whe cart_coords sets to True return the cartesian coordinates</dt><dd><p>instead of the z-matrix</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -167,17 +157,14 @@ be set to “Gen”.</li>
 <em class="property">class </em><code class="descname">GaussianOutput</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/gaussian.html#GaussianOutput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.gaussian.GaussianOutput" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Parser for Gaussian output files.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – Filename of Gaussian output file.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> – Filename of Gaussian output file.</p>
+</dd>
+</dl>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Still in early beta.</p>
+<p class="admonition-title">Note</p>
+<p>Still in early beta.</p>
 </div>
 <p>Attributes:</p>
 <dl class="attribute">
@@ -226,12 +213,13 @@ attribute.</p>
 {</p>
 <blockquote>
 <div><blockquote>
-<div>“frequency”: freq in cm-1,
+<div><p>“frequency”: freq in cm-1,
 “symmetry”: symmetry tag
 “r_mass”: Reduce mass,
 “f_constant”: force constant,
 “IR_intensity”: IR Intensity,
-“mode”: normal mode</div></blockquote>
+“mode”: normal mode</p>
+</div></blockquote>
 <p>}</p>
 </div></blockquote>
 <p>The normal mode is a 1D vector of dx, dy dz of each atom.</p>
@@ -292,9 +280,9 @@ are “Zero-point”, “Thermal”, “Enthalpy” and “Gibbs Free Energy”<
 <dl class="attribute">
 <dt id="pymatgen.io.gaussian.GaussianOutput.route">
 <code class="descname">route</code><a class="headerlink" href="#pymatgen.io.gaussian.GaussianOutput.route" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Additional route parameters as a dict. For example,</dt>
-<dd>{‘SP’:”“, “SCF”:”Tight”}</dd>
+<dd><dl class="simple">
+<dt>Additional route parameters as a dict. For example,</dt><dd><p>{‘SP’:”“, “SCF”:”Tight”}</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -452,14 +440,11 @@ calculation parameters.</p>
 <dt>
 <code class="descname">get_scan_plot</code><span class="sig-paren">(</span><em>coords=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/gaussian.html#GaussianOutput.get_scan_plot"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p>Get a matplotlib plot of the potential energy surface.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>coords</strong> – internal coordinate name to use as abcissa.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>coords</strong> – internal coordinate name to use as abcissa.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -469,114 +454,97 @@ calculation parameters.</p>
 as vertical lines and as a sum of normal functions with sigma with. The
 broadening is applied in energy and the xas is plotted as a function
 of the wavelength.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>sigma</strong> – Full width at half maximum in eV for normal functions.</li>
-<li><strong>step</strong> – bin interval in eV</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sigma</strong> – Full width at half maximum in eV for normal functions.</p></li>
+<li><p><strong>step</strong> – bin interval in eV</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
-<dt>{“energies”: values, “lambda”: values, “xas”: values}</dt>
-<dd><p class="first last">where values are lists of abscissa (energies, lamba) and
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>{“energies”: values, “lambda”: values, “xas”: values}</dt><dd><p>where values are lists of abscissa (energies, lamba) and
 the sum of gaussian functions (xas).</p>
 </dd>
 </dl>
 <p>A matplotlib plot.</p>
 </p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">A dict</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>A dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.gaussian.GaussianOutput.read_excitation_energies">
 <code class="descname">read_excitation_energies</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/gaussian.html#GaussianOutput.read_excitation_energies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.gaussian.GaussianOutput.read_excitation_energies" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read a excitation energies after a TD-DFT calculation.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
-<dt>A list of tuple for each transition such as</dt>
-<dd>[(energie (eV), lambda (nm), oscillatory strength), … ]</dd>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>A list of tuple for each transition such as</dt><dd><p>[(energie (eV), lambda (nm), oscillatory strength), … ]</p>
+</dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">A list</td>
-</tr>
-</tbody>
-</table>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>A list</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt>
 <code class="descname">read_scan</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/gaussian.html#GaussianOutput.read_scan"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p>Read a potential energy surface from a gaussian scan calculation.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
-<dt>{“energies”: [ values ],</dt>
-<dd>”coords”: {“d1”: [ values ], “A2”, [ values ], … }}</dd>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>{“energies”: [ values ],</dt><dd><p>”coords”: {“d1”: [ values ], “A2”, [ values ], … }}</p>
+</dd>
 </dl>
 <p>”energies” are the energies of all points of the potential energy
 surface. “coords” are the internal coordinates used to compute the
 potential energy surface and the internal coordinates optimized,
 labelled by their name as defined in the calculation.</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">A dict</td>
-</tr>
-</tbody>
-</table>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>A dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt>
 <code class="descname">save_scan_plot</code><span class="sig-paren">(</span><em>filename='scan.pdf'</em>, <em>img_format='pdf'</em>, <em>coords=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/gaussian.html#GaussianOutput.save_scan_plot"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p>Save matplotlib plot of the potential energy surface to a file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> – Filename to write to.</li>
-<li><strong>img_format</strong> – Image format to use. Defaults to EPS.</li>
-<li><strong>coords</strong> – internal coordinate name to use as abcissa.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> – Filename to write to.</p></li>
+<li><p><strong>img_format</strong> – Image format to use. Defaults to EPS.</p></li>
+<li><p><strong>coords</strong> – internal coordinate name to use as abcissa.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.gaussian.GaussianOutput.save_spectre_plot">
 <code class="descname">save_spectre_plot</code><span class="sig-paren">(</span><em>filename='spectre.pdf'</em>, <em>img_format='pdf'</em>, <em>sigma=0.05</em>, <em>step=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/gaussian.html#GaussianOutput.save_spectre_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.gaussian.GaussianOutput.save_spectre_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save matplotlib plot of the spectre to a file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> – Filename to write to.</li>
-<li><strong>img_format</strong> – Image format to use. Defaults to EPS.</li>
-<li><strong>sigma</strong> – Full width at half maximum in eV for normal functions.</li>
-<li><strong>step</strong> – bin interval in eV</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> – Filename to write to.</p></li>
+<li><p><strong>img_format</strong> – Image format to use. Defaults to EPS.</p></li>
+<li><p><strong>sigma</strong> – Full width at half maximum in eV for normal functions.</p></li>
+<li><p><strong>step</strong> – bin interval in eV</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -585,9 +553,9 @@ labelled by their name as defined in the calculation.</p>
 <dd><p>Create a new input object using by default the last geometry read in
 the output file and with the same calculation parameters. Arguments
 are the same as GaussianInput class.</p>
-<dl class="docutils">
-<dt>Returns</dt>
-<dd>gaunip (GaussianInput) : the gaussian input object</dd>
+<dl class="simple">
+<dt>Returns</dt><dd><p>gaunip (GaussianInput) : the gaussian input object</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -598,19 +566,16 @@ are the same as GaussianInput class.</p>
 <code class="descname">read_route_line</code><span class="sig-paren">(</span><em>route</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/gaussian.html#read_route_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.gaussian.read_route_line" title="Permalink to this definition">¶</a></dt>
 <dd><p>read route line in gaussian input/output and return functional basis_set
 and a dictionary of other route parameters</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>route</strong> (<em>str</em>) – the route line</td>
-</tr>
-</tbody>
-</table>
-<dl class="docutils">
-<dt>return</dt>
-<dd>functional (str) : the method (HF, PBE …)
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>route</strong> (<em>str</em>) – the route line</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>return</dt><dd><p>functional (str) : the method (HF, PBE …)
 basis_set (str) : the basis set
-route (dict) : dictionary of parameters</dd>
+route (dict) : dictionary of parameters</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -635,8 +600,6 @@ route (dict) : dictionary of parameters</dd>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -654,13 +617,13 @@ route (dict) : dictionary of parameters</dd>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

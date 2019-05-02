@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.events module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.io.abinit.events module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -86,19 +84,15 @@ we can report a customized <code class="xref py py-class docutils literal notran
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.events.AbinitCriticalWarning</span></code></p>
 <p>Warning raised when the GS SCF cycle did not converge.</p>
 <p>Basic constructor for <code class="xref py py-class docutils literal notranslate"><span class="pre">AbinitEvent</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>message</strong> – String with human-readable message providing info on the event.</li>
-<li><strong>src_file</strong> – String with the name of the Fortran file where the event is raised.</li>
-<li><strong>Integer giving the line number in src_file.</strong> (<em>src_line</em>) – </li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>message</strong> – String with human-readable message providing info on the event.</p></li>
+<li><p><strong>src_file</strong> – String with the name of the Fortran file where the event is raised.</p></li>
+<li><p><strong>Integer giving the line number in src_file.</strong> (<em>src_line</em>) – </p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.events.ScfConvergenceWarning.yaml_tag">
 <code class="descname">yaml_tag</code><em class="property"> = '!ScfConvergenceWarning'</em><a class="headerlink" href="#pymatgen.io.abinit.events.ScfConvergenceWarning.yaml_tag" title="Permalink to this definition">¶</a></dt>
@@ -112,19 +106,15 @@ we can report a customized <code class="xref py py-class docutils literal notran
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.events.AbinitCriticalWarning</span></code></p>
 <p>Warning raised when the GS NSCF cycle did not converge.</p>
 <p>Basic constructor for <code class="xref py py-class docutils literal notranslate"><span class="pre">AbinitEvent</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>message</strong> – String with human-readable message providing info on the event.</li>
-<li><strong>src_file</strong> – String with the name of the Fortran file where the event is raised.</li>
-<li><strong>Integer giving the line number in src_file.</strong> (<em>src_line</em>) – </li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>message</strong> – String with human-readable message providing info on the event.</p></li>
+<li><p><strong>src_file</strong> – String with the name of the Fortran file where the event is raised.</p></li>
+<li><p><strong>Integer giving the line number in src_file.</strong> (<em>src_line</em>) – </p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.events.NscfConvergenceWarning.yaml_tag">
 <code class="descname">yaml_tag</code><em class="property"> = '!NscfConvergenceWarning'</em><a class="headerlink" href="#pymatgen.io.abinit.events.NscfConvergenceWarning.yaml_tag" title="Permalink to this definition">¶</a></dt>
@@ -138,19 +128,15 @@ we can report a customized <code class="xref py py-class docutils literal notran
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.events.AbinitCriticalWarning</span></code></p>
 <p>Warning raised when the structural relaxation did not converge.</p>
 <p>Basic constructor for <code class="xref py py-class docutils literal notranslate"><span class="pre">AbinitEvent</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>message</strong> – String with human-readable message providing info on the event.</li>
-<li><strong>src_file</strong> – String with the name of the Fortran file where the event is raised.</li>
-<li><strong>Integer giving the line number in src_file.</strong> (<em>src_line</em>) – </li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>message</strong> – String with human-readable message providing info on the event.</p></li>
+<li><p><strong>src_file</strong> – String with the name of the Fortran file where the event is raised.</p></li>
+<li><p><strong>Integer giving the line number in src_file.</strong> (<em>src_line</em>) – </p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.events.RelaxConvergenceWarning.yaml_tag">
 <code class="descname">yaml_tag</code><em class="property"> = '!RelaxConvergenceWarning'</em><a class="headerlink" href="#pymatgen.io.abinit.events.RelaxConvergenceWarning.yaml_tag" title="Permalink to this definition">¶</a></dt>
@@ -182,19 +168,15 @@ we can report a customized <code class="xref py py-class docutils literal notran
 <p>This Error occurs in variable cell calculations when the increase in the
 unit cell volume is too large.</p>
 <p>Basic constructor for <code class="xref py py-class docutils literal notranslate"><span class="pre">AbinitEvent</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>message</strong> – String with human-readable message providing info on the event.</li>
-<li><strong>src_file</strong> – String with the name of the Fortran file where the event is raised.</li>
-<li><strong>Integer giving the line number in src_file.</strong> (<em>src_line</em>) – </li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>message</strong> – String with human-readable message providing info on the event.</p></li>
+<li><p><strong>src_file</strong> – String with the name of the Fortran file where the event is raised.</p></li>
+<li><p><strong>Integer giving the line number in src_file.</strong> (<em>src_line</em>) – </p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.events.DilatmxError.yaml_tag">
 <code class="descname">yaml_tag</code><em class="property"> = '!DilatmxError'</em><a class="headerlink" href="#pymatgen.io.abinit.events.DilatmxError.yaml_tag" title="Permalink to this definition">¶</a></dt>
@@ -240,21 +222,17 @@ The handler changes the structure in the input with the last configuration and m
 <dt id="pymatgen.io.abinit.events.DilatmxErrorHandler.handle_task_event">
 <code class="descname">handle_task_event</code><span class="sig-paren">(</span><em>task</em>, <em>event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/events.html#DilatmxErrorHandler.handle_task_event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.events.DilatmxErrorHandler.handle_task_event" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method to handle Abinit events.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>task</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">Task</span></code> object.</li>
-<li><strong>event</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">AbinitEvent</span></code> found in the log file.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>task</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">Task</span></code> object.</p></li>
+<li><p><strong>event</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">AbinitEvent</span></code> found in the log file.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">0 if no action has been applied, 1 if the problem has been fixed.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>0 if no action has been applied, 1 if the problem has been fixed.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -280,8 +258,6 @@ The handler changes the structure in the input with the last configuration and m
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -299,13 +275,13 @@ The handler changes the structure in the input with the last configuration and m
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

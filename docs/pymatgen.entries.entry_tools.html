@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.entries.entry_tools module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.entries.entry_tools module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -54,14 +52,11 @@ entries, such as grouping entries by structure.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.MutableSet</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>A convenient container for manipulating entries. Allows for generating
 subsets, dumping into files, etc.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>entries</strong> – All the entries.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>entries</strong> – All the entries.</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.entries.entry_tools.EntrySet.add">
 <code class="descname">add</code><span class="sig-paren">(</span><em>element</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/entries/entry_tools.html#EntrySet.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.EntrySet.add" title="Permalink to this definition">¶</a></dt>
@@ -77,15 +72,8 @@ subsets, dumping into files, etc.</p>
 <dl class="attribute">
 <dt id="pymatgen.entries.entry_tools.EntrySet.chemsys">
 <code class="descname">chemsys</code><a class="headerlink" href="#pymatgen.entries.entry_tools.EntrySet.chemsys" title="Permalink to this definition">¶</a></dt>
-<dd><p>set representing the chemical system, e.g., {“Li”, “Fe”, “P”, “O”}</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">Returns</td>
-</tr>
-</tbody>
-</table>
+<dd><p>Returns:
+set representing the chemical system, e.g., {“Li”, “Fe”, “P”, “O”}</p>
 </dd></dl>
 
 <dl class="method">
@@ -98,16 +86,14 @@ subsets, dumping into files, etc.</p>
 <dt id="pymatgen.entries.entry_tools.EntrySet.from_csv">
 <em class="property">classmethod </em><code class="descname">from_csv</code><span class="sig-paren">(</span><em>filename: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/entries/entry_tools.html#EntrySet.from_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.EntrySet.from_csv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Imports PDEntries from a csv.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – Filename to import from.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">List of Elements, List of PDEntries</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> – Filename to import from.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of Elements, List of PDEntries</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -118,17 +104,15 @@ a particular chemical system (in this definition, it includes all sub
 systems). For example, if the entries are from the
 Li-Fe-P-O system, and chemsys=[“Li”, “O”], only the Li, O,
 and Li-O entries are returned.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>chemsys</strong> – Chemical system specified as list of elements. E.g.,
-[“Li”, “O”]</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">EntrySet</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>chemsys</strong> – Chemical system specified as list of elements. E.g.,
+[“Li”, “O”]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>EntrySet</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -142,20 +126,16 @@ per atom entry at each composition.</p>
 <dt id="pymatgen.entries.entry_tools.EntrySet.to_csv">
 <code class="descname">to_csv</code><span class="sig-paren">(</span><em>filename: str</em>, <em>latexify_names: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/entries/entry_tools.html#EntrySet.to_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.EntrySet.to_csv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Exports PDEntries to a csv</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> – Filename to write to.</li>
-<li><strong>entries</strong> – PDEntries to export.</li>
-<li><strong>latexify_names</strong> – Format entry names to be LaTex compatible,
-e.g., Li_{2}O</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> – Filename to write to.</p></li>
+<li><p><strong>entries</strong> – PDEntries to export.</p></li>
+<li><p><strong>latexify_names</strong> – Format entry names to be LaTex compatible,
+e.g., Li_{2}O</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -165,36 +145,32 @@ e.g., Li_{2}O</li>
 <code class="descname">group_entries_by_structure</code><span class="sig-paren">(</span><em>entries</em>, <em>species_to_remove=None</em>, <em>ltol=0.2</em>, <em>stol=0.4</em>, <em>angle_tol=5</em>, <em>primitive_cell=True</em>, <em>scale=True</em>, <em>comparator=&lt;pymatgen.analysis.structure_matcher.SpeciesComparator object&gt;</em>, <em>ncpus=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/entries/entry_tools.html#group_entries_by_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.group_entries_by_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a sequence of ComputedStructureEntries, use structure fitter to group
 them by structural similarity.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>entries</strong> – Sequence of ComputedStructureEntries.</li>
-<li><strong>species_to_remove</strong> – Sometimes you want to compare a host framework
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entries</strong> – Sequence of ComputedStructureEntries.</p></li>
+<li><p><strong>species_to_remove</strong> – Sometimes you want to compare a host framework
 (e.g., in Li-ion battery analysis). This allows you to specify
-species to remove before structural comparison.</li>
-<li><strong>ltol</strong> (<em>float</em>) – Fractional length tolerance. Default is 0.2.</li>
-<li><strong>stol</strong> (<em>float</em>) – Site tolerance in Angstrom. Default is 0.4 Angstrom.</li>
-<li><strong>angle_tol</strong> (<em>float</em>) – Angle tolerance in degrees. Default is 5 degrees.</li>
-<li><strong>primitive_cell</strong> (<em>bool</em>) – If true: input structures will be reduced to
-primitive cells prior to matching. Defaults to True.</li>
-<li><strong>scale</strong> – Input structures are scaled to equivalent volume if true;
-For exact matching, set to False.</li>
-<li><strong>comparator</strong> – A comparator object implementing an equals method that
+species to remove before structural comparison.</p></li>
+<li><p><strong>ltol</strong> (<em>float</em>) – Fractional length tolerance. Default is 0.2.</p></li>
+<li><p><strong>stol</strong> (<em>float</em>) – Site tolerance in Angstrom. Default is 0.4 Angstrom.</p></li>
+<li><p><strong>angle_tol</strong> (<em>float</em>) – Angle tolerance in degrees. Default is 5 degrees.</p></li>
+<li><p><strong>primitive_cell</strong> (<em>bool</em>) – If true: input structures will be reduced to
+primitive cells prior to matching. Defaults to True.</p></li>
+<li><p><strong>scale</strong> – Input structures are scaled to equivalent volume if true;
+For exact matching, set to False.</p></li>
+<li><p><strong>comparator</strong> – A comparator object implementing an equals method that
 declares equivalency of sites. Default is SpeciesComparator,
-which implies rigid species mapping.</li>
-<li><strong>ncpus</strong> – Number of cpus to use. Use of multiple cpus can greatly improve
-fitting speed. Default of None means serial processing.</li>
+which implies rigid species mapping.</p></li>
+<li><p><strong>ncpus</strong> – Number of cpus to use. Use of multiple cpus can greatly improve
+fitting speed. Default of None means serial processing.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Sequence of sequence of entries by structural similarity. e.g,
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Sequence of sequence of entries by structural similarity. e.g,
 [[ entry1, entry2], [entry3, entry4, entry5]]</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -218,8 +194,6 @@ fitting speed. Default of None means serial processing.</li>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -237,13 +211,13 @@ fitting speed. Default of None means serial processing.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

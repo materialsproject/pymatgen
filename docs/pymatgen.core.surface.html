@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.surface module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.core.surface module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -64,87 +62,86 @@ the desired reconstructed slab from the initial structure.</p>
 <p>TODO:
 - Right now there is no way to specify what atom is being</p>
 <blockquote>
-<div>added. In the future, use basis sets?</div></blockquote>
-<dl class="docutils">
-<dt>Generates reconstructed slabs from a set of instructions</dt>
-<dd>specified by a dictionary or json file.</dd>
+<div><p>added. In the future, use basis sets?</p>
+</div></blockquote>
+<dl class="simple">
+<dt>Generates reconstructed slabs from a set of instructions</dt><dd><p>specified by a dictionary or json file.</p>
+</dd>
 </dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>initial_structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Initial input structure. Note
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>initial_structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Initial input structure. Note
 that to ensure that the miller indices correspond to usual
 crystallographic definitions, you should supply a conventional
-unit cell structure.</li>
-<li><strong>min_slab_size</strong> (<em>float</em>) – In Angstroms</li>
-<li><strong>min_vacuum_size</strong> (<em>float</em>) – In Angstroms</li>
-<li><strong>reconstruction</strong> (<em>str</em>) – <p>Name of the dict containing the instructions
+unit cell structure.</p></li>
+<li><p><strong>min_slab_size</strong> (<em>float</em>) – In Angstroms</p></li>
+<li><p><strong>min_vacuum_size</strong> (<em>float</em>) – In Angstroms</p></li>
+<li><p><strong>reconstruction</strong> (<em>str</em>) – <p>Name of the dict containing the instructions
 for building a reconstructed slab. The dictionary can contain
 any item the creator deems relevant, however any instructions
 archived in pymatgen for public use needs to contain the
 following keys and items to ensure compatibility with the
 ReconstructionGenerator:</p>
 <blockquote>
-<div><dl class="docutils">
-<dt>”name” (str): A descriptive name for the type of</dt>
-<dd>reconstruction. Typically the name will have the type
+<div><dl class="simple">
+<dt>”name” (str): A descriptive name for the type of</dt><dd><p>reconstruction. Typically the name will have the type
 of structure the reconstruction is for, the Miller
 index, and Wood’s notation along with anything to
 describe the reconstruction: e.g.:
-“fcc_110_missing_row_1x2”</dd>
-<dt>”description” (str): A longer description of your</dt>
-<dd>reconstruction. This is to help future contributors who
+“fcc_110_missing_row_1x2”</p>
+</dd>
+<dt>”description” (str): A longer description of your</dt><dd><p>reconstruction. This is to help future contributors who
 want to add other types of reconstructions to the
 archive on pymatgen to check if the reconstruction
 already exists. Please read the descriptions carefully
 before adding a new type of reconstruction to ensure it
-is not in the archive yet.</dd>
-<dt>”reference” (str): Optional reference to where the</dt>
-<dd>reconstruction was taken from or first observed.</dd>
-<dt>”spacegroup” (dict): e.g. {“symbol”: “Fm-3m”, “number”: 225}</dt>
-<dd>Indicates what kind of structure is this reconstruction.</dd>
+is not in the archive yet.</p>
+</dd>
+<dt>”reference” (str): Optional reference to where the</dt><dd><p>reconstruction was taken from or first observed.</p>
+</dd>
+<dt>”spacegroup” (dict): e.g. {“symbol”: “Fm-3m”, “number”: 225}</dt><dd><p>Indicates what kind of structure is this reconstruction.</p>
+</dd>
 </dl>
 <p>”miller_index” ([h,k,l]): Miller index of your reconstruction
 “Woods_notation” (str): For a reconstruction, the a and b</p>
 <blockquote>
-<div>lattice may change to accomodate the symmetry of the
+<div><p>lattice may change to accomodate the symmetry of the
 reconstruction. This notation indicates the change in
 the vectors relative to the primitive (p) or
-conventional (c) slab cell. E.g. p(2x1):<p>Wood, E. A. (1964). Vocabulary of surface
+conventional (c) slab cell. E.g. p(2x1):</p>
+<p>Wood, E. A. (1964). Vocabulary of surface
 crystallography. Journal of Applied Physics, 35(4),
 1306–1312.</p>
 </div></blockquote>
-<dl class="docutils">
-<dt>”transformation_matrix” (numpy array): A 3x3 matrix to</dt>
-<dd>transform the slab. Only the a and b lattice vectors
-should change while the c vector remains the same.</dd>
-<dt>”SlabGenerator_parameters” (dict): A dictionary containing</dt>
-<dd>the parameters for the SlabGenerator class excluding the
+<dl class="simple">
+<dt>”transformation_matrix” (numpy array): A 3x3 matrix to</dt><dd><p>transform the slab. Only the a and b lattice vectors
+should change while the c vector remains the same.</p>
+</dd>
+<dt>”SlabGenerator_parameters” (dict): A dictionary containing</dt><dd><p>the parameters for the SlabGenerator class excluding the
 miller_index, min_slab_size and min_vac_size as the
 Miller index is already specified and the min_slab_size
 and min_vac_size can be changed regardless of what type
 of reconstruction is used. Having a consistent set of
 SlabGenerator parameters allows for the instructions to
-be reused to consistently build a reconstructed slab.</dd>
-<dt>”points_to_remove” (list of coords): A list of sites to</dt>
-<dd>remove where the first two indices are fraction (in a
-and b) and the third index is in units of 1/d (in c).</dd>
-<dt>”points_to_add” (list of frac_coords): A list of sites to add</dt>
-<dd>where the first two indices are fraction (in a an b) and
-the third index is in units of 1/d (in c).</dd>
-<dt>”base_reconstruction” (dict): Option to base a reconstruction on</dt>
-<dd>an existing reconstruction model also exists to easily build
+be reused to consistently build a reconstructed slab.</p>
+</dd>
+<dt>”points_to_remove” (list of coords): A list of sites to</dt><dd><p>remove where the first two indices are fraction (in a
+and b) and the third index is in units of 1/d (in c).</p>
+</dd>
+<dt>”points_to_add” (list of frac_coords): A list of sites to add</dt><dd><p>where the first two indices are fraction (in a an b) and
+the third index is in units of 1/d (in c).</p>
+</dd>
+<dt>”base_reconstruction” (dict): Option to base a reconstruction on</dt><dd><p>an existing reconstruction model also exists to easily build
 the instructions without repeating previous work. E.g. the
 alpha reconstruction of halites is based on the octopolar
 reconstruction but with the topmost atom removed. The dictionary
 for the alpha reconstruction would therefore contain the item
 “reconstruction_base”: “halite_111_octopolar_2x2”, and
 additional sites for “points_to_remove” and “points_to_add”
-can be added to modify this reconstruction.</dd>
-<dt>For “points_to_remove” and “points_to_add”, the third index for</dt>
-<dd>the c vector is in units of 1/d where d is the spacing
+can be added to modify this reconstruction.</p>
+</dd>
+<dt>For “points_to_remove” and “points_to_add”, the third index for</dt><dd><p>the c vector is in units of 1/d where d is the spacing
 between atoms along hkl (the c vector) and is relative to
 the topmost site in the unreconstructed slab. e.g. a point
 of [0.5, 0.25, 1] corresponds to the 0.5 frac_coord of a,
@@ -155,44 +152,40 @@ site. [0.5, 0.25, 0] corresponds to a point in the same
 position along c as the topmost site. This is done because
 while the primitive units of a and b will remain constant,
 the user can vary the length of the c direction by changing
-the slab layer or the vacuum layer.</dd>
+the slab layer or the vacuum layer.</p>
+</dd>
 </dl>
 </div></blockquote>
-</li>
-<li><strong>NOTE</strong> – THE DICTIONARY SHOULD ONLY CONTAIN “points_to_remove” AND</li>
-<li><strong>FOR THE TOP SURFACE. THE ReconstructionGenerator</strong> (<em>&quot;points_to_add&quot;</em>) – </li>
-<li><strong>MODIFY THE BOTTOM SURFACE ACCORDINGLY TO RETURN A SLAB WITH</strong> (<em>WILL</em>) – </li>
-<li><strong>SURFACES.</strong> (<em>EQUIVALENT</em>) – </li>
+</p></li>
+<li><p><strong>NOTE</strong> – THE DICTIONARY SHOULD ONLY CONTAIN “points_to_remove” AND</p></li>
+<li><p><strong>FOR THE TOP SURFACE. THE ReconstructionGenerator</strong> (<em>&quot;points_to_add&quot;</em>) – </p></li>
+<li><p><strong>MODIFY THE BOTTOM SURFACE ACCORDINGLY TO RETURN A SLAB WITH</strong> (<em>WILL</em>) – </p></li>
+<li><p><strong>SURFACES.</strong> (<em>EQUIVALENT</em>) – </p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.core.surface.ReconstructionGenerator.build_slabs">
 <code class="descname">build_slabs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#ReconstructionGenerator.build_slabs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.ReconstructionGenerator.build_slabs" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Builds the reconstructed slab by:</dt>
-<dd><ol class="first last arabic simple">
-<li>Obtaining the unreconstructed slab using the specified
-parameters for the SlabGenerator.</li>
-<li>Applying the appropriate lattice transformation in the
-a and b lattice vectors.</li>
-<li>Remove any specified sites from both surfaces.</li>
-<li>Add any specified sites to both surfaces.</li>
+<dd><dl class="simple">
+<dt>Builds the reconstructed slab by:</dt><dd><ol class="arabic simple">
+<li><p>Obtaining the unreconstructed slab using the specified
+parameters for the SlabGenerator.</p></li>
+<li><p>Applying the appropriate lattice transformation in the
+a and b lattice vectors.</p></li>
+<li><p>Remove any specified sites from both surfaces.</p></li>
+<li><p>Add any specified sites to both surfaces.</p></li>
 </ol>
 </dd>
 </dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The reconstructed slab.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">(<a class="reference internal" href="#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab">Slab</a>)</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The reconstructed slab.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(<a class="reference internal" href="#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab">Slab</a>)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -239,108 +232,96 @@ slab has been shifted.</p>
 
 <p>Makes a Slab structure, a structure object with additional information
 and methods pertaining to slabs.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>lattice</strong> (<em>Lattice/3x3 array</em>) – The lattice, either as a
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lattice</strong> (<em>Lattice/3x3 array</em>) – The lattice, either as a
 <a class="reference internal" href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.lattice.Lattice</span></code></a> or
 simply as any 2D array. Each row should correspond to a lattice
 vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
-lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].</li>
-<li><strong>species</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a><em>]</em>) – <p>Sequence of species on each site. Can take in
+lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].</p></li>
+<li><p><strong>species</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a><em>]</em>) – <p>Sequence of species on each site. Can take in
 flexible input, including:</p>
-<ol class="lowerroman">
-<li>A sequence of element / specie specified either as string
+<ol class="lowerroman simple">
+<li><p>A sequence of element / specie specified either as string
 symbols, e.g. [“Li”, “Fe2+”, “P”, …] or atomic numbers,
-e.g., (3, 56, …) or actual Element or Specie objects.</li>
-<li>List of dict of elements/species and occupancies, e.g.,
+e.g., (3, 56, …) or actual Element or Specie objects.</p></li>
+<li><p>List of dict of elements/species and occupancies, e.g.,
 [{“Fe” : 0.5, “Mn”:0.5}, …]. This allows the setup of
-disordered structures.</li>
+disordered structures.</p></li>
 </ol>
-</li>
-<li><strong>coords</strong> (<em>Nx3 array</em>) – list of fractional/cartesian coordinates of
-each species.</li>
-<li><strong>miller_index</strong> (<em>[</em><em>h</em><em>, </em><em>k</em><em>, </em><em>l</em><em>]</em>) – Miller index of plane parallel to
+</p></li>
+<li><p><strong>coords</strong> (<em>Nx3 array</em>) – list of fractional/cartesian coordinates of
+each species.</p></li>
+<li><p><strong>miller_index</strong> (<em>[</em><em>h</em><em>, </em><em>k</em><em>, </em><em>l</em><em>]</em>) – Miller index of plane parallel to
 surface. Note that this is referenced to the input structure. If
 you need this to be based on the conventional cell,
-you should supply the conventional structure.</li>
-<li><strong>oriented_unit_cell</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – The oriented_unit_cell from which
-this Slab is created (by scaling in the c-direction).</li>
-<li><strong>shift</strong> (<em>float</em>) – The shift in the c-direction applied to get the
-termination.</li>
-<li><strong>scale_factor</strong> (<em>array</em>) – scale_factor Final computed scale factor
-that brings the parent cell to the surface cell.</li>
-<li><strong>reorient_lattice</strong> (<em>bool</em>) – reorients the lattice parameters such that
-the c direction is the third vector of the lattice matrix</li>
-<li><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if there are sites
-that are less than 0.01 Ang apart. Defaults to False.</li>
-<li><strong>reconstruction</strong> (<em>str</em>) – Type of reconstruction. Defaultst to None if
-the slab is not reconstructed.</li>
-<li><strong>coords_are_cartesian</strong> (<em>bool</em>) – Set to True if you are providing
-coordinates in cartesian coordinates. Defaults to False.</li>
-<li><strong>site_properties</strong> (<em>dict</em>) – Properties associated with the sites as a
+you should supply the conventional structure.</p></li>
+<li><p><strong>oriented_unit_cell</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – The oriented_unit_cell from which
+this Slab is created (by scaling in the c-direction).</p></li>
+<li><p><strong>shift</strong> (<em>float</em>) – The shift in the c-direction applied to get the
+termination.</p></li>
+<li><p><strong>scale_factor</strong> (<em>array</em>) – scale_factor Final computed scale factor
+that brings the parent cell to the surface cell.</p></li>
+<li><p><strong>reorient_lattice</strong> (<em>bool</em>) – reorients the lattice parameters such that
+the c direction is the third vector of the lattice matrix</p></li>
+<li><p><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if there are sites
+that are less than 0.01 Ang apart. Defaults to False.</p></li>
+<li><p><strong>reconstruction</strong> (<em>str</em>) – Type of reconstruction. Defaultst to None if
+the slab is not reconstructed.</p></li>
+<li><p><strong>coords_are_cartesian</strong> (<em>bool</em>) – Set to True if you are providing
+coordinates in cartesian coordinates. Defaults to False.</p></li>
+<li><p><strong>site_properties</strong> (<em>dict</em>) – Properties associated with the sites as a
 dict of sequences, e.g., {“magmom”:[5,5,5,5]}. The sequences
 have to be the same length as the atomic species and
-fractional_coords. Defaults to None for no properties.</li>
-<li><strong>energy</strong> (<em>float</em>) – A value for the energy.</li>
+fractional_coords. Defaults to None for no properties.</p></li>
+<li><p><strong>energy</strong> (<em>float</em>) – A value for the energy.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.core.surface.Slab.add_adsorbate_atom">
 <code class="descname">add_adsorbate_atom</code><span class="sig-paren">(</span><em>indices</em>, <em>specie</em>, <em>distance</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab.add_adsorbate_atom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.add_adsorbate_atom" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the structure of single atom adsorption.
 slab structure from the Slab class(in [0, 0, 1])</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>indices</strong> (<em>[</em><em>int</em><em>]</em>) – Indices of sites on which to put the absorbate.
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>indices</strong> (<em>[</em><em>int</em><em>]</em>) – Indices of sites on which to put the absorbate.
 Absorbed atom will be displaced relative to the center of
-these sites.</li>
-<li><strong>specie</strong> (<em>Specie/Element/str</em>) – adsorbed atom species</li>
-<li><strong>distance</strong> (<em>float</em>) – between centers of the adsorbed atom and the
-given site in Angstroms.</li>
+these sites.</p></li>
+<li><p><strong>specie</strong> (<em>Specie/Element/str</em>) – adsorbed atom species</p></li>
+<li><p><strong>distance</strong> (<em>float</em>) – between centers of the adsorbed atom and the
+given site in Angstroms.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.surface.Slab.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dict representation of Structure.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>verbosity</strong> (<em>int</em>) – Verbosity level. Default of 1 includes both
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>verbosity</strong> (<em>int</em>) – Verbosity level. Default of 1 includes both
 direct and cartesian coordinates for all sites, lattice
 parameters, etc. Useful for reading and for insertion into a
 database. Set to 0 for an extremely lightweight version
 that only includes sufficient information to reconstruct the
-object.</li>
-<li><strong>fmt</strong> (<em>str</em>) – Specifies a format for the dict. Defaults to None,
+object.</p></li>
+<li><p><strong>fmt</strong> (<em>str</em>) – Specifies a format for the dict. Defaults to None,
 which is the default format used in pymatgen. Other options
-include “abivars”.</li>
-<li><strong>**kwargs</strong> – Allow passing of other kwargs needed for certain</li>
-<li><strong>e.g.</strong><strong>, </strong><strong>&quot;abivars&quot;.</strong> (<em>formats</em><em>,</em>) – </li>
+include “abivars”.</p></li>
+<li><p><strong>**kwargs</strong> – Allow passing of other kwargs needed for certain</p></li>
+<li><p><strong>e.g.</strong><strong>, </strong><strong>&quot;abivars&quot;.</strong> (<em>formats</em><em>,</em>) – </p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">JSON serializable dict representation.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>JSON serializable dict representation.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -354,31 +335,27 @@ include “abivars”.</li>
 <code class="descname">copy</code><span class="sig-paren">(</span><em>site_properties=None</em>, <em>sanitize=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.copy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience method to get a copy of the structure, with options to add
 site properties.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>site_properties</strong> (<em>dict</em>) – Properties to add or override. The
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>site_properties</strong> (<em>dict</em>) – Properties to add or override. The
 properties are specified in the same way as the constructor,
 i.e., as a dict of the form {property: [values]}. The
 properties should be in the order of the <em>original</em> structure
-if you are performing sanitization.</li>
-<li><strong>sanitize</strong> (<em>bool</em>) – If True, this method will return a sanitized
+if you are performing sanitization.</p></li>
+<li><p><strong>sanitize</strong> (<em>bool</em>) – If True, this method will return a sanitized
 structure. Sanitization performs a few things: (i) The sites are
 sorted by electronegativity, (ii) a LLL lattice reduction is
 carried out to obtain a relatively orthogonalized cell,
 (iii) all fractional coords for sites are mapped into the
-unit cell.</li>
+unit cell.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A copy of the Structure, with optionally new site_properties and
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A copy of the Structure, with optionally new site_properties and
 optionally sanitized.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -394,16 +371,14 @@ to work properly. Otherwise, the Slab will always have a dipole of 0.</p>
 <em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reconstitute a Structure object from a dict representation of Structure
 created using as_dict().</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>d</strong> (<em>dict</em>) – Dict representation of structure.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Structure object</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dict representation of structure.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Structure object</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -425,21 +400,17 @@ GBs or interfaces.</p>
 meaning as in list.sort. By default, sites are sorted by the
 electronegativity of the species. Note that Slab has to override this
 because of the different __init__ args.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>key</strong> – Specifies a function of one argument that is used to extract
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> – Specifies a function of one argument that is used to extract
 a comparison key from each list element: key=str.lower. The
-default value is None (compare the elements directly).</li>
-<li><strong>reverse</strong> (<em>bool</em>) – If set to True, then the list elements are sorted
-as if each comparison were reversed.</li>
+default value is None (compare the elements directly).</p></li>
+<li><p><strong>reverse</strong> (<em>bool</em>) – If set to True, then the list elements are sorted
+as if each comparison were reversed.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -454,17 +425,16 @@ VoronoiNN, we assume any site that has this error is a surface
 site as well. This will work for elemental systems only for now. Useful
 for analysis involving broken bonds and for finding adsorption sites.</p>
 <blockquote>
-<div><dl class="docutils">
-<dt>Args:</dt>
-<dd><dl class="first last docutils">
-<dt>tag (bool): Option to adds site attribute “is_surfsite” (bool)</dt>
-<dd>to all sites of slab. Defaults to False</dd>
+<div><dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>tag (bool): Option to adds site attribute “is_surfsite” (bool)</dt><dd><p>to all sites of slab. Defaults to False</p>
+</dd>
 </dl>
 </dd>
-<dt>Returns:</dt>
-<dd>A dictionary grouping sites on top and bottom of the slab
+<dt>Returns:</dt><dd><p>A dictionary grouping sites on top and bottom of the slab
 together.
-{“top”: [sites with indices], “bottom”: [sites with indices}</dd>
+{“top”: [sites with indices], “bottom”: [sites with indices}</p>
+</dd>
 </dl>
 </div></blockquote>
 </dd></dl>
@@ -472,55 +442,49 @@ together.
 <dl class="method">
 <dt id="pymatgen.core.surface.Slab.get_symmetric_site">
 <code class="descname">get_symmetric_site</code><span class="sig-paren">(</span><em>point</em>, <em>cartesian=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab.get_symmetric_site"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.get_symmetric_site" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>This method uses symmetry operations to find equivalent sites on</dt>
-<dd>both sides of the slab. Works mainly for slabs with Laue
+<dd><dl class="simple">
+<dt>This method uses symmetry operations to find equivalent sites on</dt><dd><p>both sides of the slab. Works mainly for slabs with Laue
 symmetry. This is useful for retaining the non-polar and
 symmetric properties of a slab when creating adsorbed
-structures or symmetric reconstructions.</dd>
-<dt>Arg:</dt>
-<dd>point: Fractional coordinate.</dd>
+structures or symmetric reconstructions.</p>
+</dd>
+<dt>Arg:</dt><dd><p>point: Fractional coordinate.</p>
+</dd>
 </dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
-<dt>Fractional coordinate. A point equivalent to the</dt>
-<dd>parameter point, but on the other side of the slab</dd>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>Fractional coordinate. A point equivalent to the</dt><dd><p>parameter point, but on the other side of the slab</p>
+</dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">point</td>
-</tr>
-</tbody>
-</table>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>point</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.surface.Slab.get_tasker2_slabs">
 <code class="descname">get_tasker2_slabs</code><span class="sig-paren">(</span><em>tol=0.01</em>, <em>same_species_only=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab.get_tasker2_slabs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.get_tasker2_slabs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a list of slabs that have been Tasker 2 corrected.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>tol</strong> (<em>float</em>) – Tolerance to determine if atoms are within same plane.
-This is a fractional tolerance, not an absolute one.</li>
-<li><strong>same_species_only</strong> (<em>bool</em>) – If True, only that are of the exact same
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tol</strong> (<em>float</em>) – Tolerance to determine if atoms are within same plane.
+This is a fractional tolerance, not an absolute one.</p></li>
+<li><p><strong>same_species_only</strong> (<em>bool</em>) – If True, only that are of the exact same
 species as the atom at the outermost surface are considered for
 moving. Otherwise, all atoms regardless of species that is
 within tol are considered for moving. Default is True (usually
-the desired behavior).</li>
+the desired behavior).</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">([Slab]) List of tasker 2 corrected slabs.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>([Slab]) List of tasker 2 corrected slabs.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -537,35 +501,30 @@ if we want to ensure both surfaces in the slab are the same</p>
 <dd><p>Checks whether the surface is polar by computing the dipole per unit
 area. Note that the Slab must be oxidation state-decorated for this
 to work properly. Otherwise, the Slab will always be non-polar.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tol_dipole_per_unit_area</strong> (<em>float</em>) – A tolerance. If the dipole
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tol_dipole_per_unit_area</strong> (<em>float</em>) – A tolerance. If the dipole
 magnitude per unit area is less than this value, the Slab is
 considered non-polar. Defaults to 1e-3, which is usually
 pretty good. Normalized dipole per unit area is used as it is
 more reliable than using the total, which tends to be larger for
-slabs with larger surface areas.</td>
-</tr>
-</tbody>
-</table>
+slabs with larger surface areas.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.surface.Slab.is_symmetric">
 <code class="descname">is_symmetric</code><span class="sig-paren">(</span><em>symprec=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab.is_symmetric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.is_symmetric" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if slab is symmetric, i.e., contains inversion symmetry.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>symprec</strong> (<em>float</em>) – Symmetry precision used for SpaceGroup analyzer.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(bool) Whether slab contains inversion symmetry.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>symprec</strong> (<em>float</em>) – Symmetry precision used for SpaceGroup analyzer.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(bool) Whether slab contains inversion symmetry.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -583,38 +542,35 @@ slabs with larger surface areas.</td>
 <dl class="method">
 <dt id="pymatgen.core.surface.Slab.symmetrically_add_atom">
 <code class="descname">symmetrically_add_atom</code><span class="sig-paren">(</span><em>specie</em>, <em>point</em>, <em>coords_are_cartesian=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab.symmetrically_add_atom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.symmetrically_add_atom" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Class method for adding a site at a specified point in a slab.</dt>
-<dd>Will add the corresponding site on the other side of the
-slab to maintain equivalent surfaces.</dd>
-<dt>Arg:</dt>
-<dd>specie (str): The specie to add
+<dd><dl class="simple">
+<dt>Class method for adding a site at a specified point in a slab.</dt><dd><p>Will add the corresponding site on the other side of the
+slab to maintain equivalent surfaces.</p>
+</dd>
+<dt>Arg:</dt><dd><p>specie (str): The specie to add
 point (coords): The coordinate of the site in the slab to add.
-coords_are_cartesian (bool): Is the point in cartesian coordinates</dd>
+coords_are_cartesian (bool): Is the point in cartesian coordinates</p>
+</dd>
 </dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The modified slab</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">(<a class="reference internal" href="#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab">Slab</a>)</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The modified slab</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(<a class="reference internal" href="#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab">Slab</a>)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.surface.Slab.symmetrically_remove_atoms">
 <code class="descname">symmetrically_remove_atoms</code><span class="sig-paren">(</span><em>indices</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab.symmetrically_remove_atoms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.symmetrically_remove_atoms" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Class method for removing sites corresponding to a list of indices.</dt>
-<dd>Will remove the corresponding site on the other side of the
-slab to maintain equivalent surfaces.</dd>
-<dt>Arg:</dt>
-<dd><dl class="first last docutils">
-<dt>indices ([indices]): The indices of the sites</dt>
-<dd>in the slab to remove.</dd>
+<dd><dl class="simple">
+<dt>Class method for removing sites corresponding to a list of indices.</dt><dd><p>Will remove the corresponding site on the other side of the
+slab to maintain equivalent surfaces.</p>
+</dd>
+<dt>Arg:</dt><dd><dl class="simple">
+<dt>indices ([indices]): The indices of the sites</dt><dd><p>in the slab to remove.</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -684,26 +640,24 @@ surface cell.</p>
 <p>Calculates the slab scale factor and uses it to generate a unit cell
 of the initial structure that has been oriented by its miller index.
 Also stores the initial information needed later on to generate a slab.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>initial_structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Initial input structure. Note that to
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>initial_structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Initial input structure. Note that to
 ensure that the miller indices correspond to usual
 crystallographic definitions, you should supply a conventional
-unit cell structure.</li>
-<li><strong>miller_index</strong> (<em>[</em><em>h</em><em>, </em><em>k</em><em>, </em><em>l</em><em>]</em>) – Miller index of plane parallel to
+unit cell structure.</p></li>
+<li><p><strong>miller_index</strong> (<em>[</em><em>h</em><em>, </em><em>k</em><em>, </em><em>l</em><em>]</em>) – Miller index of plane parallel to
 surface. Note that this is referenced to the input structure. If
 you need this to be based on the conventional cell,
-you should supply the conventional structure.</li>
-<li><strong>min_slab_size</strong> (<em>float</em>) – In Angstroms or number of hkl planes</li>
-<li><strong>min_vacuum_size</strong> (<em>float</em>) – In Angstroms or number of hkl planes</li>
-<li><strong>lll_reduce</strong> (<em>bool</em>) – Whether to perform an LLL reduction on the
-eventual structure.</li>
-<li><strong>center_slab</strong> (<em>bool</em>) – Whether to center the slab in the cell with
-equal vacuum spacing from the top and bottom.</li>
-<li><strong>in_unit_planes</strong> (<em>bool</em>) – Whether to set min_slab_size and min_vac_size
+you should supply the conventional structure.</p></li>
+<li><p><strong>min_slab_size</strong> (<em>float</em>) – In Angstroms or number of hkl planes</p></li>
+<li><p><strong>min_vacuum_size</strong> (<em>float</em>) – In Angstroms or number of hkl planes</p></li>
+<li><p><strong>lll_reduce</strong> (<em>bool</em>) – Whether to perform an LLL reduction on the
+eventual structure.</p></li>
+<li><p><strong>center_slab</strong> (<em>bool</em>) – Whether to center the slab in the cell with
+equal vacuum spacing from the top and bottom.</p></li>
+<li><p><strong>in_unit_planes</strong> (<em>bool</em>) – Whether to set min_slab_size and min_vac_size
 in units of hkl planes (True) or Angstrom (False/default).
 Setting in units of planes is useful for ensuring some slabs
 have a certain nlayer of atoms. e.g. for Cs (100), a 10 Ang
@@ -712,13 +666,13 @@ Fe (100) will have more layer of atoms. By using units of hkl
 planes instead, we ensure both slabs
 have the same number of atoms. The slab thickness will be in
 min_slab_size/math.ceil(self._proj_height/dhkl)
-multiples of oriented unit cells.</li>
-<li><strong>primitive</strong> (<em>bool</em>) – Whether to reduce any generated slabs to a
+multiples of oriented unit cells.</p></li>
+<li><p><strong>primitive</strong> (<em>bool</em>) – Whether to reduce any generated slabs to a
 primitive cell (this does <strong>not</strong> mean the slab is generated
 from a primitive cell, it simply means that after slab
 generation, we attempt to find shorter lattice vectors,
-which lead to less surface area and smaller cells).</li>
-<li><strong>max_normal_search</strong> (<em>int</em>) – If set to a positive integer, the code will
+which lead to less surface area and smaller cells).</p></li>
+<li><p><strong>max_normal_search</strong> (<em>int</em>) – If set to a positive integer, the code will
 conduct a search for a normal lattice vector that is as
 perpendicular to the surface as possible by considering
 multiples linear combinations of lattice vectors up to
@@ -729,14 +683,12 @@ not be the smallest possible cell for simulation. Normality
 is not guaranteed, but the oriented cell will have the c
 vector as normal as possible (within the search range) to the
 surface. A value of up to the max absolute Miller index is
-usually sufficient.</li>
-<li><strong>reorient_lattice</strong> (<em>bool</em>) – reorients the lattice parameters such that
-the c direction is the third vector of the lattice matrix</li>
+usually sufficient.</p></li>
+<li><p><strong>reorient_lattice</strong> (<em>bool</em>) – reorients the lattice parameters such that
+the c direction is the third vector of the lattice matrix</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.core.surface.SlabGenerator.get_slab">
 <code class="descname">get_slab</code><span class="sig-paren">(</span><em>shift=0</em>, <em>tol=0.1</em>, <em>energy=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#SlabGenerator.get_slab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.get_slab" title="Permalink to this definition">¶</a></dt>
@@ -744,65 +696,59 @@ the c direction is the third vector of the lattice matrix</li>
 generates a slab based on the given shift. You should rarely use this
 method. Instead, it is used by other generation algorithms to obtain
 all slabs.</p>
-<dl class="docutils">
-<dt>Arg:</dt>
-<dd><dl class="first docutils">
-<dt>shift (float): A shift value in Angstrom that determines how much a</dt>
-<dd>slab should be shifted.</dd>
+<dl>
+<dt>Arg:</dt><dd><dl class="simple">
+<dt>shift (float): A shift value in Angstrom that determines how much a</dt><dd><p>slab should be shifted.</p>
+</dd>
 </dl>
-<p class="last">tol (float): Tolerance to determine primitive cell.
+<p>tol (float): Tolerance to determine primitive cell.
 energy (float): An energy to assign to the slab.</p>
 </dd>
 </dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(Slab) A Slab object with a particular shifted oriented unit cell.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(Slab) A Slab object with a particular shifted oriented unit cell.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.surface.SlabGenerator.get_slabs">
-<code class="descname">get_slabs</code><span class="sig-paren">(</span><em>bonds=None</em>, <em>tol=0.1</em>, <em>max_broken_bonds=0</em>, <em>symmetrize=False</em>, <em>repair=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#SlabGenerator.get_slabs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.get_slabs" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_slabs</code><span class="sig-paren">(</span><em>bonds=None</em>, <em>ftol=0.1</em>, <em>tol=0.1</em>, <em>max_broken_bonds=0</em>, <em>symmetrize=False</em>, <em>repair=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#SlabGenerator.get_slabs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.get_slabs" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method returns a list of slabs that are generated using the list of
 shift values from the method, _calculate_possible_shifts(). Before the
 shifts are used to create the slabs however, if the user decides to take
 into account whether or not a termination will break any polyhedral
 structure (bonds is not None), this method will filter out any shift
 values that do so.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>bonds</strong> (<em>{</em><em>(</em><em>specie1</em><em>, </em><em>specie2</em>) – max_bond_dist}: bonds are
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bonds</strong> (<em>{</em><em>(</em><em>specie1</em><em>, </em><em>specie2</em>) – max_bond_dist}: bonds are
 specified as a dict of tuples: float of specie1, specie2
 and the max bonding distance. For example, PO4 groups may be
-defined as {(“P”, “O”): 3}.</li>
-<li><strong>tol</strong> (<em>float</em>) – Threshold parameter in fcluster in order to check
+defined as {(“P”, “O”): 3}.</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – General tolerance paramter for getting primitive
+cells and matching structures</p></li>
+<li><p><strong>ftol</strong> (<em>float</em>) – Threshold parameter in fcluster in order to check
 if two atoms are lying on the same plane. Default thresh set
-to 0.1 Angstrom in the direction of the surface normal.</li>
-<li><strong>max_broken_bonds</strong> (<em>int</em>) – Maximum number of allowable broken bonds
+to 0.1 Angstrom in the direction of the surface normal.</p></li>
+<li><p><strong>max_broken_bonds</strong> (<em>int</em>) – Maximum number of allowable broken bonds
 for the slab. Use this to limit # of slabs (some structures
 may have a lot of slabs). Defaults to zero, which means no
-defined bonds must be broken.</li>
-<li><strong>symmetrize</strong> (<em>bool</em>) – Whether or not to ensure the surfaces of the
-slabs are equivalent.</li>
-<li><strong>repair</strong> (<em>bool</em>) – Whether to repair terminations with broken bonds
+defined bonds must be broken.</p></li>
+<li><p><strong>symmetrize</strong> (<em>bool</em>) – Whether or not to ensure the surfaces of the
+slabs are equivalent.</p></li>
+<li><p><strong>repair</strong> (<em>bool</em>) – Whether to repair terminations with broken bonds
 or just omit them. Set to False as repairing terminations can
-lead to many possible slabs as oppose to just omitting them.</li>
+lead to many possible slabs as oppose to just omitting them.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">([Slab]) List of all possible terminations of a particular surface.
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>([Slab]) List of all possible terminations of a particular surface.
 Slabs are sorted by the # of bonds broken.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -810,22 +756,19 @@ Slabs are sorted by the # of bonds broken.</p>
 <code class="descname">move_to_other_side</code><span class="sig-paren">(</span><em>init_slab</em>, <em>index_of_sites</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#SlabGenerator.move_to_other_side"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.move_to_other_side" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method will Move a set of sites to the
 other side of the slab (opposite surface).</p>
-<dl class="docutils">
-<dt>Arg:</dt>
-<dd><p class="first">init_slab (structure): A structure object representing a slab.
+<dl>
+<dt>Arg:</dt><dd><p>init_slab (structure): A structure object representing a slab.
 index_of_sites (list of ints): The list of indices representing</p>
-<blockquote class="last">
-<div>the sites we want to move to the other side.</div></blockquote>
+<blockquote>
+<div><p>the sites we want to move to the other side.</p>
+</div></blockquote>
 </dd>
 </dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(Slab) A Slab object with a particular shifted oriented unit cell.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(Slab) A Slab object with a particular shifted oriented unit cell.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -838,21 +781,19 @@ surfaces should be equivalent. Otherwise, sites at the bottom of the
 slab will be removed until the slab is symmetric. Note the removal of sites
 can destroy the stoichiometry of the slab. For non-elemental
 structures, the chemical potential will be needed to calculate surface energy.</p>
-<dl class="docutils">
-<dt>Arg:</dt>
-<dd>init_slab (Structure): A single slab structure
-tol (float): Tolerance for SpaceGroupanalyzer.</dd>
+<dl class="simple">
+<dt>Arg:</dt><dd><p>init_slab (Structure): A single slab structure
+tol (float): Tolerance for SpaceGroupanalyzer.</p>
+</dd>
 </dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A symmetrized Slab object.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab">Slab</a> (structure)</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A symmetrized Slab object.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab">Slab</a> (structure)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -863,24 +804,21 @@ cleaving specified by the bonds parameter and move them
 to the other surface to make sure the bond is kept intact.
 In a future release of surface.py, the ghost_sites will be
 used to tell us how the repair bonds should look like.</p>
-<dl class="docutils">
-<dt>Arg:</dt>
-<dd><p class="first">slab (structure): A structure object representing a slab.
+<dl>
+<dt>Arg:</dt><dd><p>slab (structure): A structure object representing a slab.
 bonds ({(specie1, specie2): max_bond_dist}: bonds are</p>
-<blockquote class="last">
-<div>specified as a dict of tuples: float of specie1, specie2
+<blockquote>
+<div><p>specified as a dict of tuples: float of specie1, specie2
 and the max bonding distance. For example, PO4 groups may be
-defined as {(“P”, “O”): 3}.</div></blockquote>
+defined as {(“P”, “O”): 3}.</p>
+</div></blockquote>
 </dd>
 </dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(Slab) A Slab object with a particular shifted oriented unit cell.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(Slab) A Slab object with a particular shifted oriented unit cell.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -888,42 +826,41 @@ defined as {(“P”, “O”): 3}.</div></blockquote>
 <dl class="function">
 <dt id="pymatgen.core.surface.center_slab">
 <code class="descname">center_slab</code><span class="sig-paren">(</span><em>slab</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#center_slab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.center_slab" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>The goal here is to ensure the center of the slab region</dt>
-<dd>is centered close to c=0.5. This makes it easier to
-find the surface sites and apply operations like doping.</dd>
+<dd><dl class="simple">
+<dt>The goal here is to ensure the center of the slab region</dt><dd><p>is centered close to c=0.5. This makes it easier to
+find the surface sites and apply operations like doping.</p>
+</dd>
 </dl>
 <p>There are three cases where the slab in not centered:
 1. The slab region is completely between two vacuums in the</p>
 <blockquote>
-<div>box but not necessarily centered. We simply shift the
+<div><p>box but not necessarily centered. We simply shift the
 slab by the difference in its center of mass and 0.5
-along the c direction.</div></blockquote>
+along the c direction.</p>
+</div></blockquote>
 <ol class="arabic simple" start="2">
-<li><dl class="first docutils">
-<dt>The slab completely spills outside the box from the bottom</dt>
-<dd>and into the top. This makes it incredibly difficult to
+<li><dl class="simple">
+<dt>The slab completely spills outside the box from the bottom</dt><dd><p>and into the top. This makes it incredibly difficult to
 locate surface sites. We iterate through all sites that
 spill over (z&gt;c) and shift all sites such that this specific
-site is now on the other side. Repeat for all sites with z&gt;c.</dd>
+site is now on the other side. Repeat for all sites with z&gt;c.</p>
+</dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt>This is a simpler case of scenario 2. Either the top or bottom</dt>
-<dd>slab sites are at c=0 or c=1. Treat as scenario 2.</dd>
+<li><dl class="simple">
+<dt>This is a simpler case of scenario 2. Either the top or bottom</dt><dd><p>slab sites are at c=0 or c=1. Treat as scenario 2.</p>
+</dd>
 </dl>
 </li>
 </ol>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>slab</strong> (<a class="reference internal" href="#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab"><em>Slab</em></a>) – Slab structure to center</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Returns a centered slab structure</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>slab</strong> (<a class="reference internal" href="#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab"><em>Slab</em></a>) – Slab structure to center</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns a centered slab structure</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -934,39 +871,37 @@ Slabs oriented under certain Miller indices that are equivalent to other
 slabs in other Miller indices are filtered out using symmetry operations
 to get rid of any repetitive slabs. For example, under symmetry operations,
 CsCl has equivalent slabs in the (0,0,1), (0,1,0), and (1,0,0) direction.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Initial input structure. Note that to
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Initial input structure. Note that to
 ensure that the miller indices correspond to usual
 crystallographic definitions, you should supply a conventional
-unit cell structure.</li>
-<li><strong>max_index</strong> (<em>int</em>) – The maximum Miller index to go up to.</li>
-<li><strong>min_slab_size</strong> (<em>float</em>) – In Angstroms</li>
-<li><strong>min_vacuum_size</strong> (<em>float</em>) – In Angstroms</li>
-<li><strong>bonds</strong> (<em>{</em><em>(</em><em>specie1</em><em>, </em><em>specie2</em>) – max_bond_dist}: bonds are
+unit cell structure.</p></li>
+<li><p><strong>max_index</strong> (<em>int</em>) – The maximum Miller index to go up to.</p></li>
+<li><p><strong>min_slab_size</strong> (<em>float</em>) – In Angstroms</p></li>
+<li><p><strong>min_vacuum_size</strong> (<em>float</em>) – In Angstroms</p></li>
+<li><p><strong>bonds</strong> (<em>{</em><em>(</em><em>specie1</em><em>, </em><em>specie2</em>) – max_bond_dist}: bonds are
 specified as a dict of tuples: float of specie1, specie2
 and the max bonding distance. For example, PO4 groups may be
-defined as {(“P”, “O”): 3}.</li>
-<li><strong>tol</strong> (<em>float</em>) – Threshold parameter in fcluster in order to check
+defined as {(“P”, “O”): 3}.</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – Threshold parameter in fcluster in order to check
 if two atoms are lying on the same plane. Default thresh set
-to 0.1 Angstrom in the direction of the surface normal.</li>
-<li><strong>max_broken_bonds</strong> (<em>int</em>) – Maximum number of allowable broken bonds
+to 0.1 Angstrom in the direction of the surface normal.</p></li>
+<li><p><strong>max_broken_bonds</strong> (<em>int</em>) – Maximum number of allowable broken bonds
 for the slab. Use this to limit # of slabs (some structures
 may have a lot of slabs). Defaults to zero, which means no
-defined bonds must be broken.</li>
-<li><strong>lll_reduce</strong> (<em>bool</em>) – Whether to perform an LLL reduction on the
-eventual structure.</li>
-<li><strong>center_slab</strong> (<em>bool</em>) – Whether to center the slab in the cell with
-equal vacuum spacing from the top and bottom.</li>
-<li><strong>primitive</strong> (<em>bool</em>) – Whether to reduce any generated slabs to a
+defined bonds must be broken.</p></li>
+<li><p><strong>lll_reduce</strong> (<em>bool</em>) – Whether to perform an LLL reduction on the
+eventual structure.</p></li>
+<li><p><strong>center_slab</strong> (<em>bool</em>) – Whether to center the slab in the cell with
+equal vacuum spacing from the top and bottom.</p></li>
+<li><p><strong>primitive</strong> (<em>bool</em>) – Whether to reduce any generated slabs to a
 primitive cell (this does <strong>not</strong> mean the slab is generated
 from a primitive cell, it simply means that after slab
 generation, we attempt to find shorter lattice vectors,
-which lead to less surface area and smaller cells).</li>
-<li><strong>max_normal_search</strong> (<em>int</em>) – If set to a positive integer, the code will
+which lead to less surface area and smaller cells).</p></li>
+<li><p><strong>max_normal_search</strong> (<em>int</em>) – If set to a positive integer, the code will
 conduct a search for a normal lattice vector that is as
 perpendicular to the surface as possible by considering
 multiples linear combinations of lattice vectors up to
@@ -977,18 +912,16 @@ not be the smallest possible cell for simulation. Normality
 is not guaranteed, but the oriented cell will have the c
 vector as normal as possible (within the search range) to the
 surface. A value of up to the max absolute Miller index is
-usually sufficient.</li>
-<li><strong>symmetrize</strong> (<em>bool</em>) – Whether or not to ensure the surfaces of the
-slabs are equivalent.</li>
-<li><strong>repair</strong> (<em>bool</em>) – Whether to repair terminations with broken bonds
-or just omit them</li>
-<li><strong>include_reconstructions</strong> (<em>bool</em>) – Whether to include reconstructed
-slabs available in the reconstructions_archive.json file.</li>
+usually sufficient.</p></li>
+<li><p><strong>symmetrize</strong> (<em>bool</em>) – Whether or not to ensure the surfaces of the
+slabs are equivalent.</p></li>
+<li><p><strong>repair</strong> (<em>bool</em>) – Whether to repair terminations with broken bonds
+or just omit them</p></li>
+<li><p><strong>include_reconstructions</strong> (<em>bool</em>) – Whether to include reconstructed
+slabs available in the reconstructions_archive.json file.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -1009,6 +942,22 @@ to be used for hkl transformations
 </dd></dl>
 
 <dl class="function">
+<dt id="pymatgen.core.surface.get_slab_regions">
+<code class="descname">get_slab_regions</code><span class="sig-paren">(</span><em>slab</em>, <em>blength=3.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#get_slab_regions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.get_slab_regions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to get the ranges of the slab regions. Useful for discerning where
+the slab ends and vacuum begins if the slab is not fully within the cell
+:param slab: Structure object modelling the surface
+:type slab: Structure
+:param blength: The bondlength between atoms. You generally</p>
+<blockquote>
+<div><p>want this value to be larger than the actual bondlengths in
+order to find atoms that are part of the slab</p>
+</div></blockquote>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="function">
 <dt id="pymatgen.core.surface.get_symmetrically_distinct_miller_indices">
 <code class="descname">get_symmetrically_distinct_miller_indices</code><span class="sig-paren">(</span><em>structure</em>, <em>max_index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#get_symmetrically_distinct_miller_indices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.get_symmetrically_distinct_miller_indices" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns all symmetrically distinct indices below a certain max-index for
@@ -1018,14 +967,11 @@ lattice of the structure.
 :type structure: Structure
 :param max_index: The maximum index. For example, a max_index of 1</p>
 <blockquote>
-<div>means that (100), (110), and (111) are returned for the cubic
-structure. All other indices are equivalent to one of these.</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-</tbody>
-</table>
+<div><p>means that (100), (110), and (111) are returned for the cubic
+structure. All other indices are equivalent to one of these.</p>
+</div></blockquote>
+<dl class="field-list simple">
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -1035,15 +981,13 @@ structure. All other indices are equivalent to one of these.</div></blockquote>
 A to B using a transformation matrix
 :param transf: The transformation matrix</p>
 <blockquote>
-<div>that transforms a lattice of A to B</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>miller_index</strong> (<em>[</em><em>h</em><em>, </em><em>k</em><em>, </em><em>l</em><em>]</em>) – Miller index to transform to setting B</td>
-</tr>
-</tbody>
-</table>
+<div><p>that transforms a lattice of A to B</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>miller_index</strong> (<em>[</em><em>h</em><em>, </em><em>k</em><em>, </em><em>l</em><em>]</em>) – Miller index to transform to setting B</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -1053,33 +997,29 @@ A to B using a transformation matrix
 <p>A minimum of 3 sets of coordinates are required. If more than 3 sets of
 coordinates are given, the best plane that minimises the distance to all
 points will be calculated.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>lattice</strong> (<em>list</em><em> or </em><a class="reference internal" href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><em>Lattice</em></a>) – A 3x3 lattice matrix or <cite>Lattice</cite> object (for
-example obtained from Structure.lattice).</li>
-<li><strong>coords</strong> (<em>iterable</em>) – A list or numpy array of coordinates. Can be
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lattice</strong> (<em>list</em><em> or </em><a class="reference internal" href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><em>Lattice</em></a>) – A 3x3 lattice matrix or <cite>Lattice</cite> object (for
+example obtained from Structure.lattice).</p></li>
+<li><p><strong>coords</strong> (<em>iterable</em>) – A list or numpy array of coordinates. Can be
 cartesian or fractional coordinates. If more than three sets of
 coordinates are provided, the best plane that minimises the
-distance to all sites will be calculated.</li>
-<li><strong>coords_are_cartesian</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether the coordinates are
-in cartesian space. If using fractional coordinates set to False.</li>
-<li><strong>round_dp</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of decimal places to round the
-miller index to.</li>
-<li><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to print warnings.</li>
+distance to all sites will be calculated.</p></li>
+<li><p><strong>coords_are_cartesian</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether the coordinates are
+in cartesian space. If using fractional coordinates set to False.</p></li>
+<li><p><strong>round_dp</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of decimal places to round the
+miller index to.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to print warnings.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The Miller index.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">(tuple)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The Miller index.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(tuple)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -1108,8 +1048,6 @@ miller index to.</li>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -1127,13 +1065,13 @@ miller index to.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

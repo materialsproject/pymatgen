@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometries module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometries module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -50,8 +48,8 @@
 “model” coordination geometries are described in the following articles :</p>
 <blockquote>
 <div><ul class="simple">
-<li>Pure Appl. Chem., Vol. 79, No. 10, pp. 1779–1799, 2007.</li>
-<li>Acta Cryst. A, Vol. 46, No. 1, pp. 1–11, 1990.</li>
+<li><p>Pure Appl. Chem., Vol. 79, No. 10, pp. 1779–1799, 2007.</p></li>
+<li><p>Acta Cryst. A, Vol. 46, No. 1, pp. 1–11, 1990.</p></li>
 </ul>
 </div></blockquote>
 <p>The module also contains descriptors of part of these geometries (plane of separation, …) that are used in the
@@ -405,14 +403,11 @@ list of its end vertices coordinates.</p>
 <em class="property">class </em><code class="descname">SeparationPlane</code><span class="sig-paren">(</span><em>plane_points</em>, <em>mirror_plane=False</em>, <em>ordered_plane=False</em>, <em>point_groups=None</em>, <em>ordered_point_groups=None</em>, <em>point_groups_permutations=None</em>, <em>explicit_permutations=None</em>, <em>minimum_number_of_points=None</em>, <em>explicit_optimized_permutations=None</em>, <em>multiplicity=None</em>, <em>other_plane_points=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#SeparationPlane"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AbstractChemenvAlgorithm" title="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AbstractChemenvAlgorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AbstractChemenvAlgorithm</span></code></a></p>
 <p>Initializes a separation plane for a given perfect coordination geometry</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mirror_plane</strong> – True if the separation plane is a mirror plane, in which case there is a correspondence</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>mirror_plane</strong> – True if the separation plane is a mirror plane, in which case there is a correspondence</p>
+</dd>
+</dl>
 <p>of the points in each point_group (can reduce the number of permutations)
 :param ordered_plane : True if the order of the points in the plane can be taken into account to reduce the
 number of permutations
@@ -421,14 +416,15 @@ found in the defective one as well)
 :param point_groups: The two groups of points separated by the plane
 :param plane_type: can be “MIRROR”, if the plane is a mirror plane going through the central site,</p>
 <blockquote>
-<div>‘BASAL_THROUGH_CENTER’, if the plane is a basal plane (no point on the “left” side) going through the central
+<div><p>‘BASAL_THROUGH_CENTER’, if the plane is a basal plane (no point on the “left” side) going through the central
 site, ‘BASAL’, if the is a basal plane not going through the central site, ‘UNEQUILIBRATED_THROUGH_CENTER’, if
 the plane cuts the geometry in two groups of points with different numbers of points on each side, and is going
 through the centre, ‘UNEQUILIBRATED’, if the plane cuts the geometry in two groups of points with different
 numbers of points on each side, and is not going through the centre, ‘EQUILIBRATED_THROUGH_CENTER’, if the
 plane cuts the geometry in two groups of points of the same size, is going through the centre but is not a
 mirror plane, ‘EQUILIBRATED’, if the plane cuts the geometry in two groups of points of the same size, is not
-going through the centre but is not a mirror plane.</div></blockquote>
+going through the centre but is not a mirror plane.</p>
+</div></blockquote>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane.argsorted_ref_separation_perm">
 <code class="descname">argsorted_ref_separation_perm</code><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane.argsorted_ref_separation_perm" title="Permalink to this definition">¶</a></dt>
@@ -493,8 +489,6 @@ going through the centre but is not a mirror plane.</div></blockquote>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -512,13 +506,13 @@ going through the centre but is not a mirror plane.</div></blockquote>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

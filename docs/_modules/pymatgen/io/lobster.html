@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.lobster &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.io.lobster &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.2.28 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.5.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -55,13 +53,19 @@
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
-
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">monty.io</span> <span class="k">import</span> <span class="n">zopen</span>
+<span class="kn">import</span> <span class="nn">fnmatch</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="k">import</span> <span class="n">Spin</span><span class="p">,</span> <span class="n">Orbital</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.vasp.outputs</span> <span class="k">import</span> <span class="n">Vasprun</span>
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.dos</span> <span class="k">import</span> <span class="n">Dos</span><span class="p">,</span> <span class="n">LobsterCompleteDos</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.bandstructure</span> <span class="k">import</span> <span class="n">Kpoint</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="k">import</span> <span class="n">Kpoints</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.bandstructure</span> <span class="k">import</span> <span class="n">LobsterBandStructureSymmLine</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Module for reading Lobster output files. For more information</span>
@@ -71,8 +75,8 @@
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Marco Esters, Janine George&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2017, The Materials Project&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.2&quot;</span>
-<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Marco Esters&quot;</span>
-<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;esters@uoregon.edu&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Marco Esters, Janine George&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;esters@uoregon.edu, janine.george@uclouvain.be&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Dec 13, 2017&quot;</span>
 
 
@@ -399,6 +403,7 @@
 <span class="sd">    Args:</span>
 <span class="sd">        doscar: DOSCAR filename, typically &quot;DOSCAR.lobster&quot;</span>
 <span class="sd">        vasprun: vasprun filename, typically &quot;vasprun.xml&quot;</span>
+<span class="sd">        dftprogram: so far only &quot;vasp&quot; is implemented</span>
 
 <span class="sd">    .. attribute:: completedos</span>
 
@@ -426,17 +431,19 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doscar</span><span class="o">=</span><span class="s2">&quot;DOSCAR.lobster&quot;</span><span class="p">,</span> <span class="n">vasprun</span><span class="o">=</span><span class="s2">&quot;vasprun.xml&quot;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doscar</span><span class="o">=</span><span class="s2">&quot;DOSCAR.lobster&quot;</span><span class="p">,</span> <span class="n">vasprun</span><span class="o">=</span><span class="s2">&quot;vasprun.xml&quot;</span><span class="p">,</span> <span class="n">dftprogram</span><span class="o">=</span><span class="s2">&quot;Vasp&quot;</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_doscar</span> <span class="o">=</span> <span class="n">doscar</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_vasprun</span> <span class="o">=</span> <span class="n">vasprun</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_VASPRUN</span> <span class="o">=</span> <span class="n">Vasprun</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_vasprun</span><span class="p">,</span> <span class="n">ionic_step_skip</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                                <span class="n">ionic_step_offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">parse_dos</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                                <span class="n">parse_eigen</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">parse_projected_eigen</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                                <span class="n">parse_potcar_file</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">occu_tol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span>
-                                <span class="n">exception_on_bad_xml</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_final_structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_VASPRUN</span><span class="o">.</span><span class="n">final_structure</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_is_spin_polarized</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_VASPRUN</span><span class="o">.</span><span class="n">is_spin</span>
+        <span class="k">if</span> <span class="n">dftprogram</span> <span class="o">==</span> <span class="s2">&quot;Vasp&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_vasprun</span> <span class="o">=</span> <span class="n">vasprun</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_VASPRUN</span> <span class="o">=</span> <span class="n">Vasprun</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_vasprun</span><span class="p">,</span> <span class="n">ionic_step_skip</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                    <span class="n">ionic_step_offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">parse_dos</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                    <span class="n">parse_eigen</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">parse_projected_eigen</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                    <span class="n">parse_potcar_file</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">occu_tol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span>
+                                    <span class="n">exception_on_bad_xml</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_final_structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_VASPRUN</span><span class="o">.</span><span class="n">final_structure</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_is_spin_polarized</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_VASPRUN</span><span class="o">.</span><span class="n">is_spin</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_parse_doscar</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_parse_doscar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -583,6 +590,582 @@
         <span class="n">site_properties</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Mulliken Charges&quot;</span><span class="p">:</span> <span class="n">Mulliken</span><span class="p">,</span> <span class="s2">&quot;Loewdin Charges&quot;</span><span class="p">:</span> <span class="n">Loewdin</span><span class="p">}</span>
         <span class="n">new_struct</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">site_properties</span><span class="o">=</span><span class="n">site_properties</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">new_struct</span></div></div>
+
+
+<div class="viewcode-block" id="Lobsterout"><a class="viewcode-back" href="../../../pymatgen.io.lobster.html#pymatgen.io.lobster.Lobsterout">[docs]</a><span class="k">class</span> <span class="nc">Lobsterout</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class to read in the lobsterout and evaluate the spilling, save the basis, save warnings, save infos</span>
+<span class="sd">    Args:</span>
+<span class="sd">      filename: filename of lobsterout</span>
+
+<span class="sd">      .. attribute: basis_functions</span>
+<span class="sd">        list of basis functions that were used in lobster run as strings</span>
+
+<span class="sd">      .. attribute: basis_type</span>
+<span class="sd">         list of basis type that were used in lobster run as strings</span>
+
+<span class="sd">      .. attribute: chargespilling</span>
+<span class="sd">         list of charge spilling (first entry: result for spin 1, second entry: result for spin 2 or not present)</span>
+
+<span class="sd">      .. attribute: dftprogram</span>
+<span class="sd">         string representing the dft program used for the calculation of the wave function</span>
+
+<span class="sd">      .. attribute: elements</span>
+<span class="sd">         list of strings of elements that were present in lobster calculation</span>
+
+<span class="sd">      .. attribute: has_CHARGE</span>
+<span class="sd">         Boolean, indicates that CHARGE.lobster is present</span>
+
+<span class="sd">      .. attribute: has_COHPCAR</span>
+<span class="sd">        Boolean, indicates that COHPCAR.lobster and ICOHPLIST.lobster are present</span>
+
+<span class="sd">      .. attribute: has_COOPCAR</span>
+<span class="sd">        Boolean, indicates that COOPCAR.lobster and ICOOPLIST.lobster are present</span>
+
+<span class="sd">      .. attribute: has_DOSCAR</span>
+<span class="sd">        Boolean, indicates that DOSCAR.lobster is present</span>
+
+<span class="sd">      .. attribute: has_Projection</span>
+<span class="sd">        Boolean, indcates that projectionData.lobster is present</span>
+
+<span class="sd">      .. attribute: has_bandoverlaps</span>
+<span class="sd">        Boolean, indcates that bandOverlaps.lobster is present</span>
+
+<span class="sd">      .. attribute: has_density_of_energies</span>
+<span class="sd">        Boolean, indicates that DensityOfEnergy.lobster is present</span>
+
+<span class="sd">      .. attribute: has_fatbands</span>
+<span class="sd">        Boolean, indicates that fatband calculation was performed</span>
+
+<span class="sd">      .. attribute: has_grosspopulation</span>
+<span class="sd">        Boolean, indicates that GROSSPOP.lobster is present</span>
+
+<span class="sd">      .. attribute: info_lines</span>
+<span class="sd">        string with additional infos on the run</span>
+
+<span class="sd">      .. attribute: info_orthonormalization</span>
+<span class="sd">        string with infos on orthonormalization</span>
+
+<span class="sd">      .. attribute: is_restart_from_projection</span>
+<span class="sd">        Boolean that indicates that calculation was restartet from existing projection file</span>
+
+<span class="sd">      .. attribute: lobster_version</span>
+<span class="sd">        string that indicates Lobster version</span>
+
+<span class="sd">      .. attribute: number_of_spins</span>
+<span class="sd">        Integer indicating the number of spins</span>
+
+<span class="sd">      .. attribute: number_of_threads</span>
+<span class="sd">       integer that indicates how many threads were used</span>
+
+<span class="sd">      .. attribute: timing</span>
+<span class="sd">        dict with infos on timing</span>
+
+<span class="sd">      .. attribute: totalspilling</span>
+<span class="sd">        list of values indicating the total spilling for spin channel 1 (and spin channel 2)</span>
+
+<span class="sd">      .. attribute: warninglines</span>
+<span class="sd">        string with all warnings</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;lobsterout&quot;</span><span class="p">):</span>
+
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Make sure the lobsterout is read in correctly. This is a brand new class.&quot;</span><span class="p">)</span>
+        <span class="c1"># read in file</span>
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># [3:-3]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;lobsterout does not contain any data&quot;</span><span class="p">)</span>
+
+        <span class="n">LobsterDict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># check if Lobster starts from a projection</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_restart_from_projection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_starts_from_projection</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lobster_version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_lobster_version</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">number_of_threads</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_threads</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dftprogram</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dft_program</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">number_of_spins</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_number_of_spins</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">chargespilling</span><span class="p">,</span> <span class="n">totalspilling</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_spillings</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">number_of_spins</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">number_of_spins</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">chargespilling</span> <span class="o">=</span> <span class="n">chargespilling</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">totalspilling</span> <span class="o">=</span> <span class="n">totalspilling</span>
+
+        <span class="n">elements</span><span class="p">,</span> <span class="n">basistype</span><span class="p">,</span> <span class="n">basisfunctions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_elements_basistype_basisfunctions</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span> <span class="o">=</span> <span class="n">elements</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">basis_type</span> <span class="o">=</span> <span class="n">basistype</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">basis_functions</span> <span class="o">=</span> <span class="n">basisfunctions</span>
+
+        <span class="n">wall_time</span><span class="p">,</span> <span class="n">user_time</span><span class="p">,</span> <span class="n">sys_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_timing</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">timing</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">timing</span><span class="p">[</span><span class="s1">&#39;walltime&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">wall_time</span>
+        <span class="n">timing</span><span class="p">[</span><span class="s1">&#39;usertime&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_time</span>
+        <span class="n">timing</span><span class="p">[</span><span class="s1">&#39;sys_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sys_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timing</span> <span class="o">=</span> <span class="n">timing</span>
+
+        <span class="n">warninglines</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_all_warning_lines</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">warninglines</span> <span class="o">=</span> <span class="n">warninglines</span>
+
+        <span class="n">orthowarning</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_warning_orthonormalization</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">info_orthonormalization</span> <span class="o">=</span> <span class="n">orthowarning</span>
+        <span class="c1"># print(orthowarning)</span>
+
+        <span class="n">infos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_all_info_lines</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">info_lines</span> <span class="o">=</span> <span class="n">infos</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">has_DOSCAR</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_DOSCAR</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">has_COHPCAR</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_COOPCAR</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">has_COOPCAR</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_COHPCAR</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">has_CHARGE</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_CHARGE</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">has_Projection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_projection</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">has_bandoverlaps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_bandoverlaps</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">has_fatbands</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_fatband</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">has_grosspopulation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_grosspopulation</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">has_density_of_energies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_density_of_energies</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Lobsterout.get_doc"><a class="viewcode-back" href="../../../pymatgen.io.lobster.html#pymatgen.io.lobster.Lobsterout.get_doc">[docs]</a>    <span class="k">def</span> <span class="nf">get_doc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Returns: LobsterDict with all the information stored in lobsterout</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">LobsterDict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># check if Lobster starts from a projection</span>
+        <span class="n">LobsterDict</span><span class="p">[</span><span class="s1">&#39;restart_from_projection&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_restart_from_projection</span>
+        <span class="n">LobsterDict</span><span class="p">[</span><span class="s1">&#39;lobster_version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lobster_version</span>
+        <span class="n">LobsterDict</span><span class="p">[</span><span class="s1">&#39;threads&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_threads</span>
+        <span class="n">LobsterDict</span><span class="p">[</span><span class="s1">&#39;Dftprogram&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dftprogram</span>
+
+        <span class="n">number_of_spins</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_spins</span>
+        <span class="n">LobsterDict</span><span class="p">[</span><span class="s1">&#39;chargespilling&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">chargespilling</span>
+        <span class="n">LobsterDict</span><span class="p">[</span><span class="s1">&#39;totalspilling&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">totalspilling</span>
+
+        <span class="n">LobsterDict</span><span class="p">[</span><span class="s1">&#39;elements&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span>
+        <span class="n">LobsterDict</span><span class="p">[</span><span class="s1">&#39;basistype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis_type</span>
+        <span class="n">LobsterDict</span><span class="p">[</span><span class="s1">&#39;basisfunctions&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis_functions</span>
+
+        <span class="n">LobsterDict</span><span class="p">[</span><span class="s1">&#39;timing&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timing</span>
+
+        <span class="n">LobsterDict</span><span class="p">[</span><span class="s1">&#39;warnings&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">warninglines</span>
+
+        <span class="n">LobsterDict</span><span class="p">[</span><span class="s1">&#39;orthonormalization&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">info_orthonormalization</span>
+
+        <span class="n">LobsterDict</span><span class="p">[</span><span class="s1">&#39;infos&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">info_lines</span>
+
+        <span class="n">LobsterDict</span><span class="p">[</span><span class="s1">&#39;hasDOSCAR&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_DOSCAR</span>
+        <span class="n">LobsterDict</span><span class="p">[</span><span class="s1">&#39;hasCOHPCAR&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_COHPCAR</span>
+        <span class="n">LobsterDict</span><span class="p">[</span><span class="s1">&#39;hasCOOPCAR&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_COOPCAR</span>
+        <span class="n">LobsterDict</span><span class="p">[</span><span class="s1">&#39;hasCHARGE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_CHARGE</span>
+        <span class="n">LobsterDict</span><span class="p">[</span><span class="s1">&#39;hasProjection&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_Projection</span>
+        <span class="n">LobsterDict</span><span class="p">[</span><span class="s1">&#39;hasbandoverlaps&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_bandoverlaps</span>
+        <span class="n">LobsterDict</span><span class="p">[</span><span class="s1">&#39;hasfatband&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_fatbands</span>
+        <span class="n">LobsterDict</span><span class="p">[</span><span class="s1">&#39;hasGrossPopuliation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_grosspopulation</span>
+        <span class="n">LobsterDict</span><span class="p">[</span><span class="s1">&#39;hasDensityOfEnergies&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_density_of_energies</span>
+
+        <span class="k">return</span> <span class="n">LobsterDict</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_lobster_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">splitrow</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">splitrow</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">splitrow</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;LOBSTER&quot;</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">splitrow</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_has_bandoverlaps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s1">&#39;WARNING: I dumped the band overlap matrices to the file bandOverlaps.lobster.&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_starts_from_projection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s1">&#39;loading projection from projectionData.lobster...&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_has_DOSCAR</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s1">&#39;writing DOSCAR.lobster...&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="ow">not</span> <span class="s1">&#39;SKIPPING writing DOSCAR.lobster...&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_has_COOPCAR</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s1">&#39;writing COOPCAR.lobster and ICOOPLIST.lobster...&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="ow">not</span> <span class="s1">&#39;SKIPPING writing COOPCAR.lobster and ICOOPLIST.lobster...&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_has_COHPCAR</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s1">&#39;writing COHPCAR.lobster and ICOHPLIST.lobster...&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="ow">not</span> <span class="s1">&#39;SKIPPING writing COHPCAR.lobster and ICOHPLIST.lobster...&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_has_CHARGE</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="c1"># weitere optionen testen -&gt; auch hier kann uebersprungen werden</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="s1">&#39;SKIPPING writing CHARGE.lobster...&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_has_grosspopulation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s1">&#39;writing CHARGE.lobster and GROSSPOP.lobster...&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_has_projection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s1">&#39;saving projection to projectionData.lobster...&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_has_fatband</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">splitrow</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">splitrow</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">splitrow</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;FatBand&#39;</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_has_density_of_energies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s2">&quot;writing DensityOfEnergy.lobster...&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_get_dft_program</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">splitrow</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">splitrow</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">splitrow</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;program...&quot;</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">splitrow</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_get_number_of_spins</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s2">&quot;spillings for spin channel 2&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="c1"># print(&#39;two spin channels&#39;)</span>
+            <span class="k">return</span> <span class="mi">2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">_get_threads</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">splitrow</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">splitrow</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">11</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">splitrow</span><span class="p">[</span><span class="mi">11</span><span class="p">])</span> <span class="o">==</span> <span class="s2">&quot;threads&quot;</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">splitrow</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_get_spillings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">number_of_spins</span><span class="p">):</span>
+        <span class="n">charge_spilling</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">total_spilling</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">splitrow</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">splitrow</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">splitrow</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;spilling:&#39;</span><span class="p">:</span>
+                    <span class="c1"># print(splitrow)</span>
+                    <span class="k">if</span> <span class="n">splitrow</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;charge&#39;</span><span class="p">:</span>
+                        <span class="n">charge_spilling</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="n">splitrow</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span> <span class="o">/</span> <span class="mf">100.0</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">splitrow</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;total&#39;</span><span class="p">:</span>
+                        <span class="n">total_spilling</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="n">splitrow</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span> <span class="o">/</span> <span class="mf">100.0</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">charge_spilling</span><span class="p">)</span> <span class="o">==</span> <span class="n">number_of_spins</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">total_spilling</span><span class="p">)</span> <span class="o">==</span> <span class="n">number_of_spins</span><span class="p">:</span>
+                <span class="k">break</span><span class="p">;</span>
+
+        <span class="k">return</span> <span class="n">charge_spilling</span><span class="p">,</span> <span class="n">total_spilling</span>
+
+    <span class="k">def</span> <span class="nf">_get_elements_basistype_basisfunctions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="n">begin</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">elements</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">basistype</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">basisfunctions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">begin</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">end</span><span class="p">:</span>
+                <span class="c1"># print(row)</span>
+                <span class="n">splitrow</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">splitrow</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;INFO:&#39;</span><span class="p">,</span> <span class="s1">&#39;WARNING:&#39;</span><span class="p">,</span> <span class="s1">&#39;setting&#39;</span><span class="p">,</span> <span class="s1">&#39;calculating&#39;</span><span class="p">,</span> <span class="s1">&#39;post-processing&#39;</span><span class="p">,</span> <span class="s1">&#39;saving&#39;</span><span class="p">,</span>
+                                       <span class="s1">&#39;spillings&#39;</span><span class="p">,</span> <span class="s1">&#39;writing&#39;</span><span class="p">]:</span>
+
+                    <span class="n">elements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">splitrow</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="n">basistype</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">splitrow</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span>
+                    <span class="c1"># last sign is a &#39;&#39;</span>
+                    <span class="n">basisfunctions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">splitrow</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">end</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="s2">&quot;setting up local basis functions...&quot;</span> <span class="ow">in</span> <span class="n">row</span><span class="p">:</span>
+                <span class="n">begin</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="c1"># print(row)</span>
+        <span class="k">return</span> <span class="n">elements</span><span class="p">,</span> <span class="n">basistype</span><span class="p">,</span> <span class="n">basisfunctions</span>
+
+    <span class="k">def</span> <span class="nf">_get_timing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="c1"># will give back wall, user and sys time</span>
+        <span class="n">begin</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1"># end=False</span>
+        <span class="c1"># time=[]</span>
+
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">splitrow</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="k">if</span> <span class="s1">&#39;finished&#39;</span> <span class="ow">in</span> <span class="n">splitrow</span><span class="p">:</span>
+                <span class="n">begin</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">begin</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s1">&#39;wall&#39;</span> <span class="ow">in</span> <span class="n">splitrow</span><span class="p">:</span>
+                    <span class="n">wall_time</span> <span class="o">=</span> <span class="p">(</span><span class="n">splitrow</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">10</span><span class="p">])</span>
+                <span class="k">if</span> <span class="s1">&#39;user&#39;</span> <span class="ow">in</span> <span class="n">splitrow</span><span class="p">:</span>
+                    <span class="n">user_time</span> <span class="o">=</span> <span class="p">(</span><span class="n">splitrow</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">8</span><span class="p">])</span>
+                <span class="k">if</span> <span class="s1">&#39;sys&#39;</span> <span class="ow">in</span> <span class="n">splitrow</span><span class="p">:</span>
+                    <span class="n">sys_time</span> <span class="o">=</span> <span class="p">(</span><span class="n">splitrow</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">8</span><span class="p">])</span>
+
+        <span class="n">wall_time_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;h&quot;</span><span class="p">:</span> <span class="n">wall_time</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="n">wall_time</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="n">wall_time</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="s2">&quot;ms&quot;</span><span class="p">:</span> <span class="n">wall_time</span><span class="p">[</span><span class="mi">6</span><span class="p">]}</span>
+        <span class="n">user_time_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;h&quot;</span><span class="p">:</span> <span class="n">user_time</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="n">user_time</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="n">user_time</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="s2">&quot;ms&quot;</span><span class="p">:</span> <span class="n">user_time</span><span class="p">[</span><span class="mi">6</span><span class="p">]}</span>
+        <span class="n">sys_time_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;h&quot;</span><span class="p">:</span> <span class="n">sys_time</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="n">sys_time</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="n">sys_time</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="s2">&quot;ms&quot;</span><span class="p">:</span> <span class="n">sys_time</span><span class="p">[</span><span class="mi">6</span><span class="p">]}</span>
+
+        <span class="k">return</span> <span class="n">wall_time_dict</span><span class="p">,</span> <span class="n">user_time_dict</span><span class="p">,</span> <span class="n">sys_time_dict</span>
+
+    <span class="k">def</span> <span class="nf">_get_warning_orthonormalization</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="n">orthowarning</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">splitrow</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="k">if</span> <span class="s1">&#39;orthonormalized&#39;</span> <span class="ow">in</span> <span class="n">splitrow</span><span class="p">:</span>
+                <span class="n">orthowarning</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">splitrow</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
+        <span class="k">return</span> <span class="n">orthowarning</span>
+
+    <span class="k">def</span> <span class="nf">_get_all_warning_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="n">warnings</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">splitrow</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">splitrow</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">splitrow</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;WARNING:&#39;</span><span class="p">:</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">splitrow</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
+
+        <span class="k">return</span> <span class="n">warnings</span>
+        <span class="c1"># print(warnings)</span>
+
+    <span class="k">def</span> <span class="nf">_get_all_info_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="n">infos</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">splitrow</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">splitrow</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">splitrow</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;INFO:&#39;</span><span class="p">:</span>
+                    <span class="n">infos</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">splitrow</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
+
+        <span class="k">return</span> <span class="n">infos</span></div>
+
+
+<div class="viewcode-block" id="Fatband"><a class="viewcode-back" href="../../../pymatgen.io.lobster.html#pymatgen.io.lobster.Fatband">[docs]</a><span class="k">class</span> <span class="nc">Fatband</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    reads in FATBAND_x_y.lobster files</span>
+<span class="sd">    Args:</span>
+<span class="sd">      filenames (list or string): can be a list of file names or a path to a folder folder from which all &quot;FATBAND_*&quot; files will be read</span>
+<span class="sd">      vasprun: corresponding vasprun file</span>
+<span class="sd">      Kpointsfile: KPOINTS file for bandstructure calculation, typically &quot;KPOINTS&quot;</span>
+
+<span class="sd">      .. attribute: efermi</span>
+<span class="sd">      efermi that was read in from vasprun.xml</span>
+
+<span class="sd">      .. attribute: eigenvals</span>
+<span class="sd">      {Spin.up:[][],Spin.down:[][]}, the first index of the array</span>
+<span class="sd">            [][] refers to the band and the second to the index of the</span>
+<span class="sd">            kpoint. The kpoints are ordered according to the order of the</span>
+<span class="sd">            kpoints array. If the band structure is not spin polarized, we</span>
+<span class="sd">            only store one data set under Spin.up.</span>
+
+<span class="sd">      .. attribute: is_spinpolarized</span>
+<span class="sd">      Boolean that tells you whether this was a spin-polarized calculation</span>
+
+<span class="sd">      .. attribute: kpoints_array</span>
+<span class="sd">        list of kpoint as numpy arrays, in frac_coords of the</span>
+<span class="sd">            given lattice by default</span>
+<span class="sd">            </span>
+<span class="sd">      .. attribute: label_dict</span>
+<span class="sd">     (dict) of {} this link a kpoint (in frac coords or</span>
+<span class="sd">            cartesian coordinates depending on the coords).</span>
+
+<span class="sd">      .. attribute: lattice</span>
+<span class="sd">      lattice object of reciprocal lattice as read in from vasprun.xml</span>
+
+<span class="sd">      .. attribute: nbands</span>
+<span class="sd">      number of bands used in the calculation</span>
+
+<span class="sd">      .. attribute: p_eigenvals</span>
+<span class="sd">      dict of orbital projections as {spin: array of dict}. </span>
+<span class="sd">      The indices of the array are [band_index, kpoint_index]. </span>
+<span class="sd">      The dict is then built the following way: </span>
+<span class="sd">      {&quot;string of element&quot;: &quot;string of orbital as read in from FATBAND file&quot;}</span>
+<span class="sd">      If the band structure is not spin polarized, we only store one data set under Spin.up.</span>
+
+<span class="sd">      .. attribute: structure</span>
+<span class="sd">      structure read in from vasprun.xml</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filenames</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">vasprun</span><span class="o">=</span><span class="s1">&#39;vasprun.xml&#39;</span><span class="p">,</span> <span class="n">Kpointsfile</span><span class="o">=</span><span class="s1">&#39;KPOINTS&#39;</span><span class="p">):</span>
+
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Make sure all relevant FATBAND files were generated and read in!&#39;</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Use Lobster 3.2.0 or newer for fatband calculations!&#39;</span><span class="p">)</span>
+
+        <span class="n">VASPRUN</span> <span class="o">=</span> <span class="n">Vasprun</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">vasprun</span><span class="p">,</span> <span class="n">ionic_step_skip</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                          <span class="n">ionic_step_offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">parse_dos</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                          <span class="n">parse_eigen</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">parse_projected_eigen</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                          <span class="n">parse_potcar_file</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">occu_tol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span>
+                          <span class="n">exception_on_bad_xml</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">VASPRUN</span><span class="o">.</span><span class="n">final_structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">reciprocal_lattice</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span> <span class="o">=</span> <span class="n">VASPRUN</span><span class="o">.</span><span class="n">efermi</span>
+        <span class="n">kpoints_object</span> <span class="o">=</span> <span class="n">Kpoints</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">Kpointsfile</span><span class="p">)</span>
+
+        <span class="n">atomtype</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">atomnames</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">orbital_names</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">filenames</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">([])</span> <span class="ow">or</span> <span class="n">filenames</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">filenames_new</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="n">filenames</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">filenames</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span>
+            <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">filenames</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s1">&#39;FATBAND_*.lobster&#39;</span><span class="p">):</span>
+                    <span class="n">filenames_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filenames</span><span class="p">,</span> <span class="n">file</span><span class="p">))</span>
+            <span class="n">filenames</span> <span class="o">=</span> <span class="n">filenames_new</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">filenames</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No FATBAND files in folder or given&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ifilename</span><span class="p">,</span> <span class="n">filename</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">filenames</span><span class="p">):</span>
+            <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">contents</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="c1"># TODO: could be replaced for future versions of Lobster, get atomname from filename</span>
+            <span class="n">atomnames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">filename</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">capitalize</span><span class="p">())</span>
+            <span class="n">parameters</span> <span class="o">=</span> <span class="n">contents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="n">atomtype</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[0-9]+&quot;</span><span class="p">,</span> <span class="n">parameters</span><span class="p">[</span><span class="mi">3</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">capitalize</span><span class="p">())</span>
+            <span class="n">orbital_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parameters</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+
+        <span class="c1"># get atomtype orbital dict</span>
+        <span class="n">atom_orbital_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">iatom</span><span class="p">,</span> <span class="n">atom</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">atomnames</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">atom</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">atom_orbital_dict</span><span class="p">:</span>
+                <span class="n">atom_orbital_dict</span><span class="p">[</span><span class="n">atom</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">atom_orbital_dict</span><span class="p">[</span><span class="n">atom</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">orbital_names</span><span class="p">[</span><span class="n">iatom</span><span class="p">])</span>
+        <span class="c1"># test if there are the same orbitals twice or if two different formats were used or if all necessary orbitals are there</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">items</span> <span class="ow">in</span> <span class="n">atom_orbital_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">items</span><span class="p">))</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The are two FATBAND files for the same atom and orbital. The program will stop.&quot;</span><span class="p">))</span>
+            <span class="n">split</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+                <span class="n">split</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">orb</span><span class="p">,</span> <span class="n">number</span> <span class="ow">in</span> <span class="n">collections</span><span class="o">.</span><span class="n">Counter</span><span class="p">(</span><span class="n">split</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">number</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">number</span> <span class="o">!=</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">number</span> <span class="o">!=</span> <span class="mi">5</span> <span class="ow">and</span> <span class="n">number</span> <span class="o">!=</span> <span class="mi">7</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;Make sure all relevant orbitals were generated and that no duplicates (2p and 2p_x) are present&quot;</span><span class="p">))</span>
+
+        <span class="n">kpoints_array</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ifilename</span><span class="p">,</span> <span class="n">filename</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">filenames</span><span class="p">):</span>
+            <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">contents</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">ifilename</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">nbands</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">parameters</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">number_kpts</span> <span class="o">=</span> <span class="n">kpoints_object</span><span class="o">.</span><span class="n">num_kpts</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">contents</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">2</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">contents</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">nbands</span> <span class="o">+</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">is_spinpolarized</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">contents</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">nbands</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">is_spinpolarized</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">linenumbers</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">iline</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">contents</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">nbands</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">4</span><span class="p">]):</span>
+                    <span class="c1"># print(line)</span>
+                    <span class="c1"># if line in [&#39;\n&#39;, &#39;\r\n&#39;]:</span>
+                    <span class="c1">#    linenumbers.append(iline)</span>
+                    <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;#&#39;</span><span class="p">:</span>
+                        <span class="n">linenumbers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">iline</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">ifilename</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">linenumbers</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">is_spinpolarized</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">is_spinpolarized</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="k">if</span> <span class="n">ifilename</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">eigenvals</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">eigenvals</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[</span><span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+                                       <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">number_kpts</span><span class="p">)]</span>
+                                      <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nbands</span><span class="p">)]</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_spinpolarized</span><span class="p">:</span>
+                    <span class="n">eigenvals</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[</span><span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+                                             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">number_kpts</span><span class="p">)]</span>
+                                            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nbands</span><span class="p">)]</span>
+
+                <span class="n">p_eigenvals</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">p_eigenvals</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="p">[{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">orb</span><span class="p">):</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="k">for</span> <span class="n">orb</span> <span class="ow">in</span> <span class="n">atom_orbital_dict</span><span class="p">[</span><span class="n">e</span><span class="p">]}</span>
+                      <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">atomnames</span><span class="p">}</span>
+                     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">number_kpts</span><span class="p">)]</span>
+                    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nbands</span><span class="p">)]</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_spinpolarized</span><span class="p">:</span>
+                    <span class="n">p_eigenvals</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="p">[{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">orb</span><span class="p">):</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="k">for</span> <span class="n">orb</span> <span class="ow">in</span> <span class="n">atom_orbital_dict</span><span class="p">[</span><span class="n">e</span><span class="p">]}</span>
+                          <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">atomnames</span><span class="p">}</span>
+                         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">number_kpts</span><span class="p">)]</span>
+                        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nbands</span><span class="p">)]</span>
+
+            <span class="n">ikpoint</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="k">for</span> <span class="n">iline</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">contents</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;#&#39;</span><span class="p">:</span>
+                    <span class="n">Kpointnumber</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">2</span><span class="p">])</span>
+                    <span class="n">KPOINT</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">4</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">5</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">6</span><span class="p">])])</span>
+                    <span class="k">if</span> <span class="n">ifilename</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">kpoints_array</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">KPOINT</span><span class="p">)</span>
+
+                    <span class="n">linenumber</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">iband</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">ikpoint</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">linenumber</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">nbands</span><span class="p">:</span>
+                    <span class="n">iband</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;#&#39;</span><span class="p">:</span>
+
+                    <span class="k">if</span> <span class="n">linenumber</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">nbands</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">ifilename</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="n">eigenvals</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">][</span><span class="n">iband</span><span class="p">][</span><span class="n">ikpoint</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span>
+
+                        <span class="n">p_eigenvals</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">][</span><span class="n">iband</span><span class="p">][</span><span class="n">ikpoint</span><span class="p">][</span><span class="n">atomnames</span><span class="p">[</span><span class="n">ifilename</span><span class="p">]][</span><span class="n">orbital_names</span><span class="p">[</span><span class="n">ifilename</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+                            <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">2</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="n">linenumber</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nbands</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_spinpolarized</span><span class="p">:</span>
+                        <span class="c1"># print(line.split())</span>
+                        <span class="c1"># print(iband)</span>
+                        <span class="k">if</span> <span class="n">ifilename</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="n">eigenvals</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">][</span><span class="n">iband</span><span class="p">][</span><span class="n">ikpoint</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span>
+                        <span class="n">p_eigenvals</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">][</span><span class="n">iband</span><span class="p">][</span><span class="n">ikpoint</span><span class="p">][</span><span class="n">atomnames</span><span class="p">[</span><span class="n">ifilename</span><span class="p">]][</span>
+                            <span class="n">orbital_names</span><span class="p">[</span><span class="n">ifilename</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">2</span><span class="p">])</span>
+
+                    <span class="n">linenumber</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">iband</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">kpoints_array</span> <span class="o">=</span> <span class="n">kpoints_array</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eigenvals</span> <span class="o">=</span> <span class="n">eigenvals</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p_eigenvals</span> <span class="o">=</span> <span class="n">p_eigenvals</span>
+
+        <span class="n">label_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">ilabel</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">kpoints_object</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">number_kpts</span><span class="p">:],</span> <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+
+            <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">label_dict</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">kpoints_array</span><span class="p">[</span><span class="n">ilabel</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_dict</span> <span class="o">=</span> <span class="n">label_dict</span>
+
+<div class="viewcode-block" id="Fatband.get_bandstructure"><a class="viewcode-back" href="../../../pymatgen.io.lobster.html#pymatgen.io.lobster.Fatband.get_bandstructure">[docs]</a>    <span class="k">def</span> <span class="nf">get_bandstructure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        returns a LobsterBandStructureSymmLine object which can be plotted with a normal BSPlotter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">LobsterBandStructureSymmLine</span><span class="p">(</span><span class="n">kpoints</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kpoints_array</span><span class="p">,</span> <span class="n">eigenvals</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">eigenvals</span><span class="p">,</span> <span class="n">lattice</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span>
+                                            <span class="n">efermi</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">efermi</span><span class="p">,</span> <span class="n">labels_dict</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">label_dict</span><span class="p">,</span>
+                                            <span class="n">structure</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span>
+                                            <span class="n">projections</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">p_eigenvals</span><span class="p">)</span></div></div>
 </pre></div>
 
           </div>
@@ -596,8 +1179,6 @@
     <form class="search" action="../../../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -615,7 +1196,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.2.28 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.5.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -623,7 +1204,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.calculations module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.io.abinit.calculations module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -53,35 +51,31 @@ Entry points for client code (high-level interface)</p>
 <dt id="pymatgen.io.abinit.calculations.g0w0_extended_work">
 <code class="descname">g0w0_extended_work</code><span class="sig-paren">(</span><em>structure, pseudos, kppa, nscf_nband, ecuteps, ecutsigx, scf_nband, accuracy='normal', spin_mode='polarized', smearing='fermi_dirac:0.1 eV', response_models=['godby'], charge=0.0, inclvkb=2, scr_nband=None, sigma_nband=None, workdir=None, manager=None, gamma=True, nksmall=20, work_class=None, **extra_abivars</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/calculations.html#g0w0_extended_work"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.calculations.g0w0_extended_work" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">Work</span></code> object that performs G0W0 calculations for the given the material.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> – Pymatgen structure.</li>
-<li><strong>pseudos</strong> – List of <cite>Pseudo</cite> objects.</li>
-<li><strong>Defines the sampling used for the SCF run.</strong> (<em>scf</em>) – </li>
-<li><strong>nscf_nband</strong> – Number of bands included in the NSCF run.</li>
-<li><strong>ecuteps</strong> – Cutoff energy [Ha] for the screening matrix.</li>
-<li><strong>ecutsigx</strong> – Cutoff energy [Ha] for the exchange part of the self-energy.</li>
-<li><strong>accuracy</strong> – Accuracy of the calculation.</li>
-<li><strong>spin_mode</strong> – Spin polarization.</li>
-<li><strong>smearing</strong> – Smearing technique.</li>
-<li><strong>ppmodel</strong> – Plasmonpole technique.</li>
-<li><strong>charge</strong> – Electronic charge added to the unit cell.</li>
-<li><strong>scf_algorithm</strong> – Algorithm used for solving of the SCF cycle.</li>
-<li><strong>inclvkb</strong> – Treatment of the dipole matrix elements (see abinit variable).</li>
-<li><strong>scr_nband</strong> – Number of bands used to compute the screening (default is nscf_nband)</li>
-<li><strong>sigma_nband</strong> – Number of bands used to compute the self-energy (default is nscf_nband)</li>
-<li><strong>workdir</strong> – Working directory.</li>
-<li><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> instance.</li>
-<li><strong>nksamll</strong> – if not None, a DFT bandstucture calculation will be added after the sc run</li>
-<li><strong>extra_abivars</strong> – Dictionary with extra variables passed to ABINIT.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – Pymatgen structure.</p></li>
+<li><p><strong>pseudos</strong> – List of <cite>Pseudo</cite> objects.</p></li>
+<li><p><strong>Defines the sampling used for the SCF run.</strong> (<em>scf</em>) – </p></li>
+<li><p><strong>nscf_nband</strong> – Number of bands included in the NSCF run.</p></li>
+<li><p><strong>ecuteps</strong> – Cutoff energy [Ha] for the screening matrix.</p></li>
+<li><p><strong>ecutsigx</strong> – Cutoff energy [Ha] for the exchange part of the self-energy.</p></li>
+<li><p><strong>accuracy</strong> – Accuracy of the calculation.</p></li>
+<li><p><strong>spin_mode</strong> – Spin polarization.</p></li>
+<li><p><strong>smearing</strong> – Smearing technique.</p></li>
+<li><p><strong>ppmodel</strong> – Plasmonpole technique.</p></li>
+<li><p><strong>charge</strong> – Electronic charge added to the unit cell.</p></li>
+<li><p><strong>scf_algorithm</strong> – Algorithm used for solving of the SCF cycle.</p></li>
+<li><p><strong>inclvkb</strong> – Treatment of the dipole matrix elements (see abinit variable).</p></li>
+<li><p><strong>scr_nband</strong> – Number of bands used to compute the screening (default is nscf_nband)</p></li>
+<li><p><strong>sigma_nband</strong> – Number of bands used to compute the self-energy (default is nscf_nband)</p></li>
+<li><p><strong>workdir</strong> – Working directory.</p></li>
+<li><p><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> instance.</p></li>
+<li><p><strong>nksamll</strong> – if not None, a DFT bandstucture calculation will be added after the sc run</p></li>
+<li><p><strong>extra_abivars</strong> – Dictionary with extra variables passed to ABINIT.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -105,8 +99,6 @@ Entry points for client code (high-level interface)</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -124,13 +116,13 @@ Entry points for client code (high-level interface)</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

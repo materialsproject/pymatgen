@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.structure_matcher module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.structure_matcher module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -61,23 +59,19 @@ example, one can consider sites to have the same species only when
 the species are exactly the same, i.e., Fe2+ matches Fe2+ but not
 Fe3+. Or one can define that only the element matters,
 and all oxidation state information are ignored.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>sp1</strong> – First species. A dict of {specie/element: amt} as per the
-definition in Site and PeriodicSite.</li>
-<li><strong>sp2</strong> – Second species. A dict of {specie/element: amt} as per the
-definition in Site and PeriodicSite.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sp1</strong> – First species. A dict of {specie/element: amt} as per the
+definition in Site and PeriodicSite.</p></li>
+<li><p><strong>sp2</strong> – Second species. A dict of {specie/element: amt} as per the
+definition in Site and PeriodicSite.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Boolean indicating whether species are considered equal.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Boolean indicating whether species are considered equal.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -102,16 +96,14 @@ due to weird behavior with fractional occupancy.</p>
 <p>Composition is used here instead of structure because for anonymous
 matches it is much quicker to apply a substitution to a composition
 object than a structure object.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>composition</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – composition of the structure</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A hashable object. Examples can be string formulas, integers etc.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>composition</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – composition of the structure</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A hashable object. Examples can be string formulas, integers etc.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -127,24 +119,20 @@ ignored.</p>
 <code class="descname">are_equal</code><span class="sig-paren">(</span><em>sp1</em>, <em>sp2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#ElementComparator.are_equal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.ElementComparator.are_equal" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if element:amounts are exactly the same, i.e.,
 oxidation state is not considered.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>sp1</strong> – First species. A dict of {specie/element: amt} as per the
-definition in Site and PeriodicSite.</li>
-<li><strong>sp2</strong> – Second species. A dict of {specie/element: amt} as per the
-definition in Site and PeriodicSite.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sp1</strong> – First species. A dict of {specie/element: amt} as per the
+definition in Site and PeriodicSite.</p></li>
+<li><p><strong>sp2</strong> – Second species. A dict of {specie/element: amt} as per the
+definition in Site and PeriodicSite.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Boolean indicating whether species are the same based on element
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Boolean indicating whether species are the same based on element
 and amounts.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -164,23 +152,19 @@ and amounts.</p>
 <dt id="pymatgen.analysis.structure_matcher.FrameworkComparator.are_equal">
 <code class="descname">are_equal</code><span class="sig-paren">(</span><em>sp1</em>, <em>sp2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#FrameworkComparator.are_equal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.FrameworkComparator.are_equal" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if there are atoms on both sites.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>sp1</strong> – First species. A dict of {specie/element: amt} as per the
-definition in Site and PeriodicSite.</li>
-<li><strong>sp2</strong> – Second species. A dict of {specie/element: amt} as per the
-definition in Site and PeriodicSite.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sp1</strong> – First species. A dict of {specie/element: amt} as per the
+definition in Site and PeriodicSite.</p></li>
+<li><p><strong>sp2</strong> – Second species. A dict of {specie/element: amt} as per the
+definition in Site and PeriodicSite.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True always</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True always</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -200,23 +184,19 @@ irrespective of the species of those sites.</p>
 <dl class="method">
 <dt id="pymatgen.analysis.structure_matcher.OccupancyComparator.are_equal">
 <code class="descname">are_equal</code><span class="sig-paren">(</span><em>sp1</em>, <em>sp2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#OccupancyComparator.are_equal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.OccupancyComparator.are_equal" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>sp1</strong> – First species. A dict of {specie/element: amt} as per the
-definition in Site and PeriodicSite.</li>
-<li><strong>sp2</strong> – Second species. A dict of {specie/element: amt} as per the
-definition in Site and PeriodicSite.</li>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sp1</strong> – First species. A dict of {specie/element: amt} as per the
+definition in Site and PeriodicSite.</p></li>
+<li><p><strong>sp2</strong> – Second species. A dict of {specie/element: amt} as per the
+definition in Site and PeriodicSite.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if sets of occupancies (amt) are equal on both sites.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if sets of occupancies (amt) are equal on both sites.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -230,16 +210,14 @@ due to weird behavior with fractional occupancy.</p>
 <p>Composition is used here instead of structure because for anonymous
 matches it is much quicker to apply a substitution to a composition
 object than a structure object.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>composition</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – composition of the structure</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A hashable object. Examples can be string formulas, integers etc.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>composition</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – composition of the structure</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A hashable object. Examples can be string formulas, integers etc.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -254,30 +232,25 @@ composition</p>
 <dt id="pymatgen.analysis.structure_matcher.OrderDisorderElementComparator.are_equal">
 <code class="descname">are_equal</code><span class="sig-paren">(</span><em>sp1</em>, <em>sp2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#OrderDisorderElementComparator.are_equal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.OrderDisorderElementComparator.are_equal" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if there is some overlap in composition between the species</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>sp1</strong> – First species. A dict of {specie/element: amt} as per the
-definition in Site and PeriodicSite.</li>
-<li><strong>sp2</strong> – Second species. A dict of {specie/element: amt} as per the
-definition in Site and PeriodicSite.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sp1</strong> – First species. A dict of {specie/element: amt} as per the
+definition in Site and PeriodicSite.</p></li>
+<li><p><strong>sp2</strong> – Second species. A dict of {specie/element: amt} as per the
+definition in Site and PeriodicSite.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True always</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True always</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.structure_matcher.OrderDisorderElementComparator.get_hash">
 <code class="descname">get_hash</code><span class="sig-paren">(</span><em>composition</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#OrderDisorderElementComparator.get_hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.OrderDisorderElementComparator.get_hash" title="Permalink to this definition">¶</a></dt>
-<dd><p>”
-No hash possible</p>
+<dd><p>Returns: Fractional composition</p>
 </dd></dl>
 
 </dd></dl>
@@ -290,45 +263,37 @@ No hash possible</p>
 cartesian co-ordinates are different (compares sublattices for the defect)</p>
 <p>NOTE: for defect complexes (more than a single defect),
 this comparator will break.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>check_charge</strong> (<em>bool</em>) – Gives option to check
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>check_charge</strong> (<em>bool</em>) – Gives option to check
 if charges are identical.
-Default is False (different charged defects can be same)</li>
-<li><strong>check_primitive_cell</strong> (<em>bool</em>) – Gives option to
+Default is False (different charged defects can be same)</p></li>
+<li><p><strong>check_primitive_cell</strong> (<em>bool</em>) – Gives option to
 compare different supercells of bulk_structure,
 rather than directly compare supercell sizes
-Default is False (requires bulk_structure in each defect to be same size)</li>
-<li><strong>check_lattice_scale</strong> (<em>bool</em>) – Gives option to scale volumes of
+Default is False (requires bulk_structure in each defect to be same size)</p></li>
+<li><p><strong>check_lattice_scale</strong> (<em>bool</em>) – Gives option to scale volumes of
 structures to each other identical lattice constants.
 Default is False (enforces same
-lattice constants in both structures)</li>
+lattice constants in both structures)</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.analysis.structure_matcher.PointDefectComparator.are_equal">
 <code class="descname">are_equal</code><span class="sig-paren">(</span><em>d1</em>, <em>d2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#PointDefectComparator.are_equal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.PointDefectComparator.are_equal" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>d1</strong> – First defect. A pymatgen Defect object.</li>
-<li><strong>d2</strong> – Second defect. A pymatgen Defect object.</li>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>d1</strong> – First defect. A pymatgen Defect object.</p></li>
+<li><p><strong>d2</strong> – Second defect. A pymatgen Defect object.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if defects are identical in type and sublattice.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if defects are identical in type and sublattice.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -343,23 +308,19 @@ StructureMatcher.</p>
 <dt id="pymatgen.analysis.structure_matcher.SpeciesComparator.are_equal">
 <code class="descname">are_equal</code><span class="sig-paren">(</span><em>sp1</em>, <em>sp2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#SpeciesComparator.are_equal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.SpeciesComparator.are_equal" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if species are exactly the same, i.e., Fe2+ == Fe2+ but not Fe3+.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>sp1</strong> – First species. A dict of {specie/element: amt} as per the
-definition in Site and PeriodicSite.</li>
-<li><strong>sp2</strong> – Second species. A dict of {specie/element: amt} as per the
-definition in Site and PeriodicSite.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sp1</strong> – First species. A dict of {specie/element: amt} as per the
+definition in Site and PeriodicSite.</p></li>
+<li><p><strong>sp2</strong> – Second species. A dict of {specie/element: amt} as per the
+definition in Site and PeriodicSite.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Boolean indicating whether species are equal.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Boolean indicating whether species are equal.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -383,23 +344,19 @@ structures with opposite spins, which are equivalent.</p>
 <dd><p>True if species are exactly the same, i.e., Fe2+ == Fe2+ but not
 Fe3+. and the spins are reversed. i.e., spin up maps to spin down,
 and vice versa.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>sp1</strong> – First species. A dict of {specie/element: amt} as per the
-definition in Site and PeriodicSite.</li>
-<li><strong>sp2</strong> – Second species. A dict of {specie/element: amt} as per the
-definition in Site and PeriodicSite.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sp1</strong> – First species. A dict of {specie/element: amt} as per the
+definition in Site and PeriodicSite.</p></li>
+<li><p><strong>sp2</strong> – Second species. A dict of {specie/element: amt} as per the
+definition in Site and PeriodicSite.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Boolean indicating whether species are equal.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Boolean indicating whether species are equal.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -417,32 +374,22 @@ definition in Site and PeriodicSite.</li>
 <p>Class to match structures by similarity.</p>
 <p>Algorithm:</p>
 <ol class="arabic">
-<li><p class="first">Given two structures: s1 and s2</p>
-</li>
-<li><p class="first">Optional: Reduce to primitive cells.</p>
-</li>
-<li><p class="first">If the number of sites do not match, return False</p>
-</li>
-<li><p class="first">Reduce to s1 and s2 to Niggli Cells</p>
-</li>
-<li><p class="first">Optional: Scale s1 and s2 to same volume.</p>
-</li>
-<li><p class="first">Optional: Remove oxidation states associated with sites</p>
-</li>
-<li><p class="first">Find all possible lattice vectors for s2 within shell of ltol.</p>
-</li>
-<li><p class="first">For s1, translate an atom in the smallest set to the origin</p>
-</li>
-<li><p class="first">For s2: find all valid lattices from permutations of the list
+<li><p>Given two structures: s1 and s2</p></li>
+<li><p>Optional: Reduce to primitive cells.</p></li>
+<li><p>If the number of sites do not match, return False</p></li>
+<li><p>Reduce to s1 and s2 to Niggli Cells</p></li>
+<li><p>Optional: Scale s1 and s2 to same volume.</p></li>
+<li><p>Optional: Remove oxidation states associated with sites</p></li>
+<li><p>Find all possible lattice vectors for s2 within shell of ltol.</p></li>
+<li><p>For s1, translate an atom in the smallest set to the origin</p></li>
+<li><p>For s2: find all valid lattices from permutations of the list
 of lattice vectors (invalid if: det(Lattice Matrix) &lt; half
-volume of original s2 lattice)</p>
-</li>
-<li><p class="first">For each valid lattice:</p>
+volume of original s2 lattice)</p></li>
+<li><p>For each valid lattice:</p>
 <ol class="loweralpha">
-<li><p class="first">If the lattice angles of are within tolerance of s1,
-basis change s2 into new lattice.</p>
-</li>
-<li><p class="first">For each atom in the smallest set of s2:</p>
+<li><p>If the lattice angles of are within tolerance of s1,
+basis change s2 into new lattice.</p></li>
+<li><p>For each atom in the smallest set of s2:</p>
 <blockquote>
 <div><p>i. Translate to origin and compare fractional sites in
 structure within a fractional tolerance.
@@ -453,13 +400,11 @@ both structures on an average lattice
 ib. Compute and return the average and max rms
 displacement between the two structures normalized
 by the average free length per atom</p>
-<dl class="docutils">
-<dt>if fit function called:</dt>
-<dd><p class="first last">if normalized max rms displacement is less than
+<dl class="simple">
+<dt>if fit function called:</dt><dd><p>if normalized max rms displacement is less than
 stol. Return True</p>
 </dd>
-<dt>if get_rms_dist function called:</dt>
-<dd><p class="first last">if normalized average rms displacement is less
+<dt>if get_rms_dist function called:</dt><dd><p>if normalized average rms displacement is less
 than the stored rms displacement, store and
 continue. (This function will search all possible
 lattices for the smallest average rms displacement
@@ -472,30 +417,28 @@ between the two structures)</p>
 </ol>
 </li>
 </ol>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>ltol</strong> (<em>float</em>) – Fractional length tolerance. Default is 0.2.</li>
-<li><strong>stol</strong> (<em>float</em>) – Site tolerance. Defined as the fraction of the
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ltol</strong> (<em>float</em>) – Fractional length tolerance. Default is 0.2.</p></li>
+<li><p><strong>stol</strong> (<em>float</em>) – Site tolerance. Defined as the fraction of the
 average free length per atom := ( V / Nsites ) ** (1/3)
-Default is 0.3.</li>
-<li><strong>angle_tol</strong> (<em>float</em>) – Angle tolerance in degrees. Default is 5 degrees.</li>
-<li><strong>primitive_cell</strong> (<em>bool</em>) – If true: input structures will be reduced to
-primitive cells prior to matching. Default to True.</li>
-<li><strong>scale</strong> (<em>bool</em>) – Input structures are scaled to equivalent volume if
-true; For exact matching, set to False.</li>
-<li><strong>attempt_supercell</strong> (<em>bool</em>) – If set to True and number of sites in
+Default is 0.3.</p></li>
+<li><p><strong>angle_tol</strong> (<em>float</em>) – Angle tolerance in degrees. Default is 5 degrees.</p></li>
+<li><p><strong>primitive_cell</strong> (<em>bool</em>) – If true: input structures will be reduced to
+primitive cells prior to matching. Default to True.</p></li>
+<li><p><strong>scale</strong> (<em>bool</em>) – Input structures are scaled to equivalent volume if
+true; For exact matching, set to False.</p></li>
+<li><p><strong>attempt_supercell</strong> (<em>bool</em>) – If set to True and number of sites in
 cells differ after a primitive cell reduction (divisible by an
 integer) attempts to generate a supercell transformation of the
-smaller cell which is equivalent to the larger structure.</li>
-<li><strong>allow_subset</strong> (<em>bool</em>) – Allow one structure to match to the subset of
+smaller cell which is equivalent to the larger structure.</p></li>
+<li><p><strong>allow_subset</strong> (<em>bool</em>) – Allow one structure to match to the subset of
 another structure. Eg. Matching of an ordered structure onto a
 disordered one, or matching a delithiated to a lithiated
 structure. This option cannot be combined with
-attempt_supercell, or with structure grouping.</li>
-<li><strong>comparator</strong> (<em>Comparator</em>) – <p>A comparator object implementing an equals
+attempt_supercell, or with structure grouping.</p></li>
+<li><p><strong>comparator</strong> (<em>Comparator</em>) – <p>A comparator object implementing an equals
 method that declares declaring equivalency of sites. Default is
 SpeciesComparator, which implies rigid species
 mapping, i.e., Fe2+ only matches Fe2+ and not Fe3+.</p>
@@ -505,20 +448,18 @@ matches only the elements and not the species.</p>
 supplying a comparison function is that it is not possible to
 pickle a function, which makes it otherwise difficult to use
 StructureMatcher with Python’s multiprocessing.</p>
-</li>
-<li><strong>supercell_size</strong> (<em>str</em>) – Method to use for determining the size of a
+</p></li>
+<li><p><strong>supercell_size</strong> (<em>str</em>) – Method to use for determining the size of a
 supercell (if applicable). Possible values are num_sites,
-num_atoms, volume, or an element present in both structures.</li>
-<li><strong>ignored_species</strong> (<em>list</em>) – A list of ions to be ignored in matching. Useful
+num_atoms, volume, or an element present in both structures.</p></li>
+<li><p><strong>ignored_species</strong> (<em>list</em>) – A list of ions to be ignored in matching. Useful
 for matching structures that have similar frameworks except for
 certain ions, e.g., Li-ion intercalation frameworks. This is more
 useful than allow_subset because it allows better control over
-what species are ignored in the matching.</li>
+what species are ignored in the matching.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.analysis.structure_matcher.StructureMatcher.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#StructureMatcher.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.as_dict" title="Permalink to this definition">¶</a></dt>
@@ -529,21 +470,17 @@ what species are ignored in the matching.</li>
 <dt id="pymatgen.analysis.structure_matcher.StructureMatcher.fit">
 <code class="descname">fit</code><span class="sig-paren">(</span><em>struct1</em>, <em>struct2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#StructureMatcher.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit two structures.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>struct1</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 1st structure</li>
-<li><strong>struct2</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 2nd structure</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>struct1</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 1st structure</p></li>
+<li><p><strong>struct2</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 2nd structure</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True or False.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True or False.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -552,24 +489,20 @@ what species are ignored in the matching.</li>
 <dd><p>Performs an anonymous fitting, which allows distinct species in one
 structure to map to another. E.g., to compare if the Li2O and Na2O
 structures are similar.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>struct1</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 1st structure</li>
-<li><strong>struct2</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 2nd structure</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>struct1</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 1st structure</p></li>
+<li><p><strong>struct2</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 2nd structure</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Whether a species mapping can map struct1 to stuct2</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">True/False</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Whether a species mapping can map struct1 to stuct2</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>True/False</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
@@ -583,23 +516,19 @@ structures are similar.</p>
 <dd><p>Performs an anonymous fitting, which allows distinct species in one
 structure to map to another. Returns a dictionary of species
 substitutions that are within tolerance</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>struct1</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 1st structure</li>
-<li><strong>struct2</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 2nd structure</li>
-<li><strong>niggli</strong> (<em>bool</em>) – Find niggli cell in preprocessing</li>
-<li><strong>include_dist</strong> (<em>bool</em>) – Return the maximin distance with each mapping</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>struct1</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 1st structure</p></li>
+<li><p><strong>struct2</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 2nd structure</p></li>
+<li><p><strong>niggli</strong> (<em>bool</em>) – Find niggli cell in preprocessing</p></li>
+<li><p><strong>include_dist</strong> (<em>bool</em>) – Return the maximin distance with each mapping</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">list of species mappings that map struct1 to struct2.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of species mappings that map struct1 to struct2.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -610,48 +539,40 @@ structure to map to another. E.g., to compare if the Li2O and Na2O
 structures are similar. If multiple substitutions are within tolerance
 this will return the one which minimizes the difference in
 electronegativity between the matches species.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>struct1</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 1st structure</li>
-<li><strong>struct2</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 2nd structure</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>struct1</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 1st structure</p></li>
+<li><p><strong>struct2</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 2nd structure</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Mapping of struct1 species to struct2 species</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">min_mapping (Dict)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Mapping of struct1 species to struct2 species</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>min_mapping (Dict)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.structure_matcher.StructureMatcher.get_mapping">
 <code class="descname">get_mapping</code><span class="sig-paren">(</span><em>superset</em>, <em>subset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#StructureMatcher.get_mapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.get_mapping" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the mapping from superset to subset.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>superset</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Structure containing at least the sites in
-subset (within the structure matching tolerance)</li>
-<li><strong>subset</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Structure containing some of the sites in
-superset (within the structure matching tolerance)</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>superset</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Structure containing at least the sites in
+subset (within the structure matching tolerance)</p></li>
+<li><p><strong>subset</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Structure containing some of the sites in
+superset (within the structure matching tolerance)</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">numpy array such that superset.sites[mapping] is within matching
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>numpy array such that superset.sites[mapping] is within matching
 tolerance of subset.sites or None if no such mapping is possible</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -660,48 +581,40 @@ tolerance of subset.sites or None if no such mapping is possible</p>
 <dd><p>Performs an anonymous fitting, which allows distinct species in one
 structure to map to another. E.g., to compare if the Li2O and Na2O
 structures are similar.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>struct1</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 1st structure</li>
-<li><strong>struct2</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 2nd structure</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>struct1</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 1st structure</p></li>
+<li><p><strong>struct2</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 2nd structure</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(min_rms, min_mapping)
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(min_rms, min_mapping)
 min_rms is the minimum rms distance, and min_mapping is the
 corresponding minimal species mapping that would map
 struct1 to struct2. (None, None) is returned if the minimax_rms
 exceeds the threshold.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.structure_matcher.StructureMatcher.get_rms_dist">
 <code class="descname">get_rms_dist</code><span class="sig-paren">(</span><em>struct1</em>, <em>struct2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#StructureMatcher.get_rms_dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.get_rms_dist" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate RMS displacement between two structures</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>struct1</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 1st structure</li>
-<li><strong>struct2</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 2nd structure</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>struct1</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 1st structure</p></li>
+<li><p><strong>struct2</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 2nd structure</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">rms displacement normalized by (Vol / nsites) ** (1/3)
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>rms displacement normalized by (Vol / nsites) ** (1/3)
 and maximum distance between paired sites. If no matching
 lattice is found None is returned.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -709,26 +622,22 @@ lattice is found None is returned.</p>
 <code class="descname">get_s2_like_s1</code><span class="sig-paren">(</span><em>struct1</em>, <em>struct2</em>, <em>include_ignored_species=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#StructureMatcher.get_s2_like_s1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.get_s2_like_s1" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs transformations on struct2 to put it in a basis similar to
 struct1 (without changing any of the inter-site distances)</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>struct1</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Reference structure</li>
-<li><strong>struct2</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Structure to transform.</li>
-<li><strong>include_ignored_species</strong> (<em>bool</em>) – Defaults to True,
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>struct1</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Reference structure</p></li>
+<li><p><strong>struct2</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Structure to transform.</p></li>
+<li><p><strong>include_ignored_species</strong> (<em>bool</em>) – Defaults to True,
 the ignored_species is also transformed to the struct1
 lattice orientation, though obviously there is no direct
-matching to existing sites.</li>
+matching to existing sites.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A structure object similar to struct1, obtained by making a
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A structure object similar to struct1, obtained by making a
 supercell, sorting, and translating struct2.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -744,17 +653,15 @@ is impossible to find</p>
 <code class="descname">get_transformation</code><span class="sig-paren">(</span><em>struct1</em>, <em>struct2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#StructureMatcher.get_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.get_transformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the supercell transformation, fractional translation vector,
 and a mapping to transform struct2 to be similar to struct1.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>struct1</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Reference structure</li>
-<li><strong>struct2</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Structure to transform.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>struct1</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Reference structure</p></li>
+<li><p><strong>struct2</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Structure to transform.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p>supercell matrix
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>supercell matrix
 vector (numpy.ndarray(3)): fractional translation vector
 mapping (list(int or None)):</p>
 <blockquote>
@@ -764,13 +671,11 @@ if there is no corresponding site), and the other items are
 the remaining site indices of struct2.</p>
 </div></blockquote>
 </p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">supercell (numpy.ndarray(3, 3))</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>supercell (numpy.ndarray(3, 3))</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -778,23 +683,19 @@ the remaining site indices of struct2.</p>
 <code class="descname">group_structures</code><span class="sig-paren">(</span><em>s_list</em>, <em>anonymous=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#StructureMatcher.group_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.group_structures" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a list of structures, use fit to group
 them by structural equality.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>s_list</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a><em>]</em>) – List of structures to be grouped</li>
-<li><strong>anonymous</strong> (<em>bool</em>) – Wheher to use anonymous mode.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>s_list</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a><em>]</em>) – List of structures to be grouped</p></li>
+<li><p><strong>anonymous</strong> (<em>bool</em>) – Wheher to use anonymous mode.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of lists of matched structures
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of lists of matched structures
 Assumption: if s1 == s2 but s1 != s3, than s2 and s3 will be put
 in different groups without comparison.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -820,8 +721,6 @@ in different groups without comparison.</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -839,13 +738,13 @@ in different groups without comparison.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

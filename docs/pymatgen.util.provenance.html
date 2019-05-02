@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.util.provenance module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.util.provenance module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -78,17 +76,15 @@
 <dt id="pymatgen.util.provenance.Author.parse_author">
 <em class="property">static </em><code class="descname">parse_author</code><span class="sig-paren">(</span><em>author</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/provenance.html#Author.parse_author"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.provenance.Author.parse_author" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parses an Author object from either a String, dict, or tuple</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>author</strong> – A String formatted as “NAME &lt;<a class="reference external" href="mailto:email&#37;&#52;&#48;domain&#46;com">email<span>&#64;</span>domain<span>&#46;</span>com</a>&gt;”,
-(name, email) tuple, or a dict with name and email keys.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An Author object.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>author</strong> – A String formatted as “NAME &lt;<a class="reference external" href="mailto:email&#37;&#52;&#48;domain&#46;com">email<span>&#64;</span>domain<span>&#46;</span>com</a>&gt;”,
+(name, email) tuple, or a dict with name and email keys.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An Author object.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -140,17 +136,15 @@ Structure (dict).</p>
 <dt id="pymatgen.util.provenance.HistoryNode.parse_history_node">
 <em class="property">static </em><code class="descname">parse_history_node</code><span class="sig-paren">(</span><em>h_node</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/provenance.html#HistoryNode.parse_history_node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.provenance.HistoryNode.parse_history_node" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parses a History Node object from either a dict or a tuple.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>h_node</strong> – A dict with name/url/description fields or a 3-element
-tuple.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">History node.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>h_node</strong> – A dict with name/url/description fields or a 3-element
+tuple.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>History node.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -164,44 +158,39 @@ for a pymatgen Structure/Molecule object with some additional fields for
 enhanced provenance. It is meant to be imported/exported in a JSON file
 format with the following structure:</p>
 <ul class="simple">
-<li><dl class="first docutils">
-<dt>about</dt>
-<dd><ul class="first last">
-<li>created_at</li>
-<li>authors</li>
-<li>projects</li>
-<li>references</li>
-<li>remarks</li>
-<li>data</li>
-<li>history</li>
+<li><dl class="simple">
+<dt>about</dt><dd><ul>
+<li><p>created_at</p></li>
+<li><p>authors</p></li>
+<li><p>projects</p></li>
+<li><p>references</p></li>
+<li><p>remarks</p></li>
+<li><p>data</p></li>
+<li><p>history</p></li>
 </ul>
 </dd>
 </dl>
 </li>
-<li>lattice (optional)</li>
-<li>sites</li>
+<li><p>lattice (optional)</p></li>
+<li><p>sites</p></li>
 </ul>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>struct_or_mol</strong> – A pymatgen.core.structure Structure/Molecule object</li>
-<li><strong>authors</strong> – <em>List</em> of {“name”:’‘, “email”:’‘} dicts,
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>struct_or_mol</strong> – A pymatgen.core.structure Structure/Molecule object</p></li>
+<li><p><strong>authors</strong> – <em>List</em> of {“name”:’‘, “email”:’‘} dicts,
 <em>list</em> of Strings as ‘John Doe &lt;<a class="reference external" href="mailto:johndoe&#37;&#52;&#48;gmail&#46;com">johndoe<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;’,
-or a single String with commas separating authors</li>
-<li><strong>projects</strong> – List of Strings [‘Project A’, ‘Project B’]</li>
-<li><strong>references</strong> – A String in BibTeX format</li>
-<li><strong>remarks</strong> – List of Strings [‘Remark A’, ‘Remark B’]</li>
-<li><strong>data</strong> – A free form dict. Namespaced at the root level with an
-underscore, e.g. {“_materialsproject”: &lt;custom data&gt;}</li>
-<li><strong>history</strong> – List of dicts - [{‘name’:’‘, ‘url’:’‘, ‘description’:{}}]</li>
-<li><strong>created_at</strong> – A datetime object</li>
+or a single String with commas separating authors</p></li>
+<li><p><strong>projects</strong> – List of Strings [‘Project A’, ‘Project B’]</p></li>
+<li><p><strong>references</strong> – A String in BibTeX format</p></li>
+<li><p><strong>remarks</strong> – List of Strings [‘Remark A’, ‘Remark B’]</p></li>
+<li><p><strong>data</strong> – A free form dict. Namespaced at the root level with an
+underscore, e.g. {“_materialsproject”: &lt;custom data&gt;}</p></li>
+<li><p><strong>history</strong> – List of dicts - [{‘name’:’‘, ‘url’:’‘, ‘description’:{}}]</p></li>
+<li><p><strong>created_at</strong> – A datetime object</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.util.provenance.StructureNL.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/provenance.html#StructureNL.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.provenance.StructureNL.as_dict" title="Permalink to this definition">¶</a></dt>
@@ -218,33 +207,29 @@ underscore, e.g. {“_materialsproject”: &lt;custom data&gt;}</li>
 <dd><p>A convenience method for getting a list of StructureNL objects by
 specifying structures and metadata separately. Some of the metadata
 is applied to all of the structures for ease of use.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structures</strong> – A list of Structure objects</li>
-<li><strong>authors</strong> – <em>List</em> of {“name”:’‘, “email”:’‘} dicts,
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structures</strong> – A list of Structure objects</p></li>
+<li><p><strong>authors</strong> – <em>List</em> of {“name”:’‘, “email”:’‘} dicts,
 <em>list</em> of Strings as ‘John Doe &lt;<a class="reference external" href="mailto:johndoe&#37;&#52;&#48;gmail&#46;com">johndoe<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;’,
-or a single String with commas separating authors</li>
-<li><strong>projects</strong> – List of Strings [‘Project A’, ‘Project B’]. This
-applies to all structures.</li>
-<li><strong>references</strong> – A String in BibTeX format. Again, this applies to all
-structures.</li>
-<li><strong>remarks</strong> – List of Strings [‘Remark A’, ‘Remark B’]</li>
-<li><strong>data</strong> – A list of free form dict. Namespaced at the root level
+or a single String with commas separating authors</p></li>
+<li><p><strong>projects</strong> – List of Strings [‘Project A’, ‘Project B’]. This
+applies to all structures.</p></li>
+<li><p><strong>references</strong> – A String in BibTeX format. Again, this applies to all
+structures.</p></li>
+<li><p><strong>remarks</strong> – List of Strings [‘Remark A’, ‘Remark B’]</p></li>
+<li><p><strong>data</strong> – A list of free form dict. Namespaced at the root level
 with an underscore, e.g. {“_materialsproject”:&lt;custom data&gt;}
 . The length of data should be the same as the list of
-structures if not None.</li>
-<li><strong>histories</strong> – List of list of dicts - [[{‘name’:’‘, ‘url’:’‘,
+structures if not None.</p></li>
+<li><p><strong>histories</strong> – List of list of dicts - [[{‘name’:’‘, ‘url’:’‘,
 ‘description’:{}}], …] The length of histories should be the
-same as the list of structures if not None.</li>
-<li><strong>created_at</strong> – A datetime object</li>
+same as the list of structures if not None.</p></li>
+<li><p><strong>created_at</strong> – A datetime object</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -253,16 +238,14 @@ same as the list of structures if not None.</li>
 <dt id="pymatgen.util.provenance.is_valid_bibtex">
 <code class="descname">is_valid_bibtex</code><span class="sig-paren">(</span><em>reference</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/provenance.html#is_valid_bibtex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.provenance.is_valid_bibtex" title="Permalink to this definition">¶</a></dt>
 <dd><p>Use pybtex to validate that a reference is in proper BibTeX format</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>reference</strong> – A String reference in BibTeX format.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Boolean indicating if reference is valid bibtex.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>reference</strong> – A String reference in BibTeX format.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Boolean indicating if reference is valid bibtex.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -286,8 +269,6 @@ same as the list of structures if not None.</li>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -305,13 +286,13 @@ same as the list of structures if not None.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Requirements &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>Requirements &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -43,7 +41,7 @@
         <li class="right" >
           <a href="index.html" title="Introduction"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -58,18 +56,18 @@
 install pymatgen using easy_install or pip. Otherwise, these packages should
 be available on <a class="reference external" href="http://pypi.python.org">PyPI</a>.</p>
 <ol class="arabic simple">
-<li>Python 2.7-3.x supported. <strong>It is highly recommended that you use latest
+<li><p>Python 2.7-3.x supported. <strong>It is highly recommended that you use latest
 Python 3.x unless you know you need other dependencies that works with
-Python 2.x only.</strong></li>
-<li>numpy&gt;=1.14</li>
-<li>scipy&gt;=1.0.1</li>
-<li>matplotlib&gt;=1.5+</li>
-<li>monty&gt;=0.9.6</li>
-<li>requests&gt;=2.0+</li>
-<li>pybtex</li>
-<li>pyyaml</li>
-<li>tabulate</li>
-<li>six</li>
+Python 2.x only.</strong></p></li>
+<li><p>numpy&gt;=1.14</p></li>
+<li><p>scipy&gt;=1.0.1</p></li>
+<li><p>matplotlib&gt;=1.5+</p></li>
+<li><p>monty&gt;=0.9.6</p></li>
+<li><p>requests&gt;=2.0+</p></li>
+<li><p>pybtex</p></li>
+<li><p>pyyaml</p></li>
+<li><p>tabulate</p></li>
+<li><p>six</p></li>
 </ol>
 <p>Most of these are fairly easy to install. The well-established numpy and scipy
 should have ready-made installation packages for all platforms. The rest are
@@ -79,21 +77,21 @@ easy_install.</p>
 <h2>Optional dependencies<a class="headerlink" href="#optional-dependencies" title="Permalink to this headline">¶</a></h2>
 <p>Optional libraries that are required if you need certain features.</p>
 <ol class="arabic simple">
-<li>sympy: For defect generation and analysis.</li>
-<li>VTK with Python bindings 5.8+ (<a class="reference external" href="http://www.vtk.org/">http://www.vtk.org/</a>): For visualization of
+<li><p>sympy: For defect generation and analysis.</p></li>
+<li><p>VTK with Python bindings 5.8+ (<a class="reference external" href="http://www.vtk.org/">http://www.vtk.org/</a>): For visualization of
 crystal structures using the pymatgen.vis package. Note that the VTK
-package is incompatible with Python 3.x at the moment.</li>
-<li>Atomistic Simulation Environment or ASE 3.6+: Required for the usage of the
+package is incompatible with Python 3.x at the moment.</p></li>
+<li><p>Atomistic Simulation Environment or ASE 3.6+: Required for the usage of the
 adapters in pymatgen.io.aseio between pymatgen’s core Structure object and
 the Atoms object used by ASE. Get it at <a class="reference external" href="https://wiki.fysik.dtu.dk/ase/">https://wiki.fysik.dtu.dk/ase/</a>.
-Note that the ASE package is incompatible with Python 3.x at the moment.</li>
-<li>OpenBabel with Python bindings (<a class="reference external" href="http://openbabel.org">http://openbabel.org</a>): Required for the
+Note that the ASE package is incompatible with Python 3.x at the moment.</p></li>
+<li><p>OpenBabel with Python bindings (<a class="reference external" href="http://openbabel.org">http://openbabel.org</a>): Required for the
 usage of the adapters in pymatgen.io.babelio between pymatgen’s Molecule
 and OpenBabel’s OBMol. Opens up input and output support for the very large
-number of input and output formats supported by OpenBabel.</li>
-<li>networkx: For graph analysis associated with critic2 topological analysis
-of electron charge densities, pygraphviz is also required for visualization.</li>
-<li>nose - For unittesting. Not optional for developers.</li>
+number of input and output formats supported by OpenBabel.</p></li>
+<li><p>networkx: For graph analysis associated with critic2 topological analysis
+of electron charge densities, pygraphviz is also required for visualization.</p></li>
+<li><p>nose - For unittesting. Not optional for developers.</p></li>
 </ol>
 </div>
 <div class="section" id="optional-non-python-programs">
@@ -101,9 +99,9 @@ of electron charge densities, pygraphviz is also required for visualization.</li
 <p>Optional non-python libraries (because no good python alternative exists at
 the moment) required only for certain features:</p>
 <ol class="arabic simple">
-<li>ffmpeg: For generation of movies in structure_vtk.py. The executable ffmpeg
-must be in the path. Get it at <a class="reference external" href="http://www.ffmpeg.org">http://www.ffmpeg.org</a>.</li>
-<li>enum: For the use of
+<li><p>ffmpeg: For generation of movies in structure_vtk.py. The executable ffmpeg
+must be in the path. Get it at <a class="reference external" href="http://www.ffmpeg.org">http://www.ffmpeg.org</a>.</p></li>
+<li><p>enum: For the use of
 <a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation" title="pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation</span></code></a>
 and <a class="reference internal" href="pymatgen.command_line.enumlib_caller.html#module-pymatgen.command_line.enumlib_caller" title="pymatgen.command_line.enumlib_caller"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.command_line.enumlib_caller</span></code></a> module. This library by Gus
 Hart provides a robust way to enumerate derivative structures. It can be
@@ -112,24 +110,24 @@ of disordered structures via EnumerateStructureTransformation. Many other
 advanced transformations (e.g., MagOrderingTransformation) use
 EnumerateStructureTransformation. The enum.x and makestr.x
 executables must be in the path. Get it at <a class="reference external" href="http://enum.sourceforge.net">http://enum.sourceforge.net</a> and
-follow the instructions to compile multienum.x and makestr.x.</li>
-<li>bader: For use with <a class="reference internal" href="pymatgen.command_line.bader_caller.html#pymatgen.command_line.bader_caller.BaderAnalysis" title="pymatgen.command_line.bader_caller.BaderAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.command_line.bader_caller.BaderAnalysis</span></code></a>.
+follow the instructions to compile multienum.x and makestr.x.</p></li>
+<li><p>bader: For use with <a class="reference internal" href="pymatgen.command_line.bader_caller.html#pymatgen.command_line.bader_caller.BaderAnalysis" title="pymatgen.command_line.bader_caller.BaderAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.command_line.bader_caller.BaderAnalysis</span></code></a>.
 This library by Henkelmann et al. provides a robust way to calculate the
 Bader analysis from a CHGCAR. The bader executable must be in the path.
-Get it at <a class="reference external" href="http://theory.cm.utexas.edu/bader">http://theory.cm.utexas.edu/bader</a>.</li>
-<li>gulp: For use with <a class="reference internal" href="pymatgen.command_line.gulp_caller.html#module-pymatgen.command_line.gulp_caller" title="pymatgen.command_line.gulp_caller"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.command_line.gulp_caller</span></code></a>,
+Get it at <a class="reference external" href="http://theory.cm.utexas.edu/bader">http://theory.cm.utexas.edu/bader</a>.</p></li>
+<li><p>gulp: For use with <a class="reference internal" href="pymatgen.command_line.gulp_caller.html#module-pymatgen.command_line.gulp_caller" title="pymatgen.command_line.gulp_caller"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.command_line.gulp_caller</span></code></a>,
 which is in turn used extensively by <a class="reference internal" href="pymatgen.analysis.defects.html#module-pymatgen.analysis.defects" title="pymatgen.analysis.defects"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.analysis.defects</span></code></a> to
-compute empirical defect energies.</li>
-<li>aconvasp: For use with the <a class="reference internal" href="pymatgen.command_line.aconvasp_caller.html#module-pymatgen.command_line.aconvasp_caller" title="pymatgen.command_line.aconvasp_caller"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.command_line.aconvasp_caller</span></code></a>.</li>
-<li>Zeo++ (<a class="reference external" href="http://zeoplusplus.org">http://zeoplusplus.org</a>): For defect structure
+compute empirical defect energies.</p></li>
+<li><p>aconvasp: For use with the <a class="reference internal" href="pymatgen.command_line.aconvasp_caller.html#module-pymatgen.command_line.aconvasp_caller" title="pymatgen.command_line.aconvasp_caller"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.command_line.aconvasp_caller</span></code></a>.</p></li>
+<li><p>Zeo++ (<a class="reference external" href="http://zeoplusplus.org">http://zeoplusplus.org</a>): For defect structure
 generation. This is required in addition to installing the zeo Python
-package.</li>
-<li>critic2 (<a class="reference external" href="https://github.com/aoterodelaroza/critic2">https://github.com/aoterodelaroza/critic2</a>): For topological
+package.</p></li>
+<li><p>critic2 (<a class="reference external" href="https://github.com/aoterodelaroza/critic2">https://github.com/aoterodelaroza/critic2</a>): For topological
 analysis of critical points from electronic charge density. Provides
 more detailed information compared to bader. For use with
-<a class="reference internal" href="pymatgen.command_line.critic2_caller.html#pymatgen.command_line.critic2_caller.Critic2Caller" title="pymatgen.command_line.critic2_caller.Critic2Caller"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.command_line.critic2_caller.Critic2Caller</span></code></a>.</li>
-<li>graphviz (<a class="reference external" href="http://graphviz.org">http://graphviz.org</a>): For visualization of graphs generated
-using critic2.</li>
+<a class="reference internal" href="pymatgen.command_line.critic2_caller.html#pymatgen.command_line.critic2_caller.Critic2Caller" title="pymatgen.command_line.critic2_caller.Critic2Caller"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.command_line.critic2_caller.Critic2Caller</span></code></a>.</p></li>
+<li><p>graphviz (<a class="reference external" href="http://graphviz.org">http://graphviz.org</a>): For visualization of graphs generated
+using critic2.</p></li>
 </ol>
 </div>
 </div>
@@ -260,8 +258,8 @@ default in pymatgen, e.g., LDA_52, PW91, etc. Type:</p>
 </div>
 <p>to see full list of choices.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The Materials Project uses the 2012 versions of the VASP pseudopotentials.
+<p class="admonition-title">Note</p>
+<p>The Materials Project uses the 2012 versions of the VASP pseudopotentials.
 As such, the pymatgen compatibility package assume this version. If you use
 any functional other than PBE, note that you should not be combining results
 from these other functionals with Materials Project data.</p>
@@ -274,50 +272,46 @@ from these other functionals with Materials Project data.</p>
 <div class="section" id="windows">
 <h3>Windows<a class="headerlink" href="#windows" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic simple">
-<li>Download Microsoft Visual Studio 2015 (the free Community Edition) is fine.</li>
-<li>Install Visual Studio 2015, but <em>make sure that you select More Options -&gt;
+<li><p>Download Microsoft Visual Studio 2015 (the free Community Edition) is fine.</p></li>
+<li><p>Install Visual Studio 2015, but <em>make sure that you select More Options -&gt;
 Programming Languages -&gt; Visual C++ during the installation process</em>. By
-default, Visual Studio does not install Visual C++, which is needed.</li>
+default, Visual Studio does not install Visual C++, which is needed.</p></li>
 </ol>
 </div>
 <div class="section" id="mac-osx">
 <h3>Mac OSX<a class="headerlink" href="#mac-osx" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic">
-<li><p class="first">Download and install Xcode. Afterwards, install the XCode command line
+<li><p>Download and install Xcode. Afterwards, install the XCode command line
 tools by typing the following in a terminal:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">xcode</span><span class="o">-</span><span class="n">select</span> <span class="o">--</span><span class="n">install</span>
 </pre></div>
 </div>
 </li>
-<li><p class="first">(Optional) Install gfortran.  Get an installer at
-<a class="reference external" href="http://gcc.gnu.org/wiki/GFortranBinaries#MacOS">http://gcc.gnu.org/wiki/GFortranBinaries#MacOS</a>.</p>
-</li>
+<li><p>(Optional) Install gfortran.  Get an installer at
+<a class="reference external" href="http://gcc.gnu.org/wiki/GFortranBinaries#MacOS">http://gcc.gnu.org/wiki/GFortranBinaries#MacOS</a>.</p></li>
 </ol>
 </div>
 <div class="section" id="linux">
 <h3>Linux<a class="headerlink" href="#linux" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic simple">
-<li>Usually no preparation is needed as most of the standard compilers should
-already be available.</li>
+<li><p>Usually no preparation is needed as most of the standard compilers should
+already be available.</p></li>
 </ol>
 </div>
 </div>
 <div class="section" id="step-2-install-pymatgen-in-developmental-mode">
 <h2>Step 2: Install pymatgen in developmental mode<a class="headerlink" href="#step-2-install-pymatgen-in-developmental-mode" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic">
-<li><p class="first">Make sure you have git and <a class="reference external" href="https://git-lfs.github.com/">git-lfs</a> installed.
-Clone the repo at <a class="reference external" href="https://github.com/materialsproject/pymatgen">https://github.com/materialsproject/pymatgen</a>.</p>
-</li>
-<li><p class="first">Run <cite>git lfs install</cite> in the cloned repo first.</p>
-</li>
-<li><p class="first">In your root pymatgen repo directory, type (you may need to do this with root
+<li><p>Make sure you have git and <a class="reference external" href="https://git-lfs.github.com/">git-lfs</a> installed.
+Clone the repo at <a class="reference external" href="https://github.com/materialsproject/pymatgen">https://github.com/materialsproject/pymatgen</a>.</p></li>
+<li><p>Run <cite>git lfs install</cite> in the cloned repo first.</p></li>
+<li><p>In your root pymatgen repo directory, type (you may need to do this with root
 privileges):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="o">.</span>
 </pre></div>
 </div>
 </li>
-<li><p class="first">Install any missing python libraries that are necessary.</p>
-</li>
+<li><p>Install any missing python libraries that are necessary.</p></li>
 </ol>
 <p>I recommend that you start by reading some of the unittests in the tests
 subdirectory for each package. The unittests demonstrate the expected behavior
@@ -386,30 +380,24 @@ able to install openbabel with a single command:</p>
 <p>Openbabel must be compiled with python bindings for integration with pymatgen.
 Here are the steps that I took to make it work:</p>
 <ol class="arabic">
-<li><p class="first">Install cmake from <a class="reference external" href="http://cmake.org/cmake/resources/software.html">http://cmake.org/cmake/resources/software.html</a>.</p>
-</li>
-<li><p class="first">Install pcre-8.33 from
-<a class="reference external" href="ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.33.tar.gz">ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.33.tar.gz</a>.</p>
-</li>
-<li><p class="first">Install pkg-config-0.28 using MacPorts or from
-<a class="reference external" href="http://pkgconfig.freedesktop.org/releases/pkg-config-0.28.tar.gz">http://pkgconfig.freedesktop.org/releases/pkg-config-0.28.tar.gz</a>.</p>
-</li>
-<li><p class="first">Install SWIG from
-<a class="reference external" href="http://prdownloads.sourceforge.net/swig/swig-2.0.10.tar.gz">http://prdownloads.sourceforge.net/swig/swig-2.0.10.tar.gz</a>.</p>
-</li>
-<li><p class="first">Download openbabel 2.3.2 <em>source code</em> from
-<a class="reference external" href="https://sourceforge.net/projects/openbabel/files/openbabel/2.3.2/">https://sourceforge.net/projects/openbabel/files/openbabel/2.3.2/</a>.</p>
-</li>
-<li><p class="first">Download Eigen version 3.1.2 from
-<a class="reference external" href="http://bitbucket.org/eigen/eigen/get/3.1.2.tar.gz">http://bitbucket.org/eigen/eigen/get/3.1.2.tar.gz</a>.</p>
-</li>
-<li><p class="first">Extract your Eigen and openbabel source distributions:</p>
+<li><p>Install cmake from <a class="reference external" href="http://cmake.org/cmake/resources/software.html">http://cmake.org/cmake/resources/software.html</a>.</p></li>
+<li><p>Install pcre-8.33 from
+<a class="reference external" href="ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.33.tar.gz">ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.33.tar.gz</a>.</p></li>
+<li><p>Install pkg-config-0.28 using MacPorts or from
+<a class="reference external" href="http://pkgconfig.freedesktop.org/releases/pkg-config-0.28.tar.gz">http://pkgconfig.freedesktop.org/releases/pkg-config-0.28.tar.gz</a>.</p></li>
+<li><p>Install SWIG from
+<a class="reference external" href="http://prdownloads.sourceforge.net/swig/swig-2.0.10.tar.gz">http://prdownloads.sourceforge.net/swig/swig-2.0.10.tar.gz</a>.</p></li>
+<li><p>Download openbabel 2.3.2 <em>source code</em> from
+<a class="reference external" href="https://sourceforge.net/projects/openbabel/files/openbabel/2.3.2/">https://sourceforge.net/projects/openbabel/files/openbabel/2.3.2/</a>.</p></li>
+<li><p>Download Eigen version 3.1.2 from
+<a class="reference external" href="http://bitbucket.org/eigen/eigen/get/3.1.2.tar.gz">http://bitbucket.org/eigen/eigen/get/3.1.2.tar.gz</a>.</p></li>
+<li><p>Extract your Eigen and openbabel source distributions:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">tar</span> <span class="o">-</span><span class="n">zxvf</span> <span class="n">openbabel</span><span class="o">-</span><span class="mf">2.3</span><span class="o">.</span><span class="mf">2.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span>
 <span class="n">tar</span> <span class="o">-</span><span class="n">zxvf</span> <span class="n">eigen3</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span>
 </pre></div>
 </div>
 </li>
-<li><p class="first">Now you should have two directories. Assuming that your openbabel src is in
+<li><p>Now you should have two directories. Assuming that your openbabel src is in
 a directory called “openbabel-2.3.2” and your eigen source is in a directory
 called “eigen3”, do the following steps:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mv</span> <span class="n">openbabel</span><span class="o">-</span><span class="mf">2.3</span><span class="o">.</span><span class="mi">2</span> <span class="n">ob</span><span class="o">-</span><span class="n">src</span>
@@ -417,17 +405,16 @@ called “eigen3”, do the following steps:</p>
 </pre></div>
 </div>
 </li>
-<li><p class="first">Edit ob-src/scripts/CMakeLists.txt, jump to line 70, change “eigen2_define”
-to “eigen_define”.</p>
-</li>
-<li><p class="first">Let’s create a build directory:</p>
+<li><p>Edit ob-src/scripts/CMakeLists.txt, jump to line 70, change “eigen2_define”
+to “eigen_define”.</p></li>
+<li><p>Let’s create a build directory:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="n">ob</span><span class="o">-</span><span class="n">build</span>
 <span class="n">cd</span> <span class="n">ob</span><span class="o">-</span><span class="n">build</span>
 <span class="n">cmake</span> <span class="o">-</span><span class="n">DPYTHON_BINDINGS</span><span class="o">=</span><span class="n">ON</span> <span class="o">-</span><span class="n">DRUN_SWIG</span><span class="o">=</span><span class="n">ON</span> <span class="o">-</span><span class="n">DEIGEN3_INCLUDE_DIR</span><span class="o">=../</span><span class="n">eigen3</span> <span class="o">../</span><span class="n">ob</span><span class="o">-</span><span class="n">src</span> <span class="mi">2</span><span class="o">&gt;&amp;</span><span class="mi">1</span> <span class="o">|</span> <span class="n">tee</span> <span class="n">cmake</span><span class="o">.</span><span class="n">out</span>
 </pre></div>
 </div>
 </li>
-<li><p class="first">Before proceeding further, similar to the VTK installation process in the
+<li><p>Before proceeding further, similar to the VTK installation process in the
 previous section, you may also need to modify the CMakeCache.txt
 file by hand if your python paths and library paths if they are in
 non-standard locations. For example, if you have installed the official
@@ -446,19 +433,19 @@ be modified are shown):</p>
 </pre></div>
 </div>
 </li>
-<li><p class="first">If you are using Mavericks (OSX 10.9) and encounter errors relating to &lt;tr1/memory&gt;, you might also need to include
+<li><p>If you are using Mavericks (OSX 10.9) and encounter errors relating to &lt;tr1/memory&gt;, you might also need to include
 the following flag in your CMakeCache.txt:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CMAKE_CXX_FLAGS</span><span class="p">:</span><span class="n">STRING</span><span class="o">=-</span><span class="n">stdlib</span><span class="o">=</span><span class="n">libstdc</span><span class="o">++</span>
 </pre></div>
 </div>
 </li>
-<li><p class="first">Run make and install as follows:</p>
+<li><p>Run make and install as follows:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="o">-</span><span class="n">j2</span>
 <span class="n">sudo</span> <span class="n">make</span> <span class="n">install</span>
 </pre></div>
 </div>
 </li>
-<li><p class="first">With any luck, you should have openbabel with python bindings installed.
+<li><p>With any luck, you should have openbabel with python bindings installed.
 You can test your installation by trying to import openbabel from the
 python command line. Please note that despite best efforts,
 openbabel seems to install the python bindings into /usr/local/lib even
@@ -584,8 +571,6 @@ can do using pymatgen:</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -609,13 +594,13 @@ can do using pymatgen:</p>
         <li class="right" >
           <a href="index.html" title="Introduction"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.outputs module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.io.vasp.outputs module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -66,18 +64,14 @@ etc. are ignored.</p>
 <em class="property">class </em><code class="descname">Chgcar</code><span class="sig-paren">(</span><em>poscar</em>, <em>data</em>, <em>data_aug=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Chgcar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Chgcar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vasp.outputs.VolumetricData" title="pymatgen.io.vasp.outputs.VolumetricData"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.vasp.outputs.VolumetricData</span></code></a></p>
 <p>Simple object for reading a CHGCAR file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>poscar</strong> (<a class="reference internal" href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Poscar" title="pymatgen.io.vasp.inputs.Poscar"><em>Poscar</em></a>) – Poscar object containing structure.</li>
-<li><strong>data</strong> – Actual data.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>poscar</strong> (<a class="reference internal" href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Poscar" title="pymatgen.io.vasp.inputs.Poscar"><em>Poscar</em></a>) – Poscar object containing structure.</p></li>
+<li><p><strong>data</strong> – Actual data.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="staticmethod">
 <dt id="pymatgen.io.vasp.outputs.Chgcar.from_file">
 <em class="property">static </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Chgcar.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Chgcar.from_file" title="Permalink to this definition">¶</a></dt>
@@ -95,24 +89,22 @@ etc. are ignored.</p>
 <em class="property">class </em><code class="descname">Dynmat</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Dynmat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Dynmat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Object for reading a DYNMAT file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – Name of file containing DYNMAT.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> – Name of file containing DYNMAT.</p>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.outputs.Dynmat.data">
 <code class="descname">data</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Dynmat.data" title="Permalink to this definition">¶</a></dt>
 <dd><p>A nested dict containing the DYNMAT data of the form::
 [atom &lt;int&gt;][disp &lt;int&gt;][‘dispvec’] =</p>
 <blockquote>
-<div>displacement vector (part of first line in dynmat block, e.g. “0.01 0 0”)</div></blockquote>
-<dl class="docutils">
-<dt>[atom &lt;int&gt;][disp &lt;int&gt;][‘dynmat’] =</dt>
-<dd>&lt;list&gt; list of dynmat lines for this atom and this displacement</dd>
+<div><p>displacement vector (part of first line in dynmat block, e.g. “0.01 0 0”)</p>
+</div></blockquote>
+<dl class="simple">
+<dt>[atom &lt;int&gt;][disp &lt;int&gt;][‘dynmat’] =</dt><dd><p>&lt;list&gt; list of dynmat lines for this atom and this displacement</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -154,18 +146,14 @@ etc. are ignored.</p>
 <em class="property">class </em><code class="descname">Locpot</code><span class="sig-paren">(</span><em>poscar</em>, <em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Locpot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Locpot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vasp.outputs.VolumetricData" title="pymatgen.io.vasp.outputs.VolumetricData"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.vasp.outputs.VolumetricData</span></code></a></p>
 <p>Simple object for reading a LOCPOT file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>poscar</strong> (<a class="reference internal" href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Poscar" title="pymatgen.io.vasp.inputs.Poscar"><em>Poscar</em></a>) – Poscar object containing structure.</li>
-<li><strong>data</strong> – Actual data.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>poscar</strong> (<a class="reference internal" href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Poscar" title="pymatgen.io.vasp.inputs.Poscar"><em>Poscar</em></a>) – Poscar object containing structure.</p></li>
+<li><p><strong>data</strong> – Actual data.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="staticmethod">
 <dt id="pymatgen.io.vasp.outputs.Locpot.from_file">
 <em class="property">static </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Locpot.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Locpot.from_file" title="Permalink to this definition">¶</a></dt>
@@ -181,14 +169,11 @@ etc. are ignored.</p>
 OSZICAR is useful for a quick look at the output from a VASP run, we
 recommend that you use the Vasprun parser instead, which gives far richer
 information about a run.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) – Filename of file to parse</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Filename of file to parse</p>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.outputs.Oszicar.electronic_steps">
 <code class="descname">electronic_steps</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Oszicar.electronic_steps" title="Permalink to this definition">¶</a></dt>
@@ -241,14 +226,11 @@ VaspObjects, since the OUTCAR can be very different depending on which
 “type of run” performed.</p>
 <p>Creating the OUTCAR class with a filename reads “regular parameters” that
 are always present.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) – OUTCAR filename to parse.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – OUTCAR filename to parse.</p>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.outputs.Outcar.magnetization">
 <code class="descname">magnetization</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.magnetization" title="Permalink to this definition">¶</a></dt>
@@ -272,13 +254,14 @@ e.g.,
 [[[sigma11, sigma12, sigma13],</p>
 <blockquote>
 <div><blockquote>
-<div>[sigma21, sigma22, sigma23],
+<div><p>[sigma21, sigma22, sigma23],
 [sigma31, sigma32, sigma33]],
-…</div></blockquote>
-<dl class="docutils">
-<dt>[[sigma11, sigma12, sigma13],</dt>
-<dd>[sigma21, sigma22, sigma23],
-[sigma31, sigma32, sigma33]]]</dd>
+…</p>
+</div></blockquote>
+<dl class="simple">
+<dt>[[sigma11, sigma12, sigma13],</dt><dd><p>[sigma21, sigma22, sigma23],
+[sigma31, sigma32, sigma33]]]</p>
+</dd>
 </dl>
 </div></blockquote>
 </dd></dl>
@@ -305,8 +288,9 @@ e.g.,
 <dd><p>Electric Field Gradient (EFG) tensor on each ion as a tuple of dict, e.g.,
 ({“cq”: 0.1, “eta”, 0.2, “nuclear_quadrupole_moment”: 0.3},</p>
 <blockquote>
-<div>{“cq”: 0.7, “eta”, 0.8, “nuclear_quadrupole_moment”: 0.9},
-…)</div></blockquote>
+<div><p>{“cq”: 0.7, “eta”, 0.8, “nuclear_quadrupole_moment”: 0.9},
+…)</p>
+</div></blockquote>
 </dd></dl>
 
 <dl class="attribute">
@@ -354,14 +338,14 @@ other value than the default.</p>
 <code class="descname">Dimensions for the Augementation grid</code></dt>
 <dd></dd></dl>
 
-<dl class="docutils">
-<dt>..attribute: final_energy_contribs</dt>
-<dd>Individual contributions to the total final energy as a dictionary.
+<dl class="simple">
+<dt>..attribute: final_energy_contribs</dt><dd><p>Individual contributions to the total final energy as a dictionary.
 Include contirbutions from keys, e.g.:
 {‘DENC’: -505778.5184347, ‘EATOM’: 15561.06492564, ‘EBANDS’: -804.53201231,
 ‘EENTRO’: -0.08932659, ‘EXHF’: 0.0, ‘Ediel_sol’: 0.0,
 ‘PAW double counting’: 664.6726974100002, ‘PSCENC’: 742.48691646,
-‘TEWEN’: 489742.86847338, ‘XCENC’: -169.64189814}</dd>
+‘TEWEN’: 489742.86847338, ‘XCENC’: -169.64189814}</p>
+</dd>
 </dl>
 <p>One can then call a specific reader depending on the type of run being
 performed. These are currently: read_igpar(), read_lepsilon() and
@@ -373,19 +357,21 @@ read_lcalcpol(), read_core_state_eign(), read_avg_core_pot().</p>
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.outputs.Outcar.frequencies">
+<code class="descname">frequencies</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.frequencies" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="pymatgen.io.vasp.outputs.Outcar.read_avg_core_poten">
 <code class="descname">read_avg_core_poten</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar.read_avg_core_poten"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_avg_core_poten" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read the core potential at each ionic step.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A list for each ionic step containing a list of the average core
-potentials for each atom: [[avg core pot]].</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A list for each ionic step containing a list of the average core
+potentials for each atom: [[avg core pot]].</p>
+</dd>
+</dl>
 <p class="rubric">Example</p>
 <p>The average core potential of the 2nd atom of the structure at the
 last ionic step is: [-1][1]</p>
@@ -396,32 +382,27 @@ last ionic step is: [-1][1]</p>
 <code class="descname">read_chemical_shielding</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar.read_chemical_shielding"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_chemical_shielding" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse the NMR chemical shieldings data. Only the second part “absolute, valence and core”
 will be parsed. And only the three right most field (ISO_SHIELDING, SPAN, SKEW) will be retrieved.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">List of chemical shieldings in the order of atoms from the OUTCAR. Maryland notation is adopted.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>List of chemical shieldings in the order of atoms from the OUTCAR. Maryland notation is adopted.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.vasp.outputs.Outcar.read_core_state_eigen">
 <code class="descname">read_core_state_eigen</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar.read_core_state_eigen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_core_state_eigen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read the core state eigenenergies at each ionic step.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">[core state eig]}].
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>[core state eig]}].
 The core state eigenenergie list for each AO is over all ionic
-step.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">A list of dict over the atom such as [{“AO”</td>
-</tr>
-</tbody>
-</table>
+step.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>A list of dict over the atom such as [{“AO”</p>
+</dd>
+</dl>
 <p class="rubric">Example</p>
 <p>The core state eigenenergie of the 2s AO of the 6th atom of the
 structure at the last ionic step is [5][“2s”][-1]</p>
@@ -460,14 +441,11 @@ nsymmetrized tensors list in the order of atoms.</p>
 <dt id="pymatgen.io.vasp.outputs.Outcar.read_elastic_tensor">
 <code class="descname">read_elastic_tensor</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar.read_elastic_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_elastic_tensor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse the elastic tensor data.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">6x6 array corresponding to the elastic tensor from the OUTCAR.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>6x6 array corresponding to the elastic tensor from the OUTCAR.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -485,14 +463,16 @@ Fermi contact (isotropic) hyperfine coupling parameter (MHz)
 ion      A_pw      A_1PS     A_1AE     A_1c      A_tot
 ————————————————————-</p>
 <blockquote>
-<div>1      -0.002    -0.002    -0.051     0.000    -0.052
+<div><p>1      -0.002    -0.002    -0.051     0.000    -0.052
 2      -0.002    -0.002    -0.051     0.000    -0.052
-3       0.056     0.056     0.321    -0.048     0.321</div></blockquote>
+3       0.056     0.056     0.321    -0.048     0.321</p>
+</div></blockquote>
 <p>, which corresponds to
 [[-0.002, -0.002, -0.051, 0.0, -0.052],</p>
 <blockquote>
-<div>[-0.002, -0.002, -0.051, 0.0, -0.052],
-[0.056, 0.056, 0.321, -0.048, 0.321]] from ‘fch’ data</div></blockquote>
+<div><p>[-0.002, -0.002, -0.051, 0.0, -0.052],
+[0.056, 0.056, 0.321, -0.048, 0.321]] from ‘fch’ data</p>
+</div></blockquote>
 </dd></dl>
 
 <dl class="method">
@@ -506,14 +486,14 @@ tensor function is given as self.dielectric_tensor_function.</p>
 <dl class="method">
 <dt id="pymatgen.io.vasp.outputs.Outcar.read_igpar">
 <code class="descname">read_igpar</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar.read_igpar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_igpar" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Renders accessible:</dt>
-<dd>er_ev = e&lt;r&gt;_ev (dictionary with Spin.up/Spin.down as keys)
+<dd><dl class="simple">
+<dt>Renders accessible:</dt><dd><p>er_ev = e&lt;r&gt;_ev (dictionary with Spin.up/Spin.down as keys)
 er_bp = e&lt;r&gt;_bp (dictionary with Spin.up/Spin.down as keys)
 er_ev_tot = spin up + spin down summed
 er_bp_tot = spin up + spin down summed
 p_elc = spin up + spin down summed
-p_ion = spin up + spin down summed</dd>
+p_ion = spin up + spin down summed</p>
+</dd>
 </dl>
 <p>(See VASP section “LBERRY,  IGPAR,  NPPSTR,  DIPOL tags” for info on
 what these are).</p>
@@ -522,9 +502,9 @@ what these are).</p>
 <dl class="method">
 <dt id="pymatgen.io.vasp.outputs.Outcar.read_internal_strain_tensor">
 <code class="descname">read_internal_strain_tensor</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar.read_internal_strain_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_internal_strain_tensor" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Reads the internal strain tensor and populates self.internal_strain_tensor with an array of voigt notation</dt>
-<dd>tensors for each site.</dd>
+<dd><dl class="simple">
+<dt>Reads the internal strain tensor and populates self.internal_strain_tensor with an array of voigt notation</dt><dd><p>tensors for each site.</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -549,28 +529,24 @@ what these are).</p>
 <dd><p>Reads NEB data. This only works with OUTCARs from both normal
 VASP NEB calculations or from the CI NEB method implemented by
 Henkelman et al.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>reverse</strong> (<em>bool</em>) – Read files in reverse. Defaults to false. Useful for
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reverse</strong> (<em>bool</em>) – Read files in reverse. Defaults to false. Useful for
 large files, esp OUTCARs, especially when used with
 terminate_on_match. Defaults to True here since we usually
-want only the final value.</li>
-<li><strong>terminate_on_match</strong> (<em>bool</em>) – Whether to terminate when there is at
+want only the final value.</p></li>
+<li><p><strong>terminate_on_match</strong> (<em>bool</em>) – Whether to terminate when there is at
 least one match in each key in pattern. Defaults to True here
-since we usually want only the final value.</li>
+since we usually want only the final value.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="docutils">
-<dt>Renders accessible:</dt>
-<dd>tangent_force - Final tangent force.
+</dd>
+</dl>
+<dl class="simple">
+<dt>Renders accessible:</dt><dd><p>tangent_force - Final tangent force.
 energy - Final energy.
-These can be accessed under Outcar.data[key]</dd>
+These can be accessed under Outcar.data[key]</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -578,29 +554,23 @@ These can be accessed under Outcar.data[key]</dd>
 <dt id="pymatgen.io.vasp.outputs.Outcar.read_nmr_efg">
 <code class="descname">read_nmr_efg</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar.read_nmr_efg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_nmr_efg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse the NMR Electric Field Gradient interpretted values.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Electric Field Gradient tensors as a list of dict in the order of atoms from OUTCAR.
-Each dict key/value pair corresponds to a component of the tensors.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Electric Field Gradient tensors as a list of dict in the order of atoms from OUTCAR.
+Each dict key/value pair corresponds to a component of the tensors.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.vasp.outputs.Outcar.read_nmr_efg_tensor">
 <code class="descname">read_nmr_efg_tensor</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar.read_nmr_efg_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_nmr_efg_tensor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parses the NMR Electric Field Gradient Raw Tensors</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A list of Electric Field Gradient Tensors in the order of Atoms from OUTCAR</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A list of Electric Field Gradient Tensors in the order of Atoms from OUTCAR</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -608,32 +578,28 @@ Each dict key/value pair corresponds to a component of the tensors.</td>
 <code class="descname">read_pattern</code><span class="sig-paren">(</span><em>patterns</em>, <em>reverse=False</em>, <em>terminate_on_match=False</em>, <em>postprocess=&lt;class 'str'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar.read_pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_pattern" title="Permalink to this definition">¶</a></dt>
 <dd><p>General pattern reading. Uses monty’s regrep method. Takes the same
 arguments.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>patterns</strong> (<em>dict</em>) – A dict of patterns, e.g.,
-{“energy”: r”energy(sigma-&gt;0)s+=s+([d-.]+)”}.</li>
-<li><strong>reverse</strong> (<em>bool</em>) – Read files in reverse. Defaults to false. Useful for
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>patterns</strong> (<em>dict</em>) – A dict of patterns, e.g.,
+{“energy”: r”energy(sigma-&gt;0)s+=s+([d-.]+)”}.</p></li>
+<li><p><strong>reverse</strong> (<em>bool</em>) – Read files in reverse. Defaults to false. Useful for
 large files, esp OUTCARs, especially when used with
-terminate_on_match.</li>
-<li><strong>terminate_on_match</strong> (<em>bool</em>) – Whether to terminate when there is at
-least one match in each key in pattern.</li>
-<li><strong>postprocess</strong> (<em>callable</em>) – A post processing function to convert all
-matches. Defaults to str, i.e., no change.</li>
+terminate_on_match.</p></li>
+<li><p><strong>terminate_on_match</strong> (<em>bool</em>) – Whether to terminate when there is at
+least one match in each key in pattern.</p></li>
+<li><p><strong>postprocess</strong> (<em>callable</em>) – A post processing function to convert all
+matches. Defaults to str, i.e., no change.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="docutils">
-<dt>Renders accessible:</dt>
-<dd>Any attribute in patterns. For example,
+</dd>
+</dl>
+<dl class="simple">
+<dt>Renders accessible:</dt><dd><p>Any attribute in patterns. For example,
 {“energy”: r”energy(sigma-&gt;0)s+=s+([d-.]+)”} will set the
 value of self.data[“energy”] = [[-1234], [-3453], …], to the
 results from regex and postprocess. Note that the returned values
-are lists of lists, because you can grep multiple items on one line.</dd>
+are lists of lists, because you can grep multiple items on one line.</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -656,46 +622,45 @@ are lists of lists, because you can grep multiple items on one line.</dd>
 <div><p>Parse table-like data. A table composes of three parts: header,
 main body, footer. All the data matches “row pattern” in the main body
 will be returned.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><dl class="first last docutils">
-<dt>header_pattern (str): The regular expression pattern matches the</dt>
-<dd>table header. This pattern should match all the text
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>header_pattern (str): The regular expression pattern matches the</dt><dd><p>table header. This pattern should match all the text
 immediately before the main body of the table. For multiple
 sections table match the text until the section of
 interest. MULTILINE and DOTALL options are enforced, as a
-result, the “.” meta-character will also match “</dd>
+result, the “.” meta-character will also match “</p>
+</dd>
 </dl>
 </dd>
 </dl>
 </div></blockquote>
-<dl class="docutils">
-<dt>” in this</dt>
-<dd><blockquote class="first">
+<dl>
+<dt>” in this</dt><dd><blockquote>
 <div><blockquote>
-<div>section.</div></blockquote>
-<dl class="docutils">
-<dt>row_pattern (str): The regular expression matches a single line in</dt>
-<dd>the table. Capture interested field using regular expression
-groups.</dd>
-<dt>footer_pattern (str): The regular expression matches the end of the</dt>
-<dd>table. E.g. a long dash line.</dd>
-<dt>postprocess (callable): A post processing function to convert all</dt>
-<dd>matches. Defaults to str, i.e., no change.</dd>
-<dt>attribute_name (str): Name of this table. If present the parsed data</dt>
-<dd>will be attached to “data. e.g. self.data[“efg”] = […]</dd>
-<dt>last_one_only (bool): All the tables will be parsed, if this option</dt>
-<dd>is set to True, only the last table will be returned. The
+<div><p>section.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>row_pattern (str): The regular expression matches a single line in</dt><dd><p>the table. Capture interested field using regular expression
+groups.</p>
+</dd>
+<dt>footer_pattern (str): The regular expression matches the end of the</dt><dd><p>table. E.g. a long dash line.</p>
+</dd>
+<dt>postprocess (callable): A post processing function to convert all</dt><dd><p>matches. Defaults to str, i.e., no change.</p>
+</dd>
+<dt>attribute_name (str): Name of this table. If present the parsed data</dt><dd><p>will be attached to “data. e.g. self.data[“efg”] = […]</p>
+</dd>
+<dt>last_one_only (bool): All the tables will be parsed, if this option</dt><dd><p>is set to True, only the last table will be returned. The
 enclosing list will be removed. i.e. Only a single table will
-be returned. Default to be True.</dd>
+be returned. Default to be True.</p>
+</dd>
 </dl>
 </div></blockquote>
-<dl class="last docutils">
-<dt>Returns:</dt>
-<dd>List of tables. 1) A table is a list of rows. 2) A row if either a list of
+<dl class="simple">
+<dt>Returns:</dt><dd><p>List of tables. 1) A table is a list of rows. 2) A row if either a list of
 attribute values in case the the capturing group is defined without name in
 row_pattern, or a dict in case that named capturing groups are defined by
-row_pattern.</dd>
+row_pattern.</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -708,14 +673,11 @@ row_pattern.</dd>
 <em class="property">class </em><code class="descname">Procar</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Procar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Procar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Object for reading a PROCAR file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – Name of file containing PROCAR.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> – Name of file containing PROCAR.</p>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.outputs.Procar.data">
 <code class="descname">data</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Procar.data" title="Permalink to this definition">¶</a></dt>
@@ -741,66 +703,64 @@ nkpoints.</p>
 <div><p>Phase factors, where present (e.g. LORBIT = 12). A dict of the form:
 {</p>
 <blockquote>
-<div><dl class="docutils">
-<dt>spin: complex nd.array accessed with (k-point index, band index,</dt>
-<dd>ion index, orbital index)</dd>
+<div><dl class="simple">
+<dt>spin: complex nd.array accessed with (k-point index, band index,</dt><dd><p>ion index, orbital index)</p>
+</dd>
 </dl>
 </div></blockquote>
 <p>}</p>
 </div></blockquote>
 <p>..attribute:: nbands</p>
 <blockquote>
-<div>Number of bands</div></blockquote>
+<div><p>Number of bands</p>
+</div></blockquote>
 <p>..attribute:: nkpoints</p>
 <blockquote>
-<div>Number of k-points</div></blockquote>
+<div><p>Number of k-points</p>
+</div></blockquote>
 <p>..attribute:: nions</p>
 <blockquote>
-<div>Number of ions</div></blockquote>
+<div><p>Number of ions</p>
+</div></blockquote>
 <dl class="method">
 <dt id="pymatgen.io.vasp.outputs.Procar.get_occupation">
 <code class="descname">get_occupation</code><span class="sig-paren">(</span><em>atom_index</em>, <em>orbital</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Procar.get_occupation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Procar.get_occupation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the occupation for a particular orbital of a particular atom.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>atom_num</strong> (<em>int</em>) – Index of atom in the PROCAR. It should be noted
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>atom_num</strong> (<em>int</em>) – Index of atom in the PROCAR. It should be noted
 that VASP uses 1-based indexing for atoms, but this is
 converted to 0-based indexing in this parser to be
-consistent with representation of structures in pymatgen.</li>
-<li><strong>orbital</strong> (<em>str</em>) – An orbital. If it is a single character, e.g., s,
+consistent with representation of structures in pymatgen.</p></li>
+<li><p><strong>orbital</strong> (<em>str</em>) – An orbital. If it is a single character, e.g., s,
 p, d or f, the sum of all s-type, p-type, d-type or f-type
 orbitals occupations are returned respectively. If it is a
 specific orbital, e.g., px, dxy, etc., only the occupation
-of that orbital is returned.</li>
+of that orbital is returned.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Sum occupation of orbital of atom.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Sum occupation of orbital of atom.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.vasp.outputs.Procar.get_projection_on_elements">
 <code class="descname">get_projection_on_elements</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Procar.get_projection_on_elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Procar.get_projection_on_elements" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method returning a dictionary of projections on elements.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">[k index][b index][{Element:values}]]</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">a dictionary in the {Spin.up</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>[k index][b index][{Element:values}]]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>a dictionary in the {Spin.up</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -827,57 +787,54 @@ of that orbital is returned.</li>
 iterparse to support incremental parsing of large files.
 Speedup over Dom is at least 2x for smallish files (~1Mb) to orders of
 magnitude for larger files (~10Mb).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> (<em>str</em>) – Filename to parse</li>
-<li><strong>ionic_step_skip</strong> (<em>int</em>) – If ionic_step_skip is a number &gt; 1,
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – Filename to parse</p></li>
+<li><p><strong>ionic_step_skip</strong> (<em>int</em>) – If ionic_step_skip is a number &gt; 1,
 only every ionic_step_skip ionic steps will be read for
 structure and energies. This is very useful if you are parsing
 very large vasprun.xml files and you are not interested in every
 single ionic step. Note that the final energies may not be the
-actual final energy in the vasprun.</li>
-<li><strong>ionic_step_offset</strong> (<em>int</em>) – Used together with ionic_step_skip. If set,
+actual final energy in the vasprun.</p></li>
+<li><p><strong>ionic_step_offset</strong> (<em>int</em>) – Used together with ionic_step_skip. If set,
 the first ionic step read will be offset by the amount of
 ionic_step_offset. For example, if you want to start reading
 every 10th structure but only from the 3rd structure onwards,
 set ionic_step_skip to 10 and ionic_step_offset to 3. Main use
 case is when doing statistical structure analysis with
 extremely long time scale multiple VASP calculations of
-varying numbers of steps.</li>
-<li><strong>parse_dos</strong> (<em>bool</em>) – Whether to parse the dos. Defaults to True. Set
+varying numbers of steps.</p></li>
+<li><p><strong>parse_dos</strong> (<em>bool</em>) – Whether to parse the dos. Defaults to True. Set
 to False to shave off significant time from the parsing if you
-are not interested in getting those data.</li>
-<li><strong>parse_eigen</strong> (<em>bool</em>) – Whether to parse the eigenvalues. Defaults to
+are not interested in getting those data.</p></li>
+<li><p><strong>parse_eigen</strong> (<em>bool</em>) – Whether to parse the eigenvalues. Defaults to
 True. Set to False to shave off significant time from the
-parsing if you are not interested in getting those data.</li>
-<li><strong>parse_projected_eigen</strong> (<em>bool</em>) – Whether to parse the projected
+parsing if you are not interested in getting those data.</p></li>
+<li><p><strong>parse_projected_eigen</strong> (<em>bool</em>) – Whether to parse the projected
 eigenvalues. Defaults to False. Set to True to obtain projected
 eigenvalues. <strong>Note that this can take an extreme amount of time
-and memory.</strong> So use this wisely.</li>
-<li><strong>parse_potcar_file</strong> (<em>bool/str</em>) – <p>Whether to parse the potcar file to read
+and memory.</strong> So use this wisely.</p></li>
+<li><p><strong>parse_potcar_file</strong> (<em>bool/str</em>) – <p>Whether to parse the potcar file to read
 the potcar hashes for the potcar_spec attribute. Defaults to True,
 where no hashes will be determined and the potcar_spec dictionaries
 will read {“symbol”: ElSymbol, “hash”: None}. By Default, looks in
 the same directory as the vasprun.xml, with same extensions as</p>
 <blockquote>
-<div>Vasprun.xml. If a string is provided, looks at that filepath.</div></blockquote>
-</li>
-<li><strong>occu_tol</strong> (<em>float</em>) – Sets the minimum tol for the determination of the
+<div><p>Vasprun.xml. If a string is provided, looks at that filepath.</p>
+</div></blockquote>
+</p></li>
+<li><p><strong>occu_tol</strong> (<em>float</em>) – Sets the minimum tol for the determination of the
 vbm and cbm. Usually the default of 1e-8 works well enough,
-but there may be pathological cases.</li>
-<li><strong>exception_on_bad_xml</strong> (<em>bool</em>) – Whether to throw a ParseException if a
+but there may be pathological cases.</p></li>
+<li><p><strong>exception_on_bad_xml</strong> (<em>bool</em>) – Whether to throw a ParseException if a
 malformed XML is detected. Default to True, which ensures only
 proper vasprun.xml are parsed. You can set to False if you want
 partial results (e.g., if you are monitoring a calculation during a
-run), but use the results with care. A warning is issued.</li>
+run), but use the results with care. A warning is issued.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p><strong>Vasp results</strong></p>
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.outputs.Vasprun.ionic_steps">
@@ -1136,28 +1093,27 @@ exited before reaching the max ionic steps for a relaxation run</p>
 
 <dl class="method">
 <dt id="pymatgen.io.vasp.outputs.Vasprun.get_band_structure">
-<code class="descname">get_band_structure</code><span class="sig-paren">(</span><em>kpoints_filename=None</em>, <em>efermi=None</em>, <em>line_mode=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Vasprun.get_band_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Vasprun.get_band_structure" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_band_structure</code><span class="sig-paren">(</span><em>kpoints_filename=None</em>, <em>efermi=None</em>, <em>line_mode=False</em>, <em>force_hybrid_mode=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Vasprun.get_band_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Vasprun.get_band_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the band structure as a BandStructure object</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>kpoints_filename</strong> (<em>str</em>) – Full path of the KPOINTS file from which
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>kpoints_filename</strong> (<em>str</em>) – Full path of the KPOINTS file from which
 the band structure is generated.
 If none is provided, the code will try to intelligently
 determine the appropriate KPOINTS file by substituting the
 filename of the vasprun.xml with KPOINTS.
-The latter is the default behavior.</li>
-<li><strong>efermi</strong> (<em>float</em>) – If you want to specify manually the fermi energy
+The latter is the default behavior.</p></li>
+<li><p><strong>efermi</strong> (<em>float</em>) – If you want to specify manually the fermi energy
 this is where you should do it. By default, the None value
-means the code will get it from the vasprun.</li>
-<li><strong>line_mode</strong> (<em>bool</em>) – Force the band structure to be considered as
-a run along symmetry lines.</li>
+means the code will get it from the vasprun.</p></li>
+<li><p><strong>line_mode</strong> (<em>bool</em>) – Force the band structure to be considered as
+a run along symmetry lines.</p></li>
+<li><p><strong>force_hybrid_mode</strong> (<em>bool</em>) – Makes it possible to read in self-consistent band structure calculations for every type of functional</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>a BandStructure object (or more specifically a
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>a BandStructure object (or more specifically a
 BandStructureSymmLine object if the run is detected to be a run
 along symmetry lines)</p>
 <p>Two types of runs along symmetry lines are accepted: non-sc with
@@ -1167,38 +1123,32 @@ file) (it’s not possible to run a non-sc band structure with hybrid
 functionals). The explicit KPOINTS file needs to have data on the
 kpoint label as commentary.</p>
 </p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.vasp.outputs.Vasprun.get_computed_entry">
 <code class="descname">get_computed_entry</code><span class="sig-paren">(</span><em>inc_structure=True</em>, <em>parameters=None</em>, <em>data=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Vasprun.get_computed_entry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Vasprun.get_computed_entry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a ComputedStructureEntry from the vasprun.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>inc_structure</strong> (<em>bool</em>) – Set to True if you want
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inc_structure</strong> (<em>bool</em>) – Set to True if you want
 ComputedStructureEntries to be returned instead of
-ComputedEntries.</li>
-<li><strong>parameters</strong> (<em>list</em>) – Input parameters to include. It has to be one of
+ComputedEntries.</p></li>
+<li><p><strong>parameters</strong> (<em>list</em>) – Input parameters to include. It has to be one of
 the properties supported by the Vasprun object. If
 parameters is None, a default set of parameters that are
-necessary for typical post-processing will be set.</li>
-<li><strong>data</strong> (<em>list</em>) – Output data to include. Has to be one of the properties
-supported by the Vasprun object.</li>
+necessary for typical post-processing will be set.</p></li>
+<li><p><strong>data</strong> (<em>list</em>) – Output data to include. Has to be one of the properties
+supported by the Vasprun object.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">ComputedStructureEntry/ComputedEntry</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>ComputedStructureEntry/ComputedEntry</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -1281,16 +1231,19 @@ optical absorption coefficient in list</p>
 
 <p>..attribute:: is_spin_polarized</p>
 <blockquote>
-<div>True if run is spin polarized</div></blockquote>
+<div><p>True if run is spin polarized</p>
+</div></blockquote>
 <p>..attribute:: dim</p>
 <blockquote>
-<div>Tuple of dimensions of volumetric grid in each direction (nx, ny, nz).</div></blockquote>
+<div><p>Tuple of dimensions of volumetric grid in each direction (nx, ny, nz).</p>
+</div></blockquote>
 <p>..attribute:: data</p>
 <blockquote>
-<div>Actual data as a dict of {string: np.array}. The string are “total”
+<div><p>Actual data as a dict of {string: np.array}. The string are “total”
 and “diff”, in accordance to the output format of vasp LOCPOT and
 CHGCAR files where the total spin density is written first, followed
-by the difference spin density.</div></blockquote>
+by the difference spin density.</p>
+</div></blockquote>
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.outputs.VolumetricData.ngridpts">
 <code class="descname">ngridpts</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.ngridpts" title="Permalink to this definition">¶</a></dt>
@@ -1300,23 +1253,19 @@ by the difference spin density.</div></blockquote>
 <p>Typically, this constructor is not used directly and the static
 from_file constructor is used. This constructor is designed to allow
 summation and other operations between VolumetricData objects.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> – Structure associated with the volumetric data</li>
-<li><strong>data</strong> – Actual volumetric data.</li>
-<li><strong>data_aug</strong> – Any extra information associated with volumetric data
-(typically augmentation charges)</li>
-<li><strong>distance_matrix</strong> – A pre-computed distance matrix if available.
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – Structure associated with the volumetric data</p></li>
+<li><p><strong>data</strong> – Actual volumetric data.</p></li>
+<li><p><strong>data_aug</strong> – Any extra information associated with volumetric data
+(typically augmentation charges)</p></li>
+<li><p><strong>distance_matrix</strong> – A pre-computed distance matrix if available.
 Useful so pass distance_matrices between sums,
-shortcircuiting an otherwise expensive operation.</li>
+shortcircuiting an otherwise expensive operation.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="classmethod">
 <dt id="pymatgen.io.vasp.outputs.VolumetricData.from_hdf5">
 <em class="property">classmethod </em><code class="descname">from_hdf5</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#VolumetricData.from_hdf5"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.from_hdf5" title="Permalink to this definition">¶</a></dt>
@@ -1328,30 +1277,25 @@ shortcircuiting an otherwise expensive operation.</li>
 <dd><p>Get the averaged total of the volumetric data a certain axis direction.
 For example, useful for visualizing Hartree Potentials from a LOCPOT
 file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ind</strong> (<em>int</em>) – Index of axis.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Average total along axis</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ind</strong> (<em>int</em>) – Index of axis.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Average total along axis</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.vasp.outputs.VolumetricData.get_axis_grid">
 <code class="descname">get_axis_grid</code><span class="sig-paren">(</span><em>ind</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#VolumetricData.get_axis_grid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.get_axis_grid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the grid for a particular axis.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ind</strong> (<em>int</em>) – Axis index.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ind</strong> (<em>int</em>) – Axis index.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -1360,27 +1304,23 @@ file.</p>
 <dd><p>Get integrated difference of atom index ind up to radius. This can be
 an extremely computationally intensive process, depending on how many
 grid points are in the VolumetricData.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>ind</strong> (<em>int</em>) – Index of atom.</li>
-<li><strong>radius</strong> (<em>float</em>) – Radius of integration.</li>
-<li><strong>nbins</strong> (<em>int</em>) – Number of bins. Defaults to 1. This allows one to
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ind</strong> (<em>int</em>) – Index of atom.</p></li>
+<li><p><strong>radius</strong> (<em>float</em>) – Radius of integration.</p></li>
+<li><p><strong>nbins</strong> (<em>int</em>) – Number of bins. Defaults to 1. This allows one to
 obtain the charge integration up to a list of the cumulative
 charge integration values for radii for [radius/nbins,
-2 * radius/nbins, ….].</li>
+2 * radius/nbins, ….].</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Differential integrated charge as a np array of [[radius, value],
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Differential integrated charge as a np array of [[radius, value],
 …]. Format is for ease of plotting. E.g., plt.plot(data[:,0],
 data[:,1])</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -1389,21 +1329,17 @@ data[:,1])</p>
 <dd><p>Method to do a linear sum of volumetric objects. Used by + and -
 operators as well. Returns a VolumetricData object containing the
 linear sum.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>other</strong> (<a class="reference internal" href="#pymatgen.io.vasp.outputs.VolumetricData" title="pymatgen.io.vasp.outputs.VolumetricData"><em>VolumetricData</em></a>) – Another VolumetricData object</li>
-<li><strong>scale_factor</strong> (<em>float</em>) – Factor to scale the other data by.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> (<a class="reference internal" href="#pymatgen.io.vasp.outputs.VolumetricData" title="pymatgen.io.vasp.outputs.VolumetricData"><em>VolumetricData</em></a>) – Another VolumetricData object</p></li>
+<li><p><strong>scale_factor</strong> (<em>float</em>) – Factor to scale the other data by.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">VolumetricData corresponding to self + scale_factor * other.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>VolumetricData corresponding to self + scale_factor * other.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="staticmethod">
@@ -1411,16 +1347,14 @@ linear sum.</p>
 <em class="property">static </em><code class="descname">parse_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#VolumetricData.parse_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.parse_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience method to parse a generic volumetric data file in the vasp
 like format. Used by subclasses for parsing file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) – Path of file to parse</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(poscar, data)</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Path of file to parse</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(poscar, data)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -1430,14 +1364,11 @@ like format. Used by subclasses for parsing file.</p>
 Essentially, this provides the actual Spin.up and Spin.down data
 instead of the total and diff.  Note that by definition, a
 non-spin-polarized run would have Spin.up data == Spin.down data.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">The data decomposed into actual spin data as {spin</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>The data decomposed into actual spin data as {spin</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -1453,35 +1384,29 @@ VolumetricData.structure -&gt;</p>
 f[“fcoords”]: Fractional coords
 f[“lattice”]: Lattice in the pymatgen.core.lattice.Lattice matrix</p>
 <blockquote>
-<div>format</div></blockquote>
+<div><p>format</p>
+</div></blockquote>
 <p>f.attrs[“structure_json”]: String of json representation</p>
 </div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) – Filename to output to.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Filename to output to.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.vasp.outputs.VolumetricData.write_file">
 <code class="descname">write_file</code><span class="sig-paren">(</span><em>file_name</em>, <em>vasp4_compatible=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#VolumetricData.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.write_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write the VolumetricData object to a vasp compatible file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>file_name</strong> (<em>str</em>) – Path to a file</li>
-<li><strong>vasp4_compatible</strong> (<em>bool</em>) – True if the format is vasp4 compatible</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_name</strong> (<em>str</em>) – Path to a file</p></li>
+<li><p><strong>vasp4_compatible</strong> (<em>bool</em>) – True if the format is vasp4 compatible</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -1587,29 +1512,25 @@ self.coeffs[kp][b] corresponds to k-point kp and band b). For
 spin-polarized calculations, the first index is for the spin.</p>
 </dd></dl>
 
-<dl class="docutils">
-<dt>Acknowledgments:</dt>
-<dd>This code is based upon the Fortran program, WaveTrans, written by
+<dl class="simple">
+<dt>Acknowledgments:</dt><dd><p>This code is based upon the Fortran program, WaveTrans, written by
 R. M. Feenstra and M. Widom from the Dept. of Physics at Carnegie
 Mellon University. To see the original work, please visit:
-<a class="reference external" href="https://www.andrew.cmu.edu/user/feenstra/wavetrans/">https://www.andrew.cmu.edu/user/feenstra/wavetrans/</a></dd>
+<a class="reference external" href="https://www.andrew.cmu.edu/user/feenstra/wavetrans/">https://www.andrew.cmu.edu/user/feenstra/wavetrans/</a></p>
+</dd>
 </dl>
 <p>Author: Mark Turiansky</p>
 <p>Information is extracted from the given WAVECAR</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> (<em>str</em>) – input file (default: WAVECAR)</li>
-<li><strong>verbose</strong> (<em>bool</em>) – determines whether processing information is shown</li>
-<li><strong>precision</strong> (<em>str</em>) – determines how fine the fft mesh is (normal or
-accurate), only the first letter matters</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – input file (default: WAVECAR)</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – determines whether processing information is shown</p></li>
+<li><p><strong>precision</strong> (<em>str</em>) – determines how fine the fft mesh is (normal or
+accurate), only the first letter matters</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.vasp.outputs.Wavecar.evaluate_wavefunc">
 <code class="descname">evaluate_wavefunc</code><span class="sig-paren">(</span><em>kpoint</em>, <em>band</em>, <em>r</em>, <em>spin=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Wavecar.evaluate_wavefunc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar.evaluate_wavefunc" title="Permalink to this definition">¶</a></dt>
@@ -1623,26 +1544,22 @@ corresponds to the nth band and k-point k, and G_i^{n,k} is the ith
 G-point corresponding to k-point k.</p>
 <p>NOTE: This function is very slow; a discrete fourier transform is the
 preferred method of evaluation (see Wavecar.fft_mesh).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>kpoint</strong> (<em>int</em>) – the index of the kpoint where the wavefunction
-will be evaluated</li>
-<li><strong>band</strong> (<em>int</em>) – the index of the band where the wavefunction will be
-evaluated</li>
-<li><strong>r</strong> (<em>np.array</em>) – the position where the wavefunction will be evaluated</li>
-<li><strong>spin</strong> (<em>int</em>) – spin index for the desired wavefunction (only for
-ISPIN = 2, default = 0)</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>kpoint</strong> (<em>int</em>) – the index of the kpoint where the wavefunction
+will be evaluated</p></li>
+<li><p><strong>band</strong> (<em>int</em>) – the index of the band where the wavefunction will be
+evaluated</p></li>
+<li><p><strong>r</strong> (<em>np.array</em>) – the position where the wavefunction will be evaluated</p></li>
+<li><p><strong>spin</strong> (<em>int</em>) – spin index for the desired wavefunction (only for
+ISPIN = 2, default = 0)</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a complex value corresponding to the evaluation of the wavefunction</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a complex value corresponding to the evaluation of the wavefunction</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -1655,27 +1572,23 @@ of this function can be passed directly to numpy’s fft function. For
 .. rubric:: Example</p>
 <p>mesh = Wavecar(‘WAVECAR’).fft_mesh(kpoint, band)
 evals = np.fft.ifftn(mesh)</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>kpoint</strong> (<em>int</em>) – the index of the kpoint where the wavefunction
-will be evaluated</li>
-<li><strong>band</strong> (<em>int</em>) – the index of the band where the wavefunction will be
-evaluated</li>
-<li><strong>spin</strong> (<em>int</em>) – the spin of the wavefunction for the desired
-wavefunction (only for ISPIN = 2, default = 0)</li>
-<li><strong>shift</strong> (<em>bool</em>) – determines if the zero frequency coefficient is
-placed at index (0, 0, 0) or centered</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>kpoint</strong> (<em>int</em>) – the index of the kpoint where the wavefunction
+will be evaluated</p></li>
+<li><p><strong>band</strong> (<em>int</em>) – the index of the band where the wavefunction will be
+evaluated</p></li>
+<li><p><strong>spin</strong> (<em>int</em>) – the spin of the wavefunction for the desired
+wavefunction (only for ISPIN = 2, default = 0)</p></li>
+<li><p><strong>shift</strong> (<em>bool</em>) – determines if the zero frequency coefficient is
+placed at index (0, 0, 0) or centered</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a numpy ndarray representing the 3D mesh of coefficients</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a numpy ndarray representing the 3D mesh of coefficients</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -1693,33 +1606,84 @@ if the phase tag is on and the chosen kpoint is not Gamma.</p>
 <p>Note: Augmentation from the PAWs is NOT included in this function. The
 maximal charge density will differ from the PARCHG from VASP, but the
 qualitative shape of the charge density will match.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>poscar</strong> (<a class="reference internal" href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Poscar" title="pymatgen.io.vasp.inputs.Poscar"><em>pymatgen.io.vasp.inputs.Poscar</em></a>) – Poscar object that has the
-structure associated with the WAVECAR file</li>
-<li><strong>kpoint</strong> (<em>int</em>) – the index of the kpoint for the wavefunction</li>
-<li><strong>band</strong> (<em>int</em>) – the index of the band for the wavefunction</li>
-<li><strong>spin</strong> (<em>int</em>) – optional argument to specify the spin. If the
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>poscar</strong> (<a class="reference internal" href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Poscar" title="pymatgen.io.vasp.inputs.Poscar"><em>pymatgen.io.vasp.inputs.Poscar</em></a>) – Poscar object that has the
+structure associated with the WAVECAR file</p></li>
+<li><p><strong>kpoint</strong> (<em>int</em>) – the index of the kpoint for the wavefunction</p></li>
+<li><p><strong>band</strong> (<em>int</em>) – the index of the band for the wavefunction</p></li>
+<li><p><strong>spin</strong> (<em>int</em>) – optional argument to specify the spin. If the
 Wavecar has ISPIN = 2, spin == None generates a
 Chgcar with total spin and magnetization, and
 spin == {0, 1} specifies just the spin up or
-down component.</li>
-<li><strong>phase</strong> (<em>bool</em>) – flag to determine if the charge density is
+down component.</p></li>
+<li><p><strong>phase</strong> (<em>bool</em>) – flag to determine if the charge density is
 multiplied by the sign of the wavefunction.
-Only valid for real wavefunctions.</li>
-<li><strong>scale</strong> (<em>int</em>) – scaling for the FFT grid. The default value of 2 is
-at least as fine as the VASP default.</li>
+Only valid for real wavefunctions.</p></li>
+<li><p><strong>scale</strong> (<em>int</em>) – scaling for the FFT grid. The default value of 2 is
+at least as fine as the VASP default.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a pymatgen.io.vasp.outputs.Chgcar object</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a pymatgen.io.vasp.outputs.Chgcar object</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.vasp.outputs.Waveder">
+<em class="property">class </em><code class="descname">Waveder</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Waveder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Waveder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class for reading a WAVEDER file.
+The LOPTICS tag produces a WAVEDER file.
+The WAVEDER contains the derivative of the orbitals with respect to k.
+Author: Kamal Choudhary, NIST</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> – Name of file containing WAVEDER.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.io.vasp.outputs.Waveder.get_orbital_derivative_between_states">
+<code class="descname">get_orbital_derivative_between_states</code><span class="sig-paren">(</span><em>band_i</em>, <em>band_j</em>, <em>kpoint</em>, <em>spin</em>, <em>cart_dir</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Waveder.get_orbital_derivative_between_states"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Waveder.get_orbital_derivative_between_states" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method returning a value
+between bands band_i and band_j for k-point index, spin-channel and cartesian direction.
+:param band_i: Index of band i
+:type band_i: Integer
+:param band_j: Index of band j
+:type band_j: Integer
+:param kpoint: Index of k-point
+:type kpoint: Integer
+:param spin: Index of spin-channel (0 or 1)
+:type spin: Integer
+:param cart_dir: Index of cartesian direction (0,1,2)
+:type cart_dir: Integer</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a float value</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.outputs.Waveder.nbands">
+<code class="descname">nbands</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Waveder.nbands" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of bands in the calculation</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.outputs.Waveder.nelect">
+<code class="descname">nelect</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Waveder.nelect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of electrons in the calculation</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.outputs.Waveder.nkpoints">
+<code class="descname">nkpoints</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Waveder.nkpoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of k-points in the calculation</p>
 </dd></dl>
 
 </dd></dl>
@@ -1732,14 +1696,11 @@ at least as fine as the VASP default.</li>
 <p>Note: This file is only produced when LOPTICS is true AND vasp has been
 recompiled after uncommenting the line that calls
 WRT_CDER_BETWEEN_STATES_FORMATTED in linear_optics.F</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – Name of file containing WAVEDERF.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> – Name of file containing WAVEDERF.</p>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.outputs.Wavederf.data">
 <code class="descname">data</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavederf.data" title="Permalink to this definition">¶</a></dt>
@@ -1749,18 +1710,16 @@ converted to 0-based numpy array indexing.</p>
 <p>For each kpoint (in the same order as in IBZKPT), and for each pair of
 bands:</p>
 <blockquote>
-<div><dl class="docutils">
-<dt>[ #kpoint index</dt>
-<dd><dl class="first docutils">
-<dt>[ #band 1 index</dt>
-<dd><dl class="first docutils">
-<dt>[ #band 2 index</dt>
-<dd>[cdum_x_real, cdum_x_imag, cdum_y_real, cdum_y_imag, cdum_z_real, cdum_z_imag]</dd>
-</dl>
-<p class="last">]</p>
+<div><dl>
+<dt>[ #kpoint index</dt><dd><dl>
+<dt>[ #band 1 index</dt><dd><dl class="simple">
+<dt>[ #band 2 index</dt><dd><p>[cdum_x_real, cdum_x_imag, cdum_y_real, cdum_y_imag, cdum_z_real, cdum_z_imag]</p>
 </dd>
 </dl>
-<p class="last">]</p>
+<p>]</p>
+</dd>
+</dl>
+<p>]</p>
 </dd>
 </dl>
 <p>]</p>
@@ -1778,21 +1737,17 @@ real/imaginary parts, abs/phase, etc. )</p>
 <dd><p>Method returning a numpy array with elements</p>
 <p>[cdum_x_real, cdum_x_imag, cdum_y_real, cdum_y_imag, cdum_z_real, cdum_z_imag]</p>
 <p>between bands band_i and band_j (vasp 1-based indexing) for all kpoints.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>band_i</strong> (<em>Integer</em>) – Index of band i</li>
-<li><strong>band_j</strong> (<em>Integer</em>) – Index of band j</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>band_i</strong> (<em>Integer</em>) – Index of band i</p></li>
+<li><p><strong>band_j</strong> (<em>Integer</em>) – Index of band j</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a numpy list of elements for each kpoint</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a numpy list of elements for each kpoint</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -1828,40 +1783,32 @@ real/imaginary parts, abs/phase, etc. )</p>
 
 <p>Authors: Ram Balachandran</p>
 <p>Init a Xdatcar.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> (<em>str</em>) – Filename of input XDATCAR file.</li>
-<li><strong>ionicstep_start</strong> (<em>int</em>) – Starting number of ionic step.</li>
-<li><strong>ionicstep_end</strong> (<em>int</em>) – Ending number of ionic step.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – Filename of input XDATCAR file.</p></li>
+<li><p><strong>ionicstep_start</strong> (<em>int</em>) – Starting number of ionic step.</p></li>
+<li><p><strong>ionicstep_end</strong> (<em>int</em>) – Ending number of ionic step.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.vasp.outputs.Xdatcar.concatenate">
 <code class="descname">concatenate</code><span class="sig-paren">(</span><em>filename</em>, <em>ionicstep_start=1</em>, <em>ionicstep_end=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Xdatcar.concatenate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Xdatcar.concatenate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Concatenate structures in file to Xdatcar.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> (<em>str</em>) – Filename of XDATCAR file to be concatenated.</li>
-<li><strong>ionicstep_start</strong> (<em>int</em>) – Starting number of ionic step.</li>
-<li><strong>ionicstep_end</strong> (<em>int</em>) – Ending number of ionic step.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – Filename of XDATCAR file to be concatenated.</p></li>
+<li><p><strong>ionicstep_start</strong> (<em>int</em>) – Starting number of ionic step.</p></li>
+<li><p><strong>ionicstep_end</strong> (<em>int</em>) – Ending number of ionic step.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="docutils">
-<dt>TODO(rambalachandran):</dt>
-<dd>Requires a check to ensure if the new concatenating file has the
-same lattice structure and atoms as the Xdatcar class.</dd>
+</dd>
+</dl>
+<dl class="simple">
+<dt>TODO(rambalachandran):</dt><dd><p>Requires a check to ensure if the new concatenating file has the
+same lattice structure and atoms as the Xdatcar class.</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -1916,22 +1863,18 @@ consisting in looking for energy levels higher than the static fermi level
 (but lower than the LUMO) if any of these levels make the band structure
 appears insulating and not metallic anymore, we keep this adjusted fermi
 level. This procedure has shown to detect correctly most insulators.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>efermi</strong> (<em>float</em>) – Fermi energy of the static run</li>
-<li><strong>cbm</strong> (<em>float</em>) – Conduction band minimum of the static run</li>
-<li><strong>run_bandstructure</strong> – a band_structure object</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>efermi</strong> (<em>float</em>) – Fermi energy of the static run</p></li>
+<li><p><strong>cbm</strong> (<em>float</em>) – Conduction band minimum of the static run</p></li>
+<li><p><strong>run_bandstructure</strong> – a band_structure object</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a new adjusted fermi level</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a new adjusted fermi level</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -1942,23 +1885,19 @@ takes into account that the run can be divided in several branches named
 “branch_x”. If the run has not been divided in branches the method will
 turn to parsing vasprun.xml directly.</p>
 <p>The method returns None is there”s a parsing error</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>dir_name</strong> – Directory containing all bandstructure runs.</li>
-<li><strong>efermi</strong> – Efermi for bandstructure.</li>
-<li><strong>projections</strong> – True if you want to get the data on site projections if
-any. Note that this is sometimes very large</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dir_name</strong> – Directory containing all bandstructure runs.</p></li>
+<li><p><strong>efermi</strong> – Efermi for bandstructure.</p></li>
+<li><p><strong>projections</strong> – True if you want to get the data on site projections if
+any. Note that this is sometimes very large</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A BandStructure Object</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A BandStructure Object</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -1982,8 +1921,6 @@ any. Note that this is sometimes very large</li>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -2001,13 +1938,13 @@ any. Note that this is sometimes very large</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

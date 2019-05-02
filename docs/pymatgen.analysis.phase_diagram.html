@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.phase_diagram module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.phase_diagram module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -53,27 +51,23 @@
 <p>Generates phase diagrams from compounds as terminations instead of
 elements.</p>
 <p>Initializes a CompoundPhaseDiagram.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>entries</strong> (<em>[</em><a class="reference internal" href="#pymatgen.analysis.phase_diagram.PDEntry" title="pymatgen.analysis.phase_diagram.PDEntry"><em>PDEntry</em></a><em>]</em>) – Sequence of input entries. For example,
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entries</strong> (<em>[</em><a class="reference internal" href="#pymatgen.analysis.phase_diagram.PDEntry" title="pymatgen.analysis.phase_diagram.PDEntry"><em>PDEntry</em></a><em>]</em>) – Sequence of input entries. For example,
 if you want a Li2O-P2O5 phase diagram, you might have all
-Li-P-O entries as an input.</li>
-<li><strong>terminal_compositions</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a><em>]</em>) – Terminal compositions of
+Li-P-O entries as an input.</p></li>
+<li><p><strong>terminal_compositions</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a><em>]</em>) – Terminal compositions of
 phase space. In the Li2O-P2O5 example, these will be the
-Li2O and P2O5 compositions.</li>
-<li><strong>normalize_terminal_compositions</strong> (<em>bool</em>) – Whether to normalize the
+Li2O and P2O5 compositions.</p></li>
+<li><p><strong>normalize_terminal_compositions</strong> (<em>bool</em>) – Whether to normalize the
 terminal compositions to a per atom basis. If normalized,
 the energy above hulls will be consistent
 for comparison across systems. Non-normalized terminals are
-more intuitive in terms of compositional breakdowns.</li>
+more intuitive in terms of compositional breakdowns.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.analysis.phase_diagram.CompoundPhaseDiagram.amount_tol">
 <code class="descname">amount_tol</code><em class="property"> = 1e-05</em><a class="headerlink" href="#pymatgen.analysis.phase_diagram.CompoundPhaseDiagram.amount_tol" title="Permalink to this definition">¶</a></dt>
@@ -98,21 +92,17 @@ terminal compositions. If the entry does not fall within the space
 defined by the terminal compositions, they are excluded. For example,
 Li3PO4 is mapped into a Li2O:1.5, P2O5:0.5 composition. The terminal
 compositions are represented by DummySpecies.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>entries</strong> – Sequence of all input entries</li>
-<li><strong>terminal_compositions</strong> – Terminal compositions of phase space.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entries</strong> – Sequence of all input entries</p></li>
+<li><p><strong>terminal_compositions</strong> – Terminal compositions of phase space.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Sequence of TransformedPDEntries falling within the phase space.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Sequence of TransformedPDEntries falling within the phase space.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -124,20 +114,16 @@ compositions are represented by DummySpecies.</p>
 <p>A grand potential pd entry object encompassing all relevant data for phase
 diagrams.  Chemical potentials are given as a element-chemical potential
 dict.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>entry</strong> – A PDEntry-like object.</li>
-<li><strong>chempots</strong> – Chemical potential specification as {Element: float}.</li>
-<li><strong>name</strong> – Optional parameter to name the entry. Defaults to the reduced
-chemical formula of the original entry.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entry</strong> – A PDEntry-like object.</p></li>
+<li><p><strong>chempots</strong> – Chemical potential specification as {Element: float}.</p></li>
+<li><p><strong>name</strong> – Optional parameter to name the entry. Defaults to the reduced
+chemical formula of the original entry.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.GrandPotPDEntry.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#GrandPotPDEntry.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.GrandPotPDEntry.as_dict" title="Permalink to this definition">¶</a></dt>
@@ -169,32 +155,28 @@ Gibbs free energy as follows</p>
 <p>Grand potential = G - u_X N_X</p>
 <p>The algorithm is based on the work in the following papers:</p>
 <ol class="arabic simple">
-<li>S. P. Ong, L. Wang, B. Kang, and G. Ceder, Li-Fe-P-O2 Phase Diagram from
+<li><p>S. P. Ong, L. Wang, B. Kang, and G. Ceder, Li-Fe-P-O2 Phase Diagram from
 First Principles Calculations. Chem. Mater., 2008, 20(5), 1798-1807.
-doi:10.1021/cm702327g</li>
-<li>S. P. Ong, A. Jain, G. Hautier, B. Kang, G. Ceder, Thermal stabilities
+doi:10.1021/cm702327g</p></li>
+<li><p>S. P. Ong, A. Jain, G. Hautier, B. Kang, G. Ceder, Thermal stabilities
 of delithiated olivine MPO4 (M=Fe, Mn) cathodes investigated using first
 principles calculations. Electrochem. Comm., 2010, 12(3), 427-430.
-doi:10.1016/j.elecom.2010.01.010</li>
+doi:10.1016/j.elecom.2010.01.010</p></li>
 </ol>
 <p>Standard constructor for grand potential phase diagram.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>entries</strong> (<em>[</em><a class="reference internal" href="#pymatgen.analysis.phase_diagram.PDEntry" title="pymatgen.analysis.phase_diagram.PDEntry"><em>PDEntry</em></a><em>]</em>) – A list of PDEntry-like objects having an
-energy, energy_per_atom and composition.</li>
-<li><strong>{Element</strong> (<em>chempots</em>) – float}: Specify the chemical potentials
-of the open elements.</li>
-<li><strong>elements</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element" title="pymatgen.core.periodic_table.Element"><em>Element</em></a><em>]</em>) – Optional list of elements in the phase
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entries</strong> (<em>[</em><a class="reference internal" href="#pymatgen.analysis.phase_diagram.PDEntry" title="pymatgen.analysis.phase_diagram.PDEntry"><em>PDEntry</em></a><em>]</em>) – A list of PDEntry-like objects having an
+energy, energy_per_atom and composition.</p></li>
+<li><p><strong>{Element</strong> (<em>chempots</em>) – float}: Specify the chemical potentials
+of the open elements.</p></li>
+<li><p><strong>elements</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element" title="pymatgen.core.periodic_table.Element"><em>Element</em></a><em>]</em>) – Optional list of elements in the phase
 diagram. If set to None, the elements are determined from
-the the entries themselves.</li>
+the the entries themselves.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.GrandPotentialPhaseDiagram.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#GrandPotentialPhaseDiagram.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.GrandPotentialPhaseDiagram.as_dict" title="Permalink to this definition">¶</a></dt>
@@ -239,25 +221,21 @@ set to some other string for display purposes.</p>
 <dd><p>A arbitrary attribute.</p>
 </dd></dl>
 
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>composition</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – Composition</li>
-<li><strong>energy</strong> (<em>float</em>) – Energy for composition.</li>
-<li><strong>name</strong> (<em>str</em>) – Optional parameter to name the entry. Defaults to the
-reduced chemical formula.</li>
-<li><strong>attribute</strong> – Optional attribute of the entry. This can be used to
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>composition</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – Composition</p></li>
+<li><p><strong>energy</strong> (<em>float</em>) – Energy for composition.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Optional parameter to name the entry. Defaults to the
+reduced chemical formula.</p></li>
+<li><p><strong>attribute</strong> – Optional attribute of the entry. This can be used to
 specify that the entry is a newly found compound, or to specify a
 particular label for the entry, or else … Used for further
 analysis and plotting purposes. An attribute can be anything
-but must be MSONable.</li>
+but must be MSONable.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PDEntry.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDEntry.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDEntry.as_dict" title="Permalink to this definition">¶</a></dt>
@@ -288,53 +266,46 @@ but must be MSONable.</li>
 <em class="property">class </em><code class="descname">PDPlotter</code><span class="sig-paren">(</span><em>phasediagram</em>, <em>show_unstable=0</em>, <em>**plotkwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDPlotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDPlotter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A plotter class for phase diagrams.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>phasediagram</strong> – PhaseDiagram object.</li>
-<li><strong>show_unstable</strong> (<em>float</em>) – Whether unstable phases will be plotted as
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>phasediagram</strong> – PhaseDiagram object.</p></li>
+<li><p><strong>show_unstable</strong> (<em>float</em>) – Whether unstable phases will be plotted as
 well as red crosses. If a number &gt; 0 is entered, all phases with
-ehull &lt; show_unstable will be shown.</li>
-<li><strong>**plotkwargs</strong> – <p>Keyword args passed to matplotlib.pyplot.plot. Can
+ehull &lt; show_unstable will be shown.</p></li>
+<li><p><strong>**plotkwargs</strong> – <p>Keyword args passed to matplotlib.pyplot.plot. Can
 be used to customize markers etc. If not set, the default is
 {</p>
 <blockquote>
-<div>”markerfacecolor”: (0.2157, 0.4941, 0.7216),
+<div><p>”markerfacecolor”: (0.2157, 0.4941, 0.7216),
 “markersize”: 10,
-“linewidth”: 3</div></blockquote>
+“linewidth”: 3</p>
+</div></blockquote>
 <p>}</p>
-</li>
+</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PDPlotter.get_chempot_range_map_plot">
 <code class="descname">get_chempot_range_map_plot</code><span class="sig-paren">(</span><em>elements</em>, <em>referenced=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDPlotter.get_chempot_range_map_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDPlotter.get_chempot_range_map_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a plot of the chemical potential range _map. Currently works
 only for 3-component PDs.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>elements</strong> – Sequence of elements to be considered as independent
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>elements</strong> – Sequence of elements to be considered as independent
 variables. E.g., if you want to show the stability ranges of
 all Li-Co-O phases wrt to uLi and uO, you will supply
-[Element(“Li”), Element(“O”)]</li>
-<li><strong>referenced</strong> – if True, gives the results with a reference being the
-energy of the elemental phase. If False, gives absolute values.</li>
+[Element(“Li”), Element(“O”)]</p></li>
+<li><p><strong>referenced</strong> – if True, gives the results with a reference being the
+energy of the elemental phase. If False, gives absolute values.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A matplotlib plot object.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A matplotlib plot object.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -343,14 +314,11 @@ energy of the elemental phase. If False, gives absolute values.</li>
 <dd><p>Plot a contour phase diagram plot, where phase triangles are colored
 according to degree of instability by interpolation. Currently only
 works for 3-component phase diagrams.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A matplotlib plot object.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A matplotlib plot object.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -364,24 +332,22 @@ works for 3-component phase diagrams.</p>
 <dd><p>Plot data for phase diagram.
 2-comp - Full hull with energies
 3/4-comp - Projection into 2D or 3D Gibbs triangle.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
-<li>lines is a list of list of coordinates for lines in the PD.</li>
-<li>stable_entries is a {coordinate : entry} for each stable node</li>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>lines is a list of list of coordinates for lines in the PD.</p></li>
+<li><p>stable_entries is a {coordinate : entry} for each stable node</p></li>
 </ul>
 <p>in the phase diagram. (Each coordinate can only have one
 stable phase)
 - unstable_entries is a {entry: coordinates} for all unstable
 nodes in the phase diagram.</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">(lines, stable_entries, unstable_entries)</td>
-</tr>
-</tbody>
-</table>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(lines, stable_entries, unstable_entries)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -389,22 +355,18 @@ nodes in the phase diagram.</p>
 <code class="descname">plot_chempot_range_map</code><span class="sig-paren">(</span><em>elements</em>, <em>referenced=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDPlotter.plot_chempot_range_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDPlotter.plot_chempot_range_map" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the chemical potential range _map. Currently works only for
 3-component PDs.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>elements</strong> – Sequence of elements to be considered as independent
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>elements</strong> – Sequence of elements to be considered as independent
 variables. E.g., if you want to show the stability ranges of
 all Li-Co-O phases wrt to uLi and uO, you will supply
-[Element(“Li”), Element(“O”)]</li>
-<li><strong>referenced</strong> – if True, gives the results with a reference being the
-energy of the elemental phase. If False, gives absolute values.</li>
+[Element(“Li”), Element(“O”)]</p></li>
+<li><p><strong>referenced</strong> – if True, gives the results with a reference being the
+energy of the elemental phase. If False, gives absolute values.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -418,69 +380,57 @@ X= -(µLi-µLi0), which corresponds to the voltage versus metal anode.
 Y values represent for the number of element uptake in this composition
 (unit: per atom). All reactions are printed to help choosing the
 profile steps you want to show label in the plot.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>element</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element" title="pymatgen.core.periodic_table.Element"><em>Element</em></a>) – An element of which the chemical potential is
-considered. It also must be in the phase diagram.</li>
-<li><strong>comp</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – A composition.</li>
-<li><strong>show_label_index</strong> (<em>list of integers</em>) – The labels for reaction products
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>element</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element" title="pymatgen.core.periodic_table.Element"><em>Element</em></a>) – An element of which the chemical potential is
+considered. It also must be in the phase diagram.</p></li>
+<li><p><strong>comp</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – A composition.</p></li>
+<li><p><strong>show_label_index</strong> (<em>list of integers</em>) – The labels for reaction products
 you want to show in the plot. Default to None (not showing any
 annotation for reaction products). For the profile steps you want
 to show the labels, just add it to the show_label_index. The
 profile step counts from zero. For example, you can set
-show_label_index=[0, 2, 5] to label profile step 0,2,5.</li>
-<li><strong>xlim</strong> (<em>float</em>) – The max x value. x value is from 0 to xlim. Default to
-5 eV.</li>
+show_label_index=[0, 2, 5] to label profile step 0,2,5.</p></li>
+<li><p><strong>xlim</strong> (<em>float</em>) – The max x value. x value is from 0 to xlim. Default to
+5 eV.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Plot of element profile evolution by varying the chemical potential
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Plot of element profile evolution by varying the chemical potential
 of an element.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PDPlotter.show">
 <code class="descname">show</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDPlotter.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDPlotter.show" title="Permalink to this definition">¶</a></dt>
 <dd><p>Draws the phase diagram using Matplotlib and show it.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>*args</strong> – Passed to get_plot.</li>
-<li><strong>**kwargs</strong> – Passed to get_plot.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>*args</strong> – Passed to get_plot.</p></li>
+<li><p><strong>**kwargs</strong> – Passed to get_plot.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PDPlotter.write_image">
 <code class="descname">write_image</code><span class="sig-paren">(</span><em>stream</em>, <em>image_format='svg'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDPlotter.write_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDPlotter.write_image" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes the phase diagram to an image in a stream.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>stream</strong> – stream to write to. Can be a file stream or a StringIO stream.</li>
-<li><strong>image_format</strong> – format for image. Can be any of matplotlib supported formats.
-Defaults to svg for best results for vector graphics.</li>
-<li><strong>**kwargs</strong> – Pass through to get_plot functino.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stream</strong> – stream to write to. Can be a file stream or a StringIO stream.</p></li>
+<li><p><strong>image_format</strong> – format for image. Can be any of matplotlib supported formats.
+Defaults to svg for best results for vector graphics.</p></li>
+<li><p><strong>**kwargs</strong> – Pass through to get_plot functino.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -492,36 +442,33 @@ Defaults to svg for best results for vector graphics.</li>
 <p>Simple phase diagram class taking in elements and entries as inputs.
 The algorithm is based on the work in the following papers:</p>
 <ol class="arabic simple">
-<li>S. P. Ong, L. Wang, B. Kang, and G. Ceder, Li-Fe-P-O2 Phase Diagram from
+<li><p>S. P. Ong, L. Wang, B. Kang, and G. Ceder, Li-Fe-P-O2 Phase Diagram from
 First Principles Calculations. Chem. Mater., 2008, 20(5), 1798-1807.
-doi:10.1021/cm702327g</li>
-<li>S. P. Ong, A. Jain, G. Hautier, B. Kang, G. Ceder, Thermal stabilities
+doi:10.1021/cm702327g</p></li>
+<li><p>S. P. Ong, A. Jain, G. Hautier, B. Kang, G. Ceder, Thermal stabilities
 of delithiated olivine MPO4 (M=Fe, Mn) cathodes investigated using first
 principles calculations. Electrochem. Comm., 2010, 12(3), 427-430.
-doi:10.1016/j.elecom.2010.01.010</li>
+doi:10.1016/j.elecom.2010.01.010</p></li>
 </ol>
 <p>..attribute: all_entries</p>
 <blockquote>
-<div>All entries provided for Phase Diagram construction. Note that this
+<div><p>All entries provided for Phase Diagram construction. Note that this
 does not mean that all these entries are actually used in the phase
 diagram. For example, this includes the positive formation energy
-entries that are filtered out before Phase Diagram construction.</div></blockquote>
+entries that are filtered out before Phase Diagram construction.</p>
+</div></blockquote>
 <p>Standard constructor for phase diagram.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>entries</strong> (<em>[</em><a class="reference internal" href="#pymatgen.analysis.phase_diagram.PDEntry" title="pymatgen.analysis.phase_diagram.PDEntry"><em>PDEntry</em></a><em>]</em>) – A list of PDEntry-like objects having an
-energy, energy_per_atom and composition.</li>
-<li><strong>elements</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element" title="pymatgen.core.periodic_table.Element"><em>Element</em></a><em>]</em>) – Optional list of elements in the phase
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entries</strong> (<em>[</em><a class="reference internal" href="#pymatgen.analysis.phase_diagram.PDEntry" title="pymatgen.analysis.phase_diagram.PDEntry"><em>PDEntry</em></a><em>]</em>) – A list of PDEntry-like objects having an
+energy, energy_per_atom and composition.</p></li>
+<li><p><strong>elements</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element" title="pymatgen.core.periodic_table.Element"><em>Element</em></a><em>]</em>) – Optional list of elements in the phase
 diagram. If set to None, the elements are determined from
-the the entries themselves.</li>
+the the entries themselves.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.analysis.phase_diagram.PhaseDiagram.all_entries_hulldata">
 <code class="descname">all_entries_hulldata</code><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.all_entries_hulldata" title="Permalink to this definition">¶</a></dt>
@@ -552,32 +499,28 @@ the the entries themselves.</li>
 <dt id="pymatgen.analysis.phase_diagram.PhaseDiagram.get_chempot_range_map">
 <code class="descname">get_chempot_range_map</code><span class="sig-paren">(</span><em>elements</em>, <em>referenced=True</em>, <em>joggle=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_chempot_range_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_chempot_range_map" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a chemical potential range map for each stable entry.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>elements</strong> – Sequence of elements to be considered as independent
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>elements</strong> – Sequence of elements to be considered as independent
 variables. E.g., if you want to show the stability ranges
 of all Li-Co-O phases wrt to uLi and uO, you will supply
-[Element(“Li”), Element(“O”)]</li>
-<li><strong>referenced</strong> – If True, gives the results with a reference being the
-energy of the elemental phase. If False, gives absolute values.</li>
-<li><strong>joggle</strong> (<em>boolean</em>) – Whether to joggle the input to avoid precision
-errors.</li>
+[Element(“Li”), Element(“O”)]</p></li>
+<li><p><strong>referenced</strong> – If True, gives the results with a reference being the
+energy of the elemental phase. If False, gives absolute values.</p></li>
+<li><p><strong>joggle</strong> (<em>boolean</em>) – Whether to joggle the input to avoid precision
+errors.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">[simplices]}. The list of
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>[simplices]}. The list of
 simplices are the sides of the N-1 dim polytope bounding the
 allowable chemical potential range of each entry.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Returns a dict of the form {entry</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Returns a dict of the form {entry</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -589,25 +532,21 @@ quite common to have for instance a ternary oxide (e.g., ABO3) for
 which you want to know what are the A and B chemical potential leading
 to the highest and lowest oxygen chemical potential (reducing and
 oxidizing conditions). This is useful for defect computations.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>target_comp</strong> – A Composition object</li>
-<li><strong>open_elt</strong> – Element that you want to constrain to be max or min</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_comp</strong> – A Composition object</p></li>
+<li><p><strong>open_elt</strong> – Element that you want to constrain to be max or min</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">(mu_min,mu_max)}: Chemical potentials are given in
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(mu_min,mu_max)}: Chemical potentials are given in
 “absolute” values (i.e., not referenced to 0)</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">{Element</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>{Element</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -623,20 +562,18 @@ compositions. I.e. where the decomposition products change.
 The endpoints are also returned.
 :param comp1, comp2: compositions that define the tieline
 :type comp1, comp2: Composition</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
-<dt>list of critical compositions. All are of</dt>
-<dd>the form x * comp1 + (1-x) * comp2</dd>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>list of critical compositions. All are of</dt><dd><p>the form x * comp1 + (1-x) * comp2</p>
+</dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">[(<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition">Composition</a>)]</td>
-</tr>
-</tbody>
-</table>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>[(<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition">Composition</a>)]</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -645,59 +582,52 @@ The endpoints are also returned.
 <dd><p>Provides the decomposition and energy above convex hull for an entry.
 Due to caching, can be much faster if entries with the same composition
 are processed together.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>entry</strong> – A PDEntry like object</li>
-<li><strong>allow_negative</strong> – Whether to allow negative e_above_hulls. Used to
-calculate equilibrium reaction energies. Defaults to False.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entry</strong> – A PDEntry like object</p></li>
+<li><p><strong>allow_negative</strong> – Whether to allow negative e_above_hulls. Used to
+calculate equilibrium reaction energies. Defaults to False.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(decomp, energy above convex hull)  Stable entries should have
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(decomp, energy above convex hull)  Stable entries should have
 energy above hull of 0. The decomposition is provided as a dict of
 {Entry: amount}.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PhaseDiagram.get_decomposition">
 <code class="descname">get_decomposition</code><span class="sig-paren">(</span><em>comp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_decomposition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_decomposition" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides the decomposition at a particular composition.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>comp</strong> – A composition</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">amount}</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Decomposition as a dict of {Entry</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>comp</strong> – A composition</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>amount}</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Decomposition as a dict of {Entry</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PhaseDiagram.get_e_above_hull">
 <code class="descname">get_e_above_hull</code><span class="sig-paren">(</span><em>entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_e_above_hull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_e_above_hull" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides the energy above convex hull for an entry</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>entry</strong> – A PDEntry like object</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Energy above convex hull of entry. Stable entries should have
-energy above hull of 0.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>entry</strong> – A PDEntry like object</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Energy above convex hull of entry. Stable entries should have
+energy above hull of 0.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -707,28 +637,24 @@ energy above hull of 0.</td>
 For example, can be used to analyze Li conversion voltages by varying
 uLi and looking at the phases formed. Also can be used to analyze O2
 evolution by varying uO2.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>element</strong> – An element. Must be in the phase diagram.</li>
-<li><strong>comp</strong> – A Composition</li>
-<li><strong>comp_tol</strong> – The tolerance to use when calculating decompositions.
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>element</strong> – An element. Must be in the phase diagram.</p></li>
+<li><p><strong>comp</strong> – A Composition</p></li>
+<li><p><strong>comp_tol</strong> – The tolerance to use when calculating decompositions.
 Phases with amounts less than this tolerance are excluded.
-Defaults to 1e-5.</li>
+Defaults to 1e-5.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">[ {‘chempot’: -10.487582010000001, ‘evolution’: -2.0,
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>[ {‘chempot’: -10.487582010000001, ‘evolution’: -2.0,
 ‘reaction’: Reaction Object], …]</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Evolution data as a list of dictionaries of the following format</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Evolution data as a list of dictionaries of the following format</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -737,17 +663,15 @@ Defaults to 1e-5.</li>
 <dd><p>Provides the reaction energy of a stable entry from the neighboring
 equilibrium stable entries (also known as the inverse distance to
 hull).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>entry</strong> – A PDEntry like object</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Equilibrium reaction energy of entry. Stable entries should have
-equilibrium reaction energy &lt;= 0.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>entry</strong> – A PDEntry like object</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Equilibrium reaction energy of entry. Stable entries should have
+equilibrium reaction energy &lt;= 0.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -755,16 +679,14 @@ equilibrium reaction energy &lt;= 0.</td>
 <code class="descname">get_form_energy</code><span class="sig-paren">(</span><em>entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_form_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_form_energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the formation energy for an entry (NOT normalized) from the
 elemental references.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>entry</strong> – A PDEntry-like object.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Formation energy from the elemental references.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>entry</strong> – A PDEntry-like object.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Formation energy from the elemental references.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -772,32 +694,28 @@ elemental references.</p>
 <code class="descname">get_form_energy_per_atom</code><span class="sig-paren">(</span><em>entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_form_energy_per_atom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_form_energy_per_atom" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the formation energy per atom for an entry from the
 elemental references.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>entry</strong> – An PDEntry-like object</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Formation energy <strong>per atom</strong> from the elemental references.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>entry</strong> – An PDEntry-like object</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Formation energy <strong>per atom</strong> from the elemental references.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PhaseDiagram.get_hull_energy">
 <code class="descname">get_hull_energy</code><span class="sig-paren">(</span><em>comp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_hull_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_hull_energy" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>comp</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – Input composition</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Energy of lowest energy equilibrium at desired composition. Not
-normalized by atoms, i.e. E(Li4O2) = 2 * E(Li2O)</td>
-</tr>
-</tbody>
-</table>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>comp</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – Input composition</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Energy of lowest energy equilibrium at desired composition. Not
+normalized by atoms, i.e. E(Li4O2) = 2 * E(Li2O)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -805,17 +723,15 @@ normalized by atoms, i.e. E(Li4O2) = 2 * E(Li2O)</td>
 <code class="descname">get_transition_chempots</code><span class="sig-paren">(</span><em>element</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_transition_chempots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_transition_chempots" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the critical chemical potentials for an element in the Phase
 Diagram.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>element</strong> – An element. Has to be in the PD in the first place.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A sorted sequence of critical chemical potentials, from less
-negative to more negative.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>element</strong> – An element. Has to be in the PD in the first place.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A sorted sequence of critical chemical potentials, from less
+negative to more negative.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -829,29 +745,25 @@ The chemical potential of dep_elt is computed from the target
 composition energy.
 This method is useful to get the limiting conditions for
 defects computations for instance.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>target_comp</strong> – A Composition object</li>
-<li><strong>dep_elt</strong> – the element for which the chemical potential is computed
-from the energy of</li>
-<li><strong>stable phase at the target composition</strong> (<em>the</em>) – </li>
-<li><strong>tol_en</strong> – a tolerance on the energy to set</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_comp</strong> – A Composition object</p></li>
+<li><p><strong>dep_elt</strong> – the element for which the chemical potential is computed
+from the energy of</p></li>
+<li><p><strong>stable phase at the target composition</strong> (<em>the</em>) – </p></li>
+<li><p><strong>tol_en</strong> – a tolerance on the energy to set</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">mu}]: An array of conditions on simplex vertices for
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>mu}]: An array of conditions on simplex vertices for
 which each element has a chemical potential set to a given
 value. “absolute” values (i.e., not referenced to element energies)</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">[{Element</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>[{Element</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -895,45 +807,38 @@ formation energy entries.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Analyzes the possible reactions between a pair of compounds, e.g.,
 an electrolyte and an electrode.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>entry1</strong> (<a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><em>ComputedEntry</em></a>) – Entry for 1st component. Note that
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entry1</strong> (<a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><em>ComputedEntry</em></a>) – Entry for 1st component. Note that
 corrections, if any, must already be pre-applied. This is to
 give flexibility for different kinds of corrections, e.g.,
 if a particular entry is fitted to an experimental data (such
-as EC molecule).</li>
-<li><strong>entry2</strong> (<a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><em>ComputedEntry</em></a>) – Entry for 2nd component. Note that
+as EC molecule).</p></li>
+<li><p><strong>entry2</strong> (<a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><em>ComputedEntry</em></a>) – Entry for 2nd component. Note that
 corrections must already be pre-applied. This is to
 give flexibility for different kinds of corrections, e.g.,
 if a particular entry is fitted to an experimental data (such
-as EC molecule).</li>
-<li><strong>all_entries</strong> (<em>[</em><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><em>ComputedEntry</em></a><em>]</em>) – All other entries to be
+as EC molecule).</p></li>
+<li><p><strong>all_entries</strong> (<em>[</em><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><em>ComputedEntry</em></a><em>]</em>) – All other entries to be
 considered in the analysis. Note that corrections, if any,
-must already be pre-applied.</li>
-<li><strong>tol</strong> (<em>float</em>) – Tolerance to be used to determine validity of reaction.</li>
-<li><strong>float_fmt</strong> (<em>str</em>) – Formatting string to be applied to all floats.
-Determines number of decimal places in reaction string.</li>
+must already be pre-applied.</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – Tolerance to be used to determine validity of reaction.</p></li>
+<li><p><strong>float_fmt</strong> (<em>str</em>) – Formatting string to be applied to all floats.
+Determines number of decimal places in reaction string.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.ReactionDiagram.get_compound_pd">
 <code class="descname">get_compound_pd</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#ReactionDiagram.get_compound_pd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.ReactionDiagram.get_compound_pd" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the CompoundPhaseDiagram object, which can then be used for
 plotting.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(CompoundPhaseDiagram)</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(CompoundPhaseDiagram)</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -946,18 +851,14 @@ plotting.</p>
 transformed to a different composition coordinate space. It is used in the
 construction of phase diagrams that do not have elements as the terminal
 compositions.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>comp</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – Transformed composition as a Composition.</li>
-<li><strong>original_entry</strong> (<a class="reference internal" href="#pymatgen.analysis.phase_diagram.PDEntry" title="pymatgen.analysis.phase_diagram.PDEntry"><em>PDEntry</em></a>) – Original entry that this entry arose from.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>comp</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – Transformed composition as a Composition.</p></li>
+<li><p><strong>original_entry</strong> (<a class="reference internal" href="#pymatgen.analysis.phase_diagram.PDEntry" title="pymatgen.analysis.phase_diagram.PDEntry"><em>PDEntry</em></a>) – Original entry that this entry arose from.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.TransformedPDEntry.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#TransformedPDEntry.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.TransformedPDEntry.as_dict" title="Permalink to this definition">¶</a></dt>
@@ -975,24 +876,20 @@ compositions.</p>
 <dt id="pymatgen.analysis.phase_diagram.get_facets">
 <code class="descname">get_facets</code><span class="sig-paren">(</span><em>qhull_data</em>, <em>joggle=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#get_facets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.get_facets" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the simplex facets for the Convex hull.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>qhull_data</strong> (<em>np.ndarray</em>) – The data from which to construct the convex
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qhull_data</strong> (<em>np.ndarray</em>) – The data from which to construct the convex
 hull as a Nxd array (N being number of data points and d being the
-dimension)</li>
-<li><strong>joggle</strong> (<em>boolean</em>) – Whether to joggle the input to avoid precision
-errors.</li>
+dimension)</p></li>
+<li><p><strong>joggle</strong> (<em>boolean</em>) – Whether to joggle the input to avoid precision
+errors.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">List of simplices of the Convex Hull.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of simplices of the Convex Hull.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -1003,37 +900,33 @@ to the user specified ordering.
 Ordering should be given as [‘Up’, ‘Left’, ‘Right’], where Up,
 Left and Right are the names of the entries in the upper, left and right
 corners of the triangle respectively.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>lines</strong> – list of list of coordinates for lines in the PD.</li>
-<li><strong>stable_entries</strong> – {coordinate : entry} for each stable node in the
-phase diagram. (Each coordinate can only have one stable phase)</li>
-<li><strong>unstable_entries</strong> – {entry: coordinates} for all unstable nodes in the
-phase diagram.</li>
-<li><strong>ordering</strong> – Ordering of the phase diagram, given as a list [‘Up’,
-‘Left’,’Right’]</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lines</strong> – list of list of coordinates for lines in the PD.</p></li>
+<li><p><strong>stable_entries</strong> – {coordinate : entry} for each stable node in the
+phase diagram. (Each coordinate can only have one stable phase)</p></li>
+<li><p><strong>unstable_entries</strong> – {entry: coordinates} for all unstable nodes in the
+phase diagram.</p></li>
+<li><p><strong>ordering</strong> – Ordering of the phase diagram, given as a list [‘Up’,
+‘Left’,’Right’]</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
-<li>newlines is a list of list of coordinates for lines in the PD.</li>
-<li>newstable_entries is a {coordinate : entry} for each stable node</li>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>newlines is a list of list of coordinates for lines in the PD.</p></li>
+<li><p>newstable_entries is a {coordinate : entry} for each stable node</p></li>
 </ul>
 <p>in the phase diagram. (Each coordinate can only have one
 stable phase)
 - newunstable_entries is a {entry: coordinates} for all unstable
 nodes in the phase diagram.</p>
 </p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">(newlines, newstable_entries, newunstable_entries)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(newlines, newstable_entries, newunstable_entries)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -1041,16 +934,14 @@ nodes in the phase diagram.</p>
 <code class="descname">tet_coord</code><span class="sig-paren">(</span><em>coord</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#tet_coord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.tet_coord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a 3D coordinate into a tetrahedron based coordinate system for a
 prettier phase diagram.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>coordinate</strong> – coordinate used in the convex hull computation.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">coordinates in a tetrahedron-based coordinate system.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>coordinate</strong> – coordinate used in the convex hull computation.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>coordinates in a tetrahedron-based coordinate system.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -1058,16 +949,14 @@ prettier phase diagram.</p>
 <code class="descname">triangular_coord</code><span class="sig-paren">(</span><em>coord</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#triangular_coord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.triangular_coord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a 2D coordinate into a triangle-based coordinate system for a
 prettier phase diagram.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>coordinate</strong> – coordinate used in the convex hull computation.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">coordinates in a triangular-based coordinate system.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>coordinate</strong> – coordinate used in the convex hull computation.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>coordinates in a triangular-based coordinate system.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -1075,19 +964,18 @@ prettier phase diagram.</p>
 <code class="descname">uniquelines</code><span class="sig-paren">(</span><em>q</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#uniquelines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.uniquelines" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given all the facets, convert it into a set of unique lines.  Specifically
 used for converting convex hull facets into line pairs of coordinates.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>q</strong> – A 2-dim sequence, where each row represents a facet. E.g.,
-[[1,2,3],[3,6,7],…]</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A set of tuple of lines.  E.g., ((1,2), (1,3), (2,3), ….)</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">setoflines</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>q</strong> – A 2-dim sequence, where each row represents a facet. E.g.,
+[[1,2,3],[3,6,7],…]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A set of tuple of lines.  E.g., ((1,2), (1,3), (2,3), ….)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>setoflines</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -1111,8 +999,6 @@ used for converting convex hull facets into line pairs of coordinates.</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -1130,13 +1016,13 @@ used for converting convex hull facets into line pairs of coordinates.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

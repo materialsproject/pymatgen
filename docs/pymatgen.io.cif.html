@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.cif module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.io.cif module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -54,23 +52,19 @@
 Data inside loops are stored in lists in the data dictionary, and
 information on which keys are grouped together are stored in the loops
 attribute.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>data</strong> – dict or OrderedDict of data to go into the cif. Values should
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – dict or OrderedDict of data to go into the cif. Values should
 be convertible to string, or lists of these if the key is
-in a loop</li>
-<li><strong>loops</strong> – list of lists of keys, grouped by which loop they should
-appear in</li>
-<li><strong>header</strong> – name of the block (appears after the <a href="#id1"><span class="problematic" id="id2">data_</span></a> on the first
-line)</li>
+in a loop</p></li>
+<li><p><strong>loops</strong> – list of lists of keys, grouped by which loop they should
+appear in</p></li>
+<li><p><strong>header</strong> – name of the block (appears after the <a href="#id1"><span class="problematic" id="id2">data_</span></a> on the first
+line)</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="classmethod">
 <dt id="pymatgen.io.cif.CifBlock.from_string">
 <em class="property">classmethod </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cif.html#CifBlock.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifBlock.from_string" title="Permalink to this definition">¶</a></dt>
@@ -88,19 +82,15 @@ line)</li>
 <em class="property">class </em><code class="descname">CifFile</code><span class="sig-paren">(</span><em>data</em>, <em>orig_string=None</em>, <em>comment=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cif.html#CifFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Reads and parses CifBlocks from a .cif file or string</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>data</strong> (<em>OrderedDict</em>) – Of CifBlock objects.å</li>
-<li><strong>orig_string</strong> (<em>str</em>) – The original cif string.</li>
-<li><strong>comment</strong> (<em>str</em>) – Comment string.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>OrderedDict</em>) – Of CifBlock objects.å</p></li>
+<li><p><strong>orig_string</strong> (<em>str</em>) – The original cif string.</p></li>
+<li><p><strong>comment</strong> (<em>str</em>) – Comment string.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="classmethod">
 <dt id="pymatgen.io.cif.CifFile.from_file">
 <em class="property">classmethod </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cif.html#CifFile.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifFile.from_file" title="Permalink to this definition">¶</a></dt>
@@ -120,22 +110,18 @@ line)</li>
 <p>Parses a CIF file. Attempts to fix CIFs that are out-of-spec, but will
 issue warnings if corrections applied. These are also stored in the
 CifParser’s errors attribute.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> (<em>str</em>) – CIF filename, bzipped or gzipped CIF files are fine too.</li>
-<li><strong>occupancy_tolerance</strong> (<em>float</em>) – If total occupancy of a site is between 1
-and occupancy_tolerance, the occupancies will be scaled down to 1.</li>
-<li><strong>site_tolerance</strong> (<em>float</em>) – This tolerance is used to determine if two
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – CIF filename, bzipped or gzipped CIF files are fine too.</p></li>
+<li><p><strong>occupancy_tolerance</strong> (<em>float</em>) – If total occupancy of a site is between 1
+and occupancy_tolerance, the occupancies will be scaled down to 1.</p></li>
+<li><p><strong>site_tolerance</strong> (<em>float</em>) – This tolerance is used to determine if two
 sites are sitting in the same position, in which case they will be
-combined to a single disordered site. Defaults to 1e-4.</li>
+combined to a single disordered site. Defaults to 1e-4.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.cif.CifParser.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cif.html#CifParser.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.as_dict" title="Permalink to this definition">¶</a></dt>
@@ -145,23 +131,19 @@ combined to a single disordered site. Defaults to 1e-4.</li>
 <dt id="pymatgen.io.cif.CifParser.from_string">
 <em class="property">static </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>cif_string</em>, <em>occupancy_tolerance=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cif.html#CifParser.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.from_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a CifParser from a string.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>cif_string</strong> (<em>str</em>) – String representation of a CIF.</li>
-<li><strong>occupancy_tolerance</strong> (<em>float</em>) – If total occupancy of a site is
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cif_string</strong> (<em>str</em>) – String representation of a CIF.</p></li>
+<li><p><strong>occupancy_tolerance</strong> (<em>float</em>) – If total occupancy of a site is
 between 1 and occupancy_tolerance, the occupancies will be
-scaled down to 1.</li>
+scaled down to 1.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">CifParser</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>CifParser</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -193,18 +175,16 @@ Separate function since additional operation for time reversal symmetry
 <code class="descname">get_structures</code><span class="sig-paren">(</span><em>primitive=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cif.html#CifParser.get_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.get_structures" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return list of structures in CIF file. primitive boolean sets whether a
 conventional cell structure or primitive cell structure is returned.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>primitive</strong> (<em>bool</em>) – Set to False to return conventional unit cells.
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>primitive</strong> (<em>bool</em>) – Set to False to return conventional unit cells.
 Defaults to True. With magnetic CIF files, will return primitive
-magnetic cell which may be larger than nuclear primitive cell.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">List of Structures.</td>
-</tr>
-</tbody>
-</table>
+magnetic cell which may be larger than nuclear primitive cell.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of Structures.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -239,22 +219,18 @@ group symbol is parsed, and symops are generated.</p>
 <em class="property">class </em><code class="descname">CifWriter</code><span class="sig-paren">(</span><em>struct</em>, <em>symprec=None</em>, <em>write_magmoms=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cif.html#CifWriter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifWriter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A wrapper around CifFile to write CIF files from pymatgen structures.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>struct</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – structure to write</li>
-<li><strong>symprec</strong> (<em>float</em>) – If not none, finds the symmetry of the structure
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>struct</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – structure to write</p></li>
+<li><p><strong>symprec</strong> (<em>float</em>) – If not none, finds the symmetry of the structure
 and writes the cif with symmetry information. Passes symprec
-to the SpacegroupAnalyzer</li>
-<li><strong>write_magmoms</strong> (<em>bool</em>) – If True, will write magCIF file. Incompatible
-with symprec</li>
+to the SpacegroupAnalyzer</p></li>
+<li><p><strong>write_magmoms</strong> (<em>bool</em>) – If True, will write magCIF file. Incompatible
+with symprec</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.cif.CifWriter.write_file">
 <code class="descname">write_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cif.html#CifWriter.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifWriter.write_file" title="Permalink to this definition">¶</a></dt>
@@ -301,8 +277,6 @@ a replacement string to be used.</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -320,13 +294,13 @@ a replacement string to be used.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

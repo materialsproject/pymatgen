@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.apps.battery.insertion_battery module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.apps.battery.insertion_battery module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -56,22 +54,18 @@ intercalation batteries.</p>
 single element, e.g. TiO2 and LiTiO2, that can be used to define an
 insertion battery electrode.</p>
 <p>Create a new InsertionElectrode.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>entries</strong> – A list of ComputedStructureEntries (or subclasses)
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entries</strong> – A list of ComputedStructureEntries (or subclasses)
 representing the different topotactic states of the battery,
-e.g. TiO2 and LiTiO2.</li>
-<li><strong>working_ion_entry</strong> – A single ComputedEntry or PDEntry
+e.g. TiO2 and LiTiO2.</p></li>
+<li><p><strong>working_ion_entry</strong> – A single ComputedEntry or PDEntry
 representing the element that carries charge across the
-battery, e.g. Li.</li>
+battery, e.g. Li.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/insertion_battery.html#InsertionElectrode.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.as_dict" title="Permalink to this definition">¶</a></dt>
@@ -82,17 +76,15 @@ battery, e.g. Li.</li>
 <dt id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.as_dict_summary">
 <code class="descname">as_dict_summary</code><span class="sig-paren">(</span><em>print_subelectrodes=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/insertion_battery.html#InsertionElectrode.as_dict_summary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.as_dict_summary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a summary dict.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>print_subelectrodes</strong> – Also print data on all the possible
-subelectrodes.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A summary of this electrode”s properties in dict format.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>print_subelectrodes</strong> – Also print data on all the possible
+subelectrodes.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A summary of this electrode”s properties in dict format.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
@@ -116,127 +108,107 @@ subelectrodes.</td>
 <dt id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_all_entries">
 <code class="descname">get_all_entries</code><span class="sig-paren">(</span><em>charge_to_discharge=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/insertion_battery.html#InsertionElectrode.get_all_entries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_all_entries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return all entries input for the electrode.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>charge_to_discharge</strong> – order from most charge to most discharged state? Defaults to
-True.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of all entries in the electrode (both stable and unstable),
-ordered by amount of the working ion.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>charge_to_discharge</strong> – order from most charge to most discharged state? Defaults to
+True.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of all entries in the electrode (both stable and unstable),
+ordered by amount of the working ion.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_max_instability">
 <code class="descname">get_max_instability</code><span class="sig-paren">(</span><em>min_voltage=None</em>, <em>max_voltage=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/insertion_battery.html#InsertionElectrode.get_max_instability"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_max_instability" title="Permalink to this definition">¶</a></dt>
 <dd><p>The maximum instability along a path for a specific voltage range.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>min_voltage</strong> – The minimum allowable voltage.</li>
-<li><strong>max_voltage</strong> – The maximum allowable voltage.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>min_voltage</strong> – The minimum allowable voltage.</p></li>
+<li><p><strong>max_voltage</strong> – The maximum allowable voltage.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Maximum decomposition energy of all compounds along the insertion
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Maximum decomposition energy of all compounds along the insertion
 path (a subset of the path can be chosen by the optional arguments)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_max_muO2">
 <code class="descname">get_max_muO2</code><span class="sig-paren">(</span><em>min_voltage=None</em>, <em>max_voltage=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/insertion_battery.html#InsertionElectrode.get_max_muO2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_max_muO2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Maximum critical oxygen chemical potential along path.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>min_voltage</strong> – The minimum allowable voltage.</li>
-<li><strong>max_voltage</strong> – The maximum allowable voltage.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>min_voltage</strong> – The minimum allowable voltage.</p></li>
+<li><p><strong>max_voltage</strong> – The maximum allowable voltage.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Maximum critical oxygen chemical of all compounds along the
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Maximum critical oxygen chemical of all compounds along the
 insertion path (a subset of the path can be chosen by the optional
 arguments).</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_min_instability">
 <code class="descname">get_min_instability</code><span class="sig-paren">(</span><em>min_voltage=None</em>, <em>max_voltage=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/insertion_battery.html#InsertionElectrode.get_min_instability"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_min_instability" title="Permalink to this definition">¶</a></dt>
 <dd><p>The minimum instability along a path for a specific voltage range.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>min_voltage</strong> – The minimum allowable voltage.</li>
-<li><strong>max_voltage</strong> – The maximum allowable voltage.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>min_voltage</strong> – The minimum allowable voltage.</p></li>
+<li><p><strong>max_voltage</strong> – The maximum allowable voltage.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Minimum decomposition energy of all compounds along the insertion
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Minimum decomposition energy of all compounds along the insertion
 path (a subset of the path can be chosen by the optional arguments)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_min_muO2">
 <code class="descname">get_min_muO2</code><span class="sig-paren">(</span><em>min_voltage=None</em>, <em>max_voltage=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/insertion_battery.html#InsertionElectrode.get_min_muO2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_min_muO2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Minimum critical oxygen chemical potential along path.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>min_voltage</strong> – The minimum allowable voltage for a given step</li>
-<li><strong>max_voltage</strong> – The maximum allowable voltage allowable for a given
-step</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>min_voltage</strong> – The minimum allowable voltage for a given step</p></li>
+<li><p><strong>max_voltage</strong> – The maximum allowable voltage allowable for a given
+step</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Minimum critical oxygen chemical of all compounds along the
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Minimum critical oxygen chemical of all compounds along the
 insertion path (a subset of the path can be chosen by the optional
 arguments).</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_stable_entries">
 <code class="descname">get_stable_entries</code><span class="sig-paren">(</span><em>charge_to_discharge=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/insertion_battery.html#InsertionElectrode.get_stable_entries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_stable_entries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the stable entries.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>charge_to_discharge</strong> – order from most charge to most discharged
-state? Default to True.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of stable entries in the electrode, ordered by amount of the
-working ion.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>charge_to_discharge</strong> – order from most charge to most discharged
+state? Default to True.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of stable entries in the electrode, ordered by amount of the
+working ion.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -248,42 +220,36 @@ For example, an LiTiO2 electrode might contain three subelectrodes:
 [LiTiO2 –&gt; TiO2, LiTiO2 –&gt; Li0.5TiO2, Li0.5TiO2 –&gt; TiO2]
 This method can be used to return all the subelectrodes with some
 options</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>adjacent_only</strong> – Only return electrodes from compounds that are
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adjacent_only</strong> – Only return electrodes from compounds that are
 adjacent on the convex hull, i.e. no electrodes returned
-will have multiple voltage steps if this is set True.</li>
-<li><strong>include_myself</strong> – Include this identical electrode in the list of
-results.</li>
+will have multiple voltage steps if this is set True.</p></li>
+<li><p><strong>include_myself</strong> – Include this identical electrode in the list of
+results.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of InsertionElectrode objects</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of InsertionElectrode objects</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_unstable_entries">
 <code class="descname">get_unstable_entries</code><span class="sig-paren">(</span><em>charge_to_discharge=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/insertion_battery.html#InsertionElectrode.get_unstable_entries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_unstable_entries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the unstable entries for the electrode.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>charge_to_discharge</strong> – Order from most charge to most discharged
-state? Defaults to True.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of unstable entries in the electrode, ordered by amount of
-the working ion.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>charge_to_discharge</strong> – Order from most charge to most discharged
+state? Defaults to True.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of unstable entries in the electrode, ordered by amount of
+the working ion.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -311,20 +277,16 @@ the working ion.</td>
 <em class="property">class </em><code class="descname">InsertionVoltagePair</code><span class="sig-paren">(</span><em>entry1</em>, <em>entry2</em>, <em>working_ion_entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/insertion_battery.html#InsertionVoltagePair"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionVoltagePair" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractVoltagePair" title="pymatgen.apps.battery.battery_abc.AbstractVoltagePair"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.apps.battery.battery_abc.AbstractVoltagePair</span></code></a></p>
 <p>Defines an Insertion Voltage Pair.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>entry1</strong> – Entry corresponding to one of the entries in the voltage step.</li>
-<li><strong>entry2</strong> – Entry corresponding to the other entry in the voltage step.</li>
-<li><strong>working_ion_entry</strong> – A single ComputedEntry or PDEntry representing
-the element that carries charge across the battery, e.g. Li.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entry1</strong> – Entry corresponding to one of the entries in the voltage step.</p></li>
+<li><p><strong>entry2</strong> – Entry corresponding to the other entry in the voltage step.</p></li>
+<li><p><strong>working_ion_entry</strong> – A single ComputedEntry or PDEntry representing
+the element that carries charge across the battery, e.g. Li.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.frac_charge">
 <code class="descname">frac_charge</code><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.frac_charge" title="Permalink to this definition">¶</a></dt>
@@ -393,8 +355,6 @@ the element that carries charge across the battery, e.g. Li.</li>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -412,13 +372,13 @@ the element that carries charge across the battery, e.g. Li.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

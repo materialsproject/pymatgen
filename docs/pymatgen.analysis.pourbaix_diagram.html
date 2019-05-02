@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.pourbaix_diagram module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.pourbaix_diagram module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -52,20 +50,16 @@
 <dd><p>Bases: <a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PDEntry" title="pymatgen.analysis.phase_diagram.PDEntry"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.phase_diagram.PDEntry</span></code></a></p>
 <p>Object similar to PDEntry, but contains an Ion object instead of a
 Composition object.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>comp</strong> – Ion object</li>
-<li><strong>energy</strong> – Energy for composition.</li>
-<li><strong>name</strong> – Optional parameter to name the entry. Defaults to the
-chemical formula.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>comp</strong> – Ion object</p></li>
+<li><p><strong>energy</strong> – Energy for composition.</p></li>
+<li><p><strong>name</strong> – Optional parameter to name the entry. Defaults to the
+chemical formula.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.analysis.pourbaix_diagram.IonEntry.name">
 <code class="descname">name</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.IonEntry.name" title="Permalink to this definition">¶</a></dt>
@@ -95,18 +89,14 @@ set to some other string for display purposes.</p>
 <p>PourbaixEntry-like object for constructing multi-elemental Pourbaix
 diagrams.</p>
 <p>Initializes a MultiEntry.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>entry_list</strong> (<em>[</em><a class="reference internal" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry" title="pymatgen.analysis.pourbaix_diagram.PourbaixEntry"><em>PourbaixEntry</em></a><em>]</em>) – List of component PourbaixEntries</li>
-<li><strong>weights</strong> (<em>[</em><em>float</em><em>]</em>) – Weights associated with each entry. Default is None</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entry_list</strong> (<em>[</em><a class="reference internal" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry" title="pymatgen.analysis.pourbaix_diagram.PourbaixEntry"><em>PourbaixEntry</em></a><em>]</em>) – List of component PourbaixEntries</p></li>
+<li><p><strong>weights</strong> (<em>[</em><em>float</em><em>]</em>) – Weights associated with each entry. Default is None</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.MultiEntry.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#MultiEntry.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.MultiEntry.as_dict" title="Permalink to this definition">¶</a></dt>
@@ -134,29 +124,25 @@ constructing a PourbaixEntry object.</p>
 <em class="property">class </em><code class="descname">PourbaixDiagram</code><span class="sig-paren">(</span><em>entries</em>, <em>comp_dict=None</em>, <em>conc_dict=None</em>, <em>filter_solids=False</em>, <em>nproc=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixDiagram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Class to create a Pourbaix diagram from entries</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>entries</strong> (<em>[</em><a class="reference internal" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry" title="pymatgen.analysis.pourbaix_diagram.PourbaixEntry"><em>PourbaixEntry</em></a><em>] or </em><em>[</em><a class="reference internal" href="#pymatgen.analysis.pourbaix_diagram.MultiEntry" title="pymatgen.analysis.pourbaix_diagram.MultiEntry"><em>MultiEntry</em></a><em>]</em>) – Entries list
-containing Solids and Ions or a list of MultiEntries</li>
-<li><strong>(</strong><strong>{str</strong> (<em>conc_dict</em>) – float}): Dictionary of compositions,
-defaults to equal parts of each elements</li>
-<li><strong>(</strong><strong>{str</strong> – float}): Dictionary of ion concentrations,
-defaults to 1e-6 for each element</li>
-<li><strong>filter_solids</strong> (<em>bool</em>) – applying this filter to a pourbaix
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entries</strong> (<em>[</em><a class="reference internal" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry" title="pymatgen.analysis.pourbaix_diagram.PourbaixEntry"><em>PourbaixEntry</em></a><em>] or </em><em>[</em><a class="reference internal" href="#pymatgen.analysis.pourbaix_diagram.MultiEntry" title="pymatgen.analysis.pourbaix_diagram.MultiEntry"><em>MultiEntry</em></a><em>]</em>) – Entries list
+containing Solids and Ions or a list of MultiEntries</p></li>
+<li><p><strong>(</strong><strong>{str</strong> (<em>conc_dict</em>) – float}): Dictionary of compositions,
+defaults to equal parts of each elements</p></li>
+<li><p><strong>(</strong><strong>{str</strong> – float}): Dictionary of ion concentrations,
+defaults to 1e-6 for each element</p></li>
+<li><p><strong>filter_solids</strong> (<em>bool</em>) – applying this filter to a pourbaix
 diagram ensures all included phases are filtered by
 stability on the compositional phase diagram.  This
 breaks some of the functionality of the analysis,
-though, so use with caution.</li>
-<li><strong>nproc</strong> (<em>int</em>) – number of processes to generate multientries with
-in parallel.  Defaults to None (serial processing)</li>
+though, so use with caution.</p></li>
+<li><p><strong>nproc</strong> (<em>int</em>) – number of processes to generate multientries with
+in parallel.  Defaults to None (serial processing)</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.all_entries">
 <code class="descname">all_entries</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.all_entries" title="Permalink to this definition">¶</a></dt>
@@ -189,23 +175,19 @@ in parallel.  Defaults to None (serial processing)</li>
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.get_decomposition_energy">
 <code class="descname">get_decomposition_energy</code><span class="sig-paren">(</span><em>entry</em>, <em>pH</em>, <em>V</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixDiagram.get_decomposition_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.get_decomposition_energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds decomposition to most stable entry</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>entry</strong> (<a class="reference internal" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry" title="pymatgen.analysis.pourbaix_diagram.PourbaixEntry"><em>PourbaixEntry</em></a>) – PourbaixEntry corresponding to
-compound to find the decomposition for</li>
-<li><strong>pH</strong> (<em>float</em>) – pH at which to find the decomposition</li>
-<li><strong>V</strong> (<em>float</em>) – voltage at which to find the decomposition</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entry</strong> (<a class="reference internal" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry" title="pymatgen.analysis.pourbaix_diagram.PourbaixEntry"><em>PourbaixEntry</em></a>) – PourbaixEntry corresponding to
+compound to find the decomposition for</p></li>
+<li><p><strong>pH</strong> (<em>float</em>) – pH at which to find the decomposition</p></li>
+<li><p><strong>V</strong> (<em>float</em>) – voltage at which to find the decomposition</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">reaction corresponding to the decomposition</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>reaction corresponding to the decomposition</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -226,28 +208,24 @@ of the form a*pH + b*V + 1 - g(0, 0) are constructed and
 supplied to HalfspaceIntersection, which then finds the
 boundaries of each pourbaix region using the intersection
 points.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>pourbaix_entries</strong> (<em>[</em><a class="reference internal" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry" title="pymatgen.analysis.pourbaix_diagram.PourbaixEntry"><em>PourbaixEntry</em></a><em>]</em>) – Pourbaix entries
-with which to construct stable pourbaix domains</li>
-<li><strong>limits</strong> (<em>[</em><em>[</em><em>float</em><em>]</em><em>]</em>) – limits in which to do the pourbaix
-analysis</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pourbaix_entries</strong> (<em>[</em><a class="reference internal" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry" title="pymatgen.analysis.pourbaix_diagram.PourbaixEntry"><em>PourbaixEntry</em></a><em>]</em>) – Pourbaix entries
+with which to construct stable pourbaix domains</p></li>
+<li><p><strong>limits</strong> (<em>[</em><em>[</em><em>float</em><em>]</em><em>]</em>) – limits in which to do the pourbaix
+analysis</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">[boundary_points]}.
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>[boundary_points]}.
 The list of boundary points are the sides of the N-1
 dim polytope bounding the allowable ph-V range of each entry.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Returns a dict of the form {entry</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Returns a dict of the form {entry</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="staticmethod">
@@ -259,23 +237,19 @@ Essentially checks to see if a valid aqueous
 reaction exists between the entries and the
 product composition and returns a MultiEntry
 with weights according to the coefficients if so.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>entry_list</strong> (<em>[</em><em>Entry</em><em>]</em>) – list of entries from which to
-create a MultiEntry</li>
-<li><strong>prod_comp</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – composition constraint for setting
-weights of MultiEntry</li>
-<li><strong>coeff_threshold</strong> (<em>float</em>) – threshold of stoichiometric
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entry_list</strong> (<em>[</em><em>Entry</em><em>]</em>) – list of entries from which to
+create a MultiEntry</p></li>
+<li><p><strong>prod_comp</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – composition constraint for setting
+weights of MultiEntry</p></li>
+<li><p><strong>coeff_threshold</strong> (<em>float</em>) – threshold of stoichiometric
 coefficients to filter, if weights are lower than
-this value, the entry is not returned</li>
+this value, the entry is not returned</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -310,15 +284,12 @@ g of the form: e = e0 + 0.0591 log10(conc) - nO mu_H2O
 should be formation energies with respect to hydrogen and
 oxygen gas in order for the pourbaix diagram formalism to
 work. This may be changed to be more flexible in the future.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>entry</strong> (<em>ComputedEntry/ComputedStructureEntry/PDEntry/IonEntry</em>) – An
-entry object</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>entry</strong> (<em>ComputedEntry/ComputedStructureEntry/PDEntry/IonEntry</em>) – An
+entry object</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixEntry.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixEntry.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.as_dict" title="Permalink to this definition">¶</a></dt>
@@ -344,9 +315,9 @@ and should only be present when there are ions in the entry</p>
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixEntry.energy">
 <code class="descname">energy</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns energy</p>
-<dl class="docutils">
-<dt>Returns (float): total energy of the pourbaix</dt>
-<dd>entry (at pH, V = 0 vs. SHE)</dd>
+<dl class="simple">
+<dt>Returns (float): total energy of the pourbaix</dt><dd><p>entry (at pH, V = 0 vs. SHE)</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -354,21 +325,17 @@ and should only be present when there are ions in the entry</p>
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixEntry.energy_at_conditions">
 <code class="descname">energy_at_conditions</code><span class="sig-paren">(</span><em>pH</em>, <em>V</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixEntry.energy_at_conditions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.energy_at_conditions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get free energy for a given pH and V</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>pH</strong> (<em>float</em>) – pH at which to evaluate free energy</li>
-<li><strong>V</strong> (<em>float</em>) – voltage at which to evaluate free energy</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pH</strong> (<em>float</em>) – pH at which to evaluate free energy</p></li>
+<li><p><strong>V</strong> (<em>float</em>) – voltage at which to evaluate free energy</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">free energy at conditions</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>free energy at conditions</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -408,16 +375,9 @@ and should only be present when there are ions in the entry</p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixEntry.normalized_energy">
 <code class="descname">normalized_energy</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.normalized_energy" title="Permalink to this definition">¶</a></dt>
-<dd><p>energy normalized by number of non H or O atoms, e. g.
+<dd><p>Returns:
+energy normalized by number of non H or O atoms, e. g.
 for Zn2O6, energy / 2 or for AgTe3(OH)3, energy / 4</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">Returns</td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 <dl class="method">
@@ -425,21 +385,17 @@ for Zn2O6, energy / 2 or for AgTe3(OH)3, energy / 4</p>
 <code class="descname">normalized_energy_at_conditions</code><span class="sig-paren">(</span><em>pH</em>, <em>V</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixEntry.normalized_energy_at_conditions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.normalized_energy_at_conditions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Energy at an electrochemical condition, compatible with
 numpy arrays for pH/V input</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>pH</strong> (<em>float</em>) – pH at condition</li>
-<li><strong>V</strong> (<em>float</em>) – applied potential at condition</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pH</strong> (<em>float</em>) – pH at condition</p></li>
+<li><p><strong>V</strong> (<em>float</em>) – applied potential at condition</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">energy normalized by number of non-O/H atoms at condition</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>energy normalized by number of non-O/H atoms at condition</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -460,57 +416,47 @@ numpy arrays for pH/V input</p>
 <em class="property">class </em><code class="descname">PourbaixPlotter</code><span class="sig-paren">(</span><em>pourbaix_diagram</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixPlotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixPlotter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A plotter class for phase diagrams.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>phasediagram</strong> – A PhaseDiagram object.</li>
-<li><strong>show_unstable</strong> – Whether unstable phases will be plotted as well as
-red crosses. Defaults to False.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>phasediagram</strong> – A PhaseDiagram object.</p></li>
+<li><p><strong>show_unstable</strong> – Whether unstable phases will be plotted as well as
+red crosses. Defaults to False.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixPlotter.domain_vertices">
 <code class="descname">domain_vertices</code><span class="sig-paren">(</span><em>entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixPlotter.domain_vertices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixPlotter.domain_vertices" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the vertices of the Pourbaix domain.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>entry</strong> – Entry for which domain vertices are desired</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list of vertices</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>entry</strong> – Entry for which domain vertices are desired</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of vertices</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixPlotter.get_pourbaix_plot">
 <code class="descname">get_pourbaix_plot</code><span class="sig-paren">(</span><em>limits=None</em>, <em>title=''</em>, <em>label_domains=True</em>, <em>plt=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixPlotter.get_pourbaix_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixPlotter.get_pourbaix_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot Pourbaix diagram.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>limits</strong> – 2D list containing limits of the Pourbaix diagram
-of the form [[xlo, xhi], [ylo, yhi]]</li>
-<li><strong>title</strong> (<em>str</em>) – Title to display on plot</li>
-<li><strong>label_domains</strong> (<em>bool</em>) – whether to label pourbaix domains</li>
-<li><strong>plt</strong> (<em>pyplot</em>) – Pyplot instance for plotting</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>limits</strong> – 2D list containing limits of the Pourbaix diagram
+of the form [[xlo, xhi], [ylo, yhi]]</p></li>
+<li><p><strong>title</strong> (<em>str</em>) – Title to display on plot</p></li>
+<li><p><strong>label_domains</strong> (<em>bool</em>) – whether to label pourbaix domains</p></li>
+<li><p><strong>plt</strong> (<em>pyplot</em>) – Pyplot instance for plotting</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">plt (pyplot) - matplotlib plot object with pourbaix diagram</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>plt (pyplot) - matplotlib plot object with pourbaix diagram</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -522,21 +468,17 @@ of the form [[xlo, xhi], [ylo, yhi]]</li>
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixPlotter.show">
 <code class="descname">show</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixPlotter.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixPlotter.show" title="Permalink to this definition">¶</a></dt>
 <dd><p>Shows the pourbaix plot</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>*args</strong> – args to get_pourbaix_plot</li>
-<li><strong>**kwargs</strong> – kwargs to get_pourbaix_plot</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>*args</strong> – args to get_pourbaix_plot</p></li>
+<li><p><strong>**kwargs</strong> – kwargs to get_pourbaix_plot</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -545,14 +487,11 @@ of the form [[xlo, xhi], [ylo, yhi]]</li>
 <dt id="pymatgen.analysis.pourbaix_diagram.generate_entry_label">
 <code class="descname">generate_entry_label</code><span class="sig-paren">(</span><em>entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#generate_entry_label"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.generate_entry_label" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a label for the pourbaix plotter</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>entry</strong> (<a class="reference internal" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry" title="pymatgen.analysis.pourbaix_diagram.PourbaixEntry"><em>PourbaixEntry</em></a><em> or </em><a class="reference internal" href="#pymatgen.analysis.pourbaix_diagram.MultiEntry" title="pymatgen.analysis.pourbaix_diagram.MultiEntry"><em>MultiEntry</em></a>) – entry to get a label for</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>entry</strong> (<a class="reference internal" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry" title="pymatgen.analysis.pourbaix_diagram.PourbaixEntry"><em>PourbaixEntry</em></a><em> or </em><a class="reference internal" href="#pymatgen.analysis.pourbaix_diagram.MultiEntry" title="pymatgen.analysis.pourbaix_diagram.MultiEntry"><em>MultiEntry</em></a>) – entry to get a label for</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -560,17 +499,15 @@ of the form [[xlo, xhi], [ylo, yhi]]</li>
 <code class="descname">ion_or_solid_comp_object</code><span class="sig-paren">(</span><em>formula</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#ion_or_solid_comp_object"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.ion_or_solid_comp_object" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns either an ion object or composition object given
 a formula.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>formula</strong> – String formula. Eg. of ion: NaOH(aq), Na[+];
-Eg. of solid: Fe2O3(s), Fe(s), Na2O</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Composition/Ion object</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>formula</strong> – String formula. Eg. of ion: NaOH(aq), Na[+];
+Eg. of solid: Fe2O3(s), Fe(s), Na2O</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Composition/Ion object</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -599,8 +536,6 @@ Eg. of solid: Fe2O3(s), Fe(s), Na2O</td>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -618,13 +553,13 @@ Eg. of solid: Fe2O3(s), Fe(s), Na2O</td>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.util.plotting module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.util.plotting module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -57,25 +55,36 @@ See doc string below for the list of supported options.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="pymatgen.util.plotting.format_formula">
+<code class="descname">format_formula</code><span class="sig-paren">(</span><em>formula</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/plotting.html#format_formula"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.plotting.format_formula" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts str of chemical formula into
+latex format for labelling purposes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>formula</strong> (<em>str</em>) – Chemical formula</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
 <dt id="pymatgen.util.plotting.get_ax3d_fig_plt">
 <code class="descname">get_ax3d_fig_plt</code><span class="sig-paren">(</span><em>ax=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/plotting.html#get_ax3d_fig_plt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.plotting.get_ax3d_fig_plt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function used in plot functions supporting an optional Axes3D
 argument. If ax is None, we build the <cite>matplotlib</cite> figure and create the
 Axes3D else we return the current active figure.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>kwargs</strong> – keyword arguments are passed to plt.figure if ax is not None.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code> object
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>kwargs</strong> – keyword arguments are passed to plt.figure if ax is not None.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code> object
 figure: matplotlib figure
-plt: matplotlib pyplot module.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">ax</td>
-</tr>
-</tbody>
-</table>
+plt: matplotlib pyplot module.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ax</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -84,20 +93,19 @@ plt: matplotlib pyplot module.</td>
 <dd><p>Helper function used in plot functions supporting an optional Axes argument.
 If ax is None, we build the <cite>matplotlib</cite> figure and create the Axes else
 we return the current active figure.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>kwargs</strong> – keyword arguments are passed to plt.figure if ax is not None.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code> object
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>kwargs</strong> – keyword arguments are passed to plt.figure if ax is not None.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code> object
 figure: matplotlib figure
-plt: matplotlib pyplot module.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">ax</td>
-</tr>
-</tbody>
-</table>
+plt: matplotlib pyplot module.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ax</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -107,77 +115,67 @@ plt: matplotlib pyplot module.</td>
 as argument. If ax_array is None, we build the <cite>matplotlib</cite> figure and
 create the array of Axes by calling plt.subplots else we return the
 current active figure.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Array of <code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code> objects
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Array of <code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code> objects
 figure: matplotlib figure
-plt: matplotlib pyplot module.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">ax</td>
-</tr>
-</tbody>
-</table>
+plt: matplotlib pyplot module.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ax</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.plotting.periodic_table_heatmap">
 <code class="descname">periodic_table_heatmap</code><span class="sig-paren">(</span><em>elemental_data</em>, <em>cbar_label=''</em>, <em>show_plot=False</em>, <em>cmap='YlOrRd'</em>, <em>blank_color='grey'</em>, <em>value_format=None</em>, <em>max_row=9</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/plotting.html#periodic_table_heatmap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.plotting.periodic_table_heatmap" title="Permalink to this definition">¶</a></dt>
 <dd><p>A static method that generates a heat map overlapped on a periodic table.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>elemental_data</strong> (<em>dict</em>) – A dictionary with the element as a key and a
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>elemental_data</strong> (<em>dict</em>) – A dictionary with the element as a key and a
 value assigned to it, e.g. surface energy and frequency, etc.
 Elements missing in the elemental_data will be grey by default
-in the final table elemental_data={“Fe”: 4.2, “O”: 5.0}.</li>
-<li><strong>cbar_label</strong> (<em>string</em>) – Label of the colorbar. Default is “”.</li>
-<li><strong>figure_name</strong> (<em>string</em>) – Name of the plot (absolute path) being saved
-if not None.</li>
-<li><strong>show_plot</strong> (<em>bool</em>) – Whether to show the heatmap. Default is False.</li>
-<li><strong>value_format</strong> (<em>str</em>) – Formatting string to show values. If None, no value
-is shown. Example: “%.4f” shows float to four decimals.</li>
-<li><strong>cmap</strong> (<em>string</em>) – Color scheme of the heatmap. Default is ‘coolwarm’.</li>
-<li><strong>blank_color</strong> (<em>string</em>) – Color assigned for the missing elements in
-elemental_data. Default is “grey”.</li>
-<li><strong>max_row</strong> (<em>integer</em>) – Maximum number of rows of the periodic table to be
+in the final table elemental_data={“Fe”: 4.2, “O”: 5.0}.</p></li>
+<li><p><strong>cbar_label</strong> (<em>string</em>) – Label of the colorbar. Default is “”.</p></li>
+<li><p><strong>figure_name</strong> (<em>string</em>) – Name of the plot (absolute path) being saved
+if not None.</p></li>
+<li><p><strong>show_plot</strong> (<em>bool</em>) – Whether to show the heatmap. Default is False.</p></li>
+<li><p><strong>value_format</strong> (<em>str</em>) – Formatting string to show values. If None, no value
+is shown. Example: “%.4f” shows float to four decimals.</p></li>
+<li><p><strong>cmap</strong> (<em>string</em>) – Color scheme of the heatmap. Default is ‘coolwarm’.</p></li>
+<li><p><strong>blank_color</strong> (<em>string</em>) – Color assigned for the missing elements in
+elemental_data. Default is “grey”.</p></li>
+<li><p><strong>max_row</strong> (<em>integer</em>) – Maximum number of rows of the periodic table to be
 shown. Default is 9, which means the periodic table heat map covers
-the first 9 rows of elements.</li>
+the first 9 rows of elements.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.plotting.pretty_plot">
 <code class="descname">pretty_plot</code><span class="sig-paren">(</span><em>width=8</em>, <em>height=None</em>, <em>plt=None</em>, <em>dpi=None</em>, <em>color_cycle=('qualitative'</em>, <em>'Set1_9')</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/plotting.html#pretty_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.plotting.pretty_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides a publication quality plot, with nice defaults for font sizes etc.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>width</strong> (<em>float</em>) – Width of plot in inches. Defaults to 8in.</li>
-<li><strong>height</strong> (<em>float</em>) – Height of plot in inches. Defaults to width * golden
-ratio.</li>
-<li><strong>plt</strong> (<em>matplotlib.pyplot</em>) – If plt is supplied, changes will be made to an
-existing plot. Otherwise, a new plot will be created.</li>
-<li><strong>dpi</strong> (<em>int</em>) – Sets dot per inch for figure. Defaults to 300.</li>
-<li><strong>color_cycle</strong> (<em>tuple</em>) – Set the color cycle for new plots to one of the
-color sets in palettable. Defaults to a qualitative Set1_9.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>width</strong> (<em>float</em>) – Width of plot in inches. Defaults to 8in.</p></li>
+<li><p><strong>height</strong> (<em>float</em>) – Height of plot in inches. Defaults to width * golden
+ratio.</p></li>
+<li><p><strong>plt</strong> (<em>matplotlib.pyplot</em>) – If plt is supplied, changes will be made to an
+existing plot. Otherwise, a new plot will be created.</p></li>
+<li><p><strong>dpi</strong> (<em>int</em>) – Sets dot per inch for figure. Defaults to 300.</p></li>
+<li><p><strong>color_cycle</strong> (<em>tuple</em>) – Set the color cycle for new plots to one of the
+color sets in palettable. Defaults to a qualitative Set1_9.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Matplotlib plot object with properly sized fonts.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Matplotlib plot object with properly sized fonts.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -185,56 +183,83 @@ color sets in palettable. Defaults to a qualitative Set1_9.</li>
 <code class="descname">pretty_plot_two_axis</code><span class="sig-paren">(</span><em>x</em>, <em>y1</em>, <em>y2</em>, <em>xlabel=None</em>, <em>y1label=None</em>, <em>y2label=None</em>, <em>width=8</em>, <em>height=None</em>, <em>dpi=300</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/plotting.html#pretty_plot_two_axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.plotting.pretty_plot_two_axis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Variant of pretty_plot that does a dual axis plot. Adapted from matplotlib
 examples. Makes it easier to create plots with different axes.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>x</strong> (<em>np.ndarray/list</em>) – Data for x-axis.</li>
-<li><strong>y1</strong> (<em>dict/np.ndarray/list</em>) – Data for y1 axis (left). If a dict, it will
-be interpreted as a {label: sequence}.</li>
-<li><strong>y2</strong> (<em>dict/np.ndarray/list</em>) – Data for y2 axis (right). If a dict, it will
-be interpreted as a {label: sequence}.</li>
-<li><strong>xlabel</strong> (<em>str</em>) – If not None, this will be the label for the x-axis.</li>
-<li><strong>y1label</strong> (<em>str</em>) – If not None, this will be the label for the y1-axis.</li>
-<li><strong>y2label</strong> (<em>str</em>) – If not None, this will be the label for the y2-axis.</li>
-<li><strong>width</strong> (<em>float</em>) – Width of plot in inches. Defaults to 8in.</li>
-<li><strong>height</strong> (<em>float</em>) – Height of plot in inches. Defaults to width * golden
-ratio.</li>
-<li><strong>dpi</strong> (<em>int</em>) – Sets dot per inch for figure. Defaults to 300.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.ndarray/list</em>) – Data for x-axis.</p></li>
+<li><p><strong>y1</strong> (<em>dict/np.ndarray/list</em>) – Data for y1 axis (left). If a dict, it will
+be interpreted as a {label: sequence}.</p></li>
+<li><p><strong>y2</strong> (<em>dict/np.ndarray/list</em>) – Data for y2 axis (right). If a dict, it will
+be interpreted as a {label: sequence}.</p></li>
+<li><p><strong>xlabel</strong> (<em>str</em>) – If not None, this will be the label for the x-axis.</p></li>
+<li><p><strong>y1label</strong> (<em>str</em>) – If not None, this will be the label for the y1-axis.</p></li>
+<li><p><strong>y2label</strong> (<em>str</em>) – If not None, this will be the label for the y2-axis.</p></li>
+<li><p><strong>width</strong> (<em>float</em>) – Width of plot in inches. Defaults to 8in.</p></li>
+<li><p><strong>height</strong> (<em>float</em>) – Height of plot in inches. Defaults to width * golden
+ratio.</p></li>
+<li><p><strong>dpi</strong> (<em>int</em>) – Sets dot per inch for figure. Defaults to 300.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">matplotlib.pyplot</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>matplotlib.pyplot</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.plotting.pretty_polyfit_plot">
 <code class="descname">pretty_polyfit_plot</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>deg=1</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/plotting.html#pretty_polyfit_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.plotting.pretty_polyfit_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience method to plot data with trend lines based on polynomial fit.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>x</strong> – Sequence of x data.</li>
-<li><strong>y</strong> – Sequence of y data.</li>
-<li><strong>deg</strong> (<em>int</em>) – Degree of polynomial. Defaults to 1.</li>
-<li><strong>xlabel</strong> (<em>str</em>) – Label for x-axis.</li>
-<li><strong>ylabel</strong> (<em>str</em>) – Label for y-axis.</li>
-<li><strong>**kwargs</strong> – Keyword args passed to pretty_plot.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – Sequence of x data.</p></li>
+<li><p><strong>y</strong> – Sequence of y data.</p></li>
+<li><p><strong>deg</strong> (<em>int</em>) – Degree of polynomial. Defaults to 1.</p></li>
+<li><p><strong>xlabel</strong> (<em>str</em>) – Label for x-axis.</p></li>
+<li><p><strong>ylabel</strong> (<em>str</em>) – Label for y-axis.</p></li>
+<li><p><strong>**kwargs</strong> – Keyword args passed to pretty_plot.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">matplotlib.pyplot object.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>matplotlib.pyplot object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.util.plotting.van_arkel_triangle">
+<code class="descname">van_arkel_triangle</code><span class="sig-paren">(</span><em>list_of_materials</em>, <em>annotate=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/plotting.html#van_arkel_triangle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.plotting.van_arkel_triangle" title="Permalink to this definition">¶</a></dt>
+<dd><dl>
+<dt>A static method that generates a binary van Arkel-Ketelaar triangle to</dt><dd><p>quantify the ionic, metallic and covalent character of a compound
+by plotting the electronegativity difference (y) vs average (x).
+See:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>A.E. van Arkel, Molecules and Crystals in Inorganic Chemistry,</dt><dd><p>Interscience, New York (1956)</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="simple">
+<dt>and</dt><dd><dl class="simple">
+<dt>J.A.A Ketelaar, Chemical Constitution (2nd edn.), An Introduction</dt><dd><p>to the Theory of the Chemical Bond, Elsevier, New York (1958)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>list_of_materials</strong> (<em>list</em>) – A list of computed entries of binary
+materials or a list of lists containing two elements (str).</p></li>
+<li><p><strong>annotate</strong> (<em>bool</em>) – Whether or not to lable the points on the
+triangle with reduced formula (if list of entries) or pair
+of elements (if list of list of str).</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -258,8 +283,6 @@ ratio.</li>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -277,13 +300,13 @@ ratio.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

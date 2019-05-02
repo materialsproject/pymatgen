@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.defects.core module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.defects.core module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -52,22 +50,18 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Abstract class for a single point defect</p>
 <p>Initializes an abstract defect</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> – Pymatgen Structure without any defects</li>
-<li><strong>defect_site</strong> (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a>) – site for defect within structure
-must have same lattice as structure</li>
-<li><strong>charge</strong> – (int or float) defect charge
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – Pymatgen Structure without any defects</p></li>
+<li><p><strong>defect_site</strong> (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a>) – site for defect within structure
+must have same lattice as structure</p></li>
+<li><p><strong>charge</strong> – (int or float) defect charge
 default is zero, meaning no change to NELECT after defect is created in the structure
-(assuming use_structure_charge=True in vasp input set)</li>
+(assuming use_structure_charge=True in vasp input set)</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.analysis.defects.core.Defect.bulk_structure">
 <code class="descname">bulk_structure</code><a class="headerlink" href="#pymatgen.analysis.defects.core.Defect.bulk_structure" title="Permalink to this definition">¶</a></dt>
@@ -84,14 +78,11 @@ default is zero, meaning no change to NELECT after defect is created in the stru
 <dt id="pymatgen.analysis.defects.core.Defect.copy">
 <code class="descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/core.html#Defect.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Defect.copy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience method to get a copy of the defect.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A copy of the Defect.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A copy of the Defect.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -145,37 +136,35 @@ default is zero, meaning no change to NELECT after defect is created in the stru
 <dt id="pymatgen.analysis.defects.core.DefectCorrection.correct_entry">
 <code class="descname">correct_entry</code><span class="sig-paren">(</span><em>entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/core.html#DefectCorrection.correct_entry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectCorrection.correct_entry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Corrects a single entry.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>entry</strong> – A DefectEntry object.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An processed entry.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body">CompatibilityError if entry is not compatible.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>entry</strong> – A DefectEntry object.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An processed entry.</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>CompatibilityError if entry is not compatible.</strong> – </p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.defects.core.DefectCorrection.get_correction">
 <code class="descname">get_correction</code><span class="sig-paren">(</span><em>entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/core.html#DefectCorrection.get_correction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectCorrection.get_correction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns correction for a single entry.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>entry</strong> – A DefectEntry object.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A single dictionary with the format
-correction_name: energy_correction</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body">CompatibilityError if entry is not compatible.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>entry</strong> – A DefectEntry object.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A single dictionary with the format
+correction_name: energy_correction</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>CompatibilityError if entry is not compatible.</strong> – </p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -186,36 +175,32 @@ correction_name: energy_correction</td>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>An lightweight DefectEntry object containing key computed data
 for many defect analysis.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>defect</strong> – A Defect object from pymatgen.analysis.defects.core</li>
-<li><strong>uncorrected_energy</strong> (<em>float</em>) – Energy of the defect entry. Usually the difference between
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>defect</strong> – A Defect object from pymatgen.analysis.defects.core</p></li>
+<li><p><strong>uncorrected_energy</strong> (<em>float</em>) – Energy of the defect entry. Usually the difference between
 the final calculated energy for the defect supercell - the perfect
-supercell energy</li>
-<li><strong>corrections</strong> (<em>[</em><a class="reference internal" href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Correction" title="pymatgen.entries.compatibility.Correction"><em>Correction</em></a><em>]</em>) – List of Correction classes (from pymatgen.analysis.defects.corrections)
+supercell energy</p></li>
+<li><p><strong>corrections</strong> (<em>[</em><a class="reference internal" href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Correction" title="pymatgen.entries.compatibility.Correction"><em>Correction</em></a><em>]</em>) – List of Correction classes (from pymatgen.analysis.defects.corrections)
 which correct energy due to charge (e.g. Freysoldt or Kumagai)
-or other factors (e.g. Shallow level shifts)</li>
-<li><strong>parameters</strong> (<em>dict</em>) – An optional dict of calculation parameters and data to
+or other factors (e.g. Shallow level shifts)</p></li>
+<li><p><strong>parameters</strong> (<em>dict</em>) – An optional dict of calculation parameters and data to
 use with correction schemes
 (examples of parameter keys: supercell_size, axis_grid, bulk_planar_averages
-defect_planar_averages )</li>
-<li><strong>entry_id</strong> (<em>obj</em>) – An id to uniquely identify this defect, can be any MSONable
-type</li>
+defect_planar_averages )</p></li>
+<li><p><strong>entry_id</strong> (<em>obj</em>) – An id to uniquely identify this defect, can be any MSONable
+type</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="docutils">
-<dt>Optional:</dt>
-<dd><p class="first">note that if you intend to use this defect entry with Charge Corrections
+</dd>
+</dl>
+<dl>
+<dt>Optional:</dt><dd><p>note that if you intend to use this defect entry with Charge Corrections
 but the bulk_structure stored in defect is not the final supercell,
 then ‘scaling_matrix’ must be stored in parameters</p>
-<blockquote class="last">
-<div>for example: parameters = {‘scaling_matrix’: [3,3,3]}</div></blockquote>
+<blockquote>
+<div><p>for example: parameters = {‘scaling_matrix’: [3,3,3]}</p>
+</div></blockquote>
 </dd>
 </dl>
 <dl class="method">
@@ -238,14 +223,11 @@ then ‘scaling_matrix’ must be stored in parameters</p>
 <dt id="pymatgen.analysis.defects.core.DefectEntry.copy">
 <code class="descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/core.html#DefectEntry.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry.copy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience method to get a copy of the DefectEntry.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A copy of the DefectEntry.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A copy of the DefectEntry.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -254,14 +236,11 @@ then ‘scaling_matrix’ must be stored in parameters</p>
 <dd><p>Get the defect concentration for a temperature and Fermi level.
 :param temperature: the temperature in K
 :param fermi_level: the fermi level in eV (with respect to the VBM)</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">defects concentration in cm^-3</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>defects concentration in cm^-3</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -282,11 +261,11 @@ then ‘scaling_matrix’ must be stored in parameters</p>
 <dd><p>Reconstitute a DefectEntry object from a dict representation created using
 as_dict().</p>
 <blockquote>
-<div><dl class="docutils">
-<dt>Args:</dt>
-<dd>d (dict): dict representation of DefectEntry.</dd>
-<dt>Returns:</dt>
-<dd>DefectEntry object</dd>
+<div><dl class="simple">
+<dt>Args:</dt><dd><p>d (dict): dict representation of DefectEntry.</p>
+</dd>
+<dt>Returns:</dt><dd><p>DefectEntry object</p>
+</dd>
 </dl>
 </div></blockquote>
 </dd></dl>
@@ -321,19 +300,19 @@ User must specify multiplity. Default is 1
 :type defect_site: Site
 :param charge: (int or float) defect charge</p>
 <blockquote>
-<div>default is zero, meaning no change to NELECT after defect is created in the structure
-(assuming use_structure_charge=True in vasp input set)</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>site_name</strong> – <p>allows user to give a unique name to defect, since Wyckoff symbol/multiplicity
+<div><p>default is zero, meaning no change to NELECT after defect is created in the structure
+(assuming use_structure_charge=True in vasp input set)</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>site_name</strong> – <p>allows user to give a unique name to defect, since Wyckoff symbol/multiplicity
 is sometimes insufficient to categorize the defect type.</p>
 <blockquote>
-<div>default is no name beyond multiplicity.</div></blockquote>
-</li>
-<li><strong>multiplicity</strong> (<em>int</em>) – <p>multiplicity of defect within
+<div><p>default is no name beyond multiplicity.</p>
+</div></blockquote>
+</p></li>
+<li><p><strong>multiplicity</strong> (<em>int</em>) – <p>multiplicity of defect within
 the supercell can be supplied by user. if not
 specified, then space group symmetry is used
 to generator interstitial sublattice</p>
@@ -345,12 +324,10 @@ If defect is not a complex, then this
 process will yield the correct multiplicity,
 provided that the defect does not undergo
 significant relaxation.</p>
-</li>
+</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.analysis.defects.core.Interstitial.defect_composition">
 <code class="descname">defect_composition</code><a class="headerlink" href="#pymatgen.analysis.defects.core.Interstitial.defect_composition" title="Permalink to this definition">¶</a></dt>
@@ -385,22 +362,18 @@ significant relaxation.</p>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.defects.core.Defect" title="pymatgen.analysis.defects.core.Defect"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.defects.core.Defect</span></code></a></p>
 <p>Subclass of Defect to capture essential information for a single Substitution defect structure.</p>
 <p>Initializes an abstract defect</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> – Pymatgen Structure without any defects</li>
-<li><strong>defect_site</strong> (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a>) – site for defect within structure
-must have same lattice as structure</li>
-<li><strong>charge</strong> – (int or float) defect charge
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – Pymatgen Structure without any defects</p></li>
+<li><p><strong>defect_site</strong> (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a>) – site for defect within structure
+must have same lattice as structure</p></li>
+<li><p><strong>charge</strong> – (int or float) defect charge
 default is zero, meaning no change to NELECT after defect is created in the structure
-(assuming use_structure_charge=True in vasp input set)</li>
+(assuming use_structure_charge=True in vasp input set)</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.analysis.defects.core.Substitution.defect_composition">
 <code class="descname">defect_composition</code><a class="headerlink" href="#pymatgen.analysis.defects.core.Substitution.defect_composition" title="Permalink to this definition">¶</a></dt>
@@ -435,22 +408,18 @@ default is zero, meaning no change to NELECT after defect is created in the stru
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.defects.core.Defect" title="pymatgen.analysis.defects.core.Defect"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.defects.core.Defect</span></code></a></p>
 <p>Subclass of Defect to capture essential information for a single Vacancy defect structure.</p>
 <p>Initializes an abstract defect</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> – Pymatgen Structure without any defects</li>
-<li><strong>defect_site</strong> (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a>) – site for defect within structure
-must have same lattice as structure</li>
-<li><strong>charge</strong> – (int or float) defect charge
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – Pymatgen Structure without any defects</p></li>
+<li><p><strong>defect_site</strong> (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a>) – site for defect within structure
+must have same lattice as structure</p></li>
+<li><p><strong>charge</strong> – (int or float) defect charge
 default is zero, meaning no change to NELECT after defect is created in the structure
-(assuming use_structure_charge=True in vasp input set)</li>
+(assuming use_structure_charge=True in vasp input set)</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.analysis.defects.core.Vacancy.defect_composition">
 <code class="descname">defect_composition</code><a class="headerlink" href="#pymatgen.analysis.defects.core.Vacancy.defect_composition" title="Permalink to this definition">¶</a></dt>
@@ -486,24 +455,22 @@ default is zero, meaning no change to NELECT after defect is created in the stru
 sublattice for it based on the structure’s space group.
 Useful for understanding multiplicity of an interstitial
 defect in thermodynamic analysis.</p>
-<dl class="docutils">
-<dt>NOTE: if large relaxation happens to interstitial or</dt>
-<dd>defect involves a complex then there maybe additional
+<dl class="simple">
+<dt>NOTE: if large relaxation happens to interstitial or</dt><dd><p>defect involves a complex then there maybe additional
 degrees of freedom that need to be considered for
-the multiplicity.</dd>
+the multiplicity.</p>
+</dd>
 </dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dist_tol</strong> – changing distance tolerance of saturated structure,
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dist_tol</strong> – changing distance tolerance of saturated structure,
 allowing for possibly overlapping sites
-but ensuring space group is maintained</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Structure object decorated with interstitial site equivalents</td>
-</tr>
-</tbody>
-</table>
+but ensuring space group is maintained</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Structure object decorated with interstitial site equivalents</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -527,8 +494,6 @@ but ensuring space group is maintained</td>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -546,13 +511,13 @@ but ensuring space group is maintained</td>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

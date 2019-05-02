@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.elasticity.stress module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.elasticity.stress module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -57,15 +55,12 @@ stress</p>
 <p>Create a Stress object.  Note that the constructor uses __new__
 rather than __init__ according to the standard method of
 subclassing numpy ndarrays.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stress_matrix</strong> (<em>3x3 array-like</em>) – the 3x3 array-like
-representing the stress</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>stress_matrix</strong> (<em>3x3 array-like</em>) – the 3x3 array-like
+representing the stress</p>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.analysis.elasticity.stress.Stress.dev_principal_invariants">
 <code class="descname">dev_principal_invariants</code><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.dev_principal_invariants" title="Permalink to this definition">¶</a></dt>
@@ -91,28 +86,22 @@ stress</p>
 <dt id="pymatgen.analysis.elasticity.stress.Stress.piola_kirchoff_1">
 <code class="descname">piola_kirchoff_1</code><span class="sig-paren">(</span><em>def_grad</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/stress.html#Stress.piola_kirchoff_1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.piola_kirchoff_1" title="Permalink to this definition">¶</a></dt>
 <dd><p>calculates the first Piola-Kirchoff stress</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>def_grad</strong> (<em>3x3 array-like</em>) – deformation gradient tensor</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>def_grad</strong> (<em>3x3 array-like</em>) – deformation gradient tensor</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.elasticity.stress.Stress.piola_kirchoff_2">
 <code class="descname">piola_kirchoff_2</code><span class="sig-paren">(</span><em>def_grad</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/stress.html#Stress.piola_kirchoff_2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.piola_kirchoff_2" title="Permalink to this definition">¶</a></dt>
 <dd><p>calculates the second Piola-Kirchoff stress</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>def_grad</strong> (<em>3x3 array-like</em>) – rate of deformation tensor</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>def_grad</strong> (<em>3x3 array-like</em>) – rate of deformation tensor</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -149,8 +138,6 @@ stress</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -168,13 +155,13 @@ stress</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

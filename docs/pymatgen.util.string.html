@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.util.string module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.util.string module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -65,22 +63,18 @@
 for disordered structures. Will only return a
 formula for disordered structures with one
 kind of disordered site at present.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>disordered_struct</strong> – a disordered structure</li>
-<li><strong>symbols</strong> – a tuple of characters to use for</li>
-<li><strong>by default this is</strong> (<em>subscripts</em><em>,</em>) – </li>
-<li><strong>if you have more than three disordered</strong> (<em>but</em>) – </li>
-<li><strong>more symbols will need to be added</strong> (<em>species</em>) – </li>
-<li><strong>fmt</strong> (<em>str</em>) – ‘plain’, ‘HTML’ or ‘LaTeX’</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>disordered_struct</strong> – a disordered structure</p></li>
+<li><p><strong>symbols</strong> – a tuple of characters to use for</p></li>
+<li><p><strong>by default this is</strong> (<em>subscripts</em><em>,</em>) – </p></li>
+<li><p><strong>if you have more than three disordered</strong> (<em>but</em>) – </p></li>
+<li><p><strong>more symbols will need to be added</strong> (<em>species</em>) – </p></li>
+<li><p><strong>fmt</strong> (<em>str</em>) – ‘plain’, ‘HTML’ or ‘LaTeX’</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p>Returns (str): a disordered formula string</p>
 </dd></dl>
 
@@ -89,22 +83,18 @@ kind of disordered site at present.</p>
 <code class="descname">formula_double_format</code><span class="sig-paren">(</span><em>afloat</em>, <em>ignore_ones=True</em>, <em>tol=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#formula_double_format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.formula_double_format" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function is used to make pretty formulas by formatting the amounts.
 Instead of Li1.0 Fe1.0 P1.0 O4.0, you get LiFePO4.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>afloat</strong> (<em>float</em>) – a float</li>
-<li><strong>ignore_ones</strong> (<em>bool</em>) – if true, floats of 1 are ignored.</li>
-<li><strong>tol</strong> (<em>float</em>) – Tolerance to round to nearest int. i.e. 2.0000000001 -&gt; 2</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>afloat</strong> (<em>float</em>) – a float</p></li>
+<li><p><strong>ignore_ones</strong> (<em>bool</em>) – if true, floats of 1 are ignored.</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – Tolerance to round to nearest int. i.e. 2.0000000001 -&gt; 2</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A string representation of the float for formulas.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A string representation of the float for formulas.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -112,16 +102,14 @@ Instead of Li1.0 Fe1.0 P1.0 O4.0, you get LiFePO4.</p>
 <code class="descname">htmlify</code><span class="sig-paren">(</span><em>formula</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#htmlify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.htmlify" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a HTML formatted formula, e.g. Fe2O3 is transformed to
 Fe&lt;sub&gt;2&lt;/sub&gt;O&lt;/sub&gt;3&lt;/sub&gt;</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>formula</strong> – </td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>formula</strong> – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -129,16 +117,14 @@ Fe&lt;sub&gt;2&lt;/sub&gt;O&lt;/sub&gt;3&lt;/sub&gt;</p>
 <code class="descname">latexify</code><span class="sig-paren">(</span><em>formula</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#latexify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.latexify" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a LaTeX formatted formula. E.g., Fe2O3 is transformed to
 Fe$_{2}$O$_{3}$.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>formula</strong> (<em>str</em>) – Input formula.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Formula suitable for display as in LaTeX with proper subscripts.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>formula</strong> (<em>str</em>) – Input formula.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Formula suitable for display as in LaTeX with proper subscripts.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -146,16 +132,14 @@ Fe$_{2}$O$_{3}$.</p>
 <code class="descname">latexify_spacegroup</code><span class="sig-paren">(</span><em>spacegroup_symbol</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#latexify_spacegroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.latexify_spacegroup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a latex formatted spacegroup. E.g., P2_1/c is converted to
 P2$_{1}$/c and P-1 is converted to P$overline{1}$.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>spacegroup_symbol</strong> (<em>str</em>) – A spacegroup symbol</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A latex formatted spacegroup with proper subscripts and overlines.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>spacegroup_symbol</strong> (<em>str</em>) – A spacegroup symbol</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A latex formatted spacegroup with proper subscripts and overlines.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -167,21 +151,17 @@ P2$_{1}$/c and P-1 is converted to P$overline{1}$.</p>
 a,b,c
 d,e,f
 1,2,3</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>result</strong> – 2d sequence of arbitrary types.</li>
-<li><strong>header</strong> – optional header</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>result</strong> – 2d sequence of arbitrary types.</p></li>
+<li><p><strong>header</strong> – optional header</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Aligned string output in a table-like format.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Aligned string output in a table-like format.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -207,16 +187,14 @@ d,e,f
 <code class="descname">unicodeify</code><span class="sig-paren">(</span><em>formula</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#unicodeify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.unicodeify" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a formula with unicode subscripts, e.g. Fe2O3 is transformed
 to Fe₂O₃. Does not support formulae with decimal points.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>formula</strong> – </td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>formula</strong> – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -240,8 +218,6 @@ to Fe₂O₃. Does not support formulae with decimal points.</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -259,13 +235,13 @@ to Fe₂O₃. Does not support formulae with decimal points.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

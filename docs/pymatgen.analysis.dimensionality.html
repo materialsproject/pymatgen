@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.dimensionality module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.dimensionality module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -49,27 +47,23 @@
 <p>This module provides functions to get the dimensionality of a structure.</p>
 <p>A number of different algorithms are implemented. These are based on the
 following publications:</p>
-<dl class="docutils">
-<dt>get_dimensionality_larsen:</dt>
-<dd><ul class="first last simple">
-<li><ol class="first upperalpha" start="16">
-<li>Larsen, M. Pandey, M. Strange, K. W. Jacobsen, 2018, arXiv:1808.02114</li>
-</ol>
-</li>
+<dl class="simple">
+<dt>get_dimensionality_larsen:</dt><dd><ul class="simple">
+<li><p>P. M. Larsen, M. Pandey, M. Strange, K. W. Jacobsen. Definition of a
+scoring parameter to identify low-dimensional materials components.
+Phys. Rev. Materials 3, 034003 (2019).</p></li>
 </ul>
 </dd>
-<dt>get_dimensionality_cheon:</dt>
-<dd><ul class="first last simple">
-<li>Cheon, G.; Duerloo, K.-A. N.; Sendek, A. D.; Porter, C.; Chen, Y.; Reed,
+<dt>get_dimensionality_cheon:</dt><dd><ul class="simple">
+<li><p>Cheon, G.; Duerloo, K.-A. N.; Sendek, A. D.; Porter, C.; Chen, Y.; Reed,
 E. J. Data Mining for New Two- and One-Dimensional Weakly Bonded Solids
-and Lattice-Commensurate Heterostructures. Nano Lett. 2017.</li>
+and Lattice-Commensurate Heterostructures. Nano Lett. 2017.</p></li>
 </ul>
 </dd>
-<dt>get_dimensionality_gorai:</dt>
-<dd><ul class="first last simple">
-<li>Gorai, P., Toberer, E. &amp; Stevanovic, V. Computational Identification of
+<dt>get_dimensionality_gorai:</dt><dd><ul class="simple">
+<li><p>Gorai, P., Toberer, E. &amp; Stevanovic, V. Computational Identification of
 Promising Thermoelectric Materials Among Known Quasi-2D Binary Compounds.
-J. Mater. Chem. A 2, 4136 (2016).</li>
+J. Mater. Chem. A 2, 4136 (2016).</p></li>
 </ul>
 </dd>
 </dl>
@@ -79,34 +73,30 @@ J. Mater. Chem. A 2, 4136 (2016).</li>
 <dd><p>Calculates the dimensionality of the component containing the given site.</p>
 <p>Implements directly the modified breadth-first-search algorithm described in
 Algorithm 1 of:</p>
-<ol class="upperalpha simple" start="16">
-<li>Larsem, M. Pandey, M. Strange, K. W. Jacobsen, 2018, arXiv:1808.02114</li>
-</ol>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>bonded_structure</strong> (<a class="reference internal" href="pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph" title="pymatgen.analysis.graphs.StructureGraph"><em>StructureGraph</em></a>) – A structure with bonds, represented
+<p>P. M. Larsen, M. Pandey, M. Strange, K. W. Jacobsen. Definition of a
+scoring parameter to identify low-dimensional materials components.
+Phys. Rev. Materials 3, 034003 (2019).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bonded_structure</strong> (<a class="reference internal" href="pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph" title="pymatgen.analysis.graphs.StructureGraph"><em>StructureGraph</em></a>) – A structure with bonds, represented
 as a pymatgen structure graph. For example, generated using the
-CrystalNN.get_bonded_structure() method.</li>
-<li><strong>site_index</strong> (<em>int</em>) – The index of a site in the component of interest.</li>
-<li><strong>inc_vertices</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to return the vertices (site
-images) of the component.</li>
+CrystalNN.get_bonded_structure() method.</p></li>
+<li><p><strong>site_index</strong> (<em>int</em>) – The index of a site in the component of interest.</p></li>
+<li><p><strong>inc_vertices</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to return the vertices (site
+images) of the component.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">If inc_vertices is False, the dimensionality of the
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>If inc_vertices is False, the dimensionality of the
 component will be returned as an int. If inc_vertices is true, the
 function will return a tuple of (dimensionality, vertices), where
 vertices is a list of tuples. E.g. [(0, 0, 0), (1, 1, 1)].</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">(int or tuple)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(int or tuple)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -118,28 +108,24 @@ conditions.</p>
 faster computation time)</p>
 <p>Author: “Gowoon Cheon”
 Email: “<a class="reference external" href="mailto:gcheon&#37;&#52;&#48;stanford&#46;edu">gcheon<span>&#64;</span>stanford<span>&#46;</span>edu</a>”</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>struct</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure</li>
-<li><strong>connected_matrix</strong> – Must be made from the same structure with
-find_connected_atoms() function.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>struct</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure</p></li>
+<li><p><strong>connected_matrix</strong> – Must be made from the same structure with
+find_connected_atoms() function.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the size of the largest cluster in the crystal structure
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the size of the largest cluster in the crystal structure
 min_cluster: the size of the smallest cluster in the crystal structure
 clusters: list of bonded clusters found here, clusters are formatted as
 sets of indices of atoms</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">max_cluster</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>max_cluster</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -148,31 +134,27 @@ sets of indices of atoms</p>
 <dd><p>Finds bonded atoms and returns a adjacency matrix of bonded atoms.</p>
 <p>Author: “Gowoon Cheon”
 Email: “<a class="reference external" href="mailto:gcheon&#37;&#52;&#48;stanford&#46;edu">gcheon<span>&#64;</span>stanford<span>&#46;</span>edu</a>”</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>struct</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure</li>
-<li><strong>tolerance</strong> – length in angstroms used in finding bonded atoms. Two atoms
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>struct</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure</p></li>
+<li><p><strong>tolerance</strong> – length in angstroms used in finding bonded atoms. Two atoms
 are considered bonded if (radius of atom 1) + (radius of atom 2) +
 (tolerance) &lt; (distance between atoms 1 and 2). Default
-value = 0.45, the value used by JMol and Cheon et al.</li>
-<li><strong>ldict</strong> – dictionary of bond lengths used in finding bonded atoms. Values
-from JMol are used as default</li>
+value = 0.45, the value used by JMol and Cheon et al.</p></li>
+<li><p><strong>ldict</strong> – dictionary of bond lengths used in finding bonded atoms. Values
+from JMol are used as default</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A numpy array of shape (number of atoms, number of atoms);
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A numpy array of shape (number of atoms, number of atoms);
 If any image of atom j is bonded to atom i with periodic boundary
 conditions, the matrix element [atom i, atom j] is 1.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">(np.ndarray)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(np.ndarray)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -188,37 +170,34 @@ Email: “<a class="reference external" href="mailto:gcheon&#37;&#52;&#48;stanfo
 <p>Cheon, G.; Duerloo, K.-A. N.; Sendek, A. D.; Porter, C.; Chen, Y.; Reed,
 E. J. Data Mining for New Two- and One-Dimensional Weakly Bonded Solids and
 Lattice-Commensurate Heterostructures. Nano Lett. 2017.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure_raw</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – A pymatgen Structure object.</li>
-<li><strong>tolerance</strong> (<em>float</em>) – length in angstroms used in finding bonded atoms.
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure_raw</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – A pymatgen Structure object.</p></li>
+<li><p><strong>tolerance</strong> (<em>float</em>) – length in angstroms used in finding bonded atoms.
 Two atoms are considered bonded if (radius of atom 1) + (radius of
 atom 2) + (tolerance) &lt; (distance between atoms 1 and 2). Default
-value = 0.45, the value used by JMol and Cheon et al.</li>
-<li><strong>ldict</strong> (<em>dict</em>) – dictionary of bond lengths used in finding bonded atoms.
-Values from JMol are used as default</li>
-<li><strong>standardize</strong> – works with conventional standard structures if True. It is
-recommended to keep this as True.</li>
-<li><strong>larger_cell</strong> – <p>tests with 3x3x3 supercell instead of 2x2x2. Testing with
+value = 0.45, the value used by JMol and Cheon et al.</p></li>
+<li><p><strong>ldict</strong> (<em>dict</em>) – dictionary of bond lengths used in finding bonded atoms.
+Values from JMol are used as default</p></li>
+<li><p><strong>standardize</strong> – works with conventional standard structures if True. It is
+recommended to keep this as True.</p></li>
+<li><p><strong>larger_cell</strong> – <p>tests with 3x3x3 supercell instead of 2x2x2. Testing with
 2x2x2 supercell is faster but misclssifies rare interpenetrated 3D</p>
 <blockquote>
-<div>structures. Testing with a larger cell circumvents this problem</div></blockquote>
-</li>
+<div><p>structures. Testing with a larger cell circumvents this problem</p>
+</div></blockquote>
+</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">dimension of the largest cluster as a string. If there are ions
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dimension of the largest cluster as a string. If there are ions
 or molecules it returns ‘intercalated ion/molecule’</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">(str)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(str)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -235,31 +214,27 @@ algorithm, particularly for ionic crystals (e.g., NaCl)</p>
 el_radius_updates to update atomic radii for auto-detection of max bond
 distances, or bonds to explicitly specify max bond distances for atom pairs.
 Note that if you pass both, el_radius_updates are ignored.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> – (Structure) structure to analyze dimensionality for</li>
-<li><strong>max_hkl</strong> – (int) max index of planes to look for layers</li>
-<li><strong>el_radius_updates</strong> – (dict) symbol-&gt;float to update atomic radii</li>
-<li><strong>min_slab_size</strong> – (float) internal surface construction parameter</li>
-<li><strong>min_vacuum_size</strong> – (float) internal surface construction parameter</li>
-<li><strong>standardize</strong> (<em>bool</em>) – whether to standardize the structure before
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – (Structure) structure to analyze dimensionality for</p></li>
+<li><p><strong>max_hkl</strong> – (int) max index of planes to look for layers</p></li>
+<li><p><strong>el_radius_updates</strong> – (dict) symbol-&gt;float to update atomic radii</p></li>
+<li><p><strong>min_slab_size</strong> – (float) internal surface construction parameter</p></li>
+<li><p><strong>min_vacuum_size</strong> – (float) internal surface construction parameter</p></li>
+<li><p><strong>standardize</strong> (<em>bool</em>) – whether to standardize the structure before
 analysis. Set to False only if you already have the structure in a
-convention where layers / chains will be along low &lt;hkl&gt; indexes.</li>
-<li><strong>bonds</strong> (<em>{</em><em>(</em><em>specie1</em><em>, </em><em>specie2</em>) – max_bond_dist}: bonds are
+convention where layers / chains will be along low &lt;hkl&gt; indexes.</p></li>
+<li><p><strong>bonds</strong> (<em>{</em><em>(</em><em>specie1</em><em>, </em><em>specie2</em>) – max_bond_dist}: bonds are
 specified as a dict of tuples: float of specie1, specie2
 and the max bonding distance. For example, PO4 groups may be
-defined as {(“P”, “O”): 3}.</li>
+defined as {(“P”, “O”): 3}.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="docutils">
-<dt>Returns: (int) the dimensionality of the structure - 1 (molecules/chains),</dt>
-<dd>2 (layered), or 3 (3D)</dd>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Returns: (int) the dimensionality of the structure - 1 (molecules/chains),</dt><dd><p>2 (layered), or 3 (3D)</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -277,23 +252,22 @@ of the NearNeighbor classes. For example, using the CrystalNN class:</p>
 </pre></div>
 </div>
 <p>Based on the modified breadth-first-search algorithm described in:</p>
-<ol class="upperalpha simple" start="16">
-<li>Larsem, M. Pandey, M. Strange, K. W. Jacobsen, 2018, arXiv:1808.02114</li>
-</ol>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>bonded_structure</strong> (<a class="reference internal" href="pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph" title="pymatgen.analysis.graphs.StructureGraph"><em>StructureGraph</em></a>) – A structure with bonds, represented
+<p>P. M. Larsen, M. Pandey, M. Strange, K. W. Jacobsen. Definition of a
+scoring parameter to identify low-dimensional materials components.
+Phys. Rev. Materials 3, 034003 (2019).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>bonded_structure</strong> (<a class="reference internal" href="pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph" title="pymatgen.analysis.graphs.StructureGraph"><em>StructureGraph</em></a>) – A structure with bonds, represented
 as a pymatgen structure graph. For example, generated using the
-CrystalNN.get_bonded_structure() method.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The dimensionality of the structure.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">(int)</td>
-</tr>
-</tbody>
-</table>
+CrystalNN.get_bonded_structure() method.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The dimensionality of the structure.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(int)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -308,64 +282,60 @@ of the NearNeighbor classes. For example, using the CrystalNN class:</p>
 </pre></div>
 </div>
 <p>Based on the modified breadth-first-search algorithm described in:</p>
-<ol class="upperalpha simple" start="16">
-<li>Larsem, M. Pandey, M. Strange, K. W. Jacobsen, 2018, arXiv:1808.02114</li>
-</ol>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>bonded_structure</strong> (<a class="reference internal" href="pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph" title="pymatgen.analysis.graphs.StructureGraph"><em>StructureGraph</em></a>) – A structure with bonds, represented
+<p>P. M. Larsen, M. Pandey, M. Strange, K. W. Jacobsen. Definition of a
+scoring parameter to identify low-dimensional materials components.
+Phys. Rev. Materials 3, 034003 (2019).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bonded_structure</strong> (<a class="reference internal" href="pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph" title="pymatgen.analysis.graphs.StructureGraph"><em>StructureGraph</em></a>) – A structure with bonds, represented
 as a pymatgen structure graph. For example, generated using the
-CrystalNN.get_bonded_structure() method.</li>
-<li><strong>inc_orientation</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to include the orientation
+CrystalNN.get_bonded_structure() method.</p></li>
+<li><p><strong>inc_orientation</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to include the orientation
 of the structure component. For surfaces, the miller index is given,
-for one-dimensional structures, the direction of the chain is given.</li>
-<li><strong>inc_site_ids</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to include the site indices
-of the sites in the structure component.</li>
-<li><strong>inc_molecule_graph</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to include MoleculeGraph
-objects for zero-dimensional components.</li>
+for one-dimensional structures, the direction of the chain is given.</p></li>
+<li><p><strong>inc_site_ids</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to include the site indices
+of the sites in the structure component.</p></li>
+<li><p><strong>inc_molecule_graph</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to include MoleculeGraph
+objects for zero-dimensional components.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p>Information on the components in a structure as a list
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>Information on the components in a structure as a list
 of dictionaries with the keys:</p>
 <ul class="simple">
-<li><dl class="first docutils">
-<dt>”structure_graph”: A pymatgen StructureGraph object for the</dt>
-<dd>component.</dd>
+<li><dl class="simple">
+<dt>”structure_graph”: A pymatgen StructureGraph object for the</dt><dd><p>component.</p>
+</dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt>”dimensionality”: The dimensionality of the structure component as an</dt>
-<dd>int.</dd>
+<li><dl class="simple">
+<dt>”dimensionality”: The dimensionality of the structure component as an</dt><dd><p>int.</p>
+</dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt>”orientation”: If inc_orientation is <cite>True</cite>, the orientation of the</dt>
-<dd>component as a tuple. E.g. (1, 1, 1)</dd>
+<li><dl class="simple">
+<dt>”orientation”: If inc_orientation is <cite>True</cite>, the orientation of the</dt><dd><p>component as a tuple. E.g. (1, 1, 1)</p>
+</dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt>”site_ids”: If inc_site_ids is <cite>True</cite>, the site indices of the</dt>
-<dd>sites in the component as a tuple.</dd>
+<li><dl class="simple">
+<dt>”site_ids”: If inc_site_ids is <cite>True</cite>, the site indices of the</dt><dd><p>sites in the component as a tuple.</p>
+</dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt>”molecule_graph”: If inc_molecule_graph is <cite>True</cite>, the site a</dt>
-<dd>MoleculeGraph object for zero-dimensional components.</dd>
+<li><dl class="simple">
+<dt>”molecule_graph”: If inc_molecule_graph is <cite>True</cite>, the site a</dt><dd><p>MoleculeGraph object for zero-dimensional components.</p>
+</dd>
 </dl>
 </li>
 </ul>
 </p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">(list of dict)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(list of dict)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -374,27 +344,23 @@ of dictionaries with the keys:</p>
 <dd><p>Converts a zero-dimensional networkx Graph object into a MoleculeGraph.</p>
 <p>Implements a similar breadth-first search to that in
 calculate_dimensionality_of_site().</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>bonded_structure</strong> (<a class="reference internal" href="pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph" title="pymatgen.analysis.graphs.StructureGraph"><em>StructureGraph</em></a>) – A structure with bonds, represented
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bonded_structure</strong> (<a class="reference internal" href="pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph" title="pymatgen.analysis.graphs.StructureGraph"><em>StructureGraph</em></a>) – A structure with bonds, represented
 as a pymatgen structure graph. For example, generated using the
-CrystalNN.get_bonded_structure() method.</li>
-<li><strong>graph</strong> (<em>nx.Graph</em>) – A networkx <cite>Graph</cite> object for the component of
-interest.</li>
+CrystalNN.get_bonded_structure() method.</p></li>
+<li><p><strong>graph</strong> (<em>nx.Graph</em>) – A networkx <cite>Graph</cite> object for the component of
+interest.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A MoleculeGraph object of the component.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">(<a class="reference internal" href="pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph" title="pymatgen.analysis.graphs.MoleculeGraph">MoleculeGraph</a>)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A MoleculeGraph object of the component.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(<a class="reference internal" href="pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph" title="pymatgen.analysis.graphs.MoleculeGraph">MoleculeGraph</a>)</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -418,8 +384,6 @@ interest.</li>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -437,13 +401,13 @@ interest.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

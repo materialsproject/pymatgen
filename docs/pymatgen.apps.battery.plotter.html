@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.apps.battery.plotter module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.apps.battery.plotter module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -52,54 +50,43 @@
 <em class="property">class </em><code class="descname">VoltageProfilePlotter</code><span class="sig-paren">(</span><em>xaxis='capacity'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/plotter.html#VoltageProfilePlotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.plotter.VoltageProfilePlotter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A plotter to make voltage profile plots for batteries.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>xaxis</strong> – The quantity to use as the xaxis. Can be either capacity (the
-default), or the frac_x.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>xaxis</strong> – The quantity to use as the xaxis. Can be either capacity (the
+default), or the frac_x.</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.apps.battery.plotter.VoltageProfilePlotter.add_electrode">
 <code class="descname">add_electrode</code><span class="sig-paren">(</span><em>electrode</em>, <em>label=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/plotter.html#VoltageProfilePlotter.add_electrode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.plotter.VoltageProfilePlotter.add_electrode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add an electrode to the plot.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>electrode</strong> – An electrode. All electrodes satisfying the
-AbstractElectrode interface should work.</li>
-<li><strong>label</strong> – A label for the electrode. If None, defaults to a counting
-system, i.e. ‘Electrode 1’, ‘Electrode 2’, …</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>electrode</strong> – An electrode. All electrodes satisfying the
+AbstractElectrode interface should work.</p></li>
+<li><p><strong>label</strong> – A label for the electrode. If None, defaults to a counting
+system, i.e. ‘Electrode 1’, ‘Electrode 2’, …</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.apps.battery.plotter.VoltageProfilePlotter.get_plot">
 <code class="descname">get_plot</code><span class="sig-paren">(</span><em>width=8</em>, <em>height=8</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/plotter.html#VoltageProfilePlotter.get_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.plotter.VoltageProfilePlotter.get_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a plot object.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>width</strong> – Width of the plot. Defaults to 8 in.</li>
-<li><strong>height</strong> – Height of the plot. Defaults to 6 in.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>width</strong> – Width of the plot. Defaults to 8 in.</p></li>
+<li><p><strong>height</strong> – Height of the plot. Defaults to 6 in.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A matplotlib plot object.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A matplotlib plot object.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -111,36 +98,28 @@ system, i.e. ‘Electrode 1’, ‘Electrode 2’, …</li>
 <dt id="pymatgen.apps.battery.plotter.VoltageProfilePlotter.save">
 <code class="descname">save</code><span class="sig-paren">(</span><em>filename</em>, <em>image_format='eps'</em>, <em>width=8</em>, <em>height=6</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/plotter.html#VoltageProfilePlotter.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.plotter.VoltageProfilePlotter.save" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the plot to an image file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> – Filename to save to.</li>
-<li><strong>image_format</strong> – Format to save to. Defaults to eps.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> – Filename to save to.</p></li>
+<li><p><strong>image_format</strong> – Format to save to. Defaults to eps.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.apps.battery.plotter.VoltageProfilePlotter.show">
 <code class="descname">show</code><span class="sig-paren">(</span><em>width=8</em>, <em>height=6</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/plotter.html#VoltageProfilePlotter.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.plotter.VoltageProfilePlotter.show" title="Permalink to this definition">¶</a></dt>
 <dd><p>Show the voltage profile plot.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>width</strong> – Width of the plot. Defaults to 8 in.</li>
-<li><strong>height</strong> – Height of the plot. Defaults to 6 in.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>width</strong> – Width of the plot. Defaults to 8 in.</p></li>
+<li><p><strong>height</strong> – Height of the plot. Defaults to 6 in.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -166,8 +145,6 @@ system, i.e. ‘Electrode 1’, ‘Electrode 2’, …</li>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -185,13 +162,13 @@ system, i.e. ‘Electrode 1’, ‘Electrode 2’, …</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

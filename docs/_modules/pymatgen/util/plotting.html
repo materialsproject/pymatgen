@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.util.plotting &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.util.plotting &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.2.28 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.5.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -55,6 +53,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">combinations</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Utilities for generating nicer plots.</span>
@@ -310,6 +309,138 @@
     <span class="k">return</span> <span class="n">plt</span></div>
 
 
+<div class="viewcode-block" id="format_formula"><a class="viewcode-back" href="../../../pymatgen.util.plotting.html#pymatgen.util.plotting.format_formula">[docs]</a><span class="k">def</span> <span class="nf">format_formula</span><span class="p">(</span><span class="n">formula</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts str of chemical formula into</span>
+<span class="sd">    latex format for labelling purposes</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        formula (str): Chemical formula</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">formatted_formula</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">number_format</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">formula</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">number_format</span><span class="p">:</span>
+                <span class="n">number_format</span> <span class="o">=</span> <span class="s2">&quot;_{&quot;</span>
+            <span class="n">number_format</span> <span class="o">+=</span> <span class="n">s</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">formula</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">number_format</span> <span class="o">+=</span> <span class="s2">&quot;}&quot;</span>
+                <span class="n">formatted_formula</span> <span class="o">+=</span> <span class="n">number_format</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">number_format</span><span class="p">:</span>
+                <span class="n">number_format</span> <span class="o">+=</span> <span class="s2">&quot;}&quot;</span>
+                <span class="n">formatted_formula</span> <span class="o">+=</span> <span class="n">number_format</span>
+                <span class="n">number_format</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">formatted_formula</span> <span class="o">+=</span> <span class="n">s</span>
+
+    <span class="k">return</span> <span class="sa">r</span><span class="s2">&quot;$</span><span class="si">%s</span><span class="s2">$&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">formatted_formula</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="van_arkel_triangle"><a class="viewcode-back" href="../../../pymatgen.util.plotting.html#pymatgen.util.plotting.van_arkel_triangle">[docs]</a><span class="k">def</span> <span class="nf">van_arkel_triangle</span><span class="p">(</span><span class="n">list_of_materials</span><span class="p">,</span> <span class="n">annotate</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A static method that generates a binary van Arkel-Ketelaar triangle to</span>
+<span class="sd">        quantify the ionic, metallic and covalent character of a compound</span>
+<span class="sd">        by plotting the electronegativity difference (y) vs average (x).</span>
+<span class="sd">        See:</span>
+<span class="sd">            A.E. van Arkel, Molecules and Crystals in Inorganic Chemistry,</span>
+<span class="sd">                Interscience, New York (1956)</span>
+<span class="sd">        and</span>
+<span class="sd">            J.A.A Ketelaar, Chemical Constitution (2nd edn.), An Introduction</span>
+<span class="sd">                to the Theory of the Chemical Bond, Elsevier, New York (1958)</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">         list_of_materials (list): A list of computed entries of binary</span>
+<span class="sd">            materials or a list of lists containing two elements (str).</span>
+<span class="sd">         annotate (bool): Whether or not to lable the points on the</span>
+<span class="sd">            triangle with reduced formula (if list of entries) or pair</span>
+<span class="sd">            of elements (if list of list of str).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># F-Fr has the largest X difference. We set this</span>
+    <span class="c1"># as our top corner of the triangle (most ionic)</span>
+    <span class="n">pt1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([(</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;F&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">X</span> <span class="o">+</span> <span class="n">Element</span><span class="p">(</span><span class="s2">&quot;Fr&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">X</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+                    <span class="nb">abs</span><span class="p">(</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;F&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">X</span> <span class="o">-</span> <span class="n">Element</span><span class="p">(</span><span class="s2">&quot;Fr&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">X</span><span class="p">)])</span>
+    <span class="c1"># Cs-Fr has the lowest average X. We set this as our</span>
+    <span class="c1"># bottom left corner of the triangle (most metallic)</span>
+    <span class="n">pt2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([(</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;Cs&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">X</span> <span class="o">+</span> <span class="n">Element</span><span class="p">(</span><span class="s2">&quot;Fr&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">X</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+                    <span class="nb">abs</span><span class="p">(</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;Cs&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">X</span> <span class="o">-</span> <span class="n">Element</span><span class="p">(</span><span class="s2">&quot;Fr&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">X</span><span class="p">)])</span>
+    <span class="c1"># O-F has the highest average X. We set this as our</span>
+    <span class="c1"># bottom right corner of the triangle (most covalent)</span>
+    <span class="n">pt3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([(</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;O&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">X</span> <span class="o">+</span> <span class="n">Element</span><span class="p">(</span><span class="s2">&quot;F&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">X</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+                    <span class="nb">abs</span><span class="p">(</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;O&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">X</span> <span class="o">-</span> <span class="n">Element</span><span class="p">(</span><span class="s2">&quot;F&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">X</span><span class="p">)])</span>
+
+    <span class="c1"># get the parameters for the lines of the triangle</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pt1</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pt2</span><span class="p">)</span>
+    <span class="n">slope1</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">b1</span> <span class="o">=</span> <span class="n">pt1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">slope1</span> <span class="o">*</span> <span class="n">pt1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">pt3</span> <span class="o">-</span> <span class="n">pt1</span>
+    <span class="n">slope2</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">b2</span> <span class="o">=</span> <span class="n">pt3</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">slope2</span> <span class="o">*</span> <span class="n">pt3</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># Initialize the plt object</span>
+    <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+    <span class="c1"># set labels and appropriate limits for plot</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">pt2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mf">0.45</span><span class="p">,</span> <span class="o">-</span><span class="n">b2</span> <span class="o">/</span> <span class="n">slope2</span> <span class="o">+</span> <span class="mf">0.45</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.45</span><span class="p">,</span> <span class="n">pt1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.45</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="s2">&quot;Ionic&quot;</span><span class="p">,</span> <span class="n">xy</span><span class="o">=</span><span class="p">[</span><span class="n">pt1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mf">0.3</span><span class="p">,</span> <span class="n">pt1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.05</span><span class="p">],</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="s2">&quot;Covalent&quot;</span><span class="p">,</span> <span class="n">xy</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="n">b2</span> <span class="o">/</span> <span class="n">slope2</span> <span class="o">-</span> <span class="mf">0.65</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.4</span><span class="p">],</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="s2">&quot;Metallic&quot;</span><span class="p">,</span> <span class="n">xy</span><span class="o">=</span><span class="p">[</span><span class="n">pt2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mf">0.4</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.4</span><span class="p">],</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\frac{\chi_</span><span class="si">{A}</span><span class="s2">+\chi_</span><span class="si">{B}</span><span class="s2">}</span><span class="si">{2}</span><span class="s2">$&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$|\chi_</span><span class="si">{A}</span><span class="s2">-\chi_</span><span class="si">{B}</span><span class="s2">|$&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+
+    <span class="c1"># Set the lines of the triangle</span>
+    <span class="n">chi_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">el</span><span class="o">.</span><span class="n">X</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">Element</span><span class="p">]</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="nb">min</span><span class="p">(</span><span class="n">chi_list</span><span class="p">),</span> <span class="n">pt1</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="p">[</span><span class="n">slope1</span> <span class="o">*</span> <span class="nb">min</span><span class="p">(</span><span class="n">chi_list</span><span class="p">)</span> <span class="o">+</span> <span class="n">b1</span><span class="p">,</span> <span class="n">pt1</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="s1">&#39;k-&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">pt1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="n">b2</span> <span class="o">/</span> <span class="n">slope2</span><span class="p">],</span> <span class="p">[</span><span class="n">pt1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;k-&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="nb">min</span><span class="p">(</span><span class="n">chi_list</span><span class="p">),</span> <span class="o">-</span><span class="n">b2</span> <span class="o">/</span> <span class="n">slope2</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;k-&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+
+    <span class="c1"># Shade with appropriate colors corresponding to ionic, metallci and covalent</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+    <span class="c1"># ionic filling</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">([</span><span class="nb">min</span><span class="p">(</span><span class="n">chi_list</span><span class="p">),</span> <span class="n">pt1</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span>
+                    <span class="p">[</span><span class="n">slope1</span> <span class="o">*</span> <span class="nb">min</span><span class="p">(</span><span class="n">chi_list</span><span class="p">)</span> <span class="o">+</span> <span class="n">b1</span><span class="p">,</span> <span class="n">pt1</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">facecolor</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                    <span class="n">zorder</span><span class="o">=-</span><span class="mi">5</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">([</span><span class="n">pt1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="n">b2</span> <span class="o">/</span> <span class="n">slope2</span><span class="p">],</span>
+                    <span class="p">[</span><span class="n">pt1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">slope2</span> <span class="o">*</span> <span class="nb">min</span><span class="p">(</span><span class="n">chi_list</span><span class="p">)</span> <span class="o">-</span> <span class="n">b1</span><span class="p">],</span> <span class="n">facecolor</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                    <span class="n">zorder</span><span class="o">=-</span><span class="mi">5</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+    <span class="c1"># metal filling</span>
+    <span class="n">XPt</span> <span class="o">=</span> <span class="n">Element</span><span class="p">(</span><span class="s2">&quot;Pt&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">X</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">([</span><span class="nb">min</span><span class="p">(</span><span class="n">chi_list</span><span class="p">),</span> <span class="p">(</span><span class="n">XPt</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">chi_list</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span><span class="p">],</span>
+                    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">slope1</span> <span class="o">*</span> <span class="p">(</span><span class="n">XPt</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">chi_list</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">b1</span><span class="p">],</span>
+                    <span class="n">facecolor</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">zorder</span><span class="o">=-</span><span class="mi">3</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">([(</span><span class="n">XPt</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">chi_list</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">XPt</span><span class="p">],</span>
+                    <span class="p">[</span><span class="n">slope1</span> <span class="o">*</span> <span class="p">((</span><span class="n">XPt</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">chi_list</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">b1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                    <span class="n">facecolor</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">zorder</span><span class="o">=-</span><span class="mi">3</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+    <span class="c1"># covalent filling</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">([(</span><span class="n">XPt</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">chi_list</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="p">((</span><span class="n">XPt</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">chi_list</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="o">-</span><span class="n">b2</span> <span class="o">/</span> <span class="n">slope2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">],</span>
+                    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">slope2</span> <span class="o">*</span> <span class="p">(((</span><span class="n">XPt</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">chi_list</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="o">-</span><span class="n">b2</span> <span class="o">/</span> <span class="n">slope2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">b2</span><span class="p">],</span>
+                    <span class="n">facecolor</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">zorder</span><span class="o">=-</span><span class="mi">4</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">([((</span><span class="n">XPt</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">chi_list</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="o">-</span><span class="n">b2</span> <span class="o">/</span> <span class="n">slope2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">b2</span> <span class="o">/</span> <span class="n">slope2</span><span class="p">],</span>
+                    <span class="p">[</span><span class="n">slope2</span> <span class="o">*</span> <span class="p">(((</span><span class="n">XPt</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">chi_list</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="o">-</span><span class="n">b2</span> <span class="o">/</span> <span class="n">slope2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">b2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                    <span class="n">facecolor</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">zorder</span><span class="o">=-</span><span class="mi">4</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+
+    <span class="c1"># Label the triangle with datapoints</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">list_of_materials</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ComputedEntry&#39;</span><span class="p">,</span> <span class="s1">&#39;ComputedStructureEntry&#39;</span><span class="p">]:</span>
+            <span class="n">X_pair</span> <span class="o">=</span> <span class="p">[</span><span class="n">Element</span><span class="p">(</span><span class="n">el</span><span class="p">)</span><span class="o">.</span><span class="n">X</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">]</span>
+            <span class="n">formatted_formula</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">-</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">X_pair</span> <span class="o">=</span> <span class="p">[</span><span class="n">Element</span><span class="p">(</span><span class="n">el</span><span class="p">)</span><span class="o">.</span><span class="n">X</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+            <span class="n">formatted_formula</span> <span class="o">=</span> <span class="n">format_formula</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">X_pair</span><span class="p">),</span> <span class="nb">abs</span><span class="p">(</span><span class="n">X_pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">X_pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">annotate</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">formatted_formula</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+                         <span class="n">xy</span><span class="o">=</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">X_pair</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.005</span><span class="p">,</span> <span class="nb">abs</span><span class="p">(</span><span class="n">X_pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">X_pair</span><span class="p">[</span><span class="mi">1</span><span class="p">])])</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">plt</span></div>
+
+
 <div class="viewcode-block" id="get_ax_fig_plt"><a class="viewcode-back" href="../../../pymatgen.util.plotting.html#pymatgen.util.plotting.get_ax_fig_plt">[docs]</a><span class="k">def</span> <span class="nf">get_ax_fig_plt</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Helper function used in plot functions supporting an optional Axes argument.</span>
@@ -498,8 +629,6 @@
     <form class="search" action="../../../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -517,7 +646,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.2.28 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.5.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -525,7 +654,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

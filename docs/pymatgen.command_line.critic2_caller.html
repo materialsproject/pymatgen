@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.command_line.critic2_caller module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.command_line.critic2_caller module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -68,36 +66,33 @@ is wanted.</p>
 * GRADEPS, float (field units), gradient norm threshold
 * CPEPS, float (Bohr units in crystals), minimum distance between</p>
 <blockquote>
-<div>critical points for them to be equivalent</div></blockquote>
+<div><p>critical points for them to be equivalent</p>
+</div></blockquote>
 <ul class="simple">
-<li>NUCEPS, same as CPEPS but specifically for nucleus critical
-points (critic2 default is depedent on grid dimensions)</li>
-<li>NUCEPSH, same as NUCEPS but specifically for hydrogen nuclei
+<li><p>NUCEPS, same as CPEPS but specifically for nucleus critical
+points (critic2 default is depedent on grid dimensions)</p></li>
+<li><p>NUCEPSH, same as NUCEPS but specifically for hydrogen nuclei
 since associated charge density can be significantly displaced
-from hydrogen nucleus</li>
-<li>EPSDEGEN, float (field units), discard critical point if any
+from hydrogen nucleus</p></li>
+<li><p>EPSDEGEN, float (field units), discard critical point if any
 element of the diagonal of the Hessian is below this value,
-useful for discarding points in vacuum regions</li>
-<li>DISCARD, float (field units), discard critical points with field
+useful for discarding points in vacuum regions</p></li>
+<li><p>DISCARD, float (field units), discard critical points with field
 value below this value, useful for discarding points in vacuum
-regions</li>
-<li>SEED, list of strings, strategies for seeding points, default
+regions</p></li>
+<li><p>SEED, list of strings, strategies for seeding points, default
 is [‘WS 1’, ‘PAIR 10’] which seeds critical points by
 sub-dividing the Wigner-Seitz cell and between every atom pair
-closer than 10 Bohr, see critic2 manual for more options</li>
+closer than 10 Bohr, see critic2 manual for more options</p></li>
 </ul>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> – Structure to analyze</li>
-<li><strong>chgcar</strong> – Charge density to use for analysis. If None, will</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – Structure to analyze</p></li>
+<li><p><strong>chgcar</strong> – Charge density to use for analysis. If None, will</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p>use promolecular density.
 :param chgcar_ref: Reference charge density. If None, will use
 chgcar as reference.
@@ -146,18 +141,14 @@ before trying to understand these.</p>
 <p>Indexes of nucleus critical points in the nodes dict are the
 same as the corresponding sites in structure, with indices of
 other critical points arbitrarily assigned.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> – associated Structure</li>
-<li><strong>critic2_stdout</strong> – stdout from running critic2 in automatic</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – associated Structure</p></li>
+<li><p><strong>critic2_stdout</strong> – stdout from running critic2 in automatic</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p>mode</p>
 <dl class="method">
 <dt id="pymatgen.command_line.critic2_caller.Critic2Output.get_critical_point_for_site">
@@ -169,14 +160,11 @@ other critical points arbitrarily assigned.</p>
 <code class="descname">structure_graph</code><span class="sig-paren">(</span><em>edge_weight='bond_length'</em>, <em>edge_weight_units='Å'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/command_line/critic2_caller.html#Critic2Output.structure_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.critic2_caller.Critic2Output.structure_graph" title="Permalink to this definition">¶</a></dt>
 <dd><p>A StructureGraph object describing bonding information
 in the crystal. Lazily constructed.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>edge_weight</strong> – a value to store on the Graph edges,</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>edge_weight</strong> – a value to store on the Graph edges,</p>
+</dd>
+</dl>
 <p>by default this is “bond_length” but other supported
 values are any of the attributes of CriticalPoint
 :return:</p>
@@ -192,25 +180,21 @@ values are any of the attributes of CriticalPoint
 analysis of electron charge density.</p>
 <p>Note this class is usually associated with a Structure, so
 has information on multiplicity/point group symmetry.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>index</strong> – index of point</li>
-<li><strong>type</strong> – type of point, given as a string</li>
-<li><strong>coords</strong> – Cartesian co-ordinates in Angstroms</li>
-<li><strong>frac_coords</strong> – fractional co-ordinates</li>
-<li><strong>point_group</strong> – point group associated with critical point</li>
-<li><strong>multiplicity</strong> – number of equivalent critical points</li>
-<li><strong>field</strong> – value of field at point (f)</li>
-<li><strong>field_gradient</strong> – gradient of field at point (grad f)</li>
-<li><strong>field_hessian</strong> – hessian of field at point (del^2 f)</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>index</strong> – index of point</p></li>
+<li><p><strong>type</strong> – type of point, given as a string</p></li>
+<li><p><strong>coords</strong> – Cartesian co-ordinates in Angstroms</p></li>
+<li><p><strong>frac_coords</strong> – fractional co-ordinates</p></li>
+<li><p><strong>point_group</strong> – point group associated with critical point</p></li>
+<li><p><strong>multiplicity</strong> – number of equivalent critical points</p></li>
+<li><p><strong>field</strong> – value of field at point (f)</p></li>
+<li><p><strong>field_gradient</strong> – gradient of field at point (grad f)</p></li>
+<li><p><strong>field_hessian</strong> – hessian of field at point (del^2 f)</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.command_line.critic2_caller.CriticalPoint.ellipticity">
 <code class="descname">ellipticity</code><a class="headerlink" href="#pymatgen.command_line.critic2_caller.CriticalPoint.ellipticity" title="Permalink to this definition">¶</a></dt>
@@ -285,9 +269,10 @@ by the appropriate symmetry operations
 * connectivity between these points is also provided when
 appropriate (e.g. the two nucleus critical points linked to</p>
 <blockquote>
-<div>a bond critical point)</div></blockquote>
+<div><p>a bond critical point)</p>
+</div></blockquote>
 <ul class="simple">
-<li>critic2 can do many other things besides</li>
+<li><p>critic2 can do many other things besides</p></li>
 </ul>
 <p>If you use this module, please cite the following:</p>
 <p>A. Otero-de-la-Roza, E. R. Johnson and V. Luaña,
@@ -319,8 +304,6 @@ V. Luaña, Comput. Phys. Commun. 180, 157–166 (2009)
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -338,13 +321,13 @@ V. Luaña, Comput. Phys. Commun. 180, 157–166 (2009)
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

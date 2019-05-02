@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.works module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.io.abinit.works module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -52,18 +50,14 @@
 <em class="property">class </em><code class="descname">Work</code><span class="sig-paren">(</span><em>workdir=None</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#Work"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.Work" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.works.BaseWork</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.works.NodeContainer</span></code></p>
 <p>A Work is a list of (possibly connected) tasks.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>workdir</strong> – Path to the working directory.</li>
-<li><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>workdir</strong> – Path to the working directory.</p></li>
+<li><p><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.works.Work.all_done">
 <code class="descname">all_done</code><a class="headerlink" href="#pymatgen.io.abinit.works.Work.all_done" title="Permalink to this definition">¶</a></dt>
@@ -76,14 +70,11 @@
 <dd><p>This function is called once we have completed the initialization
 of the <a class="reference internal" href="#pymatgen.io.abinit.works.Work" title="pymatgen.io.abinit.works.Work"><code class="xref py py-class docutils literal notranslate"><span class="pre">Work</span></code></a>. It sets the manager of each task (if not already done)
 and defines the working directories of the tasks.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object or None</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object or None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -119,14 +110,11 @@ and defines the working directories of the tasks.</p>
 <dt id="pymatgen.io.abinit.works.Work.get_all_status">
 <code class="descname">get_all_status</code><span class="sig-paren">(</span><em>only_min=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#Work.get_all_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.Work.get_all_status" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list with the status of the tasks in self.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>only_min</strong> – If True, the minimum of the status is returned.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>only_min</strong> – If True, the minimum of the status is returned.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -162,14 +150,11 @@ Use it when the file does not exist yet.</p>
 <dt id="pymatgen.io.abinit.works.Work.parse_timers">
 <code class="descname">parse_timers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#Work.parse_timers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.Work.parse_timers" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse the TIMER section reported in the ABINIT output files.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbinitTimerParser</span></code> object</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">AbinitTimerParser</span></code> object</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -208,58 +193,50 @@ The array element is set to np.inf if an exception is raised while reading the G
 <dt id="pymatgen.io.abinit.works.Work.register">
 <code class="descname">register</code><span class="sig-paren">(</span><em>obj</em>, <em>deps=None</em>, <em>required_files=None</em>, <em>manager=None</em>, <em>task_class=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#Work.register"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.Work.register" title="Permalink to this definition">¶</a></dt>
 <dd><p>Registers a new <code class="xref py py-class docutils literal notranslate"><span class="pre">Task</span></code> and add it to the internal list, taking into account possible dependencies.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>obj</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">AbinitInput</span></code> instance or <cite>Task</cite> object.</li>
-<li><strong>deps</strong> – Dictionary specifying the dependency of this node or list of dependencies
-None means that this obj has no dependency.</li>
-<li><strong>required_files</strong> – List of strings with the path of the files used by the task.
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obj</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">AbinitInput</span></code> instance or <cite>Task</cite> object.</p></li>
+<li><p><strong>deps</strong> – Dictionary specifying the dependency of this node or list of dependencies
+None means that this obj has no dependency.</p></li>
+<li><p><strong>required_files</strong> – List of strings with the path of the files used by the task.
 Note that the files must exist when the task is registered.
 Use the standard approach based on Works, Tasks and deps
-if the files will be produced in the future.</li>
-<li><strong>manager</strong> – The <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> responsible for the submission of the task. If manager is None, we use
-the <cite>TaskManager</cite> specified during the creation of the <a class="reference internal" href="#pymatgen.io.abinit.works.Work" title="pymatgen.io.abinit.works.Work"><code class="xref py py-class docutils literal notranslate"><span class="pre">Work</span></code></a>.</li>
-<li><strong>task_class</strong> – Task subclass to instantiate. Default: <code class="xref py py-class docutils literal notranslate"><span class="pre">AbinitTask</span></code></li>
+if the files will be produced in the future.</p></li>
+<li><p><strong>manager</strong> – The <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> responsible for the submission of the task. If manager is None, we use
+the <cite>TaskManager</cite> specified during the creation of the <a class="reference internal" href="#pymatgen.io.abinit.works.Work" title="pymatgen.io.abinit.works.Work"><code class="xref py py-class docutils literal notranslate"><span class="pre">Work</span></code></a>.</p></li>
+<li><p><strong>task_class</strong> – Task subclass to instantiate. Default: <code class="xref py py-class docutils literal notranslate"><span class="pre">AbinitTask</span></code></p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><code class="xref py py-class docutils literal notranslate"><span class="pre">Task</span></code> object</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Task</span></code> object</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.works.Work.register_task">
 <code class="descname">register_task</code><span class="sig-paren">(</span><em>obj</em>, <em>deps=None</em>, <em>required_files=None</em>, <em>manager=None</em>, <em>task_class=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pymatgen.io.abinit.works.Work.register_task" title="Permalink to this definition">¶</a></dt>
 <dd><p>Registers a new <code class="xref py py-class docutils literal notranslate"><span class="pre">Task</span></code> and add it to the internal list, taking into account possible dependencies.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>obj</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">AbinitInput</span></code> instance or <cite>Task</cite> object.</li>
-<li><strong>deps</strong> – Dictionary specifying the dependency of this node or list of dependencies
-None means that this obj has no dependency.</li>
-<li><strong>required_files</strong> – List of strings with the path of the files used by the task.
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obj</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">AbinitInput</span></code> instance or <cite>Task</cite> object.</p></li>
+<li><p><strong>deps</strong> – Dictionary specifying the dependency of this node or list of dependencies
+None means that this obj has no dependency.</p></li>
+<li><p><strong>required_files</strong> – List of strings with the path of the files used by the task.
 Note that the files must exist when the task is registered.
 Use the standard approach based on Works, Tasks and deps
-if the files will be produced in the future.</li>
-<li><strong>manager</strong> – The <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> responsible for the submission of the task. If manager is None, we use
-the <cite>TaskManager</cite> specified during the creation of the <a class="reference internal" href="#pymatgen.io.abinit.works.Work" title="pymatgen.io.abinit.works.Work"><code class="xref py py-class docutils literal notranslate"><span class="pre">Work</span></code></a>.</li>
-<li><strong>task_class</strong> – Task subclass to instantiate. Default: <code class="xref py py-class docutils literal notranslate"><span class="pre">AbinitTask</span></code></li>
+if the files will be produced in the future.</p></li>
+<li><p><strong>manager</strong> – The <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> responsible for the submission of the task. If manager is None, we use
+the <cite>TaskManager</cite> specified during the creation of the <a class="reference internal" href="#pymatgen.io.abinit.works.Work" title="pymatgen.io.abinit.works.Work"><code class="xref py py-class docutils literal notranslate"><span class="pre">Work</span></code></a>.</p></li>
+<li><p><strong>task_class</strong> – Task subclass to instantiate. Default: <code class="xref py py-class docutils literal notranslate"><span class="pre">AbinitTask</span></code></p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><code class="xref py py-class docutils literal notranslate"><span class="pre">Task</span></code> object</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Task</span></code> object</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -284,17 +261,14 @@ the <cite>TaskManager</cite> specified during the creation of the <a class="refe
 <dt id="pymatgen.io.abinit.works.Work.rmtree">
 <code class="descname">rmtree</code><span class="sig-paren">(</span><em>exclude_wildcard=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#Work.rmtree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.Work.rmtree" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove all files and directories in the working directory</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>exclude_wildcard</strong> – Optional string with regular expressions separated by <cite>|</cite>.
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>exclude_wildcard</strong> – Optional string with regular expressions separated by <cite>|</cite>.
 Files matching one of the regular expressions will be preserved.
 example: exclude_wildard=”<em>.nc|</em>.txt” preserves all the files
-whose extension is in [“nc”, “txt”].</td>
-</tr>
-</tbody>
-</table>
+whose extension is in [“nc”, “txt”].</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -356,82 +330,67 @@ TODO: change name.</p>
 <em class="property">class </em><code class="descname">BandStructureWork</code><span class="sig-paren">(</span><em>scf_input</em>, <em>nscf_input</em>, <em>dos_inputs=None</em>, <em>workdir=None</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#BandStructureWork"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.BandStructureWork" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.works.Work" title="pymatgen.io.abinit.works.Work"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.works.Work</span></code></a></p>
 <p>Work for band structure calculations.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>scf_input</strong> – Input for the SCF run</li>
-<li><strong>nscf_input</strong> – Input for the NSCF run defining the band structure calculation.</li>
-<li><strong>dos_inputs</strong> – Input(s) for the DOS. DOS is computed only if dos_inputs is not None.</li>
-<li><strong>workdir</strong> – Working directory.</li>
-<li><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scf_input</strong> – Input for the SCF run</p></li>
+<li><p><strong>nscf_input</strong> – Input for the NSCF run defining the band structure calculation.</p></li>
+<li><p><strong>dos_inputs</strong> – Input(s) for the DOS. DOS is computed only if dos_inputs is not None.</p></li>
+<li><p><strong>workdir</strong> – Working directory.</p></li>
+<li><p><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.abinit.works.BandStructureWork.plot_ebands">
 <code class="descname">plot_ebands</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#BandStructureWork.plot_ebands"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.BandStructureWork.plot_ebands" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the band structure. kwargs are passed to the plot method of <code class="xref py py-class docutils literal notranslate"><span class="pre">ElectronBands</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><cite>matplotlib</cite> figure</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><cite>matplotlib</cite> figure</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.works.BandStructureWork.plot_ebands_with_edos">
 <code class="descname">plot_ebands_with_edos</code><span class="sig-paren">(</span><em>dos_pos=0</em>, <em>method='gaussian'</em>, <em>step=0.01</em>, <em>width=0.1</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#BandStructureWork.plot_ebands_with_edos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.BandStructureWork.plot_ebands_with_edos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the band structure and the DOS.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>dos_pos</strong> – Index of the task from which the DOS should be obtained (note: 0 refers to the first DOS task).</li>
-<li><strong>method</strong> – String defining the method for the computation of the DOS.</li>
-<li><strong>step</strong> – Energy step (eV) of the linear mesh.</li>
-<li><strong>width</strong> – Standard deviation (eV) of the gaussian.</li>
-<li><strong>kwargs</strong> – Keyword arguments passed to <cite>plot_with_edos</cite> method to customize the plot.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dos_pos</strong> – Index of the task from which the DOS should be obtained (note: 0 refers to the first DOS task).</p></li>
+<li><p><strong>method</strong> – String defining the method for the computation of the DOS.</p></li>
+<li><p><strong>step</strong> – Energy step (eV) of the linear mesh.</p></li>
+<li><p><strong>width</strong> – Standard deviation (eV) of the gaussian.</p></li>
+<li><p><strong>kwargs</strong> – Keyword arguments passed to <cite>plot_with_edos</cite> method to customize the plot.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><cite>matplotlib</cite> figure.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>matplotlib</cite> figure.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.works.BandStructureWork.plot_edoses">
 <code class="descname">plot_edoses</code><span class="sig-paren">(</span><em>dos_pos=None</em>, <em>method='gaussian'</em>, <em>step=0.01</em>, <em>width=0.1</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#BandStructureWork.plot_edoses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.BandStructureWork.plot_edoses" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the band structure and the DOS.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>dos_pos</strong> – Index of the task from which the DOS should be obtained.
-None is all DOSes should be displayed. Accepts integer or list of integers.</li>
-<li><strong>method</strong> – String defining the method for the computation of the DOS.</li>
-<li><strong>step</strong> – Energy step (eV) of the linear mesh.</li>
-<li><strong>width</strong> – Standard deviation (eV) of the gaussian.</li>
-<li><strong>kwargs</strong> – Keyword arguments passed to <cite>plot</cite> method to customize the plot.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dos_pos</strong> – Index of the task from which the DOS should be obtained.
+None is all DOSes should be displayed. Accepts integer or list of integers.</p></li>
+<li><p><strong>method</strong> – String defining the method for the computation of the DOS.</p></li>
+<li><p><strong>step</strong> – Energy step (eV) of the linear mesh.</p></li>
+<li><p><strong>width</strong> – Standard deviation (eV) of the gaussian.</p></li>
+<li><p><strong>kwargs</strong> – Keyword arguments passed to <cite>plot</cite> method to customize the plot.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><cite>matplotlib</cite> figure.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>matplotlib</cite> figure.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -444,20 +403,16 @@ None is all DOSes should be displayed. Accepts integer or list of integers.</li>
 while keeping the unit cell parameters fixed. The second task uses the final
 structure to perform a structural relaxation in which both the atomic positions
 and the lattice parameters are optimized.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>ion_input</strong> – Input for the relaxation of the ions (cell is fixed)</li>
-<li><strong>ioncell_input</strong> – Input for the relaxation of the ions and the unit cell.</li>
-<li><strong>workdir</strong> – Working directory.</li>
-<li><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ion_input</strong> – Input for the relaxation of the ions (cell is fixed)</p></li>
+<li><p><strong>ioncell_input</strong> – Input for the relaxation of the ions and the unit cell.</p></li>
+<li><p><strong>workdir</strong> – Working directory.</p></li>
+<li><p><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.abinit.works.RelaxWork.on_ok">
 <code class="descname">on_ok</code><span class="sig-paren">(</span><em>sender</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#RelaxWork.on_ok"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.RelaxWork.on_ok" title="Permalink to this definition">¶</a></dt>
@@ -490,26 +445,22 @@ kwargs are passed to the plot method of <code class="xref py py-class docutils l
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.works.Work" title="pymatgen.io.abinit.works.Work"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.works.Work</span></code></a></p>
 <p>Work for general G0W0 calculations.
 All input can be either single inputs or lists of inputs</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>scf_inputs</strong> – Input(s) for the SCF run, if it is a list add all but only link
-to the last input (used for convergence studies on the KS band gap)</li>
-<li><strong>nscf_inputs</strong> – Input(s) for the NSCF run, if it is a list add all but only
-link to the last (i.e. addditiona DOS and BANDS)</li>
-<li><strong>scr_inputs</strong> – Input for the screening run</li>
-<li><strong>sigma_inputs</strong> – List of :class:AbinitInput`for the self-energy run.
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scf_inputs</strong> – Input(s) for the SCF run, if it is a list add all but only link
+to the last input (used for convergence studies on the KS band gap)</p></li>
+<li><p><strong>nscf_inputs</strong> – Input(s) for the NSCF run, if it is a list add all but only
+link to the last (i.e. addditiona DOS and BANDS)</p></li>
+<li><p><strong>scr_inputs</strong> – Input for the screening run</p></li>
+<li><p><strong>sigma_inputs</strong> – List of :class:AbinitInput`for the self-energy run.
 if scr and sigma are lists of the same length, every sigma gets its own screening.
-if there is only one screening all sigma inputs are linked to this one</li>
-<li><strong>workdir</strong> – Working directory of the calculation.</li>
-<li><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</li>
+if there is only one screening all sigma inputs are linked to this one</p></li>
+<li><p><strong>workdir</strong> – Working directory of the calculation.</p></li>
+<li><p><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="class">
@@ -519,34 +470,26 @@ if there is only one screening all sigma inputs are linked to this one</li>
 <p>This work parallelizes the calculation of the q-points of the screening.
 It also provides the callback <cite>on_all_ok</cite> that calls mrgscr to merge
 all the partial screening files produced.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>workdir</strong> – Path to the working directory.</li>
-<li><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>workdir</strong> – Path to the working directory.</p></li>
+<li><p><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.abinit.works.QptdmWork.create_tasks">
 <code class="descname">create_tasks</code><span class="sig-paren">(</span><em>wfk_file</em>, <em>scr_input</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#QptdmWork.create_tasks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.QptdmWork.create_tasks" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create the SCR tasks and register them in self.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>wfk_file</strong> – Path to the ABINIT WFK file to use for the computation of the screening.</li>
-<li><strong>scr_input</strong> – Input for the screening calculation.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wfk_file</strong> – Path to the ABINIT WFK file to use for the computation of the screening.</p></li>
+<li><p><strong>scr_input</strong> – Input for the screening calculation.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -573,21 +516,17 @@ the final SCR file in the outdir of the <cite>Work</cite>.</p>
 <em class="property">class </em><code class="descname">SigmaConvWork</code><span class="sig-paren">(</span><em>wfk_node</em>, <em>scr_node</em>, <em>sigma_inputs</em>, <em>workdir=None</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#SigmaConvWork"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.SigmaConvWork" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.works.Work" title="pymatgen.io.abinit.works.Work"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.works.Work</span></code></a></p>
 <p>Work for self-energy convergence studies.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>wfk_node</strong> – The node who has produced the WFK file or filepath pointing to the WFK file.</li>
-<li><strong>scr_node</strong> – The node who has produced the SCR file or filepath pointing to the SCR file.</li>
-<li><strong>sigma_inputs</strong> – List of <code class="xref py py-class docutils literal notranslate"><span class="pre">AbinitInput</span></code> for the self-energy runs.</li>
-<li><strong>workdir</strong> – Working directory of the calculation.</li>
-<li><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wfk_node</strong> – The node who has produced the WFK file or filepath pointing to the WFK file.</p></li>
+<li><p><strong>scr_node</strong> – The node who has produced the SCR file or filepath pointing to the SCR file.</p></li>
+<li><p><strong>sigma_inputs</strong> – List of <code class="xref py py-class docutils literal notranslate"><span class="pre">AbinitInput</span></code> for the self-energy runs.</p></li>
+<li><p><strong>workdir</strong> – Working directory of the calculation.</p></li>
+<li><p><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="class">
@@ -597,21 +536,17 @@ the final SCR file in the outdir of the <cite>Work</cite>.</p>
 <p>Work for simple BSE calculations in which the self-energy corrections
 are approximated by the scissors operator and the screening is modeled
 with the model dielectric function.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>scf_input</strong> – Input for the SCF run.</li>
-<li><strong>nscf_input</strong> – Input for the NSCF run.</li>
-<li><strong>bse_inputs</strong> – List of Inputs for the BSE run.</li>
-<li><strong>workdir</strong> – Working directory of the calculation.</li>
-<li><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code>.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scf_input</strong> – Input for the SCF run.</p></li>
+<li><p><strong>nscf_input</strong> – Input for the NSCF run.</p></li>
+<li><p><strong>bse_inputs</strong> – List of Inputs for the BSE run.</p></li>
+<li><p><strong>workdir</strong> – Working directory of the calculation.</p></li>
+<li><p><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code>.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.abinit.works.BseMdfWork.get_mdf_robot">
 <code class="descname">get_mdf_robot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#BseMdfWork.get_mdf_robot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.BseMdfWork.get_mdf_robot" title="Permalink to this definition">¶</a></dt>
@@ -629,18 +564,14 @@ the number of irreducible atomic perturbations for a given set of q-points.
 It provides the callback method (on_all_ok) that calls mrgddb (mrgdv) to merge
 all the partial DDB (POT) files produced. The two files are available in the
 output directory of the Work.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>workdir</strong> – Path to the working directory.</li>
-<li><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>workdir</strong> – Path to the working directory.</p></li>
+<li><p><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="classmethod">
 <dt id="pymatgen.io.abinit.works.PhononWork.from_scf_input">
 <em class="property">classmethod </em><code class="descname">from_scf_input</code><span class="sig-paren">(</span><em>scf_input</em>, <em>qpoints</em>, <em>is_ngqpt=False</em>, <em>tolerance=None</em>, <em>with_becs=False</em>, <em>ddk_tolerance=None</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#PhononWork.from_scf_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.PhononWork.from_scf_input" title="Permalink to this definition">¶</a></dt>
@@ -655,26 +586,22 @@ This API should be used if the DDB of the GS task should be merged.</p>
 <dd><p>Construct a <cite>PhononWork</cite> from a <code class="xref py py-class docutils literal notranslate"><span class="pre">ScfTask</span></code> object.
 The input file for phonons is automatically generated from the input of the ScfTask.
 Each phonon task depends on the WFK file produced by the <cite>scf_task</cite>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>scf_task</strong> – ScfTask object.</li>
-<li><strong>qpoints</strong> – q-points in reduced coordinates. Accepts single q-point, list of q-points
-or three integers defining the q-mesh if <cite>is_ngqpt</cite>.</li>
-<li><strong>is_ngqpt</strong> – True if <cite>qpoints</cite> should be interpreted as divisions instead of q-points.</li>
-<li><strong>tolerance</strong> – dict {“varname”: value} with the tolerance to be used in the phonon run.
-None to use AbiPy default.</li>
-<li><strong>with_becs</strong> – Activate calculation of Electric field and Born effective charges.</li>
-<li><strong>ddk_tolerance</strong> – dict {“varname”: value} with the tolerance used in the DDK run if with_becs.
-None to use AbiPy default.</li>
-<li><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scf_task</strong> – ScfTask object.</p></li>
+<li><p><strong>qpoints</strong> – q-points in reduced coordinates. Accepts single q-point, list of q-points
+or three integers defining the q-mesh if <cite>is_ngqpt</cite>.</p></li>
+<li><p><strong>is_ngqpt</strong> – True if <cite>qpoints</cite> should be interpreted as divisions instead of q-points.</p></li>
+<li><p><strong>tolerance</strong> – dict {“varname”: value} with the tolerance to be used in the phonon run.
+None to use AbiPy default.</p></li>
+<li><p><strong>with_becs</strong> – Activate calculation of Electric field and Born effective charges.</p></li>
+<li><p><strong>ddk_tolerance</strong> – dict {“varname”: value} with the tolerance used in the DDK run if with_becs.
+None to use AbiPy default.</p></li>
+<li><p><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -697,47 +624,39 @@ The number of irreducible atomic perturbations for each q-point are taken into a
 It provides the callback method (on_all_ok) that calls mrgddb (mrgdv) to merge
 all the partial DDB (POT) files produced. The two files are available in the
 output directory of the Work. The WKQ files are removed at runtime.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>workdir</strong> – Path to the working directory.</li>
-<li><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>workdir</strong> – Path to the working directory.</p></li>
+<li><p><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="classmethod">
 <dt id="pymatgen.io.abinit.works.PhononWfkqWork.from_scf_task">
 <em class="property">classmethod </em><code class="descname">from_scf_task</code><span class="sig-paren">(</span><em>scf_task</em>, <em>ngqpt</em>, <em>ph_tolerance=None</em>, <em>tolwfr=1e-22</em>, <em>nband=None</em>, <em>with_becs=False</em>, <em>ddk_tolerance=None</em>, <em>shiftq=(0</em>, <em>0</em>, <em>0)</em>, <em>is_ngqpt=True</em>, <em>remove_wfkq=True</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#PhononWfkqWork.from_scf_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.PhononWfkqWork.from_scf_task" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct a <cite>PhononWfkqWork</cite> from a <code class="xref py py-class docutils literal notranslate"><span class="pre">ScfTask</span></code> object.
 The input files for WFQ and phonons are automatically generated from the input of the ScfTask.
 Each phonon task depends on the WFK file produced by scf_task and the associated WFQ file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>scf_task</strong> – ScfTask object.</li>
-<li><strong>ngqpt</strong> – three integers defining the q-mesh</li>
-<li><strong>with_becs</strong> – Activate calculation of Electric field and Born effective charges.</li>
-<li><strong>ph_tolerance</strong> – dict {“varname”: value} with the tolerance for the phonon run.
-None to use AbiPy default.</li>
-<li><strong>tolwfr</strong> – tolerance used to compute WFQ.</li>
-<li><strong>ddk_tolerance</strong> – dict {“varname”: value} with the tolerance used in the DDK run if with_becs.
-None to use AbiPy default.</li>
-<li><strong>shiftq</strong> – Q-mesh shift. Multiple shifts are not supported.</li>
-<li><strong>is_ngqpt</strong> – the ngqpt is interpreted as a set of integers defining the q-mesh, otherwise
-is an explicit list of q-points</li>
-<li><strong>remove_wfkq</strong> – Remove WKQ files when the children are completed.</li>
-<li><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scf_task</strong> – ScfTask object.</p></li>
+<li><p><strong>ngqpt</strong> – three integers defining the q-mesh</p></li>
+<li><p><strong>with_becs</strong> – Activate calculation of Electric field and Born effective charges.</p></li>
+<li><p><strong>ph_tolerance</strong> – dict {“varname”: value} with the tolerance for the phonon run.
+None to use AbiPy default.</p></li>
+<li><p><strong>tolwfr</strong> – tolerance used to compute WFQ.</p></li>
+<li><p><strong>ddk_tolerance</strong> – dict {“varname”: value} with the tolerance used in the DDK run if with_becs.
+None to use AbiPy default.</p></li>
+<li><p><strong>shiftq</strong> – Q-mesh shift. Multiple shifts are not supported.</p></li>
+<li><p><strong>is_ngqpt</strong> – the ngqpt is interpreted as a set of integers defining the q-mesh, otherwise
+is an explicit list of q-points</p></li>
+<li><p><strong>remove_wfkq</strong> – Remove WKQ files when the children are completed.</p></li>
+<li><p><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -763,18 +682,14 @@ It removes the WFKQ file if all its children have reached <cite>S_OK</cite>.</p>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.works.Work" title="pymatgen.io.abinit.works.Work"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.works.Work</span></code></a></p>
 <p>This work computes electron-phonon matrix elements for all the q-points
 present in a DVDB and DDB file</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>workdir</strong> – Path to the working directory.</li>
-<li><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>workdir</strong> – Path to the working directory.</p></li>
+<li><p><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="classmethod">
 <dt id="pymatgen.io.abinit.works.GKKPWork.from_den_ddb_dvdb">
 <em class="property">classmethod </em><code class="descname">from_den_ddb_dvdb</code><span class="sig-paren">(</span><em>inp</em>, <em>den_path</em>, <em>ddb_path</em>, <em>dvdb_path</em>, <em>mpiprocs=1</em>, <em>remove_wfkq=True</em>, <em>qpath=None</em>, <em>with_ddk=True</em>, <em>expand=True</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#GKKPWork.from_den_ddb_dvdb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.GKKPWork.from_den_ddb_dvdb" title="Permalink to this definition">¶</a></dt>
@@ -806,37 +721,29 @@ It removes the WFKQ file if all its children have reached <cite>S_OK</cite>.</p>
 <p>This work consists of DDK tasks and phonon + electric field perturbation
 It provides the callback method (on_all_ok) that calls mrgddb to merge the
 partial DDB files produced by the work.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>workdir</strong> – Path to the working directory.</li>
-<li><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>workdir</strong> – Path to the working directory.</p></li>
+<li><p><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="classmethod">
 <dt id="pymatgen.io.abinit.works.BecWork.from_scf_task">
 <em class="property">classmethod </em><code class="descname">from_scf_task</code><span class="sig-paren">(</span><em>scf_task</em>, <em>ddk_tolerance=None</em>, <em>ph_tolerance=None</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#BecWork.from_scf_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.BecWork.from_scf_task" title="Permalink to this definition">¶</a></dt>
 <dd><p>Build tasks for the computation of Born effective charges from a ground-state task.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>scf_task</strong> – ScfTask object.</li>
-<li><strong>ddk_tolerance</strong> – tolerance used in the DDK run if with_becs. None to use AbiPy default.</li>
-<li><strong>ph_tolerance</strong> – dict {“varname”: value} with the tolerance used in the phonon run.
-None to use AbiPy default.</li>
-<li><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scf_task</strong> – ScfTask object.</p></li>
+<li><p><strong>ddk_tolerance</strong> – tolerance used in the DDK run if with_becs. None to use AbiPy default.</p></li>
+<li><p><strong>ph_tolerance</strong> – dict {“varname”: value} with the tolerance used in the phonon run.
+None to use AbiPy default.</p></li>
+<li><p><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -856,35 +763,27 @@ the final DDB file in the outdir of the <cite>Work</cite>.</p>
 <p>Work for the computation of the third derivative of the energy.</p>
 <p>This work consists of DDK tasks and electric field perturbation.
 It provides the callback method (on_all_ok) that calls mrgddb to merge the partial DDB files produced</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>workdir</strong> – Path to the working directory.</li>
-<li><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>workdir</strong> – Path to the working directory.</p></li>
+<li><p><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="classmethod">
 <dt id="pymatgen.io.abinit.works.DteWork.from_scf_task">
 <em class="property">classmethod </em><code class="descname">from_scf_task</code><span class="sig-paren">(</span><em>scf_task</em>, <em>ddk_tolerance=None</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#DteWork.from_scf_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.DteWork.from_scf_task" title="Permalink to this definition">¶</a></dt>
 <dd><p>Build a DteWork from a ground-state task.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>scf_task</strong> – ScfTask object.</li>
-<li><strong>ddk_tolerance</strong> – tolerance used in the DDK run if with_becs. None to use AbiPy default.</li>
-<li><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scf_task</strong> – ScfTask object.</p></li>
+<li><p><strong>ddk_tolerance</strong> – tolerance used in the DDK run if with_becs. None to use AbiPy default.</p></li>
+<li><p><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -918,8 +817,6 @@ the final DDB file in the outdir of the <cite>Work</cite>.</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -937,13 +834,13 @@ the final DDB file in the outdir of the <cite>Work</cite>.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

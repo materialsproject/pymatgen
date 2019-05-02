@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.ewald module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.ewald module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -62,43 +60,36 @@ lowest ewald sum.</p>
 <p>An alternative (possibly more intuitive) interface to this class is the
 order disordered structure transformation.</p>
 <p>Author - Will Richards</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>matrix</strong> – A matrix of the ewald sum interaction energies. This is stored
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>matrix</strong> – A matrix of the ewald sum interaction energies. This is stored
 in the class as a diagonally symmetric array and so
-self._matrix will not be the same as the input matrix.</li>
-<li><strong>m_list</strong> – list of manipulations. each item is of the form
+self._matrix will not be the same as the input matrix.</p></li>
+<li><p><strong>m_list</strong> – list of manipulations. each item is of the form
 (multiplication fraction, number_of_indices, indices, species)
 These are sorted such that the first manipulation contains the
 most permutations. this is actually evaluated last in the
-recursion since I’m using pop.</li>
-<li><strong>num_to_return</strong> – The minimizer will find the number_returned lowest
+recursion since I’m using pop.</p></li>
+<li><p><strong>num_to_return</strong> – The minimizer will find the number_returned lowest
 energy structures. This is likely to return a number of duplicate
 structures so it may be necessary to overestimate and then
 remove the duplicates later. (duplicate checking in this
-process is extremely expensive)</li>
+process is extremely expensive)</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.analysis.ewald.EwaldMinimizer.ALGO_BEST_FIRST">
 <code class="descname">ALGO_BEST_FIRST</code><em class="property"> = 2</em><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.ALGO_BEST_FIRST" title="Permalink to this definition">¶</a></dt>
 <dd><p>Slowly increases the speed (with the cost of decreasing
 accuracy) as the minimizer runs. Attempts to limit the run time to
 approximately 30 minutes.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">ALGO_TIME_LIMIT</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>ALGO_TIME_LIMIT</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -127,22 +118,18 @@ minimum if the list is full.</p>
 <dt id="pymatgen.analysis.ewald.EwaldMinimizer.best_case">
 <code class="descname">best_case</code><span class="sig-paren">(</span><em>matrix</em>, <em>m_list</em>, <em>indices_left</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldMinimizer.best_case"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.best_case" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes a best case given a matrix and manipulation list.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>matrix</strong> – the current matrix (with some permutations already
-performed)</li>
-<li><strong>m_list</strong> – [(multiplication fraction, number_of_indices, indices,
-species)] describing the manipulation</li>
-<li><strong>indices</strong> – Set of indices which haven’t had a permutation
-performed on them.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>matrix</strong> – the current matrix (with some permutations already
+performed)</p></li>
+<li><p><strong>m_list</strong> – [(multiplication fraction, number_of_indices, indices,
+species)] describing the manipulation</p></li>
+<li><p><strong>indices</strong> – Set of indices which haven’t had a permutation
+performed on them.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -189,39 +176,35 @@ removal.</p>
 <p>Atomic units used in the code, then converted to eV.</p>
 <p>Initializes and calculates the Ewald sum. Default convergence
 parameters have been specified, but you can override them if you wish.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure that must have proper
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure that must have proper
 Specie on all sites, i.e. Element with oxidation state. Use
-Structure.add_oxidation_state… for example.</li>
-<li><strong>real_space_cut</strong> (<em>float</em>) – Real space cutoff radius dictating how
+Structure.add_oxidation_state… for example.</p></li>
+<li><p><strong>real_space_cut</strong> (<em>float</em>) – Real space cutoff radius dictating how
 many terms are used in the real space sum. Defaults to None,
 which means determine automagically using the formula given
-in gulp 3.1 documentation.</li>
-<li><strong>recip_space_cut</strong> (<em>float</em>) – Reciprocal space cutoff radius.
+in gulp 3.1 documentation.</p></li>
+<li><p><strong>recip_space_cut</strong> (<em>float</em>) – Reciprocal space cutoff radius.
 Defaults to None, which means determine automagically using
-the formula given in gulp 3.1 documentation.</li>
-<li><strong>eta</strong> (<em>float</em>) – The screening parameter. Defaults to None, which means
-determine automatically.</li>
-<li><strong>acc_factor</strong> (<em>float</em>) – No. of significant figures each sum is
-converged to.</li>
-<li><strong>w</strong> (<em>float</em>) – Weight parameter, w, has been included that represents
+the formula given in gulp 3.1 documentation.</p></li>
+<li><p><strong>eta</strong> (<em>float</em>) – The screening parameter. Defaults to None, which means
+determine automatically.</p></li>
+<li><p><strong>acc_factor</strong> (<em>float</em>) – No. of significant figures each sum is
+converged to.</p></li>
+<li><p><strong>w</strong> (<em>float</em>) – Weight parameter, w, has been included that represents
 the relative computational expense of calculating a term in
 real and reciprocal space. Default of 0.7 reproduces result
 similar to GULP 4.2. This has little effect on the total
 energy, but may influence speed of computation in large
 systems. Note that this parameter is used only when the
-cutoffs are set to None.</li>
-<li><strong>compute_forces</strong> (<em>bool</em>) – Whether to compute forces. False by
-default since it is usually not needed.</li>
+cutoffs are set to None.</p></li>
+<li><p><strong>compute_forces</strong> (<em>bool</em>) – Whether to compute forces. False by
+default since it is usually not needed.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.analysis.ewald.EwaldSummation.CONV_FACT">
 <code class="descname">CONV_FACT</code><em class="property"> = 14.399645351950547</em><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.CONV_FACT" title="Permalink to this definition">¶</a></dt>
@@ -240,21 +223,17 @@ out.</p>
 <dd><p>Gives total ewald energy for an sub structure in the same
 lattice. The sub_structure must be a subset of the original
 structure, with possible different charges.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>substructure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Substructure to compute Ewald sum for.</li>
-<li><strong>tol</strong> (<em>float</em>) – Tolerance for site matching in fractional coordinates.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>substructure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Substructure to compute Ewald sum for.</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – Tolerance for site matching in fractional coordinates.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Ewald sum of substructure.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Ewald sum of substructure.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -273,16 +252,14 @@ site.</p>
 <dt id="pymatgen.analysis.ewald.EwaldSummation.get_site_energy">
 <code class="descname">get_site_energy</code><span class="sig-paren">(</span><em>site_index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldSummation.get_site_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.get_site_energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the energy for a single site in the structure</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>site_index</strong> (<em>int</em>) – Index of site</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(float) - Energy of that site</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>site_index</strong> (<em>int</em>) – Index of site</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(float) - Energy of that site</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -346,16 +323,14 @@ when the simulation cell is not charge balanced.</p>
 <dt id="pymatgen.analysis.ewald.compute_average_oxidation_state">
 <code class="descname">compute_average_oxidation_state</code><span class="sig-paren">(</span><em>site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#compute_average_oxidation_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.compute_average_oxidation_state" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the average oxidation state of a site</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>site</strong> – Site to compute average oxidation state</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Average oxidation state of site.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>site</strong> – Site to compute average oxidation state</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Average oxidation state of site.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -379,8 +354,6 @@ when the simulation cell is not charge balanced.</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -398,13 +371,13 @@ when the simulation cell is not charge balanced.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

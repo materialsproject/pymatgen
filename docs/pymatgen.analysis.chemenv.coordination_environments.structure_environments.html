@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.chemenv.coordination_environments.structure_environments module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.chemenv.coordination_environments.structure_environments module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -378,10 +376,10 @@ list of equivalent sites to which the site belongs.
 <dd><p>Get the surface points in the Voronoi grid for this neighbor from the sources.
 The general shape of the points should look like a staircase such as in the following figure :</p>
 <blockquote>
-<div>^</div></blockquote>
-<dl class="docutils">
-<dt>0.0|</dt>
-<dd><div class="first last line-block">
+<div><p>^</p>
+</div></blockquote>
+<dl>
+<dt>0.0|</dt><dd><div class="line-block">
 <div class="line"><br /></div>
 <div class="line-block">
 <div class="line">B—-C</div>
@@ -405,22 +403,18 @@ e  |      j            F—-n———G</p>
 <div class="line"><br /></div>
 </div>
 </div></blockquote>
-<dl class="docutils">
-<dt>1.0+————————————————-&gt;</dt>
-<dd>1.0              distance              2.0   -&gt;+Inf</dd>
+<dl class="simple">
+<dt>1.0+————————————————-&gt;</dt><dd><p>1.0              distance              2.0   -&gt;+Inf</p>
+</dd>
 </dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>additional_condition</strong> – Additional condition for the neighbors.</li>
-<li><strong>other_origins</strong> – What to do with sources that do not come from the Voronoi grid (e.g. “from hints”)</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>additional_condition</strong> – Additional condition for the neighbors.</p></li>
+<li><p><strong>other_origins</strong> – What to do with sources that do not come from the Voronoi grid (e.g. “from hints”)</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -469,29 +463,25 @@ using the as_dict method.
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.get_csms">
 <code class="descname">get_csms</code><span class="sig-paren">(</span><em>isite</em>, <em>mp_symbol</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/structure_environments.html#StructureEnvironments.get_csms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.get_csms" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Returns the continuous symmetry measure(s) of site with index isite with respect to the</dt>
-<dd>perfect coordination environment with mp_symbol. For some environments, a given mp_symbol might not
+<dd><dl class="simple">
+<dt>Returns the continuous symmetry measure(s) of site with index isite with respect to the</dt><dd><p>perfect coordination environment with mp_symbol. For some environments, a given mp_symbol might not
 be available (if there is no voronoi parameters leading to a number of neighbours corresponding to
 the coordination number of environment mp_symbol). For some environments, a given mp_symbol might
 lead to more than one csm (when two or more different voronoi parameters lead to different neighbours
-but with same number of neighbours).</dd>
+but with same number of neighbours).</p>
+</dd>
 </dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>isite</strong> – Index of the site</li>
-<li><strong>mp_symbol</strong> – MP symbol of the perfect environment for which the csm has to be given</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>isite</strong> – Index of the site</p></li>
+<li><p><strong>mp_symbol</strong> – MP symbol of the perfect environment for which the csm has to be given</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">List of csms for site isite with respect to geometry mp_symbol</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of csms for site isite with respect to geometry mp_symbol</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -505,19 +495,18 @@ region as the value for the color of that distfactor/angfactor region (using a c
 :param title: Title for the figure
 :param max_dist: Maximum distance to be plotted when the plotting of the distance is set to ‘initial_normalized’</p>
 <blockquote>
-<div>or ‘initial_real’ (Warning: this is not the same meaning in both cases! In the first case,
+<div><p>or ‘initial_real’ (Warning: this is not the same meaning in both cases! In the first case,
 the closest atom lies at a “normalized” distance of 1.0 so that 2.0 means refers to this
-normalized distance while in the second case, the real distance is used)</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>figsize</strong> – Size of the figure to be plotted</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The figure object to be plotted or saved to file</td>
-</tr>
-</tbody>
-</table>
+normalized distance while in the second case, the real distance is used)</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>figsize</strong> – Size of the figure to be plotted</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The figure object to be plotted or saved to file</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -536,19 +525,18 @@ as the value for the color of that distfactor/angfactor set.
 :param title: Title for the figure
 :param max_dist: Maximum distance to be plotted when the plotting of the distance is set to ‘initial_normalized’</p>
 <blockquote>
-<div>or ‘initial_real’ (Warning: this is not the same meaning in both cases! In the first case,
+<div><p>or ‘initial_real’ (Warning: this is not the same meaning in both cases! In the first case,
 the closest atom lies at a “normalized” distance of 1.0 so that 2.0 means refers to this
-normalized distance while in the second case, the real distance is used)</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>figsize</strong> – Size of the figure to be plotted</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Nothing returned, just plot the figure</td>
-</tr>
-</tbody>
-</table>
+normalized distance while in the second case, the real distance is used)</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>figsize</strong> – Size of the figure to be plotted</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Nothing returned, just plot the figure</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -562,19 +550,18 @@ as the value for the color of that distfactor/angfactor set.
 :param title: Title for the figure
 :param max_dist: Maximum distance to be plotted when the plotting of the distance is set to ‘initial_normalized’</p>
 <blockquote>
-<div>or ‘initial_real’ (Warning: this is not the same meaning in both cases! In the first case,
+<div><p>or ‘initial_real’ (Warning: this is not the same meaning in both cases! In the first case,
 the closest atom lies at a “normalized” distance of 1.0 so that 2.0 means refers to this
-normalized distance while in the second case, the real distance is used)</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>figsize</strong> – Size of the figure to be plotted</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Nothing returned, just plot the figure</td>
-</tr>
-</tbody>
-</table>
+normalized distance while in the second case, the real distance is used)</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>figsize</strong> – Size of the figure to be plotted</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Nothing returned, just plot the figure</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -615,8 +602,6 @@ normalized distance while in the second case, the real distance is used)</div></
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -634,13 +619,13 @@ normalized distance while in the second case, the real distance is used)</div></
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -173,7 +173,6 @@ class CifBlock:
         string = re.sub(r"^\s*\n", "", string, flags=re.MULTILINE)
         # remove non_ascii
         string = remove_non_ascii(string)
-
         # since line breaks in .cif files are mostly meaningless,
         # break up into a stream of tokens to parse, rejoining multiline
         # strings (between semicolons)
@@ -217,7 +216,10 @@ class CifBlock:
             if s[0] == "_eof":
                 break
             if s[0].startswith("_"):
-                data[s[0]] = "".join(q.popleft())
+                try:
+                    data[s[0]] = "".join(q.popleft())
+                except IndexError:
+                    data[s[0]] = ""
             elif s[0].startswith("loop_"):
                 columns = []
                 items = []
@@ -874,7 +876,8 @@ class CifParser:
 
         parsed_sym = None
         # try with special symbols, otherwise check the first two letters,
-        # then the first letter alone. If everything fails try extracting the first letters.
+        # then the first letter alone. If everything fails try extracting the
+        # first letters.
         m_sp = re.match("|".join(special.keys()), sym)
         if m_sp:
             parsed_sym = special[m_sp.group()]
@@ -887,7 +890,7 @@ class CifParser:
             if m:
                 parsed_sym = m.group()
 
-        if parsed_sym is not None and (m_sp or not re.match("{}\d*".format(parsed_sym), sym)):
+        if parsed_sym is not None and (m_sp or not re.match(r"{}\d*".format(parsed_sym), sym)):
             msg = "{} parsed as {}".format(sym, parsed_sym)
             warnings.warn(msg)
             self.errors.append(msg)

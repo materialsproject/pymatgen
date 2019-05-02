@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.adf module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.io.adf module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -52,30 +50,23 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A basic ADF input file writer.</p>
 <p>Initialization method.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>task</strong> (<a class="reference internal" href="#pymatgen.io.adf.AdfTask" title="pymatgen.io.adf.AdfTask"><em>AdfTask</em></a>) – An ADF task.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>task</strong> (<a class="reference internal" href="#pymatgen.io.adf.AdfTask" title="pymatgen.io.adf.AdfTask"><em>AdfTask</em></a>) – An ADF task.</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.adf.AdfInput.write_file">
 <code class="descname">write_file</code><span class="sig-paren">(</span><em>molecule</em>, <em>inpfile</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/adf.html#AdfInput.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfInput.write_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write an ADF input file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>molecule</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) – The molecule for this task.</li>
-<li><strong>inpfile</strong> (<em>str</em>) – The name where the input file will be saved.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>molecule</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) – The molecule for this task.</p></li>
+<li><p><strong>inpfile</strong> (<em>str</em>) – The name where the input file will be saved.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -95,53 +86,44 @@
 contain a delimiter (blank, comma or equal sign). A key may have multiple
 subkeys and a set of options.</p>
 <p>Initialization method.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>name</strong> (<em>str</em>) – The name of this key.</li>
-<li><strong>options</strong> (<em>Sized</em>) – The options for this key. Each element can be a primitive object or
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – The name of this key.</p></li>
+<li><p><strong>options</strong> (<em>Sized</em>) – The options for this key. Each element can be a primitive object or
 a tuple/list with two elements: the first is the name and the second
-is a primitive object.</li>
-<li><strong>subkeys</strong> (<em>Sized</em>) – The subkeys for this key.</li>
+is a primitive object.</p></li>
+<li><p><strong>subkeys</strong> (<em>Sized</em>) – The subkeys for this key.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If elements in <code class="docutils literal notranslate"><span class="pre">subkeys</span></code> are not <code class="docutils literal notranslate"><span class="pre">AdfKey</span></code> objects.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If elements in <code class="docutils literal notranslate"><span class="pre">subkeys</span></code> are not <code class="docutils literal notranslate"><span class="pre">AdfKey</span></code> objects.</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.adf.AdfKey.add_option">
 <code class="descname">add_option</code><span class="sig-paren">(</span><em>option</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/adf.html#AdfKey.add_option"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.add_option" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a new option to this key.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>option</strong> (<em>Sized</em><em> or </em><em>str</em><em> or </em><em>int</em><em> or </em><em>float</em>) – A new option to add. This must have the same format with exsiting
-options.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code> – If the format of the given <code class="docutils literal notranslate"><span class="pre">option</span></code> is different.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>option</strong> (<em>Sized</em><em> or </em><em>str</em><em> or </em><em>int</em><em> or </em><em>float</em>) – A new option to add. This must have the same format with exsiting
+options.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>TypeError</strong> – If the format of the given <code class="docutils literal notranslate"><span class="pre">option</span></code> is different.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.adf.AdfKey.add_subkey">
 <code class="descname">add_subkey</code><span class="sig-paren">(</span><em>subkey</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/adf.html#AdfKey.add_subkey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.add_subkey" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a new subkey to this key.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>subkey</strong> (<a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey"><em>AdfKey</em></a>) – A new subkey.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>subkey</strong> (<a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey"><em>AdfKey</em></a>) – A new subkey.</p>
+</dd>
+</dl>
 <p class="rubric">Notes</p>
 <p>Duplicate check will not be performed if this is an ‘Atoms’ block.</p>
 </dd></dl>
@@ -161,39 +143,38 @@ options.</td>
 <dt id="pymatgen.io.adf.AdfKey.from_dict">
 <em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/adf.html#AdfKey.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct a MSONable AdfKey object from the JSON dict.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>d</strong> (<em>dict</em>) – A dict of saved attributes.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>adfkey</strong> – An AdfKey object recovered from the JSON dict <code class="docutils literal notranslate"><span class="pre">d</span></code>.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey">AdfKey</a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – A dict of saved attributes.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>adfkey</strong> – An AdfKey object recovered from the JSON dict <code class="docutils literal notranslate"><span class="pre">d</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey">AdfKey</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="pymatgen.io.adf.AdfKey.from_string">
 <em class="property">static </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/adf.html#AdfKey.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.from_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct an AdfKey object from the string.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>string</strong> (<em>str</em>) – A string.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>adfkey</strong> – An AdfKey object recovered from the string.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey">AdfKey</a></td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – Currently nested subkeys are not supported. If <code class="docutils literal notranslate"><span class="pre">subend</span></code> was found
-a ValueError would be raised.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>string</strong> (<em>str</em>) – A string.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>adfkey</strong> – An AdfKey object recovered from the string.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey">AdfKey</a></p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Currently nested subkeys are not supported. If <code class="docutils literal notranslate"><span class="pre">subend</span></code> was found
+    a ValueError would be raised.</p>
+</dd>
+</dl>
 <p class="rubric">Notes</p>
 <p>Only the first block key will be returned.</p>
 </dd></dl>
@@ -202,36 +183,34 @@ a ValueError would be raised.</td>
 <dt id="pymatgen.io.adf.AdfKey.has_option">
 <code class="descname">has_option</code><span class="sig-paren">(</span><em>option</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/adf.html#AdfKey.has_option"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.has_option" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return True if the option is included in this key.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>option</strong> (<em>str</em>) – The option.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>has</strong> – True if the option can be found. Otherwise False will be returned.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>option</strong> (<em>str</em>) – The option.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>has</strong> – True if the option can be found. Otherwise False will be returned.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.adf.AdfKey.has_subkey">
 <code class="descname">has_subkey</code><span class="sig-paren">(</span><em>subkey</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/adf.html#AdfKey.has_subkey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.has_subkey" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return True if this AdfKey contains the given subkey.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>subkey</strong> (<em>str</em><em> or </em><a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey"><em>AdfKey</em></a>) – A key name or an AdfKey object.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>has</strong> – True if this key contains the given key. Otherwise False.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>subkey</strong> (<em>str</em><em> or </em><a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey"><em>AdfKey</em></a>) – A key name or an AdfKey object.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>has</strong> – True if this key contains the given key. Otherwise False.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -251,30 +230,25 @@ converted to upper cases.</p>
 <dt id="pymatgen.io.adf.AdfKey.remove_option">
 <code class="descname">remove_option</code><span class="sig-paren">(</span><em>option</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/adf.html#AdfKey.remove_option"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.remove_option" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove an option.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>option</strong> (<em>str</em><em> or </em><em>int</em>) – The name (str) or index (int) of the option to remove.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code> – If the option has a wrong type.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>option</strong> (<em>str</em><em> or </em><em>int</em>) – The name (str) or index (int) of the option to remove.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>TypeError</strong> – If the option has a wrong type.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.adf.AdfKey.remove_subkey">
 <code class="descname">remove_subkey</code><span class="sig-paren">(</span><em>subkey</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/adf.html#AdfKey.remove_subkey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfKey.remove_subkey" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove the given subkey, if existed, from this AdfKey.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>subkey</strong> (<em>str</em><em> or </em><a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey"><em>AdfKey</em></a>) – The subkey to remove.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>subkey</strong> (<em>str</em><em> or </em><a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey"><em>AdfKey</em></a>) – The subkey to remove.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -299,14 +273,11 @@ converted to upper cases.</p>
 <dt id="pymatgen.io.adf.AdfOutput.is_failed">
 <code class="descname">is_failed</code><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.is_failed" title="Permalink to this definition">¶</a></dt>
 <dd><p>True is the ADF job is terminated without success. Otherwise False.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">bool</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -314,28 +285,22 @@ converted to upper cases.</p>
 <code class="descname">is_internal_crash</code><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.is_internal_crash" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if the job is terminated with internal crash. Please read ‘TAPE13’
 of the ADF manual for more detail.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">bool</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.adf.AdfOutput.error">
 <code class="descname">error</code><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.error" title="Permalink to this definition">¶</a></dt>
 <dd><p>The error description.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -343,123 +308,96 @@ of the ADF manual for more detail.</p>
 <code class="descname">run_type</code><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.run_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>The RunType of this ADF job. Possible options are: ‘SinglePoint’,
 ‘GeometryOptimization’, ‘AnalyticalFreq’ and ‘NUmericalFreq’.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.adf.AdfOutput.final_energy">
 <code class="descname">final_energy</code><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.final_energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>The final molecule energy (a.u).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">float</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.adf.AdfOutput.final_structure">
 <code class="descname">final_structure</code><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.final_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>The final structure of the molecule.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">GMolecule</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>GMolecule</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.adf.AdfOutput.energies">
 <code class="descname">energies</code><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.energies" title="Permalink to this definition">¶</a></dt>
 <dd><p>The energy of each cycle.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">Sized</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Sized</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.adf.AdfOutput.structures">
 <code class="descname">structures</code><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.structures" title="Permalink to this definition">¶</a></dt>
 <dd><p>The structure of each cycle If geometry optimization is performed.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">Sized</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Sized</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.adf.AdfOutput.frequencies">
 <code class="descname">frequencies</code><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.frequencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>The frequencies of the molecule.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">array_like</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.adf.AdfOutput.normal_modes">
 <code class="descname">normal_modes</code><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.normal_modes" title="Permalink to this definition">¶</a></dt>
 <dd><p>The normal modes of the molecule.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">array_like</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.adf.AdfOutput.freq_type">
 <code class="descname">freq_type</code><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.freq_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Either ‘Analytical’ or ‘Numerical’.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <p>Initialization method.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) – The ADF output file to parse.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – The ADF output file to parse.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="exception">
@@ -478,24 +416,20 @@ of the ADF manual for more detail.</p>
 <p>Unlike other quantum chemistry packages (NWChem, Gaussian, …), ADF does
 not support calculating force/gradient.</p>
 <p>Initialization method.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>operation</strong> (<em>str</em>) – The target operation.</li>
-<li><strong>basis_set</strong> (<a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey"><em>AdfKey</em></a>) – The basis set definitions for this task. Defaults to ‘DZ/Large’.</li>
-<li><strong>xc</strong> (<a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey"><em>AdfKey</em></a>) – The exchange-correlation functionals. Defaults to PBE.</li>
-<li><strong>title</strong> (<em>str</em>) – The title of this ADF task.</li>
-<li><strong>units</strong> (<a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey"><em>AdfKey</em></a>) – The units. Defaults to Angstroms/Degree.</li>
-<li><strong>geo_subkeys</strong> (<em>Sized</em>) – The subkeys for the block key ‘GEOMETRY’.</li>
-<li><strong>scf</strong> (<a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey"><em>AdfKey</em></a>) – The scf options.</li>
-<li><strong>other_directives</strong> (<em>Sized</em>) – User-defined directives.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>operation</strong> (<em>str</em>) – The target operation.</p></li>
+<li><p><strong>basis_set</strong> (<a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey"><em>AdfKey</em></a>) – The basis set definitions for this task. Defaults to ‘DZ/Large’.</p></li>
+<li><p><strong>xc</strong> (<a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey"><em>AdfKey</em></a>) – The exchange-correlation functionals. Defaults to PBE.</p></li>
+<li><p><strong>title</strong> (<em>str</em>) – The title of this ADF task.</p></li>
+<li><p><strong>units</strong> (<a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey"><em>AdfKey</em></a>) – The units. Defaults to Angstroms/Degree.</p></li>
+<li><p><strong>geo_subkeys</strong> (<em>Sized</em>) – The subkeys for the block key ‘GEOMETRY’.</p></li>
+<li><p><strong>scf</strong> (<a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey"><em>AdfKey</em></a>) – The scf options.</p></li>
+<li><p><strong>other_directives</strong> (<em>Sized</em>) – User-defined directives.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.adf.AdfTask.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/adf.html#AdfTask.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfTask.as_dict" title="Permalink to this definition">¶</a></dt>
@@ -506,18 +440,17 @@ not support calculating force/gradient.</p>
 <dt id="pymatgen.io.adf.AdfTask.from_dict">
 <em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/adf.html#AdfTask.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfTask.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct a MSONable AdfTask object from the JSON dict.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>d</strong> (<em>dict</em>) – A dict of saved attributes.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>task</strong> – An AdfTask object recovered from the JSON dict <code class="docutils literal notranslate"><span class="pre">d</span></code>.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pymatgen.io.adf.AdfTask" title="pymatgen.io.adf.AdfTask">AdfTask</a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – A dict of saved attributes.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>task</strong> – An AdfTask object recovered from the JSON dict <code class="docutils literal notranslate"><span class="pre">d</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pymatgen.io.adf.AdfTask" title="pymatgen.io.adf.AdfTask">AdfTask</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="staticmethod">
@@ -562,35 +495,35 @@ not support calculating force/gradient.</p>
 <dt id="pymatgen.io.adf.is_numeric">
 <code class="descname">is_numeric</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/adf.html#is_numeric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.is_numeric" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return True is the string <code class="docutils literal notranslate"><span class="pre">s</span></code> is a numeric string.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>s</strong> (<em>str</em>) – A string.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>res</strong> – If True, <code class="docutils literal notranslate"><span class="pre">s</span></code> is a numeric string and can be converted to an int or a
-float. Otherwise False will be returned.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>s</strong> (<em>str</em>) – A string.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>res</strong> – If True, <code class="docutils literal notranslate"><span class="pre">s</span></code> is a numeric string and can be converted to an int or a
+float. Otherwise False will be returned.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.io.adf.iterlines">
 <code class="descname">iterlines</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/adf.html#iterlines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.iterlines" title="Permalink to this definition">¶</a></dt>
 <dd><blockquote>
-<div>A generator form of s.split(‘</div></blockquote>
+<div><p>A generator form of s.split(‘</p>
+</div></blockquote>
 <p>‘) for reducing memory overhead.</p>
 <blockquote>
-<div><dl class="docutils">
-<dt>s <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd>A multi-line string.</dd>
+<div><dl class="simple">
+<dt>s<span class="classifier">str</span></dt><dd><p>A multi-line string.</p>
+</dd>
 </dl>
-<dl class="docutils">
-<dt>line <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd>A string.</dd>
+<dl class="simple">
+<dt>line<span class="classifier">str</span></dt><dd><p>A string.</p>
+</dd>
 </dl>
 </div></blockquote>
 </dd></dl>
@@ -616,8 +549,6 @@ float. Otherwise False will be returned.</td>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -635,13 +566,13 @@ float. Otherwise False will be returned.</td>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

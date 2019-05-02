@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.electronic_structure.bandstructure module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.electronic_structure.bandstructure module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -107,38 +105,34 @@ due to the large amount of numerical data. The indices of the ndarray
 are [band_index, kpoint_index, orbital_index, ion_index].</p>
 </dd></dl>
 
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>kpoints</strong> – list of kpoint as numpy arrays, in frac_coords of the
-given lattice by default</li>
-<li><strong>eigenvals</strong> – dict of energies for spin up and spin down
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>kpoints</strong> – list of kpoint as numpy arrays, in frac_coords of the
+given lattice by default</p></li>
+<li><p><strong>eigenvals</strong> – dict of energies for spin up and spin down
 {Spin.up:[][],Spin.down:[][]}, the first index of the array
 [][] refers to the band and the second to the index of the
 kpoint. The kpoints are ordered according to the order of the
 kpoints array. If the band structure is not spin polarized, we
-only store one data set under Spin.up</li>
-<li><strong>lattice</strong> – The reciprocal lattice as a pymatgen Lattice object.
+only store one data set under Spin.up</p></li>
+<li><p><strong>lattice</strong> – The reciprocal lattice as a pymatgen Lattice object.
 Pymatgen uses the physics convention of reciprocal lattice vectors
-WITH a 2*pi coefficient</li>
-<li><strong>efermi</strong> – fermi energy</li>
-<li><strong>labels_dict</strong> – (dict) of {} this links a kpoint (in frac coords or
-cartesian coordinates depending on the coords) to a label.</li>
-<li><strong>coords_are_cartesian</strong> – Whether coordinates are cartesian.</li>
-<li><strong>structure</strong> – The crystal structure (as a pymatgen Structure object)
+WITH a 2*pi coefficient</p></li>
+<li><p><strong>efermi</strong> – fermi energy</p></li>
+<li><p><strong>labels_dict</strong> – (dict) of {} this links a kpoint (in frac coords or
+cartesian coordinates depending on the coords) to a label.</p></li>
+<li><p><strong>coords_are_cartesian</strong> – Whether coordinates are cartesian.</p></li>
+<li><p><strong>structure</strong> – The crystal structure (as a pymatgen Structure object)
 associated with the band structure. This is needed if we
-provide projections to the band structure</li>
-<li><strong>projections</strong> – dict of orbital projections as {spin: ndarray}. The
+provide projections to the band structure</p></li>
+<li><p><strong>projections</strong> – dict of orbital projections as {spin: ndarray}. The
 indices of the ndarrayare [band_index, kpoint_index, orbital_index,
 ion_index].If the band structure is not spin polarized, we only
-store one data set under Spin.up.</li>
+store one data set under Spin.up.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructure.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructure.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.as_dict" title="Permalink to this definition">¶</a></dt>
@@ -149,61 +143,53 @@ store one data set under Spin.up.</li>
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructure.from_dict">
 <em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructure.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create from dict.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dict with all data for a band structure object.</strong> (<em>A</em>) – </td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A BandStructure object</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dict with all data for a band structure object.</strong> (<em>A</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A BandStructure object</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructure.from_old_dict">
 <em class="property">classmethod </em><code class="descname">from_old_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructure.from_old_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.from_old_dict" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>d</strong> (<em>dict</em>) – A dict with all data for a band structure symm line
-object.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A BandStructureSymmLine object</td>
-</tr>
-</tbody>
-</table>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – A dict with all data for a band structure symm line
+object.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A BandStructureSymmLine object</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructure.get_band_gap">
 <code class="descname">get_band_gap</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructure.get_band_gap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.get_band_gap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns band gap data.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">“energy”: band gap energy
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>“energy”: band gap energy
 “direct”: A boolean telling if the gap is direct or not
-“transition”: kpoint labels of the transition (e.g., “Gamma-X”)</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">A dict {“energy”,”direct”,”transition”}</td>
-</tr>
-</tbody>
-</table>
+“transition”: kpoint labels of the transition (e.g., “Gamma-X”)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>A dict {“energy”,”direct”,”transition”}</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructure.get_cbm">
 <code class="descname">get_cbm</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructure.get_cbm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.get_cbm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns data about the CBM.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">{“band_index”,”kpoint_index”,”kpoint”,”energy”}
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>{“band_index”,”kpoint_index”,”kpoint”,”energy”}
 - “band_index”: A dict with spin keys pointing to a list of the
 indices of the band containing the VBM (please note that you
 can have several bands sharing the VBM) {Spin.up:[],
@@ -218,24 +204,20 @@ occur at different spots in the band structure line plot)
 VBM if any projection data is available (else it is an empty
 dictionnary). The format is similar to the projections field in
 BandStructure: {spin:{‘Orbital’: [proj]}} where the array
-[proj] is ordered according to the sites in structure</td>
-</tr>
-</tbody>
-</table>
+[proj] is ordered according to the sites in structure</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructure.get_direct_band_gap">
 <code class="descname">get_direct_band_gap</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructure.get_direct_band_gap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.get_direct_band_gap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the direct band gap.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the value of the direct band gap</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the value of the direct band gap</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -243,15 +225,12 @@ BandStructure: {spin:{‘Orbital’: [proj]}} where the array
 <code class="descname">get_direct_band_gap_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructure.get_direct_band_gap_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.get_direct_band_gap_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a dictionary of information about the direct
 band gap</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a dictionary of the band gaps indexed by spin
-along with their band indices and k-point index</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a dictionary of the band gaps indexed by spin
+along with their band indices and k-point index</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -264,35 +243,31 @@ along with their band indices and k-point index</td>
 :type cartesian: bool
 :param tol: tolerance below which coordinates are considered equal
 :type tol: float</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">degeneracy or None if structure is not available</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">(int or None)</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>degeneracy or None if structure is not available</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(int or None)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructure.get_projection_on_elements">
 <code class="descname">get_projection_on_elements</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructure.get_projection_on_elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.get_projection_on_elements" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method returning a dictionary of projections on elements.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">[][{Element:values}],
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>[][{Element:values}],
 Spin.down:[][{Element:values}]} format
 if there is no projections in the band structure
-returns an empty dict</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">a dictionary in the {Spin.up</td>
-</tr>
-</tbody>
-</table>
+returns an empty dict</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>a dictionary in the {Spin.up</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -300,58 +275,50 @@ returns an empty dict</td>
 <code class="descname">get_projections_on_elements_and_orbitals</code><span class="sig-paren">(</span><em>el_orb_spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructure.get_projections_on_elements_and_orbitals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.get_projections_on_elements_and_orbitals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method returning a dictionary of projections on elements and specific
 orbitals</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>el_orb_spec</strong> – A dictionary of Elements and Orbitals for which we want
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>el_orb_spec</strong> – A dictionary of Elements and Orbitals for which we want
 to have projections on. It is given as: {Element:[orbitals]},
-e.g., {‘Cu’:[‘d’,’s’]}</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of projections on elements in the
+e.g., {‘Cu’:[‘d’,’s’]}</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary of projections on elements in the
 {Spin.up:[][{Element:{orb:values}}],
 Spin.down:[][{Element:{orb:values}}]} format
 if there is no projections in the band structure returns an empty
-dict.</td>
-</tr>
-</tbody>
-</table>
+dict.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructure.get_sym_eq_kpoints">
 <code class="descname">get_sym_eq_kpoints</code><span class="sig-paren">(</span><em>kpoint</em>, <em>cartesian=False</em>, <em>tol=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructure.get_sym_eq_kpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.get_sym_eq_kpoints" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of unique symmetrically equivalent k-points.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>kpoint</strong> (<em>1x3 array</em>) – coordinate of the k-point</li>
-<li><strong>cartesian</strong> (<em>bool</em>) – kpoint is in cartesian or fractional coordinates</li>
-<li><strong>tol</strong> (<em>float</em>) – tolerance below which coordinates are considered equal</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>kpoint</strong> (<em>1x3 array</em>) – coordinate of the k-point</p></li>
+<li><p><strong>cartesian</strong> (<em>bool</em>) – kpoint is in cartesian or fractional coordinates</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – tolerance below which coordinates are considered equal</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">if structure is not available returns None</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">([1x3 array] or None)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>if structure is not available returns None</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>([1x3 array] or None)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructure.get_vbm">
 <code class="descname">get_vbm</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructure.get_vbm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.get_vbm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns data about the VBM.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">dict as {“band_index”,”kpoint_index”,”kpoint”,”energy”}
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dict as {“band_index”,”kpoint_index”,”kpoint”,”energy”}
 - “band_index”: A dict with spin keys pointing to a list of the
 indices of the band containing the VBM (please note that you
 can have several bands sharing the VBM) {Spin.up:[],
@@ -366,10 +333,9 @@ occur at different spots in the band structure line plot)
 VBM if any projection data is available (else it is an empty
 dictionnary). The format is similar to the projections field in
 BandStructure: {spin:{‘Orbital’: [proj]}} where the array
-[proj] is ordered according to the sites in structure</td>
-</tr>
-</tbody>
-</table>
+[proj] is ordered according to the sites in structure</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -377,14 +343,11 @@ BandStructure: {spin:{‘Orbital’: [proj]}} where the array
 <code class="descname">is_metal</code><span class="sig-paren">(</span><em>efermi_tol=0.0001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructure.is_metal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.is_metal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if the band structure indicates a metal by looking if the fermi
 level crosses a band.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True if a metal, False if not</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>True if a metal, False if not</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -396,54 +359,48 @@ level crosses a band.</p>
 <p>This object stores band structures along selected (symmetry) lines in the
 Brillouin zone. We call the different symmetry lines (ex: Gamma to Z)
 “branches”.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>kpoints</strong> – list of kpoint as numpy arrays, in frac_coords of the
-given lattice by default</li>
-<li><strong>eigenvals</strong> – dict of energies for spin up and spin down
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>kpoints</strong> – list of kpoint as numpy arrays, in frac_coords of the
+given lattice by default</p></li>
+<li><p><strong>eigenvals</strong> – dict of energies for spin up and spin down
 {Spin.up:[][],Spin.down:[][]}, the first index of the array
 [][] refers to the band and the second to the index of the
 kpoint. The kpoints are ordered according to the order of the
 kpoints array. If the band structure is not spin polarized, we
-only store one data set under Spin.up.</li>
-<li><strong>lattice</strong> – The reciprocal lattice.
+only store one data set under Spin.up.</p></li>
+<li><p><strong>lattice</strong> – The reciprocal lattice.
 Pymatgen uses the physics convention of reciprocal lattice vectors
-WITH a 2*pi coefficient</li>
-<li><strong>efermi</strong> – fermi energy</li>
-<li><strong>label_dict</strong> – (dict) of {} this link a kpoint (in frac coords or
-cartesian coordinates depending on the coords).</li>
-<li><strong>coords_are_cartesian</strong> – Whether coordinates are cartesian.</li>
-<li><strong>structure</strong> – The crystal structure (as a pymatgen Structure object)
+WITH a 2*pi coefficient</p></li>
+<li><p><strong>efermi</strong> – fermi energy</p></li>
+<li><p><strong>label_dict</strong> – (dict) of {} this link a kpoint (in frac coords or
+cartesian coordinates depending on the coords).</p></li>
+<li><p><strong>coords_are_cartesian</strong> – Whether coordinates are cartesian.</p></li>
+<li><p><strong>structure</strong> – The crystal structure (as a pymatgen Structure object)
 associated with the band structure. This is needed if we
-provide projections to the band structure.</li>
-<li><strong>projections</strong> – dict of orbital projections as {spin: ndarray}. The
+provide projections to the band structure.</p></li>
+<li><p><strong>projections</strong> – dict of orbital projections as {spin: ndarray}. The
 indices of the ndarrayare [band_index, kpoint_index, orbital_index,
 ion_index].If the band structure is not spin polarized, we only
-store one data set under Spin.up.</li>
+store one data set under Spin.up.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.apply_scissor">
 <code class="descname">apply_scissor</code><span class="sig-paren">(</span><em>new_band_gap</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructureSymmLine.apply_scissor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.apply_scissor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply a scissor operator (shift of the CBM) to fit the given band gap.
 If it’s a metal. We look for the band crossing the fermi level
 and shift this one up. This will not work all the time for metals!</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_band_gap</strong> – the band gap the scissor band structure need to have.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a BandStructureSymmLine object with the applied scissor shift</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>new_band_gap</strong> – the band gap the scissor band structure need to have.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a BandStructureSymmLine object with the applied scissor shift</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -455,33 +412,29 @@ and shift this one up. This will not work all the time for metals!</p>
 <dl class="classmethod">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.from_dict">
 <em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructureSymmLine.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>d</strong> (<em>dict</em>) – A dict with all data for a band structure symm line
-object.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A BandStructureSymmLine object</td>
-</tr>
-</tbody>
-</table>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – A dict with all data for a band structure symm line
+object.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A BandStructureSymmLine object</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.from_old_dict">
 <em class="property">classmethod </em><code class="descname">from_old_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructureSymmLine.from_old_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.from_old_dict" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>d</strong> (<em>dict</em>) – A dict with all data for a band structure symm line
-object.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A BandStructureSymmLine object</td>
-</tr>
-</tbody>
-</table>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – A dict with all data for a band structure symm line
+object.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A BandStructureSymmLine object</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -489,19 +442,17 @@ object.</td>
 <code class="descname">get_branch</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructureSymmLine.get_branch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.get_branch" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns in what branch(es) is the kpoint. There can be several
 branches.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>index</strong> – the kpoint index</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of dictionaries [{“name”,”start_index”,”end_index”,”index”}]
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>index</strong> – the kpoint index</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of dictionaries [{“name”,”start_index”,”end_index”,”index”}]
 indicating all branches in which the k_point is. It takes into
 account the fact that one kpoint (e.g., Gamma) can be in several
-branches</td>
-</tr>
-</tbody>
-</table>
+branches</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -509,16 +460,14 @@ branches</td>
 <code class="descname">get_equivalent_kpoints</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructureSymmLine.get_equivalent_kpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.get_equivalent_kpoints" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the list of kpoint indices equivalent (meaning they are the
 same frac coords) to the given one.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>index</strong> – the kpoint index</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a list of equivalent indices</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>index</strong> – the kpoint index</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a list of equivalent indices</p>
+</dd>
+</dl>
 <p>TODO: now it uses the label we might want to use coordinates instead
 (in case there was a mislabel)</p>
 </dd></dl>
@@ -532,25 +481,21 @@ same frac coords) to the given one.</p>
 <p>Class to store kpoint objects. A kpoint is defined with a lattice and frac
 or cartesian coordinates syntax similar than the site object in
 pymatgen.core.structure.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>coords</strong> – coordinate of the kpoint as a numpy array</li>
-<li><strong>lattice</strong> – A pymatgen.core.lattice.Lattice lattice object representing
-the reciprocal lattice of the kpoint</li>
-<li><strong>to_unit_cell</strong> – Translates fractional coordinate to the basic unit
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coords</strong> – coordinate of the kpoint as a numpy array</p></li>
+<li><p><strong>lattice</strong> – A pymatgen.core.lattice.Lattice lattice object representing
+the reciprocal lattice of the kpoint</p></li>
+<li><p><strong>to_unit_cell</strong> – Translates fractional coordinate to the basic unit
 cell, i.e., all fractional coordinates satisfy 0 &lt;= a &lt; 1.
-Defaults to False.</li>
-<li><strong>coords_are_cartesian</strong> – Boolean indicating if the coordinates given are
-in cartesian or fractional coordinates (by default fractional)</li>
-<li><strong>label</strong> – the label of the kpoint if any (None by default)</li>
+Defaults to False.</p></li>
+<li><p><strong>coords_are_cartesian</strong> – Boolean indicating if the coordinates given are
+in cartesian or fractional coordinates (by default fractional)</p></li>
+<li><p><strong>label</strong> – the label of the kpoint if any (None by default)</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.electronic_structure.bandstructure.Kpoint.a">
 <code class="descname">a</code><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.Kpoint.a" title="Permalink to this definition">¶</a></dt>
@@ -602,6 +547,101 @@ pymatgen.core.lattice.Lattice object</p>
 
 </dd></dl>
 
+<dl class="class">
+<dt id="pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine">
+<em class="property">class </em><code class="descname">LobsterBandStructureSymmLine</code><span class="sig-paren">(</span><em>kpoints</em>, <em>eigenvals</em>, <em>lattice</em>, <em>efermi</em>, <em>labels_dict</em>, <em>coords_are_cartesian=False</em>, <em>structure=None</em>, <em>projections=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#LobsterBandStructureSymmLine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.electronic_structure.bandstructure.BandStructureSymmLine" title="pymatgen.electronic_structure.bandstructure.BandStructureSymmLine"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.electronic_structure.bandstructure.BandStructureSymmLine</span></code></a></p>
+<dl class="method">
+<dt id="pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.apply_scissor">
+<code class="descname">apply_scissor</code><span class="sig-paren">(</span><em>new_band_gap</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#LobsterBandStructureSymmLine.apply_scissor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.apply_scissor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply a scissor operator (shift of the CBM) to fit the given band gap.
+If it’s a metal. We look for the band crossing the fermi level
+and shift this one up. This will not work all the time for metals!</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>new_band_gap</strong> – the band gap the scissor band structure need to have.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a BandStructureSymmLine object with the applied scissor shift</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#LobsterBandStructureSymmLine.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Json-serializable dict representation of BandStructureSymmLine.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.from_dict">
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#LobsterBandStructureSymmLine.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – A dict with all data for a band structure symm line
+object.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A BandStructureSymmLine object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.from_old_dict">
+<em class="property">classmethod </em><code class="descname">from_old_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#LobsterBandStructureSymmLine.from_old_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.from_old_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – A dict with all data for a band structure symm line
+object.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A BandStructureSymmLine object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.get_projection_on_elements">
+<code class="descname">get_projection_on_elements</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#LobsterBandStructureSymmLine.get_projection_on_elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.get_projection_on_elements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method returning a dictionary of projections on elements.
+It sums over all available orbitals for each element.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>[][{Element:values}],
+Spin.down:[][{Element:values}]} format
+if there is no projections in the band structure
+returns an empty dict</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>a dictionary in the {Spin.up</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.get_projections_on_elements_and_orbitals">
+<code class="descname">get_projections_on_elements_and_orbitals</code><span class="sig-paren">(</span><em>el_orb_spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#LobsterBandStructureSymmLine.get_projections_on_elements_and_orbitals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.get_projections_on_elements_and_orbitals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method returning a dictionary of projections on elements and specific
+orbitals</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>el_orb_spec</strong> – A dictionary of Elements and Orbitals for which we want
+to have projections on. It is given as: {Element:[orbitals]},
+e.g., {‘Si’:[‘3s’,‘3p’]} or {‘Si’:[‘3s’,‘3p_x’, ‘3p_y’, ‘3p_z’]} depending on input files</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary of projections on elements in the
+{Spin.up:[][{Element:{orb:values}}],
+Spin.down:[][{Element:{orb:values}}]} format
+if there is no projections in the band structure returns an empty
+dict.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="function">
 <dt id="pymatgen.electronic_structure.bandstructure.get_reconstructed_band_structure">
 <code class="descname">get_reconstructed_band_structure</code><span class="sig-paren">(</span><em>list_bs</em>, <em>efermi=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#get_reconstructed_band_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.get_reconstructed_band_structure" title="Permalink to this definition">¶</a></dt>
@@ -610,24 +650,20 @@ one band structure object from all of them.</p>
 <p>This is typically very useful when you split non self consistent
 band structure runs in several independent jobs and want to merge back
 the results</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>list_bs</strong> – A list of BandStructure or BandStructureSymmLine objects.</li>
-<li><strong>efermi</strong> – The Fermi energy of the reconstructed band structure. If
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>list_bs</strong> – A list of BandStructure or BandStructureSymmLine objects.</p></li>
+<li><p><strong>efermi</strong> – The Fermi energy of the reconstructed band structure. If
 None is assigned an average of all the Fermi energy in each
-object in the list_bs is used.</li>
+object in the list_bs is used.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A BandStructure or BandStructureSymmLine object (depending on
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A BandStructure or BandStructureSymmLine object (depending on
 the type of the list_bs objects)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -651,8 +687,6 @@ the type of the list_bs objects)</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -670,13 +704,13 @@ the type of the list_bs objects)</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

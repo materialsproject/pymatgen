@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.util.coord module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.util.coord module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -52,15 +50,12 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A generalized simplex object. See <a class="reference external" href="http://en.wikipedia.org/wiki/Simplex">http://en.wikipedia.org/wiki/Simplex</a>.</p>
 <p>Initializes a Simplex from vertex coordinates.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>coords</strong> (<em>[</em><em>[</em><em>float</em><em>]</em><em>]</em>) – Coords of the vertices of the simplex. E.g.,
-[[1, 2, 3], [2, 4, 5], [6, 7, 8], [8, 9, 10].</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>coords</strong> (<em>[</em><em>[</em><em>float</em><em>]</em><em>]</em>) – Coords of the vertices of the simplex. E.g.,
+[[1, 2, 3], [2, 4, 5], [6, 7, 8], [8, 9, 10].</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.util.coord.Simplex.bary_coords">
 <code class="descname">bary_coords</code><span class="sig-paren">(</span><em>point</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#Simplex.bary_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.Simplex.bary_coords" title="Permalink to this definition">¶</a></dt>
@@ -83,18 +78,14 @@ origin. We then project the point into this coordinate system and
 determine the linear decomposition coefficients in this coordinate
 system.  If the coeffs satisfy that all coeffs &gt;= 0, the composition
 is in the facet.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>point</strong> (<em>[</em><em>float</em><em>]</em>) – Point to test</li>
-<li><strong>tolerance</strong> (<em>float</em>) – Tolerance to test if point is in simplex.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>point</strong> (<em>[</em><em>float</em><em>]</em>) – Point to test</p></li>
+<li><p><strong>tolerance</strong> (<em>float</em>) – Tolerance to test if point is in simplex.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -103,14 +94,11 @@ is in the facet.</p>
 <dd><p>Computes the intersection points of a line with a simplex
 :param point1, point2: Points that determine the line
 :type point1, point2: [float]</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">points where the line intersects the simplex (0, 1, or 2)</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>points where the line intersects the simplex (0, 1, or 2)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -130,22 +118,18 @@ is in the facet.</p>
 <dt id="pymatgen.util.coord.all_distances">
 <code class="descname">all_distances</code><span class="sig-paren">(</span><em>coords1</em>, <em>coords2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#all_distances"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.all_distances" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the distances between two lists of coordinates</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>coords1</strong> – First set of cartesian coordinates.</li>
-<li><strong>coords2</strong> – Second set of cartesian coordinates.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coords1</strong> – First set of cartesian coordinates.</p></li>
+<li><p><strong>coords2</strong> – Second set of cartesian coordinates.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">2d array of cartesian distances. E.g the distance between
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>2d array of cartesian distances. E.g the distance between
 coords1[i] and coords2[j] is distances[i,j]</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -153,22 +137,18 @@ coords1[i] and coords2[j] is distances[i,j]</p>
 <code class="descname">barycentric_coords</code><span class="sig-paren">(</span><em>coords</em>, <em>simplex</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#barycentric_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.barycentric_coords" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts a list of coordinates to barycentric coordinates, given a
 simplex with d+1 points. Only works for d &gt;= 2.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>coords</strong> – list of n coords to transform, shape should be (n,d)</li>
-<li><strong>simplex</strong> – list of coordinates that form the simplex, shape should be
-(d+1, d)</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coords</strong> – list of n coords to transform, shape should be (n,d)</p></li>
+<li><p><strong>simplex</strong> – list of coordinates that form the simplex, shape should be
+(d+1, d)</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a LIST of barycentric coordinates (even if the original input was 1d)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a LIST of barycentric coordinates (even if the original input was 1d)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -176,16 +156,14 @@ simplex with d+1 points. Only works for d &gt;= 2.</p>
 <code class="descname">coord_list_mapping</code><span class="sig-paren">(</span><em>subset</em>, <em>superset</em>, <em>atol=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#coord_list_mapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.coord_list_mapping" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gives the index mapping from a subset to a superset.
 Subset and superset cannot contain duplicate rows</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>superset</strong> (<em>subset</em><em>,</em>) – List of coords</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list of indices such that superset[indices] = subset</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>superset</strong> (<em>subset</em><em>,</em>) – List of coords</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of indices such that superset[indices] = subset</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -193,39 +171,33 @@ Subset and superset cannot contain duplicate rows</p>
 <code class="descname">coord_list_mapping_pbc</code><span class="sig-paren">(</span><em>subset</em>, <em>superset</em>, <em>atol=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#coord_list_mapping_pbc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.coord_list_mapping_pbc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gives the index mapping from a subset to a superset.
 Superset cannot contain duplicate matching rows</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>superset</strong> (<em>subset</em><em>,</em>) – List of frac_coords</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list of indices such that superset[indices] = subset</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>superset</strong> (<em>subset</em><em>,</em>) – List of frac_coords</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of indices such that superset[indices] = subset</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.coord.find_in_coord_list">
 <code class="descname">find_in_coord_list</code><span class="sig-paren">(</span><em>coord_list</em>, <em>coord</em>, <em>atol=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#find_in_coord_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.find_in_coord_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find the indices of matches of a particular coord in a coord_list.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>coord_list</strong> – List of coords to test</li>
-<li><strong>coord</strong> – Specific coordinates</li>
-<li><strong>atol</strong> – Absolute tolerance. Defaults to 1e-8. Accepts both scalar and
-array.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coord_list</strong> – List of coords to test</p></li>
+<li><p><strong>coord</strong> – Specific coordinates</p></li>
+<li><p><strong>atol</strong> – Absolute tolerance. Defaults to 1e-8. Accepts both scalar and
+array.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Indices of matches, e.g., [0, 1, 2, 3]. Empty list if not found.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Indices of matches, e.g., [0, 1, 2, 3]. Empty list if not found.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -234,44 +206,36 @@ array.</li>
 <dd><p>Get the indices of all points in a fractional coord list that are
 equal to a fractional coord (with a tolerance), taking into account
 periodic boundary conditions.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>fcoord_list</strong> – List of fractional coords</li>
-<li><strong>fcoord</strong> – A specific fractional coord to test.</li>
-<li><strong>atol</strong> – Absolute tolerance. Defaults to 1e-8.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fcoord_list</strong> – List of fractional coords</p></li>
+<li><p><strong>fcoord</strong> – A specific fractional coord to test.</p></li>
+<li><p><strong>atol</strong> – Absolute tolerance. Defaults to 1e-8.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Indices of matches, e.g., [0, 1, 2, 3]. Empty list if not found.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Indices of matches, e.g., [0, 1, 2, 3]. Empty list if not found.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.coord.get_angle">
 <code class="descname">get_angle</code><span class="sig-paren">(</span><em>v1</em>, <em>v2</em>, <em>units='degrees'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#get_angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.get_angle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the angle between two vectors.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>v1</strong> – Vector 1</li>
-<li><strong>v2</strong> – Vector 2</li>
-<li><strong>units</strong> – “degrees” or “radians”. Defaults to “degrees”.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>v1</strong> – Vector 1</p></li>
+<li><p><strong>v2</strong> – Vector 2</p></li>
+<li><p><strong>units</strong> – “degrees” or “radians”. Defaults to “degrees”.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Angle between them in degrees.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Angle between them in degrees.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -280,67 +244,55 @@ periodic boundary conditions.</p>
 <dd><p>Returns an interpolated value by linear interpolation between two values.
 This method is written to avoid dependency on scipy, which causes issues on
 threading servers.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>x_values</strong> – Sequence of x values.</li>
-<li><strong>y_values</strong> – Corresponding sequence of y values</li>
-<li><strong>x</strong> – Get value at particular x</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x_values</strong> – Sequence of x values.</p></li>
+<li><p><strong>y_values</strong> – Corresponding sequence of y values</p></li>
+<li><p><strong>x</strong> – Get value at particular x</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Value at x.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Value at x.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.coord.in_coord_list">
 <code class="descname">in_coord_list</code><span class="sig-paren">(</span><em>coord_list</em>, <em>coord</em>, <em>atol=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#in_coord_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.in_coord_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tests if a particular coord is within a coord_list.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>coord_list</strong> – List of coords to test</li>
-<li><strong>coord</strong> – Specific coordinates</li>
-<li><strong>atol</strong> – Absolute tolerance. Defaults to 1e-8. Accepts both scalar and
-array.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coord_list</strong> – List of coords to test</p></li>
+<li><p><strong>coord</strong> – Specific coordinates</p></li>
+<li><p><strong>atol</strong> – Absolute tolerance. Defaults to 1e-8. Accepts both scalar and
+array.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if coord is in the coord list.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if coord is in the coord list.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.coord.in_coord_list_pbc">
 <code class="descname">in_coord_list_pbc</code><span class="sig-paren">(</span><em>fcoord_list</em>, <em>fcoord</em>, <em>atol=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#in_coord_list_pbc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.in_coord_list_pbc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tests if a particular fractional coord is within a fractional coord_list.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>fcoord_list</strong> – List of fractional coords to test</li>
-<li><strong>fcoord</strong> – A specific fractional coord to test.</li>
-<li><strong>atol</strong> – Absolute tolerance. Defaults to 1e-8.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fcoord_list</strong> – List of fractional coords to test</p></li>
+<li><p><strong>fcoord</strong> – A specific fractional coord to test.</p></li>
+<li><p><strong>atol</strong> – Absolute tolerance. Defaults to 1e-8.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if coord is in the coord list.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if coord is in the coord list.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -348,40 +300,34 @@ array.</li>
 <code class="descname">is_coord_subset</code><span class="sig-paren">(</span><em>subset</em>, <em>superset</em>, <em>atol=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#is_coord_subset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.is_coord_subset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tests if all coords in subset are contained in superset.
 Doesn’t use periodic boundary conditions</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>superset</strong> (<em>subset</em><em>,</em>) – List of coords</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if all of subset is in superset.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>superset</strong> (<em>subset</em><em>,</em>) – List of coords</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if all of subset is in superset.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.coord.is_coord_subset_pbc">
 <code class="descname">is_coord_subset_pbc</code><span class="sig-paren">(</span><em>subset</em>, <em>superset</em>, <em>atol=1e-08</em>, <em>mask=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#is_coord_subset_pbc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.is_coord_subset_pbc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tests if all fractional coords in subset are contained in superset.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>superset</strong> (<em>subset</em><em>,</em>) – List of fractional coords</li>
-<li><strong>atol</strong> (<em>float</em><em> or </em><em>size 3 array</em>) – Tolerance for matching</li>
-<li><strong>mask</strong> (<em>boolean array</em>) – Mask of matches that are not allowed.
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>superset</strong> (<em>subset</em><em>,</em>) – List of fractional coords</p></li>
+<li><p><strong>atol</strong> (<em>float</em><em> or </em><em>size 3 array</em>) – Tolerance for matching</p></li>
+<li><p><strong>mask</strong> (<em>boolean array</em>) – Mask of matches that are not allowed.
 i.e. if mask[1,2] == True, then subset[1] cannot be matched
-to superset[2]</li>
+to superset[2]</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if all of subset is in superset.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if all of subset is in superset.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -390,16 +336,14 @@ to superset[2]</li>
 <dd><p>Returns the list of points on the original lattice contained in the
 supercell in fractional coordinates (with the supercell basis).
 e.g. [[2,0,0],[0,1,0],[0,0,1]] returns [[0,0,0],[0.5,0,0]]</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>supercell_matrix</strong> – 3x3 matrix describing the supercell</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">numpy array of the fractional coordinates</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>supercell_matrix</strong> – 3x3 matrix describing the supercell</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>numpy array of the fractional coordinates</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -407,26 +351,22 @@ e.g. [[2,0,0],[0,1,0],[0,0,1]] returns [[0,0,0],[0.5,0,0]]</p>
 <code class="descname">pbc_diff</code><span class="sig-paren">(</span><em>fcoords1</em>, <em>fcoords2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#pbc_diff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.pbc_diff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the ‘fractional distance’ between two coordinates taking into
 account periodic boundary conditions.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>fcoords1</strong> – First set of fractional coordinates. e.g., [0.5, 0.6,
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fcoords1</strong> – First set of fractional coordinates. e.g., [0.5, 0.6,
 0.7] or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. It can be a single
-coord or any array of coords.</li>
-<li><strong>fcoords2</strong> – Second set of fractional coordinates.</li>
+coord or any array of coords.</p></li>
+<li><p><strong>fcoords2</strong> – Second set of fractional coordinates.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Fractional distance. Each coordinate must have the property that
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Fractional distance. Each coordinate must have the property that
 abs(a) &lt;= 0.5. Examples:
 pbc_diff([0.1, 0.1, 0.1], [0.3, 0.5, 0.9]) = [-0.2, -0.4, 0.2]
 pbc_diff([0.9, 0.1, 1.01], [0.3, 0.5, 0.9]) = [-0.4, -0.4, 0.11]</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -434,29 +374,25 @@ pbc_diff([0.9, 0.1, 1.01], [0.3, 0.5, 0.9]) = [-0.4, -0.4, 0.11]</p>
 <code class="descname">pbc_shortest_vectors</code><span class="sig-paren">(</span><em>lattice</em>, <em>fcoords1</em>, <em>fcoords2</em>, <em>mask=None</em>, <em>return_d2=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#pbc_shortest_vectors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.pbc_shortest_vectors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the shortest vectors between two lists of coordinates taking into
 account periodic boundary conditions and the lattice.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>lattice</strong> – lattice to use</li>
-<li><strong>fcoords1</strong> – First set of fractional coordinates. e.g., [0.5, 0.6, 0.7]
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lattice</strong> – lattice to use</p></li>
+<li><p><strong>fcoords1</strong> – First set of fractional coordinates. e.g., [0.5, 0.6, 0.7]
 or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. It can be a single
-coord or any array of coords.</li>
-<li><strong>fcoords2</strong> – Second set of fractional coordinates.</li>
-<li><strong>mask</strong> (<em>boolean array</em>) – Mask of matches that are not allowed.
+coord or any array of coords.</p></li>
+<li><p><strong>fcoords2</strong> – Second set of fractional coordinates.</p></li>
+<li><p><strong>mask</strong> (<em>boolean array</em>) – Mask of matches that are not allowed.
 i.e. if mask[1,2] == True, then subset[1] cannot be matched
-to superset[2]</li>
-<li><strong>return_d2</strong> (<em>boolean</em>) – whether to also return the squared distances</li>
+to superset[2]</p></li>
+<li><p><strong>return_d2</strong> (<em>boolean</em>) – whether to also return the squared distances</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">array of displacement vectors from fcoords1 to fcoords2
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>array of displacement vectors from fcoords1 to fcoords2
 first index is fcoords1 index, second is fcoords2 index</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -480,8 +416,6 @@ first index is fcoords1 index, second is fcoords2 index</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -499,13 +433,13 @@ first index is fcoords1 index, second is fcoords2 index</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

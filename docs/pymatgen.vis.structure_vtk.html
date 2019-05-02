@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.vis.structure_vtk module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.vis.structure_vtk module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -107,20 +105,16 @@
 <dt id="pymatgen.vis.structure_vtk.MultiStructuresVis.set_structure">
 <code class="descname">set_structure</code><span class="sig-paren">(</span><em>structure</em>, <em>reset_camera=True</em>, <em>to_unit_cell=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#MultiStructuresVis.set_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.set_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a structure to the visualizer.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> – structure to visualize</li>
-<li><strong>reset_camera</strong> – Set to True to reset the camera to a default
-determined based on the structure.</li>
-<li><strong>to_unit_cell</strong> – Whether or not to fall back sites into the unit cell.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – structure to visualize</p></li>
+<li><p><strong>reset_camera</strong> – Set to True to reset the camera to a default
+determined based on the structure.</p></li>
+<li><p><strong>to_unit_cell</strong> – Whether or not to fall back sites into the unit cell.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -163,37 +157,32 @@ determined based on the structure.</li>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Provides Structure object visualization using VTK.</p>
 <p>Constructs a Structure Visualization.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>element_color_mapping</strong> – Optional color mapping for the elements,
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>element_color_mapping</strong> – Optional color mapping for the elements,
 as a dict of {symbol: rgb tuple}. For example, {“Fe”: (255,
 123,0), ….} If None is specified, a default based on
-Jmol”s color scheme is used.</li>
-<li><strong>show_unit_cell</strong> – Set to False to not show the unit cell
-boundaries. Defaults to True.</li>
-<li><strong>show_bonds</strong> – Set to True to show bonds. Defaults to True.</li>
-<li><strong>show_polyhedron</strong> – Set to True to show polyhedrons. Defaults to
-False.</li>
-<li><strong>poly_radii_tol_factor</strong> – The polyhedron and bonding code uses the
+Jmol”s color scheme is used.</p></li>
+<li><p><strong>show_unit_cell</strong> – Set to False to not show the unit cell
+boundaries. Defaults to True.</p></li>
+<li><p><strong>show_bonds</strong> – Set to True to show bonds. Defaults to True.</p></li>
+<li><p><strong>show_polyhedron</strong> – Set to True to show polyhedrons. Defaults to
+False.</p></li>
+<li><p><strong>poly_radii_tol_factor</strong> – The polyhedron and bonding code uses the
 ionic radii of the elements or species to determine if two
 atoms are bonded. This specifies a tolerance scaling factor
 such that atoms which are (1 + poly_radii_tol_factor) * sum
-of ionic radii apart are still considered as bonded.</li>
-<li><strong>excluded_bonding_elements</strong> – List of atom types to exclude from
+of ionic radii apart are still considered as bonded.</p></li>
+<li><p><strong>excluded_bonding_elements</strong> – List of atom types to exclude from
 bonding determination. Defaults to an empty list. Useful
 when trying to visualize a certain atom type in the
-framework (e.g., Li in a Li-ion battery cathode material).</li>
+framework (e.g., Li in a Li-ion battery cathode material).</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="docutils">
-<dt>Useful keyboard shortcuts implemented.</dt>
-<dd>h : Show help
+</dd>
+</dl>
+<dl class="simple">
+<dt>Useful keyboard shortcuts implemented.</dt><dd><p>h : Show help
 A/a : Increase/decrease cell by one unit vector in a-direction
 B/b : Increase/decrease cell by one unit vector in b-direction
 C/c : Increase/decrease cell by one unit vector in c-direction
@@ -205,27 +194,24 @@ r : Reset camera direction
 o : Orthogonalize structure
 Up/Down : Rotate view along Up direction by 90 clock/anticlockwise
 Left/right : Rotate view along camera direction by 90
-clock/anticlockwise</dd>
+clock/anticlockwise</p>
+</dd>
 </dl>
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.add_bonds">
 <code class="descname">add_bonds</code><span class="sig-paren">(</span><em>neighbors</em>, <em>center</em>, <em>color=None</em>, <em>opacity=None</em>, <em>radius=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.add_bonds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_bonds" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds bonds for a site.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>neighbors</strong> – Neighbors of the site.</li>
-<li><strong>center</strong> – The site in the center for all bonds.</li>
-<li><strong>color</strong> – Color of the tubes representing the bonds</li>
-<li><strong>opacity</strong> – Opacity of the tubes representing the bonds</li>
-<li><strong>radius</strong> – Radius of tube s representing the bonds</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>neighbors</strong> – Neighbors of the site.</p></li>
+<li><p><strong>center</strong> – The site in the center for all bonds.</p></li>
+<li><p><strong>color</strong> – Color of the tubes representing the bonds</p></li>
+<li><p><strong>opacity</strong> – Opacity of the tubes representing the bonds</p></li>
+<li><p><strong>radius</strong> – Radius of tube s representing the bonds</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -242,20 +228,16 @@ clock/anticlockwise</dd>
 <dt id="pymatgen.vis.structure_vtk.StructureVis.add_line">
 <code class="descname">add_line</code><span class="sig-paren">(</span><em>start</em>, <em>end</em>, <em>color=(0.5</em>, <em>0.5</em>, <em>0.5)</em>, <em>width=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.add_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_line" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a line.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>start</strong> – Starting coordinates for line.</li>
-<li><strong>end</strong> – Ending coordinates for line.</li>
-<li><strong>color</strong> – Color for text as RGB. Defaults to grey.</li>
-<li><strong>width</strong> – Width of line. Defaults to 1.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> – Starting coordinates for line.</p></li>
+<li><p><strong>end</strong> – Ending coordinates for line.</p></li>
+<li><p><strong>color</strong> – Color for text as RGB. Defaults to grey.</p></li>
+<li><p><strong>width</strong> – Width of line. Defaults to 1.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -277,23 +259,19 @@ clock/anticlockwise</dd>
 <dt id="pymatgen.vis.structure_vtk.StructureVis.add_polyhedron">
 <code class="descname">add_polyhedron</code><span class="sig-paren">(</span><em>neighbors, center, color, opacity=1.0, draw_edges=False, edges_color=[0.0, 0.0, 0.0], edges_linewidth=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.add_polyhedron"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_polyhedron" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a polyhedron.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>neighbors</strong> – Neighbors of the polyhedron (the vertices).</li>
-<li><strong>center</strong> – The atom in the center of the polyhedron.</li>
-<li><strong>color</strong> – Color for text as RGB.</li>
-<li><strong>opacity</strong> – Opacity of the polyhedron</li>
-<li><strong>draw_edges</strong> – If set to True, the a line will be drawn at each edge</li>
-<li><strong>edges_color</strong> – Color of the line for the edges</li>
-<li><strong>edges_linewidth</strong> – Width of the line drawn for the edges</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>neighbors</strong> – Neighbors of the polyhedron (the vertices).</p></li>
+<li><p><strong>center</strong> – The atom in the center of the polyhedron.</p></li>
+<li><p><strong>color</strong> – Color for text as RGB.</p></li>
+<li><p><strong>opacity</strong> – Opacity of the polyhedron</p></li>
+<li><p><strong>draw_edges</strong> – If set to True, the a line will be drawn at each edge</p></li>
+<li><p><strong>edges_color</strong> – Color of the line for the edges</p></li>
+<li><p><strong>edges_linewidth</strong> – Width of the line drawn for the edges</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -303,56 +281,45 @@ clock/anticlockwise</dd>
 color of which is determined based on the element. Partially occupied
 sites are displayed as a single element color, though the site info
 still shows the partial occupancy.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>site</strong> – Site to add.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>site</strong> – Site to add.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.add_text">
 <code class="descname">add_text</code><span class="sig-paren">(</span><em>coords</em>, <em>text</em>, <em>color=(0</em>, <em>0</em>, <em>0)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.add_text"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_text" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add text at a coordinate.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>coords</strong> – Coordinates to add text at.</li>
-<li><strong>text</strong> – Text to place.</li>
-<li><strong>color</strong> – Color for text as RGB. Defaults to black.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coords</strong> – Coordinates to add text at.</p></li>
+<li><p><strong>text</strong> – Text to place.</p></li>
+<li><p><strong>color</strong> – Color for text as RGB. Defaults to black.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.add_triangle">
 <code class="descname">add_triangle</code><span class="sig-paren">(</span><em>neighbors, color, center=None, opacity=0.4, draw_edges=False, edges_color=[0.0, 0.0, 0.0], edges_linewidth=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.add_triangle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_triangle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a triangular surface between three atoms.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>atoms</strong> – Atoms between which a triangle will be drawn.</li>
-<li><strong>color</strong> – Color for triangle as RGB.</li>
-<li><strong>center</strong> – The “central atom” of the triangle</li>
-<li><strong>opacity</strong> – opacity of the triangle</li>
-<li><strong>draw_edges</strong> – If set to True, the a line will be  drawn at each edge</li>
-<li><strong>edges_color</strong> – Color of the line for the edges</li>
-<li><strong>edges_linewidth</strong> – Width of the line drawn for the edges</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>atoms</strong> – Atoms between which a triangle will be drawn.</p></li>
+<li><p><strong>color</strong> – Color for triangle as RGB.</p></li>
+<li><p><strong>center</strong> – The “central atom” of the triangle</p></li>
+<li><p><strong>opacity</strong> – opacity of the triangle</p></li>
+<li><p><strong>draw_edges</strong> – If set to True, the a line will be  drawn at each edge</p></li>
+<li><p><strong>edges_color</strong> – Color of the line for the edges</p></li>
+<li><p><strong>edges_linewidth</strong> – Width of the line drawn for the edges</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -370,53 +337,42 @@ still shows the partial occupancy.</p>
 <dt id="pymatgen.vis.structure_vtk.StructureVis.redraw">
 <code class="descname">redraw</code><span class="sig-paren">(</span><em>reset_camera=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.redraw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.redraw" title="Permalink to this definition">¶</a></dt>
 <dd><p>Redraw the render window.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>reset_camera</strong> – Set to True to reset the camera to a
-pre-determined default for each structure.  Defaults to False.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>reset_camera</strong> – Set to True to reset the camera to a
+pre-determined default for each structure.  Defaults to False.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.rotate_view">
 <code class="descname">rotate_view</code><span class="sig-paren">(</span><em>axis_ind=0</em>, <em>angle=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.rotate_view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.rotate_view" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rotate the camera view.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>axis_ind</strong> – Index of axis to rotate. Defaults to 0, i.e., a-axis.</li>
-<li><strong>angle</strong> – Angle to rotate by. Defaults to 0.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>axis_ind</strong> – Index of axis to rotate. Defaults to 0, i.e., a-axis.</p></li>
+<li><p><strong>angle</strong> – Angle to rotate by. Defaults to 0.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.set_structure">
 <code class="descname">set_structure</code><span class="sig-paren">(</span><em>structure</em>, <em>reset_camera=True</em>, <em>to_unit_cell=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.set_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.set_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a structure to the visualizer.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> – structure to visualize</li>
-<li><strong>reset_camera</strong> – Set to True to reset the camera to a default
-determined based on the structure.</li>
-<li><strong>to_unit_cell</strong> – Whether or not to fall back sites into the unit cell.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – structure to visualize</p></li>
+<li><p><strong>reset_camera</strong> – Set to True to reset the camera to a default
+determined based on the structure.</p></li>
+<li><p><strong>to_unit_cell</strong> – Whether or not to fall back sites into the unit cell.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -429,19 +385,15 @@ determined based on the structure.</li>
 <dt id="pymatgen.vis.structure_vtk.StructureVis.write_image">
 <code class="descname">write_image</code><span class="sig-paren">(</span><em>filename='image.png'</em>, <em>magnification=1</em>, <em>image_format='png'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.write_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.write_image" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save render window to an image.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> – filename to save to. Defaults to image.png.</li>
-<li><strong>magnification</strong> – magnification. Use it to render high res images.</li>
-<li><strong>image_format</strong> – choose between jpeg, png.  Png is the default.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> – filename to save to. Defaults to image.png.</p></li>
+<li><p><strong>magnification</strong> – magnification. Use it to render high res images.</p></li>
+<li><p><strong>image_format</strong> – choose between jpeg, png.  Png is the default.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -456,26 +408,22 @@ determined based on the structure.</li>
 <dt id="pymatgen.vis.structure_vtk.make_movie">
 <code class="descname">make_movie</code><span class="sig-paren">(</span><em>structures</em>, <em>output_filename='movie.mp4'</em>, <em>zoom=1.0</em>, <em>fps=20</em>, <em>bitrate='10000k'</em>, <em>quality=1</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#make_movie"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.make_movie" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a movie from a sequence of structures using vtk and ffmpeg.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structures</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a><em>]</em>) – sequence of structures</li>
-<li><strong>output_filename</strong> (<em>str</em>) – filename for structure output. defaults to
-movie.mp4</li>
-<li><strong>zoom</strong> (<em>float</em>) – A zoom to be applied to the visualizer. Defaults to 1.0.</li>
-<li><strong>fps</strong> (<em>int</em>) – Frames per second for the movie. Defaults to 20.</li>
-<li><strong>bitrate</strong> (<em>str</em>) – Video bitate.  Defaults to “10000k” (fairly high
-quality).</li>
-<li><strong>quality</strong> (<em>int</em>) – A quality scale. Defaults to 1.</li>
-<li><strong>**kwargs</strong> – Any kwargs supported by StructureVis to modify the images
-generated.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structures</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a><em>]</em>) – sequence of structures</p></li>
+<li><p><strong>output_filename</strong> (<em>str</em>) – filename for structure output. defaults to
+movie.mp4</p></li>
+<li><p><strong>zoom</strong> (<em>float</em>) – A zoom to be applied to the visualizer. Defaults to 1.0.</p></li>
+<li><p><strong>fps</strong> (<em>int</em>) – Frames per second for the movie. Defaults to 20.</p></li>
+<li><p><strong>bitrate</strong> (<em>str</em>) – Video bitate.  Defaults to “10000k” (fairly high
+quality).</p></li>
+<li><p><strong>quality</strong> (<em>int</em>) – A quality scale. Defaults to 1.</p></li>
+<li><p><strong>**kwargs</strong> – Any kwargs supported by StructureVis to modify the images
+generated.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -499,8 +447,6 @@ generated.</li>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -518,13 +464,13 @@ generated.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

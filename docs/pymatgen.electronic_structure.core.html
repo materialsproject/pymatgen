@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.electronic_structure.core module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.electronic_structure.core module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -56,23 +54,23 @@ appreciated.</p>
 site or species relative to a spin quantization axis. Designed for
 use in electronic structure calculations.</p>
 <ul class="simple">
-<li>For the general case, Magmom can be specified by a vector,
+<li><p>For the general case, Magmom can be specified by a vector,
 e.g. m = Magmom([1.0, 1.0, 2.0]), and subscripts will work as
-expected, e.g. m[0] gives 1.0</li>
-<li>For collinear calculations, Magmom can assumed to be scalar-like,
-e.g. m = Magmom(5.0) will work as expected, e.g. float(m) gives 5.0</li>
+expected, e.g. m[0] gives 1.0</p></li>
+<li><p>For collinear calculations, Magmom can assumed to be scalar-like,
+e.g. m = Magmom(5.0) will work as expected, e.g. float(m) gives 5.0</p></li>
 </ul>
 <p>Both of these cases should be safe and shouldn’t give any surprises,
 but more advanced functionality is available if required.</p>
 <p>There also exist useful static methods for lists of magmoms:</p>
 <ul class="simple">
-<li>Magmom.are_collinear(magmoms) - if true, a collinear electronic
+<li><p>Magmom.are_collinear(magmoms) - if true, a collinear electronic
 structure calculation can be safely initialized, with float(Magmom)
-giving the expected scalar magnetic moment value</li>
-<li>Magmom.get_consistent_set_and_saxis(magmoms) - for non-collinear
+giving the expected scalar magnetic moment value</p></li>
+<li><p>Magmom.get_consistent_set_and_saxis(magmoms) - for non-collinear
 electronic structure calculations, a global, consistent spin axis
 has to be used. This method returns a list of Magmoms which all
-share a common spin axis, along with the global spin axis.</li>
+share a common spin axis, along with the global spin axis.</p></li>
 </ul>
 <p>All methods that take lists of magmoms will accept magmoms either as
 Magmom objects or as scalars/lists and will automatically convert to
@@ -80,23 +78,19 @@ a Magmom representation internally.</p>
 <p>The following methods are also particularly useful in the context of
 VASP calculations:</p>
 <ul class="simple">
-<li>Magmom.get_xyz_magmom_with_001_saxis()</li>
-<li>Magmom.get_00t_magmom_with_xyz_saxis()</li>
+<li><p>Magmom.get_xyz_magmom_with_001_saxis()</p></li>
+<li><p>Magmom.get_00t_magmom_with_xyz_saxis()</p></li>
 </ul>
 <p>See VASP documentation for more information:</p>
 <p><a class="reference external" href="https://cms.mpi.univie.ac.at/wiki/index.php/SAXIS">https://cms.mpi.univie.ac.at/wiki/index.php/SAXIS</a></p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>moment</strong> – magnetic moment, supplied as float or list/np.ndarray</li>
-<li><strong>saxis</strong> – spin axis, supplied as list/np.ndarray, parameter will</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>moment</strong> – magnetic moment, supplied as float or list/np.ndarray</p></li>
+<li><p><strong>saxis</strong> – spin axis, supplied as list/np.ndarray, parameter will</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p>be converted to unit vector (default is [0, 0, 1])
 :return: Magmom object</p>
 <dl class="staticmethod">
@@ -116,21 +110,17 @@ magnetic moment, i.e. magnetic moment with saxis=(0,0,1), and
 provided saxis.</p>
 <p>Method is useful if you do not know the components of your
 magnetic moment in frame of your desired saxis.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>global_moment</strong> – </li>
-<li><strong>saxis</strong> – desired saxis</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>global_moment</strong> – </p></li>
+<li><p><strong>saxis</strong> – desired saxis</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
@@ -160,14 +150,11 @@ where t is the total magnetic moment, and saxis rotated as required.</p>
 or negative depending on the direction of the initial moment. This is useful
 in the case of collinear structures, rather than constraining assuming
 t is always positive.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Magmom</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Magmom</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="staticmethod">
@@ -175,21 +162,17 @@ t is always positive.</p>
 <em class="property">static </em><code class="descname">get_consistent_set_and_saxis</code><span class="sig-paren">(</span><em>magmoms</em>, <em>saxis=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/core.html#Magmom.get_consistent_set_and_saxis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.get_consistent_set_and_saxis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method to ensure a list of magmoms use the same spin axis.
 Returns a tuple of a list of Magmoms and their global spin axis.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>magmoms</strong> – list of magmoms (Magmoms, scalars or vectors)</li>
-<li><strong>saxis</strong> – can provide a specific global spin axis</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>magmoms</strong> – list of magmoms (Magmoms, scalars or vectors)</p></li>
+<li><p><strong>saxis</strong> – can provide a specific global spin axis</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(list of Magmoms, global spin axis) tuple</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(list of Magmoms, global spin axis) tuple</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -199,16 +182,14 @@ Returns a tuple of a list of Magmoms and their global spin axis.</p>
 If no axis is provided, moment will be given relative to the
 Magmom’s internal spin quantization axis, i.e. equivalent to
 Magmom.moment</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>axis</strong> – (list/numpy array) spin quantization axis</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">np.ndarray of length 3</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>axis</strong> – (list/numpy array) spin quantization axis</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>np.ndarray of length 3</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -216,21 +197,17 @@ Magmom.moment</p>
 <code class="descname">get_moment_relative_to_crystal_axes</code><span class="sig-paren">(</span><em>lattice</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/core.html#Magmom.get_moment_relative_to_crystal_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.get_moment_relative_to_crystal_axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>If scalar magmoms, moments will be given arbitrarily along z.
 Used for writing moments to magCIF file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>magmom</strong> – Magmom</li>
-<li><strong>lattice</strong> – Lattice</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>magmom</strong> – Magmom</p></li>
+<li><p><strong>lattice</strong> – Lattice</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">vector as list of floats</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>vector as list of floats</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="staticmethod">
@@ -240,16 +217,14 @@ Used for writing moments to magCIF file.</p>
 taking the largest magnetic moment as the reference. For calculations
 with collinear spins, this would give a sensible saxis for a ncl
 calculation.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>magmoms</strong> – list of magmoms (Magmoms, scalars or vectors)</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">np.ndarray of length 3</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>magmoms</strong> – list of magmoms (Magmoms, scalars or vectors)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>np.ndarray of length 3</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -257,28 +232,22 @@ calculation.</p>
 <code class="descname">get_xyz_magmom_with_001_saxis</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/core.html#Magmom.get_xyz_magmom_with_001_saxis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.get_xyz_magmom_with_001_saxis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a Magmom in the default setting of saxis = [0, 0, 1] and
 the magnetic moment rotated as required.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Magmom</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Magmom</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.electronic_structure.core.Magmom.global_moment">
 <code class="descname">global_moment</code><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.global_moment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the magnetic moment defined in an arbitrary global reference frame.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">np.ndarray of length 3</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>np.ndarray of length 3</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="staticmethod">
@@ -289,16 +258,14 @@ consistent spin quantization axis. To write MAGMOM tags to a
 VASP INCAR, a global SAXIS value for all magmoms has to be used.
 If saxis are inconsistent, can create consistent set with:
 Magmom.get_consistent_set(magmoms)</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>magmoms</strong> – list of magmoms (Magmoms, scalars or vectors)</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">bool</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>magmoms</strong> – list of magmoms (Magmoms, scalars or vectors)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -306,14 +273,11 @@ Magmom.get_consistent_set(magmoms)</p>
 <code class="descname">projection</code><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.projection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Projects moment along spin quantisation axis. Useful for obtaining
 collinear approximation for slightly non-collinear magmoms.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">float</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -479,8 +443,6 @@ Usage: Spin.up, Spin.down.</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -498,13 +460,13 @@ Usage: Spin.up, Spin.down.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

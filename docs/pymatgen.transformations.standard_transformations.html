@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.transformations.standard_transformations module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.transformations.standard_transformations module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -52,46 +50,40 @@
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>This transformation automatically decorates a structure with oxidation
 states using a bond valence approach.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>symm_tol</strong> (<em>float</em>) – Symmetry tolerance used to determine which sites are
-symmetrically equivalent. Set to 0 to turn off symmetry.</li>
-<li><strong>max_radius</strong> (<em>float</em>) – Maximum radius in Angstrom used to find nearest
-neighbors.</li>
-<li><strong>max_permutations</strong> (<em>int</em>) – Maximum number of permutations of oxidation
-states to test.</li>
-<li><strong>distance_scale_factor</strong> (<em>float</em>) – A scale factor to be applied. This is
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>symm_tol</strong> (<em>float</em>) – Symmetry tolerance used to determine which sites are
+symmetrically equivalent. Set to 0 to turn off symmetry.</p></li>
+<li><p><strong>max_radius</strong> (<em>float</em>) – Maximum radius in Angstrom used to find nearest
+neighbors.</p></li>
+<li><p><strong>max_permutations</strong> (<em>int</em>) – Maximum number of permutations of oxidation
+states to test.</p></li>
+<li><p><strong>distance_scale_factor</strong> (<em>float</em>) – A scale factor to be applied. This is
 useful for scaling distances, esp in the case of
 calculation-relaxed structures, which may tend to under (GGA) or
 over bind (LDA). The default of 1.015 works for GGA. For
-experimental structure, set this to 1.</li>
+experimental structure, set this to 1.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation.apply_transformation">
 <code class="descname">apply_transformation</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#AutoOxiStateDecorationTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies the transformation to a structure. Depending on whether a
 transformation is one-to-many, there may be an option to return a
 ranked list of structures.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> – input structure</li>
-<li><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – input structure</p></li>
+<li><p><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
 returned. If return_ranked_list is a number, that number of
-structures is returned.</li>
+structures is returned.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">depending on returned_ranked list, either a transformed structure
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>depending on returned_ranked list, either a transformed structure
 or
 a list of dictionaries, where each dictionary is of the form
 {‘structure’ = …. , ‘other_arguments’}
@@ -101,10 +93,8 @@ This transformation is parsed by the alchemy classes for generating
 a more specific transformation history. Any other information will
 be stored in the transformation_parameters dictionary in the
 transmuted structure class.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -131,34 +121,29 @@ returned as a ranked list.</p>
 <em class="property">class </em><code class="descname">ChargedCellTransformation</code><span class="sig-paren">(</span><em>charge=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#ChargedCellTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.ChargedCellTransformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>The ChargedCellTransformation applies a charge to a structure (or defect object).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>charge</strong> – A integer charge to apply to the structure.
-Defaults to zero. Has to be a single integer. e.g. 2</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>charge</strong> – A integer charge to apply to the structure.
+Defaults to zero. Has to be a single integer. e.g. 2</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.transformations.standard_transformations.ChargedCellTransformation.apply_transformation">
 <code class="descname">apply_transformation</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#ChargedCellTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.ChargedCellTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies the transformation to a structure. Depending on whether a
 transformation is one-to-many, there may be an option to return a
 ranked list of structures.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> – input structure</li>
-<li><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – input structure</p></li>
+<li><p><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
 returned. If return_ranked_list is a number, that number of
-structures is returned.</li>
+structures is returned.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">depending on returned_ranked list, either a transformed structure
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>depending on returned_ranked list, either a transformed structure
 or
 a list of dictionaries, where each dictionary is of the form
 {‘structure’ = …. , ‘other_arguments’}
@@ -168,10 +153,8 @@ This transformation is parsed by the alchemy classes for generating
 a more specific transformation history. Any other information will
 be stored in the transformation_parameters dictionary in the
 transmuted structure class.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -198,34 +181,28 @@ returned as a ranked list.</p>
 <em class="property">class </em><code class="descname">ConventionalCellTransformation</code><span class="sig-paren">(</span><em>symprec=0.01</em>, <em>angle_tolerance=5</em>, <em>international_monoclinic=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#ConventionalCellTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.ConventionalCellTransformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>This class finds the conventional cell of the input structure.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>symprec</strong> (<em>float</em>) – tolerance as in SpacegroupAnalyzer</li>
-<li><strong>angle_tolerance</strong> (<em>float</em>) – angle tolerance as in SpacegroupAnalyzer</li>
-<li><strong>international_monoclinic</strong> (<em>bool</em>) – whether to use beta (True) or alpha (False)</li>
-<li><strong>the non-right-angle in the unit cell</strong> (<em>as</em>) – </li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>symprec</strong> (<em>float</em>) – tolerance as in SpacegroupAnalyzer</p></li>
+<li><p><strong>angle_tolerance</strong> (<em>float</em>) – angle tolerance as in SpacegroupAnalyzer</p></li>
+<li><p><strong>international_monoclinic</strong> (<em>bool</em>) – whether to use beta (True) or alpha (False)</p></li>
+<li><p><strong>the non-right-angle in the unit cell</strong> (<em>as</em>) – </p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.transformations.standard_transformations.ConventionalCellTransformation.apply_transformation">
 <code class="descname">apply_transformation</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#ConventionalCellTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.ConventionalCellTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns most primitive cell for structure.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> – A structure</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The same structure in a conventional standard setting</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>structure</strong> – A structure</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The same structure in a conventional standard setting</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -252,33 +229,28 @@ returned as a ranked list.</p>
 <em class="property">class </em><code class="descname">DeformStructureTransformation</code><span class="sig-paren">(</span><em>deformation=((1</em>, <em>0</em>, <em>0)</em>, <em>(0</em>, <em>1</em>, <em>0)</em>, <em>(0</em>, <em>0</em>, <em>1))</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#DeformStructureTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.DeformStructureTransformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>This transformation deforms a structure by a deformation gradient matrix</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>deformation</strong> (<em>array</em>) – deformation gradient for the transformation</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>deformation</strong> (<em>array</em>) – deformation gradient for the transformation</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.transformations.standard_transformations.DeformStructureTransformation.apply_transformation">
 <code class="descname">apply_transformation</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#DeformStructureTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.DeformStructureTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies the transformation to a structure. Depending on whether a
 transformation is one-to-many, there may be an option to return a
 ranked list of structures.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> – input structure</li>
-<li><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – input structure</p></li>
+<li><p><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
 returned. If return_ranked_list is a number, that number of
-structures is returned.</li>
+structures is returned.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">depending on returned_ranked list, either a transformed structure
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>depending on returned_ranked list, either a transformed structure
 or
 a list of dictionaries, where each dictionary is of the form
 {‘structure’ = …. , ‘other_arguments’}
@@ -288,10 +260,8 @@ This transformation is parsed by the alchemy classes for generating
 a more specific transformation history. Any other information will
 be stored in the transformation_parameters dictionary in the
 transmuted structure class.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -320,39 +290,33 @@ returned as a ranked list.</p>
 <p>Discretizes the site occupancies in a disordered structure; useful for
 grouping similar structures or as a pre-processing step for order-disorder
 transformations.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>max_denominator</strong> – An integer maximum denominator for discretization. A higher
-denominator allows for finer resolution in the site occupancies.</li>
-<li><strong>tol</strong> – A float that sets the maximum difference between the original and
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_denominator</strong> – An integer maximum denominator for discretization. A higher
+denominator allows for finer resolution in the site occupancies.</p></li>
+<li><p><strong>tol</strong> – A float that sets the maximum difference between the original and
 discretized occupancies before throwing an error. If None, it is
-set to 1 / (4 * max_denominator).</li>
-<li><strong>fix_denominator</strong> (<em>bool</em>) – If True, will enforce a common denominator for all species.
+set to 1 / (4 * max_denominator).</p></li>
+<li><p><strong>fix_denominator</strong> (<em>bool</em>) – If True, will enforce a common denominator for all species.
 This prevents a mix of denominators (for example, 1/3, 1/4)
 that might require large cell sizes to perform an enumeration.
-‘tol’ needs to be &gt; 1.0 in some cases.</li>
+‘tol’ needs to be &gt; 1.0 in some cases.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation.apply_transformation">
 <code class="descname">apply_transformation</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#DiscretizeOccupanciesTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Discretizes the site occupancies in the structure.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> – disordered Structure to discretize occupancies</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A new disordered Structure with occupancies discretized</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>structure</strong> – disordered Structure to discretize occupancies</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A new disordered Structure with occupancies discretized</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -398,22 +362,18 @@ tolerance. currently this is .1</p>
 will be filled, even though a lower energy combination might be found by
 putting all lithium in sites [4,5,6,7].</p>
 <p>USE WITH CARE.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>algo</strong> (<em>int</em>) – Algorithm to use.</li>
-<li><strong>symmetrized_structures</strong> (<em>bool</em>) – Whether the input structures are
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>algo</strong> (<em>int</em>) – Algorithm to use.</p></li>
+<li><p><strong>symmetrized_structures</strong> (<em>bool</em>) – Whether the input structures are
 instances of SymmetrizedStructure, and that their symmetry
-should be used for the grouping of sites.</li>
-<li><strong>no_oxi_states</strong> (<em>bool</em>) – Whether to remove oxidation states prior to
-ordering.</li>
+should be used for the grouping of sites.</p></li>
+<li><p><strong>no_oxi_states</strong> (<em>bool</em>) – Whether to remove oxidation states prior to
+ordering.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.ALGO_BEST_FIRST">
 <code class="descname">ALGO_BEST_FIRST</code><em class="property"> = 2</em><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.ALGO_BEST_FIRST" title="Permalink to this definition">¶</a></dt>
@@ -437,19 +397,17 @@ only the ordered structure with the lowest Ewald energy, to be
 consistent with the method signature of the other transformations.
 However, all structures are stored in the  all_structures attribute in
 the transformation object for easy access.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> – Oxidation state decorated disordered structure to order</li>
-<li><strong>return_ranked_list</strong> (<em>bool</em>) – Whether or not multiple structures are
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – Oxidation state decorated disordered structure to order</p></li>
+<li><p><strong>return_ranked_list</strong> (<em>bool</em>) – Whether or not multiple structures are
 returned. If return_ranked_list is a number, that number of
-structures is returned.</li>
+structures is returned.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Depending on returned_ranked list, either a transformed structure
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Depending on returned_ranked list, either a transformed structure
 or a list of dictionaries, where each dictionary is of the form
 {“structure” = …. , “other_arguments”}
 the key “transformation” is reserved for the transformation that
@@ -458,10 +416,8 @@ This transformation is parsed by the alchemy classes for generating
 a more specific transformation history. Any other information will
 be stored in the transformation_parameters dictionary in the
 transmuted structure class.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -493,37 +449,31 @@ returned as a ranked list.</p>
 <em class="property">class </em><code class="descname">OxidationStateDecorationTransformation</code><span class="sig-paren">(</span><em>oxidation_states</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#OxidationStateDecorationTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>This transformation decorates a structure with oxidation states.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>oxidation_states</strong> (<em>dict</em>) – Oxidation states supplied as a dict,</li>
-<li><strong>{&quot;Li&quot;</strong> (<em>e.g.</em><em>,</em>) – 1, “O”:-2}</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>oxidation_states</strong> (<em>dict</em>) – Oxidation states supplied as a dict,</p></li>
+<li><p><strong>{&quot;Li&quot;</strong> (<em>e.g.</em><em>,</em>) – 1, “O”:-2}</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation.apply_transformation">
 <code class="descname">apply_transformation</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#OxidationStateDecorationTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies the transformation to a structure. Depending on whether a
 transformation is one-to-many, there may be an option to return a
 ranked list of structures.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> – input structure</li>
-<li><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – input structure</p></li>
+<li><p><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
 returned. If return_ranked_list is a number, that number of
-structures is returned.</li>
+structures is returned.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">depending on returned_ranked list, either a transformed structure
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>depending on returned_ranked list, either a transformed structure
 or
 a list of dictionaries, where each dictionary is of the form
 {‘structure’ = …. , ‘other_arguments’}
@@ -533,10 +483,8 @@ This transformation is parsed by the alchemy classes for generating
 a more specific transformation history. Any other information will
 be stored in the transformation_parameters dictionary in the
 transmuted structure class.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -569,19 +517,17 @@ returned as a ranked list.</p>
 <dd><p>Applies the transformation to a structure. Depending on whether a
 transformation is one-to-many, there may be an option to return a
 ranked list of structures.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> – input structure</li>
-<li><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – input structure</p></li>
+<li><p><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
 returned. If return_ranked_list is a number, that number of
-structures is returned.</li>
+structures is returned.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">depending on returned_ranked list, either a transformed structure
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>depending on returned_ranked list, either a transformed structure
 or
 a list of dictionaries, where each dictionary is of the form
 {‘structure’ = …. , ‘other_arguments’}
@@ -591,10 +537,8 @@ This transformation is parsed by the alchemy classes for generating
 a more specific transformation history. Any other information will
 be stored in the transformation_parameters dictionary in the
 transmuted structure class.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -627,22 +571,18 @@ computed.</p>
 are several algorithms provided with varying degrees of accuracy and speed.
 Please see
 <a class="reference internal" href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation" title="pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation</span></code></a>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>specie_to_remove</strong> – Specie to remove. Must have oxidation state E.g.,
-“Li+”</li>
-<li><strong>fraction_to_remove</strong> – Fraction of specie to remove. E.g., 0.5</li>
-<li><strong>algo</strong> – This parameter allows you to choose the algorithm to perform
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>specie_to_remove</strong> – Specie to remove. Must have oxidation state E.g.,
+“Li+”</p></li>
+<li><p><strong>fraction_to_remove</strong> – Fraction of specie to remove. E.g., 0.5</p></li>
+<li><p><strong>algo</strong> – This parameter allows you to choose the algorithm to perform
 ordering. Use one of PartialRemoveSpecieTransformation.ALGO_*
-variables to set the algo.</li>
+variables to set the algo.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.ALGO_BEST_FIRST">
 <code class="descname">ALGO_BEST_FIRST</code><em class="property"> = 2</em><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.ALGO_BEST_FIRST" title="Permalink to this definition">¶</a></dt>
@@ -667,19 +607,17 @@ variables to set the algo.</li>
 <dt id="pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.apply_transformation">
 <code class="descname">apply_transformation</code><span class="sig-paren">(</span><em>structure</em>, <em>return_ranked_list=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#PartialRemoveSpecieTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply the transformation.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> – input structure</li>
-<li><strong>return_ranked_list</strong> (<em>bool/int</em>) – Boolean stating whether or not
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – input structure</p></li>
+<li><p><strong>return_ranked_list</strong> (<em>bool/int</em>) – Boolean stating whether or not
 multiple structures are returned. If return_ranked_list is
-an int, that number of structures is returned.</li>
+an int, that number of structures is returned.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Depending on returned_ranked list, either a transformed structure
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Depending on returned_ranked list, either a transformed structure
 or a list of dictionaries, where each dictionary is of the form
 {“structure” = …. , “other_arguments”}
 the key “transformation” is reserved for the transformation that
@@ -688,10 +626,8 @@ This transformation is parsed by the alchemy classes for generating
 a more specific transformation history. Any other information will
 be stored in the transformation_parameters dictionary in the
 transmuted structure class.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -719,34 +655,29 @@ returned as a ranked list.</p>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>This transformation perturbs a structure by a specified distance in random
 directions. Used for breaking symmetries.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>amplitude</strong> (<em>float</em>) – Amplitude of perturbation in angstroms. All sites
-will be perturbed by exactly that amplitude in a random direction.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>amplitude</strong> (<em>float</em>) – Amplitude of perturbation in angstroms. All sites
+will be perturbed by exactly that amplitude in a random direction.</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.transformations.standard_transformations.PerturbStructureTransformation.apply_transformation">
 <code class="descname">apply_transformation</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#PerturbStructureTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PerturbStructureTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies the transformation to a structure. Depending on whether a
 transformation is one-to-many, there may be an option to return a
 ranked list of structures.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> – input structure</li>
-<li><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – input structure</p></li>
+<li><p><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
 returned. If return_ranked_list is a number, that number of
-structures is returned.</li>
+structures is returned.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">depending on returned_ranked list, either a transformed structure
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>depending on returned_ranked list, either a transformed structure
 or
 a list of dictionaries, where each dictionary is of the form
 {‘structure’ = …. , ‘other_arguments’}
@@ -756,10 +687,8 @@ This transformation is parsed by the alchemy classes for generating
 a more specific transformation history. Any other information will
 be stored in the transformation_parameters dictionary in the
 transmuted structure class.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -788,32 +717,27 @@ returned as a ranked list.</p>
 <p>This class finds the primitive cell of the input structure.
 It returns a structure that is not necessarily orthogonalized
 Author: Will Richards</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tolerance</strong> (<em>float</em>) – Tolerance for each coordinate of a particular
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tolerance</strong> (<em>float</em>) – Tolerance for each coordinate of a particular
 site. For example, [0.5, 0, 0.5] in cartesian coordinates will be
 considered to be on the same coordinates as [0, 0, 0] for a
-tolerance of 0.5. Defaults to 0.5.</td>
-</tr>
-</tbody>
-</table>
+tolerance of 0.5. Defaults to 0.5.</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.transformations.standard_transformations.PrimitiveCellTransformation.apply_transformation">
 <code class="descname">apply_transformation</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#PrimitiveCellTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PrimitiveCellTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns most primitive cell for structure.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> – A structure</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The most primitive structure found. The returned structure is
-guaranteed to have len(new structure) &lt;= len(structure).</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>structure</strong> – A structure</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The most primitive structure found. The returned structure is
+guaranteed to have len(new structure) &lt;= len(structure).</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -840,33 +764,28 @@ returned as a ranked list.</p>
 <em class="property">class </em><code class="descname">RemoveSpeciesTransformation</code><span class="sig-paren">(</span><em>species_to_remove</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#RemoveSpeciesTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>Remove all occurrences of some species from a structure.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>species_to_remove</strong> – List of species to remove. E.g., [“Li”, “Mn”]</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>species_to_remove</strong> – List of species to remove. E.g., [“Li”, “Mn”]</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation.apply_transformation">
 <code class="descname">apply_transformation</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#RemoveSpeciesTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies the transformation to a structure. Depending on whether a
 transformation is one-to-many, there may be an option to return a
 ranked list of structures.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> – input structure</li>
-<li><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – input structure</p></li>
+<li><p><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
 returned. If return_ranked_list is a number, that number of
-structures is returned.</li>
+structures is returned.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">depending on returned_ranked list, either a transformed structure
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>depending on returned_ranked list, either a transformed structure
 or
 a list of dictionaries, where each dictionary is of the form
 {‘structure’ = …. , ‘other_arguments’}
@@ -876,10 +795,8 @@ This transformation is parsed by the alchemy classes for generating
 a more specific transformation history. Any other information will
 be stored in the transformation_parameters dictionary in the
 transmuted structure class.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -906,39 +823,33 @@ returned as a ranked list.</p>
 <em class="property">class </em><code class="descname">RotationTransformation</code><span class="sig-paren">(</span><em>axis</em>, <em>angle</em>, <em>angle_in_radians=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#RotationTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.RotationTransformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>The RotationTransformation applies a rotation to a structure.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>axis</strong> (<em>3x1 array</em>) – Axis of rotation, e.g., [1, 0, 0]</li>
-<li><strong>angle</strong> (<em>float</em>) – Angle to rotate</li>
-<li><strong>angle_in_radians</strong> (<em>bool</em>) – Set to True if angle is supplied in radians.
-Else degrees are assumed.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>axis</strong> (<em>3x1 array</em>) – Axis of rotation, e.g., [1, 0, 0]</p></li>
+<li><p><strong>angle</strong> (<em>float</em>) – Angle to rotate</p></li>
+<li><p><strong>angle_in_radians</strong> (<em>bool</em>) – Set to True if angle is supplied in radians.
+Else degrees are assumed.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.transformations.standard_transformations.RotationTransformation.apply_transformation">
 <code class="descname">apply_transformation</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#RotationTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.RotationTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies the transformation to a structure. Depending on whether a
 transformation is one-to-many, there may be an option to return a
 ranked list of structures.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> – input structure</li>
-<li><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – input structure</p></li>
+<li><p><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
 returned. If return_ranked_list is a number, that number of
-structures is returned.</li>
+structures is returned.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">depending on returned_ranked list, either a transformed structure
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>depending on returned_ranked list, either a transformed structure
 or
 a list of dictionaries, where each dictionary is of the form
 {‘structure’ = …. , ‘other_arguments’}
@@ -948,10 +859,8 @@ This transformation is parsed by the alchemy classes for generating
 a more specific transformation history. Any other information will
 be stored in the transformation_parameters dictionary in the
 transmuted structure class.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -982,36 +891,31 @@ relaxation to a structurally similar structures (e.g. bulk: NaCl and PbTe
 (rock-salt), slab: Sc(10-10) and Mg(10-10) (hcp), GB: Mo(001) sigma 5 GB,
 Fe(001) sigma 5). Useful for finding an initial guess of a set of similar
 structures closer to its most relaxed state.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>unrelaxed_structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Initial, unrelaxed structure</li>
-<li><strong>relaxed_structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Relaxed structure</li>
-<li><strong>species_map</strong> (<em>dict</em>) – A dict or list of tuples containing the species mapping in
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>unrelaxed_structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Initial, unrelaxed structure</p></li>
+<li><p><strong>relaxed_structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Relaxed structure</p></li>
+<li><p><strong>species_map</strong> (<em>dict</em>) – A dict or list of tuples containing the species mapping in
 string-string pairs. The first species corresponds to the relaxed
 structure while the second corresponds to the species in the
 structure to be scaled. E.g., {“Li”:”Na”} or [(“Fe2+”,”Mn2+”)].
 Multiple substitutions can be done. Overloaded to accept
 sp_and_occu dictionary E.g. {“Si: {“Ge”:0.75, “C”:0.25}},
 which substitutes a single species with multiple species to
-generate a disordered structure.</li>
+generate a disordered structure.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation.apply_transformation">
 <code class="descname">apply_transformation</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#ScaleToRelaxedTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a copy of structure with lattice parameters
 and sites scaled to the same degree as the relaxed_structure.</p>
-<dl class="docutils">
-<dt>Arg:</dt>
-<dd><dl class="first last docutils">
-<dt>structure (Structure): A structurally similar structure in</dt>
-<dd>regards to crystal and site positions.</dd>
+<dl class="simple">
+<dt>Arg:</dt><dd><dl class="simple">
+<dt>structure (Structure): A structurally similar structure in</dt><dd><p>regards to crystal and site positions.</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -1041,38 +945,33 @@ returned as a ranked list.</p>
 <em class="property">class </em><code class="descname">SubstitutionTransformation</code><span class="sig-paren">(</span><em>species_map</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#SubstitutionTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.SubstitutionTransformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>This transformation substitutes species for one another.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>species_map</strong> – A dict or list of tuples containing the species mapping in
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>species_map</strong> – A dict or list of tuples containing the species mapping in
 string-string pairs. E.g., {“Li”:”Na”} or [(“Fe2+”,”Mn2+”)].
 Multiple substitutions can be done. Overloaded to accept
 sp_and_occu dictionary E.g. {“Si: {“Ge”:0.75, “C”:0.25}},
 which substitutes a single species with multiple species to
-generate a disordered structure.</td>
-</tr>
-</tbody>
-</table>
+generate a disordered structure.</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.transformations.standard_transformations.SubstitutionTransformation.apply_transformation">
 <code class="descname">apply_transformation</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#SubstitutionTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.SubstitutionTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies the transformation to a structure. Depending on whether a
 transformation is one-to-many, there may be an option to return a
 ranked list of structures.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> – input structure</li>
-<li><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – input structure</p></li>
+<li><p><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
 returned. If return_ranked_list is a number, that number of
-structures is returned.</li>
+structures is returned.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">depending on returned_ranked list, either a transformed structure
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>depending on returned_ranked list, either a transformed structure
 or
 a list of dictionaries, where each dictionary is of the form
 {‘structure’ = …. , ‘other_arguments’}
@@ -1082,10 +981,8 @@ This transformation is parsed by the alchemy classes for generating
 a more specific transformation history. Any other information will
 be stored in the transformation_parameters dictionary in the
 transmuted structure class.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -1112,37 +1009,32 @@ returned as a ranked list.</p>
 <em class="property">class </em><code class="descname">SupercellTransformation</code><span class="sig-paren">(</span><em>scaling_matrix=((1</em>, <em>0</em>, <em>0)</em>, <em>(0</em>, <em>1</em>, <em>0)</em>, <em>(0</em>, <em>0</em>, <em>1))</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#SupercellTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.SupercellTransformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>The RotationTransformation applies a rotation to a structure.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>scaling_matrix</strong> – A matrix of transforming the lattice vectors.
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>scaling_matrix</strong> – A matrix of transforming the lattice vectors.
 Defaults to the identity matrix. Has to be all integers. e.g.,
 [[2,1,0],[0,3,0],[0,0,1]] generates a new structure with
 lattice vectors a” = 2a + b, b” = 3b, c” = c where a, b, and c
-are the lattice vectors of the original structure.</td>
-</tr>
-</tbody>
-</table>
+are the lattice vectors of the original structure.</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.transformations.standard_transformations.SupercellTransformation.apply_transformation">
 <code class="descname">apply_transformation</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#SupercellTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.SupercellTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies the transformation to a structure. Depending on whether a
 transformation is one-to-many, there may be an option to return a
 ranked list of structures.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> – input structure</li>
-<li><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – input structure</p></li>
+<li><p><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
 returned. If return_ranked_list is a number, that number of
-structures is returned.</li>
+structures is returned.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">depending on returned_ranked list, either a transformed structure
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>depending on returned_ranked list, either a transformed structure
 or
 a list of dictionaries, where each dictionary is of the form
 {‘structure’ = …. , ‘other_arguments’}
@@ -1152,10 +1044,8 @@ This transformation is parsed by the alchemy classes for generating
 a more specific transformation history. Any other information will
 be stored in the transformation_parameters dictionary in the
 transmuted structure class.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="staticmethod">
@@ -1165,22 +1055,18 @@ transmuted structure class.</p>
 series of three numbers for scaling each lattice vector. Equivalent to
 calling the normal with [[scale_a, 0, 0], [0, scale_b, 0],
 [0, 0, scale_c]]</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>scale_a</strong> – Scaling factor for lattice direction a. Defaults to 1.</li>
-<li><strong>scale_b</strong> – Scaling factor for lattice direction b. Defaults to 1.</li>
-<li><strong>scale_c</strong> – Scaling factor for lattice direction c. Defaults to 1.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scale_a</strong> – Scaling factor for lattice direction a. Defaults to 1.</p></li>
+<li><p><strong>scale_b</strong> – Scaling factor for lattice direction b. Defaults to 1.</p></li>
+<li><p><strong>scale_c</strong> – Scaling factor for lattice direction c. Defaults to 1.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">SupercellTransformation.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>SupercellTransformation.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -1223,8 +1109,6 @@ returned as a ranked list.</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -1242,13 +1126,13 @@ returned as a ranked list.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

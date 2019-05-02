@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.symmetry.bandstructure module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.symmetry.bandstructure module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -64,22 +62,18 @@ produce the correct primitive structure (method
 get_primitive_standard_structure(international_monoclinic=False)).
 A warning will signal possible compatibility problems
 with the given structure.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Structure object</li>
-<li><strong>symprec</strong> (<em>float</em>) – Tolerance for symmetry finding</li>
-<li><strong>angle_tolerance</strong> (<em>float</em>) – Angle tolerance for symmetry finding.</li>
-<li><strong>atol</strong> (<em>float</em>) – Absolute tolerance used to compare the input
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Structure object</p></li>
+<li><p><strong>symprec</strong> (<em>float</em>) – Tolerance for symmetry finding</p></li>
+<li><p><strong>angle_tolerance</strong> (<em>float</em>) – Angle tolerance for symmetry finding.</p></li>
+<li><p><strong>atol</strong> (<em>float</em>) – Absolute tolerance used to compare the input
 structure with the one expected as primitive standard.
-A warning will be issued if the lattices don’t match.</li>
+A warning will be issued if the lattices don’t match.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.bcc">
 <code class="descname">bcc</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/bandstructure.html#HighSymmKpath.bcc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.bcc" title="Permalink to this definition">¶</a></dt>
@@ -98,15 +92,8 @@ A warning will be issued if the lattices don’t match.</li>
 <dl class="attribute">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.conventional">
 <code class="descname">conventional</code><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.conventional" title="Permalink to this definition">¶</a></dt>
-<dd><p>The conventional cell structure</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">Returns</td>
-</tr>
-</tbody>
-</table>
+<dd><p>Returns:
+The conventional cell structure</p>
 </dd></dl>
 
 <dl class="method">
@@ -122,15 +109,12 @@ A warning will be issued if the lattices don’t match.</li>
 <dl class="method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.get_kpoints">
 <code class="descname">get_kpoints</code><span class="sig-paren">(</span><em>line_density=20</em>, <em>coords_are_cartesian=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/bandstructure.html#HighSymmKpath.get_kpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.get_kpoints" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the kpoints along the paths in cartesian coordinates
-together with the labels for symmetry points -Wei</td>
-</tr>
-</tbody>
-</table>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the kpoints along the paths in cartesian coordinates
+together with the labels for symmetry points -Wei</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -141,15 +125,8 @@ together with the labels for symmetry points -Wei</td>
 <dl class="attribute">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.kpath">
 <code class="descname">kpath</code><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.kpath" title="Permalink to this definition">¶</a></dt>
-<dd><p>The symmetry line path in reciprocal space</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">Returns</td>
-</tr>
-</tbody>
-</table>
+<dd><p>Returns:
+The symmetry line path in reciprocal space</p>
 </dd></dl>
 
 <dl class="method">
@@ -215,29 +192,15 @@ together with the labels for symmetry points -Wei</td>
 <dl class="attribute">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.prim">
 <code class="descname">prim</code><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.prim" title="Permalink to this definition">¶</a></dt>
-<dd><p>The primitive cell structure</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">Returns</td>
-</tr>
-</tbody>
-</table>
+<dd><p>Returns:
+The primitive cell structure</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.prim_rec">
 <code class="descname">prim_rec</code><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.prim_rec" title="Permalink to this definition">¶</a></dt>
-<dd><p>The primitive reciprocal cell structure</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">Returns</td>
-</tr>
-</tbody>
-</table>
+<dd><p>Returns:
+The primitive reciprocal cell structure</p>
 </dd></dl>
 
 <dl class="method">
@@ -253,15 +216,8 @@ together with the labels for symmetry points -Wei</td>
 <dl class="attribute">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.structure">
 <code class="descname">structure</code><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.structure" title="Permalink to this definition">¶</a></dt>
-<dd><p>The standardized primitive structure</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">Returns</td>
-</tr>
-</tbody>
-</table>
+<dd><p>Returns:
+The standardized primitive structure</p>
 </dd></dl>
 
 <dl class="method">
@@ -302,8 +258,6 @@ together with the labels for symmetry points -Wei</td>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -321,13 +275,13 @@ together with the labels for symmetry points -Wei</td>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

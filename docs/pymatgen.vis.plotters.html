@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.vis.plotters module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.vis.plotters module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -65,103 +63,83 @@ people want to view spectra. The typical usage is:</p>
 <span class="n">plotter</span><span class="o">.</span><span class="n">add_spectra</span><span class="p">({</span><span class="s2">&quot;dos1&quot;</span><span class="p">:</span> <span class="n">dos1</span><span class="p">,</span> <span class="s2">&quot;dos2&quot;</span><span class="p">:</span> <span class="n">dos2</span><span class="p">})</span>
 </pre></div>
 </div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>xshift</strong> (<em>float</em>) – A shift that is applied to the x values. This is
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xshift</strong> (<em>float</em>) – A shift that is applied to the x values. This is
 commonly used to shift to an arbitrary zero. E.g., zeroing at the
 Fermi energy in DOS, or at the absorption edge in XAS spectra. The
-same xshift is applied to all spectra.</li>
-<li><strong>yshift</strong> (<em>float</em>) – A shift that is applied to the y values. This is
+same xshift is applied to all spectra.</p></li>
+<li><p><strong>yshift</strong> (<em>float</em>) – A shift that is applied to the y values. This is
 commonly used to displace spectra for easier visualization.
-Successive spectra are applied successive shifts.</li>
-<li><strong>stack</strong> (<em>bool</em>) – Whether to stack plots rather than simply plot them.
+Successive spectra are applied successive shifts.</p></li>
+<li><p><strong>stack</strong> (<em>bool</em>) – Whether to stack plots rather than simply plot them.
 For example, DOS plot can usually be stacked to look at the
-contribution of each orbital.</li>
-<li><strong>color_cycle</strong> (<em>str</em>) – Default color cycle to use. Note that this can be
-overridden</li>
+contribution of each orbital.</p></li>
+<li><p><strong>color_cycle</strong> (<em>str</em>) – Default color cycle to use. Note that this can be
+overridden</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.vis.plotters.SpectrumPlotter.add_spectra">
 <code class="descname">add_spectra</code><span class="sig-paren">(</span><em>spectra_dict</em>, <em>key_sort_func=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/plotters.html#SpectrumPlotter.add_spectra"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.plotters.SpectrumPlotter.add_spectra" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a dictionary of doses, with an optional sorting function for the
 keys.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>dos_dict</strong> – dict of {label: Dos}</li>
-<li><strong>key_sort_func</strong> – function used to sort the dos_dict keys.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dos_dict</strong> – dict of {label: Dos}</p></li>
+<li><p><strong>key_sort_func</strong> – function used to sort the dos_dict keys.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.vis.plotters.SpectrumPlotter.add_spectrum">
 <code class="descname">add_spectrum</code><span class="sig-paren">(</span><em>label</em>, <em>spectrum</em>, <em>color=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/plotters.html#SpectrumPlotter.add_spectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.plotters.SpectrumPlotter.add_spectrum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a Spectrum for plotting.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>label</strong> (<em>str</em>) – Label for the Spectrum. Must be unique.</li>
-<li><strong>spectrum</strong> – Spectrum object</li>
-<li><strong>color</strong> (<em>str</em>) – This is passed on to matplotlib. E.g., “k–” indicates
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>label</strong> (<em>str</em>) – Label for the Spectrum. Must be unique.</p></li>
+<li><p><strong>spectrum</strong> – Spectrum object</p></li>
+<li><p><strong>color</strong> (<em>str</em>) – This is passed on to matplotlib. E.g., “k–” indicates
 a dashed black line. If None, a color will be chosen based on
-the default color cycle.</li>
+the default color cycle.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.vis.plotters.SpectrumPlotter.get_plot">
 <code class="descname">get_plot</code><span class="sig-paren">(</span><em>xlim=None</em>, <em>ylim=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/plotters.html#SpectrumPlotter.get_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.plotters.SpectrumPlotter.get_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a matplotlib plot showing the DOS.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>xlim</strong> – Specifies the x-axis limits. Set to None for automatic
-determination.</li>
-<li><strong>ylim</strong> – Specifies the y-axis limits.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xlim</strong> – Specifies the x-axis limits. Set to None for automatic
+determination.</p></li>
+<li><p><strong>ylim</strong> – Specifies the y-axis limits.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.vis.plotters.SpectrumPlotter.save_plot">
 <code class="descname">save_plot</code><span class="sig-paren">(</span><em>filename</em>, <em>img_format='eps'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/plotters.html#SpectrumPlotter.save_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.plotters.SpectrumPlotter.save_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save matplotlib plot to a file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> – Filename to write to.</li>
-<li><strong>img_format</strong> – Image format to use. Defaults to EPS.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> – Filename to write to.</p></li>
+<li><p><strong>img_format</strong> – Image format to use. Defaults to EPS.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -193,8 +171,6 @@ determination.</li>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -212,13 +188,13 @@ determination.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

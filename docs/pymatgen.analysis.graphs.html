@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.graphs module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.graphs module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -108,18 +106,14 @@ on the graph itself, but contains a lot of helper methods
 to make associating a graph with a given molecule easier.</p>
 <p>Use cases for this include storing bonding information,
 NMR J-couplings, Heisenberg exchange parameters, etc.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>molecule</strong> – Molecule object</li>
-<li><strong>graph_data</strong> – dict containing graph information in</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>molecule</strong> – Molecule object</p></li>
+<li><p><strong>graph_data</strong> – dict containing graph information in</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p>dict format (not intended to be constructed manually,
 see as_dict method for format)</p>
 <dl class="method">
@@ -131,20 +125,16 @@ between sites) doesn’t have a direction, from_index,
 from_jimage can be swapped with to_index, to_jimage.</p>
 <p>However, images will always always be shifted so that
 from_index &lt; to_index and from_jimage becomes (0, 0, 0).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>from_index</strong> – index of site connecting from</li>
-<li><strong>to_index</strong> – index of site connecting to</li>
-<li><strong>(</strong><strong>float</strong><strong>)</strong> (<em>weight</em>) – e.g. bond length</li>
-<li><strong>(</strong><strong>bool</strong><strong>)</strong> (<em>warn_duplicates</em>) – if True, will warn if</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>from_index</strong> – index of site connecting from</p></li>
+<li><p><strong>to_index</strong> – index of site connecting to</p></li>
+<li><p><strong>(</strong><strong>float</strong><strong>)</strong> (<em>weight</em>) – e.g. bond length</p></li>
+<li><p><strong>(</strong><strong>bool</strong><strong>)</strong> (<em>warn_duplicates</em>) – if True, will warn if</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p>trying to add duplicate edges (duplicate edges will not
 be added in either case)
 :param edge_properties (dict): any other information to
@@ -157,19 +147,15 @@ store on graph edges, similar to Structure’s site_properties
 <code class="descname">alter_edge</code><span class="sig-paren">(</span><em>from_index</em>, <em>to_index</em>, <em>new_weight=None</em>, <em>new_edge_properties=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#MoleculeGraph.alter_edge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.alter_edge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alters either the weight or the edge_properties of
 an edge in the MoleculeGraph.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>from_index</strong> – int</li>
-<li><strong>to_index</strong> – int</li>
-<li><strong>new_weight</strong> – alter_edge does not require</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>from_index</strong> – int</p></li>
+<li><p><strong>to_index</strong> – int</p></li>
+<li><p><strong>new_weight</strong> – alter_edge does not require</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p>that weight be altered. As such, by default, this
 is None. If weight is to be changed, it should be a
 float.
@@ -192,19 +178,15 @@ to store graph information.</p>
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.break_edge">
 <code class="descname">break_edge</code><span class="sig-paren">(</span><em>from_index</em>, <em>to_index</em>, <em>allow_reverse=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#MoleculeGraph.break_edge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.break_edge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove an edge from the MoleculeGraph</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>from_index</strong> – int</li>
-<li><strong>to_index</strong> – int</li>
-<li><strong>allow_reverse</strong> – If allow_reverse is True, then break_edge will</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>from_index</strong> – int</p></li>
+<li><p><strong>to_index</strong> – int</p></li>
+<li><p><strong>allow_reverse</strong> – If allow_reverse is True, then break_edge will</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p>attempt to break both (from_index, to_index) and, failing that,
 will attempt to break (to_index, from_index).
 :return:</p>
@@ -215,14 +197,11 @@ will attempt to break (to_index, from_index).
 <code class="descname">build_unique_fragments</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#MoleculeGraph.build_unique_fragments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.build_unique_fragments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find all possible fragment combinations of the MoleculeGraphs (in other
 words, all connected induced subgraphs)</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -243,18 +222,14 @@ from, not the ‘other’ MoleculeGraph: there
 is no guarantee the node indices will be the
 same if the underlying Molecules are ordered
 differently.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>other</strong> – MoleculeGraph</li>
-<li><strong>strict</strong> – if False, will compare bonds</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> – MoleculeGraph</p></li>
+<li><p><strong>strict</strong> – if False, will compare bonds</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p>from different Molecules, with node indices
 replaced by Specie strings, will not count
 number of occurrences of bonds
@@ -272,14 +247,11 @@ multigraphs (edges are super-imposed on each other).</p>
 <p>If visualization is difficult to interpret,
 <cite>hide_image_edges</cite> can help, especially in larger
 graphs.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – filename to output, will detect filetype</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> – filename to output, will detect filetype</p>
+</dd>
+</dl>
 <p>from extension (any graphviz filetype supported, such as
 pdf or png)
 :param diff (StructureGraph): an additional graph to
@@ -311,42 +283,33 @@ or “fdp” (for more crowded graphs) usually give good outputs
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.edge_weight_name">
 <code class="descname">edge_weight_name</code><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.edge_weight_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name of the edge weight property of graph</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">return</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.edge_weight_unit">
 <code class="descname">edge_weight_unit</code><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.edge_weight_unit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Units of the edge weight property of graph</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">return</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.find_rings">
 <code class="descname">find_rings</code><span class="sig-paren">(</span><em>including=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#MoleculeGraph.find_rings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.find_rings" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find ring structures in the MoleculeGraph.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>including</strong> – list of site indices. If</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>including</strong> – list of site indices. If</p>
+</dd>
+</dl>
 <p>including is not None, then find_rings will
 only return those rings including the specified
 sites. By default, this parameter is None, and
@@ -394,32 +357,28 @@ of node corresponding to site n.
 <code class="descname">insert_node</code><span class="sig-paren">(</span><em>i</em>, <em>species</em>, <em>coords</em>, <em>validate_proximity=False</em>, <em>site_properties=None</em>, <em>edges=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#MoleculeGraph.insert_node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.insert_node" title="Permalink to this definition">¶</a></dt>
 <dd><p>A wrapper around Molecule.insert(), which also incorporates the new
 site into the MoleculeGraph.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>i</strong> – Index at which to insert the new site</li>
-<li><strong>species</strong> – Species for the new site</li>
-<li><strong>coords</strong> – 3x1 array representing coordinates of the new site</li>
-<li><strong>validate_proximity</strong> – For Molecule.insert(); if True (default
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>i</strong> – Index at which to insert the new site</p></li>
+<li><p><strong>species</strong> – Species for the new site</p></li>
+<li><p><strong>coords</strong> – 3x1 array representing coordinates of the new site</p></li>
+<li><p><strong>validate_proximity</strong> – For Molecule.insert(); if True (default
 False), distance will be checked to ensure that site can be safely
-added.</li>
-<li><strong>site_properties</strong> – Site properties for Molecule</li>
-<li><strong>edges</strong> – List of dicts representing edges to be added to the
+added.</p></li>
+<li><p><strong>site_properties</strong> – Site properties for Molecule</p></li>
+<li><p><strong>edges</strong> – List of dicts representing edges to be added to the
 MoleculeGraph. These edges must include the index of the new site i,
 and all indices used for these edges should reflect the
 MoleculeGraph AFTER the insertion, NOT before. Each dict should at
 least have a “to_index” and “from_index” key, and can also have a
-“weight” and a “properties” key.</li>
+“weight” and a “properties” key.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -428,47 +387,40 @@ least have a “to_index” and “from_index” key, and can also have a
 <dd><p>Checks if the graphs of two MoleculeGraphs are isomorphic to one
 another. In order to prevent problems with misdirected edges, both
 graphs are converted into undirected nx.Graph objects.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>other</strong> – MoleculeGraph object to be compared.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">bool</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> – MoleculeGraph object to be compared.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.name">
 <code class="descname">name</code><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name of graph</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">return</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.remove_nodes">
 <code class="descname">remove_nodes</code><span class="sig-paren">(</span><em>indices</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#MoleculeGraph.remove_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.remove_nodes" title="Permalink to this definition">¶</a></dt>
 <dd><p>A wrapper for Molecule.remove_sites().</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>indices</strong> – list of indices in the current Molecule (and graph) to
-be removed.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>indices</strong> – list of indices in the current Molecule (and graph) to
+be removed.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -479,15 +431,13 @@ to replace a functional group in self.molecule with a functional group.
 This method also amends self.graph to incorporate the new functional
 group.</p>
 <p>TODO: Figure out how to replace into a ring structure.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>index</strong> – Index of atom to substitute.</li>
-<li><strong>func_grp</strong> – <p>Substituent molecule. There are three options:</p>
-<ol class="arabic">
-<li>Providing an actual molecule as the input. The first atom
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>index</strong> – Index of atom to substitute.</p></li>
+<li><p><strong>func_grp</strong> – <p>Substituent molecule. There are three options:</p>
+<ol class="arabic simple">
+<li><p>Providing an actual molecule as the input. The first atom
 must be a DummySpecie X, indicating the position of
 nearest neighbor. The second atom must be the next
 nearest atom. For example, for a methyl group
@@ -495,36 +445,34 @@ substitution, func_grp should be X-CH3, where X is the
 first site and C is the second site. What the code will
 do is to remove the index site, and connect the nearest
 neighbor to the C atom in CH3. The X-C bond indicates the
-directionality to connect the atoms.</li>
-<li>A string name. The molecule will be obtained from the
-relevant template in func_groups.json.</li>
-<li>A MoleculeGraph object.</li>
+directionality to connect the atoms.</p></li>
+<li><p>A string name. The molecule will be obtained from the
+relevant template in func_groups.json.</p></li>
+<li><p>A MoleculeGraph object.</p></li>
 </ol>
-</li>
-<li><strong>strategy</strong> – Class from pymatgen.analysis.local_env.</li>
-<li><strong>bond_order</strong> – A specified bond order to calculate the bond
+</p></li>
+<li><p><strong>strategy</strong> – Class from pymatgen.analysis.local_env.</p></li>
+<li><p><strong>bond_order</strong> – A specified bond order to calculate the bond
 length between the attached functional group and the nearest
-neighbor site. Defaults to 1.</li>
-<li><strong>graph_dict</strong> – Dictionary representing the bonds of the functional
+neighbor site. Defaults to 1.</p></li>
+<li><p><strong>graph_dict</strong> – Dictionary representing the bonds of the functional
 group (format: {(u, v): props}, where props is a dictionary of
 properties, including weight. If None, then the algorithm
 will attempt to automatically determine bonds using one of
-a list of strategies defined in pymatgen.analysis.local_env.</li>
-<li><strong>strategy_params</strong> – dictionary of keyword arguments for strategy.
-If None, default parameters will be used.</li>
-<li><strong>reorder</strong> – bool, representing if graph nodes need to be reordered
-following the application of the local_env strategy</li>
-<li><strong>extend_structure</strong> – If True (default), then a large artificial box
+a list of strategies defined in pymatgen.analysis.local_env.</p></li>
+<li><p><strong>strategy_params</strong> – dictionary of keyword arguments for strategy.
+If None, default parameters will be used.</p></li>
+<li><p><strong>reorder</strong> – bool, representing if graph nodes need to be reordered
+following the application of the local_env strategy</p></li>
+<li><p><strong>extend_structure</strong> – If True (default), then a large artificial box
 will be placed around the Molecule, because some strategies assume
-periodic boundary conditions.</li>
+periodic boundary conditions.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -532,14 +480,11 @@ periodic boundary conditions.</li>
 <code class="descname">set_node_attributes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#MoleculeGraph.set_node_attributes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.set_node_attributes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Replicates molecule site properties (specie, coords, etc.) in the
 MoleculeGraph.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -571,14 +516,11 @@ charge.
 NOTE: This function does not modify the original
 MoleculeGraph. It creates a copy, modifies that, and
 returns two or more new MoleculeGraph objects.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>bonds</strong> – list of tuples (from_index, to_index)</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>bonds</strong> – list of tuples (from_index, to_index)</p>
+</dd>
+</dl>
 <p>representing bonds to be broken to split the MoleculeGraph.
 :param alterations: a dict {(from_index, to_index): alt},
 where alt is a dictionary including weight and/or edge
@@ -599,15 +541,13 @@ incorporate the new functional group.</p>
 compared with using a Molecule or str (when not using graph_dict).
 This is because of the reordering that occurs when using some of the
 local_env strategies.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>index</strong> – Index of atom to substitute.</li>
-<li><strong>func_grp</strong> – <p>Substituent molecule. There are three options:</p>
-<ol class="arabic">
-<li>Providing an actual molecule as the input. The first atom
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>index</strong> – Index of atom to substitute.</p></li>
+<li><p><strong>func_grp</strong> – <p>Substituent molecule. There are three options:</p>
+<ol class="arabic simple">
+<li><p>Providing an actual molecule as the input. The first atom
 must be a DummySpecie X, indicating the position of
 nearest neighbor. The second atom must be the next
 nearest atom. For example, for a methyl group
@@ -615,36 +555,34 @@ substitution, func_grp should be X-CH3, where X is the
 first site and C is the second site. What the code will
 do is to remove the index site, and connect the nearest
 neighbor to the C atom in CH3. The X-C bond indicates the
-directionality to connect the atoms.</li>
-<li>A string name. The molecule will be obtained from the
-relevant template in func_groups.json.</li>
-<li>A MoleculeGraph object.</li>
+directionality to connect the atoms.</p></li>
+<li><p>A string name. The molecule will be obtained from the
+relevant template in func_groups.json.</p></li>
+<li><p>A MoleculeGraph object.</p></li>
 </ol>
-</li>
-<li><strong>strategy</strong> – Class from pymatgen.analysis.local_env.</li>
-<li><strong>bond_order</strong> – A specified bond order to calculate the bond
+</p></li>
+<li><p><strong>strategy</strong> – Class from pymatgen.analysis.local_env.</p></li>
+<li><p><strong>bond_order</strong> – A specified bond order to calculate the bond
 length between the attached functional group and the nearest
-neighbor site. Defaults to 1.</li>
-<li><strong>graph_dict</strong> – Dictionary representing the bonds of the functional
+neighbor site. Defaults to 1.</p></li>
+<li><p><strong>graph_dict</strong> – Dictionary representing the bonds of the functional
 group (format: {(u, v): props}, where props is a dictionary of
 properties, including weight. If None, then the algorithm
 will attempt to automatically determine bonds using one of
-a list of strategies defined in pymatgen.analysis.local_env.</li>
-<li><strong>strategy_params</strong> – dictionary of keyword arguments for strategy.
-If None, default parameters will be used.</li>
-<li><strong>reorder</strong> – bool, representing if graph nodes need to be reordered
-following the application of the local_env strategy</li>
-<li><strong>extend_structure</strong> – If True (default), then a large artificial box
+a list of strategies defined in pymatgen.analysis.local_env.</p></li>
+<li><p><strong>strategy_params</strong> – dictionary of keyword arguments for strategy.
+If None, default parameters will be used.</p></li>
+<li><p><strong>reorder</strong> – bool, representing if graph nodes need to be reordered
+following the application of the local_env strategy</p></li>
+<li><p><strong>extend_structure</strong> – If True (default), then a large artificial box
 will be placed around the Molecule, because some strategies assume
-periodic boundary conditions.</li>
+periodic boundary conditions.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="staticmethod">
@@ -652,24 +590,20 @@ periodic boundary conditions.</li>
 <em class="property">static </em><code class="descname">with_edges</code><span class="sig-paren">(</span><em>molecule</em>, <em>edges</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#MoleculeGraph.with_edges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.with_edges" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor for MoleculeGraph, using pre-existing or pre-defined edges
 with optional edge parameters.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>molecule</strong> – Molecule object</li>
-<li><strong>edges</strong> – dict representing the bonds of the functional
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>molecule</strong> – Molecule object</p></li>
+<li><p><strong>edges</strong> – dict representing the bonds of the functional
 group (format: {(u, v): props}, where props is a dictionary of
 properties, including weight. Props should be None if no
-additional properties are to be specified.</li>
+additional properties are to be specified.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">mg, a MoleculeGraph</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>mg, a MoleculeGraph</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
@@ -678,19 +612,15 @@ additional properties are to be specified.</li>
 <dd><p>Constructor for MoleculeGraph, returns a MoleculeGraph
 object with an empty graph (no edges, only nodes defined
 that correspond to Sites in Molecule).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>(</strong><strong>Molecule</strong><strong>)</strong> (<em>molecule</em>) – </li>
-<li><strong>(</strong><strong>str</strong><strong>)</strong> (<em>edge_weight_name</em>) – name of graph, e.g. “bonds”</li>
-<li><strong>(</strong><strong>str</strong><strong>)</strong> – name of edge weights,</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>Molecule</strong><strong>)</strong> (<em>molecule</em>) – </p></li>
+<li><p><strong>(</strong><strong>str</strong><strong>)</strong> (<em>edge_weight_name</em>) – name of graph, e.g. “bonds”</p></li>
+<li><p><strong>(</strong><strong>str</strong><strong>)</strong> – name of edge weights,</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p>e.g. “bond_length” or “exchange_constant”
 :param edge_weight_units (str): name of edge weight units
 e.g. “Å” or “eV”
@@ -702,27 +632,23 @@ e.g. “Å” or “eV”
 <em class="property">static </em><code class="descname">with_local_env_strategy</code><span class="sig-paren">(</span><em>molecule</em>, <em>strategy</em>, <em>reorder=True</em>, <em>extend_structure=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#MoleculeGraph.with_local_env_strategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.with_local_env_strategy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor for MoleculeGraph, using a strategy
 from :Class: <cite>pymatgen.analysis.local_env</cite>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>molecule</strong> – Molecule object</li>
-<li><strong>strategy</strong> – an instance of a
-:Class: <cite>pymatgen.analysis.local_env.NearNeighbors</cite> object</li>
-<li><strong>reorder</strong> – bool, representing if graph nodes need to be reordered
-following the application of the local_env strategy</li>
-<li><strong>extend_structure</strong> – If True (default), then a large artificial box
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>molecule</strong> – Molecule object</p></li>
+<li><p><strong>strategy</strong> – an instance of a
+:Class: <cite>pymatgen.analysis.local_env.NearNeighbors</cite> object</p></li>
+<li><p><strong>reorder</strong> – bool, representing if graph nodes need to be reordered
+following the application of the local_env strategy</p></li>
+<li><p><strong>extend_structure</strong> – If True (default), then a large artificial box
 will be placed around the Molecule, because some strategies assume
-periodic boundary conditions.</li>
+periodic boundary conditions.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">mg, a MoleculeGraph</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>mg, a MoleculeGraph</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -749,18 +675,14 @@ structure easier.</p>
 NMR J-couplings, Heisenberg exchange parameters, etc.</p>
 <p>For periodic graphs, class stores information on the graph
 edges of what lattice image the edge belongs to.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> – a Structure object</li>
-<li><strong>graph_data</strong> – dict containing graph information in</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – a Structure object</p></li>
+<li><p><strong>graph_data</strong> – dict containing graph information in</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p>dict format (not intended to be constructed manually,
 see as_dict method for format)</p>
 <dl class="method">
@@ -772,19 +694,15 @@ between sites) doesn’t have a direction, from_index,
 from_jimage can be swapped with to_index, to_jimage.</p>
 <p>However, images will always always be shifted so that
 from_index &lt; to_index and from_jimage becomes (0, 0, 0).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>from_index</strong> – index of site connecting from</li>
-<li><strong>to_index</strong> – index of site connecting to</li>
-<li><strong>(</strong><strong>tuple of ints</strong><strong>)</strong> (<em>from_jimage</em>) – lattice vector of periodic</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>from_index</strong> – index of site connecting from</p></li>
+<li><p><strong>to_index</strong> – index of site connecting to</p></li>
+<li><p><strong>(</strong><strong>tuple of ints</strong><strong>)</strong> (<em>from_jimage</em>) – lattice vector of periodic</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p>image, e.g. (1, 0, 0) for periodic image in +x direction
 :param to_jimage (tuple of ints): lattice vector of image
 :param weight (float): e.g. bond length
@@ -801,20 +719,16 @@ store on graph edges, similar to Structure’s site_properties
 <code class="descname">alter_edge</code><span class="sig-paren">(</span><em>from_index</em>, <em>to_index</em>, <em>to_jimage=None</em>, <em>new_weight=None</em>, <em>new_edge_properties=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#StructureGraph.alter_edge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.alter_edge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alters either the weight or the edge_properties of
 an edge in the StructureGraph.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>from_index</strong> – int</li>
-<li><strong>to_index</strong> – int</li>
-<li><strong>to_jimage</strong> – tuple</li>
-<li><strong>new_weight</strong> – alter_edge does not require</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>from_index</strong> – int</p></li>
+<li><p><strong>to_index</strong> – int</p></li>
+<li><p><strong>to_jimage</strong> – tuple</p></li>
+<li><p><strong>new_weight</strong> – alter_edge does not require</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p>that weight be altered. As such, by default, this
 is None. If weight is to be changed, it should be a
 float.
@@ -837,20 +751,16 @@ to store graph information.</p>
 <dt id="pymatgen.analysis.graphs.StructureGraph.break_edge">
 <code class="descname">break_edge</code><span class="sig-paren">(</span><em>from_index</em>, <em>to_index</em>, <em>to_jimage=None</em>, <em>allow_reverse=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#StructureGraph.break_edge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.break_edge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove an edge from the StructureGraph. If no image is given, this method will fail.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>from_index</strong> – int</li>
-<li><strong>to_index</strong> – int</li>
-<li><strong>to_jimage</strong> – tuple</li>
-<li><strong>allow_reverse</strong> – If allow_reverse is True, then break_edge will</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>from_index</strong> – int</p></li>
+<li><p><strong>to_index</strong> – int</p></li>
+<li><p><strong>to_jimage</strong> – tuple</p></li>
+<li><p><strong>allow_reverse</strong> – If allow_reverse is True, then break_edge will</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p>attempt to break both (from_index, to_index) and, failing that,
 will attempt to break (to_index, from_index).
 :return:</p>
@@ -874,18 +784,14 @@ from, not the ‘other’ StructureGraph: there
 is no guarantee the node indices will be the
 same if the underlying Structures are ordered
 differently.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>other</strong> – StructureGraph</li>
-<li><strong>strict</strong> – if False, will compare bonds</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> – StructureGraph</p></li>
+<li><p><strong>strict</strong> – if False, will compare bonds</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p>from different Structures, with node indices
 replaced by Specie strings, will not count
 number of occurrences of bonds
@@ -903,14 +809,11 @@ multigraphs (edges are super-imposed on each other).</p>
 <p>If visualization is difficult to interpret,
 <cite>hide_image_edges</cite> can help, especially in larger
 graphs.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – filename to output, will detect filetype</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> – filename to output, will detect filetype</p>
+</dd>
+</dl>
 <p>from extension (any graphviz filetype supported, such as
 pdf or png)
 :param diff (StructureGraph): an additional graph to
@@ -942,28 +845,22 @@ or “fdp” (for more crowded graphs) usually give good outputs
 <dt id="pymatgen.analysis.graphs.StructureGraph.edge_weight_name">
 <code class="descname">edge_weight_name</code><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.edge_weight_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name of the edge weight property of graph</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">return</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.graphs.StructureGraph.edge_weight_unit">
 <code class="descname">edge_weight_unit</code><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.edge_weight_unit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Units of the edge weight property of graph</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">return</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
@@ -1006,27 +903,21 @@ molecules from periodic crystals.</p>
 <p>Will only return unique molecules, not any duplicates
 present in the crystal (a duplicate defined as an
 isomorphic subgraph).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>(</strong><strong>bool</strong><strong>)</strong> (<em>use_weights</em>) – If True, only treat subgraphs</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>bool</strong><strong>)</strong> (<em>use_weights</em>) – If True, only treat subgraphs</p>
+</dd>
+</dl>
 <p>as isomorphic if edges have the same weights. Typically,
 this means molecules will need to have the same bond
 lengths to be defined as duplicates, otherwise bond
 lengths can differ. This is a fairly robust approach,
 but will treat e.g. enantiomers as being duplicates.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list of unique Molecules in Structure</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>list of unique Molecules in Structure</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -1034,65 +925,56 @@ but will treat e.g. enantiomers as being duplicates.</p>
 <code class="descname">insert_node</code><span class="sig-paren">(</span><em>i</em>, <em>species</em>, <em>coords</em>, <em>coords_are_cartesian=False</em>, <em>validate_proximity=False</em>, <em>site_properties=None</em>, <em>edges=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#StructureGraph.insert_node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.insert_node" title="Permalink to this definition">¶</a></dt>
 <dd><p>A wrapper around Molecule.insert(), which also incorporates the new
 site into the MoleculeGraph.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>i</strong> – Index at which to insert the new site</li>
-<li><strong>species</strong> – Species for the new site</li>
-<li><strong>coords</strong> – 3x1 array representing coordinates of the new site</li>
-<li><strong>coords_are_cartesian</strong> – Whether coordinates are cartesian.
-Defaults to False.</li>
-<li><strong>validate_proximity</strong> – For Molecule.insert(); if True (default
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>i</strong> – Index at which to insert the new site</p></li>
+<li><p><strong>species</strong> – Species for the new site</p></li>
+<li><p><strong>coords</strong> – 3x1 array representing coordinates of the new site</p></li>
+<li><p><strong>coords_are_cartesian</strong> – Whether coordinates are cartesian.
+Defaults to False.</p></li>
+<li><p><strong>validate_proximity</strong> – For Molecule.insert(); if True (default
 False), distance will be checked to ensure that site can be safely
-added.</li>
-<li><strong>site_properties</strong> – Site properties for Molecule</li>
-<li><strong>edges</strong> – List of dicts representing edges to be added to the
+added.</p></li>
+<li><p><strong>site_properties</strong> – Site properties for Molecule</p></li>
+<li><p><strong>edges</strong> – List of dicts representing edges to be added to the
 MoleculeGraph. These edges must include the index of the new site i,
 and all indices used for these edges should reflect the
 MoleculeGraph AFTER the insertion, NOT before. Each dict should at
 least have a “to_index” and “from_index” key, and can also have a
-“weight” and a “properties” key.</li>
+“weight” and a “properties” key.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.graphs.StructureGraph.name">
 <code class="descname">name</code><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name of graph</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">return</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.graphs.StructureGraph.remove_nodes">
 <code class="descname">remove_nodes</code><span class="sig-paren">(</span><em>indices</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#StructureGraph.remove_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.remove_nodes" title="Permalink to this definition">¶</a></dt>
 <dd><p>A wrapper for Molecule.remove_sites().</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>indices</strong> – list of indices in the current Molecule (and graph) to
-be removed.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>indices</strong> – list of indices in the current Molecule (and graph) to
+be removed.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -1100,14 +982,11 @@ be removed.</td>
 <code class="descname">set_node_attributes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#StructureGraph.set_node_attributes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.set_node_attributes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gives each node a “specie” and a “coords” attribute, updated with the
 current species and coordinates.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -1128,15 +1007,13 @@ incorporate the new functional group.</p>
 <p>NOTE: Care must be taken to ensure that the functional group that is
 substituted will not place atoms to close to each other, or violate the
 dimensions of the Lattice.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>index</strong> – Index of atom to substitute.</li>
-<li><strong>func_grp</strong> – <p>Substituent molecule. There are two options:</p>
-<ol class="arabic">
-<li>Providing an actual Molecule as the input. The first atom
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>index</strong> – Index of atom to substitute.</p></li>
+<li><p><strong>func_grp</strong> – <p>Substituent molecule. There are two options:</p>
+<ol class="arabic simple">
+<li><p>Providing an actual Molecule as the input. The first atom
 must be a DummySpecie X, indicating the position of
 nearest neighbor. The second atom must be the next
 nearest atom. For example, for a methyl group
@@ -1144,30 +1021,28 @@ substitution, func_grp should be X-CH3, where X is the
 first site and C is the second site. What the code will
 do is to remove the index site, and connect the nearest
 neighbor to the C atom in CH3. The X-C bond indicates the
-directionality to connect the atoms.</li>
-<li>A string name. The molecule will be obtained from the
-relevant template in func_groups.json.</li>
+directionality to connect the atoms.</p></li>
+<li><p>A string name. The molecule will be obtained from the
+relevant template in func_groups.json.</p></li>
 </ol>
-</li>
-<li><strong>strategy</strong> – Class from pymatgen.analysis.local_env.</li>
-<li><strong>bond_order</strong> – A specified bond order to calculate the bond
+</p></li>
+<li><p><strong>strategy</strong> – Class from pymatgen.analysis.local_env.</p></li>
+<li><p><strong>bond_order</strong> – A specified bond order to calculate the bond
 length between the attached functional group and the nearest
-neighbor site. Defaults to 1.</li>
-<li><strong>graph_dict</strong> – Dictionary representing the bonds of the functional
+neighbor site. Defaults to 1.</p></li>
+<li><p><strong>graph_dict</strong> – Dictionary representing the bonds of the functional
 group (format: {(u, v): props}, where props is a dictionary of
 properties, including weight. If None, then the algorithm
 will attempt to automatically determine bonds using one of
-a list of strategies defined in pymatgen.analysis.local_env.</li>
-<li><strong>strategy_params</strong> – dictionary of keyword arguments for strategy.
-If None, default parameters will be used.</li>
+a list of strategies defined in pymatgen.analysis.local_env.</p></li>
+<li><p><strong>strategy_params</strong> – dictionary of keyword arguments for strategy.
+If None, default parameters will be used.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -1175,14 +1050,11 @@ If None, default parameters will be used.</li>
 <code class="descname">types_and_weights_of_connections</code><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.types_and_weights_of_connections" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract a dictionary summarizing the types and weights
 of edges in the graph.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary with keys specifying the</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A dictionary with keys specifying the</p>
+</dd>
+</dl>
 <p>species involved in a connection in alphabetical order
 (e.g. string ‘Fe-O’) and values which are a list of
 weights for those connections (e.g. bond lengths).</p>
@@ -1193,14 +1065,11 @@ weights for those connections (e.g. bond lengths).</p>
 <code class="descname">types_of_coordination_environments</code><span class="sig-paren">(</span><em>anonymous=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#StructureGraph.types_of_coordination_environments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.types_of_coordination_environments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract information on the different co-ordination environments
 present in the graph.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>anonymous</strong> – if anonymous, will replace specie names</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>anonymous</strong> – if anonymous, will replace specie names</p>
+</dd>
+</dl>
 <p>with A, B, C, etc.
 :return: a list of co-ordination environments,
 e.g. [‘Mo-S(6)’, ‘S-Mo(3)’]</p>
@@ -1211,14 +1080,11 @@ e.g. [‘Mo-S(6)’, ‘S-Mo(3)’]</p>
 <code class="descname">weight_statistics</code><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.weight_statistics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract a statistical summary of edge weights present in
 the graph.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dict with an ‘all_weights’ list, ‘minimum’,</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A dict with an ‘all_weights’ list, ‘minimum’,</p>
+</dd>
+</dl>
 <p>‘maximum’, ‘median’, ‘mean’, ‘std_dev’</p>
 </dd></dl>
 
@@ -1227,25 +1093,21 @@ the graph.</p>
 <em class="property">static </em><code class="descname">with_edges</code><span class="sig-paren">(</span><em>structure</em>, <em>edges</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#StructureGraph.with_edges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.with_edges" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor for MoleculeGraph, using pre-existing or pre-defined edges
 with optional edge parameters.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>molecule</strong> – Molecule object</li>
-<li><strong>edges</strong> – dict representing the bonds of the functional
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>molecule</strong> – Molecule object</p></li>
+<li><p><strong>edges</strong> – dict representing the bonds of the functional
 group (format: {(from_index, to_index, from_image, to_image): props},
 where props is a dictionary of properties, including weight.
 Props should be None if no additional properties are to be
-specified.</li>
+specified.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">sg, a StructureGraph</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>sg, a StructureGraph</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
@@ -1254,19 +1116,15 @@ specified.</li>
 <dd><p>Constructor for StructureGraph, returns a StructureGraph
 object with an empty graph (no edges, only nodes defined
 that correspond to Sites in Structure).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>(</strong><strong>Structure</strong><strong>)</strong> (<em>structure</em>) – </li>
-<li><strong>(</strong><strong>str</strong><strong>)</strong> (<em>edge_weight_name</em>) – name of graph, e.g. “bonds”</li>
-<li><strong>(</strong><strong>str</strong><strong>)</strong> – name of edge weights,</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>Structure</strong><strong>)</strong> (<em>structure</em>) – </p></li>
+<li><p><strong>(</strong><strong>str</strong><strong>)</strong> (<em>edge_weight_name</em>) – name of graph, e.g. “bonds”</p></li>
+<li><p><strong>(</strong><strong>str</strong><strong>)</strong> – name of edge weights,</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p>e.g. “bond_length” or “exchange_constant”
 :param edge_weight_units (str): name of edge weight units
 e.g. “Å” or “eV”
@@ -1278,22 +1136,18 @@ e.g. “Å” or “eV”
 <em class="property">static </em><code class="descname">with_local_env_strategy</code><span class="sig-paren">(</span><em>structure</em>, <em>strategy</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#StructureGraph.with_local_env_strategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.with_local_env_strategy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor for StructureGraph, using a strategy
 from :Class: <cite>pymatgen.analysis.local_env</cite>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> – Structure object</li>
-<li><strong>strategy</strong> – an instance of a
-:Class: <cite>pymatgen.analysis.local_env.NearNeighbors</cite> object</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – Structure object</p></li>
+<li><p><strong>strategy</strong> – an instance of a
+:Class: <cite>pymatgen.analysis.local_env.NearNeighbors</cite> object</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -1319,8 +1173,6 @@ from :Class: <cite>pymatgen.analysis.local_env</cite>.</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -1338,13 +1190,13 @@ from :Class: <cite>pymatgen.analysis.local_env</cite>.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

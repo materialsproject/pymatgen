@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.wrappers module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.io.abinit.wrappers module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -51,20 +49,16 @@
 <dt id="pymatgen.io.abinit.wrappers.Mrgscr">
 <em class="property">class </em><code class="descname">Mrgscr</code><span class="sig-paren">(</span><em>manager=None</em>, <em>executable=None</em>, <em>verbose=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/wrappers.html#Mrgscr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.wrappers.Mrgscr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.wrappers.ExecWrapper</span></code></p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object responsible for the submission of the jobs.
-if manager is None, the default manager is used.</li>
-<li><strong>executable</strong> – path to the executable.</li>
-<li><strong>verbose</strong> – Verbosity level.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object responsible for the submission of the jobs.
+if manager is None, the default manager is used.</p></li>
+<li><p><strong>executable</strong> – path to the executable.</p></li>
+<li><p><strong>verbose</strong> – Verbosity level.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.abinit.wrappers.Mrgscr.merge_qpoints">
 <code class="descname">merge_qpoints</code><span class="sig-paren">(</span><em>workdir</em>, <em>files_to_merge</em>, <em>out_prefix</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/wrappers.html#Mrgscr.merge_qpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.wrappers.Mrgscr.merge_qpoints" title="Permalink to this definition">¶</a></dt>
@@ -78,39 +72,31 @@ Produce new file with prefix <cite>out_prefix</cite></p>
 <dt id="pymatgen.io.abinit.wrappers.Mrggkk">
 <em class="property">class </em><code class="descname">Mrggkk</code><span class="sig-paren">(</span><em>manager=None</em>, <em>executable=None</em>, <em>verbose=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/wrappers.html#Mrggkk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.wrappers.Mrggkk" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.wrappers.ExecWrapper</span></code></p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object responsible for the submission of the jobs.
-if manager is None, the default manager is used.</li>
-<li><strong>executable</strong> – path to the executable.</li>
-<li><strong>verbose</strong> – Verbosity level.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object responsible for the submission of the jobs.
+if manager is None, the default manager is used.</p></li>
+<li><p><strong>executable</strong> – path to the executable.</p></li>
+<li><p><strong>verbose</strong> – Verbosity level.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.abinit.wrappers.Mrggkk.merge">
 <code class="descname">merge</code><span class="sig-paren">(</span><em>workdir</em>, <em>gswfk_file</em>, <em>dfpt_files</em>, <em>gkk_files</em>, <em>out_gkk</em>, <em>binascii=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/wrappers.html#Mrggkk.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.wrappers.Mrggkk.merge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Merge GGK files, return the absolute path of the new database.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>gswfk_file</strong> – Ground-state WFK filename</li>
-<li><strong>dfpt_files</strong> – List of 1WFK files to merge.</li>
-<li><strong>gkk_files</strong> – List of GKK files to merge.</li>
-<li><strong>out_gkk</strong> – Name of the output GKK file</li>
-<li><strong>binascii</strong> – Integer flat. 0 –&gt; binary output, 1 –&gt; ascii formatted output</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gswfk_file</strong> – Ground-state WFK filename</p></li>
+<li><p><strong>dfpt_files</strong> – List of 1WFK files to merge.</p></li>
+<li><p><strong>gkk_files</strong> – List of GKK files to merge.</p></li>
+<li><p><strong>out_gkk</strong> – Name of the output GKK file</p></li>
+<li><p><strong>binascii</strong> – Integer flat. 0 –&gt; binary output, 1 –&gt; ascii formatted output</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -119,20 +105,16 @@ if manager is None, the default manager is used.</li>
 <dt id="pymatgen.io.abinit.wrappers.Mrgddb">
 <em class="property">class </em><code class="descname">Mrgddb</code><span class="sig-paren">(</span><em>manager=None</em>, <em>executable=None</em>, <em>verbose=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/wrappers.html#Mrgddb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.wrappers.Mrgddb" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.wrappers.ExecWrapper</span></code></p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object responsible for the submission of the jobs.
-if manager is None, the default manager is used.</li>
-<li><strong>executable</strong> – path to the executable.</li>
-<li><strong>verbose</strong> – Verbosity level.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object responsible for the submission of the jobs.
+if manager is None, the default manager is used.</p></li>
+<li><p><strong>executable</strong> – path to the executable.</p></li>
+<li><p><strong>verbose</strong> – Verbosity level.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.abinit.wrappers.Mrgddb.merge">
 <code class="descname">merge</code><span class="sig-paren">(</span><em>workdir</em>, <em>ddb_files</em>, <em>out_ddb</em>, <em>description</em>, <em>delete_source_ddbs=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/wrappers.html#Mrgddb.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.wrappers.Mrgddb.merge" title="Permalink to this definition">¶</a></dt>
@@ -145,33 +127,26 @@ if manager is None, the default manager is used.</li>
 <dt id="pymatgen.io.abinit.wrappers.Mrgdvdb">
 <em class="property">class </em><code class="descname">Mrgdvdb</code><span class="sig-paren">(</span><em>manager=None</em>, <em>executable=None</em>, <em>verbose=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/wrappers.html#Mrgdvdb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.wrappers.Mrgdvdb" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.wrappers.ExecWrapper</span></code></p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object responsible for the submission of the jobs.
-if manager is None, the default manager is used.</li>
-<li><strong>executable</strong> – path to the executable.</li>
-<li><strong>verbose</strong> – Verbosity level.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object responsible for the submission of the jobs.
+if manager is None, the default manager is used.</p></li>
+<li><p><strong>executable</strong> – path to the executable.</p></li>
+<li><p><strong>verbose</strong> – Verbosity level.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.abinit.wrappers.Mrgdvdb.merge">
 <code class="descname">merge</code><span class="sig-paren">(</span><em>workdir</em>, <em>pot_files</em>, <em>out_dvdb</em>, <em>delete_source=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/wrappers.html#Mrgdvdb.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.wrappers.Mrgdvdb.merge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Merge POT files containing 1st order DFPT potential
 return the absolute path of the new database in workdir.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>delete_source</strong> – True if POT1 files should be removed after (successful) merge.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>delete_source</strong> – True if POT1 files should be removed after (successful) merge.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -197,8 +172,6 @@ return the absolute path of the new database in workdir.</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -216,13 +189,13 @@ return the absolute path of the new database in workdir.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

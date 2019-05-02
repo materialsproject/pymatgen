@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.abiobjects module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.io.abinit.abiobjects module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -80,18 +78,14 @@ that returns a dictionary with the abinit variables.</p>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="pymatgen.io.abinit.abiobjects.AbivarAble"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.abiobjects.AbivarAble</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>The electronic degrees of freedom</p>
 <p>Constructor for Electrons object.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>comment</strong> – String comment for Electrons</li>
-<li><strong>charge</strong> – Total charge of the system. Default is 0.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>comment</strong> – String comment for Electrons</p></li>
+<li><p><strong>charge</strong> – Total charge of the system. Default is 0.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.abinit.abiobjects.Electrons.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#Electrons.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Electrons.as_dict" title="Permalink to this definition">¶</a></dt>
@@ -155,29 +149,25 @@ that returns a dictionary with the abinit variables.</p>
 <em class="property">class </em><code class="descname">ExcHamiltonian</code><span class="sig-paren">(</span><em>bs_loband</em>, <em>nband</em>, <em>mbpt_sciss</em>, <em>coulomb_mode</em>, <em>ecuteps</em>, <em>spin_mode='polarized'</em>, <em>mdf_epsinf=None</em>, <em>exc_type='TDA'</em>, <em>algo='haydock'</em>, <em>with_lf=True</em>, <em>bs_freq_mesh=None</em>, <em>zcut=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#ExcHamiltonian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.ExcHamiltonian" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="pymatgen.io.abinit.abiobjects.AbivarAble"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.abiobjects.AbivarAble</span></code></a></p>
 <p>This object contains the parameters for the solution of the Bethe-Salpeter equation.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>bs_loband</strong> – Lowest band index (Fortran convention) used in the e-h  basis set.
-Can be scalar or array of shape (nsppol,). Must be &gt;= 1 and &lt;= nband</li>
-<li><strong>nband</strong> – Max band index used in the e-h  basis set.</li>
-<li><strong>mbpt_sciss</strong> – Scissors energy in Hartree.</li>
-<li><strong>coulomb_mode</strong> – Treatment of the Coulomb term.</li>
-<li><strong>ecuteps</strong> – Cutoff energy for W in Hartree.</li>
-<li><strong>mdf_epsinf</strong> – Macroscopic dielectric function <span class="math notranslate nohighlight">\(\epsilon_\inf\)</span> used in
-the model dielectric function.</li>
-<li><strong>exc_type</strong> – Approximation used for the BSE Hamiltonian</li>
-<li><strong>with_lf</strong> – True if local field effects are included &lt;==&gt; exchange term is included</li>
-<li><strong>bs_freq_mesh</strong> – Frequency mesh for the macroscopic dielectric function (start, stop, step) in Ha.</li>
-<li><strong>zcut</strong> – Broadening parameter in Ha.</li>
-<li><strong>**kwargs</strong> – Extra keywords</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bs_loband</strong> – Lowest band index (Fortran convention) used in the e-h  basis set.
+Can be scalar or array of shape (nsppol,). Must be &gt;= 1 and &lt;= nband</p></li>
+<li><p><strong>nband</strong> – Max band index used in the e-h  basis set.</p></li>
+<li><p><strong>mbpt_sciss</strong> – Scissors energy in Hartree.</p></li>
+<li><p><strong>coulomb_mode</strong> – Treatment of the Coulomb term.</p></li>
+<li><p><strong>ecuteps</strong> – Cutoff energy for W in Hartree.</p></li>
+<li><p><strong>mdf_epsinf</strong> – Macroscopic dielectric function <span class="math notranslate nohighlight">\(\epsilon_\inf\)</span> used in
+the model dielectric function.</p></li>
+<li><p><strong>exc_type</strong> – Approximation used for the BSE Hamiltonian</p></li>
+<li><p><strong>with_lf</strong> – True if local field effects are included &lt;==&gt; exchange term is included</p></li>
+<li><p><strong>bs_freq_mesh</strong> – Frequency mesh for the macroscopic dielectric function (start, stop, step) in Ha.</p></li>
+<li><p><strong>zcut</strong> – Broadening parameter in Ha.</p></li>
+<li><p><strong>**kwargs</strong> – Extra keywords</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.abiobjects.ExcHamiltonian.inclvkb">
 <code class="descname">inclvkb</code><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.ExcHamiltonian.inclvkb" title="Permalink to this definition">¶</a></dt>
@@ -217,23 +207,19 @@ the model dielectric function.</li>
 <p>Parameters for the Hilbert-transform method (Screening code)
 i.e. the parameters defining the frequency mesh used for the spectral function
 and the frequency mesh used for the polarizability</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>nomegasf</strong> – Number of points for sampling the spectral function along the real axis.</li>
-<li><strong>domegasf</strong> – Step in Ha for the linear mesh used for the spectral function.</li>
-<li><strong>spmeth</strong> – Algorith for the representation of the delta function.</li>
-<li><strong>nfreqre</strong> – Number of points along the real axis (linear mesh).</li>
-<li><strong>freqremax</strong> – Maximum frequency for W along the real axis (in hartree).</li>
-<li><strong>nfreqim</strong> – Number of point along the imaginary axis (Gauss-Legendre mesh).</li>
-<li><strong>freqremin</strong> – Minimum frequency for W along the real axis (in hartree).</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nomegasf</strong> – Number of points for sampling the spectral function along the real axis.</p></li>
+<li><p><strong>domegasf</strong> – Step in Ha for the linear mesh used for the spectral function.</p></li>
+<li><p><strong>spmeth</strong> – Algorith for the representation of the delta function.</p></li>
+<li><p><strong>nfreqre</strong> – Number of points along the real axis (linear mesh).</p></li>
+<li><p><strong>freqremax</strong> – Maximum frequency for W along the real axis (in hartree).</p></li>
+<li><p><strong>nfreqim</strong> – Number of point along the imaginary axis (Gauss-Legendre mesh).</p></li>
+<li><p><strong>freqremin</strong> – Minimum frequency for W along the real axis (in hartree).</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.abinit.abiobjects.HilbertTransform.to_abivars">
 <code class="descname">to_abivars</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#HilbertTransform.to_abivars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.HilbertTransform.to_abivars" title="Permalink to this definition">¶</a></dt>
@@ -254,42 +240,38 @@ requires the flexibility.  For most usage cases, the object be constructed
 far more easily using the convenience static constructors:</p>
 <blockquote>
 <div><ol class="arabic simple">
-<li>gamma_only</li>
-<li>gamma_centered</li>
-<li>monkhorst</li>
-<li>monkhorst_automatic</li>
-<li>path</li>
+<li><p>gamma_only</p></li>
+<li><p>gamma_centered</p></li>
+<li><p>monkhorst</p></li>
+<li><p>monkhorst_automatic</p></li>
+<li><p>path</p></li>
 </ol>
 </div></blockquote>
 <p>and it is recommended that you use those.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>mode</strong> – Mode for generating k-poits. Use one of the KSamplingModes enum types.</li>
-<li><strong>num_kpts</strong> – Number of kpoints if mode is “automatic”
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mode</strong> – Mode for generating k-poits. Use one of the KSamplingModes enum types.</p></li>
+<li><p><strong>num_kpts</strong> – Number of kpoints if mode is “automatic”
 Number of division for the sampling of the smallest segment if mode is “path”.
-Not used for the other modes</li>
-<li><strong>kpts</strong> – Number of divisions. Even when only a single specification is
+Not used for the other modes</p></li>
+<li><p><strong>kpts</strong> – Number of divisions. Even when only a single specification is
 required, e.g. in the automatic scheme, the kpts should still
-be specified as a 2D array. e.g., [[20]] or [[2,2,2]].</li>
-<li><strong>kpt_shifts</strong> – Shifts for Kpoints.</li>
-<li><strong>use_symmetries</strong> – False if spatial symmetries should not be used
-to reduce the number of independent k-points.</li>
-<li><strong>use_time_reversal</strong> – False if time-reversal symmetry should not be used
-to reduce the number of independent k-points.</li>
-<li><strong>kpts_weights</strong> – Optional weights for kpoints. For explicit kpoints.</li>
-<li><strong>chksymbreak</strong> – Abinit input variable: check whether the BZ sampling preserves the symmetry of the crystal.</li>
-<li><strong>comment</strong> – String comment for Kpoints</li>
+be specified as a 2D array. e.g., [[20]] or [[2,2,2]].</p></li>
+<li><p><strong>kpt_shifts</strong> – Shifts for Kpoints.</p></li>
+<li><p><strong>use_symmetries</strong> – False if spatial symmetries should not be used
+to reduce the number of independent k-points.</p></li>
+<li><p><strong>use_time_reversal</strong> – False if time-reversal symmetry should not be used
+to reduce the number of independent k-points.</p></li>
+<li><p><strong>kpts_weights</strong> – Optional weights for kpoints. For explicit kpoints.</p></li>
+<li><p><strong>chksymbreak</strong> – Abinit input variable: check whether the BZ sampling preserves the symmetry of the crystal.</p></li>
+<li><p><strong>comment</strong> – String comment for Kpoints</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The default behavior of the constructor is monkhorst.</p>
+<p class="admonition-title">Note</p>
+<p>The default behavior of the constructor is monkhorst.</p>
 </div>
 <dl class="method">
 <dt id="pymatgen.io.abinit.abiobjects.KSampling.as_dict">
@@ -302,23 +284,19 @@ to reduce the number of independent k-points.</li>
 <em class="property">classmethod </em><code class="descname">automatic_density</code><span class="sig-paren">(</span><em>structure</em>, <em>kppa</em>, <em>chksymbreak=None</em>, <em>use_symmetries=True</em>, <em>use_time_reversal=True</em>, <em>shifts=(0.5</em>, <em>0.5</em>, <em>0.5)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#KSampling.automatic_density"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling.automatic_density" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an automatic Kpoint object based on a structure and a kpoint
 density. Uses Gamma centered meshes for hexagonal cells and Monkhorst-Pack grids otherwise.</p>
-<dl class="docutils">
-<dt>Algorithm:</dt>
-<dd>Uses a simple approach scaling the number of divisions along each
-reciprocal lattice vector proportional to its length.</dd>
+<dl class="simple">
+<dt>Algorithm:</dt><dd><p>Uses a simple approach scaling the number of divisions along each
+reciprocal lattice vector proportional to its length.</p>
+</dd>
 </dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> – Input structure</li>
-<li><strong>kppa</strong> – Grid density</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – Input structure</p></li>
+<li><p><strong>kppa</strong> – Grid density</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
@@ -336,24 +314,20 @@ reciprocal lattice vector proportional to its length.</dd>
 <dt id="pymatgen.io.abinit.abiobjects.KSampling.gamma_centered">
 <em class="property">classmethod </em><code class="descname">gamma_centered</code><span class="sig-paren">(</span><em>kpts=(1</em>, <em>1</em>, <em>1)</em>, <em>use_symmetries=True</em>, <em>use_time_reversal=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#KSampling.gamma_centered"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling.gamma_centered" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenient static constructor for an automatic Gamma centered Kpoint grid.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>kpts</strong> – Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.</li>
-<li><strong>use_symmetries</strong> – False if spatial symmetries should not be used
-to reduce the number of independent k-points.</li>
-<li><strong>use_time_reversal</strong> – False if time-reversal symmetry should not be used
-to reduce the number of independent k-points.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>kpts</strong> – Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.</p></li>
+<li><p><strong>use_symmetries</strong> – False if spatial symmetries should not be used
+to reduce the number of independent k-points.</p></li>
+<li><p><strong>use_time_reversal</strong> – False if time-reversal symmetry should not be used
+to reduce the number of independent k-points.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pymatgen.io.abinit.abiobjects.KSampling" title="pymatgen.io.abinit.abiobjects.KSampling"><code class="xref py py-class docutils literal notranslate"><span class="pre">KSampling</span></code></a> object.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><a class="reference internal" href="#pymatgen.io.abinit.abiobjects.KSampling" title="pymatgen.io.abinit.abiobjects.KSampling"><code class="xref py py-class docutils literal notranslate"><span class="pre">KSampling</span></code></a> object.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
@@ -371,46 +345,38 @@ to reduce the number of independent k-points.</li>
 <dt id="pymatgen.io.abinit.abiobjects.KSampling.monkhorst">
 <em class="property">classmethod </em><code class="descname">monkhorst</code><span class="sig-paren">(</span><em>ngkpt</em>, <em>shiftk=(0.5</em>, <em>0.5</em>, <em>0.5)</em>, <em>chksymbreak=None</em>, <em>use_symmetries=True</em>, <em>use_time_reversal=True</em>, <em>comment=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#KSampling.monkhorst"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling.monkhorst" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenient static constructor for a Monkhorst-Pack mesh.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>ngkpt</strong> – Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.</li>
-<li><strong>shiftk</strong> – Shift to be applied to the kpoints.</li>
-<li><strong>use_symmetries</strong> – Use spatial symmetries to reduce the number of k-points.</li>
-<li><strong>use_time_reversal</strong> – Use time-reversal symmetry to reduce the number of k-points.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ngkpt</strong> – Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.</p></li>
+<li><p><strong>shiftk</strong> – Shift to be applied to the kpoints.</p></li>
+<li><p><strong>use_symmetries</strong> – Use spatial symmetries to reduce the number of k-points.</p></li>
+<li><p><strong>use_time_reversal</strong> – Use time-reversal symmetry to reduce the number of k-points.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pymatgen.io.abinit.abiobjects.KSampling" title="pymatgen.io.abinit.abiobjects.KSampling"><code class="xref py py-class docutils literal notranslate"><span class="pre">KSampling</span></code></a> object.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><a class="reference internal" href="#pymatgen.io.abinit.abiobjects.KSampling" title="pymatgen.io.abinit.abiobjects.KSampling"><code class="xref py py-class docutils literal notranslate"><span class="pre">KSampling</span></code></a> object.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
 <dt id="pymatgen.io.abinit.abiobjects.KSampling.monkhorst_automatic">
 <em class="property">classmethod </em><code class="descname">monkhorst_automatic</code><span class="sig-paren">(</span><em>structure</em>, <em>ngkpt</em>, <em>use_symmetries=True</em>, <em>use_time_reversal=True</em>, <em>chksymbreak=None</em>, <em>comment=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#KSampling.monkhorst_automatic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling.monkhorst_automatic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenient static constructor for an automatic Monkhorst-Pack mesh.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">Structure</span></code> object.</li>
-<li><strong>ngkpt</strong> – Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.</li>
-<li><strong>use_symmetries</strong> – Use spatial symmetries to reduce the number of k-points.</li>
-<li><strong>use_time_reversal</strong> – Use time-reversal symmetry to reduce the number of k-points.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">Structure</span></code> object.</p></li>
+<li><p><strong>ngkpt</strong> – Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.</p></li>
+<li><p><strong>use_symmetries</strong> – Use spatial symmetries to reduce the number of k-points.</p></li>
+<li><p><strong>use_time_reversal</strong> – Use time-reversal symmetry to reduce the number of k-points.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pymatgen.io.abinit.abiobjects.KSampling" title="pymatgen.io.abinit.abiobjects.KSampling"><code class="xref py py-class docutils literal notranslate"><span class="pre">KSampling</span></code></a> object.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><a class="reference internal" href="#pymatgen.io.abinit.abiobjects.KSampling" title="pymatgen.io.abinit.abiobjects.KSampling"><code class="xref py py-class docutils literal notranslate"><span class="pre">KSampling</span></code></a> object.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
@@ -478,11 +444,10 @@ The common way to instanciate a PPModel object is via the class method PPModel.a
 <dt id="pymatgen.io.abinit.abiobjects.PPModel.as_ppmodel">
 <em class="property">classmethod </em><code class="descname">as_ppmodel</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#PPModel.as_ppmodel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.PPModel.as_ppmodel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructs an instance of PPModel from obj.</p>
-<dl class="docutils">
-<dt>Accepts obj in the form:</dt>
-<dd><ul class="first last simple">
-<li>PPmodel instance</li>
-<li>string. e.g “godby:12.3 eV”, “linden”.</li>
+<dl class="simple">
+<dt>Accepts obj in the form:</dt><dd><ul class="simple">
+<li><p>PPmodel instance</p></li>
+<li><p>string. e.g “godby:12.3 eV”, “linden”.</p></li>
 </ul>
 </dd>
 </dl>
@@ -605,23 +570,19 @@ The set of variables are constructed in to_abivars depending on ionmov and optce
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="pymatgen.io.abinit.abiobjects.AbivarAble"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.abiobjects.AbivarAble</span></code></a></p>
 <p>This object defines the parameters used for the
 computation of the screening function.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>ecuteps</strong> – Cutoff energy for the screening (Ha units).</li>
-<li><strong>Number of bands for the Green's function</strong> (<em>nband</em>) – </li>
-<li><strong>w_type</strong> – Screening type</li>
-<li><strong>sc_mode</strong> – Self-consistency mode.</li>
-<li><strong>hilbert</strong> – Instance of <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.HilbertTransform" title="pymatgen.io.abinit.abiobjects.HilbertTransform"><code class="xref py py-class docutils literal notranslate"><span class="pre">HilbertTransform</span></code></a> defining the parameters for the Hilber transform method.</li>
-<li><strong>ecutwfn</strong> – Cutoff energy for the wavefunctions (Default: ecutwfn == ecut).</li>
-<li><strong>inclvkb</strong> – Option for the treatment of the dipole matrix elements (NC pseudos).</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ecuteps</strong> – Cutoff energy for the screening (Ha units).</p></li>
+<li><p><strong>Number of bands for the Green's function</strong> (<em>nband</em>) – </p></li>
+<li><p><strong>w_type</strong> – Screening type</p></li>
+<li><p><strong>sc_mode</strong> – Self-consistency mode.</p></li>
+<li><p><strong>hilbert</strong> – Instance of <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.HilbertTransform" title="pymatgen.io.abinit.abiobjects.HilbertTransform"><code class="xref py py-class docutils literal notranslate"><span class="pre">HilbertTransform</span></code></a> defining the parameters for the Hilber transform method.</p></li>
+<li><p><strong>ecutwfn</strong> – Cutoff energy for the wavefunctions (Default: ecutwfn == ecut).</p></li>
+<li><p><strong>inclvkb</strong> – Option for the treatment of the dipole matrix elements (NC pseudos).</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.abinit.abiobjects.Screening.to_abivars">
 <code class="descname">to_abivars</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#Screening.to_abivars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Screening.to_abivars" title="Permalink to this definition">¶</a></dt>
@@ -640,27 +601,23 @@ computation of the screening function.</p>
 <em class="property">class </em><code class="descname">SelfEnergy</code><span class="sig-paren">(</span><em>se_type</em>, <em>sc_mode</em>, <em>nband</em>, <em>ecutsigx</em>, <em>screening</em>, <em>gw_qprange=1</em>, <em>ppmodel=None</em>, <em>ecuteps=None</em>, <em>ecutwfn=None</em>, <em>gwpara=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#SelfEnergy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.SelfEnergy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.AbivarAble" title="pymatgen.io.abinit.abiobjects.AbivarAble"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.abiobjects.AbivarAble</span></code></a></p>
 <p>This object defines the parameters used for the computation of the self-energy.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>se_type</strong> – Type of self-energy (str)</li>
-<li><strong>sc_mode</strong> – Self-consistency mode.</li>
-<li><strong>nband</strong> – Number of bands for the Green’s function</li>
-<li><strong>ecutsigx</strong> – Cutoff energy for the exchange part of the self-energy (Ha units).</li>
-<li><strong>screening</strong> – <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.Screening" title="pymatgen.io.abinit.abiobjects.Screening"><code class="xref py py-class docutils literal notranslate"><span class="pre">Screening</span></code></a> instance.</li>
-<li><strong>gw_qprange</strong> – Option for the automatic selection of k-points and bands for GW corrections.
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>se_type</strong> – Type of self-energy (str)</p></li>
+<li><p><strong>sc_mode</strong> – Self-consistency mode.</p></li>
+<li><p><strong>nband</strong> – Number of bands for the Green’s function</p></li>
+<li><p><strong>ecutsigx</strong> – Cutoff energy for the exchange part of the self-energy (Ha units).</p></li>
+<li><p><strong>screening</strong> – <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.Screening" title="pymatgen.io.abinit.abiobjects.Screening"><code class="xref py py-class docutils literal notranslate"><span class="pre">Screening</span></code></a> instance.</p></li>
+<li><p><strong>gw_qprange</strong> – Option for the automatic selection of k-points and bands for GW corrections.
 See Abinit docs for more detail. The default value makes the code computie the
-QP energies for all the point in the IBZ and one band above and one band below the Fermi level.</li>
-<li><strong>ppmodel</strong> – <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.PPModel" title="pymatgen.io.abinit.abiobjects.PPModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">PPModel</span></code></a> instance with the parameters used for the plasmon-pole technique.</li>
-<li><strong>ecuteps</strong> – Cutoff energy for the screening (Ha units).</li>
-<li><strong>ecutwfn</strong> – Cutoff energy for the wavefunctions (Default: ecutwfn == ecut).</li>
+QP energies for all the point in the IBZ and one band above and one band below the Fermi level.</p></li>
+<li><p><strong>ppmodel</strong> – <a class="reference internal" href="#pymatgen.io.abinit.abiobjects.PPModel" title="pymatgen.io.abinit.abiobjects.PPModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">PPModel</span></code></a> instance with the parameters used for the plasmon-pole technique.</p></li>
+<li><p><strong>ecuteps</strong> – Cutoff energy for the screening (Ha units).</p></li>
+<li><p><strong>ecutwfn</strong> – Cutoff energy for the wavefunctions (Default: ecutwfn == ecut).</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.abiobjects.SelfEnergy.gwcalctyp">
 <code class="descname">gwcalctyp</code><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.SelfEnergy.gwcalctyp" title="Permalink to this definition">¶</a></dt>
@@ -705,10 +662,10 @@ a <cite>Smearing</cite> object is via the class method Smearing.as_smearing(stri
 <dd><p>Constructs an instance of <cite>Smearing</cite> from obj. Accepts obj in the form:</p>
 <blockquote>
 <div><ul class="simple">
-<li>Smearing instance</li>
-<li>“name:tsmear”  e.g. “gaussian:0.004”  (Hartree units)</li>
-<li>“name:tsmear units” e.g. “gaussian:0.1 eV”</li>
-<li>None –&gt; no smearing</li>
+<li><p>Smearing instance</p></li>
+<li><p>“name:tsmear”  e.g. “gaussian:0.004”  (Hartree units)</p></li>
+<li><p>“name:tsmear units” e.g. “gaussian:0.1 eV”</p></li>
+<li><p>None –&gt; no smearing</p></li>
 </ul>
 </div></blockquote>
 </dd></dl>
@@ -745,11 +702,11 @@ One can use as_spinmode to construct the object via SpinMode.as_spinmode
 (string) where string can assume the values:</p>
 <blockquote>
 <div><ul class="simple">
-<li>polarized</li>
-<li>unpolarized</li>
-<li>afm (anti-ferromagnetic)</li>
-<li>spinor (non-collinear magnetism)</li>
-<li>spinor_nomag (non-collinear, no magnetism)</li>
+<li><p>polarized</p></li>
+<li><p>unpolarized</p></li>
+<li><p>afm (anti-ferromagnetic)</p></li>
+<li><p>spinor (non-collinear magnetism)</p></li>
+<li><p>spinor_nomag (non-collinear, no magnetism)</p></li>
 </ul>
 </div></blockquote>
 <p>Create new instance of SpinMode(mode, nsppol, nspinor, nspden)</p>
@@ -793,14 +750,11 @@ One can use as_spinmode to construct the object via SpinMode.as_spinmode
 <dd><p>Returns a <cite>Lattice</cite> object from a dictionary
 with the Abinit variables <cite>acell</cite> and either <cite>rprim</cite> in Bohr or <cite>angdeg</cite>
 If acell is not given, the Abinit default is used i.e. [1,1,1] Bohr</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cls</strong> – Lattice class to be instantiated. pymatgen.core.lattice.Lattice if <cite>cls</cite> is None</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cls</strong> – Lattice class to be instantiated. pymatgen.core.lattice.Lattice if <cite>cls</cite> is None</p>
+</dd>
+</dl>
 <p class="rubric">Example</p>
 <p>lattice_from_abivars(acell=3*[10], rprim=np.eye(3))</p>
 </dd></dl>
@@ -809,23 +763,20 @@ If acell is not given, the Abinit default is used i.e. [1,1,1] Bohr</p>
 <dt id="pymatgen.io.abinit.abiobjects.structure_from_abivars">
 <code class="descname">structure_from_abivars</code><span class="sig-paren">(</span><em>cls=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiobjects.html#structure_from_abivars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.structure_from_abivars" title="Permalink to this definition">¶</a></dt>
 <dd><p>Build a <code class="xref py py-class docutils literal notranslate"><span class="pre">Structure</span></code> object from a dictionary with ABINIT variables.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cls</strong> – Structure class to be instantiated. pymatgen.core.structure.Structure if cls is None</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cls</strong> – Structure class to be instantiated. pymatgen.core.structure.Structure if cls is None</p>
+</dd>
+</dl>
 <p class="rubric">Example</p>
-<dl class="docutils">
-<dt>al_structure = structure_from_abivars(</dt>
-<dd><p class="first">acell=3*[7.5],
+<dl>
+<dt>al_structure = structure_from_abivars(</dt><dd><p>acell=3*[7.5],
 rprim=[0.0, 0.5, 0.5,</p>
 <blockquote>
-<div>0.5, 0.0, 0.5,
-0.5, 0.5, 0.0],</div></blockquote>
-<p class="last">typat=1,
+<div><p>0.5, 0.0, 0.5,
+0.5, 0.5, 0.0],</p>
+</div></blockquote>
+<p>typat=1,
 xred=[0.0, 0.0, 0.0],
 ntypat=1,
 znucl=13,</p>
@@ -862,8 +813,6 @@ znucl=13,</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -881,13 +830,13 @@ znucl=13,</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

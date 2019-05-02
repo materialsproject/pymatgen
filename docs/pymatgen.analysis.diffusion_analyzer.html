@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.diffusion_analyzer module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.diffusion_analyzer module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -63,54 +61,51 @@ format), the diffusivity is given by:</p>
 diffusion estimate, a least squares regression of the MSD against
 time to obtain the slope, which is then related to the diffusivity.</p>
 <p>For traditional analysis, use smoothed=False and weighted=False.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Initial structure.</li>
-<li><strong>displacements</strong> (<em>array</em>) – Numpy array of with shape [site,
-time step, axis]</li>
-<li><strong>specie</strong> (<em>Element/Specie</em>) – Specie to calculate diffusivity for as a
-String. E.g., “Li”.</li>
-<li><strong>temperature</strong> (<em>float</em>) – Temperature of the diffusion run in Kelvin.</li>
-<li><strong>time_step</strong> (<em>int</em>) – Time step between measurements.</li>
-<li><strong>step_skip</strong> (<em>int</em>) – Sampling frequency of the displacements (
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Initial structure.</p></li>
+<li><p><strong>displacements</strong> (<em>array</em>) – Numpy array of with shape [site,
+time step, axis]</p></li>
+<li><p><strong>specie</strong> (<em>Element/Specie</em>) – Specie to calculate diffusivity for as a
+String. E.g., “Li”.</p></li>
+<li><p><strong>temperature</strong> (<em>float</em>) – Temperature of the diffusion run in Kelvin.</p></li>
+<li><p><strong>time_step</strong> (<em>int</em>) – Time step between measurements.</p></li>
+<li><p><strong>step_skip</strong> (<em>int</em>) – Sampling frequency of the displacements (
 time_step is multiplied by this number to get the real time
-between measurements)</li>
-<li><strong>smoothed</strong> (<em>str</em>) – <p>Whether to smooth the MSD, and what mode to smooth.
+between measurements)</p></li>
+<li><p><strong>smoothed</strong> (<em>str</em>) – <p>Whether to smooth the MSD, and what mode to smooth.
 Supported modes are:</p>
-<ol class="lowerroman">
-<li>”max”, which tries to use the maximum #
+<ol class="lowerroman simple">
+<li><p>”max”, which tries to use the maximum #
 of data points for each time origin, subject to a
 minimum # of observations given by min_obs, and then
 weights the observations based on the variance
-accordingly. This is the default.</li>
-<li>”constant”, in which each timestep is averaged over
-the number of time_steps given by min_steps.</li>
-<li>None / False / any other false-like quantity. No</li>
+accordingly. This is the default.</p></li>
+<li><p>”constant”, in which each timestep is averaged over
+the number of time_steps given by min_steps.</p></li>
+<li><p>None / False / any other false-like quantity. No</p></li>
 </ol>
 <blockquote>
-<div>smoothing.</div></blockquote>
-</li>
-<li><strong>min_obs</strong> (<em>int</em>) – Used with smoothed=”max”. Minimum number of
+<div><p>smoothing.</p>
+</div></blockquote>
+</p></li>
+<li><p><strong>min_obs</strong> (<em>int</em>) – Used with smoothed=”max”. Minimum number of
 observations to have before including in the MSD vs dt
 calculation. E.g. If a structure has 10 diffusing atoms,
 and min_obs = 30, the MSD vs dt will be
 calculated up to dt = total_run_time / 3, so that each
 diffusing atom is measured at least 3 uncorrelated times.
-Only applies in smoothed=”max”.</li>
-<li><strong>avg_nsteps</strong> (<em>int</em>) – Used with smoothed=”constant”. Determines the
+Only applies in smoothed=”max”.</p></li>
+<li><p><strong>avg_nsteps</strong> (<em>int</em>) – Used with smoothed=”constant”. Determines the
 number of time steps to average over to get the msd for each
-timestep. Default of 1000 is usually pretty good.</li>
-<li><strong>lattices</strong> (<em>array</em>) – Numpy array of lattice matrix of every step. Used
+timestep. Default of 1000 is usually pretty good.</p></li>
+<li><p><strong>lattices</strong> (<em>array</em>) – Numpy array of lattice matrix of every step. Used
 for NPT-AIMD. For NVT-AIMD, the lattice at each time step is
-set to the lattice in the “structure” argument.</li>
+set to the lattice in the “structure” argument.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion_analyzer.html#DiffusionAnalyzer.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.as_dict" title="Permalink to this definition">¶</a></dt>
@@ -122,16 +117,13 @@ set to the lattice in the “structure” argument.</li>
 <code class="descname">export_msdt</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion_analyzer.html#DiffusionAnalyzer.export_msdt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.export_msdt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes MSD data to a csv file that can be easily plotted in other
 software.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) – Filename. Supported formats are csv and dat. If
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Filename. Supported formats are csv and dat. If
 the extension is csv, a csv file is written. Otherwise,
-a dat format is assumed.</td>
-</tr>
-</tbody>
-</table>
+a dat format is assumed.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
@@ -144,45 +136,41 @@ a dat format is assumed.</td>
 <em class="property">classmethod </em><code class="descname">from_files</code><span class="sig-paren">(</span><em>filepaths</em>, <em>specie</em>, <em>step_skip=10</em>, <em>ncores=None</em>, <em>initial_disp=None</em>, <em>initial_structure=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion_analyzer.html#DiffusionAnalyzer.from_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.from_files" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenient constructor that takes in a list of vasprun.xml paths to
 perform diffusion analysis.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filepaths</strong> (<em>[</em><em>str</em><em>]</em>) – List of paths to vasprun.xml files of runs. (
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filepaths</strong> (<em>[</em><em>str</em><em>]</em>) – List of paths to vasprun.xml files of runs. (
 must be ordered in sequence of MD simulation). For example,
 you may have done sequential VASP runs and they are in run1,
 run2, run3, etc. You should then pass in
-[“run1/vasprun.xml”, “run2/vasprun.xml”, …].</li>
-<li><strong>specie</strong> (<em>Element/Specie</em>) – Specie to calculate diffusivity for as a
-String. E.g., “Li”.</li>
-<li><strong>step_skip</strong> (<em>int</em>) – Sampling frequency of the displacements (
+[“run1/vasprun.xml”, “run2/vasprun.xml”, …].</p></li>
+<li><p><strong>specie</strong> (<em>Element/Specie</em>) – Specie to calculate diffusivity for as a
+String. E.g., “Li”.</p></li>
+<li><p><strong>step_skip</strong> (<em>int</em>) – Sampling frequency of the displacements (
 time_step is multiplied by this number to get the real time
-between measurements)</li>
-<li><strong>ncores</strong> (<em>int</em>) – Numbers of cores to use for multiprocessing. Can
+between measurements)</p></li>
+<li><p><strong>ncores</strong> (<em>int</em>) – Numbers of cores to use for multiprocessing. Can
 speed up vasprun parsing considerably. Defaults to None,
 which means serial. It should be noted that if you want to
 use multiprocessing, the number of ionic steps in all vasprun
 .xml files should be a multiple of the ionic_step_skip.
 Otherwise, inconsistent results may arise. Serial mode has no
-such restrictions.</li>
-<li><strong>initial_disp</strong> (<em>np.ndarray</em>) – Sometimes, you need to iteratively
+such restrictions.</p></li>
+<li><p><strong>initial_disp</strong> (<em>np.ndarray</em>) – Sometimes, you need to iteratively
 compute estimates of the diffusivity. This supplies an
 initial displacement that will be added on to the initial
 displacements. Note that this makes sense only when
-smoothed=False.</li>
-<li><strong>initial_structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Like initial_disp, this is used
+smoothed=False.</p></li>
+<li><p><strong>initial_structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Like initial_disp, this is used
 for iterative computations of estimates of the diffusivity. You
 typically need to supply both variables. This stipulates the
 initial structure from which the current set of displacements
-are computed.</li>
-<li><strong>**kwargs</strong> – kwargs supported by the <a href="#id1"><span class="problematic" id="id2">:class:`DiffusionAnalyzer`_</span></a>.
-Examples include smoothed, min_obs, avg_nsteps.</li>
+are computed.</p></li>
+<li><p><strong>**kwargs</strong> – kwargs supported by the <a href="#id1"><span class="problematic" id="id2">:class:`DiffusionAnalyzer`_</span></a>.
+Examples include smoothed, min_obs, avg_nsteps.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
@@ -190,38 +178,34 @@ Examples include smoothed, min_obs, avg_nsteps.</li>
 <em class="property">classmethod </em><code class="descname">from_structures</code><span class="sig-paren">(</span><em>structures</em>, <em>specie</em>, <em>temperature</em>, <em>time_step</em>, <em>step_skip</em>, <em>initial_disp=None</em>, <em>initial_structure=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion_analyzer.html#DiffusionAnalyzer.from_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.from_structures" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenient constructor that takes in a list of Structure objects to
 perform diffusion analysis.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structures</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a><em>]</em>) – list of Structure objects (must be
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structures</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a><em>]</em>) – list of Structure objects (must be
 ordered in sequence of run). E.g., you may have performed
-sequential VASP runs to obtain sufficient statistics.</li>
-<li><strong>specie</strong> (<em>Element/Specie</em>) – Specie to calculate diffusivity for as a
-String. E.g., “Li”.</li>
-<li><strong>temperature</strong> (<em>float</em>) – Temperature of the diffusion run in Kelvin.</li>
-<li><strong>time_step</strong> (<em>int</em>) – Time step between measurements.</li>
-<li><strong>step_skip</strong> (<em>int</em>) – Sampling frequency of the displacements (
+sequential VASP runs to obtain sufficient statistics.</p></li>
+<li><p><strong>specie</strong> (<em>Element/Specie</em>) – Specie to calculate diffusivity for as a
+String. E.g., “Li”.</p></li>
+<li><p><strong>temperature</strong> (<em>float</em>) – Temperature of the diffusion run in Kelvin.</p></li>
+<li><p><strong>time_step</strong> (<em>int</em>) – Time step between measurements.</p></li>
+<li><p><strong>step_skip</strong> (<em>int</em>) – Sampling frequency of the displacements (
 time_step is multiplied by this number to get the real time
-between measurements)</li>
-<li><strong>initial_disp</strong> (<em>np.ndarray</em>) – Sometimes, you need to iteratively
+between measurements)</p></li>
+<li><p><strong>initial_disp</strong> (<em>np.ndarray</em>) – Sometimes, you need to iteratively
 compute estimates of the diffusivity. This supplies an
 initial displacement that will be added on to the initial
 displacements. Note that this makes sense only when
-smoothed=False.</li>
-<li><strong>initial_structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Like initial_disp, this is used
+smoothed=False.</p></li>
+<li><p><strong>initial_structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Like initial_disp, this is used
 for iterative computations of estimates of the diffusivity. You
 typically need to supply both variables. This stipulates the
 initial structure from which the current set of displacements
-are computed.</li>
-<li><strong>**kwargs</strong> – kwargs supported by the <a href="#id3"><span class="problematic" id="id4">:class:`DiffusionAnalyzer`_</span></a>.
-Examples include smoothed, min_obs, avg_nsteps.</li>
+are computed.</p></li>
+<li><p><strong>**kwargs</strong> – kwargs supported by the <a href="#id3"><span class="problematic" id="id4">:class:`DiffusionAnalyzer`_</span></a>.
+Examples include smoothed, min_obs, avg_nsteps.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
@@ -229,33 +213,29 @@ Examples include smoothed, min_obs, avg_nsteps.</li>
 <em class="property">classmethod </em><code class="descname">from_vaspruns</code><span class="sig-paren">(</span><em>vaspruns</em>, <em>specie</em>, <em>initial_disp=None</em>, <em>initial_structure=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion_analyzer.html#DiffusionAnalyzer.from_vaspruns"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.from_vaspruns" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenient constructor that takes in a list of Vasprun objects to
 perform diffusion analysis.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>vaspruns</strong> (<em>[</em><a class="reference internal" href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Vasprun" title="pymatgen.io.vasp.outputs.Vasprun"><em>Vasprun</em></a><em>]</em>) – List of Vaspruns (must be ordered  in
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vaspruns</strong> (<em>[</em><a class="reference internal" href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Vasprun" title="pymatgen.io.vasp.outputs.Vasprun"><em>Vasprun</em></a><em>]</em>) – List of Vaspruns (must be ordered  in
 sequence of MD simulation). E.g., you may have performed
-sequential VASP runs to obtain sufficient statistics.</li>
-<li><strong>specie</strong> (<em>Element/Specie</em>) – Specie to calculate diffusivity for as a
-String. E.g., “Li”.</li>
-<li><strong>initial_disp</strong> (<em>np.ndarray</em>) – Sometimes, you need to iteratively
+sequential VASP runs to obtain sufficient statistics.</p></li>
+<li><p><strong>specie</strong> (<em>Element/Specie</em>) – Specie to calculate diffusivity for as a
+String. E.g., “Li”.</p></li>
+<li><p><strong>initial_disp</strong> (<em>np.ndarray</em>) – Sometimes, you need to iteratively
 compute estimates of the diffusivity. This supplies an
 initial displacement that will be added on to the initial
 displacements. Note that this makes sense only when
-smoothed=False.</li>
-<li><strong>initial_structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Like initial_disp, this is used
+smoothed=False.</p></li>
+<li><p><strong>initial_structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Like initial_disp, this is used
 for iterative computations of estimates of the diffusivity. You
 typically need to supply both variables. This stipulates the
 initial stricture from which the current set of displacements
-are computed.</li>
-<li><strong>**kwargs</strong> – kwargs supported by the <a href="#id5"><span class="problematic" id="id6">:class:`DiffusionAnalyzer`_</span></a>.
-Examples include smoothed, min_obs, avg_nsteps.</li>
+are computed.</p></li>
+<li><p><strong>**kwargs</strong> – kwargs supported by the <a href="#id5"><span class="problematic" id="id6">:class:`DiffusionAnalyzer`_</span></a>.
+Examples include smoothed, min_obs, avg_nsteps.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -264,16 +244,13 @@ Examples include smoothed, min_obs, avg_nsteps.</li>
 <dd><p>Returns an iterator for the drift-corrected structures. Use of
 iterator is to reduce memory usage as # of structures in MD can be
 huge. You don’t often need all the structures all at once.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stop</strong><strong>, </strong><strong>step</strong> (<em>start</em><em>,</em>) – applies a start/stop/step to the iterator.
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>stop</strong><strong>, </strong><strong>step</strong> (<em>start</em><em>,</em>) – applies a start/stop/step to the iterator.
 Faster than applying it after generation, as it reduces the
-number of structures created.</td>
-</tr>
-</tbody>
-</table>
+number of structures created.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -283,22 +260,18 @@ number of structures created.</td>
 for melting, especially if framework atoms can move via paddle-wheel
 or similar mechanism (which would show up in max framework displacement
 but doesn’t constitute melting).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>plt</strong> (<em>matplotlib.pyplot</em>) – If plt is supplied, changes will be made
-to an existing plot. Otherwise, a new plot will be created.</li>
-<li><strong>granularity</strong> (<em>int</em>) – Number of structures to match</li>
-<li><strong>matching_s</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Optionally match to a disordered structure
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>plt</strong> (<em>matplotlib.pyplot</em>) – If plt is supplied, changes will be made
+to an existing plot. Otherwise, a new plot will be created.</p></li>
+<li><p><strong>granularity</strong> (<em>int</em>) – Number of structures to match</p></li>
+<li><p><strong>matching_s</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Optionally match to a disordered structure
 instead of the first structure in the analyzer. Required when
-a secondary mobile ion is present.</li>
+a secondary mobile ion is present.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Notes</p>
 <p>The method doesn’t apply to NPT-AIMD simulation analysis.</p>
 </dd></dl>
@@ -308,62 +281,51 @@ a secondary mobile ion is present.</li>
 <code class="descname">get_msd_plot</code><span class="sig-paren">(</span><em>plt=None</em>, <em>mode='specie'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion_analyzer.html#DiffusionAnalyzer.get_msd_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.get_msd_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the plot of the smoothed msd vs time graph. Useful for
 checking convergence. This can be written to an image file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>plt</strong> – A plot object. Defaults to None, which means one will be
-generated.</li>
-<li><strong>mode</strong> (<em>str</em>) – Determines type of msd plot. By “species”, “sites”,
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>plt</strong> – A plot object. Defaults to None, which means one will be
+generated.</p></li>
+<li><p><strong>mode</strong> (<em>str</em>) – Determines type of msd plot. By “species”, “sites”,
 or direction (default). If mode = “mscd”, the smoothed mscd vs.
-time will be plotted.</li>
+time will be plotted.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.get_summary_dict">
 <code class="descname">get_summary_dict</code><span class="sig-paren">(</span><em>include_msd_t=False</em>, <em>include_mscd_t=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion_analyzer.html#DiffusionAnalyzer.get_summary_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.get_summary_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides a summary of diffusion information.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>include_msd_t</strong> (<em>bool</em>) – Whether to include mean square displace and
-time data with the data.</li>
-<li><strong>include_msd_t</strong> – Whether to include mean square charge displace and
-time data with the data.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>include_msd_t</strong> (<em>bool</em>) – Whether to include mean square displace and
+time data with the data.</p></li>
+<li><p><strong>include_msd_t</strong> – Whether to include mean square charge displace and
+time data with the data.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(dict) of diffusion and conductivity data.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(dict) of diffusion and conductivity data.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.plot_msd">
 <code class="descname">plot_msd</code><span class="sig-paren">(</span><em>mode='default'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion_analyzer.html#DiffusionAnalyzer.plot_msd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.plot_msd" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the smoothed msd vs time graph. Useful for checking convergence.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mode</strong> (<em>str</em>) – Can be “default” (the default, shows only the MSD for
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>mode</strong> (<em>str</em>) – Can be “default” (the default, shows only the MSD for
 the diffusing specie, and its components), “ions” (individual
 square displacements of all ions), “species” (mean square
 displacement by specie), or “mscd” (overall mean square charge
-displacement for diffusing specie).</td>
-</tr>
-</tbody>
-</table>
+displacement for diffusing specie).</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -371,48 +333,40 @@ displacement for diffusing specie).</td>
 <dl class="function">
 <dt id="pymatgen.analysis.diffusion_analyzer.fit_arrhenius">
 <code class="descname">fit_arrhenius</code><span class="sig-paren">(</span><em>temps</em>, <em>diffusivities</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion_analyzer.html#fit_arrhenius"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffusion_analyzer.fit_arrhenius" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Returns Ea, c, standard error of Ea from the Arrhenius fit:</dt>
-<dd>D = c * exp(-Ea/kT)</dd>
+<dd><dl class="simple">
+<dt>Returns Ea, c, standard error of Ea from the Arrhenius fit:</dt><dd><p>D = c * exp(-Ea/kT)</p>
+</dd>
 </dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>temps</strong> (<em>[</em><em>float</em><em>]</em>) – A sequence of temperatures. units: K</li>
-<li><strong>diffusivities</strong> (<em>[</em><em>float</em><em>]</em>) – A sequence of diffusivities (e.g.,
-from DiffusionAnalyzer.diffusivity). units: cm^2/s</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>temps</strong> (<em>[</em><em>float</em><em>]</em>) – A sequence of temperatures. units: K</p></li>
+<li><p><strong>diffusivities</strong> (<em>[</em><em>float</em><em>]</em>) – A sequence of diffusivities (e.g.,
+from DiffusionAnalyzer.diffusivity). units: cm^2/s</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.analysis.diffusion_analyzer.get_arrhenius_plot">
 <code class="descname">get_arrhenius_plot</code><span class="sig-paren">(</span><em>temps</em>, <em>diffusivities</em>, <em>diffusivity_errors=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion_analyzer.html#get_arrhenius_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffusion_analyzer.get_arrhenius_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an Arrhenius plot.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>temps</strong> (<em>[</em><em>float</em><em>]</em>) – A sequence of temperatures.</li>
-<li><strong>diffusivities</strong> (<em>[</em><em>float</em><em>]</em>) – A sequence of diffusivities (e.g.,
-from DiffusionAnalyzer.diffusivity).</li>
-<li><strong>diffusivity_errors</strong> (<em>[</em><em>float</em><em>]</em>) – A sequence of errors for the
-diffusivities. If None, no error bar is plotted.</li>
-<li><strong>**kwargs</strong> – Any keyword args supported by matplotlib.pyplot.plot.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>temps</strong> (<em>[</em><em>float</em><em>]</em>) – A sequence of temperatures.</p></li>
+<li><p><strong>diffusivities</strong> (<em>[</em><em>float</em><em>]</em>) – A sequence of diffusivities (e.g.,
+from DiffusionAnalyzer.diffusivity).</p></li>
+<li><p><strong>diffusivity_errors</strong> (<em>[</em><em>float</em><em>]</em>) – A sequence of errors for the
+diffusivities. If None, no error bar is plotted.</p></li>
+<li><p><strong>**kwargs</strong> – Any keyword args supported by matplotlib.pyplot.plot.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A matplotlib.pyplot object. Do plt.show() to show the plot.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A matplotlib.pyplot object. Do plt.show() to show the plot.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -423,71 +377,59 @@ mS/cm conductivity measurements based on number of atoms of diffusing
 species. Note that the charge is based on the oxidation state of the
 species (where available), or else the number of valence electrons
 (usually a good guess, esp for main group ions).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure.</li>
-<li><strong>species</strong> (<em>Element/Specie</em>) – Diffusing species.</li>
-<li><strong>temperature</strong> (<em>float</em>) – Temperature of the diffusion run in Kelvin.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure.</p></li>
+<li><p><strong>species</strong> (<em>Element/Specie</em>) – Diffusing species.</p></li>
+<li><p><strong>temperature</strong> (<em>float</em>) – Temperature of the diffusion run in Kelvin.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Conversion factor.
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Conversion factor.
 Conductivity (in mS/cm) = Conversion Factor * Diffusivity (in cm^2/s)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.analysis.diffusion_analyzer.get_extrapolated_conductivity">
 <code class="descname">get_extrapolated_conductivity</code><span class="sig-paren">(</span><em>temps</em>, <em>diffusivities</em>, <em>new_temp</em>, <em>structure</em>, <em>species</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion_analyzer.html#get_extrapolated_conductivity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffusion_analyzer.get_extrapolated_conductivity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns extrapolated mS/cm conductivity.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>temps</strong> (<em>[</em><em>float</em><em>]</em>) – A sequence of temperatures. units: K</li>
-<li><strong>diffusivities</strong> (<em>[</em><em>float</em><em>]</em>) – A sequence of diffusivities (e.g.,
-from DiffusionAnalyzer.diffusivity). units: cm^2/s</li>
-<li><strong>new_temp</strong> (<em>float</em>) – desired temperature. units: K</li>
-<li><strong>structure</strong> (<em>structure</em>) – Structure used for the diffusivity calculation</li>
-<li><strong>species</strong> (<em>string/Specie</em>) – conducting species</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>temps</strong> (<em>[</em><em>float</em><em>]</em>) – A sequence of temperatures. units: K</p></li>
+<li><p><strong>diffusivities</strong> (<em>[</em><em>float</em><em>]</em>) – A sequence of diffusivities (e.g.,
+from DiffusionAnalyzer.diffusivity). units: cm^2/s</p></li>
+<li><p><strong>new_temp</strong> (<em>float</em>) – desired temperature. units: K</p></li>
+<li><p><strong>structure</strong> (<em>structure</em>) – Structure used for the diffusivity calculation</p></li>
+<li><p><strong>species</strong> (<em>string/Specie</em>) – conducting species</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(float) Conductivity at extrapolated temp in mS/cm.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(float) Conductivity at extrapolated temp in mS/cm.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.analysis.diffusion_analyzer.get_extrapolated_diffusivity">
 <code class="descname">get_extrapolated_diffusivity</code><span class="sig-paren">(</span><em>temps</em>, <em>diffusivities</em>, <em>new_temp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion_analyzer.html#get_extrapolated_diffusivity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffusion_analyzer.get_extrapolated_diffusivity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns (Arrhenius) extrapolated diffusivity at new_temp</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>temps</strong> (<em>[</em><em>float</em><em>]</em>) – A sequence of temperatures. units: K</li>
-<li><strong>diffusivities</strong> (<em>[</em><em>float</em><em>]</em>) – A sequence of diffusivities (e.g.,
-from DiffusionAnalyzer.diffusivity). units: cm^2/s</li>
-<li><strong>new_temp</strong> (<em>float</em>) – desired temperature. units: K</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>temps</strong> (<em>[</em><em>float</em><em>]</em>) – A sequence of temperatures. units: K</p></li>
+<li><p><strong>diffusivities</strong> (<em>[</em><em>float</em><em>]</em>) – A sequence of diffusivities (e.g.,
+from DiffusionAnalyzer.diffusivity). units: cm^2/s</p></li>
+<li><p><strong>new_temp</strong> (<em>float</em>) – desired temperature. units: K</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(float) Diffusivity at extrapolated temp in mS/cm.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(float) Diffusivity at extrapolated temp in mS/cm.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -511,8 +453,6 @@ from DiffusionAnalyzer.diffusivity). units: cm^2/s</li>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -530,13 +470,13 @@ from DiffusionAnalyzer.diffusivity). units: cm^2/s</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

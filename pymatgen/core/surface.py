@@ -144,7 +144,7 @@ class Slab(Structure):
                                           lattice.alpha, lattice.beta,
                                           lattice.gamma) \
             if self.reorient_lattice else lattice
-        super(Slab, self).__init__(
+        super().__init__(
             lattice, species, coords, validate_proximity=validate_proximity,
             to_unit_cell=to_unit_cell,
             coords_are_cartesian=coords_are_cartesian,
@@ -170,7 +170,8 @@ class Slab(Structure):
                     oriented_unit_cell=self.oriented_unit_cell,
                     shift=self.shift, scale_factor=self.scale_factor,
                     coords_are_cartesian=True, energy=self.energy,
-                    reorient_lattice=self.reorient_lattice)
+                    reorient_lattice=self.reorient_lattice,
+                    site_properties=self.site_properties)
 
     def get_tasker2_slabs(self, tol=0.01, same_species_only=True):
         """
@@ -433,7 +434,7 @@ class Slab(Structure):
         return "\n".join(outs)
 
     def as_dict(self):
-        d = super(Slab, self).as_dict()
+        d = super().as_dict()
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         d["oriented_unit_cell"] = self.oriented_unit_cell.as_dict()
@@ -942,10 +943,13 @@ class SlabGenerator:
 
         # Reorient the lattice to get the correct reduced cell
         ouc = self.oriented_unit_cell.copy()
-        if self.primitive and self.max_normal_search:
-            ouc = ouc.get_primitive_structure(constrain_latt=[False, False,
-                                                              True, False,
-                                                              False, False])
+        if self.primitive:
+            #find a reduced ouc
+            slab_l = slab.lattice
+            ouc = ouc.get_primitive_structure(constrain_latt={"a": slab_l.a, "b": slab_l.b,
+                                                              "alpha": slab_l.alpha,
+                                                              "beta": slab_l.beta,
+                                                              "gamma": slab_l.gamma})
 
         return Slab(slab.lattice, slab.species_and_occu,
                     slab.frac_coords, self.miller_index,
@@ -1028,7 +1032,7 @@ class SlabGenerator:
                                 c_ranges.add(c_range)
         return c_ranges
 
-    def get_slabs(self, bonds=None, tol=0.1, max_broken_bonds=0,
+    def get_slabs(self, bonds=None, ftol=0.1, tol=0.1, max_broken_bonds=0,
                   symmetrize=False, repair=False):
         """
         This method returns a list of slabs that are generated using the list of
@@ -1043,7 +1047,9 @@ class SlabGenerator:
                 specified as a dict of tuples: float of specie1, specie2
                 and the max bonding distance. For example, PO4 groups may be
                 defined as {("P", "O"): 3}.
-            tol (float): Threshold parameter in fcluster in order to check
+            tol (float): General tolerance paramter for getting primitive
+                cells and matching structures
+            ftol (float): Threshold parameter in fcluster in order to check
                 if two atoms are lying on the same plane. Default thresh set
                 to 0.1 Angstrom in the direction of the surface normal.
             max_broken_bonds (int): Maximum number of allowable broken bonds
@@ -1063,7 +1069,7 @@ class SlabGenerator:
         c_ranges = set() if bonds is None else self._get_c_ranges(bonds)
 
         slabs = []
-        for shift in self._calculate_possible_shifts(tol=tol):
+        for shift in self._calculate_possible_shifts(tol=ftol):
             bonds_broken = 0
             for r in c_ranges:
                 if r[0] <= shift <= r[1]:
@@ -1727,6 +1733,69 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
                 all_slabs.extend(recon.build_slabs())
 
     return all_slabs
+
+
+def get_slab_regions(slab, blength=3.5):
+    """
+    Function to get the ranges of the slab regions. Useful for discerning where
+    the slab ends and vacuum begins if the slab is not fully within the cell
+    Args:
+        slab (Structure): Structure object modelling the surface
+        blength (float, Ang): The bondlength between atoms. You generally
+            want this value to be larger than the actual bondlengths in
+            order to find atoms that are part of the slab
+    """
+
+    fcoords, indices, all_indices = [], [], []
+    for site in slab:
+        # find sites with c < 0 (noncontiguous)
+        neighbors = slab.get_neighbors(site, blength, include_index=True,
+                                       include_image=True)
+        for nn in neighbors:
+            if nn[0].frac_coords[2] < 0:
+                # sites are noncontiguous within cell
+                fcoords.append(nn[0].frac_coords[2])
+                indices.append(nn[-2])
+                if nn[-2] not in all_indices:
+                    all_indices.append(nn[-2])
+
+    if fcoords:
+        # If slab is noncontiguous, locate the lowest
+        # site within the upper region of the slab
+        while fcoords:
+            last_fcoords = copy.copy(fcoords)
+            last_indices = copy.copy(indices)
+            site = slab[indices[fcoords.index(min(fcoords))]]
+            neighbors = slab.get_neighbors(site, blength, include_index=True,
+                                           include_image=True)
+            fcoords, indices = [], []
+            for nn in neighbors:
+                if 1 > nn[0].frac_coords[2] > 0 and \
+                                nn[0].frac_coords[2] < site.frac_coords[2]:
+                    # sites are noncontiguous within cell
+                    fcoords.append(nn[0].frac_coords[2])
+                    indices.append(nn[-2])
+                    if nn[-2] not in all_indices:
+                        all_indices.append(nn[-2])
+
+        # Now locate the highest site within the lower region of the slab
+        upper_fcoords = []
+        for site in slab:
+            if all([nn[-1] not in all_indices for nn in
+                    slab.get_neighbors(site, blength,
+                                       include_index=True)]):
+                upper_fcoords.append(site.frac_coords[2])
+        coords = copy.copy(last_fcoords) if not fcoords else copy.copy(fcoords)
+        min_top = slab[last_indices[coords.index(min(coords))]].frac_coords[2]
+        ranges = [[0, max(upper_fcoords)], [min_top, 1]]
+    else:
+        # If the entire slab region is within the slab cell, just
+        # set the range as the highest and lowest site in the slab
+        sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
+        ranges = [[sorted_sites[0].frac_coords[2],
+                   sorted_sites[-1].frac_coords[2]]]
+
+    return ranges
 
 
 def miller_index_from_sites(lattice, coords, coords_are_cartesian=True,

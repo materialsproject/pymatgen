@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.adsorption module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.adsorption module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -57,74 +55,66 @@ adsorbate structures according to user-defined criteria.
 The algorithm for finding sites is essentially as follows:</p>
 <blockquote>
 <div><ol class="arabic simple">
-<li><dl class="first docutils">
-<dt>Determine “surface sites” by finding those within</dt>
-<dd>a height threshold along the miller index of the
-highest site</dd>
+<li><dl class="simple">
+<dt>Determine “surface sites” by finding those within</dt><dd><p>a height threshold along the miller index of the
+highest site</p>
+</dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt>Create a network of surface sites using the Delaunay</dt>
-<dd>triangulation of the surface sites</dd>
+<li><dl class="simple">
+<dt>Create a network of surface sites using the Delaunay</dt><dd><p>triangulation of the surface sites</p>
+</dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt>Assign on-top, bridge, and hollow adsorption sites</dt>
-<dd>at the nodes, edges, and face centers of the Del.
-Triangulation</dd>
+<li><dl class="simple">
+<dt>Assign on-top, bridge, and hollow adsorption sites</dt><dd><p>at the nodes, edges, and face centers of the Del.
+Triangulation</p>
+</dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt>Generate structures from a molecule positioned at</dt>
-<dd>these sites</dd>
+<li><dl class="simple">
+<dt>Generate structures from a molecule positioned at</dt><dd><p>these sites</p>
+</dd>
 </dl>
 </li>
 </ol>
 </div></blockquote>
 <p>Create an AdsorbateSiteFinder object.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>slab</strong> (<a class="reference internal" href="pymatgen.core.surface.html#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab"><em>Slab</em></a>) – slab object for which to find adsorbate sites</li>
-<li><strong>selective_dynamics</strong> (<em>bool</em>) – flag for whether to assign
-non-surface sites as fixed for selective dynamics</li>
-<li><strong>height</strong> (<em>float</em>) – height criteria for selection of surface sites</li>
-<li><strong>mi_vec</strong> (<em>3-D array-like</em>) – vector corresponding to the vector
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>slab</strong> (<a class="reference internal" href="pymatgen.core.surface.html#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab"><em>Slab</em></a>) – slab object for which to find adsorbate sites</p></li>
+<li><p><strong>selective_dynamics</strong> (<em>bool</em>) – flag for whether to assign
+non-surface sites as fixed for selective dynamics</p></li>
+<li><p><strong>height</strong> (<em>float</em>) – height criteria for selection of surface sites</p></li>
+<li><p><strong>mi_vec</strong> (<em>3-D array-like</em>) – vector corresponding to the vector
 concurrent with the miller index, this enables use with
 slabs that have been reoriented, but the miller vector
-must be supplied manually</li>
-<li><strong>top_surface</strong> (<em>bool</em>) – Which surface to adsorb, True for the surface
+must be supplied manually</p></li>
+<li><p><strong>top_surface</strong> (<em>bool</em>) – Which surface to adsorb, True for the surface
 above the center of mass, False for the surface below
-center of mass</li>
+center of mass</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.add_adsorbate">
 <code class="descname">add_adsorbate</code><span class="sig-paren">(</span><em>molecule</em>, <em>ads_coord</em>, <em>repeat=None</em>, <em>reorient=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.add_adsorbate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.add_adsorbate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds an adsorbate at a particular coordinate.  Adsorbate
 represented by a Molecule object, and is positioned relative
 to the input adsorbate coordinate.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>molecule</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) – molecule object representing the adsorbate</li>
-<li><strong>ads_coord</strong> (<em>array</em>) – coordinate of adsorbate position</li>
-<li><strong>repeat</strong> (<em>3-tuple</em><em> or </em><em>list</em>) – input for making a supercell of slab
-prior to placing the adsorbate</li>
-<li><strong>reorient</strong> (<em>bool</em>) – flag on whether to reorient the molecule to
-have its z-axis concurrent with miller index</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>molecule</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) – molecule object representing the adsorbate</p></li>
+<li><p><strong>ads_coord</strong> (<em>array</em>) – coordinate of adsorbate position</p></li>
+<li><p><strong>repeat</strong> (<em>3-tuple</em><em> or </em><em>list</em>) – input for making a supercell of slab
+prior to placing the adsorbate</p></li>
+<li><p><strong>reorient</strong> (<em>bool</em>) – flag on whether to reorient the molecule to
+have its z-axis concurrent with miller index</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -134,24 +124,20 @@ have its z-axis concurrent with miller index</li>
 molecular adsorbate on both surfaces of a slab. This is useful
 for calculating surface energy where both surfaces need to be
 equivalent or if we want to calculate nonpolar systems.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>molecule</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) – molecule corresponding to adsorbate</li>
-<li><strong>repeat</strong> (<em>3-tuple</em><em> or </em><em>list</em>) – repeat argument for supercell generation</li>
-<li><strong>min_lw</strong> (<em>float</em>) – minimum length and width of the slab, only used
-if repeat is None</li>
-<li><strong>reorient</strong> (<em>bool</em>) – flag on whether or not to reorient adsorbate
-along the miller index</li>
-<li><strong>find_args</strong> (<em>dict</em>) – dictionary of arguments to be passed to the
-call to self.find_adsorption_sites, e.g. {“distance”:2.0}</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>molecule</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) – molecule corresponding to adsorbate</p></li>
+<li><p><strong>repeat</strong> (<em>3-tuple</em><em> or </em><em>list</em>) – repeat argument for supercell generation</p></li>
+<li><p><strong>min_lw</strong> (<em>float</em>) – minimum length and width of the slab, only used
+if repeat is None</p></li>
+<li><p><strong>reorient</strong> (<em>bool</em>) – flag on whether or not to reorient adsorbate
+along the miller index</p></li>
+<li><p><strong>find_args</strong> (<em>dict</em>) – dictionary of arguments to be passed to the
+call to self.find_adsorption_sites, e.g. {“distance”:2.0}</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -159,14 +145,11 @@ call to self.find_adsorption_sites, e.g. {“distance”:2.0}</li>
 <code class="descname">assign_selective_dynamics</code><span class="sig-paren">(</span><em>slab</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.assign_selective_dynamics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.assign_selective_dynamics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function to assign selective dynamics site_properties
 based on surface, subsurface site properties</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>slab</strong> (<a class="reference internal" href="pymatgen.core.surface.html#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab"><em>Slab</em></a>) – slab for which to assign selective dynamics</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>slab</strong> (<a class="reference internal" href="pymatgen.core.surface.html#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab"><em>Slab</em></a>) – slab for which to assign selective dynamics</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -181,21 +164,17 @@ based on surface, subsurface site properties</p>
 <dd><p>Finds the center of an ensemble of sites selected from
 a list of sites.  Helper method for the find_adsorption_sites
 algorithm.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>site_list</strong> (<em>list of sites</em>) – list of sites</li>
-<li><strong>indices</strong> (<em>list of ints</em>) – list of ints from which to select
-sites from site list</li>
-<li><strong>cartesian</strong> (<em>bool</em>) – whether to get average fractional or
-cartesian coordinate</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>site_list</strong> (<em>list of sites</em>) – list of sites</p></li>
+<li><p><strong>indices</strong> (<em>list of ints</em>) – list of ints from which to select
+sites from site list</p></li>
+<li><p><strong>cartesian</strong> (<em>bool</em>) – whether to get average fractional or
+cartesian coordinate</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -203,32 +182,29 @@ cartesian coordinate</li>
 <code class="descname">find_adsorption_sites</code><span class="sig-paren">(</span><em>distance=2.0, put_inside=True, symm_reduce=0.01, near_reduce=0.01, positions=['ontop', 'bridge', 'hollow'], no_obtuse_hollow=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.find_adsorption_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.find_adsorption_sites" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds surface sites according to the above algorithm.  Returns
 a list of corresponding cartesian coordinates.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>distance</strong> (<em>float</em>) – distance from the coordinating ensemble
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>distance</strong> (<em>float</em>) – distance from the coordinating ensemble
 of atoms along the miller index for the site (i. e.
-the distance from the slab itself)</li>
-<li><strong>put_inside</strong> (<em>bool</em>) – whether to put the site inside the cell</li>
-<li><strong>symm_reduce</strong> (<em>float</em>) – symm reduction threshold</li>
-<li><strong>near_reduce</strong> (<em>float</em>) – near reduction threshold</li>
-<li><strong>positions</strong> (<em>list</em>) – <p>which positions to include in the site finding
+the distance from the slab itself)</p></li>
+<li><p><strong>put_inside</strong> (<em>bool</em>) – whether to put the site inside the cell</p></li>
+<li><p><strong>symm_reduce</strong> (<em>float</em>) – symm reduction threshold</p></li>
+<li><p><strong>near_reduce</strong> (<em>float</em>) – near reduction threshold</p></li>
+<li><p><strong>positions</strong> (<em>list</em>) – <p>which positions to include in the site finding
 “ontop”: sites on top of surface sites
 “bridge”: sites at edges between surface sites in Delaunay</p>
 <blockquote>
-<div>triangulation of surface sites in the miller plane</div></blockquote>
+<div><p>triangulation of surface sites in the miller plane</p>
+</div></blockquote>
 <p>”hollow”: sites at centers of Delaunay triangulation faces
 “subsurface”: subsurface positions projected into miller plane</p>
-</li>
-<li><strong>no_obtuse_hollow</strong> (<em>bool</em>) – flag to indicate whether to include
-obtuse triangular ensembles in hollow sites</li>
+</p></li>
+<li><p><strong>no_obtuse_hollow</strong> (<em>bool</em>) – flag to indicate whether to include
+obtuse triangular ensembles in hollow sites</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -236,25 +212,21 @@ obtuse triangular ensembles in hollow sites</li>
 <code class="descname">find_surface_sites_by_height</code><span class="sig-paren">(</span><em>slab</em>, <em>height=0.9</em>, <em>xy_tol=0.05</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.find_surface_sites_by_height"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.find_surface_sites_by_height" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method finds surface sites by determining which sites are within
 a threshold value in height from the topmost site in a list of sites</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>site_list</strong> (<em>list</em>) – list of sites from which to select surface sites</li>
-<li><strong>height</strong> (<em>float</em>) – threshold in angstroms of distance from topmost
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>site_list</strong> (<em>list</em>) – list of sites from which to select surface sites</p></li>
+<li><p><strong>height</strong> (<em>float</em>) – threshold in angstroms of distance from topmost
 site in slab along the slab c-vector to include in surface
-site determination</li>
-<li><strong>xy_tol</strong> (<em>float</em>) – if supplied, will remove any sites which are
-within a certain distance in the miller plane.</li>
+site determination</p></li>
+<li><p><strong>xy_tol</strong> (<em>float</em>) – if supplied, will remove any sites which are
+within a certain distance in the miller plane.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">list of sites selected to be within a threshold of the highest</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of sites selected to be within a threshold of the highest</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
@@ -264,29 +236,25 @@ within a certain distance in the miller plane.</li>
 structure and a miller index, which allows the surface sites
 to be determined from the difference in bulk and slab coordination,
 as opposed to the height threshold.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – structure from which slab
-input to the ASF is constructed</li>
-<li><strong>miller_index</strong> (<em>3-tuple</em><em> or </em><em>list</em>) – miller index to be used</li>
-<li><strong>min_slab_size</strong> (<em>float</em>) – min slab size for slab generation</li>
-<li><strong>min_vacuum_size</strong> (<em>float</em>) – min vacuum size for slab generation</li>
-<li><strong>max_normal_search</strong> (<em>int</em>) – max normal search for slab generation</li>
-<li><strong>center_slab</strong> (<em>bool</em>) – whether to center slab in slab generation</li>
-<li><strong>dynamics</strong> (<em>selective</em>) – whether to assign surface sites
-to selective dynamics</li>
-<li><strong>undercoord_threshold</strong> (<em>float</em>) – threshold of “undercoordation”
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – structure from which slab
+input to the ASF is constructed</p></li>
+<li><p><strong>miller_index</strong> (<em>3-tuple</em><em> or </em><em>list</em>) – miller index to be used</p></li>
+<li><p><strong>min_slab_size</strong> (<em>float</em>) – min slab size for slab generation</p></li>
+<li><p><strong>min_vacuum_size</strong> (<em>float</em>) – min vacuum size for slab generation</p></li>
+<li><p><strong>max_normal_search</strong> (<em>int</em>) – max normal search for slab generation</p></li>
+<li><p><strong>center_slab</strong> (<em>bool</em>) – whether to center slab in slab generation</p></li>
+<li><p><strong>dynamics</strong> (<em>selective</em>) – whether to assign surface sites
+to selective dynamics</p></li>
+<li><p><strong>undercoord_threshold</strong> (<em>float</em>) – threshold of “undercoordation”
 to use for the assignment of surface sites.  Default is
 0.1, for which surface sites will be designated if they
-are 10% less coordinated than their bulk counterpart</li>
+are 10% less coordinated than their bulk counterpart</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -295,52 +263,44 @@ are 10% less coordinated than their bulk counterpart</li>
 <dd><p>Function that generates all adsorption structures for a given
 molecular adsorbate.  Can take repeat argument or minimum
 length/width of precursor slab as an input</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>molecule</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) – molecule corresponding to adsorbate</li>
-<li><strong>repeat</strong> (<em>3-tuple</em><em> or </em><em>list</em>) – repeat argument for supercell generation</li>
-<li><strong>min_lw</strong> (<em>float</em>) – minimum length and width of the slab, only used
-if repeat is None</li>
-<li><strong>reorient</strong> (<em>bool</em>) – flag on whether or not to reorient adsorbate
-along the miller index</li>
-<li><strong>find_args</strong> (<em>dict</em>) – dictionary of arguments to be passed to the
-call to self.find_adsorption_sites, e.g. {“distance”:2.0}</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>molecule</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) – molecule corresponding to adsorbate</p></li>
+<li><p><strong>repeat</strong> (<em>3-tuple</em><em> or </em><em>list</em>) – repeat argument for supercell generation</p></li>
+<li><p><strong>min_lw</strong> (<em>float</em>) – minimum length and width of the slab, only used
+if repeat is None</p></li>
+<li><p><strong>reorient</strong> (<em>bool</em>) – flag on whether or not to reorient adsorbate
+along the miller index</p></li>
+<li><p><strong>find_args</strong> (<em>dict</em>) – dictionary of arguments to be passed to the
+call to self.find_adsorption_sites, e.g. {“distance”:2.0}</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.generate_substitution_structures">
 <code class="descname">generate_substitution_structures</code><span class="sig-paren">(</span><em>atom</em>, <em>target_species=[]</em>, <em>sub_both_sides=False</em>, <em>range_tol=0.01</em>, <em>dist_from_surf=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.generate_substitution_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.generate_substitution_structures" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Function that performs substitution-type doping on the surface and</dt>
-<dd>returns all possible configurations where one dopant is substituted
-per surface. Can substitute one surface or both.</dd>
+<dd><dl class="simple">
+<dt>Function that performs substitution-type doping on the surface and</dt><dd><p>returns all possible configurations where one dopant is substituted
+per surface. Can substitute one surface or both.</p>
+</dd>
 </dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>atom</strong> (<em>str</em>) – atom corresponding to substitutional dopant</li>
-<li><strong>sub_both_sides</strong> (<em>bool</em>) – If true, substitute an equivalent
-site on the other surface</li>
-<li><strong>target_species</strong> (<em>list</em>) – List of specific species to substitute</li>
-<li><strong>range_tol</strong> (<em>float</em>) – Find viable substitution sites at a specific
-distance from the surface +- this tolerance</li>
-<li><strong>dist_from_surf</strong> (<em>float</em>) – Distance from the surface to find viable
-substitution sites, defaults to 0 to substitute at the surface</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>atom</strong> (<em>str</em>) – atom corresponding to substitutional dopant</p></li>
+<li><p><strong>sub_both_sides</strong> (<em>bool</em>) – If true, substitute an equivalent
+site on the other surface</p></li>
+<li><p><strong>target_species</strong> (<em>list</em>) – List of specific species to substitute</p></li>
+<li><p><strong>range_tol</strong> (<em>float</em>) – Find viable substitution sites at a specific
+distance from the surface +- this tolerance</p></li>
+<li><p><strong>dist_from_surf</strong> (<em>float</em>) – Distance from the surface to find viable
+substitution sites, defaults to 0 to substitute at the surface</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -348,14 +308,11 @@ substitution sites, defaults to 0 to substitute at the surface</li>
 <code class="descname">get_extended_surface_mesh</code><span class="sig-paren">(</span><em>repeat=(5</em>, <em>5</em>, <em>1)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.get_extended_surface_mesh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.get_extended_surface_mesh" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets an extended surface mesh for to use for adsorption
 site finding by constructing supercell of surface sites</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>repeat</strong> (<em>3-tuple</em>) – repeat for getting extended surface mesh</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>repeat</strong> (<em>3-tuple</em>) – repeat for getting extended surface mesh</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -363,18 +320,14 @@ site finding by constructing supercell of surface sites</p>
 <code class="descname">near_reduce</code><span class="sig-paren">(</span><em>coords_set</em>, <em>threshold=0.0001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.near_reduce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.near_reduce" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prunes coordinate set for coordinates that are within
 threshold</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>coords_set</strong> (<em>Nx3 array-like</em>) – list or array of coordinates</li>
-<li><strong>threshold</strong> (<em>float</em>) – threshold value for distance</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coords_set</strong> (<em>Nx3 array-like</em>) – list or array of coordinates</p></li>
+<li><p><strong>threshold</strong> (<em>float</em>) – threshold value for distance</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -394,19 +347,15 @@ threshold</p>
 <code class="descname">symm_reduce</code><span class="sig-paren">(</span><em>coords_set</em>, <em>threshold=1e-06</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.symm_reduce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.symm_reduce" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reduces the set of adsorbate sites by finding removing
 symmetrically equivalent duplicates</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>coords_set</strong> – coordinate set in cartesian coordinates</li>
-<li><strong>threshold</strong> – tolerance for distance equivalence, used
-as input to in_coord_list_pbc for dupl. checking</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coords_set</strong> – coordinate set in cartesian coordinates</p></li>
+<li><p><strong>threshold</strong> – tolerance for distance equivalence, used
+as input to in_coord_list_pbc for dupl. checking</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -429,24 +378,20 @@ with the miller index.</p>
 <code class="descname">plot_slab</code><span class="sig-paren">(</span><em>slab</em>, <em>ax</em>, <em>scale=0.8</em>, <em>repeat=5</em>, <em>window=1.5</em>, <em>draw_unit_cell=True</em>, <em>decay=0.2</em>, <em>adsorption_sites=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#plot_slab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.plot_slab" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function that helps visualize the slab in a 2-D plot, for
 convenient viewing of output of AdsorbateSiteFinder.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>slab</strong> (<em>slab</em>) – Slab object to be visualized</li>
-<li><strong>ax</strong> (<em>axes</em>) – matplotlib axes with which to visualize</li>
-<li><strong>scale</strong> (<em>float</em>) – radius scaling for sites</li>
-<li><strong>repeat</strong> (<em>int</em>) – number of repeating unit cells to visualize</li>
-<li><strong>window</strong> (<em>float</em>) – window for setting the axes limits, is essentially
-a fraction of the unit cell limits</li>
-<li><strong>draw_unit_cell</strong> (<em>bool</em>) – flag indicating whether or not to draw cell</li>
-<li><strong>decay</strong> (<em>float</em>) – how the alpha-value decays along the z-axis</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>slab</strong> (<em>slab</em>) – Slab object to be visualized</p></li>
+<li><p><strong>ax</strong> (<em>axes</em>) – matplotlib axes with which to visualize</p></li>
+<li><p><strong>scale</strong> (<em>float</em>) – radius scaling for sites</p></li>
+<li><p><strong>repeat</strong> (<em>int</em>) – number of repeating unit cells to visualize</p></li>
+<li><p><strong>window</strong> (<em>float</em>) – window for setting the axes limits, is essentially
+a fraction of the unit cell limits</p></li>
+<li><p><strong>draw_unit_cell</strong> (<em>bool</em>) – flag indicating whether or not to draw cell</p></li>
+<li><p><strong>decay</strong> (<em>float</em>) – how the alpha-value decays along the z-axis</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -483,8 +428,6 @@ normal to the A-B plane</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -502,13 +445,13 @@ normal to the A-B plane</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

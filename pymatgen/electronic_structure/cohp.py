@@ -25,8 +25,8 @@ for crystal orbital overlap populations (COOP).
 __author__ = "Marco Esters, Janine George"
 __copyright__ = "Copyright 2017, The Materials Project"
 __version__ = "0.2"
-__maintainer__ = "Marco Esters"
-__email__ = "esters@uoregon.edu"
+__maintainer__ = "Marco Esters, Janine George"
+__email__ = "esters@uoregon.edu, janine.george@uclouvain.be"
 __date__ = "Dec 13, 2017"
 
 
@@ -180,6 +180,41 @@ class Cohp(MSONable):
                 raise ValueError("ICOHP is empty.")
         return inter
 
+    def has_antibnd_states_below_efermi(self, spin=None, limit=0.01):
+        """
+        Returns dict indicating if there are antibonding states below the Fermi level depending on the spin
+            spin: Spin
+            limit: -COHP smaller -limit will be considered.
+
+        """
+        warnings.warn("This method has not been tested on many examples. Check the parameter limit, pls!")
+
+        populations = self.cohp
+        number_energies_below_efermi = len([x for x in self.energies if x <= self.efermi])
+
+        if populations is None:
+            return None
+        elif spin is None:
+            dict_to_return = {}
+            for spin, cohpvalues in populations.items():
+                if (max(cohpvalues[0:number_energies_below_efermi])) > limit:
+                    dict_to_return[spin] = True
+                else:
+                    dict_to_return[spin] = False
+        else:
+            dict_to_return = {}
+            if isinstance(spin, int):
+                spin = Spin(spin)
+            elif isinstance(spin, str):
+                s = {"up": 1, "down": -1}[spin.lower()]
+                spin = Spin(s)
+            if (max(populations[spin][0:number_energies_below_efermi])) > limit:
+                dict_to_return[spin] = True
+            else:
+                dict_to_return[spin] = False
+
+        return dict_to_return
+
     @classmethod
     def from_dict(cls, d):
         """
@@ -252,11 +287,8 @@ class CompleteCohp(Cohp):
 
     def __init__(self, structure, avg_cohp, cohp_dict, bonds=None,
                  are_coops=False, orb_res_cohp=None):
-        super(CompleteCohp, self).__init__(avg_cohp.efermi,
-                                           avg_cohp.energies,
-                                           avg_cohp.cohp,
-                                           are_coops=are_coops,
-                                           icohp=avg_cohp.icohp)
+        super().__init__(avg_cohp.efermi, avg_cohp.energies, avg_cohp.cohp,
+                         are_coops=are_coops, icohp=avg_cohp.icohp)
         self.structure = structure
         self.are_coops = are_coops
         self.all_cohps = cohp_dict
@@ -372,6 +404,42 @@ class CompleteCohp(Cohp):
             summed_icohp[Spin.up] = np.sum([summed_icohp[Spin.up], cohp_here.icohp[Spin.up]], axis=0)
             if Spin.down in summed_icohp:
                 summed_icohp[Spin.down] = np.sum([summed_icohp[Spin.down], cohp_here.icohp[Spin.down]], axis=0)
+
+        divided_cohp = {}
+        divided_icohp = {}
+        divided_cohp[Spin.up] = np.divide(summed_cohp[Spin.up], divisor)
+        divided_icohp[Spin.up] = np.divide(summed_icohp[Spin.up], divisor)
+        if Spin.down in summed_cohp:
+            divided_cohp[Spin.down] = np.divide(summed_cohp[Spin.down], divisor)
+            divided_icohp[Spin.down] = np.divide(summed_icohp[Spin.down], divisor)
+
+        return Cohp(efermi=first_cohpobject.efermi, energies=first_cohpobject.energies, cohp=divided_cohp,
+                    are_coops=first_cohpobject.are_coops,
+                    icohp=divided_icohp)
+
+    def get_summed_cohp_by_label_and_orbital_list(self, label_list, orbital_list, divisor=1):
+        """
+        Returns a COHP object that includes a summed COHP divided by divisor
+
+        Args:
+            label_list: list of labels for the COHP that should be included in the summed cohp
+            orbital_list: list of orbitals for the COHPs that should be included in the summed cohp (same order as label_list)
+            divisor: float/int, the summed cohp will be divided by this divisor
+        Returns:
+            Returns a COHP object including a summed COHP
+        """
+        # check if cohps are spinpolarized or not
+        first_cohpobject = self.get_orbital_resolved_cohp(label_list[0], orbital_list[0])
+        summed_cohp = first_cohpobject.cohp.copy()
+        summed_icohp = first_cohpobject.icohp.copy()
+        for ilabel, label in enumerate(label_list[1:], 1):
+            cohp_here = self.get_orbital_resolved_cohp(label, orbital_list[ilabel])
+            summed_cohp[Spin.up] = np.sum([summed_cohp[Spin.up], cohp_here.cohp.copy()[Spin.up]], axis=0)
+            if Spin.down in summed_cohp:
+                summed_cohp[Spin.down] = np.sum([summed_cohp[Spin.down], cohp_here.cohp.copy()[Spin.down]], axis=0)
+            summed_icohp[Spin.up] = np.sum([summed_icohp[Spin.up], cohp_here.icohp.copy()[Spin.up]], axis=0)
+            if Spin.down in summed_icohp:
+                summed_icohp[Spin.down] = np.sum([summed_icohp[Spin.down], cohp_here.icohp.copy()[Spin.down]], axis=0)
 
         divided_cohp = {}
         divided_icohp = {}
@@ -944,7 +1012,7 @@ class IcohpCollection(MSONable):
 
         if not self._is_spin_polarized:
             if spin == Spin.down:
-                raise Warning("This spin channel does not exist. I am switching to Spin.up")
+                warnings.warn("This spin channel does not exist. I am switching to Spin.up")
             spin = Spin.up
 
         for value in self._icohplist.values():

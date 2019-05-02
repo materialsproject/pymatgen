@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.qchem.inputs module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.io.qchem.inputs module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -55,25 +53,21 @@ To add a new section one needs to modify __init__, __str__, from_sting and add s
 to read and write the new section i.e. section_template and read_section. By design, there is very little (or no)
 checking that input parameters conform to the appropriate QChem format, this responsible lands on the user or a
 separate error handling software.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>molecule</strong> (<em>pymatgen Molecule object</em><em> or </em><em>&quot;read&quot;</em>) – Input molecule. molecule can be set as either a pymatgen Molecule object or as the str “read”.
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>molecule</strong> (<em>pymatgen Molecule object</em><em> or </em><em>&quot;read&quot;</em>) – Input molecule. molecule can be set as either a pymatgen Molecule object or as the str “read”.
 “read” can be used in multi_job QChem input files where the molecule is read in from the
-previous calculation.</li>
-<li><strong>rem</strong> (<em>dict</em>) – A dictionary of all the input parameters for the rem section of QChem input file.
-Ex. rem = {‘method’: ‘rimp2’, ‘basis’: ‘6-31*G++’ … }</li>
-<li><strong>opt</strong> (<em>dict of lists</em>) – A dictionary of opt sections, where each opt section is a key and the corresponding
+previous calculation.</p></li>
+<li><p><strong>rem</strong> (<em>dict</em>) – A dictionary of all the input parameters for the rem section of QChem input file.
+Ex. rem = {‘method’: ‘rimp2’, ‘basis’: ‘6-31*G++’ … }</p></li>
+<li><p><strong>opt</strong> (<em>dict of lists</em>) – A dictionary of opt sections, where each opt section is a key and the corresponding
 values are a list of strings. Stings must be formatted as instructed by the QChem manual.
 The different opt sections are: CONSTRAINT, FIXED, DUMMY, and CONNECT
-Ex. opt = {“CONSTRAINT”: [“tors 2 3 4 5 25.0”, “tors 2 5 7 9 80.0”], “FIXED”: [“2 XY”]}</li>
+Ex. opt = {“CONSTRAINT”: [“tors 2 3 4 5 25.0”, “tors 2 5 7 9 80.0”], “FIXED”: [“2 XY”]}</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="staticmethod">
 <dt id="pymatgen.io.qchem.inputs.QCInput.find_sections">
 <em class="property">static </em><code class="descname">find_sections</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.find_sections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.find_sections" title="Permalink to this definition">¶</a></dt>
@@ -192,8 +186,6 @@ Ex. opt = {“CONSTRAINT”: [“tors 2 3 4 5 25.0”, “tors 2 5 7 9 80.0”],
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -211,13 +203,13 @@ Ex. opt = {“CONSTRAINT”: [“tors 2 3 4 5 25.0”, “tors 2 5 7 9 80.0”],
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

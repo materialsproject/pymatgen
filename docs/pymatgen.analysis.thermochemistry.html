@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.thermochemistry module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.thermochemistry module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -52,33 +50,29 @@
 <em class="property">class </em><code class="descname">ThermoData</code><span class="sig-paren">(</span><em>data_type</em>, <em>cpdname</em>, <em>phaseinfo</em>, <em>formula</em>, <em>value</em>, <em>ref=''</em>, <em>method=''</em>, <em>temp_range=(298</em>, <em>298)</em>, <em>uncertainty=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/thermochemistry.html#ThermoData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.thermochemistry.ThermoData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A object container for an experimental Thermochemical Data.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>data_type</strong> – The thermochemical data type. Should be one of the
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_type</strong> – The thermochemical data type. Should be one of the
 following: fH - Formation enthalpy, S - Entropy,
 A, B, C, D, E, F, G, H - variables for use in the various
 quations for generating formation enthaplies or Cp at
-various temperatures.</li>
-<li><strong>cpdname</strong> (<em>str</em>) – A name for the compound. For example, hematite for
-Fe2O3.</li>
-<li><strong>phaseinfo</strong> (<em>str</em>) – Denoting the phase. For example, “solid”, “liquid”,
-“gas” or “tetragonal”.</li>
-<li><strong>formula</strong> (<em>str</em>) – A proper string formula, e.g., Fe2O3</li>
-<li><strong>value</strong> (<em>float</em>) – The value of the data.</li>
-<li><strong>ref</strong> (<em>str</em>) – A reference, if any, for the data.</li>
-<li><strong>method</strong> (<em>str</em>) – The method by which the data was determined,
-if available.</li>
-<li><strong>temp_range</strong> (<em>[</em><em>float</em><em>, </em><em>float</em><em>]</em>) – Temperature range of validity for the
-data in Kelvin. Defaults to 298 K only.</li>
-<li><strong>uncertainty</strong> (<em>float</em>) – An uncertainty for the data, if available.</li>
+various temperatures.</p></li>
+<li><p><strong>cpdname</strong> (<em>str</em>) – A name for the compound. For example, hematite for
+Fe2O3.</p></li>
+<li><p><strong>phaseinfo</strong> (<em>str</em>) – Denoting the phase. For example, “solid”, “liquid”,
+“gas” or “tetragonal”.</p></li>
+<li><p><strong>formula</strong> (<em>str</em>) – A proper string formula, e.g., Fe2O3</p></li>
+<li><p><strong>value</strong> (<em>float</em>) – The value of the data.</p></li>
+<li><p><strong>ref</strong> (<em>str</em>) – A reference, if any, for the data.</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – The method by which the data was determined,
+if available.</p></li>
+<li><p><strong>temp_range</strong> (<em>[</em><em>float</em><em>, </em><em>float</em><em>]</em>) – Temperature range of validity for the
+data in Kelvin. Defaults to 298 K only.</p></li>
+<li><p><strong>uncertainty</strong> (<em>float</em>) – An uncertainty for the data, if available.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.analysis.thermochemistry.ThermoData.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/thermochemistry.html#ThermoData.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.thermochemistry.ThermoData.as_dict" title="Permalink to this definition">¶</a></dt>
@@ -112,8 +106,6 @@ data in Kelvin. Defaults to 298 K only.</li>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -131,13 +123,13 @@ data in Kelvin. Defaults to 298 K only.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

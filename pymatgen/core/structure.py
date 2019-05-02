@@ -839,7 +839,7 @@ class IStructure(SiteCollection, MSONable):
         Overall charge of the structure
         """
         if self._charge is None:
-            return super(IStructure, self).charge
+            return super().charge
         else:
             return self._charge
 
@@ -1087,7 +1087,8 @@ class IStructure(SiteCollection, MSONable):
                                       include_image=include_image)
         return [d for d in nn if site != d[0]]
 
-    def get_all_neighbors(self, r, include_index=False, include_image=False):
+    def get_all_neighbors(self, r, include_index=False, include_image=False,
+                          include_site=True):
         """
         Get neighbors for each atom in the unit cell, out to a distance r
         Returns a list of list of neighbors for each site in structure.
@@ -1100,10 +1101,11 @@ class IStructure(SiteCollection, MSONable):
         The return type is a [(site, dist) ...] since most of the time,
         subsequent processing requires the distance.
 
-        A note about periodic images: Before computing the neighbors, this operation
-        translates all atoms to within the unit cell (having fractional coordinates within [0,1)).
-        This means that the "image" of a site does not correspond to how much it has been
-        translates from its current position, but which image of the unit cell it resides.
+        A note about periodic images: Before computing the neighbors, this
+        operation translates all atoms to within the unit cell (having
+        fractional coordinates within [0,1)). This means that the "image" of a
+        site does not correspond to how much it has been translates from its
+        current position, but which image of the unit cell it resides.
 
         Args:
             r (float): Radius of sphere.
@@ -1111,15 +1113,18 @@ class IStructure(SiteCollection, MSONable):
                 in the returned data
             include_image (bool): Whether to include the supercell image
                 in the returned data
+            include_site (bool): Whether to include the site in the returned
+                data. Defaults to True.
 
         Returns:
             A list of a list of nearest neighbors for each site, i.e.,
-            [[(site, dist, index) ...], ..]
+            [[(site, dist, index, image) ...], ..]
             Index only supplied if include_index = True.
             The index is the index of the site in the original (non-supercell)
             structure. This is needed for ewaldmatrix by keeping track of which
             sites contribute to the ewald sum.
             Image only supplied if include_image = True
+            Site is supplied only if include_site = True (the default).
         """
         # Use same algorithm as get_sites_in_sphere to determine supercell but
         # loop over all atoms in crystal
@@ -1131,28 +1136,35 @@ class IStructure(SiteCollection, MSONable):
         all_ranges = [np.arange(x, y) for x, y in zip(nmin, nmax)]
 
         latt = self._lattice
+        matrix = latt.matrix
         neighbors = [list() for _ in range(len(self._sites))]
         all_fcoords = np.mod(self.frac_coords, 1)
-        coords_in_cell = latt.get_cartesian_coords(all_fcoords)
+        coords_in_cell = np.dot(all_fcoords, matrix)
         site_coords = self.cart_coords
 
         indices = np.arange(len(self))
+
         for image in itertools.product(*all_ranges):
-            coords = latt.get_cartesian_coords(image) + coords_in_cell
+            coords = np.dot(image, matrix) + coords_in_cell
             all_dists = all_distances(coords, site_coords)
             all_within_r = np.bitwise_and(all_dists <= r, all_dists > 1e-8)
 
             for (j, d, within_r) in zip(indices, all_dists, all_within_r):
-                nnsite = PeriodicSite(self[j].species, coords[j],
-                                      latt, properties=self[j].properties,
-                                      coords_are_cartesian=True)
-                for i in indices[within_r]:
-                    item = (nnsite, d[i], j) if include_index else (
-                        nnsite, d[i])
+                if include_site:
+                    nnsite = PeriodicSite(self[j].species, coords[j],
+                                          latt, properties=self[j].properties,
+                                          coords_are_cartesian=True)
 
+                for i in indices[within_r]:
+                    item = []
+                    if include_site:
+                        item.append(nnsite)
+                    item.append(d[i])
+                    if include_index:
+                        item.append(j)
                     # Add the image, if requested
                     if include_image:
-                        item += (image,)
+                        item.append(image)
                     neighbors[i].append(item)
         return neighbors
 
@@ -1416,15 +1428,16 @@ class IStructure(SiteCollection, MSONable):
                 as [0, 0, 0] for a tolerance of 0.25. Defaults to 0.25.
             use_site_props (bool): Whether to account for site properties in
                 differntiating sites.
-            constrain_latt (list of bools): Determines which lattice constant
-                we want to preserve (True), if any. Order of bools in the list
-                corresponds to [a, b, c, alpha, beta, gamme].
+            constrain_latt (list/dict): List of lattice parameters we want to
+                preserve, e.g. ["alpha", "c"] or dict with the lattice
+                parameter names as keys and values we want the parameters to
+                be e.g. {"alpha": 90, "c": 2.5}.
 
         Returns:
             The most primitive structure found.
         """
         if constrain_latt is None:
-            constrain_latt = [False, False, False, False, False, False]
+            constrain_latt = []
 
         def site_label(site):
             if not use_site_props:
@@ -1585,16 +1598,18 @@ class IStructure(SiteCollection, MSONable):
                         tolerance=tolerance, use_site_props=use_site_props,
                         constrain_latt=constrain_latt
                     ).get_reduced_structure()
-                    if not any(constrain_latt):
+                    if not constrain_latt:
                         return p
 
                     # Only return primitive structures that
                     # satisfy the restriction condition
-                    p_l, s_l = p._lattice, self._lattice
-                    p_latt = [p_l.a, p_l.b, p_l.c, p_l.alpha, p_l.beta, p_l.gamma]
-                    s_latt = [s_l.a, s_l.b, s_l.c, s_l.alpha, s_l.beta, s_l.gamma]
-                    if all([p_latt[i] == s_latt[i] for i, b in enumerate(constrain_latt) if b]):
-                        return p
+                    p_latt, s_latt = p.lattice, self.lattice
+                    if type(constrain_latt).__name__ == "list":
+                        if all([getattr(p_latt, p) == getattr(s_latt, p) for p in constrain_latt]):
+                            return p
+                    elif type(constrain_latt).__name__ == "dict":
+                        if all([getattr(p_latt, p) == constrain_latt[p] for p in constrain_latt.keys()]):
+                            return p
 
         return self.copy()
 
@@ -1712,7 +1727,7 @@ class IStructure(SiteCollection, MSONable):
             filename (str): If provided, output will be written to a file. If
                 fmt is not specified, the format is determined from the
                 filename. Defaults is None, i.e. string output.
-            \*\*kwargs: Kwargs passthru to relevant methods. E.g., This allows
+            \\*\\*kwargs: Kwargs passthru to relevant methods. E.g., This allows
                 the passing of parameters like symprec to the
                 CifWriter.__init__ method for generation of symmetric cifs.
 
@@ -2536,7 +2551,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 have to be the same length as the atomic species and
                 fractional_coords. Defaults to None for no properties.
         """
-        super(Structure, self).__init__(
+        super().__init__(
             lattice, species, coords, charge=charge,
             validate_proximity=validate_proximity, to_unit_cell=to_unit_cell,
             coords_are_cartesian=coords_are_cartesian,
@@ -2987,12 +3002,11 @@ class Structure(IStructure, collections.abc.MutableSequence):
         theta %= 2 * np.pi
 
         rm = expm(cross(eye(3), axis / norm(axis)) * theta)
-
         for i in indices:
             site = self._sites[i]
-            s = ((np.dot(rm, np.array(site.coords - anchor).T)).T + anchor).ravel()
+            coords = ((np.dot(rm, np.array(site.coords - anchor).T)).T + anchor).ravel()
             new_site = PeriodicSite(
-                site.species, s, self._lattice,
+                site.species, coords, self._lattice,
                 to_unit_cell=to_unit_cell, coords_are_cartesian=True,
                 properties=site.properties)
             self._sites[i] = new_site
@@ -3060,8 +3074,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         Args:
             tol (float): Tolerance for distance to merge sites.
-            mode (str): Two modes supported. "delete" means duplicate sites are
+            mode (str): Three modes supported. "delete" means duplicate sites are
                 deleted. "sum" means the occupancies are summed for the sites.
+                "average" means that the site is deleted but the properties are averaged
                 Only first letter is considered.
 
         """
@@ -3088,9 +3103,13 @@ class Structure(IStructure, collections.abc.MutableSequence):
                     coords.dtype)
                 for key in props.keys():
                     if props[key] is not None and self[i].properties[key] != props[key]:
-                        props[key] = None
-                        warnings.warn("Sites with different site property %s are merged. "
-                                      "So property is set to none" % key)
+                        if mode  == 'a' and isinstance(props[key], float):
+                            # update a running total
+                            props[key] = props[key]*(n+1)/(n+2) + self[i].properties[key]/(n+2)
+                        else:
+                            props[key] = None
+                            warnings.warn("Sites with different site property %s are merged. "
+                                        "So property is set to none" % key)
             sites.append(PeriodicSite(species, coords, self.lattice, properties=props))
 
         self._sites = sites
@@ -3137,10 +3156,10 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                 sequences have to be the same length as the atomic species
                 and fractional_coords. Defaults to None for no properties.
         """
-        super(Molecule, self).__init__(species, coords, charge=charge,
-                                       spin_multiplicity=spin_multiplicity,
-                                       validate_proximity=validate_proximity,
-                                       site_properties=site_properties)
+        super().__init__(species, coords, charge=charge,
+                         spin_multiplicity=spin_multiplicity,
+                         validate_proximity=validate_proximity,
+                         site_properties=site_properties)
         self._sites = list(self._sites)
 
     def __setitem__(self, i, site):

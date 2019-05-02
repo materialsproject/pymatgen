@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.operations module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.core.operations module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -60,20 +58,16 @@ and time reversal operator.
 In general, this constructor should not be used unless you are
 transferring rotations.  Use the static constructors instead to
 generate a SymmOp from proper rotations and translation.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>affine_transformation_matrix</strong> (<em>4x4 array</em>) – Representing an
-affine transformation.</li>
-<li><strong>time_reversal</strong> (<em>int</em>) – 1 or -1</li>
-<li><strong>tol</strong> (<em>float</em>) – Tolerance for determining if matrices are equal.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>affine_transformation_matrix</strong> (<em>4x4 array</em>) – Representing an
+affine transformation.</p></li>
+<li><p><strong>time_reversal</strong> (<em>int</em>) – 1 or -1</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – Tolerance for determining if matrices are equal.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.core.operations.MagSymmOp.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#MagSymmOp.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.MagSymmOp.as_dict" title="Permalink to this definition">¶</a></dt>
@@ -97,60 +91,50 @@ affine transformation.</li>
 <em class="property">static </em><code class="descname">from_rotation_and_translation_and_time_reversal</code><span class="sig-paren">(</span><em>rotation_matrix=((1</em>, <em>0</em>, <em>0)</em>, <em>(0</em>, <em>1</em>, <em>0)</em>, <em>(0</em>, <em>0</em>, <em>1))</em>, <em>translation_vec=(0</em>, <em>0</em>, <em>0)</em>, <em>time_reversal=1</em>, <em>tol=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#MagSymmOp.from_rotation_and_translation_and_time_reversal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.MagSymmOp.from_rotation_and_translation_and_time_reversal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a symmetry operation from a rotation matrix, translation
 vector and time reversal operator.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>rotation_matrix</strong> (<em>3x3 array</em>) – Rotation matrix.</li>
-<li><strong>translation_vec</strong> (<em>3x1 array</em>) – Translation vector.</li>
-<li><strong>time_reversal</strong> (<em>int</em>) – Time reversal operator, +1 or -1.</li>
-<li><strong>tol</strong> (<em>float</em>) – Tolerance to determine if rotation matrix is valid.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rotation_matrix</strong> (<em>3x3 array</em>) – Rotation matrix.</p></li>
+<li><p><strong>translation_vec</strong> (<em>3x1 array</em>) – Translation vector.</p></li>
+<li><p><strong>time_reversal</strong> (<em>int</em>) – Time reversal operator, +1 or -1.</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – Tolerance to determine if rotation matrix is valid.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">MagSymmOp object</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>MagSymmOp object</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
 <dt id="pymatgen.core.operations.MagSymmOp.from_symmop">
 <em class="property">classmethod </em><code class="descname">from_symmop</code><span class="sig-paren">(</span><em>symmop</em>, <em>time_reversal</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#MagSymmOp.from_symmop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.MagSymmOp.from_symmop" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize a MagSymmOp from a SymmOp and time reversal operator.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>symmop</strong> (<a class="reference internal" href="#pymatgen.core.operations.SymmOp" title="pymatgen.core.operations.SymmOp"><em>SymmOp</em></a>) – SymmOp</li>
-<li><strong>time_reversal</strong> (<em>int</em>) – Time reversal operator, +1 or -1.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>symmop</strong> (<a class="reference internal" href="#pymatgen.core.operations.SymmOp" title="pymatgen.core.operations.SymmOp"><em>SymmOp</em></a>) – SymmOp</p></li>
+<li><p><strong>time_reversal</strong> (<em>int</em>) – Time reversal operator, +1 or -1.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">MagSymmOp object</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>MagSymmOp object</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="pymatgen.core.operations.MagSymmOp.from_xyzt_string">
 <em class="property">static </em><code class="descname">from_xyzt_string</code><span class="sig-paren">(</span><em>xyzt_string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#MagSymmOp.from_xyzt_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.MagSymmOp.from_xyzt_string" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>xyz_string</strong> – string of the form ‘x, y, z, +1’, ‘-x, -y, z, -1’,
-‘-2y+1/2, 3x+1/2, z-y+1/2, +1’, etc.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">MagSymmOp object</td>
-</tr>
-</tbody>
-</table>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>xyz_string</strong> – string of the form ‘x, y, z, +1’, ‘-x, -y, z, -1’,
+‘-2y+1/2, 3x+1/2, z-y+1/2, +1’, etc.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>MagSymmOp object</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -160,21 +144,17 @@ vector and time reversal operator.</p>
 magnetic moments transform as axial vectors, not polar vectors.</p>
 <p>See ‘Symmetry and magnetic structures’, Rodríguez-Carvajal and
 Bourée for a good discussion. DOI: 10.1051/epjconf/20122200010</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>magmom</strong> – Magnetic moment as electronic_structure.core.Magmom</li>
-<li><strong>or as list</strong><strong> or </strong><strong>np array-like</strong> (<em>class</em>) – </li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>magmom</strong> – Magnetic moment as electronic_structure.core.Magmom</p></li>
+<li><p><strong>or as list</strong><strong> or </strong><strong>np array-like</strong> (<em>class</em>) – </p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Magnetic moment after operator applied as Magmom class</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Magnetic moment after operator applied as Magmom class</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -196,54 +176,43 @@ for efficiency. Read: <a class="reference external" href="http://en.wikipedia.or
 In general, this constructor should not be used unless you are
 transferring rotations.  Use the static constructors instead to
 generate a SymmOp from proper rotations and translation.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>affine_transformation_matrix</strong> (<em>4x4 array</em>) – Representing an
-affine transformation.</li>
-<li><strong>tol</strong> (<em>float</em>) – Tolerance for determining if matrices are equal.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>affine_transformation_matrix</strong> (<em>4x4 array</em>) – Representing an
+affine transformation.</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – Tolerance for determining if matrices are equal.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.core.operations.SymmOp.apply_rotation_only">
 <code class="descname">apply_rotation_only</code><span class="sig-paren">(</span><em>vector</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.apply_rotation_only"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.apply_rotation_only" title="Permalink to this definition">¶</a></dt>
 <dd><p>Vectors should only be operated by the rotation matrix and not the
 translation vector.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>vector</strong> (<em>3x1 array</em>) – A vector.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>vector</strong> (<em>3x1 array</em>) – A vector.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.operations.SymmOp.are_symmetrically_related">
 <code class="descname">are_symmetrically_related</code><span class="sig-paren">(</span><em>point_a</em>, <em>point_b</em>, <em>tol=0.001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.are_symmetrically_related"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.are_symmetrically_related" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if two points are symmetrically related.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>point_a</strong> (<em>3x1 array</em>) – First point.</li>
-<li><strong>point_b</strong> (<em>3x1 array</em>) – Second point.</li>
-<li><strong>tol</strong> (<em>float</em>) – Absolute tolerance for checking distance.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>point_a</strong> (<em>3x1 array</em>) – First point.</p></li>
+<li><p><strong>point_b</strong> (<em>3x1 array</em>) – Second point.</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – Absolute tolerance for checking distance.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if self.operate(point_a) == point_b or vice versa.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if self.operate(point_a) == point_b or vice versa.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -263,25 +232,21 @@ translation vector.</p>
 <dt id="pymatgen.core.operations.SymmOp.from_axis_angle_and_translation">
 <em class="property">static </em><code class="descname">from_axis_angle_and_translation</code><span class="sig-paren">(</span><em>axis</em>, <em>angle</em>, <em>angle_in_radians=False</em>, <em>translation_vec=(0</em>, <em>0</em>, <em>0)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.from_axis_angle_and_translation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.from_axis_angle_and_translation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a SymmOp for a rotation about a given axis plus translation.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>axis</strong> – The axis of rotation in cartesian space. For example,
-[1, 0, 0]indicates rotation about x-axis.</li>
-<li><strong>angle</strong> (<em>float</em>) – Angle of rotation.</li>
-<li><strong>angle_in_radians</strong> (<em>bool</em>) – Set to True if angles are given in
-radians. Or else, units of degrees are assumed.</li>
-<li><strong>translation_vec</strong> – A translation vector. Defaults to zero.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>axis</strong> – The axis of rotation in cartesian space. For example,
+[1, 0, 0]indicates rotation about x-axis.</p></li>
+<li><p><strong>angle</strong> (<em>float</em>) – Angle of rotation.</p></li>
+<li><p><strong>angle_in_radians</strong> (<em>bool</em>) – Set to True if angles are given in
+radians. Or else, units of degrees are assumed.</p></li>
+<li><p><strong>translation_vec</strong> – A translation vector. Defaults to zero.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">SymmOp for a rotation about given axis and translation.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>SymmOp for a rotation about given axis and translation.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
@@ -294,25 +259,21 @@ radians. Or else, units of degrees are assumed.</li>
 <em class="property">static </em><code class="descname">from_origin_axis_angle</code><span class="sig-paren">(</span><em>origin</em>, <em>axis</em>, <em>angle</em>, <em>angle_in_radians=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.from_origin_axis_angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.from_origin_axis_angle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a SymmOp for a rotation about a given axis through an
 origin.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>origin</strong> (<em>3x1 array</em>) – The origin which the axis passes through.</li>
-<li><strong>axis</strong> (<em>3x1 array</em>) – The axis of rotation in cartesian space. For
-example, [1, 0, 0]indicates rotation about x-axis.</li>
-<li><strong>angle</strong> (<em>float</em>) – Angle of rotation.</li>
-<li><strong>angle_in_radians</strong> (<em>bool</em>) – Set to True if angles are given in
-radians. Or else, units of degrees are assumed.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>origin</strong> (<em>3x1 array</em>) – The origin which the axis passes through.</p></li>
+<li><p><strong>axis</strong> (<em>3x1 array</em>) – The axis of rotation in cartesian space. For
+example, [1, 0, 0]indicates rotation about x-axis.</p></li>
+<li><p><strong>angle</strong> (<em>float</em>) – Angle of rotation.</p></li>
+<li><p><strong>angle_in_radians</strong> (<em>bool</em>) – Set to True if angles are given in
+radians. Or else, units of degrees are assumed.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">SymmOp.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>SymmOp.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="staticmethod">
@@ -320,38 +281,32 @@ radians. Or else, units of degrees are assumed.</li>
 <em class="property">static </em><code class="descname">from_rotation_and_translation</code><span class="sig-paren">(</span><em>rotation_matrix=((1</em>, <em>0</em>, <em>0)</em>, <em>(0</em>, <em>1</em>, <em>0)</em>, <em>(0</em>, <em>0</em>, <em>1))</em>, <em>translation_vec=(0</em>, <em>0</em>, <em>0)</em>, <em>tol=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.from_rotation_and_translation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.from_rotation_and_translation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a symmetry operation from a rotation matrix and a translation
 vector.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>rotation_matrix</strong> (<em>3x3 array</em>) – Rotation matrix.</li>
-<li><strong>translation_vec</strong> (<em>3x1 array</em>) – Translation vector.</li>
-<li><strong>tol</strong> (<em>float</em>) – Tolerance to determine if rotation matrix is valid.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rotation_matrix</strong> (<em>3x3 array</em>) – Rotation matrix.</p></li>
+<li><p><strong>translation_vec</strong> (<em>3x1 array</em>) – Translation vector.</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – Tolerance to determine if rotation matrix is valid.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">SymmOp object</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>SymmOp object</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="pymatgen.core.operations.SymmOp.from_xyz_string">
 <em class="property">static </em><code class="descname">from_xyz_string</code><span class="sig-paren">(</span><em>xyz_string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.from_xyz_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.from_xyz_string" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>xyz_string</strong> – string of the form ‘x, y, z’, ‘-x, -y, z’,
-‘-2y+1/2, 3x+1/2, z-y+1/2’, etc.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">SymmOp</td>
-</tr>
-</tbody>
-</table>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>xyz_string</strong> – string of the form ‘x, y, z’, ‘-x, -y, z’,
+‘-2y+1/2, 3x+1/2, z-y+1/2’, etc.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>SymmOp</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -364,72 +319,62 @@ vector.</p>
 <dt id="pymatgen.core.operations.SymmOp.inversion">
 <em class="property">static </em><code class="descname">inversion</code><span class="sig-paren">(</span><em>origin=(0</em>, <em>0</em>, <em>0)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.inversion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.inversion" title="Permalink to this definition">¶</a></dt>
 <dd><p>Inversion symmetry operation about axis.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>origin</strong> (<em>3x1 array</em>) – Origin of the inversion operation. Defaults
-to [0, 0, 0].</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">SymmOp representing an inversion operation about the origin.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>origin</strong> (<em>3x1 array</em>) – Origin of the inversion operation. Defaults
+to [0, 0, 0].</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>SymmOp representing an inversion operation about the origin.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.operations.SymmOp.operate">
 <code class="descname">operate</code><span class="sig-paren">(</span><em>point</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.operate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.operate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply the operation on a point.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>point</strong> – Cartesian coordinate.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Coordinates of point after operation.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>point</strong> – Cartesian coordinate.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Coordinates of point after operation.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.operations.SymmOp.operate_multi">
 <code class="descname">operate_multi</code><span class="sig-paren">(</span><em>points</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.operate_multi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.operate_multi" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply the operation on a list of points.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>points</strong> – List of Cartesian coordinates</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Numpy array of coordinates after operation</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>points</strong> – List of Cartesian coordinates</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Numpy array of coordinates after operation</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="pymatgen.core.operations.SymmOp.reflection">
 <em class="property">static </em><code class="descname">reflection</code><span class="sig-paren">(</span><em>normal</em>, <em>origin=(0</em>, <em>0</em>, <em>0)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.reflection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.reflection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns reflection symmetry operation.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>normal</strong> (<em>3x1 array</em>) – Vector of the normal to the plane of
-reflection.</li>
-<li><strong>origin</strong> (<em>3x1 array</em>) – A point in which the mirror plane passes
-through.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>normal</strong> (<em>3x1 array</em>) – Vector of the normal to the plane of
+reflection.</p></li>
+<li><p><strong>origin</strong> (<em>3x1 array</em>) – A point in which the mirror plane passes
+through.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">SymmOp for the reflection about the plane</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>SymmOp for the reflection about the plane</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -442,23 +387,19 @@ through.</li>
 <dt id="pymatgen.core.operations.SymmOp.rotoreflection">
 <em class="property">static </em><code class="descname">rotoreflection</code><span class="sig-paren">(</span><em>axis</em>, <em>angle</em>, <em>origin=(0</em>, <em>0</em>, <em>0)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.rotoreflection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.rotoreflection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a roto-reflection symmetry operation</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>axis</strong> (<em>3x1 array</em>) – Axis of rotation / mirror normal</li>
-<li><strong>angle</strong> (<em>float</em>) – Angle in degrees</li>
-<li><strong>origin</strong> (<em>3x1 array</em>) – Point left invariant by roto-reflection.
-Defaults to (0, 0, 0).</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>axis</strong> (<em>3x1 array</em>) – Axis of rotation / mirror normal</p></li>
+<li><p><strong>angle</strong> (<em>float</em>) – Angle in degrees</p></li>
+<li><p><strong>origin</strong> (<em>3x1 array</em>) – Point left invariant by roto-reflection.
+Defaults to (0, 0, 0).</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Roto-reflection operation</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Roto-reflection operation</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -466,16 +407,14 @@ Defaults to (0, 0, 0).</li>
 <code class="descname">transform_tensor</code><span class="sig-paren">(</span><em>tensor</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.transform_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.transform_tensor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies rotation portion to a tensor. Note that tensor has to be in
 full form, not the Voigt form.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tensor</strong> (<em>numpy array</em>) – a rank n tensor</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Transformed tensor.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tensor</strong> (<em>numpy array</em>) – a rank n tensor</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Transformed tensor.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -507,8 +446,6 @@ full form, not the Voigt form.</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -526,13 +463,13 @@ full form, not the Voigt form.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

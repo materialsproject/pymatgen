@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Change log &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>Change log &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -46,757 +44,833 @@
             
   <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="v2019-5-1">
+<h2>v2019.5.1<a class="headerlink" href="#v2019-5-1" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Small speeds to Structure.get_all_neighbors.</p></li>
+<li><p>Big fixes for gulp_caller. (&#64;kmu)</p></li>
+<li><p>Plot fatbands from Lobster. (&#64;jageo)</p></li>
+<li><p>Speed up get_ir_mesh (&#64;utf)</p></li>
+<li><p>Parsing of plasma frequencies from Outcar.</p></li>
+<li><p>Miscellaneous bug fixes.</p></li>
+</ul>
+</div>
+<div class="section" id="v2019-4-11">
+<h2>v2019.4.11<a class="headerlink" href="#v2019-4-11" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Improvements to MimimumDistanceNN (&#64;jmmshn)</p></li>
+<li><p>Improvements to Lobster. (&#64;JaGeo)</p></li>
+<li><p>Implement a metal warning for ISMEAR &lt; 1 and NSW &gt; 0.</p></li>
+<li><p>Misc bug fixes to input sets, including detection of metal systems and
+checking for standardization.</p></li>
+</ul>
+</div>
+<div class="section" id="v2019-3-27">
+<h2>v2019.3.27<a class="headerlink" href="#v2019-3-27" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Bug fixes for OrderDisorderComparator (&#64;utf), custom k-points</p></li>
+</ul>
+<p>in MPNonSCFSet (&#64;dyllamt), battery app (&#64;jmmshn), MPSOCSet (&#64;mkhorton),
+more
+* Improvements to COHP (&#64;JaGeo)
+* Support to read WAVEDER files (&#64;knc6)
+* Addition of van Arkel-Ketelaar triangle plots (&#64;richardtran415)
+* Addition of optional user agent to MPRester API calls, see documentation
+for more information (&#64;dwinston)</p>
+</div>
+<div class="section" id="v2019-3-13">
+<h2>v2019.3.13<a class="headerlink" href="#v2019-3-13" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Streamlined Site, PeriodicSite, Molecule and Structure code by abandoning
+immutability for Site and PeriodicSite.</p></li>
+<li><p>VaspInput class now supports a run_vasp method, which can be used to code
+runnable python scripts for running simple calculations (custodian still
+recommended for more complex calculations.). For example, the following is a
+kpoint convergence script that can be submitted in a queue</p></li>
+</ul>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">from pymatgen import MPRester</span>
+<span class="go">from pymatgen.io.vasp.sets import MPRelaxSet</span>
+
+
+<span class="go">VASP_CMD = [&quot;mpirun&quot;, &quot;-machinefile&quot;, &quot;$PBS_NODEFILE&quot;, &quot;-np&quot;, &quot;16&quot;, &quot;vasp&quot;]</span>
+
+
+<span class="go">def main():</span>
+<span class="go">    mpr = MPRester()</span>
+<span class="go">    structure = mpr.get_structures(&quot;Li2O&quot;)[0]</span>
+<span class="go">    for k_dens in [100, 200, 400, 800]:</span>
+<span class="go">        vis = MPRelaxSet(structure,</span>
+<span class="go">            user_kpoints_settings={&quot;reciprocal_density&quot;: k_dens})</span>
+<span class="go">        vi = vis.get_vasp_input()</span>
+<span class="go">        kpoints = vi[&quot;KPOINTS&quot;].kpts[0][0]</span>
+<span class="go">        d = &quot;Li2O_kpoints_%d&quot; % kpoints</span>
+
+<span class="go">        # Directly run vasp.</span>
+<span class="go">        vi.run_vasp(d, vasp_cmd=VASP_CMD)</span>
+<span class="go">        # Use the final structure as the new initial structure to speed up calculations.</span>
+<span class="go">        structure = Vasprun(&quot;%s/vasprun.xml&quot; % d).final_structure</span>
+
+
+<span class="go">if __name__ == &quot;__main__&quot;:</span>
+<span class="go">    main()</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Many pymatgen from_file methods now support pathlib.Path as well as strings.</p></li>
+<li><p>Misc bug fixes.</p></li>
+</ul>
+</div>
 <div class="section" id="v2019-2-28">
 <h2>v2019.2.28<a class="headerlink" href="#v2019-2-28" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Type hints now available for core classes.</li>
-<li>New pymatgen.util.typing module for useful types.</li>
-<li>Misc bug fixes.</li>
+<li><p>Type hints now available for core classes.</p></li>
+<li><p>New pymatgen.util.typing module for useful types.</p></li>
+<li><p>Misc bug fixes.</p></li>
 </ul>
 </div>
 <div class="section" id="v2019-2-24">
 <h2>v2019.2.24<a class="headerlink" href="#v2019-2-24" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>New EntrySet class for easy manipulation of entries to grab subsets,
-remove non-ground-states, etc. Makes it easier to grab a large set of entries and work with sub chemical systems. Also MSONable for caching.</li>
-<li>Performance improvements in core classes and Poscar (&#64;ExpHP).</li>
-<li>New/changed methods for IcohpCollection and Completecohp</li>
+<li><p>New EntrySet class for easy manipulation of entries to grab subsets,
+remove non-ground-states, etc. Makes it easier to grab a large set of entries and work with sub chemical systems. Also MSONable for caching.</p></li>
+<li><p>Performance improvements in core classes and Poscar (&#64;ExpHP).</p></li>
+<li><p>New/changed methods for IcohpCollection and Completecohp</p></li>
 </ul>
 </div>
 <div class="section" id="v2019-2-4">
 <h2>v2019.2.4<a class="headerlink" href="#v2019-2-4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>New Trajectory class for MD simulations (&#64;sivonxay)</li>
-<li>Lattice.get_vector_along_lattice_directions (&#64;blondgeek)</li>
-<li>Misc bug fixes.</li>
+<li><p>New Trajectory class for MD simulations (&#64;sivonxay)</p></li>
+<li><p>Lattice.get_vector_along_lattice_directions (&#64;blondgeek)</p></li>
+<li><p>Misc bug fixes.</p></li>
 </ul>
 </div>
 <div class="section" id="v2019-1-24">
 <h2>v2019.1.24<a class="headerlink" href="#v2019-1-24" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Python 3 only!</li>
-<li>Improvements to local environment code including VESTA bond emulation (&#64;utf)</li>
-<li>Update Cohp analysis (&#64;JaGEO)</li>
-<li>Updates to Boltztrap2 (&#64;fraricci)</li>
+<li><p>Python 3 only!</p></li>
+<li><p>Improvements to local environment code including VESTA bond emulation (&#64;utf)</p></li>
+<li><p>Update Cohp analysis (&#64;JaGEO)</p></li>
+<li><p>Updates to Boltztrap2 (&#64;fraricci)</p></li>
 </ul>
 </div>
 <div class="section" id="v2019-1-13">
 <h2>v2019.1.13<a class="headerlink" href="#v2019-1-13" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Pymatgen is now Py3 ONLY. If you need Py27 support, please use versions
-&lt; 2019.1.1.</li>
-<li>PARCHG parsing from WAVECAR (&#64;mturiansky)</li>
-<li>Improvements to defect generation algorithms (&#64;dbroberg)</li>
-<li>Simplifications to COHP plotting (&#64;JaGeo)</li>
+<li><p>Pymatgen is now Py3 ONLY. If you need Py27 support, please use versions
+&lt; 2019.1.1.</p></li>
+<li><p>PARCHG parsing from WAVECAR (&#64;mturiansky)</p></li>
+<li><p>Improvements to defect generation algorithms (&#64;dbroberg)</p></li>
+<li><p>Simplifications to COHP plotting (&#64;JaGeo)</p></li>
 </ul>
 </div>
 <div class="section" id="v2018-12-12">
 <h2>v2018.12.12<a class="headerlink" href="#v2018-12-12" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Support for IUPAC ordering of elements in Composition formulae (&#64;utf)</li>
-<li>Various bug fixes including returning integer miller indices, catching negative values in Composition and fixes to graph analysis (&#64;utf), fix to Composition serialization (&#64;jmmshen), defect analysis (&#64;HanmeiTang), removing sites in surfaces (&#64;yiming-xu), and fix to support the new PROCAR format in VASP (&#64;dkorotin)</li>
-<li><cite>PMG_MAPI_ENDPOINT</cite> environment variable added to support different endpoints for the Materials Project REST interface (&#64;mkhorton)</li>
+<li><p>Support for IUPAC ordering of elements in Composition formulae (&#64;utf)</p></li>
+<li><p>Various bug fixes including returning integer miller indices, catching negative values in Composition and fixes to graph analysis (&#64;utf), fix to Composition serialization (&#64;jmmshen), defect analysis (&#64;HanmeiTang), removing sites in surfaces (&#64;yiming-xu), and fix to support the new PROCAR format in VASP (&#64;dkorotin)</p></li>
+<li><p><cite>PMG_MAPI_ENDPOINT</cite> environment variable added to support different endpoints for the Materials Project REST interface (&#64;mkhorton)</p></li>
 </ul>
 </div>
 <div class="section" id="v2018-11-30">
 <h2>v2018.11.30<a class="headerlink" href="#v2018-11-30" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>MPRester.query now supports bulk queries for large scale requests.
-(&#64;dwinston)</li>
-<li>MVLRelax52Set which uses VASP 52 pseudopotentials. (&#64;HanmeiTang)</li>
-<li>EPH calculations in ABINIT (&#64;gmatteo)</li>
-<li>New ScaleToRelaxedTransformation (&#64;richardtran415)</li>
-<li>New dimensionality finder, and consolidation of existing algorithms (&#64;utf)</li>
-<li>New dopant predictor built on structure predictor (&#64;utf)</li>
-<li>Misc bug fixes (&#64;HanmeiTang, &#64;utf, &#64;tamuhey, &#64;mkhorton, &#64;yiming-xu, &#64;richardtran415)</li>
+<li><p>MPRester.query now supports bulk queries for large scale requests.
+(&#64;dwinston)</p></li>
+<li><p>MVLRelax52Set which uses VASP 52 pseudopotentials. (&#64;HanmeiTang)</p></li>
+<li><p>EPH calculations in ABINIT (&#64;gmatteo)</p></li>
+<li><p>New ScaleToRelaxedTransformation (&#64;richardtran415)</p></li>
+<li><p>New dimensionality finder, and consolidation of existing algorithms (&#64;utf)</p></li>
+<li><p>New dopant predictor built on structure predictor (&#64;utf)</p></li>
+<li><p>Misc bug fixes (&#64;HanmeiTang, &#64;utf, &#64;tamuhey, &#64;mkhorton, &#64;yiming-xu, &#64;richardtran415)</p></li>
 </ul>
 </div>
 <div class="section" id="v2018-11-6">
 <h2>v2018.11.6<a class="headerlink" href="#v2018-11-6" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Ionic radius based CrystalNN (&#64;computron)</li>
-<li>InterfacialReactivity (&#64;dbroberg)</li>
-<li>Misc bug fixes</li>
+<li><p>Ionic radius based CrystalNN (&#64;computron)</p></li>
+<li><p>InterfacialReactivity (&#64;dbroberg)</p></li>
+<li><p>Misc bug fixes</p></li>
 </ul>
 </div>
 <div class="section" id="v2018-10-18">
 <h2>v2018.10.18<a class="headerlink" href="#v2018-10-18" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>New bond fragmenter and bond dissociation analysis modules (&#64;samblau)</li>
-<li>Improvements to MoleculeGraph (&#64;espottesmith)</li>
-<li>Fix: bug in triclinic tensor conversion to IEEE standard (&#64;montoyjh)</li>
-<li>Fix: insertion battery summary dictionary format (&#64;jmmshn)</li>
-<li>Speed improvements to certain tests (&#64;shyuep, &#64;samblau)</li>
+<li><p>New bond fragmenter and bond dissociation analysis modules (&#64;samblau)</p></li>
+<li><p>Improvements to MoleculeGraph (&#64;espottesmith)</p></li>
+<li><p>Fix: bug in triclinic tensor conversion to IEEE standard (&#64;montoyjh)</p></li>
+<li><p>Fix: insertion battery summary dictionary format (&#64;jmmshn)</p></li>
+<li><p>Speed improvements to certain tests (&#64;shyuep, &#64;samblau)</p></li>
 </ul>
 </div>
 <div class="section" id="v2018-9-30">
 <h2>v2018.9.30<a class="headerlink" href="#v2018-9-30" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Fix: increased cut-off to VoronoiNN to avoid scipy crash (&#64;utf)</li>
-<li>Fix: Outcar parsing issues with certain values of electrostatic potential (&#64;sivonxay)</li>
-<li>Fix: bug in EnumlibAdaptor/EnumerateStructureTransformation involving incorrect
-stoichiometries in some instances (#1286) (&#64;shyuep)</li>
-<li>Fix: fractional co-ordinate finite precision errors in CifParser, now
-also includes additional warnings for implicit hydrogens (&#64;mkhorton)</li>
-<li>New features and improvements to GBGenerator (&#64;ucsdlxg, &#64;shyuep)</li>
-<li>New analysis options in StructureGraph, speed up tests (&#64;mkhorton)</li>
-<li>New utility function to pretty print disordered formulae, along with a
-ordered-to-disordered structure transformation (&#64;mkhorton)</li>
-<li>Ability to use pymatgen’s StructureMatcher against AFLOW’s library of
-crystallographic prototypes (&#64;mkhorton)</li>
-<li>Make Chgcar serializable to/from dict for database insertion (&#64;jmmshn)</li>
+<li><p>Fix: increased cut-off to VoronoiNN to avoid scipy crash (&#64;utf)</p></li>
+<li><p>Fix: Outcar parsing issues with certain values of electrostatic potential (&#64;sivonxay)</p></li>
+<li><p>Fix: bug in EnumlibAdaptor/EnumerateStructureTransformation involving incorrect
+stoichiometries in some instances (#1286) (&#64;shyuep)</p></li>
+<li><p>Fix: fractional co-ordinate finite precision errors in CifParser, now
+also includes additional warnings for implicit hydrogens (&#64;mkhorton)</p></li>
+<li><p>New features and improvements to GBGenerator (&#64;ucsdlxg, &#64;shyuep)</p></li>
+<li><p>New analysis options in StructureGraph, speed up tests (&#64;mkhorton)</p></li>
+<li><p>New utility function to pretty print disordered formulae, along with a
+ordered-to-disordered structure transformation (&#64;mkhorton)</p></li>
+<li><p>Ability to use pymatgen’s StructureMatcher against AFLOW’s library of
+crystallographic prototypes (&#64;mkhorton)</p></li>
+<li><p>Make Chgcar serializable to/from dict for database insertion (&#64;jmmshn)</p></li>
 </ul>
 </div>
 <div class="section" id="v2018-9-19">
 <h2>v2018.9.19<a class="headerlink" href="#v2018-9-19" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Fix to composition handling in <cite>MolecularOrbitals</cite> (&#64;dyllamt)</li>
-<li>Fix to allow mixed compressed/uncompressed loading of VASP band structures (&#64;ajjackson)</li>
-<li>New features and fixes to <cite>chemenv</cite> analysis module (&#64;davidwaroquiers)</li>
-<li>Fix to include structure predictor data with pip/conda-installed pymatgen (&#64;shyamd)</li>
-<li>Fixes to <cite>Defect</cite> objects, icluding allowing rotational supercell transformations (&#64;dbroberg)</li>
-<li>Fix to <cite>BSDOSPlotter</cite> to correctly fill in parts of DOS (&#64;fraricci)</li>
-<li>Added ‘&#64;’ notation parsing in <cite>Composition</cite> (&#64;tamuhey)</li>
-<li>BibTex reference extraction updated in <cite>CifParser</cite> to support ICSD CIFs (&#64;shyamd)</li>
-<li>Various updates to speed up and fix test suite (&#64;shyuep, &#64;fraricci)</li>
-<li>Improvements to BoltzTraP 2 support (&#64;shyuep, &#64;fraricci)</li>
+<li><p>Fix to composition handling in <cite>MolecularOrbitals</cite> (&#64;dyllamt)</p></li>
+<li><p>Fix to allow mixed compressed/uncompressed loading of VASP band structures (&#64;ajjackson)</p></li>
+<li><p>New features and fixes to <cite>chemenv</cite> analysis module (&#64;davidwaroquiers)</p></li>
+<li><p>Fix to include structure predictor data with pip/conda-installed pymatgen (&#64;shyamd)</p></li>
+<li><p>Fixes to <cite>Defect</cite> objects, icluding allowing rotational supercell transformations (&#64;dbroberg)</p></li>
+<li><p>Fix to <cite>BSDOSPlotter</cite> to correctly fill in parts of DOS (&#64;fraricci)</p></li>
+<li><p>Added ‘&#64;’ notation parsing in <cite>Composition</cite> (&#64;tamuhey)</p></li>
+<li><p>BibTex reference extraction updated in <cite>CifParser</cite> to support ICSD CIFs (&#64;shyamd)</p></li>
+<li><p>Various updates to speed up and fix test suite (&#64;shyuep, &#64;fraricci)</p></li>
+<li><p>Improvements to BoltzTraP 2 support (&#64;shyuep, &#64;fraricci)</p></li>
 </ul>
 </div>
 <div class="section" id="v2018-9-12">
 <h2>v2018.9.12<a class="headerlink" href="#v2018-9-12" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Use boltztrap2 (&#64;fraricci)</li>
-<li>Refactoring of tensor code to core (&#64;montoyjh)</li>
-<li>Support for new Lobster version (&#64;JaGeo)</li>
-<li>Misc bug fixes</li>
+<li><p>Use boltztrap2 (&#64;fraricci)</p></li>
+<li><p>Refactoring of tensor code to core (&#64;montoyjh)</p></li>
+<li><p>Support for new Lobster version (&#64;JaGeo)</p></li>
+<li><p>Misc bug fixes</p></li>
 </ul>
 </div>
 <div class="section" id="v2018-8-10">
 <h2>v2018.8.10<a class="headerlink" href="#v2018-8-10" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Bug fix for pymatgen.analysis.gb and pymatgen.io.lammps.</li>
+<li><p>Bug fix for pymatgen.analysis.gb and pymatgen.io.lammps.</p></li>
 </ul>
 </div>
 <div class="section" id="v2018-8-7">
 <h2>v2018.8.7<a class="headerlink" href="#v2018-8-7" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Massive refactoring of LAMMPS support. (&#64;adengz)</li>
-<li>Allow kwargs passthrough for Structure.to.</li>
-<li>Updates to ABINIT support (&#64;gmatteo)</li>
-<li>GrainBoundaryTransformation class. (&#64;Tinaatucsd)</li>
+<li><p>Massive refactoring of LAMMPS support. (&#64;adengz)</p></li>
+<li><p>Allow kwargs passthrough for Structure.to.</p></li>
+<li><p>Updates to ABINIT support (&#64;gmatteo)</p></li>
+<li><p>GrainBoundaryTransformation class. (&#64;Tinaatucsd)</p></li>
 </ul>
 </div>
 <div class="section" id="v2018-7-15">
 <h2>v2018.7.15<a class="headerlink" href="#v2018-7-15" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Grain boundary generator (Xiangguo Li &#64;ucsdlxg)</li>
-<li>Massive updates to defect code and new DefectTransformation
-(&#64;shyamd)</li>
-<li>Bug fix for OUTCAR parsing with more than one space in
-electrostatic potential.</li>
-<li>get_fermi_interextrapolated to support wider range of
-input doping (&#64;albalu)</li>
-<li>Update to cython compile to support Py3.7.</li>
-<li>Update VoronoiNN cutoff dynamically (&#64;computron)</li>
+<li><p>Grain boundary generator (Xiangguo Li &#64;ucsdlxg)</p></li>
+<li><p>Massive updates to defect code and new DefectTransformation
+(&#64;shyamd)</p></li>
+<li><p>Bug fix for OUTCAR parsing with more than one space in
+electrostatic potential.</p></li>
+<li><p>get_fermi_interextrapolated to support wider range of
+input doping (&#64;albalu)</p></li>
+<li><p>Update to cython compile to support Py3.7.</p></li>
+<li><p>Update VoronoiNN cutoff dynamically (&#64;computron)</p></li>
 </ul>
 </div>
 <div class="section" id="v2018-6-27">
 <h2>v2018.6.27<a class="headerlink" href="#v2018-6-27" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Improved local_env and MoleculeGraph (&#64;WardLT, &#64;espottesmith)</li>
-<li>Improve BabelMolAdaptor with conformer search and other functions (&#64;Qi-Max)</li>
-<li>Improved surface analysis (&#64;richardtran415)</li>
+<li><p>Improved local_env and MoleculeGraph (&#64;WardLT, &#64;espottesmith)</p></li>
+<li><p>Improve BabelMolAdaptor with conformer search and other functions (&#64;Qi-Max)</p></li>
+<li><p>Improved surface analysis (&#64;richardtran415)</p></li>
 </ul>
 </div>
 <div class="section" id="v2018-6-11">
 <h2>v2018.6.11<a class="headerlink" href="#v2018-6-11" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Updates to ABINIT support for 8.1.3</li>
-<li>Updates to Interface analyzer.</li>
-<li>Fix bug in deserialization of ComputedStructureEntry.</li>
-<li>Misc bug fixes.</li>
+<li><p>Updates to ABINIT support for 8.1.3</p></li>
+<li><p>Updates to Interface analyzer.</p></li>
+<li><p>Fix bug in deserialization of ComputedStructureEntry.</p></li>
+<li><p>Misc bug fixes.</p></li>
 </ul>
 </div>
 <div class="section" id="v2018-5-22">
 <h2>v2018.5.22<a class="headerlink" href="#v2018-5-22" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Misc bug fixes.</li>
+<li><p>Misc bug fixes.</p></li>
 </ul>
 </div>
 <div class="section" id="v2018-5-21">
 <h2>v2018.5.21<a class="headerlink" href="#v2018-5-21" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Bug-fix for missing HHI data file.</li>
-<li>Misc bug fixes.</li>
+<li><p>Bug-fix for missing HHI data file.</p></li>
+<li><p>Misc bug fixes.</p></li>
 </ul>
 </div>
 <div class="section" id="v2018-5-14">
 <h2>v2018.5.14<a class="headerlink" href="#v2018-5-14" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Dash docs now avaiable for pymatgen. See pymatgen.org “Offline docs” section
-for details.</li>
-<li>Better CrystalNN. (Anubhav Jain)</li>
-<li>Fixes for elastic module. (Joseph Montoya)</li>
+<li><p>Dash docs now avaiable for pymatgen. See pymatgen.org “Offline docs” section
+for details.</p></li>
+<li><p>Better CrystalNN. (Anubhav Jain)</p></li>
+<li><p>Fixes for elastic module. (Joseph Montoya)</p></li>
 </ul>
 </div>
 <div class="section" id="v2018-5-3">
 <h2>v2018.5.3<a class="headerlink" href="#v2018-5-3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Improvements to qchem (&#64;samblau).</li>
-<li>Improvements to nwchem to support tddft input and parsing (&#64;shyuep).</li>
-<li>Improvements to CrystalNN (&#64;computron).</li>
-<li>Add methods for getting phonon BS, DOS, and DDB output (&#64;dwinston).</li>
+<li><p>Improvements to qchem (&#64;samblau).</p></li>
+<li><p>Improvements to nwchem to support tddft input and parsing (&#64;shyuep).</p></li>
+<li><p>Improvements to CrystalNN (&#64;computron).</p></li>
+<li><p>Add methods for getting phonon BS, DOS, and DDB output (&#64;dwinston).</p></li>
 </ul>
 </div>
 <div class="section" id="v2018-4-20">
 <h2>v2018.4.20<a class="headerlink" href="#v2018-4-20" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Neutron diffraciton calculator (Yuta)</li>
-<li>Non-existent electronegativity (e.g., He and Ne) are now returned as NaN
-instead of infinity.</li>
-<li>CifParser now handles Elements that are in all caps, which is found in some
-databases. (Gpretto)</li>
-<li>Improvements to local_env (Anubhav Jain)</li>
-<li>Improvements to Qchem ()</li>
-<li>Inputs sets for NMR (Shyam)</li>
-<li>New ChargeDensityAnalyzer class to find interstitial sites from charge density (Hanmei)</li>
+<li><p>Neutron diffraciton calculator (Yuta)</p></li>
+<li><p>Non-existent electronegativity (e.g., He and Ne) are now returned as NaN
+instead of infinity.</p></li>
+<li><p>CifParser now handles Elements that are in all caps, which is found in some
+databases. (Gpretto)</p></li>
+<li><p>Improvements to local_env (Anubhav Jain)</p></li>
+<li><p>Improvements to Qchem ()</p></li>
+<li><p>Inputs sets for NMR (Shyam)</p></li>
+<li><p>New ChargeDensityAnalyzer class to find interstitial sites from charge density (Hanmei)</p></li>
 </ul>
 </div>
 <div class="section" id="v2018-4-6">
 <h2>v2018.4.6<a class="headerlink" href="#v2018-4-6" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Updated debye temperature formulation (Joey Montoya)</li>
-<li>Add bandgap option for FermiDos for scissoring (Alireza Faghaninia)</li>
-<li>Improved Pourbaix code (Joey Montoya)</li>
-<li>Local env code improvements (Nils)</li>
+<li><p>Updated debye temperature formulation (Joey Montoya)</p></li>
+<li><p>Add bandgap option for FermiDos for scissoring (Alireza Faghaninia)</p></li>
+<li><p>Improved Pourbaix code (Joey Montoya)</p></li>
+<li><p>Local env code improvements (Nils)</p></li>
 </ul>
 </div>
 <div class="section" id="v2018-3-22">
 <h2>v2018.3.22<a class="headerlink" href="#v2018-3-22" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Bug fixes to structure, phase diagram module, enumlib adaptor, local env analysis.</li>
+<li><p>Bug fixes to structure, phase diagram module, enumlib adaptor, local env analysis.</p></li>
 </ul>
 </div>
 <div class="section" id="v2018-3-14">
 <h2>v2018.3.14<a class="headerlink" href="#v2018-3-14" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>ReactionDiagram for calculating possible reactions between two compositions.</li>
-<li>Misc bug fixes for EnumlibAdaptor and MagOrderingTransformation</li>
+<li><p>ReactionDiagram for calculating possible reactions between two compositions.</p></li>
+<li><p>Misc bug fixes for EnumlibAdaptor and MagOrderingTransformation</p></li>
 </ul>
 </div>
 <div class="section" id="v2018-3-13">
 <h2>v2018.3.13<a class="headerlink" href="#v2018-3-13" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Support for VESTA lattice vector definitions.</li>
-<li>GaussianOutput read now bond_orders of a NBO calculations (&#64;gVallverdu)</li>
-<li>Bug fixes to phonons, abinit support.</li>
+<li><p>Support for VESTA lattice vector definitions.</p></li>
+<li><p>GaussianOutput read now bond_orders of a NBO calculations (&#64;gVallverdu)</p></li>
+<li><p>Bug fixes to phonons, abinit support.</p></li>
 </ul>
 </div>
 <div class="section" id="v2018-3-2">
 <h2>v2018.3.2<a class="headerlink" href="#v2018-3-2" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Various algorithms for nearest neighbor analysis (Hillary Pan)</li>
-<li>Cleanup of local_env modules (Nils)</li>
-<li>Enhancements to surface packages (Richard)</li>
-<li>Misc bud fixes</li>
+<li><p>Various algorithms for nearest neighbor analysis (Hillary Pan)</p></li>
+<li><p>Cleanup of local_env modules (Nils)</p></li>
+<li><p>Enhancements to surface packages (Richard)</p></li>
+<li><p>Misc bud fixes</p></li>
 </ul>
 </div>
 <div class="section" id="v2018-2-13">
 <h2>v2018.2.13<a class="headerlink" href="#v2018-2-13" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Improved chemenv parameters and bug fixes (David Waroquiers).</li>
-<li>Improved Qchem IO (Shyam).</li>
-<li>Improved interfacial reactions.</li>
-<li>local_env update (Nils).</li>
-<li>Improved ABINIT support (&#64;gmatteo).</li>
-<li>Misc bug fixes.</li>
+<li><p>Improved chemenv parameters and bug fixes (David Waroquiers).</p></li>
+<li><p>Improved Qchem IO (Shyam).</p></li>
+<li><p>Improved interfacial reactions.</p></li>
+<li><p>local_env update (Nils).</p></li>
+<li><p>Improved ABINIT support (&#64;gmatteo).</p></li>
+<li><p>Misc bug fixes.</p></li>
 </ul>
 </div>
 <div class="section" id="v2018-1-29">
 <h2>v2018.1.29<a class="headerlink" href="#v2018-1-29" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Improvements to local_env (Nils)</li>
-<li>Term symbols for Element (Weike Ye).</li>
-<li>Timeout for enumlib (Horton).</li>
+<li><p>Improvements to local_env (Nils)</p></li>
+<li><p>Term symbols for Element (Weike Ye).</p></li>
+<li><p>Timeout for enumlib (Horton).</p></li>
 </ul>
 </div>
 <div class="section" id="v2018-1-19">
 <h2>v2018.1.19<a class="headerlink" href="#v2018-1-19" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Phonon plotting and analysis improvements (Guido Petretto).</li>
-<li>Voronoi site finder (Hanmei Tang)</li>
-<li>Some bug fixes for Gaussian (Marco Esters)</li>
-<li>Misc improvements.</li>
+<li><p>Phonon plotting and analysis improvements (Guido Petretto).</p></li>
+<li><p>Voronoi site finder (Hanmei Tang)</p></li>
+<li><p>Some bug fixes for Gaussian (Marco Esters)</p></li>
+<li><p>Misc improvements.</p></li>
 </ul>
 </div>
 <div class="section" id="v2017-12-30">
 <h2>v2017.12.30<a class="headerlink" href="#v2017-12-30" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Added detailed Shannon radii information and method.</li>
-<li>Magoms for lanthanides (Weike Ye)</li>
-<li>Chemenv improvements (David Waroquiers)</li>
-<li>Ewald summation improvements (Logan Ward)</li>
-<li>Update to ABINIT support (G Matteo)</li>
+<li><p>Added detailed Shannon radii information and method.</p></li>
+<li><p>Magoms for lanthanides (Weike Ye)</p></li>
+<li><p>Chemenv improvements (David Waroquiers)</p></li>
+<li><p>Ewald summation improvements (Logan Ward)</p></li>
+<li><p>Update to ABINIT support (G Matteo)</p></li>
 </ul>
 </div>
 <div class="section" id="v2017-12-16">
 <h2>v2017.12.16<a class="headerlink" href="#v2017-12-16" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Add optical absorption coefficient method</li>
-<li>Improve plot_element_profile</li>
+<li><p>Add optical absorption coefficient method</p></li>
+<li><p>Improve plot_element_profile</p></li>
 </ul>
 </div>
 <div class="section" id="v2017-12-15">
 <h2>v2017.12.15<a class="headerlink" href="#v2017-12-15" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Deprecated methods cleanup for 2018. Note that this may break some legacy
-code. Please make sure you update your code!</li>
-<li>Better dielectric parsing for VASP 5.4.4 to include both density-density and
-velocity-velocity functions.</li>
-<li>Orbital-resolved COHPs support (Macro Esters)</li>
-<li>Convenient plot_element_profile method in PDPlotter.</li>
-<li>Input set for SCAN functional calculations.</li>
-<li>Misc bug fixes and code improvements.</li>
+<li><p>Deprecated methods cleanup for 2018. Note that this may break some legacy
+code. Please make sure you update your code!</p></li>
+<li><p>Better dielectric parsing for VASP 5.4.4 to include both density-density and
+velocity-velocity functions.</p></li>
+<li><p>Orbital-resolved COHPs support (Macro Esters)</p></li>
+<li><p>Convenient plot_element_profile method in PDPlotter.</p></li>
+<li><p>Input set for SCAN functional calculations.</p></li>
+<li><p>Misc bug fixes and code improvements.</p></li>
 </ul>
 </div>
 <div class="section" id="v2017-12-8">
 <h2>v2017.12.8<a class="headerlink" href="#v2017-12-8" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Pymatgen no longer depends on pyhull.</li>
-<li>MPRester method to get interface reaction kinks between two reactants.</li>
-<li>Misc improvements.</li>
+<li><p>Pymatgen no longer depends on pyhull.</p></li>
+<li><p>MPRester method to get interface reaction kinks between two reactants.</p></li>
+<li><p>Misc improvements.</p></li>
 </ul>
 </div>
 <div class="section" id="v2017-12-6">
 <h2>v2017.12.6<a class="headerlink" href="#v2017-12-6" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Support for HDF5 output for VolumetricData (CHGCAR, LOCPOT, etc.).</li>
-<li>Support for Crystal Orbital Hamilton Populations (COHPs) (&#64;marcoesters)</li>
-<li>REST interface for Pourbaix data</li>
-<li>Support for optical property parsing in Vasprun.</li>
-<li>Improvements to LammpsData</li>
-<li>Misc bug fixes.</li>
+<li><p>Support for HDF5 output for VolumetricData (CHGCAR, LOCPOT, etc.).</p></li>
+<li><p>Support for Crystal Orbital Hamilton Populations (COHPs) (&#64;marcoesters)</p></li>
+<li><p>REST interface for Pourbaix data</p></li>
+<li><p>Support for optical property parsing in Vasprun.</p></li>
+<li><p>Improvements to LammpsData</p></li>
+<li><p>Misc bug fixes.</p></li>
 </ul>
 </div>
 <div class="section" id="v2017-11-30">
 <h2>v2017.11.30<a class="headerlink" href="#v2017-11-30" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Fix for severe enumlib_caller bug. This causes enumerations not to be carried
+<li><p>Fix for severe enumlib_caller bug. This causes enumerations not to be carried
 out properly due to bad accounting of symmetry of ordered sites. It results
-in too few orderings.</li>
-<li>New method to extract clusters of atoms from a Molecule based on bonds.</li>
+in too few orderings.</p></li>
+<li><p>New method to extract clusters of atoms from a Molecule based on bonds.</p></li>
 </ul>
 </div>
 <div class="section" id="v2017-11-27">
 <h2>v2017.11.27<a class="headerlink" href="#v2017-11-27" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Improvements to FEFF</li>
-<li>MPRester now supports surface data.</li>
-<li>Improvement to DiscretizeOccupanciesTransformation.</li>
+<li><p>Improvements to FEFF</p></li>
+<li><p>MPRester now supports surface data.</p></li>
+<li><p>Improvement to DiscretizeOccupanciesTransformation.</p></li>
 </ul>
 </div>
 <div class="section" id="v2017-11-9">
 <h2>v2017.11.9<a class="headerlink" href="#v2017-11-9" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Massive rewrite of LAMMPSData to support more functionality (Zhi Deng)</li>
-<li>Misc bug fixes.</li>
+<li><p>Massive rewrite of LAMMPSData to support more functionality (Zhi Deng)</p></li>
+<li><p>Misc bug fixes.</p></li>
 </ul>
 </div>
 <div class="section" id="v2017-11-6">
 <h2>v2017.11.6<a class="headerlink" href="#v2017-11-6" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Better exception handling in EnumlibAdaptor and
-EnumerateStructureTransformation.</li>
-<li>Allow bypassing of ewald calculation in EnumerateStructureTransformation.</li>
-<li>get_symmetry_operations API convenience method for PointGroupAnalyzer.</li>
-<li>New DiscretizeOccupanciesTransformation to help automate ordering of
-disordered structures.</li>
-<li>Fix POTCAR check for POSCAR.</li>
-<li>Minor updates to periodic table data.</li>
-<li>Misc bug fixes.</li>
+<li><p>Better exception handling in EnumlibAdaptor and
+EnumerateStructureTransformation.</p></li>
+<li><p>Allow bypassing of ewald calculation in EnumerateStructureTransformation.</p></li>
+<li><p>get_symmetry_operations API convenience method for PointGroupAnalyzer.</p></li>
+<li><p>New DiscretizeOccupanciesTransformation to help automate ordering of
+disordered structures.</p></li>
+<li><p>Fix POTCAR check for POSCAR.</p></li>
+<li><p>Minor updates to periodic table data.</p></li>
+<li><p>Misc bug fixes.</p></li>
 </ul>
 </div>
 <div class="section" id="v2017-10-16">
 <h2>v2017.10.16<a class="headerlink" href="#v2017-10-16" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Added many more OPs and made normalization procedure more robust (Nils Zimmermann)</li>
-<li>Molecular orbitals functionality in Element (Maxwell Dylla)</li>
-<li>Improvements in chemenv (David Waroquiers)</li>
-<li>Add I/O for ATAT’s mcsqs lattice format (Matthew Horton)</li>
+<li><p>Added many more OPs and made normalization procedure more robust (Nils Zimmermann)</p></li>
+<li><p>Molecular orbitals functionality in Element (Maxwell Dylla)</p></li>
+<li><p>Improvements in chemenv (David Waroquiers)</p></li>
+<li><p>Add I/O for ATAT’s mcsqs lattice format (Matthew Horton)</p></li>
 </ul>
 </div>
 <div class="section" id="v2017-9-29">
 <h2>v2017.9.29<a class="headerlink" href="#v2017-9-29" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>critic2 command line caller for topological analysis (M. Horton)</li>
-<li>Refactor coord_util -&gt; coord.</li>
+<li><p>critic2 command line caller for topological analysis (M. Horton)</p></li>
+<li><p>Refactor coord_util -&gt; coord.</p></li>
 </ul>
 </div>
 <div class="section" id="v2017-9-23">
 <h2>v2017.9.23<a class="headerlink" href="#v2017-9-23" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Gibbs free energy of a material with respect to Pourbaix stable domains.</li>
-<li>Phonopy io now supports structure conversions.</li>
-<li>EnumerateStructureTransformation now implements a useful occupancy rounding.</li>
-<li>MVLNPTMDSet</li>
-<li>Improved PDPlotter options.</li>
-<li>Misc bug fixes.</li>
+<li><p>Gibbs free energy of a material with respect to Pourbaix stable domains.</p></li>
+<li><p>Phonopy io now supports structure conversions.</p></li>
+<li><p>EnumerateStructureTransformation now implements a useful occupancy rounding.</p></li>
+<li><p>MVLNPTMDSet</p></li>
+<li><p>Improved PDPlotter options.</p></li>
+<li><p>Misc bug fixes.</p></li>
 </ul>
 </div>
 <div class="section" id="v2017-9-3">
 <h2>v2017.9.3<a class="headerlink" href="#v2017-9-3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>VDW support (Marco Esters)</li>
-<li>Bug fix release.</li>
+<li><p>VDW support (Marco Esters)</p></li>
+<li><p>Bug fix release.</p></li>
 </ul>
 </div>
 <div class="section" id="v2017-9-1">
 <h2>v2017.9.1<a class="headerlink" href="#v2017-9-1" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Massive refactoring of PhaseDiagram. Now, PDAnalyzer is completely defunct
+<li><p>Massive refactoring of PhaseDiagram. Now, PDAnalyzer is completely defunct
 and all analysis is carried out within PhaseDiagram itself, e.g.,
-pd.get_e_above_hull as opposed to PDAnalyzer(pd).get_e_above_hull.</li>
-<li>Refactoring of structure prediction. Now in
-pymatgen.analysis.structure_prediction.</li>
-<li>New core Spectrum object and associated pymatgen.vis.plotters.SpectrumPlotter.</li>
-<li>Parsing energies from gen_scfman module in Qchem 5 (Brandon Wood)</li>
-<li>Improvements to LAMMPSData, vasp IO.</li>
+pd.get_e_above_hull as opposed to PDAnalyzer(pd).get_e_above_hull.</p></li>
+<li><p>Refactoring of structure prediction. Now in
+pymatgen.analysis.structure_prediction.</p></li>
+<li><p>New core Spectrum object and associated pymatgen.vis.plotters.SpectrumPlotter.</p></li>
+<li><p>Parsing energies from gen_scfman module in Qchem 5 (Brandon Wood)</p></li>
+<li><p>Improvements to LAMMPSData, vasp IO.</p></li>
 </ul>
 </div>
 <div class="section" id="v2017-8-21">
 <h2>v2017.8.21<a class="headerlink" href="#v2017-8-21" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Minor bug fixes.</li>
+<li><p>Minor bug fixes.</p></li>
 </ul>
 </div>
 <div class="section" id="v2017-8-20">
 <h2>v2017.8.20<a class="headerlink" href="#v2017-8-20" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Input sets for GW and BSE calculations (Zhenbin Wang) and grain boundary
+<li><p>Input sets for GW and BSE calculations (Zhenbin Wang) and grain boundary
 calculations (Hui Zheng). Input sets now support overriding of POTCAR
-settings.</li>
-<li>Haven ratio calculation (Iek-Heng Chu).</li>
-<li>LAMMPS io updates (Kiran Matthews).</li>
-<li>Oxidation state guessing algorithms based on ICSD data (Anubhav Jain).</li>
-<li>New local_env module for local environment analysis. (Nils Zimmerman).</li>
-<li>pymatgen.util.plotting.periodic_table_heatmap (Iek-Heng Chu).</li>
-<li>Improvements to surface code for tasker 3 to 2 reconstructions.</li>
-<li>pymatgen.analysis.interface_reactions.py for analyzing interfacial reactions
-(Yihan Xiao).</li>
+settings.</p></li>
+<li><p>Haven ratio calculation (Iek-Heng Chu).</p></li>
+<li><p>LAMMPS io updates (Kiran Matthews).</p></li>
+<li><p>Oxidation state guessing algorithms based on ICSD data (Anubhav Jain).</p></li>
+<li><p>New local_env module for local environment analysis. (Nils Zimmerman).</p></li>
+<li><p>pymatgen.util.plotting.periodic_table_heatmap (Iek-Heng Chu).</p></li>
+<li><p>Improvements to surface code for tasker 3 to 2 reconstructions.</p></li>
+<li><p>pymatgen.analysis.interface_reactions.py for analyzing interfacial reactions
+(Yihan Xiao).</p></li>
 </ul>
 </div>
 <div class="section" id="v2017-8-16">
 <h2>v2017.8.16<a class="headerlink" href="#v2017-8-16" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>PointGroupAnalyzer now allows for symmetrization of molecules. (&#64;mcocdawc)</li>
-<li>QuasiharmonicDebyeApprox with anharmonic contribution. (Brandon)</li>
-<li>Improvements to LAMMPS io. (Kiran)</li>
-<li>Misc bug fixes.</li>
+<li><p>PointGroupAnalyzer now allows for symmetrization of molecules. (&#64;mcocdawc)</p></li>
+<li><p>QuasiharmonicDebyeApprox with anharmonic contribution. (Brandon)</p></li>
+<li><p>Improvements to LAMMPS io. (Kiran)</p></li>
+<li><p>Misc bug fixes.</p></li>
 </ul>
 </div>
 <div class="section" id="v2017-8-14">
 <h2>v2017.8.14<a class="headerlink" href="#v2017-8-14" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Fixes and minor improvements to elastic, bader and defect analyses.</li>
+<li><p>Fixes and minor improvements to elastic, bader and defect analyses.</p></li>
 </ul>
 </div>
 <div class="section" id="v2017-8-4">
 <h2>v2017.8.4<a class="headerlink" href="#v2017-8-4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Major refactoring and improvements to lammps io. (Kiran)</li>
-<li>Major improvements to BaderAnalysis. (Joey and Zhi)</li>
-<li>Major improvements to Magmom support in cifs, SOC calculations, etc.
-(Matthew Horton)</li>
-<li>Add remove_site_property function. Add magmom for Eu3+ and Eu2+.</li>
-<li>BoltztrapAnalyzer/Plotter support for seebeck effective mass and complexity
-factor (fraricci)</li>
+<li><p>Major refactoring and improvements to lammps io. (Kiran)</p></li>
+<li><p>Major improvements to BaderAnalysis. (Joey and Zhi)</p></li>
+<li><p>Major improvements to Magmom support in cifs, SOC calculations, etc.
+(Matthew Horton)</p></li>
+<li><p>Add remove_site_property function. Add magmom for Eu3+ and Eu2+.</p></li>
+<li><p>BoltztrapAnalyzer/Plotter support for seebeck effective mass and complexity
+factor (fraricci)</p></li>
 </ul>
 </div>
 <div class="section" id="v2017-7-21">
 <h2>v2017.7.21<a class="headerlink" href="#v2017-7-21" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Misc bug fixes to elastic (J. Montaya),</li>
-<li>Decrease default symprec in SpacegroupAnalyzer to 0.01, which should be
-sufficiently flexible for a lot of non-DFT applications.</li>
+<li><p>Misc bug fixes to elastic (J. Montaya),</p></li>
+<li><p>Decrease default symprec in SpacegroupAnalyzer to 0.01, which should be
+sufficiently flexible for a lot of non-DFT applications.</p></li>
 </ul>
 </div>
 <div class="section" id="v2017-7-4">
 <h2>v2017.7.4<a class="headerlink" href="#v2017-7-4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Bug fixes for oxide corrections for MP queried entries, and pickling of Potcars.</li>
-<li>Default to LPEAD=T for LEPSILON=T.</li>
+<li><p>Bug fixes for oxide corrections for MP queried entries, and pickling of Potcars.</p></li>
+<li><p>Default to LPEAD=T for LEPSILON=T.</p></li>
 </ul>
 </div>
 <div class="section" id="v2017-6-24">
 <h2>v2017.6.24<a class="headerlink" href="#v2017-6-24" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>New package pymatgen.ext supporting external interfaces. Materials Project
+<li><p>New package pymatgen.ext supporting external interfaces. Materials Project
 REST interface has been moved to pymatgen.ext.matproj. Backwards compatibility
-will be maintained until 2018.</li>
-<li>Two new interfaces have been added: i) Support for John Hopkin’s Mueller
+will be maintained until 2018.</p></li>
+<li><p>Two new interfaces have been added: i) Support for John Hopkin’s Mueller
 group’s efficient k-point servelet (J Montaya). ii) Support for
 Crystallography Open Database structure queries and downloads. (S. P. Ong).
-See the examples page for usage in getting structures from online sources.</li>
+See the examples page for usage in getting structures from online sources.</p></li>
 </ul>
 </div>
 <div class="section" id="v2017-6-22">
 <h2>v2017.6.22<a class="headerlink" href="#v2017-6-22" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Speed up pmg load times.</li>
-<li>Selective dynamics parsing for Vasprun (Joseph Montaya)</li>
-<li>Allow element radius updates in get_dimensionality (Viet-Anh Ha).</li>
-<li>Dielectric function parse for vasp 5.4.4 (Zhenbin Wang).</li>
-<li>Parsing for CIF implicit hydrogens (Xiaohui Qu).</li>
+<li><p>Speed up pmg load times.</p></li>
+<li><p>Selective dynamics parsing for Vasprun (Joseph Montaya)</p></li>
+<li><p>Allow element radius updates in get_dimensionality (Viet-Anh Ha).</p></li>
+<li><p>Dielectric function parse for vasp 5.4.4 (Zhenbin Wang).</p></li>
+<li><p>Parsing for CIF implicit hydrogens (Xiaohui Qu).</p></li>
 </ul>
 </div>
 <div class="section" id="v2017-6-8">
 <h2>v2017.6.8<a class="headerlink" href="#v2017-6-8" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Switch to date-based version for pymatgen.</li>
-<li>Electronegativities now available for all elements except for He, Ne and
-Ar, which are set to infinity with a warning.</li>
-<li>Bond lengths are now set to sum of atomic radii with warning if not available.</li>
-<li>Bug fixes to boltztrap, symmetry for trigonal-hex systems, etc.</li>
+<li><p>Switch to date-based version for pymatgen.</p></li>
+<li><p>Electronegativities now available for all elements except for He, Ne and
+Ar, which are set to infinity with a warning.</p></li>
+<li><p>Bond lengths are now set to sum of atomic radii with warning if not available.</p></li>
+<li><p>Bug fixes to boltztrap, symmetry for trigonal-hex systems, etc.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-7-7">
 <h2>v4.7.7<a class="headerlink" href="#v4-7-7" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Magnetic symmetry and CIF support. (Horton)</li>
-<li>Improved PWSCF Input file generation.</li>
-<li>Misc bug fixes.</li>
+<li><p>Magnetic symmetry and CIF support. (Horton)</p></li>
+<li><p>Improved PWSCF Input file generation.</p></li>
+<li><p>Misc bug fixes.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-7-6">
 <h2>v4.7.6<a class="headerlink" href="#v4-7-6" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Fix serious bug in PointGroupAnalyzer that resulted in wrong point groups assigned to non-centered molecules.</li>
-<li>Useful get_structure_from_mp at the root level for quick retrieval of common structures for analysis.</li>
-<li>More efficient kpoint grids.</li>
-<li>Misc bug fixes.</li>
+<li><p>Fix serious bug in PointGroupAnalyzer that resulted in wrong point groups assigned to non-centered molecules.</p></li>
+<li><p>Useful get_structure_from_mp at the root level for quick retrieval of common structures for analysis.</p></li>
+<li><p>More efficient kpoint grids.</p></li>
+<li><p>Misc bug fixes.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-7-5">
 <h2>v4.7.5<a class="headerlink" href="#v4-7-5" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>MultiXYZ support (Xiaohui Xu)</li>
-<li>Misc bug fixes and cleanup.</li>
+<li><p>MultiXYZ support (Xiaohui Xu)</p></li>
+<li><p>Misc bug fixes and cleanup.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-7-4">
 <h2>v4.7.4<a class="headerlink" href="#v4-7-4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>New ferroelectric analysis module (Tess).</li>
-<li>Magmom support and MagSymmOp (Matthew Horton).</li>
-<li>Improved CIF Parsing.</li>
+<li><p>New ferroelectric analysis module (Tess).</p></li>
+<li><p>Magmom support and MagSymmOp (Matthew Horton).</p></li>
+<li><p>Improved CIF Parsing.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-7-3">
 <h2>v4.7.3<a class="headerlink" href="#v4-7-3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Sympy now a dependency.</li>
-<li>Massive improvements to elastic package. (Joseph Montoya)</li>
-<li>Symmetrized structures now contain Wyckoff symbols.</li>
-<li>More robust CIF parsing and MITRelaxSet parameters (Will).</li>
+<li><p>Sympy now a dependency.</p></li>
+<li><p>Massive improvements to elastic package. (Joseph Montoya)</p></li>
+<li><p>Symmetrized structures now contain Wyckoff symbols.</p></li>
+<li><p>More robust CIF parsing and MITRelaxSet parameters (Will).</p></li>
 </ul>
 </div>
 <div class="section" id="v4-7-2">
 <h2>v4.7.2<a class="headerlink" href="#v4-7-2" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Support for Abinit 8.2.2, including support for DFPT calculations. (Matteo)</li>
+<li><p>Support for Abinit 8.2.2, including support for DFPT calculations. (Matteo)</p></li>
 </ul>
 </div>
 <div class="section" id="v4-7-1">
 <h2>v4.7.1<a class="headerlink" href="#v4-7-1" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Pathfinder speedup</li>
-<li>Minor bug fix for plots.</li>
+<li><p>Pathfinder speedup</p></li>
+<li><p>Minor bug fix for plots.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-7-0">
 <h2>v4.7.0<a class="headerlink" href="#v4-7-0" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Improvements to BSDOSPlotter.</li>
-<li>Enhancements to Phase diagram analysis and reaction calculator.</li>
-<li>Enhancements to surface slab and adsorption. (Richard and Joey)</li>
-<li>Support NpT ensemble in diffusion analysis.</li>
+<li><p>Improvements to BSDOSPlotter.</p></li>
+<li><p>Enhancements to Phase diagram analysis and reaction calculator.</p></li>
+<li><p>Enhancements to surface slab and adsorption. (Richard and Joey)</p></li>
+<li><p>Support NpT ensemble in diffusion analysis.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-6-2">
 <h2>v4.6.2<a class="headerlink" href="#v4-6-2" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Improve Spacegroup class support for alternative settings. Add a get_settings class method.</li>
-<li>Improvements to FEFF support.</li>
-<li>Improvements to EOS class.</li>
+<li><p>Improve Spacegroup class support for alternative settings. Add a get_settings class method.</p></li>
+<li><p>Improvements to FEFF support.</p></li>
+<li><p>Improvements to EOS class.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-6-1">
 <h2>v4.6.1<a class="headerlink" href="#v4-6-1" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Phonon bandstructure plotting and analysis. (Guido Petretto)</li>
-<li>New capabilities for performing adsorption on slabs. (Joey Montoya)</li>
-<li>Remove pathlib dependency.</li>
+<li><p>Phonon bandstructure plotting and analysis. (Guido Petretto)</p></li>
+<li><p>New capabilities for performing adsorption on slabs. (Joey Montoya)</p></li>
+<li><p>Remove pathlib dependency.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-6-0">
 <h2>v4.6.0<a class="headerlink" href="#v4-6-0" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Improve support for alternative settings in SpaceGroup.</li>
-<li>Fix respect for user_incar_settings in MPNonSCFSet and MPSOCSet</li>
-<li>Support for argcomplete in pmg script.</li>
-<li>Speed ups to Ewald summation.</li>
-<li>Add functionality to parse frequency dependent dielectric function.</li>
-<li>Improvements to Bolztrap support.</li>
+<li><p>Improve support for alternative settings in SpaceGroup.</p></li>
+<li><p>Fix respect for user_incar_settings in MPNonSCFSet and MPSOCSet</p></li>
+<li><p>Support for argcomplete in pmg script.</p></li>
+<li><p>Speed ups to Ewald summation.</p></li>
+<li><p>Add functionality to parse frequency dependent dielectric function.</p></li>
+<li><p>Improvements to Bolztrap support.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-5-7">
 <h2>v4.5.7<a class="headerlink" href="#v4-5-7" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>PMG settings are now prefixed with <a href="#id5"><span class="problematic" id="id6">PMG_</span></a> to ensure proper namespacing.</li>
-<li>Improve error output in command line bader caller.</li>
-<li>Add Py3.6 classifier.</li>
-<li>Misc bug fixes.</li>
+<li><p>PMG settings are now prefixed with <a href="#id5"><span class="problematic" id="id6">PMG_</span></a> to ensure proper namespacing.</p></li>
+<li><p>Improve error output in command line bader caller.</p></li>
+<li><p>Add Py3.6 classifier.</p></li>
+<li><p>Misc bug fixes.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-5-6">
 <h2>v4.5.6<a class="headerlink" href="#v4-5-6" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Minor bug fix.</li>
-<li>Fixed elastic energy density</li>
+<li><p>Minor bug fix.</p></li>
+<li><p>Fixed elastic energy density</p></li>
 </ul>
 </div>
 <div class="section" id="v4-5-5">
 <h2>v4.5.5<a class="headerlink" href="#v4-5-5" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Fix bad reading of pmgrc.</li>
-<li>Gaussian opt section added allowing for torsion constraints</li>
-<li>Update spglib.</li>
+<li><p>Fix bad reading of pmgrc.</p></li>
+<li><p>Gaussian opt section added allowing for torsion constraints</p></li>
+<li><p>Update spglib.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-5-4">
 <h2>v4.5.4<a class="headerlink" href="#v4-5-4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>BSDOSPlotter (Anubhav Jain)</li>
-<li>Fixes to defect analysis (Bharat)</li>
-<li>intrans as an input to BoltztrapAnalyzer. Allows for scissor operation.</li>
-<li>Pmg is now continuously tested on win-64/py35 using Appveyor!</li>
+<li><p>BSDOSPlotter (Anubhav Jain)</p></li>
+<li><p>Fixes to defect analysis (Bharat)</p></li>
+<li><p>intrans as an input to BoltztrapAnalyzer. Allows for scissor operation.</p></li>
+<li><p>Pmg is now continuously tested on win-64/py35 using Appveyor!</p></li>
 </ul>
 </div>
 <div class="section" id="v4-5-3">
 <h2>v4.5.3<a class="headerlink" href="#v4-5-3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Added an alternative interstitial finder that works with a grid-based structure-motif search. (Nils Zimmermann)</li>
-<li>Optionnal possibility to specify that the saddle_point in the NEB should have a zero slope. (David Waroquiers)</li>
-<li>Read intensity and normal modes for Gaussian. (Germain Salvato Vallverdu)</li>
-<li>Minor bug fixes.</li>
+<li><p>Added an alternative interstitial finder that works with a grid-based structure-motif search. (Nils Zimmermann)</p></li>
+<li><p>Optionnal possibility to specify that the saddle_point in the NEB should have a zero slope. (David Waroquiers)</p></li>
+<li><p>Read intensity and normal modes for Gaussian. (Germain Salvato Vallverdu)</p></li>
+<li><p>Minor bug fixes.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-5-2">
 <h2>v4.5.2<a class="headerlink" href="#v4-5-2" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Minor bug fix for POTCAR settings.</li>
+<li><p>Minor bug fix for POTCAR settings.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-5-1">
 <h2>v4.5.1<a class="headerlink" href="#v4-5-1" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>You can now specify a different default functional choice for pymatgen by
+<li><p>You can now specify a different default functional choice for pymatgen by
 setting PMG_DEFAULT_FUNCTIONAL in .pmgrc.yaml. For use with newer
-functional sets, you need to specify PBE_52 or PBE_54 for example.</li>
-<li>Swtich to ISYM 3 by default for HSE.</li>
-<li>Updates to FEFF&gt;</li>
-<li>Misc bug fixes and startup speed improvements.</li>
+functional sets, you need to specify PBE_52 or PBE_54 for example.</p></li>
+<li><p>Swtich to ISYM 3 by default for HSE.</p></li>
+<li><p>Updates to FEFF&gt;</p></li>
+<li><p>Misc bug fixes and startup speed improvements.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-5-0">
 <h2>v4.5.0<a class="headerlink" href="#v4-5-0" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Major speed up of initial load.</li>
-<li>Collection of misc changes.</li>
+<li><p>Major speed up of initial load.</p></li>
+<li><p>Collection of misc changes.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-4-12">
 <h2>v4.4.12<a class="headerlink" href="#v4-4-12" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Fix for dynamic numpy import.</li>
+<li><p>Fix for dynamic numpy import.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-4-11">
 <h2>v4.4.11<a class="headerlink" href="#v4-4-11" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Update to new version of spglib.</li>
+<li><p>Update to new version of spglib.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-4-10">
 <h2>v4.4.10<a class="headerlink" href="#v4-4-10" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Minor fixes for proper gzipped structure file support and MVLSlabSet.</li>
+<li><p>Minor fixes for proper gzipped structure file support and MVLSlabSet.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-4-9">
 <h2>v4.4.9<a class="headerlink" href="#v4-4-9" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Dependency cleanup. Now, basic pymatgen requires on much fewer
-packages.</li>
-<li>Fixed reading of POSCAR files when more than 20 types of atoms.</li>
-<li>Misc bug fixes.</li>
+<li><p>Dependency cleanup. Now, basic pymatgen requires on much fewer
+packages.</p></li>
+<li><p>Fixed reading of POSCAR files when more than 20 types of atoms.</p></li>
+<li><p>Misc bug fixes.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-4-8">
 <h2>v4.4.8<a class="headerlink" href="#v4-4-8" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Cleanup of entry points and dependencies.</li>
+<li><p>Cleanup of entry points and dependencies.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-4-7">
 <h2>v4.4.7<a class="headerlink" href="#v4-4-7" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Update to spglib 1.9.7.1</li>
-<li>Proper use of dependency markers for enum34.</li>
+<li><p>Update to spglib 1.9.7.1</p></li>
+<li><p>Proper use of dependency markers for enum34.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-4-6">
 <h2>v4.4.6<a class="headerlink" href="#v4-4-6" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Update to spglib 1.9.6, which fixes some bugs and is Windows compatible.</li>
+<li><p>Update to spglib 1.9.6, which fixes some bugs and is Windows compatible.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-4-5">
 <h2>v4.4.5<a class="headerlink" href="#v4-4-5" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Bug fix for SubstitutionProb.</li>
+<li><p>Bug fix for SubstitutionProb.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-4-4">
 <h2>v4.4.4<a class="headerlink" href="#v4-4-4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Bug fix for electronic structure plotter.</li>
+<li><p>Bug fix for electronic structure plotter.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-4-3">
 <h2>v4.4.3<a class="headerlink" href="#v4-4-3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Bug fix for Diffusion Analyzer.</li>
+<li><p>Bug fix for Diffusion Analyzer.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-4-2">
 <h2>v4.4.2<a class="headerlink" href="#v4-4-2" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Bug fix for BS serialization.</li>
-<li>Cleanup dependencies.</li>
+<li><p>Bug fix for BS serialization.</p></li>
+<li><p>Cleanup dependencies.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-4-1">
 <h2>v4.4.1<a class="headerlink" href="#v4-4-1" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Massive updates to FEFF support (Kiran Mathews).</li>
-<li>Bug fixes in band structure plotting.</li>
+<li><p>Massive updates to FEFF support (Kiran Mathews).</p></li>
+<li><p>Bug fixes in band structure plotting.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-4-0">
 <h2>v4.4.0<a class="headerlink" href="#v4-4-0" title="Permalink to this headline">¶</a></h2>
 <ul>
-<li><p class="first">Much more Pythonic API for modifying Structure/Molecule species. Now,
+<li><p>Much more Pythonic API for modifying Structure/Molecule species. Now,
 strings, slices, and sequences should magically work, in addition to the
 previous API of simple int indices. Examples:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Fe&quot;</span>
@@ -809,62 +883,60 @@ previous API of simple int indices. Examples:</p>
 </pre></div>
 </div>
 </li>
-<li><p class="first">Massive update to internal representation of Bandstructure objects for
-memory and computational efficiency.</p>
-</li>
-<li><p class="first">Bug fixes to CIF parsing in some edge cases. (Will Richards).</p>
-</li>
+<li><p>Massive update to internal representation of Bandstructure objects for
+memory and computational efficiency.</p></li>
+<li><p>Bug fixes to CIF parsing in some edge cases. (Will Richards).</p></li>
 </ul>
 </div>
 <div class="section" id="v4-3-2">
 <h2>v4.3.2<a class="headerlink" href="#v4-3-2" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Massive speedup of Bandstructure, especially projected band structures,
-parsing.</li>
-<li>Massive update to pmg cli script, with new query functions as well as a
-more rational command structure.</li>
-<li>Updates to ChemEnv.</li>
-<li>Misc bug fixes.</li>
+<li><p>Massive speedup of Bandstructure, especially projected band structures,
+parsing.</p></li>
+<li><p>Massive update to pmg cli script, with new query functions as well as a
+more rational command structure.</p></li>
+<li><p>Updates to ChemEnv.</p></li>
+<li><p>Misc bug fixes.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-3-1">
 <h2>v4.3.1<a class="headerlink" href="#v4-3-1" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Upgrade monty and spglib requirements for bug fixes.</li>
-<li>Updates to feff support (Kiran).</li>
+<li><p>Upgrade monty and spglib requirements for bug fixes.</p></li>
+<li><p>Updates to feff support (Kiran).</p></li>
 </ul>
 </div>
 <div class="section" id="v4-3-0">
 <h2>v4.3.0<a class="headerlink" href="#v4-3-0" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Massive update to elastic module. (Joey Montaya)</li>
-<li>Pathfinder algorithm for NEB calculations. (Ziqing Rong)</li>
-<li>Wheels for Windows and Mac Py27 and Py35.</li>
+<li><p>Massive update to elastic module. (Joey Montaya)</p></li>
+<li><p>Pathfinder algorithm for NEB calculations. (Ziqing Rong)</p></li>
+<li><p>Wheels for Windows and Mac Py27 and Py35.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-2-5">
 <h2>v4.2.5<a class="headerlink" href="#v4-2-5" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Bug fix for BSPlotter.</li>
+<li><p>Bug fix for BSPlotter.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-2-4">
 <h2>v4.2.4<a class="headerlink" href="#v4-2-4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Bug fix for kpoint weight calculation for Monkhorst meshes.</li>
+<li><p>Bug fix for kpoint weight calculation for Monkhorst meshes.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-2-3">
 <h2>v4.2.3<a class="headerlink" href="#v4-2-3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Minor cleanup.</li>
-<li>Simplified installation. enumlib and bader can now be installed using pmg setup –install.</li>
+<li><p>Minor cleanup.</p></li>
+<li><p>Simplified installation. enumlib and bader can now be installed using pmg setup –install.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-2-2">
 <h2>v4.2.2<a class="headerlink" href="#v4-2-2" title="Permalink to this headline">¶</a></h2>
 <ul>
-<li><p class="first">Global configuration variables such as VASP_PSP_DIR and MAPI_KEY are now
+<li><p>Global configuration variables such as VASP_PSP_DIR and MAPI_KEY are now
 stored in “~/.pmgrc.yaml”. If you are setting these as environmental
 variables right now, you can easily transition to the new system using:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>pmg config --add VASP_PSP_DIR $VASP_PSP_DIR MAPI_KEY $MAPI_KEY
@@ -874,780 +946,778 @@ variables right now, you can easily transition to the new system using:</p>
 global behavior in pymatgen, e.g., tolerances, default input sets for
 transmuters, etc., in future.</p>
 </li>
-<li><p class="first">Beta of k-point weight calculator.</p>
-</li>
-<li><p class="first">Use default MSONable as and from_dict for all transformations.</p>
-</li>
+<li><p>Beta of k-point weight calculator.</p></li>
+<li><p>Use default MSONable as and from_dict for all transformations.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-2-1">
 <h2>v4.2.1<a class="headerlink" href="#v4-2-1" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>New DopingTransformation that implements an automated doping strategy.</li>
-<li>Updated MIC algorithm that is a lot more robust (Will Richards).</li>
-<li>Major update to chemenv package (David Waroquiers)</li>
+<li><p>New DopingTransformation that implements an automated doping strategy.</p></li>
+<li><p>Updated MIC algorithm that is a lot more robust (Will Richards).</p></li>
+<li><p>Major update to chemenv package (David Waroquiers)</p></li>
 </ul>
 </div>
 <div class="section" id="v4-2-0">
 <h2>v4.2.0<a class="headerlink" href="#v4-2-0" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Fix important bug in minimum image distance computation for very skewed cells.</li>
-<li>Major refactoring of WulffShape code.</li>
-<li>Misc bug fixes for elastic tensor and other codes.</li>
+<li><p>Fix important bug in minimum image distance computation for very skewed cells.</p></li>
+<li><p>Major refactoring of WulffShape code.</p></li>
+<li><p>Misc bug fixes for elastic tensor and other codes.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-1-1">
 <h2>v4.1.1<a class="headerlink" href="#v4-1-1" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Major refactoring of WulffShape and lammps support.</li>
+<li><p>Major refactoring of WulffShape and lammps support.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-1-0">
 <h2>v4.1.0<a class="headerlink" href="#v4-1-0" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Wulff shape generator and analysis.</li>
-<li>Minor bug fixes.</li>
+<li><p>Wulff shape generator and analysis.</p></li>
+<li><p>Minor bug fixes.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-0-2">
 <h2>v4.0.2<a class="headerlink" href="#v4-0-2" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Fix kpoint reciprocal density.</li>
+<li><p>Fix kpoint reciprocal density.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-0-1">
 <h2>v4.0.1<a class="headerlink" href="#v4-0-1" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Minor bug fix release.</li>
+<li><p>Minor bug fix release.</p></li>
 </ul>
 </div>
 <div class="section" id="v4-0-0">
 <h2>v4.0.0<a class="headerlink" href="#v4-0-0" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Massive update with many deprecated methods removed. Note that this
-may break backwards incompatibility!</li>
-<li>Support for ABINIT 8.</li>
-<li>Improved sulfide compatibility.</li>
+<li><p>Massive update with many deprecated methods removed. Note that this
+may break backwards incompatibility!</p></li>
+<li><p>Support for ABINIT 8.</p></li>
+<li><p>Improved sulfide compatibility.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-7-1">
 <h2>v3.7.1<a class="headerlink" href="#v3-7-1" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Fix deprecation bug.</li>
+<li><p>Fix deprecation bug.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-7-0">
 <h2>v3.7.0<a class="headerlink" href="#v3-7-0" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Last version before pymatgen 4.0, where deprecated modules will be removed!</li>
-<li>Massive update to LAMMPS (Kiran Matthews).</li>
-<li>New input sets with a different interface that replaces old input sets.</li>
-<li>Massive update to elastic properties.</li>
+<li><p>Last version before pymatgen 4.0, where deprecated modules will be removed!</p></li>
+<li><p>Massive update to LAMMPS (Kiran Matthews).</p></li>
+<li><p>New input sets with a different interface that replaces old input sets.</p></li>
+<li><p>Massive update to elastic properties.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-6-1">
 <h2>v3.6.1<a class="headerlink" href="#v3-6-1" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Massive cleanup to Boltztrap interface (Anubhav Jain)</li>
-<li>Refactor of piezoelectric analysis to use tensor base class (Joey)</li>
-<li>More robust CIF parsing.</li>
+<li><p>Massive cleanup to Boltztrap interface (Anubhav Jain)</p></li>
+<li><p>Refactor of piezoelectric analysis to use tensor base class (Joey)</p></li>
+<li><p>More robust CIF parsing.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-6-0">
 <h2>v3.6.0<a class="headerlink" href="#v3-6-0" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Pymatgen now uses spglib directly from Togo’s website. Spglib is no longer
-bundled as a dependency.</li>
-<li>Improved support for velocities in Poscar (Germaine Vallverdu)</li>
-<li>Backwards incompatible change in Born charge format in Outcar.</li>
-<li>Fixes for Lammps input serialization</li>
+<li><p>Pymatgen now uses spglib directly from Togo’s website. Spglib is no longer
+bundled as a dependency.</p></li>
+<li><p>Improved support for velocities in Poscar (Germaine Vallverdu)</p></li>
+<li><p>Backwards incompatible change in Born charge format in Outcar.</p></li>
+<li><p>Fixes for Lammps input serialization</p></li>
 </ul>
 </div>
 <div class="section" id="v3-5-3">
 <h2>v3.5.3<a class="headerlink" href="#v3-5-3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Misc refactorings and bug fixes, especially for Outcar and Boltztrap classes.</li>
+<li><p>Misc refactorings and bug fixes, especially for Outcar and Boltztrap classes.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-5-2">
 <h2>v3.5.2<a class="headerlink" href="#v3-5-2" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Minor update to DerivedInputSet interface.</li>
+<li><p>Minor update to DerivedInputSet interface.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-5-1">
 <h2>v3.5.1<a class="headerlink" href="#v3-5-1" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>New derived input sets for generating inputs that depende on previuos
-calculations. Old input sets deprecated.</li>
+<li><p>New derived input sets for generating inputs that depende on previuos
+calculations. Old input sets deprecated.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-5-0">
 <h2>v3.5.0<a class="headerlink" href="#v3-5-0" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Chemical environment analysis package (David Waroquiers).</li>
-<li>Piezoelectric property analysis (Shayam).</li>
-<li>Cythonize certain expensive core functions. 5-10x speedup in large structure matching (Will Richards).</li>
-<li>New NMR parsing functionality for Outcar (Xiaohui Qu).</li>
-<li>Improved io.lammps (Kiran Mathews).</li>
-<li>Update to spglib 1.9.2.</li>
-<li>Element properties now return unitized float where possible.</li>
-<li>Bug fix for get_primitive_standard affecting rhombohedral cells (important for band structures).</li>
-<li>Vasprun.final_energy now returns corrected energy with warning if it is different from final electronic step.</li>
+<li><p>Chemical environment analysis package (David Waroquiers).</p></li>
+<li><p>Piezoelectric property analysis (Shayam).</p></li>
+<li><p>Cythonize certain expensive core functions. 5-10x speedup in large structure matching (Will Richards).</p></li>
+<li><p>New NMR parsing functionality for Outcar (Xiaohui Qu).</p></li>
+<li><p>Improved io.lammps (Kiran Mathews).</p></li>
+<li><p>Update to spglib 1.9.2.</p></li>
+<li><p>Element properties now return unitized float where possible.</p></li>
+<li><p>Bug fix for get_primitive_standard affecting rhombohedral cells (important for band structures).</p></li>
+<li><p>Vasprun.final_energy now returns corrected energy with warning if it is different from final electronic step.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-4-0">
 <h2>v3.4.0<a class="headerlink" href="#v3-4-0" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>10-100x speed up to Structure copying and Site init, which means many
+<li><p>10-100x speed up to Structure copying and Site init, which means many
 functionality has seen signifcant speed improvement (e.g., structure
-matching).</li>
-<li>Convenience method Structure.matches now perform similarity matching
-for Structures.</li>
-<li>Bugfix for band gap determination.</li>
+matching).</p></li>
+<li><p>Convenience method Structure.matches now perform similarity matching
+for Structures.</p></li>
+<li><p>Bugfix for band gap determination.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-3-6">
 <h2>v3.3.6<a class="headerlink" href="#v3-3-6" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Update to use enum.x instead of multienum.x.</li>
-<li>Minor robustness fixes to VaspInputSet serialization.</li>
-<li>Add a reciprocal density parameter to vasp sets.</li>
-<li>Minor bug fixes to Vasprun parsing.</li>
+<li><p>Update to use enum.x instead of multienum.x.</p></li>
+<li><p>Minor robustness fixes to VaspInputSet serialization.</p></li>
+<li><p>Add a reciprocal density parameter to vasp sets.</p></li>
+<li><p>Minor bug fixes to Vasprun parsing.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-3-5">
 <h2>v3.3.5<a class="headerlink" href="#v3-3-5" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>StructureMatcher can now work with ignored species.</li>
-<li>Added interpolation failure warnings and smooth tolerance for
-scipy.interpolate.splrep in bandstructures (Tess).</li>
-<li>Added DiffusionAnalyzer.get_framework_rms_plot.</li>
-<li>Complete rewrite of Procar class to use ND array access and zero-based
-indexing.</li>
-<li>OrderParameters class for analysis of local structural features
-(Nils Zimmermann).</li>
-<li>Bug fixes for Procar, MPRester and SpaceGroup 64.</li>
-<li>Added Github templates for contributing to pymatgen.</li>
+<li><p>StructureMatcher can now work with ignored species.</p></li>
+<li><p>Added interpolation failure warnings and smooth tolerance for
+scipy.interpolate.splrep in bandstructures (Tess).</p></li>
+<li><p>Added DiffusionAnalyzer.get_framework_rms_plot.</p></li>
+<li><p>Complete rewrite of Procar class to use ND array access and zero-based
+indexing.</p></li>
+<li><p>OrderParameters class for analysis of local structural features
+(Nils Zimmermann).</p></li>
+<li><p>Bug fixes for Procar, MPRester and SpaceGroup 64.</p></li>
+<li><p>Added Github templates for contributing to pymatgen.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-3-4">
 <h2>v3.3.4<a class="headerlink" href="#v3-3-4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Procar now supports parsing of phase factors.</li>
-<li>Miscellaneous bug fixes.</li>
+<li><p>Procar now supports parsing of phase factors.</p></li>
+<li><p>Miscellaneous bug fixes.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-3-3">
 <h2>v3.3.3<a class="headerlink" href="#v3-3-3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Bug fixes for Poscar.</li>
-<li>Fix Kpoints pickling.</li>
+<li><p>Bug fixes for Poscar.</p></li>
+<li><p>Fix Kpoints pickling.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-3-2">
 <h2>v3.3.2<a class="headerlink" href="#v3-3-2" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Bug fixes for pymatgen.io.abinit</li>
-<li>Other minor big fixes.</li>
+<li><p>Bug fixes for pymatgen.io.abinit</p></li>
+<li><p>Other minor big fixes.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-3-1">
 <h2>v3.3.1<a class="headerlink" href="#v3-3-1" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Minor bug fix release for pickle and elastic constants.</li>
+<li><p>Minor bug fix release for pickle and elastic constants.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-3-0">
 <h2>v3.3.0<a class="headerlink" href="#v3-3-0" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Updated and checked for Python 3.5.* compatibility.</li>
-<li>Element, Spin, Orbital and various other Enum-like classes are now actually
-implemented using Enum (with enum34 dependency for Python &lt; 3.4).</li>
-<li>Speed up Site creation by 20% for ordered sites, with cost in terms of
+<li><p>Updated and checked for Python 3.5.* compatibility.</p></li>
+<li><p>Element, Spin, Orbital and various other Enum-like classes are now actually
+implemented using Enum (with enum34 dependency for Python &lt; 3.4).</p></li>
+<li><p>Speed up Site creation by 20% for ordered sites, with cost in terms of
 slightly slower non-ordered Sites. Since ordered Sites is the far more common
 case, this gives significant boost for large scale manipulations of
-structures.</li>
-<li>Alternative, more pythonic syntax for creating supercells via simply
-Structure * 3 or Structure * (3, 1, 1).</li>
-<li>zeo++ fixes.</li>
-<li>More stable incar settings for MITMDVaspInputSet.</li>
+structures.</p></li>
+<li><p>Alternative, more pythonic syntax for creating supercells via simply
+Structure * 3 or Structure * (3, 1, 1).</p></li>
+<li><p>zeo++ fixes.</p></li>
+<li><p>More stable incar settings for MITMDVaspInputSet.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-2-10">
 <h2>v3.2.10<a class="headerlink" href="#v3-2-10" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Fix missing scripts</li>
-<li>Improvements to units module.</li>
-<li>Speed up EwaldSummation.</li>
+<li><p>Fix missing scripts</p></li>
+<li><p>Improvements to units module.</p></li>
+<li><p>Speed up EwaldSummation.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-2-9">
 <h2>v3.2.9<a class="headerlink" href="#v3-2-9" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Major PD stability improvements, especially for very high dim hulls with lots
-of entries.</li>
-<li>Improvements to Ewald summation to be close to GULP implementation.</li>
-<li>Deprecate physical constants module in favor of scipy’s version.</li>
-<li>Remove many pyhull references to use scipy’s ConvexHull implementation.</li>
-<li>Bug fix for sulfide correction.</li>
+<li><p>Major PD stability improvements, especially for very high dim hulls with lots
+of entries.</p></li>
+<li><p>Improvements to Ewald summation to be close to GULP implementation.</p></li>
+<li><p>Deprecate physical constants module in favor of scipy’s version.</p></li>
+<li><p>Remove many pyhull references to use scipy’s ConvexHull implementation.</p></li>
+<li><p>Bug fix for sulfide correction.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-2-8">
 <h2>v3.2.8<a class="headerlink" href="#v3-2-8" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Make pyhull optional.</li>
-<li>Sulfur correction added to MaterialsProjectCompatibility for more accurate
-sulfide formation energies.</li>
-<li>ADF io support. (Xin Chen)</li>
-<li>Bug fixes for spacegroup subgroup testing.</li>
+<li><p>Make pyhull optional.</p></li>
+<li><p>Sulfur correction added to MaterialsProjectCompatibility for more accurate
+sulfide formation energies.</p></li>
+<li><p>ADF io support. (Xin Chen)</p></li>
+<li><p>Bug fixes for spacegroup subgroup testing.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-2-7">
 <h2>v3.2.7<a class="headerlink" href="#v3-2-7" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Add warning for limited subgroup testing functionality in Spacegroup.</li>
+<li><p>Add warning for limited subgroup testing functionality in Spacegroup.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-2-6">
 <h2>v3.2.6<a class="headerlink" href="#v3-2-6" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Extensive support for elasticity tensor analysis (Joseph Montoya).</li>
-<li>Misc bug fixes and performance improvements.</li>
-<li>Add support for QChem4.3 new format of Batch jobs</li>
+<li><p>Extensive support for elasticity tensor analysis (Joseph Montoya).</p></li>
+<li><p>Misc bug fixes and performance improvements.</p></li>
+<li><p>Add support for QChem4.3 new format of Batch jobs</p></li>
 </ul>
 </div>
 <div class="section" id="v3-2-5">
 <h2>v3.2.5<a class="headerlink" href="#v3-2-5" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Improved potcar setup via “pmg setup”, with MAPI setup.</li>
-<li>Support for new POTCARs issued by VASP.</li>
-<li>Improvements to ABINIT support.</li>
-<li>Improvement to Boltztrap support, e.g., scissor band gap, etc.</li>
-<li>Vasprun now issues warning when unconverged run is detected.</li>
+<li><p>Improved potcar setup via “pmg setup”, with MAPI setup.</p></li>
+<li><p>Support for new POTCARs issued by VASP.</p></li>
+<li><p>Improvements to ABINIT support.</p></li>
+<li><p>Improvement to Boltztrap support, e.g., scissor band gap, etc.</p></li>
+<li><p>Vasprun now issues warning when unconverged run is detected.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-2-4">
 <h2>v3.2.4<a class="headerlink" href="#v3-2-4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>GaussianOutput can now parse frequencies, normal modes and cartesian forces
-(Xin Chen).</li>
-<li>Support for Aiida&lt;-&gt;pymatgen conversion by the Aiida development team (Andrius
-Merkys).</li>
-<li>Specialized BSVasprun parser that is ~2-3x faster than Vasprun.</li>
-<li>Refactor the boltztrap package (merge a few methods together) and add several
-new methods (power factor, seebeck…)</li>
-<li>Support of the new PCM format in QChem 4.3</li>
-<li>Local environment analysis to pmg script.</li>
-<li>Deprecate prettytable in favor of tabulate package.</li>
-<li>Improvements to MITNEBVaspInputSet.</li>
-<li>Misc bug fixes.</li>
+<li><p>GaussianOutput can now parse frequencies, normal modes and cartesian forces
+(Xin Chen).</p></li>
+<li><p>Support for Aiida&lt;-&gt;pymatgen conversion by the Aiida development team (Andrius
+Merkys).</p></li>
+<li><p>Specialized BSVasprun parser that is ~2-3x faster than Vasprun.</p></li>
+<li><p>Refactor the boltztrap package (merge a few methods together) and add several
+new methods (power factor, seebeck…)</p></li>
+<li><p>Support of the new PCM format in QChem 4.3</p></li>
+<li><p>Local environment analysis to pmg script.</p></li>
+<li><p>Deprecate prettytable in favor of tabulate package.</p></li>
+<li><p>Improvements to MITNEBVaspInputSet.</p></li>
+<li><p>Misc bug fixes.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-2-3">
 <h2>v3.2.3<a class="headerlink" href="#v3-2-3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Massive update to abinit support. Note that pymatgen.io.abinitio has
-been refactored to pymatgen.io.abinit. (Matteo, Setten)</li>
-<li>NwOutput now supports parsing of Hessian matrices (contributed by Xin
-Chen)</li>
-<li>Gaussian support now has the ability to read potential energy surface
+<li><p>Massive update to abinit support. Note that pymatgen.io.abinitio has
+been refactored to pymatgen.io.abinit. (Matteo, Setten)</p></li>
+<li><p>NwOutput now supports parsing of Hessian matrices (contributed by Xin
+Chen)</p></li>
+<li><p>Gaussian support now has the ability to read potential energy surface
 and electronic transitions computed with TD-DFT (Germain Salvato
-Vallverdu)</li>
-<li>Bug fixes for CifWriter with symmetry.</li>
-<li>Bug fixes for surface generation and reactions.</li>
-<li>Monty requirement increased.</li>
+Vallverdu)</p></li>
+<li><p>Bug fixes for CifWriter with symmetry.</p></li>
+<li><p>Bug fixes for surface generation and reactions.</p></li>
+<li><p>Monty requirement increased.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-2-1">
 <h2>v3.2.1<a class="headerlink" href="#v3-2-1" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Fix wrong U value for Ce and Eu.</li>
-<li>Properly handle empty multiline strings in Cif</li>
-<li>Add ability to get specific data in MPRester.get_entries. Make all get_entry
-methods consistent  in kwargs.</li>
+<li><p>Fix wrong U value for Ce and Eu.</p></li>
+<li><p>Properly handle empty multiline strings in Cif</p></li>
+<li><p>Add ability to get specific data in MPRester.get_entries. Make all get_entry
+methods consistent  in kwargs.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-2-0">
 <h2>v3.2.0<a class="headerlink" href="#v3-2-0" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Force conversion to an actual list in selective dynamics and velocities in
-Poscar.</li>
-<li>fix small bug in BSPlotter (wrong ylim)</li>
-<li>Elastic tensor parsing in Outcar</li>
+<li><p>Force conversion to an actual list in selective dynamics and velocities in
+Poscar.</p></li>
+<li><p>fix small bug in BSPlotter (wrong ylim)</p></li>
+<li><p>Elastic tensor parsing in Outcar</p></li>
 </ul>
 </div>
 <div class="section" id="v3-1-9">
 <h2>v3.1.9<a class="headerlink" href="#v3-1-9" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Fix scripts.</li>
+<li><p>Fix scripts.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-1-7">
 <h2>v3.1.7<a class="headerlink" href="#v3-1-7" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Bug fixes for MPRester.</li>
-<li>Ensure correct monty version requirement in setup.py.</li>
+<li><p>Bug fixes for MPRester.</p></li>
+<li><p>Ensure correct monty version requirement in setup.py.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-1-6">
 <h2>v3.1.6<a class="headerlink" href="#v3-1-6" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Rudimentary PWSCF output reading.</li>
-<li>Fix ASE support.</li>
-<li>Support for WAVEDERF and reading multiple dielectricfunctions in vasprun.xml.
-(Miguel Dias Costa)</li>
+<li><p>Rudimentary PWSCF output reading.</p></li>
+<li><p>Fix ASE support.</p></li>
+<li><p>Support for WAVEDERF and reading multiple dielectricfunctions in vasprun.xml.
+(Miguel Dias Costa)</p></li>
 </ul>
 </div>
 <div class="section" id="v3-1-5">
 <h2>v3.1.5<a class="headerlink" href="#v3-1-5" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Move vasp.vasp*put to vasp.*puts. Also, maintain backwards compatibility with
-vaspio.vasp_*put</li>
+<li><p>Move vasp.vasp*put to vasp.*puts. Also, maintain backwards compatibility with
+vaspio.vasp_*put</p></li>
 </ul>
 </div>
 <div class="section" id="v3-1-4">
 <h2>v3.1.4<a class="headerlink" href="#v3-1-4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Fix missing yaml files that have been moved.</li>
+<li><p>Fix missing yaml files that have been moved.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-1-3">
 <h2>v3.1.3<a class="headerlink" href="#v3-1-3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Major refactoring of pymatgen.io. Now, the io suffix is dropped from all io
+<li><p>Major refactoring of pymatgen.io. Now, the io suffix is dropped from all io
 classes. i.e., it is just pymatgen.io.vasp, not pymatgen.io.vaspio. Also, all
 input sets have been moved within the relevant package, e.g.,
 pymatgen.io.vasp.sets. All changes are backwards compatible for now. But
 deprecation messages have been included which states that the stubs will be
 removed in pymatgen 4.0. Pls migrate code when you see the deprecation
-messages.</li>
-<li>Make Composition.anonymized_formula truly chemistry independent (No A2B2
-for peroxides or A2 for diatomic gasses)</li>
-<li>Allowing CIF data_* header to be prefixed with spaces and tabulations.</li>
+messages.</p></li>
+<li><p>Make Composition.anonymized_formula truly chemistry independent (No A2B2
+for peroxides or A2 for diatomic gasses)</p></li>
+<li><p>Allowing CIF data_* header to be prefixed with spaces and tabulations.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-1-2">
 <h2>v3.1.2<a class="headerlink" href="#v3-1-2" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>HHI Resource Analysis (by Anubhav Jain).</li>
-<li>Bug fixes for surfaces normalizatino.</li>
-<li>Bug fix for Vasprun parsing of response function keys.</li>
-<li>Dockerfile for generation of an image for pymatgen.</li>
-<li>Updated requirements.txt for latest requests, scipy, numpy.</li>
+<li><p>HHI Resource Analysis (by Anubhav Jain).</p></li>
+<li><p>Bug fixes for surfaces normalizatino.</p></li>
+<li><p>Bug fix for Vasprun parsing of response function keys.</p></li>
+<li><p>Dockerfile for generation of an image for pymatgen.</p></li>
+<li><p>Updated requirements.txt for latest requests, scipy, numpy.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-1-1">
 <h2>v3.1.1<a class="headerlink" href="#v3-1-1" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Bug fixes for SpacegroupAnalyzer and SlabGenerator.</li>
-<li>Much faster normal vec search.</li>
+<li><p>Bug fixes for SpacegroupAnalyzer and SlabGenerator.</p></li>
+<li><p>Much faster normal vec search.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-1-0">
 <h2>v3.1.0<a class="headerlink" href="#v3-1-0" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Much improved surface generation algorithm that provides for
-orthogonality constraints.</li>
-<li>Transition state analysis tools! (beta)</li>
-<li>Massive improvements in Outcar parsing which provides a powerful grepping
-syntax.</li>
-<li>PWSCFInput generation (beta).</li>
-<li>Reduce default SIGMA to 0.05 for MP input sets.</li>
-<li>Update spglib to 1.7.3 as per recommendation of Togo.</li>
-<li>Many bug fixes and efficiency improvements.</li>
+<li><p>Much improved surface generation algorithm that provides for
+orthogonality constraints.</p></li>
+<li><p>Transition state analysis tools! (beta)</p></li>
+<li><p>Massive improvements in Outcar parsing which provides a powerful grepping
+syntax.</p></li>
+<li><p>PWSCFInput generation (beta).</p></li>
+<li><p>Reduce default SIGMA to 0.05 for MP input sets.</p></li>
+<li><p>Update spglib to 1.7.3 as per recommendation of Togo.</p></li>
+<li><p>Many bug fixes and efficiency improvements.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-0-13">
 <h2>v3.0.13<a class="headerlink" href="#v3-0-13" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Bug fix for parsing certain types of CIFs.</li>
-<li>MPRester now has get_materials_id_references helper method.</li>
-<li>Minor fix for Vasprun.final_energy.</li>
-<li>Added mp_decode option to MPRester.query to allow option to not decode into
-pymatgen objects.</li>
-<li>New POTCAR hash scheme to more robustly identify unique POTCARs.</li>
-<li>Link to <a class="reference external" href="http://bit.ly/materialsapi">http://bit.ly/materialsapi</a> for information on Materials API
-document schema for use with MPRester.query method.</li>
+<li><p>Bug fix for parsing certain types of CIFs.</p></li>
+<li><p>MPRester now has get_materials_id_references helper method.</p></li>
+<li><p>Minor fix for Vasprun.final_energy.</p></li>
+<li><p>Added mp_decode option to MPRester.query to allow option to not decode into
+pymatgen objects.</p></li>
+<li><p>New POTCAR hash scheme to more robustly identify unique POTCARs.</p></li>
+<li><p>Link to <a class="reference external" href="http://bit.ly/materialsapi">http://bit.ly/materialsapi</a> for information on Materials API
+document schema for use with MPRester.query method.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-0-11">
 <h2>v3.0.11<a class="headerlink" href="#v3-0-11" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Lots of abinitio improvements (Matteo).</li>
-<li>Added mp_decode option to MPRester.query to allow option to not decode into pymatgen objects.</li>
+<li><p>Lots of abinitio improvements (Matteo).</p></li>
+<li><p>Added mp_decode option to MPRester.query to allow option to not decode into pymatgen objects.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-0-10">
 <h2>v3.0.10<a class="headerlink" href="#v3-0-10" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Fix cartesian coord parsing in Poscar class.</li>
-<li>Vasprun now works with non-GGA PBE runs</li>
-<li>Misc bug fixes</li>
+<li><p>Fix cartesian coord parsing in Poscar class.</p></li>
+<li><p>Vasprun now works with non-GGA PBE runs</p></li>
+<li><p>Misc bug fixes</p></li>
 </ul>
 </div>
 <div class="section" id="v3-0-9">
 <h2>v3.0.9<a class="headerlink" href="#v3-0-9" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Major bug fixes for CIF parsing (Will Richards).</li>
-<li>Support for {Li,Na} syntax in parse_criteria for MPRester.</li>
-<li>Additional example notebook for ordering and enumeration.</li>
-<li>More robust checking for oxidation states in EnumerateStructureTRansformation.</li>
-<li>Improvements to Slab polarity checking.</li>
+<li><p>Major bug fixes for CIF parsing (Will Richards).</p></li>
+<li><p>Support for {Li,Na} syntax in parse_criteria for MPRester.</p></li>
+<li><p>Additional example notebook for ordering and enumeration.</p></li>
+<li><p>More robust checking for oxidation states in EnumerateStructureTRansformation.</p></li>
+<li><p>Improvements to Slab polarity checking.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-0-8">
 <h2>v3.0.8<a class="headerlink" href="#v3-0-8" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Massive update to abinitio (Matteo).</li>
-<li>Improvements to OUTCAR parsing (Ioannis Petousis).</li>
+<li><p>Massive update to abinitio (Matteo).</p></li>
+<li><p>Improvements to OUTCAR parsing (Ioannis Petousis).</p></li>
 </ul>
 </div>
 <div class="section" id="v3-0-7">
 <h2>v3.0.7<a class="headerlink" href="#v3-0-7" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Powerful Slab generation algorithms (beta!).</li>
-<li>Improvements to DiffusionAnalyzer with constant smoothing option.</li>
-<li>Significantly improve look of DOS plots using prettyplotlib.</li>
+<li><p>Powerful Slab generation algorithms (beta!).</p></li>
+<li><p>Improvements to DiffusionAnalyzer with constant smoothing option.</p></li>
+<li><p>Significantly improve look of DOS plots using prettyplotlib.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-0-6">
 <h2>v3.0.6<a class="headerlink" href="#v3-0-6" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Cost analysis module (Anubhav Jain)</li>
-<li>More Py3k fixes.</li>
-<li>Extensive abinitio updates (Matteo).</li>
+<li><p>Cost analysis module (Anubhav Jain)</p></li>
+<li><p>More Py3k fixes.</p></li>
+<li><p>Extensive abinitio updates (Matteo).</p></li>
 </ul>
 </div>
 <div class="section" id="v3-0-5">
 <h2>v3.0.5<a class="headerlink" href="#v3-0-5" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Completely revamped symmetry package. The finder.SymmetryFinder and
+<li><p>Completely revamped symmetry package. The finder.SymmetryFinder and
 pointgroup and spacegroup modules are now deprecated. Instead,
 all symmetry analysis is in the <a href="#id1"><span class="problematic" id="id2">:module:`pymatgen.symmetry.analyzer`_</span></a>
 module. There is also a completely rewritten support for symmetry groups in
 <a href="#id3"><span class="problematic" id="id4">:module:`pymatgen.symmetry.groups`_</span></a>. Structure now supports a static
-constructor to generate a structure from a spacegroup (see examples).</li>
-<li>BatteryAnalyzer class (Anubhav Jain) to provide for some common analysis of
-intercalation electrodes.</li>
-<li>Minor bug fixes for structure_matcher, lattice, abinitio.</li>
-<li>MOAB qadapter for abinit. (Liam Damewood)</li>
+constructor to generate a structure from a spacegroup (see examples).</p></li>
+<li><p>BatteryAnalyzer class (Anubhav Jain) to provide for some common analysis of
+intercalation electrodes.</p></li>
+<li><p>Minor bug fixes for structure_matcher, lattice, abinitio.</p></li>
+<li><p>MOAB qadapter for abinit. (Liam Damewood)</p></li>
 </ul>
 </div>
 <div class="section" id="v3-0-4">
 <h2>v3.0.4<a class="headerlink" href="#v3-0-4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Fix missing structures json data.</li>
+<li><p>Fix missing structures json data.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-0-3">
 <h2>v3.0.3<a class="headerlink" href="#v3-0-3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Updates to DiffusionAnalyzer for more fine-grained statistics.</li>
-<li>Bug fixes and tweaks to linear assignment</li>
-<li>Improved PymatgenTest class which provides a suite of test structures.</li>
-<li>Speedups to Phase Diagram</li>
-<li>Lots of improvements to Gaussian support (Nicolas Dardenne) and Abinit IO
-(Matteo).</li>
-<li>Lots of Py3k minor updates.</li>
-<li>Updated doc for Diffusion anaylzer. Invert sq_disp_ions for more intuitive handling.</li>
+<li><p>Updates to DiffusionAnalyzer for more fine-grained statistics.</p></li>
+<li><p>Bug fixes and tweaks to linear assignment</p></li>
+<li><p>Improved PymatgenTest class which provides a suite of test structures.</p></li>
+<li><p>Speedups to Phase Diagram</p></li>
+<li><p>Lots of improvements to Gaussian support (Nicolas Dardenne) and Abinit IO
+(Matteo).</p></li>
+<li><p>Lots of Py3k minor updates.</p></li>
+<li><p>Updated doc for Diffusion anaylzer. Invert sq_disp_ions for more intuitive handling.</p></li>
 </ul>
 </div>
 <div class="section" id="v3-0-2">
 <h2>v3.0.2<a class="headerlink" href="#v3-0-2" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic simple">
-<li>Consistent use of unicode throughout pymatgen.</li>
-<li>Minor bug fixes.</li>
+<li><p>Consistent use of unicode throughout pymatgen.</p></li>
+<li><p>Minor bug fixes.</p></li>
 </ol>
 </div>
 <div class="section" id="v3-0-1">
 <h2>v3.0.1<a class="headerlink" href="#v3-0-1" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic simple">
-<li>Minor bug fixes for cifio.</li>
-<li>Py3k updates for abinitio.</li>
+<li><p>Minor bug fixes for cifio.</p></li>
+<li><p>Py3k updates for abinitio.</p></li>
 </ol>
 </div>
 <div class="section" id="v3-0-0">
 <h2>v3.0.0<a class="headerlink" href="#v3-0-0" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Pymatgen is now completely Python 2.7 and Python 3.x compatible!</li>
-<li>Spglib and pyhull have been updated to support Python 3.x.</li>
-<li>Completely rewritten pure python cifio module (courtesy of William Davidson
+<li><p>Pymatgen is now completely Python 2.7 and Python 3.x compatible!</p></li>
+<li><p>Spglib and pyhull have been updated to support Python 3.x.</p></li>
+<li><p>Completely rewritten pure python cifio module (courtesy of William Davidson
 Richards) removed dependency on PyCIFRW, which has been causing many issues
-with installation.</li>
-<li>Structure and Molecule now supports a very convenient to() and from_str and
+with installation.</p></li>
+<li><p>Structure and Molecule now supports a very convenient to() and from_str and
 from_file functionality. Instead of trying to load the appropriate parser,
 you can output and read from the appropriate formats directly. See example
-usage.</li>
-<li>~50% speedup to LinearAssignment code.</li>
-<li>Continuous integration and contribution guidelines now include Python 3.</li>
-<li><strong>Backwards incompatible changes</strong></li>
-<li>matgenie.py has now been renamed simply “pmg” for brevity.</li>
-<li>All deprecated methods in pymatgen 2.x have been removed. E.g.,
-pymatgen.core.structure_modifier is no longer available.</li>
-<li>Pymatgen classes now uses the as_dict() method protocol implemented in the
+usage.</p></li>
+<li><p>~50% speedup to LinearAssignment code.</p></li>
+<li><p>Continuous integration and contribution guidelines now include Python 3.</p></li>
+<li><p><strong>Backwards incompatible changes</strong></p></li>
+<li><p>matgenie.py has now been renamed simply “pmg” for brevity.</p></li>
+<li><p>All deprecated methods in pymatgen 2.x have been removed. E.g.,
+pymatgen.core.structure_modifier is no longer available.</p></li>
+<li><p>Pymatgen classes now uses the as_dict() method protocol implemented in the
 Monty package. The to_dict property is now deprecated and will be removed
-in pymatgen v3.1.</li>
-<li>Update main docs page examples with the new Structure to, from formats.</li>
+in pymatgen v3.1.</p></li>
+<li><p>Update main docs page examples with the new Structure to, from formats.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-10-6">
 <h2>v2.10.6<a class="headerlink" href="#v2-10-6" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Bug fix for np1.9 incompatibility. Now works.</li>
-<li>Use wheel for pymatgen deployments.</li>
-<li>matgenie.py is now renamed to pmg for faster CLI usage.</li>
-<li>Improvements to KPOINTS automatic generation.</li>
-<li>Simpler and faster Structure.get_all_neighbors</li>
+<li><p>Bug fix for np1.9 incompatibility. Now works.</p></li>
+<li><p>Use wheel for pymatgen deployments.</p></li>
+<li><p>matgenie.py is now renamed to pmg for faster CLI usage.</p></li>
+<li><p>Improvements to KPOINTS automatic generation.</p></li>
+<li><p>Simpler and faster Structure.get_all_neighbors</p></li>
 </ul>
 </div>
 <div class="section" id="v2-10-5">
 <h2>v2.10.5<a class="headerlink" href="#v2-10-5" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>DiffusionAnalyzer now has non-smoothed option.</li>
-<li>Kpoints generation algorithm now guarantees minimum # of points.</li>
-<li>Compatibility now has a proper explanation dict.</li>
-<li>Vaspruns with NSW == 1 now checked properly for electronic conv.</li>
-<li>make_movie now supports kwargs.</li>
+<li><p>DiffusionAnalyzer now has non-smoothed option.</p></li>
+<li><p>Kpoints generation algorithm now guarantees minimum # of points.</p></li>
+<li><p>Compatibility now has a proper explanation dict.</p></li>
+<li><p>Vaspruns with NSW == 1 now checked properly for electronic conv.</p></li>
+<li><p>make_movie now supports kwargs.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-10-3">
 <h2>v2.10.3<a class="headerlink" href="#v2-10-3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>MPRester.query now supports a simple but powerful string criteria syntax
-with support for wild cards.</li>
-<li>Improvements to Composition - support for negative compositions, sorting etc.</li>
-<li>Speed ups to StructureMatcher.</li>
+<li><p>MPRester.query now supports a simple but powerful string criteria syntax
+with support for wild cards.</p></li>
+<li><p>Improvements to Composition - support for negative compositions, sorting etc.</p></li>
+<li><p>Speed ups to StructureMatcher.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-10-2">
 <h2>v2.10.2<a class="headerlink" href="#v2-10-2" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Bug fix for Projected DOS parsing in new Vasprun.</li>
-<li>Compatibility now has a <em>explain</em> method which provides a detailed outline
-of the changes that a Compatibility makes to an Entry.</li>
+<li><p>Bug fix for Projected DOS parsing in new Vasprun.</p></li>
+<li><p>Compatibility now has a <em>explain</em> method which provides a detailed outline
+of the changes that a Compatibility makes to an Entry.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-10-1">
 <h2>v2.10.1<a class="headerlink" href="#v2-10-1" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Minor fix for monty requirements in setup.py.</li>
+<li><p>Minor fix for monty requirements in setup.py.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-10-0">
 <h2>v2.10.0<a class="headerlink" href="#v2-10-0" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Major update: MPRester now uses Materials API v2! Also major refactoring
-of MPRester.</li>
-<li>Vastly improved Vasprun parser using cElementTree. Twice as fast,
-half as much code and easier to maintain.</li>
-<li>Vast improvements to Qchem functionality (Xiaohui Qu).</li>
-<li>Improved handling of Structure manipulations for extremely large
-structures (particularly in terms of memory consumption).</li>
-<li>Bug fix for XYZ parsing for scientific notation.</li>
-<li>Improve monty.serialization for transparent handling of JSON vs YAML.
-Requirements updated to monty&gt;=0.3.3.</li>
-<li>Update numpy requirements to 1.8+. Fixes memory leak.</li>
-<li>Other minor bug fixes.</li>
+<li><p>Major update: MPRester now uses Materials API v2! Also major refactoring
+of MPRester.</p></li>
+<li><p>Vastly improved Vasprun parser using cElementTree. Twice as fast,
+half as much code and easier to maintain.</p></li>
+<li><p>Vast improvements to Qchem functionality (Xiaohui Qu).</p></li>
+<li><p>Improved handling of Structure manipulations for extremely large
+structures (particularly in terms of memory consumption).</p></li>
+<li><p>Bug fix for XYZ parsing for scientific notation.</p></li>
+<li><p>Improve monty.serialization for transparent handling of JSON vs YAML.
+Requirements updated to monty&gt;=0.3.3.</p></li>
+<li><p>Update numpy requirements to 1.8+. Fixes memory leak.</p></li>
+<li><p>Other minor bug fixes.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-9-14">
 <h2>v2.9.14<a class="headerlink" href="#v2-9-14" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Implements Structure.sort method. Both Structure.sort and the
+<li><p>Implements Structure.sort method. Both Structure.sort and the
 get_sorted_structure methods now supports all arguments supported by list
-.sort().</li>
-<li>VaspInputSets configs, as well as several other configs now uses yaml. Note
+.sort().</p></li>
+<li><p>VaspInputSets configs, as well as several other configs now uses yaml. Note
 the new dependency on pyyaml. It is highly recommended that you install
-pyyaml with the libyaml C bindings.</li>
-<li>Fix missing spglib dependency.</li>
-<li>Use monty.serialization for transparent handling of JSON vs YAML.
-Requirements updated to monty&gt;=0.3.1.</li>
+pyyaml with the libyaml C bindings.</p></li>
+<li><p>Fix missing spglib dependency.</p></li>
+<li><p>Use monty.serialization for transparent handling of JSON vs YAML.
+Requirements updated to monty&gt;=0.3.1.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-9-13">
 <h2>v2.9.13<a class="headerlink" href="#v2-9-13" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Urgent bug fix for missing compatibility yamls.</li>
+<li><p>Urgent bug fix for missing compatibility yamls.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-9-12">
 <h2>v2.9.12<a class="headerlink" href="#v2-9-12" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Defect transformations (Bharat).</li>
-<li>Support for optical properties (Geoffroy Hautier and David Waroquiers).</li>
-<li>Improved support for some VASP output files (XDATCAR and OSZICAR).</li>
-<li>Refactored compatibilities now uses YAML for ease of reading.</li>
+<li><p>Defect transformations (Bharat).</p></li>
+<li><p>Support for optical properties (Geoffroy Hautier and David Waroquiers).</p></li>
+<li><p>Improved support for some VASP output files (XDATCAR and OSZICAR).</p></li>
+<li><p>Refactored compatibilities now uses YAML for ease of reading.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-9-11">
 <h2>v2.9.11<a class="headerlink" href="#v2-9-11" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Bug fix for get_xrd_plot.</li>
-<li>Speed up XRD calculator by allowing specification of two theta ranges.</li>
-<li>Minor improvements to Gulp caller.</li>
+<li><p>Bug fix for get_xrd_plot.</p></li>
+<li><p>Speed up XRD calculator by allowing specification of two theta ranges.</p></li>
+<li><p>Minor improvements to Gulp caller.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-9-10">
 <h2>v2.9.10<a class="headerlink" href="#v2-9-10" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Bug fix for unequal coefficients sizes in XRD.</li>
-<li>Support for Ag radiation in XRD calculator.</li>
-<li>Improved Procar class for extraction of information. (Germain Salvato
-Vallverdu)</li>
-<li>Bug fix for extraction of GGA data from Materials API.</li>
+<li><p>Bug fix for unequal coefficients sizes in XRD.</p></li>
+<li><p>Support for Ag radiation in XRD calculator.</p></li>
+<li><p>Improved Procar class for extraction of information. (Germain Salvato
+Vallverdu)</p></li>
+<li><p>Bug fix for extraction of GGA data from Materials API.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-9-9">
 <h2>v2.9.9<a class="headerlink" href="#v2-9-9" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>XRDCalculator now supports disordered structures.</li>
-<li>Minor speed ups and improvements.</li>
+<li><p>XRDCalculator now supports disordered structures.</p></li>
+<li><p>Minor speed ups and improvements.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-9-8">
 <h2>v2.9.8<a class="headerlink" href="#v2-9-8" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Initial beta version of XRD pattern calculator.</li>
-<li>Pymatgen now uses spglib 1.6.0.</li>
-<li>Update to Vasprun to compute static deilectric constants with DFPT in VASP.
-(Geoffroy Hautier)</li>
+<li><p>Initial beta version of XRD pattern calculator.</p></li>
+<li><p>Pymatgen now uses spglib 1.6.0.</p></li>
+<li><p>Update to Vasprun to compute static deilectric constants with DFPT in VASP.
+(Geoffroy Hautier)</p></li>
 </ul>
 </div>
 <div class="section" id="v2-9-7">
 <h2>v2.9.7<a class="headerlink" href="#v2-9-7" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Quick bug-fix release that provides a better solution to Structure handling
-of properties instead of sanitizing MPRester structures.</li>
+<li><p>Quick bug-fix release that provides a better solution to Structure handling
+of properties instead of sanitizing MPRester structures.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-9-6">
 <h2>v2.9.6<a class="headerlink" href="#v2-9-6" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Patch to allow 1D phase diagrams (essentially finding the lowest energy
-phase).</li>
-<li>Better error checking for Bandstructure KPOINTs.</li>
-<li>Patch to sanitize structures obtained from MPRester.</li>
+<li><p>Patch to allow 1D phase diagrams (essentially finding the lowest energy
+phase).</p></li>
+<li><p>Better error checking for Bandstructure KPOINTs.</p></li>
+<li><p>Patch to sanitize structures obtained from MPRester.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-9-5">
 <h2>v2.9.5<a class="headerlink" href="#v2-9-5" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Bug fix for linear assignment, which may sometimes affect Structure
-Matcher results.</li>
-<li>Minor improvement to the way grand canonical PDs work.</li>
+<li><p>Bug fix for linear assignment, which may sometimes affect Structure
+Matcher results.</p></li>
+<li><p>Minor improvement to the way grand canonical PDs work.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-9-4">
 <h2>v2.9.4<a class="headerlink" href="#v2-9-4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Bug fix for Pourbaix Maker (Sai).</li>
-<li>Streamline use of scratch directories for various calls. Require monty &gt;=
-0.1.2.</li>
-<li>High accuracy mode for Zeo++ (Bharat Medasani).</li>
+<li><p>Bug fix for Pourbaix Maker (Sai).</p></li>
+<li><p>Streamline use of scratch directories for various calls. Require monty &gt;=
+0.1.2.</p></li>
+<li><p>High accuracy mode for Zeo++ (Bharat Medasani).</p></li>
 </ul>
 </div>
 <div class="section" id="v2-9-3">
 <h2>v2.9.3<a class="headerlink" href="#v2-9-3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Bug fix release for printing TransformedStructures from Substitutor (Will
-Richards).</li>
-<li>Misc improvements in BVAnalyzer, coord_utils and defects (Will Richards,
-David Waroquiers and Bharat Medasani).</li>
+<li><p>Bug fix release for printing TransformedStructures from Substitutor (Will
+Richards).</p></li>
+<li><p>Misc improvements in BVAnalyzer, coord_utils and defects (Will Richards,
+David Waroquiers and Bharat Medasani).</p></li>
 </ul>
 </div>
 <div class="section" id="v2-9-2">
 <h2>v2.9.2<a class="headerlink" href="#v2-9-2" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Bug fix release for DummySpecie, which failed when deserializing from
-json and had bad hash function.</li>
+<li><p>Bug fix release for DummySpecie, which failed when deserializing from
+json and had bad hash function.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-9-1">
 <h2>v2.9.1<a class="headerlink" href="#v2-9-1" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Structure/Molecule now supports Pythonic list-like API for replacing and
-removing sites. See <a class="reference internal" href="index.html#quick-start"><span class="std std-ref">Quick start</span></a> for examples.</li>
+<li><p>Structure/Molecule now supports Pythonic list-like API for replacing and
+removing sites. See <a class="reference internal" href="index.html#quick-start"><span class="std std-ref">Quick start</span></a> for examples.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-9-0">
 <h2>v2.9.0<a class="headerlink" href="#v2-9-0" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Updates to support ABINIT 7.6.1 (by Matteo Giantomassi).</li>
-<li>Vastly improved docs.</li>
-<li>Refactoring to move commonly used Python utility functions to <a class="reference external" href="https://pypi.python.org/pypi/monty">Monty
+<li><p>Updates to support ABINIT 7.6.1 (by Matteo Giantomassi).</p></li>
+<li><p>Vastly improved docs.</p></li>
+<li><p>Refactoring to move commonly used Python utility functions to <a class="reference external" href="https://pypi.python.org/pypi/monty">Monty
 package</a>, which is now a dependency
-for pymatgen.</li>
-<li>Minor fixes and improvements to DiffusionAnalyzer.</li>
-<li>Many bug fixes and improvements.</li>
+for pymatgen.</p></li>
+<li><p>Minor fixes and improvements to DiffusionAnalyzer.</p></li>
+<li><p>Many bug fixes and improvements.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-8-10">
 <h2>v2.8.10<a class="headerlink" href="#v2-8-10" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Refactoring of qchemio module (by Xiaohui Qu).</li>
+<li><p>Refactoring of qchemio module (by Xiaohui Qu).</p></li>
 </ul>
 </div>
 <div class="section" id="v2-8-9">
 <h2>v2.8.9<a class="headerlink" href="#v2-8-9" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>qchemio module (by Xiaohui Qu).</li>
+<li><p>qchemio module (by Xiaohui Qu).</p></li>
 </ul>
 </div>
 <div class="section" id="v2-8-8">
 <h2>v2.8.8<a class="headerlink" href="#v2-8-8" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Minor bug fix release for Structure species substitution methods.</li>
+<li><p>Minor bug fix release for Structure species substitution methods.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-8-7">
 <h2>v2.8.7<a class="headerlink" href="#v2-8-7" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Massive update to pymatgen.io.abinitio package (by Matteo Giantomassi).</li>
-<li>Bug fixes for StructureMatcher’s group_structure.</li>
-<li>Misc bug fixes and cleanup.</li>
+<li><p>Massive update to pymatgen.io.abinitio package (by Matteo Giantomassi).</p></li>
+<li><p>Bug fixes for StructureMatcher’s group_structure.</p></li>
+<li><p>Misc bug fixes and cleanup.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-8-6">
 <h2>v2.8.6<a class="headerlink" href="#v2-8-6" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Bug fix for VASP io set introduced by the default to sorting of structure
-sites when generating VASP input.</li>
+<li><p>Bug fix for VASP io set introduced by the default to sorting of structure
+sites when generating VASP input.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-8-4">
 <h2>v2.8.4<a class="headerlink" href="#v2-8-4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Completely revamped Compatibility/Correction system which improves
+<li><p>Completely revamped Compatibility/Correction system which improves
 readability (Shyue Ping Ong/Anubhav Jain/Sai Jayaraman). This change is
-backwards compatible for the most part.</li>
+backwards compatible for the most part.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-8-3">
 <h2>v2.8.3<a class="headerlink" href="#v2-8-3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Big fix release for json dumping for unitized floats.</li>
+<li><p>Big fix release for json dumping for unitized floats.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-8-2">
 <h2>v2.8.2<a class="headerlink" href="#v2-8-2" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Bug fix release to improve CIF parsing for more non-standard CIF files.
+<li><p>Bug fix release to improve CIF parsing for more non-standard CIF files.
 In particular, non-ascii characters are removed and _cgraph* fields are
-removed prior to parsing for better support in PyCiFRW.</li>
+removed prior to parsing for better support in PyCiFRW.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-8-1">
 <h2>v2.8.1<a class="headerlink" href="#v2-8-1" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Bug fix release. Incorrect units assigned for ionic radii.</li>
-<li>Improved nwchemio supports COSMO and ESP calculations (Nav Rajput).</li>
+<li><p>Bug fix release. Incorrect units assigned for ionic radii.</p></li>
+<li><p>Improved nwchemio supports COSMO and ESP calculations (Nav Rajput).</p></li>
 </ul>
 </div>
 <div class="section" id="v2-8-0">
 <h2>v2.8.0<a class="headerlink" href="#v2-8-0" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><strong>Units</strong>. Pymatgen now has a new system of managing units,
+<li><p><strong>Units</strong>. Pymatgen now has a new system of managing units,
 defined in pymatgen.core.units. Typical energy, length, time,
 temperature and charge units are supported. Units subclass float,
 which makes the usage transparent in all functions. The value that they
@@ -1656,72 +1726,72 @@ subtraction of different units of the same type. Some basic quantities
 like ionic radii and atomic masses are now returned in unitized forms for
 easy conversion. Please see <a class="reference internal" href="pymatgen.core.units.html#module-pymatgen.core.units" title="pymatgen.core.units"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.core.units</span></code></a> and the
 <span class="xref std std-doc">examples</span> for a demonstration of house to use units in
-pymatgen.</li>
-<li><strong>Minor backwards-incompatible change</strong>. Structures are now sorted by
+pymatgen.</p></li>
+<li><p><strong>Minor backwards-incompatible change</strong>. Structures are now sorted by
 default when generating VASP input files using vaspio_set. Old behavior can
 be obtained by setting sort_structure=False in the constructor. This is
 typically the desired behavior and prevents the generation of large
-POTCARs when atomic species are not grouped together.</li>
-<li>Bug fix for Molecule.substitute. Earlier algorithm was not detecting
-terminal atoms properly.</li>
-<li>Additional conversion tools for ABINIT (by Matteo Giantomassi).</li>
+POTCARs when atomic species are not grouped together.</p></li>
+<li><p>Bug fix for Molecule.substitute. Earlier algorithm was not detecting
+terminal atoms properly.</p></li>
+<li><p>Additional conversion tools for ABINIT (by Matteo Giantomassi).</p></li>
 </ul>
 </div>
 <div class="section" id="v2-7-9">
 <h2>v2.7.9<a class="headerlink" href="#v2-7-9" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Minor bug fix release to fix pyhull dependencies to be more friendly.</li>
-<li>Improved structure matcher that allows for more flexible matching. New
-matching between ordered and disordered comparator.</li>
+<li><p>Minor bug fix release to fix pyhull dependencies to be more friendly.</p></li>
+<li><p>Improved structure matcher that allows for more flexible matching. New
+matching between ordered and disordered comparator.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-7-7">
 <h2>v2.7.7<a class="headerlink" href="#v2-7-7" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Beta new Gulp Caller and Zeo++ interface classes (Bharat . Zeo++ is an open
+<li><p>Beta new Gulp Caller and Zeo++ interface classes (Bharat . Zeo++ is an open
 source software for performing high-throughput geometry-based analysis of
 porous materials and their voids. Please see
-<a class="reference external" href="http://www.maciejharanczyk.info/Zeopp/about.html">http://www.maciejharanczyk.info/Zeopp/about.html</a>.</li>
-<li>Specify version of distribute to 0.6.34 for better compatibility.</li>
+<a class="reference external" href="http://www.maciejharanczyk.info/Zeopp/about.html">http://www.maciejharanczyk.info/Zeopp/about.html</a>.</p></li>
+<li><p>Specify version of distribute to 0.6.34 for better compatibility.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-7-6">
 <h2>v2.7.6<a class="headerlink" href="#v2-7-6" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Support for VTK 6.x in structure visualization.</li>
-<li>Updated install instructions for openbabel.</li>
-<li>Preliminary pourbaix analysis (Sai Jayaratnam).</li>
+<li><p>Support for VTK 6.x in structure visualization.</p></li>
+<li><p>Updated install instructions for openbabel.</p></li>
+<li><p>Preliminary pourbaix analysis (Sai Jayaratnam).</p></li>
 </ul>
 </div>
 <div class="section" id="v2-7-5">
 <h2>v2.7.5<a class="headerlink" href="#v2-7-5" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Vastly improved Nwchem IO (by Shyue Ping Ong).</li>
-<li>Much improved ABINIT support (by Matteo Giantomassi).</li>
+<li><p>Vastly improved Nwchem IO (by Shyue Ping Ong).</p></li>
+<li><p>Much improved ABINIT support (by Matteo Giantomassi).</p></li>
 </ul>
 </div>
 <div class="section" id="v2-7-4">
 <h2>v2.7.4<a class="headerlink" href="#v2-7-4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Added basic Nwchem (<a class="reference external" href="http://www.nwchem-sw.org/">http://www.nwchem-sw.org/</a>) IO support. (by: Shyue Ping
-Ong).</li>
-<li>New MoleculeMatcher class for comparing molecules by RMS. Requires
-openbabel with python bindings. (by: Xiaohui Qu)</li>
-<li>New functional group substitution capability for molecules (by: Lei Cheng
-and Shyue Ping Ong).</li>
+<li><p>Added basic Nwchem (<a class="reference external" href="http://www.nwchem-sw.org/">http://www.nwchem-sw.org/</a>) IO support. (by: Shyue Ping
+Ong).</p></li>
+<li><p>New MoleculeMatcher class for comparing molecules by RMS. Requires
+openbabel with python bindings. (by: Xiaohui Qu)</p></li>
+<li><p>New functional group substitution capability for molecules (by: Lei Cheng
+and Shyue Ping Ong).</p></li>
 </ul>
 </div>
 <div class="section" id="v2-7-2">
 <h2>v2.7.2<a class="headerlink" href="#v2-7-2" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Minor bug fix release to fix some rare errors in very high dimensional
-phase diagrams. <strong>Requires new pyhull version (1.3.8).</strong></li>
+<li><p>Minor bug fix release to fix some rare errors in very high dimensional
+phase diagrams. <strong>Requires new pyhull version (1.3.8).</strong></p></li>
 </ul>
 </div>
 <div class="section" id="v2-7-1">
 <h2>v2.7.1<a class="headerlink" href="#v2-7-1" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><strong>Major backwards-incompatible change.</strong> With effect from v2.7.1,
+<li><p><strong>Major backwards-incompatible change.</strong> With effect from v2.7.1,
 the default Structure and Molecule classes are now <em>mutable</em> objects. All
 functionality in the <code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.core.structure_modifier</span></code> has been
 ported over to the new mutable classes. This change was implemented
@@ -1734,291 +1804,290 @@ For the rare instances where such functionality is needed,
 we have provided the IStructure and IMolecule classes (where I indicates
 immutability) which will perform exactly the same way as the previous
 classes. With this change, the <code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.core.structure_modifier</span></code>
-module is now deprecated and will be removed in a future version.</li>
-<li>read_structure and write_structure now supports pymatgen’s json serialized
-structures.</li>
-<li>read_mol and write_mol functions now available (analogues of
-read_structure and write_structure for molecules)</li>
+module is now deprecated and will be removed in a future version.</p></li>
+<li><p>read_structure and write_structure now supports pymatgen’s json serialized
+structures.</p></li>
+<li><p>read_mol and write_mol functions now available (analogues of
+read_structure and write_structure for molecules)</p></li>
 </ul>
 </div>
 <div class="section" id="v2-7-0">
 <h2>v2.7.0<a class="headerlink" href="#v2-7-0" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Beta support for ABINIT input and output via pymatgen.io.abinitio
-(courtesy of the excellent work of Matteo Giantomassi).</li>
-<li>Properties are now checked when comparing two Species for equality.</li>
-<li>MaterialsProjectVaspInputSet is now renamed to MPVaspInputSet for easier
-typing. The old input sets have been deprecated.</li>
-<li>New VaspInputSets for MPStatic, MPNonSCF, MITMD which supports uniform
+<li><p>Beta support for ABINIT input and output via pymatgen.io.abinitio
+(courtesy of the excellent work of Matteo Giantomassi).</p></li>
+<li><p>Properties are now checked when comparing two Species for equality.</p></li>
+<li><p>MaterialsProjectVaspInputSet is now renamed to MPVaspInputSet for easier
+typing. The old input sets have been deprecated.</p></li>
+<li><p>New VaspInputSets for MPStatic, MPNonSCF, MITMD which supports uniform
 grid, bandstructure and molecular dynamics calculations. The MD input set
-uses MIT parameters for speed.</li>
-<li>A beta DiffusionAnalysis class in the apps package.</li>
-<li>A revised KPOINT grid algorithm that generates more reasonable meshes.</li>
-<li>A guided install script is now provided for Mac and Linux users.</li>
+uses MIT parameters for speed.</p></li>
+<li><p>A beta DiffusionAnalysis class in the apps package.</p></li>
+<li><p>A revised KPOINT grid algorithm that generates more reasonable meshes.</p></li>
+<li><p>A guided install script is now provided for Mac and Linux users.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-6-6">
 <h2>v2.6.6<a class="headerlink" href="#v2-6-6" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Updates to feffio (credit: Alan Dozier)</li>
-<li>Added detailed installation instructions for various platforms.</li>
-<li>Support for charge and spin multiplicity in Molecule. Expanded methods
-available in Molecule.</li>
-<li>Added supercell matching capabilities to StructureMatcher.</li>
-<li>More robust creation of PhaseDiagrams to take into account potential qhull
-precision errors.</li>
+<li><p>Updates to feffio (credit: Alan Dozier)</p></li>
+<li><p>Added detailed installation instructions for various platforms.</p></li>
+<li><p>Support for charge and spin multiplicity in Molecule. Expanded methods
+available in Molecule.</p></li>
+<li><p>Added supercell matching capabilities to StructureMatcher.</p></li>
+<li><p>More robust creation of PhaseDiagrams to take into account potential qhull
+precision errors.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-6-5">
 <h2>v2.6.5<a class="headerlink" href="#v2-6-5" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Added a command_line caller to do Bader charge analysis using Henkelmann
-et al.’s algorithm.</li>
-<li>Bug fix for POSCAR parsing when title line is an empty string.</li>
-<li>Added __rmul__ operator for Composition.</li>
-<li>Vastly expanded available aliases.</li>
+<li><p>Added a command_line caller to do Bader charge analysis using Henkelmann
+et al.’s algorithm.</p></li>
+<li><p>Bug fix for POSCAR parsing when title line is an empty string.</p></li>
+<li><p>Added __rmul__ operator for Composition.</p></li>
+<li><p>Vastly expanded available aliases.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-6-4">
 <h2>v2.6.4<a class="headerlink" href="#v2-6-4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Bug fixes for selective dynamics in Poscar.</li>
-<li>Improved Procar parsing to support both simple and detailed PROCARs.</li>
+<li><p>Bug fixes for selective dynamics in Poscar.</p></li>
+<li><p>Improved Procar parsing to support both simple and detailed PROCARs.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-6-3">
 <h2>v2.6.3<a class="headerlink" href="#v2-6-3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Added new MaterialsProject REST interfaces for submit/query/delete_snl
-(currently open in beta for collaborators only).</li>
-<li>Added support for new MaterialsProject REST method get_stability.</li>
-<li>Added aliases for PhaseDiagram, GrandPotentialPhaseDiagram,
-PDAnalyzer and PDPlotter in pymatgen.phasediagrams.</li>
-<li>Improvements to StructureMatcher: stol (site - tolerance) redefined as
+<li><p>Added new MaterialsProject REST interfaces for submit/query/delete_snl
+(currently open in beta for collaborators only).</p></li>
+<li><p>Added support for new MaterialsProject REST method get_stability.</p></li>
+<li><p>Added aliases for PhaseDiagram, GrandPotentialPhaseDiagram,
+PDAnalyzer and PDPlotter in pymatgen.phasediagrams.</p></li>
+<li><p>Improvements to StructureMatcher: stol (site - tolerance) redefined as
 a fraction of the average length per atom. Structures matched in fractional
 space are now also matched in cartesian space and a rms displacement
-normalized by length per atom can be returned using the rms_dist method.</li>
+normalized by length per atom can be returned using the rms_dist method.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-6-2">
 <h2>v2.6.2<a class="headerlink" href="#v2-6-2" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Site and PeriodicSite now uses a Composition mapping type to represent
-the species and occupancy, instead of a standard dict.</li>
-<li>Bug fix for reading and re-writing out of Potcars.</li>
-<li>VaspInputSet now supports MSONable framework.</li>
-<li>Strain cell option in StructureEditor.</li>
-<li>Miscellaneous bug fixes and speedups.</li>
+<li><p>Site and PeriodicSite now uses a Composition mapping type to represent
+the species and occupancy, instead of a standard dict.</p></li>
+<li><p>Bug fix for reading and re-writing out of Potcars.</p></li>
+<li><p>VaspInputSet now supports MSONable framework.</p></li>
+<li><p>Strain cell option in StructureEditor.</p></li>
+<li><p>Miscellaneous bug fixes and speedups.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-6-1">
 <h2>v2.6.1<a class="headerlink" href="#v2-6-1" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Use requests.Session in MPRester for connection pooling and code simplicity.</li>
-<li>Support for “with” context manager in MPRester.</li>
-<li>Updated periodic table data to correct errors in Ru, Tc and other elements.</li>
-<li>New methods in Lattice to obtain Wigner-Seitz cell and Brillouin Zone.</li>
-<li>Miscellaneous bug fixes and speedups.</li>
+<li><p>Use requests.Session in MPRester for connection pooling and code simplicity.</p></li>
+<li><p>Support for “with” context manager in MPRester.</p></li>
+<li><p>Updated periodic table data to correct errors in Ru, Tc and other elements.</p></li>
+<li><p>New methods in Lattice to obtain Wigner-Seitz cell and Brillouin Zone.</p></li>
+<li><p>Miscellaneous bug fixes and speedups.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-5-5">
 <h2>v2.5.5<a class="headerlink" href="#v2-5-5" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Bug fix release for cifio for rhombohedral structures.</li>
-<li>Miscellaneous bug fixes and speedups.</li>
+<li><p>Bug fix release for cifio for rhombohedral structures.</p></li>
+<li><p>Miscellaneous bug fixes and speedups.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-5-4">
 <h2>v2.5.4<a class="headerlink" href="#v2-5-4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Vastly improved Gaussian input file parsing that supports more varieties
-of input specifications.</li>
-<li>StructureNL now supports molecules as well as structures.</li>
-<li>Updated atomic and vdw radius for Elements.</li>
-<li>Miscellaneous bug fixes and speedups.</li>
+<li><p>Vastly improved Gaussian input file parsing that supports more varieties
+of input specifications.</p></li>
+<li><p>StructureNL now supports molecules as well as structures.</p></li>
+<li><p>Updated atomic and vdw radius for Elements.</p></li>
+<li><p>Miscellaneous bug fixes and speedups.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-5-3">
 <h2>v2.5.3<a class="headerlink" href="#v2-5-3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Bug fix for StructureNotationalLanguage.</li>
-<li>Support for LDA US potential. matgenie.py script option to generate POTCARs.</li>
-<li>Beta version of StructureNotationLanguage, a markup format for Structure
-data with metadata such as authors and references. (Anubhav Jain)</li>
-<li>Vasprun parsing now parses dielectric constant where available. (Geoffroy
-Hautier)</li>
-<li>New custom ipython shell script for pymatgen.</li>
-<li>Miscellaneous bug fixes and speedups.</li>
+<li><p>Bug fix for StructureNotationalLanguage.</p></li>
+<li><p>Support for LDA US potential. matgenie.py script option to generate POTCARs.</p></li>
+<li><p>Beta version of StructureNotationLanguage, a markup format for Structure
+data with metadata such as authors and references. (Anubhav Jain)</p></li>
+<li><p>Vasprun parsing now parses dielectric constant where available. (Geoffroy
+Hautier)</p></li>
+<li><p>New custom ipython shell script for pymatgen.</p></li>
+<li><p>Miscellaneous bug fixes and speedups.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-5-1">
 <h2>v2.5.1<a class="headerlink" href="#v2-5-1" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Bug fixes for primitive cell finder.</li>
-<li>Remove deprecated use_external_qhull option in PhaseDiagram classes.</li>
-<li>Miscellaneous bug fixes and speedups.</li>
+<li><p>Bug fixes for primitive cell finder.</p></li>
+<li><p>Remove deprecated use_external_qhull option in PhaseDiagram classes.</p></li>
+<li><p>Miscellaneous bug fixes and speedups.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-5-0">
 <h2>v2.5.0<a class="headerlink" href="#v2-5-0" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Added optimization package with linear assignment class.</li>
-<li>Improved robustness of StructureMatcher using linear assignment.</li>
-<li>Improved primitive cell search (faster and more robust).</li>
-<li>Cleanup of deprecated methods, including
+<li><p>Added optimization package with linear assignment class.</p></li>
+<li><p>Improved robustness of StructureMatcher using linear assignment.</p></li>
+<li><p>Improved primitive cell search (faster and more robust).</p></li>
+<li><p>Cleanup of deprecated methods, including
 pymatgen.alchemy.materials.TransformedMaterial.undo/redo_last_transformation,
 pymatgen.core.site.Site.distance_and_image_old, Poscar.struct,
-StructureFitter and tests.</li>
-<li>Miscellaneous bug fixes and speedups.</li>
+StructureFitter and tests.</p></li>
+<li><p>Miscellaneous bug fixes and speedups.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-4-3">
 <h2>v2.4.3<a class="headerlink" href="#v2-4-3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Bug fix for StructureMatcher.</li>
-<li>Miscellaneous speedups.</li>
+<li><p>Bug fix for StructureMatcher.</p></li>
+<li><p>Miscellaneous speedups.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-4-0">
 <h2>v2.4.0<a class="headerlink" href="#v2-4-0" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>New StructureMatcher that effectively replaces StructureFitter. Orders of
-magnitude faster and more robust. StructureFitter is now deprecated.</li>
-<li>Vastly improved PrimitiveCellTransformation.</li>
-<li>A lot of core methods have been rewritten to take advantage of vectorization
-in numpy, resulting in orders of magnitude improvement in speed.</li>
-<li>Miscellaneous bug fixes and speedups.</li>
+<li><p>New StructureMatcher that effectively replaces StructureFitter. Orders of
+magnitude faster and more robust. StructureFitter is now deprecated.</p></li>
+<li><p>Vastly improved PrimitiveCellTransformation.</p></li>
+<li><p>A lot of core methods have been rewritten to take advantage of vectorization
+in numpy, resulting in orders of magnitude improvement in speed.</p></li>
+<li><p>Miscellaneous bug fixes and speedups.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-3-2">
 <h2>v2.3.2<a class="headerlink" href="#v2-3-2" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>More utilities for working with Periodic Boundary Conditions.</li>
-<li>Improved MPRester that supports more data and a new method of specifying
+<li><p>More utilities for working with Periodic Boundary Conditions.</p></li>
+<li><p>Improved MPRester that supports more data and a new method of specifying
 the API key for heavy users via a MAPI_KEY environment variable. Please
-refer to the <a class="reference internal" href="usage.html"><span class="doc">usage pages</span></a> for more information.</li>
-<li>Vastly improved POTCAR setup script in scripts directly that is now
-installed as part of a default pymatgen installation.</li>
-<li>Miscellaneous bug fixes and speedups.</li>
+refer to the <a class="reference internal" href="usage.html"><span class="doc">usage pages</span></a> for more information.</p></li>
+<li><p>Vastly improved POTCAR setup script in scripts directly that is now
+installed as part of a default pymatgen installation.</p></li>
+<li><p>Miscellaneous bug fixes and speedups.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-3-1">
 <h2>v2.3.1<a class="headerlink" href="#v2-3-1" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Significant improvements to the high-level interface to the Materials API.
+<li><p>Significant improvements to the high-level interface to the Materials API.
 New interface provides more options to make it easier to get structures and
 entries, better warnings and error handling. It uses the <em>requests</em>
-library for a cleaner API.</li>
-<li>Bug fix for VolumetricData parsing and methods such as CHGCAR and LOCPOT.
+library for a cleaner API.</p></li>
+<li><p>Bug fix for VolumetricData parsing and methods such as CHGCAR and LOCPOT.
 Previously, the parsing was done incorrectly because VASP actually provides
-data by running through the x-axis first, followed by y, then z.</li>
-<li>Bug fix for reverse_readline so that it works for gzipped and bzipped
-strucutures (courtesy of Anubhav Jain).</li>
-<li>Fix “lossy” composition to_dict method.  Now composition.to_dict properly
+data by running through the x-axis first, followed by y, then z.</p></li>
+<li><p>Bug fix for reverse_readline so that it works for gzipped and bzipped
+strucutures (courtesy of Anubhav Jain).</p></li>
+<li><p>Fix “lossy” composition to_dict method.  Now composition.to_dict properly
 returns a correct species string as a key for compositions using species,
-instead of just the element symbols.</li>
-<li>Miscellaneous bug fixes.</li>
+instead of just the element symbols.</p></li>
+<li><p>Miscellaneous bug fixes.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-3-0">
 <h2>v2.3.0<a class="headerlink" href="#v2-3-0" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Remove usage of scipy and external qhull callers. Now uses pyhull package.
+<li><p>Remove usage of scipy and external qhull callers. Now uses pyhull package.
 Please note that this change implies that the pyhull package is now a
 required dependency. If you install pymatgen through the usual
 easy_install or pip install methods, this should be taken care of
 automatically for you. Otherwise, please look for the pyhull package on
-PyPI to download and install it.</li>
-<li>Miscellaneous bug fixes.</li>
+PyPI to download and install it.</p></li>
+<li><p>Miscellaneous bug fixes.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-2-6">
 <h2>v2.2.6<a class="headerlink" href="#v2-2-6" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Brand new <em>beta</em> bond valence analyzer based on a Maximum A Posteriori
-algo using data-mined ICSD data.</li>
-<li>Speed up and improvements to core classes.</li>
-<li>Improved structure fitter (credits to Geoffroy Hautier).</li>
-<li>Brand new entry_tools module (pymatgen.entries.entry_tools).</li>
-<li>Vastly improved Outcar parser based on reverse parsing that speeds up
-reading of OUTCAR files by orders of magnitude.</li>
-<li>Miscellaneous bug fixes.</li>
+<li><p>Brand new <em>beta</em> bond valence analyzer based on a Maximum A Posteriori
+algo using data-mined ICSD data.</p></li>
+<li><p>Speed up and improvements to core classes.</p></li>
+<li><p>Improved structure fitter (credits to Geoffroy Hautier).</p></li>
+<li><p>Brand new entry_tools module (pymatgen.entries.entry_tools).</p></li>
+<li><p>Vastly improved Outcar parser based on reverse parsing that speeds up
+reading of OUTCAR files by orders of magnitude.</p></li>
+<li><p>Miscellaneous bug fixes.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-2-4">
 <h2>v2.2.4<a class="headerlink" href="#v2-2-4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Fixed bug in hexagonal cell KPOINTS file generation.</li>
-<li>New RelaxationAnalyzer to compare structures.</li>
-<li>New <em>beta</em> bond valence analyzer.</li>
-<li>Miscellaneous bug fixes.</li>
+<li><p>Fixed bug in hexagonal cell KPOINTS file generation.</p></li>
+<li><p>New RelaxationAnalyzer to compare structures.</p></li>
+<li><p>New <em>beta</em> bond valence analyzer.</p></li>
+<li><p>Miscellaneous bug fixes.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-2-3">
 <h2>v2.2.3<a class="headerlink" href="#v2-2-3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>New filter framework for filtering structures in pymatgen.alchemy.</li>
-<li>Updated feff io classes to support FEFF 9.6 and other code improvements.</li>
-<li>Miscellaneous bug fixes.</li>
+<li><p>New filter framework for filtering structures in pymatgen.alchemy.</p></li>
+<li><p>Updated feff io classes to support FEFF 9.6 and other code improvements.</p></li>
+<li><p>Miscellaneous bug fixes.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-2-2">
 <h2>v2.2.2<a class="headerlink" href="#v2-2-2" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Bug fix release for REST interface.</li>
-<li>Improvements to unittests.</li>
+<li><p>Bug fix release for REST interface.</p></li>
+<li><p>Improvements to unittests.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-2-1">
 <h2>v2.2.1<a class="headerlink" href="#v2-2-1" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Improvements to feffio.</li>
-<li>Master matgenie.py script which replaces many analysis scripts.</li>
-<li>More memory efficient parsing of VolumetricData.</li>
-<li>Beta version of structure prediction classes.</li>
-<li>Changes to MPRester to work with v1 release of the Materials API.</li>
-<li>Miscellaneous bug fixes and speed improvements.</li>
+<li><p>Improvements to feffio.</p></li>
+<li><p>Master matgenie.py script which replaces many analysis scripts.</p></li>
+<li><p>More memory efficient parsing of VolumetricData.</p></li>
+<li><p>Beta version of structure prediction classes.</p></li>
+<li><p>Changes to MPRester to work with v1 release of the Materials API.</p></li>
+<li><p>Miscellaneous bug fixes and speed improvements.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-2-0">
 <h2>v2.2.0<a class="headerlink" href="#v2-2-0" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Beta modules (pymatgen.io.feffio) for io for FEFF, courtesy of Alan Dozier.</li>
-<li>New smartio module that intelligently reads structure input files based on
-file extension.</li>
-<li>Spglib_adaptor module has been renamed to finder for brevity.</li>
-<li>Upgraded spglib to version 1.2.2. Improved handling of spglib install on
-Mac OS X and Solaris.</li>
-<li>Major cleanup of code for PEP8 compliance.</li>
-<li>Cssr module now supports reading of input files.</li>
-<li>Miscellaneous bug fixes and speed improvements.</li>
+<li><p>Beta modules (pymatgen.io.feffio) for io for FEFF, courtesy of Alan Dozier.</p></li>
+<li><p>New smartio module that intelligently reads structure input files based on
+file extension.</p></li>
+<li><p>Spglib_adaptor module has been renamed to finder for brevity.</p></li>
+<li><p>Upgraded spglib to version 1.2.2. Improved handling of spglib install on
+Mac OS X and Solaris.</p></li>
+<li><p>Major cleanup of code for PEP8 compliance.</p></li>
+<li><p>Cssr module now supports reading of input files.</p></li>
+<li><p>Miscellaneous bug fixes and speed improvements.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-1-2">
 <h2>v2.1.2<a class="headerlink" href="#v2-1-2" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Brand new CompoundPD class that allows the plotting of phase diagrams that
-do not have elements as their terminal points.</li>
-<li>Spglib is now completely integrated as part of the setup.py installation.</li>
-<li>Major (but completely backwards compatible) refactoring of sites and vaspio.</li>
-<li>Added a EnumerateStructureTransformation with optional dependency on the enum
+<li><p>Brand new CompoundPD class that allows the plotting of phase diagrams that
+do not have elements as their terminal points.</p></li>
+<li><p>Spglib is now completely integrated as part of the setup.py installation.</p></li>
+<li><p>Major (but completely backwards compatible) refactoring of sites and vaspio.</p></li>
+<li><p>Added a EnumerateStructureTransformation with optional dependency on the enum
 library by Gus Hart. This provides a robust way to enumerate derivative
-structures,</li>
-<li>Implemented LLL lattice reduction algorithm. Also added option to sanitize
-a Structure on copy.</li>
-<li>Bug fix for missing Compatibility file in release distribution.</li>
-<li>Vastly improved StructureFitter which performs cell reduction where necessary
-to speed up fitting.</li>
-<li>Miscellaneous bug fixes and speed improvements.</li>
+structures,</p></li>
+<li><p>Implemented LLL lattice reduction algorithm. Also added option to sanitize
+a Structure on copy.</p></li>
+<li><p>Bug fix for missing Compatibility file in release distribution.</p></li>
+<li><p>Vastly improved StructureFitter which performs cell reduction where necessary
+to speed up fitting.</p></li>
+<li><p>Miscellaneous bug fixes and speed improvements.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-0-0">
 <h2>v2.0.0<a class="headerlink" href="#v2-0-0" title="Permalink to this headline">¶</a></h2>
 <ul>
-<li><p class="first">Brand new module (pymatgen.matproj.rest) for interfacing with the
-MaterialsProject REST interface.</p>
-</li>
-<li><p class="first">Useful aliases for commonly used Objects, similar in style to numpy.
+<li><p>Brand new module (pymatgen.matproj.rest) for interfacing with the
+MaterialsProject REST interface.</p></li>
+<li><p>Useful aliases for commonly used Objects, similar in style to numpy.
 Supported objects include Element, Composition, Structure, Molecule, Spin
 and Orbital. For example, the following will now work:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pymatgen</span> <span class="k">as</span> <span class="nn">mg</span>
@@ -2032,77 +2101,73 @@ and Orbital. For example, the following will now work:</p>
 </pre></div>
 </div>
 </li>
-<li><p class="first">New PDAnalyzer method to generate chemical potential maps.</p>
-</li>
-<li><p class="first">Enhanced POSCAR class to support parsing of velocities and more formatting
-options.</p>
-</li>
-<li><p class="first">Reorganization of Bandstructure module. Beta support for projected
-bandstructure and eigenvalues in vaspio and electronic_structure.</p>
-</li>
-<li><p class="first">Miscellaneous bug fixes and speed improvements.</p>
-</li>
+<li><p>New PDAnalyzer method to generate chemical potential maps.</p></li>
+<li><p>Enhanced POSCAR class to support parsing of velocities and more formatting
+options.</p></li>
+<li><p>Reorganization of Bandstructure module. Beta support for projected
+bandstructure and eigenvalues in vaspio and electronic_structure.</p></li>
+<li><p>Miscellaneous bug fixes and speed improvements.</p></li>
 </ul>
 </div>
 <div class="section" id="v1-9-0">
 <h2>v1.9.0<a class="headerlink" href="#v1-9-0" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Completely new json encoder and decoder that support serialization of almost
-all pymatgen objects.</li>
-<li>Simplification to Borg API utilizing the new json API.</li>
-<li>Bandstructure classes now support spin-polarized runs.</li>
-<li>Beta classes for battery (insertion and conversion) analysis.</li>
+<li><p>Completely new json encoder and decoder that support serialization of almost
+all pymatgen objects.</p></li>
+<li><p>Simplification to Borg API utilizing the new json API.</p></li>
+<li><p>Bandstructure classes now support spin-polarized runs.</p></li>
+<li><p>Beta classes for battery (insertion and conversion) analysis.</p></li>
 </ul>
 </div>
 <div class="section" id="v1-8-3">
 <h2>v1.8.3<a class="headerlink" href="#v1-8-3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>spglib_adaptor now supports disordered structures.</li>
-<li>Update to support new spglib with angle_tolerance.</li>
-<li>Changes to Borg API to support both file and directory style paths.</li>
-<li>Speed up for COMPLETE_ORDERING algo for PartialRemoveSpecieTransformation.</li>
+<li><p>spglib_adaptor now supports disordered structures.</p></li>
+<li><p>Update to support new spglib with angle_tolerance.</p></li>
+<li><p>Changes to Borg API to support both file and directory style paths.</p></li>
+<li><p>Speed up for COMPLETE_ORDERING algo for PartialRemoveSpecieTransformation.</p></li>
 </ul>
 </div>
 <div class="section" id="v1-8-1">
 <h2>v1.8.1<a class="headerlink" href="#v1-8-1" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Revamped transmuter classes for better readability and long term support.</li>
-<li>Much improved speed for PartialRemoveSpecieTransformations.</li>
-<li>Misc bug fixes.</li>
+<li><p>Revamped transmuter classes for better readability and long term support.</p></li>
+<li><p>Much improved speed for PartialRemoveSpecieTransformations.</p></li>
+<li><p>Misc bug fixes.</p></li>
 </ul>
 </div>
 <div class="section" id="v1-8-0">
 <h2>v1.8.0<a class="headerlink" href="#v1-8-0" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Support for additional properties on Specie (Spin) and Site (magmom, charge).</li>
-<li>Molecule class to support molecules without periodicity.</li>
-<li>Beta io class for XYZ and GaussianInput.</li>
+<li><p>Support for additional properties on Specie (Spin) and Site (magmom, charge).</p></li>
+<li><p>Molecule class to support molecules without periodicity.</p></li>
+<li><p>Beta io class for XYZ and GaussianInput.</p></li>
 </ul>
 </div>
 <div class="section" id="v1-7-2">
 <h2>v1.7.2<a class="headerlink" href="#v1-7-2" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Bug fixes for vaspio_set and compatibility classes.</li>
+<li><p>Bug fixes for vaspio_set and compatibility classes.</p></li>
 </ul>
 </div>
 <div class="section" id="v1-7-0">
 <h2>v1.7.0<a class="headerlink" href="#v1-7-0" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Complete reorganization of modules for electronic structure.</li>
-<li>Beta of band structure classes.</li>
-<li>Misc improvements to vaspio classes.</li>
-<li>Bug fixes.</li>
+<li><p>Complete reorganization of modules for electronic structure.</p></li>
+<li><p>Beta of band structure classes.</p></li>
+<li><p>Misc improvements to vaspio classes.</p></li>
+<li><p>Bug fixes.</p></li>
 </ul>
 </div>
 <div class="section" id="v1-6-0">
 <h2>v1.6.0<a class="headerlink" href="#v1-6-0" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Beta of pymatgen.borg package implemented for high-throughput data assimilation.</li>
-<li>Added ComputedEntry classes for handling calculated data.</li>
-<li>New method of specifying VASP pseudopotential location using a VASP_PSP_DIR
-environment variable.</li>
-<li>Bug fix for pymatgen.symmetry</li>
-<li>Ewald sum speed up by factor of 2 or more.</li>
+<li><p>Beta of pymatgen.borg package implemented for high-throughput data assimilation.</p></li>
+<li><p>Added ComputedEntry classes for handling calculated data.</p></li>
+<li><p>New method of specifying VASP pseudopotential location using a VASP_PSP_DIR
+environment variable.</p></li>
+<li><p>Bug fix for pymatgen.symmetry</p></li>
+<li><p>Ewald sum speed up by factor of 2 or more.</p></li>
 </ul>
 </div>
 </div>
@@ -2116,6 +2181,10 @@ environment variable.</li>
   <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Change log</a><ul>
+<li><a class="reference internal" href="#v2019-5-1">v2019.5.1</a></li>
+<li><a class="reference internal" href="#v2019-4-11">v2019.4.11</a></li>
+<li><a class="reference internal" href="#v2019-3-27">v2019.3.27</a></li>
+<li><a class="reference internal" href="#v2019-3-13">v2019.3.13</a></li>
 <li><a class="reference internal" href="#v2019-2-28">v2019.2.28</a></li>
 <li><a class="reference internal" href="#v2019-2-24">v2019.2.24</a></li>
 <li><a class="reference internal" href="#v2019-2-4">v2019.2.4</a></li>
@@ -2351,8 +2420,6 @@ environment variable.</li>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -2370,13 +2437,13 @@ environment variable.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

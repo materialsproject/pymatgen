@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.fiesta module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.io.fiesta module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -52,14 +50,11 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A bse output file parser. The start…</p>
 <p>All energies are in eV.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – Filename to read.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> – Filename to read.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="class">
@@ -78,14 +73,11 @@
 <dl class="method">
 <dt id="pymatgen.io.fiesta.Basis_set_reader.set_n_nlmo">
 <code class="descname">set_n_nlmo</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/fiesta.html#Basis_set_reader.set_n_nlmo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.fiesta.Basis_set_reader.set_n_nlmo" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the number of nlm orbitals for the basis set</td>
-</tr>
-</tbody>
-</table>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the number of nlm orbitals for the basis set</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -95,22 +87,18 @@
 <em class="property">class </em><code class="descname">FiestaInput</code><span class="sig-paren">(</span><em>mol</em>, <em>correlation_grid={'dE_grid': '0.500'</em>, <em>'n_grid': '14'}</em>, <em>Exc_DFT_option={'rdVxcpsi': '1'}</em>, <em>COHSEX_options={'eigMethod': 'C'</em>, <em>'mix_cohsex': '0.500'</em>, <em>'nc_cohsex': '0'</em>, <em>'nit_cohsex': '0'</em>, <em>'nv_cohsex': '0'</em>, <em>'resMethod': 'V'</em>, <em>'scf_cohsex_wf': '0'}</em>, <em>GW_options={'nc_corr': '10'</em>, <em>'nit_gw': '3'</em>, <em>'nv_corr': '10'}</em>, <em>BSE_TDDFT_options={'do_bse': '1'</em>, <em>'do_tddft': '0'</em>, <em>'nc_bse': '382'</em>, <em>'nit_bse': '50'</em>, <em>'npsi_bse': '1'</em>, <em>'nv_bse': '21'}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/fiesta.html#FiestaInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Input File for Fiesta called “cell.in” by default (mandatory in Fiesta for now)</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>mol</strong> – pymatgen mol</li>
-<li><strong>correlation_grid</strong> – dict</li>
-<li><strong>Exc_DFT_option</strong> – dict</li>
-<li><strong>COHSEX_options</strong> – dict</li>
-<li><strong>GW_options</strong> – dict</li>
-<li><strong>BSE_TDDFT_options</strong> – dict</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mol</strong> – pymatgen mol</p></li>
+<li><p><strong>correlation_grid</strong> – dict</p></li>
+<li><p><strong>Exc_DFT_option</strong> – dict</p></li>
+<li><p><strong>COHSEX_options</strong> – dict</p></li>
+<li><p><strong>GW_options</strong> – dict</p></li>
+<li><p><strong>BSE_TDDFT_options</strong> – dict</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.fiesta.FiestaInput.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/fiesta.html#FiestaInput.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.as_dict" title="Permalink to this definition">¶</a></dt>
@@ -120,31 +108,27 @@
 <dl class="method">
 <dt id="pymatgen.io.fiesta.FiestaInput.dump_BSE_data_in_GW_run">
 <code class="descname">dump_BSE_data_in_GW_run</code><span class="sig-paren">(</span><em>BSE_dump=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/fiesta.html#FiestaInput.dump_BSE_data_in_GW_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.dump_BSE_data_in_GW_run" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>BSE_dump</strong> – boolean</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">set the “do_bse” variable to one in cell.in</td>
-</tr>
-</tbody>
-</table>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>BSE_dump</strong> – boolean</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>set the “do_bse” variable to one in cell.in</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.fiesta.FiestaInput.dump_TDDFT_data_in_GW_run">
 <code class="descname">dump_TDDFT_data_in_GW_run</code><span class="sig-paren">(</span><em>TDDFT_dump=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/fiesta.html#FiestaInput.dump_TDDFT_data_in_GW_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.dump_TDDFT_data_in_GW_run" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>TDDFT_dump</strong> – boolen</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">set the do_tddft variable to one in cell.in</td>
-</tr>
-</tbody>
-</table>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>TDDFT_dump</strong> – boolen</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>set the do_tddft variable to one in cell.in</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
@@ -157,16 +141,14 @@
 <em class="property">classmethod </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/fiesta.html#FiestaInput.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read an Fiesta input from a file. Currently tested to work with
 files generated from this class itself.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – Filename to parse.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">FiestaInput object</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> – Filename to parse.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>FiestaInput object</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
@@ -174,16 +156,14 @@ files generated from this class itself.</p>
 <em class="property">classmethod </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>string_input</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/fiesta.html#FiestaInput.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.from_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read an FiestaInput from a string. Currently tested to work with
 files generated from this class itself.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>string_input</strong> – string_input to parse.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">FiestaInput object</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>string_input</strong> – string_input to parse.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>FiestaInput object</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -231,7 +211,8 @@ files generated from this class itself.</p>
 :param auxiliary_folder: folder where the auxiliary basis sets are stored
 :param auxiliary_basis_set_type: type of basis set (string to be found in the extension of the file name; must be in lower case)</p>
 <blockquote>
-<div>ex: C2.ion_aug_cc_pvtz_RI_Weigend find “aug_cc_pvtz”</div></blockquote>
+<div><p>ex: C2.ion_aug_cc_pvtz_RI_Weigend find “aug_cc_pvtz”</p>
+</div></blockquote>
 </dd></dl>
 
 <dl class="method">
@@ -247,25 +228,22 @@ files generated from this class itself.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A Fiesta output file parser.</p>
 <p>All energies are in eV.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – Filename to read.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> – Filename to read.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.io.fiesta.Fiesta_run">
 <em class="property">class </em><code class="descname">Fiesta_run</code><span class="sig-paren">(</span><em>folder='/Users/shyue/repos/pymatgen/docs_rst', grid=[2, 2, 2], log_file='log'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/fiesta.html#Fiesta_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.fiesta.Fiesta_run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
-<dl class="docutils">
-<dt>To run FIESTA inside python:</dt>
-<dd>if grid is [x,x] then bse runs
+<dl class="simple">
+<dt>To run FIESTA inside python:</dt><dd><p>if grid is [x,x] then bse runs
 if grid is [x,x,y] the fiesta(gw) runs
-otherwise it breaks</dd>
+otherwise it breaks</p>
+</dd>
 </dl>
 <p>folder:
 logfile: logfile of Fiesta</p>
@@ -351,8 +329,6 @@ logfile: logfile of NWCHEM2FIESTA</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -370,13 +346,13 @@ logfile: logfile of NWCHEM2FIESTA</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

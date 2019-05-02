@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.apps.borg.queen module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.apps.borg.queen module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -55,28 +53,24 @@ data using Python’s multiprocessing.</p>
 <p>The Borg Queen controls the drones to assimilate data in an entire
 directory tree. Uses multiprocessing to speed up things considerably. It
 also contains convenience methods to save and load data between sessions.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>drone</strong> (<em>Drone</em>) – An implementation of
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>drone</strong> (<em>Drone</em>) – An implementation of
 <a class="reference internal" href="pymatgen.apps.borg.hive.html#pymatgen.apps.borg.hive.AbstractDrone" title="pymatgen.apps.borg.hive.AbstractDrone"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.apps.borg.hive.AbstractDrone</span></code></a> to use for
-assimilation.</li>
-<li><strong>rootpath</strong> (<em>str</em>) – The root directory to start assimilation. Leave it
+assimilation.</p></li>
+<li><p><strong>rootpath</strong> (<em>str</em>) – The root directory to start assimilation. Leave it
 as None if you want to do assimilation later, or is using the
-BorgQueen to load previously assimilated data.</li>
-<li><strong>ndrones</strong> (<em>int</em>) – Number of drones to parallelize over.
+BorgQueen to load previously assimilated data.</p></li>
+<li><p><strong>ndrones</strong> (<em>int</em>) – Number of drones to parallelize over.
 Typical machines today have up to four processors. Note that you
 won’t see a 100% improvement with two drones over one, but you
 will definitely see a significant speedup of at least 50% or so.
 If you are running this over a server with far more processors,
-the speedup will be even greater.</li>
+the speedup will be even greater.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.apps.borg.queen.BorgQueen.get_data">
 <code class="descname">get_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/borg/queen.html#BorgQueen.get_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.borg.queen.BorgQueen.get_data" title="Permalink to this definition">¶</a></dt>
@@ -99,16 +93,13 @@ the speedup will be even greater.</li>
 <dt id="pymatgen.apps.borg.queen.BorgQueen.save_data">
 <code class="descname">save_data</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/borg/queen.html#BorgQueen.save_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.borg.queen.BorgQueen.save_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the assimilated data to a file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) – filename to save the assimilated data to. Note
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – filename to save the assimilated data to. Note
 that if the filename ends with gz or bz2, the relevant gzip
-or bz2 compression will be applied.</td>
-</tr>
-</tbody>
-</table>
+or bz2 compression will be applied.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -146,8 +137,6 @@ or bz2 compression will be applied.</td>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -165,13 +154,13 @@ or bz2 compression will be applied.</td>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

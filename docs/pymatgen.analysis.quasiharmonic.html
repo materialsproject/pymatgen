@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.quasiharmonic module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.quasiharmonic module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -50,59 +48,56 @@
 be used to compute thermal properties.</p>
 <p>See the following papers for more info:</p>
 <blockquote>
-<div><a class="reference external" href="http://doi.org/10.1016/j.comphy.2003.12.001">http://doi.org/10.1016/j.comphy.2003.12.001</a> (2004)
-<a class="reference external" href="http://doi.org/10.1103/PhysRevB.90.174107">http://doi.org/10.1103/PhysRevB.90.174107</a> (2014)</div></blockquote>
+<div><p><a class="reference external" href="http://doi.org/10.1016/j.comphy.2003.12.001">http://doi.org/10.1016/j.comphy.2003.12.001</a> (2004)
+<a class="reference external" href="http://doi.org/10.1103/PhysRevB.90.174107">http://doi.org/10.1103/PhysRevB.90.174107</a> (2014)</p>
+</div></blockquote>
 <dl class="class">
 <dt id="pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox">
 <em class="property">class </em><code class="descname">QuasiharmonicDebyeApprox</code><span class="sig-paren">(</span><em>energies</em>, <em>volumes</em>, <em>structure</em>, <em>t_min=300.0</em>, <em>t_step=100</em>, <em>t_max=300.0</em>, <em>eos='vinet'</em>, <em>pressure=0.0</em>, <em>poisson=0.25</em>, <em>use_mie_gruneisen=False</em>, <em>anharmonic_contribution=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/quasiharmonic.html#QuasiharmonicDebyeApprox"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>energies</strong> (<em>list</em>) – list of DFT energies in eV</li>
-<li><strong>volumes</strong> (<em>list</em>) – list of volumes in Ang^3</li>
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – </li>
-<li><strong>t_min</strong> (<em>float</em>) – min temperature</li>
-<li><strong>t_step</strong> (<em>float</em>) – temperature step</li>
-<li><strong>t_max</strong> (<em>float</em>) – max temperature</li>
-<li><strong>eos</strong> (<em>str</em>) – <p>equation of state used for fitting the energies and the
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>energies</strong> (<em>list</em>) – list of DFT energies in eV</p></li>
+<li><p><strong>volumes</strong> (<em>list</em>) – list of volumes in Ang^3</p></li>
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – </p></li>
+<li><p><strong>t_min</strong> (<em>float</em>) – min temperature</p></li>
+<li><p><strong>t_step</strong> (<em>float</em>) – temperature step</p></li>
+<li><p><strong>t_max</strong> (<em>float</em>) – max temperature</p></li>
+<li><p><strong>eos</strong> (<em>str</em>) – <p>equation of state used for fitting the energies and the
 volumes.
 options supported by pymatgen: “quadratic”, “murnaghan”, “birch”,</p>
 <blockquote>
-<div>”birch_murnaghan”, “pourier_tarantola”, “vinet”,
-“deltafactor”, “numerical_eos”</div></blockquote>
-</li>
-<li><strong>pressure</strong> (<em>float</em>) – in GPa, optional.</li>
-<li><strong>poisson</strong> (<em>float</em>) – poisson ratio.</li>
-<li><strong>use_mie_gruneisen</strong> (<em>bool</em>) – whether or not to use the mie-gruneisen
+<div><p>”birch_murnaghan”, “pourier_tarantola”, “vinet”,
+“deltafactor”, “numerical_eos”</p>
+</div></blockquote>
+</p></li>
+<li><p><strong>pressure</strong> (<em>float</em>) – in GPa, optional.</p></li>
+<li><p><strong>poisson</strong> (<em>float</em>) – poisson ratio.</p></li>
+<li><p><strong>use_mie_gruneisen</strong> (<em>bool</em>) – whether or not to use the mie-gruneisen
 formulation to compute the gruneisen parameter.
-The default is the slater-gamma formulation.</li>
-<li><strong>anharmonic_contribution</strong> (<em>bool</em>) – whether or not to consider the anharmonic
+The default is the slater-gamma formulation.</p></li>
+<li><p><strong>anharmonic_contribution</strong> (<em>bool</em>) – whether or not to consider the anharmonic
 contribution to the Debye temperature. Cannot be used with
-use_mie_gruneisen. Defaults to False.</li>
+use_mie_gruneisen. Defaults to False.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="staticmethod">
 <dt id="pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.debye_integral">
 <em class="property">static </em><code class="descname">debye_integral</code><span class="sig-paren">(</span><em>y</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/quasiharmonic.html#QuasiharmonicDebyeApprox.debye_integral"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.debye_integral" title="Permalink to this definition">¶</a></dt>
 <dd><p>Debye integral. Eq(5) in  doi.org/10.1016/j.comphy.2003.12.001</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>y</strong> (<em>float</em>) – debye temperature/T, upper limit</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">unitless</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">float</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>y</strong> (<em>float</em>) – debye temperature/T, upper limit</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>unitless</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -117,18 +112,17 @@ anharmonic contributions to the Debye temperature through the Gruneisen
 parameter at 0K (Gruneisen constant).</p>
 <p>The anharmonic contribution is toggled by setting the anharmonic_contribution
 to True or False in the QuasiharmonicDebyeApprox constructor.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>volume</strong> (<em>float</em>) – in Ang^3</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">debye temperature in K</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">float</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>volume</strong> (<em>float</em>) – in Ang^3</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>debye temperature in K</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -140,47 +134,42 @@ to True or False in the QuasiharmonicDebyeApprox constructor.</p>
 <dl class="method">
 <dt id="pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.gruneisen_parameter">
 <code class="descname">gruneisen_parameter</code><span class="sig-paren">(</span><em>temperature</em>, <em>volume</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/quasiharmonic.html#QuasiharmonicDebyeApprox.gruneisen_parameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.gruneisen_parameter" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Slater-gamma formulation(the default):</dt>
-<dd><dl class="first last docutils">
-<dt>gruneisen paramter = - d log(theta)/ d log(V)</dt>
-<dd><p class="first">= - ( 1/6 + 0.5 d log(B)/ d log(V) )
+<dd><dl>
+<dt>Slater-gamma formulation(the default):</dt><dd><dl>
+<dt>gruneisen paramter = - d log(theta)/ d log(V)</dt><dd><p>= - ( 1/6 + 0.5 d log(B)/ d log(V) )
 = - (1/6 + 0.5 V/B dB/dV),</p>
-<blockquote class="last">
-<div>where dB/dV = d^2E/dV^2 + V * d^3E/dV^3</div></blockquote>
+<blockquote>
+<div><p>where dB/dV = d^2E/dV^2 + V * d^3E/dV^3</p>
+</div></blockquote>
 </dd>
 </dl>
 </dd>
-<dt>Mie-gruneisen formulation:</dt>
-<dd><p class="first">Eq(31) in doi.org/10.1016/j.comphy.2003.12.001
+<dt>Mie-gruneisen formulation:</dt><dd><p>Eq(31) in doi.org/10.1016/j.comphy.2003.12.001
 Eq(7) in Blanco et. al. Joumal of Molecular Structure (Theochem)</p>
 <blockquote>
-<div>368 (1996) 245-255</div></blockquote>
-<dl class="last docutils">
-<dt>Also se J.P. Poirier, Introduction to the Physics of the Earth’s</dt>
-<dd>Interior, 2nd ed. (Cambridge University Press, Cambridge,
-2000) Eq(3.53)</dd>
+<div><p>368 (1996) 245-255</p>
+</div></blockquote>
+<dl class="simple">
+<dt>Also se J.P. Poirier, Introduction to the Physics of the Earth’s</dt><dd><p>Interior, 2nd ed. (Cambridge University Press, Cambridge,
+2000) Eq(3.53)</p>
+</dd>
 </dl>
 </dd>
 </dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>temperature</strong> (<em>float</em>) – temperature in K</li>
-<li><strong>volume</strong> (<em>float</em>) – in Ang^3</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>temperature</strong> (<em>float</em>) – temperature in K</p></li>
+<li><p><strong>volume</strong> (<em>float</em>) – in Ang^3</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">unitless</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>unitless</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -189,9 +178,9 @@ Eq(7) in Blanco et. al. Joumal of Molecular Structure (Theochem)</p>
 <dd><p>Evaluate the gibbs free energy as a function of V, T and P i.e
 G(V, T, P), minimize G(V, T, P) wrt V for each T and store the
 optimum values.</p>
-<dl class="docutils">
-<dt>Note: The data points for which the equation of state fitting fails</dt>
-<dd>are skipped.</dd>
+<dl class="simple">
+<dt>Note: The data points for which the equation of state fitting fails</dt><dd><p>are skipped.</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -201,55 +190,50 @@ optimum values.</p>
 <dd><p>Evaluate G(V, T, P) at the given temperature(and pressure) and
 minimize it wrt V.</p>
 <ol class="arabic simple">
-<li>Compute the  vibrational helmholtz free energy, A_vib.</li>
-<li><dl class="first docutils">
-<dt>Compute the gibbs free energy as a function of volume, temperature</dt>
-<dd>and pressure, G(V,T,P).</dd>
+<li><p>Compute the  vibrational helmholtz free energy, A_vib.</p></li>
+<li><dl class="simple">
+<dt>Compute the gibbs free energy as a function of volume, temperature</dt><dd><p>and pressure, G(V,T,P).</p>
+</dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt>Preform an equation of state fit to get the functional form of</dt>
-<dd>gibbs free energy:G(V, T, P).</dd>
+<li><dl class="simple">
+<dt>Preform an equation of state fit to get the functional form of</dt><dd><p>gibbs free energy:G(V, T, P).</p>
+</dd>
 </dl>
 </li>
-<li>Finally G(V, P, T) is minimized with respect to V.</li>
+<li><p>Finally G(V, P, T) is minimized with respect to V.</p></li>
 </ol>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>temperature</strong> (<em>float</em>) – temperature in K</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">G_opt(V_opt, T, P) in eV and V_opt in Ang^3.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">float, float</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>temperature</strong> (<em>float</em>) – temperature in K</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>G_opt(V_opt, T, P) in eV and V_opt in Ang^3.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float, float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.thermal_conductivity">
 <code class="descname">thermal_conductivity</code><span class="sig-paren">(</span><em>temperature</em>, <em>volume</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/quasiharmonic.html#QuasiharmonicDebyeApprox.thermal_conductivity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.thermal_conductivity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Eq(17) in 10.1103/PhysRevB.90.174107</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>temperature</strong> (<em>float</em>) – temperature in K</li>
-<li><strong>volume</strong> (<em>float</em>) – in Ang^3</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>temperature</strong> (<em>float</em>) – temperature in K</p></li>
+<li><p><strong>volume</strong> (<em>float</em>) – in Ang^3</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">thermal conductivity in W/K/m</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>thermal conductivity in W/K/m</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -257,24 +241,20 @@ minimize it wrt V.</p>
 <code class="descname">vibrational_free_energy</code><span class="sig-paren">(</span><em>temperature</em>, <em>volume</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/quasiharmonic.html#QuasiharmonicDebyeApprox.vibrational_free_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.vibrational_free_energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Vibrational Helmholtz free energy, A_vib(V, T).
 Eq(4) in doi.org/10.1016/j.comphy.2003.12.001</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>temperature</strong> (<em>float</em>) – temperature in K</li>
-<li><strong>volume</strong> (<em>float</em>) – </li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>temperature</strong> (<em>float</em>) – temperature in K</p></li>
+<li><p><strong>volume</strong> (<em>float</em>) – </p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">vibrational free energy in eV</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>vibrational free energy in eV</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -282,24 +262,20 @@ Eq(4) in doi.org/10.1016/j.comphy.2003.12.001</p>
 <code class="descname">vibrational_internal_energy</code><span class="sig-paren">(</span><em>temperature</em>, <em>volume</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/quasiharmonic.html#QuasiharmonicDebyeApprox.vibrational_internal_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.vibrational_internal_energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Vibrational internal energy, U_vib(V, T).
 Eq(4) in doi.org/10.1016/j.comphy.2003.12.001</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>temperature</strong> (<em>float</em>) – temperature in K</li>
-<li><strong>volume</strong> (<em>float</em>) – in Ang^3</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>temperature</strong> (<em>float</em>) – temperature in K</p></li>
+<li><p><strong>volume</strong> (<em>float</em>) – in Ang^3</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">vibrational internal energy in eV</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>vibrational internal energy in eV</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -325,8 +301,6 @@ Eq(4) in doi.org/10.1016/j.comphy.2003.12.001</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -344,13 +318,13 @@ Eq(4) in doi.org/10.1016/j.comphy.2003.12.001</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

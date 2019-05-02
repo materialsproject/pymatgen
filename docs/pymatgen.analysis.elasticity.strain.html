@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.elasticity.strain module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.elasticity.strain module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -57,28 +55,22 @@ generating deformed structure sets for further calculations.</p>
 <p>Create a Deformation object.  Note that the constructor uses __new__
 rather than __init__ according to the standard method of subclassing
 numpy ndarrays.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>deformation_gradient</strong> (<em>3x3 array-like</em>) – the 3x3 array-like
-representing the deformation gradient</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>deformation_gradient</strong> (<em>3x3 array-like</em>) – the 3x3 array-like
+representing the deformation gradient</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.analysis.elasticity.strain.Deformation.apply_to_structure">
 <code class="descname">apply_to_structure</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/strain.html#Deformation.apply_to_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Deformation.apply_to_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply the deformation gradient to a structure.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> (<em>Structure object</em>) – the structure object to
-be modified by the deformation</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>structure</strong> (<em>Structure object</em>) – the structure object to
+be modified by the deformation</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
@@ -86,20 +78,16 @@ be modified by the deformation</td>
 <em class="property">classmethod </em><code class="descname">from_index_amount</code><span class="sig-paren">(</span><em>matrixpos</em>, <em>amt</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/strain.html#Deformation.from_index_amount"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Deformation.from_index_amount" title="Permalink to this definition">¶</a></dt>
 <dd><p>Factory method for constructing a Deformation object
 from a matrix position and amount</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>matrixpos</strong> (<em>tuple</em>) – tuple corresponding the matrix position to
-have a perturbation added</li>
-<li><strong>amt</strong> (<em>float</em>) – amount to add to the identity matrix at position
-matrixpos</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>matrixpos</strong> (<em>tuple</em>) – tuple corresponding the matrix position to
+have a perturbation added</p></li>
+<li><p><strong>amt</strong> (<em>float</em>) – amount to add to the identity matrix at position
+matrixpos</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -137,22 +125,18 @@ the deformation gradient</p>
 can be used to calculate linear stress-strain response</p>
 <p>constructs the deformed geometries of a structure.  Generates
 m + n deformed structures according to the supplied parameters.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – structure to undergo deformation</li>
-<li><strong>norm_strains</strong> (<em>list of floats</em>) – strain values to apply
-to each normal mode.</li>
-<li><strong>shear_strains</strong> (<em>list of floats</em>) – strain values to apply
-to each shear mode.</li>
-<li><strong>symmetry</strong> (<em>bool</em>) – whether or not to use symmetry reduction.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – structure to undergo deformation</p></li>
+<li><p><strong>norm_strains</strong> (<em>list of floats</em>) – strain values to apply
+to each normal mode.</p></li>
+<li><p><strong>shear_strains</strong> (<em>list of floats</em>) – strain values to apply
+to each shear mode.</p></li>
+<li><p><strong>symmetry</strong> (<em>bool</em>) – whether or not to use symmetry reduction.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="class">
@@ -164,15 +148,12 @@ to each shear mode.</li>
 rather than __init__ according to the standard method of
 subclassing numpy ndarrays.  Note also that the default constructor
 does not include the deformation gradient</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>strain_matrix</strong> (<em>3x3 array-like</em>) – the 3x3 array-like
-representing the Green-Lagrange strain</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>strain_matrix</strong> (<em>3x3 array-like</em>) – the 3x3 array-like
+representing the Green-Lagrange strain</p>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.analysis.elasticity.strain.Strain.deformation_matrix">
 <code class="descname">deformation_matrix</code><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Strain.deformation_matrix" title="Permalink to this definition">¶</a></dt>
@@ -183,14 +164,11 @@ representing the Green-Lagrange strain</td>
 <em class="property">classmethod </em><code class="descname">from_deformation</code><span class="sig-paren">(</span><em>deformation</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/strain.html#Strain.from_deformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Strain.from_deformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Factory method that returns a Strain object from a deformation
 gradient</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>deformation</strong> (<em>3x3 array-like</em>) – </td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>deformation</strong> (<em>3x3 array-like</em>) – </p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
@@ -200,19 +178,15 @@ gradient</p>
 a strain from the zero 3x3 tensor or voigt vector with
 the amount specified in the index location.  Ensures
 symmetric strain.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>idx</strong> (<em>tuple</em><em> or </em><em>integer</em>) – index to be perturbed, can be voigt or
-full-tensor notation</li>
-<li><strong>amount</strong> (<em>float</em>) – amount to perturb selected index</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idx</strong> (<em>tuple</em><em> or </em><em>integer</em>) – index to be perturbed, can be voigt or
+full-tensor notation</p></li>
+<li><p><strong>amount</strong> (<em>float</em>) – amount to perturb selected index</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -239,21 +213,17 @@ full-tensor notation</li>
 <code class="descname">convert_strain_to_deformation</code><span class="sig-paren">(</span><em>strain</em>, <em>shape='upper'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/strain.html#convert_strain_to_deformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.convert_strain_to_deformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function converts a strain to a deformation gradient that will
 produce that strain.  Supports three methods:</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>strain</strong> (<em>3x3 array-like</em>) – strain matrix</li>
-<li><strong>shape</strong> – (string): method for determining deformation, supports
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>strain</strong> (<em>3x3 array-like</em>) – strain matrix</p></li>
+<li><p><strong>shape</strong> – (string): method for determining deformation, supports
 “upper” produces an upper triangular defo
 “lower” produces a lower triangular defo
-“symmetric” produces a symmetric defo</li>
+“symmetric” produces a symmetric defo</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -277,8 +247,6 @@ produce that strain.  Supports three methods:</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -296,13 +264,13 @@ produce that strain.  Supports three methods:</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

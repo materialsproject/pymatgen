@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.transformations.site_transformations module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.transformations.site_transformations module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -51,26 +49,20 @@
 <em class="property">class </em><code class="descname">AddSitePropertyTransformation</code><span class="sig-paren">(</span><em>site_properties</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#AddSitePropertyTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.AddSitePropertyTransformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>Simple transformation to add site properties to a given structure</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>site_properties</strong> (<em>dict</em>) – site properties to be added to a structure</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>site_properties</strong> (<em>dict</em>) – site properties to be added to a structure</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.transformations.site_transformations.AddSitePropertyTransformation.apply_transformation">
 <code class="descname">apply_transformation</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#AddSitePropertyTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.AddSitePropertyTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>apply the transformation</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – structure to add site properties to</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – structure to add site properties to</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -97,42 +89,36 @@ returned as a ranked list.</p>
 <em class="property">class </em><code class="descname">InsertSitesTransformation</code><span class="sig-paren">(</span><em>species</em>, <em>coords</em>, <em>coords_are_cartesian=False</em>, <em>validate_proximity=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#InsertSitesTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.InsertSitesTransformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>This transformation substitutes certain sites with certain species.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>species</strong> – A list of species. e.g., [“Li”, “Fe”]</li>
-<li><strong>coords</strong> – A list of coords corresponding to those species. e.g.,
-[[0,0,0],[0.5,0.5,0.5]].</li>
-<li><strong>coords_are_cartesian</strong> (<em>bool</em>) – Set to True if coords are given in
-cartesian coords. Defaults to False.</li>
-<li><strong>validate_proximity</strong> (<em>bool</em>) – Set to False if you do not wish to ensure
-that added sites are not too close to other sites. Defaults to True.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>species</strong> – A list of species. e.g., [“Li”, “Fe”]</p></li>
+<li><p><strong>coords</strong> – A list of coords corresponding to those species. e.g.,
+[[0,0,0],[0.5,0.5,0.5]].</p></li>
+<li><p><strong>coords_are_cartesian</strong> (<em>bool</em>) – Set to True if coords are given in
+cartesian coords. Defaults to False.</p></li>
+<li><p><strong>validate_proximity</strong> (<em>bool</em>) – Set to False if you do not wish to ensure
+that added sites are not too close to other sites. Defaults to True.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.transformations.site_transformations.InsertSitesTransformation.apply_transformation">
 <code class="descname">apply_transformation</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#InsertSitesTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.InsertSitesTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies the transformation to a structure. Depending on whether a
 transformation is one-to-many, there may be an option to return a
 ranked list of structures.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> – input structure</li>
-<li><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – input structure</p></li>
+<li><p><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
 returned. If return_ranked_list is a number, that number of
-structures is returned.</li>
+structures is returned.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">depending on returned_ranked list, either a transformed structure
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>depending on returned_ranked list, either a transformed structure
 or
 a list of dictionaries, where each dictionary is of the form
 {‘structure’ = …. , ‘other_arguments’}
@@ -142,10 +128,8 @@ This transformation is parsed by the alchemy classes for generating
 a more specific transformation history. Any other information will
 be stored in the transformation_parameters dictionary in the
 transmuted structure class.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -174,51 +158,47 @@ returned as a ranked list.</p>
 <p>Remove fraction of specie from a structure.
 Requires an oxidation state decorated structure for ewald sum to be
 computed.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>indices</strong> – A list of list of indices.
-e.g. [[0, 1], [2, 3, 4, 5]]</li>
-<li><strong>fractions</strong> – The corresponding fractions to remove. Must be same length as
-indices. e.g., [0.5, 0.25]</li>
-<li><strong>algo</strong> – This parameter allows you to choose the algorithm to perform
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>indices</strong> – A list of list of indices.
+e.g. [[0, 1], [2, 3, 4, 5]]</p></li>
+<li><p><strong>fractions</strong> – The corresponding fractions to remove. Must be same length as
+indices. e.g., [0.5, 0.25]</p></li>
+<li><p><strong>algo</strong> – This parameter allows you to choose the algorithm to perform
 ordering. Use one of PartialRemoveSpecieTransformation.ALGO_*
-variables to set the algo.</li>
+variables to set the algo.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p>Given that the solution to selecting the right removals is NP-hard, there
 are several algorithms provided with varying degrees of accuracy and speed.
 The options are as follows:</p>
-<dl class="docutils">
-<dt>ALGO_FAST:</dt>
-<dd>This is a highly optimized algorithm to quickly go through the search
+<dl class="simple">
+<dt>ALGO_FAST:</dt><dd><p>This is a highly optimized algorithm to quickly go through the search
 tree. It is guaranteed to find the optimal solution, but will return
 only a single lowest energy structure. Typically, you will want to use
-this.</dd>
-<dt>ALGO_COMPLETE:</dt>
-<dd>The complete algo ensures that you get all symmetrically distinct
+this.</p>
+</dd>
+<dt>ALGO_COMPLETE:</dt><dd><p>The complete algo ensures that you get all symmetrically distinct
 orderings, ranked by the estimated Ewald energy. But this can be an
 extremely time-consuming process if the number of possible orderings is
 very large. Use this if you really want all possible orderings. If you
-want just the lowest energy ordering, ALGO_FAST is accurate and faster.</dd>
-<dt>ALGO_BEST_FIRST:</dt>
-<dd>This algorithm is for ordering the really large cells that defeats even
+want just the lowest energy ordering, ALGO_FAST is accurate and faster.</p>
+</dd>
+<dt>ALGO_BEST_FIRST:</dt><dd><p>This algorithm is for ordering the really large cells that defeats even
 ALGO_FAST.  For example, if you have 48 sites of which you want to
 remove 16 of them, the number of possible orderings is around
 2 x 10^12. ALGO_BEST_FIRST shortcircuits the entire search tree by
 removing the highest energy site first, then followed by the next
 highest energy site, and so on. It is guaranteed to find a solution
-in a reasonable time, but it is also likely to be highly inaccurate.</dd>
-<dt>ALGO_ENUMERATE:</dt>
-<dd>This algorithm uses the EnumerateStructureTransformation to perform
+in a reasonable time, but it is also likely to be highly inaccurate.</p>
+</dd>
+<dt>ALGO_ENUMERATE:</dt><dd><p>This algorithm uses the EnumerateStructureTransformation to perform
 ordering. This algo returns <em>complete</em> orderings up to a single unit
 cell size. It is more robust than the ALGO_COMPLETE, but requires
-Gus Hart’s enumlib to be installed.</dd>
+Gus Hart’s enumlib to be installed.</p>
+</dd>
 </dl>
 <dl class="attribute">
 <dt id="pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.ALGO_BEST_FIRST">
@@ -244,19 +224,17 @@ Gus Hart’s enumlib to be installed.</dd>
 <dt id="pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.apply_transformation">
 <code class="descname">apply_transformation</code><span class="sig-paren">(</span><em>structure</em>, <em>return_ranked_list=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#PartialRemoveSitesTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply the transformation.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> – input structure</li>
-<li><strong>return_ranked_list</strong> (<em>bool</em>) – Whether or not multiple structures are
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – input structure</p></li>
+<li><p><strong>return_ranked_list</strong> (<em>bool</em>) – Whether or not multiple structures are
 returned. If return_ranked_list is a number, that number of
-structures is returned.</li>
+structures is returned.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Depending on returned_ranked list, either a transformed structure
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Depending on returned_ranked list, either a transformed structure
 or a list of dictionaries, where each dictionary is of the form
 {“structure” = …. , “other_arguments”}
 the key “transformation” is reserved for the transformation that
@@ -265,10 +243,8 @@ This transformation is parsed by the alchemy classes for generating
 a more specific transformation history. Any other information will
 be stored in the transformation_parameters dictionary in the
 transmuted structure class.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -321,33 +297,28 @@ returned as a ranked list.</p>
 <em class="property">class </em><code class="descname">RemoveSitesTransformation</code><span class="sig-paren">(</span><em>indices_to_remove</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#RemoveSitesTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.RemoveSitesTransformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>Remove certain sites in a structure.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>indices_to_remove</strong> – List of indices to remove. E.g., [0, 1, 2]</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>indices_to_remove</strong> – List of indices to remove. E.g., [0, 1, 2]</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.transformations.site_transformations.RemoveSitesTransformation.apply_transformation">
 <code class="descname">apply_transformation</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#RemoveSitesTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.RemoveSitesTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies the transformation to a structure. Depending on whether a
 transformation is one-to-many, there may be an option to return a
 ranked list of structures.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> – input structure</li>
-<li><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – input structure</p></li>
+<li><p><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
 returned. If return_ranked_list is a number, that number of
-structures is returned.</li>
+structures is returned.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">depending on returned_ranked list, either a transformed structure
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>depending on returned_ranked list, either a transformed structure
 or
 a list of dictionaries, where each dictionary is of the form
 {‘structure’ = …. , ‘other_arguments’}
@@ -357,10 +328,8 @@ This transformation is parsed by the alchemy classes for generating
 a more specific transformation history. Any other information will
 be stored in the transformation_parameters dictionary in the
 transmuted structure class.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -387,38 +356,33 @@ returned as a ranked list.</p>
 <em class="property">class </em><code class="descname">ReplaceSiteSpeciesTransformation</code><span class="sig-paren">(</span><em>indices_species_map</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#ReplaceSiteSpeciesTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.ReplaceSiteSpeciesTransformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>This transformation substitutes certain sites with certain species.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>indices_species_map</strong> – A dict containing the species mapping in
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>indices_species_map</strong> – A dict containing the species mapping in
 int-string pairs. E.g., { 1:”Na”} or {2:”Mn2+”}. Multiple
 substitutions can be done. Overloaded to accept sp_and_occu
 dictionary. E.g. {1: {“Ge”:0.75, “C”:0.25} }, which
 substitutes a single species with multiple species to generate a
-disordered structure.</td>
-</tr>
-</tbody>
-</table>
+disordered structure.</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.transformations.site_transformations.ReplaceSiteSpeciesTransformation.apply_transformation">
 <code class="descname">apply_transformation</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#ReplaceSiteSpeciesTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.ReplaceSiteSpeciesTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies the transformation to a structure. Depending on whether a
 transformation is one-to-many, there may be an option to return a
 ranked list of structures.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> – input structure</li>
-<li><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – input structure</p></li>
+<li><p><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
 returned. If return_ranked_list is a number, that number of
-structures is returned.</li>
+structures is returned.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">depending on returned_ranked list, either a transformed structure
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>depending on returned_ranked list, either a transformed structure
 or
 a list of dictionaries, where each dictionary is of the form
 {‘structure’ = …. , ‘other_arguments’}
@@ -428,10 +392,8 @@ This transformation is parsed by the alchemy classes for generating
 a more specific transformation history. Any other information will
 be stored in the transformation_parameters dictionary in the
 transmuted structure class.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -458,43 +420,37 @@ returned as a ranked list.</p>
 <em class="property">class </em><code class="descname">TranslateSitesTransformation</code><span class="sig-paren">(</span><em>indices_to_move</em>, <em>translation_vector</em>, <em>vector_in_frac_coords=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#TranslateSitesTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.TranslateSitesTransformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>This class translates a set of sites by a certain vector.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>indices_to_move</strong> – The indices of the sites to move</li>
-<li><strong>translation_vector</strong> – Vector to move the sites. If a list of list or numpy
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>indices_to_move</strong> – The indices of the sites to move</p></li>
+<li><p><strong>translation_vector</strong> – Vector to move the sites. If a list of list or numpy
 array of shape, (len(indices_to_move), 3), is provided then each
 translation vector is applied to the corresponding site in the
-indices_to_move.</li>
-<li><strong>vector_in_frac_coords</strong> – Set to True if the translation vector is in
+indices_to_move.</p></li>
+<li><p><strong>vector_in_frac_coords</strong> – Set to True if the translation vector is in
 fractional coordinates, and False if it is in cartesian
-coordinations. Defaults to True.</li>
+coordinations. Defaults to True.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.transformations.site_transformations.TranslateSitesTransformation.apply_transformation">
 <code class="descname">apply_transformation</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#TranslateSitesTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.TranslateSitesTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies the transformation to a structure. Depending on whether a
 transformation is one-to-many, there may be an option to return a
 ranked list of structures.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> – input structure</li>
-<li><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – input structure</p></li>
+<li><p><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
 returned. If return_ranked_list is a number, that number of
-structures is returned.</li>
+structures is returned.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">depending on returned_ranked list, either a transformed structure
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>depending on returned_ranked list, either a transformed structure
 or
 a list of dictionaries, where each dictionary is of the form
 {‘structure’ = …. , ‘other_arguments’}
@@ -504,10 +460,8 @@ This transformation is parsed by the alchemy classes for generating
 a more specific transformation history. Any other information will
 be stored in the transformation_parameters dictionary in the
 transmuted structure class.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -556,8 +510,6 @@ returned as a ranked list.</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -575,13 +527,13 @@ returned as a ranked list.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

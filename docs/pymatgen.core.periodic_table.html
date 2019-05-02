@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.periodic_table module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.core.periodic_table module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -53,24 +51,20 @@
 <p>A special specie for representing non-traditional elements or species. For
 example, representation of vacancies (charged or otherwise), or special
 sites, etc.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>symbol</strong> (<em>str</em>) – An assigned symbol for the dummy specie. Strict
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>symbol</strong> (<em>str</em>) – An assigned symbol for the dummy specie. Strict
 rules are applied to the choice of the symbol. The dummy
 symbol cannot have any part of first two letters that will
 constitute an Element symbol. Otherwise, a composition may
 be parsed wrongly. E.g., “X” is fine, but “Vac” is not
-because Vac contains V, a valid Element.</li>
-<li><strong>oxidation_state</strong> (<em>float</em>) – Oxidation state for dummy specie.
-Defaults to zero.</li>
+because Vac contains V, a valid Element.</p></li>
+<li><p><strong>oxidation_state</strong> (<em>float</em>) – Oxidation state for dummy specie.
+Defaults to zero.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.DummySpecie.symbol">
 <code class="descname">symbol</code><a class="headerlink" href="#pymatgen.core.periodic_table.DummySpecie.symbol" title="Permalink to this definition">¶</a></dt>
@@ -129,19 +123,18 @@ to use atomic numbers for a Dummy specie.</p>
 <dt id="pymatgen.core.periodic_table.DummySpecie.from_string">
 <em class="property">static </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>species_string: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#DummySpecie.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.DummySpecie.from_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a Dummy from a string representation.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>species_string</strong> (<em>str</em>) – A string representation of a dummy
-species, e.g., “X2+”, “X3+”.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A DummySpecie object.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body">ValueError if species_string cannot be intepreted.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>species_string</strong> (<em>str</em>) – A string representation of a dummy
+species, e.g., “X2+”, “X3+”.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A DummySpecie object.</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>ValueError if species_string cannot be intepreted.</strong> – </p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -173,14 +166,11 @@ Only one instance of Element for each symbol is stored after creation,
 ensuring that a particular element behaves like a singleton. For all
 attributes, missing data (i.e., data for which is not available) is
 represented by a None unless otherwise stated.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>symbol</strong> (<em>str</em>) – Element symbol, e.g., “H”, “Fe”</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>symbol</strong> (<em>str</em>) – Element symbol, e.g., “H”, “Fe”</p>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Element.Z">
 <code class="descname">Z</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.Z" title="Permalink to this definition">¶</a></dt>
@@ -1181,6 +1171,11 @@ ICSD database AND at least 1% of entries for that element</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="pymatgen.core.periodic_table.Element.is_metal">
+<code class="descname">is_metal</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.is_metal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
 <dt>
 <code class="descname">is_metalloid</code></dt>
 <dd><p>True if element is a metalloid.</p>
@@ -1284,7 +1279,8 @@ e*millibarns for various isotopes</p>
 eg. L = 1, n_e = 2 (s2)
 returns</p>
 <blockquote>
-<div>[[‘1D2’], [‘3P0’, ‘3P1’, ‘3P2’], [‘1S0’]]</div></blockquote>
+<div><p>[[‘1D2’], [‘3P0’, ‘3P1’, ‘3P2’], [‘1S0’]]</p>
+</div></blockquote>
 </dd></dl>
 
 <dl class="attribute">
@@ -1306,21 +1302,17 @@ values, not calculated values. For example, high-spin Fe2+ may be
 assigned an idealized spin of +5, but an actual Fe2+ site may be
 calculated to have a magmom of +4.5. Calculated properties should be
 assigned to Site objects, and not Specie.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>symbol</strong> (<em>str</em>) – Element symbol, e.g., Fe</li>
-<li><strong>oxidation_state</strong> (<em>float</em>) – Oxidation state of element, e.g., 2 or -2</li>
-<li><strong>properties</strong> – Properties associated with the Specie, e.g.,
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>symbol</strong> (<em>str</em>) – Element symbol, e.g., Fe</p></li>
+<li><p><strong>oxidation_state</strong> (<em>float</em>) – Oxidation state of element, e.g., 2 or -2</p></li>
+<li><p><strong>properties</strong> – Properties associated with the Specie, e.g.,
 {“spin”: 5}. Defaults to None. Properties must be one of the
-Specie supported_properties.</li>
+Specie supported_properties.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.core.periodic_table.Specie.oxi_state">
 <code class="descname">oxi_state</code><a class="headerlink" href="#pymatgen.core.periodic_table.Specie.oxi_state" title="Permalink to this definition">¶</a></dt>
@@ -1334,7 +1326,7 @@ Specie supported_properties.</li>
 </dd></dl>
 
 <div class="versionchanged">
-<p><span class="versionmodified">Changed in version 2.6.7: </span>Properties are now checked when comparing two Species for equality.</p>
+<p><span class="versionmodified changed">Changed in version 2.6.7: </span>Properties are now checked when comparing two Species for equality.</p>
 </div>
 <dl class="method">
 <dt id="pymatgen.core.periodic_table.Specie.as_dict">
@@ -1357,19 +1349,18 @@ Specie supported_properties.</li>
 <dt id="pymatgen.core.periodic_table.Specie.from_string">
 <em class="property">static </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>species_string: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Specie.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Specie.from_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a Specie from a string representation.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>species_string</strong> (<em>str</em>) – A typical string representation of a
-species, e.g., “Mn2+”, “Fe3+”, “O2-“.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A Specie object.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body">ValueError if species_string cannot be intepreted.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>species_string</strong> (<em>str</em>) – A typical string representation of a
+species, e.g., “Mn2+”, “Fe3+”, “O2-“.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A Specie object.</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>ValueError if species_string cannot be intepreted.</strong> – </p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -1377,28 +1368,24 @@ species, e.g., “Mn2+”, “Fe3+”, “O2-“.</td>
 <code class="descname">get_crystal_field_spin</code><span class="sig-paren">(</span><em>coordination: str = 'oct'</em>, <em>spin_config: str = 'high'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Specie.get_crystal_field_spin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Specie.get_crystal_field_spin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the crystal field spin based on coordination and spin
 configuration. Only works for transition metal species.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>coordination</strong> (<em>str</em>) – Only oct and tet are supported at the moment.</li>
-<li><strong>spin_config</strong> (<em>str</em>) – Supported keywords are “high” or “low”.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coordination</strong> (<em>str</em>) – Only oct and tet are supported at the moment.</p></li>
+<li><p><strong>spin_config</strong> (<em>str</em>) – Supported keywords are “high” or “low”.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Crystal field spin in Bohr magneton.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li>AttributeError if species is not a valid transition metal or has</li>
-<li>an invalid oxidation state.</li>
-<li>ValueError if invalid coordination or spin_config.</li>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Crystal field spin in Bohr magneton.</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>AttributeError if species is not a valid transition metal</strong><strong> or </strong><strong>has</strong> – </p></li>
+<li><p><strong>an invalid oxidation state.</strong> – </p></li>
+<li><p><strong>ValueError if invalid coordination</strong><strong> or </strong><strong>spin_config.</strong> – </p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -1406,42 +1393,35 @@ configuration. Only works for transition metal species.</p>
 <code class="descname">get_nmr_quadrupole_moment</code><span class="sig-paren">(</span><em>isotope=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Specie.get_nmr_quadrupole_moment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Specie.get_nmr_quadrupole_moment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the nuclear electric quadrupole moment in units of
 e*millibarns</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>isotope</strong> (<em>str</em>) – the isotope to get the quadrupole moment for
-default is None, which gets the lowest mass isotope</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>isotope</strong> (<em>str</em>) – the isotope to get the quadrupole moment for
+default is None, which gets the lowest mass isotope</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.periodic_table.Specie.get_shannon_radius">
 <code class="descname">get_shannon_radius</code><span class="sig-paren">(</span><em>cn: str</em>, <em>spin: str = ''</em>, <em>radius_type: str = 'ionic'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#Specie.get_shannon_radius"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.Specie.get_shannon_radius" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the local environment specific ionic radius for species.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>cn</strong> (<em>str</em>) – Coordination using roman letters. Supported values are
-I-IX, as well as IIIPY, IVPY and IVSQ.</li>
-<li><strong>spin</strong> (<em>str</em>) – Some species have different radii for different
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cn</strong> (<em>str</em>) – Coordination using roman letters. Supported values are
+I-IX, as well as IIIPY, IVPY and IVSQ.</p></li>
+<li><p><strong>spin</strong> (<em>str</em>) – Some species have different radii for different
 spins. You can get specific values using “High Spin” or
 “Low Spin”. Leave it as “” if not available. If only one spin
 data is available, it is returned and this spin parameter is
-ignored.</li>
-<li><strong>radius_type</strong> (<em>str</em>) – Either “crystal” or “ionic” (default).</li>
+ignored.</p></li>
+<li><p><strong>radius_type</strong> (<em>str</em>) – Either “crystal” or “ionic” (default).</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Shannon radius for specie in the specified environment.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Shannon radius for specie in the specified environment.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -1473,21 +1453,20 @@ with the atomic number obj is returned.
 If obj is a string, Specie parsing will be attempted (e.g., Mn2+), failing
 which Element parsing will be attempted (e.g., Mn), failing which
 DummyElement parsing will be attempted.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>obj</strong> (<em>Element/Specie/str/int</em>) – An arbitrary object.  Supported objects
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>obj</strong> (<em>Element/Specie/str/int</em>) – An arbitrary object.  Supported objects
 are actual Element/Specie objects, integers (representing atomic
-numbers) or strings (element symbols or species strings).</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Specie or Element, with a bias for the maximum number of properties
-that can be determined.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body">ValueError if obj cannot be converted into an Element or Specie.</td>
-</tr>
-</tbody>
-</table>
+numbers) or strings (element symbols or species strings).</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Specie or Element, with a bias for the maximum number of properties
+that can be determined.</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>ValueError if obj cannot be converted into an Element</strong><strong> or </strong><strong>Specie.</strong> – </p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -1511,8 +1490,6 @@ that can be determined.</td>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -1530,13 +1507,13 @@ that can be determined.</td>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

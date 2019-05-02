@@ -21,7 +21,7 @@ from pymatgen.electronic_structure.core import OrbitalType
 from pymatgen.io.vasp.inputs import Kpoints, Poscar
 from pymatgen.io.vasp.outputs import Chgcar, Locpot, Oszicar, Outcar, \
     Vasprun, Procar, Xdatcar, Dynmat, BSVasprun, UnconvergedVASPWarning, \
-    VaspParserError, Wavecar
+    VaspParserError, Wavecar, Waveder
 from pymatgen import Spin, Orbital, Lattice, Structure
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.electronic_structure.core import Magmom
@@ -37,8 +37,6 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Jul 16, 2012"
-
-# test_dir = Path(__file__).absolute().parent / ".." / ".." / ".." / ".." / 'test_files'
 
 
 class VasprunTest(PymatgenTest):
@@ -191,7 +189,7 @@ class VasprunTest(PymatgenTest):
         self.assertTrue(vasprun_ggau.is_hubbard)
         self.assertEqual(vasprun_ggau.hubbards["Fe"], 4.3)
         self.assertAlmostEqual(vasprun_ggau.projected_eigenvalues[Spin.up][
-            0][0][96][0], 0.0032)
+                                   0][0][96][0], 0.0032)
         d = vasprun_ggau.as_dict()
         self.assertEqual(d["elements"], ["Fe", "Li", "O", "P"])
         self.assertEqual(d["nelements"], 4)
@@ -420,7 +418,6 @@ class VasprunTest(PymatgenTest):
                 self.assertEqual(bs.efermi, bs_vasprun_gzip.efermi)
                 self.assertEqual(bs.as_dict(), bs_vasprun_gzip.as_dict())
 
-
             # test hybrid band structures
             vasprun.actual_kpoints_weights[-1] = 0.
             bs = vasprun.get_band_structure(kpoints_filename=self.TEST_FILES_DIR / 'KPOINTS_Si_bands')
@@ -432,6 +429,14 @@ class VasprunTest(PymatgenTest):
             self.assertEqual(vbm['kpoint_index'], [0])
             self.assertAlmostEqual(vbm['energy'], 2.8218)
             self.assertEqual(vbm['kpoint'].label, None)
+
+            # test self-consistent band structure calculation for non-hybrid functionals
+            vasprun = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.forcehybridlikecalc",
+                              parse_projected_eigen=True,
+                              parse_potcar_file=False)
+            bs = vasprun.get_band_structure(kpoints_filename=self.TEST_FILES_DIR / "KPOINTS.forcehybridlikecalc",
+                                            force_hybrid_mode=True, line_mode=True)
+            self.assertDictEqual(bs.get_band_gap(), {'direct': True, 'energy': 6.0058, 'transition': 'Gamma-Gamma'})
 
     def test_sc_step_overflow(self):
         filepath = self.TEST_FILES_DIR / 'vasprun.xml.sc_overflow'
@@ -547,7 +552,6 @@ class VasprunTest(PymatgenTest):
 
 
 class OutcarTest(PymatgenTest):
-
     _multiprocess_shared_ = True
 
     def test_init(self):
@@ -620,12 +624,12 @@ class OutcarTest(PymatgenTest):
             self.assertAlmostEqual(outcar.piezo_ionic_tensor[2][5], 0.06242)
             self.assertAlmostEqual(outcar.born[0][1][2], -0.385)
             self.assertAlmostEqual(outcar.born[1][2][0], 0.36465)
-            self.assertAlmostEqual(outcar.internal_strain_tensor[0][0][0], -572.5437,places=4)
-            self.assertAlmostEqual(outcar.internal_strain_tensor[0][1][0], 683.2985,places=4)
-            self.assertAlmostEqual(outcar.internal_strain_tensor[0][1][3], 73.07059,places=4)
-            self.assertAlmostEqual(outcar.internal_strain_tensor[1][0][0], 570.98927,places=4)
-            self.assertAlmostEqual(outcar.internal_strain_tensor[1][1][0], -683.68519,places=4)
-            self.assertAlmostEqual(outcar.internal_strain_tensor[1][2][2], 570.98927,places=4)
+            self.assertAlmostEqual(outcar.internal_strain_tensor[0][0][0], -572.5437, places=4)
+            self.assertAlmostEqual(outcar.internal_strain_tensor[0][1][0], 683.2985, places=4)
+            self.assertAlmostEqual(outcar.internal_strain_tensor[0][1][3], 73.07059, places=4)
+            self.assertAlmostEqual(outcar.internal_strain_tensor[1][0][0], 570.98927, places=4)
+            self.assertAlmostEqual(outcar.internal_strain_tensor[1][1][0], -683.68519, places=4)
+            self.assertAlmostEqual(outcar.internal_strain_tensor[1][2][2], 570.98927, places=4)
 
     def test_soc(self):
         filepath = self.TEST_FILES_DIR / 'OUTCAR.NiO_SOC.gz'
@@ -678,29 +682,36 @@ class OutcarTest(PymatgenTest):
         filepath = self.TEST_FILES_DIR / "OUTCAR.LOPTICS"
         outcar = Outcar(filepath)
         outcar.read_freq_dielectric()
-        self.assertAlmostEqual(outcar.frequencies[0], 0)
-        self.assertAlmostEqual(outcar.frequencies[-1], 39.826101)
+        self.assertAlmostEqual(outcar.dielectric_energies[0], 0)
+        self.assertAlmostEqual(outcar.dielectric_energies[-1], 39.826101)
         self.assertAlmostEqual(outcar.dielectric_tensor_function[0][0, 0],
                                8.96938800)
         self.assertAlmostEqual(outcar.dielectric_tensor_function[-1][0, 0],
                                7.36167000e-01 + 1.53800000e-03j)
-        self.assertEqual(len(outcar.frequencies),
+        self.assertEqual(len(outcar.dielectric_energies),
                          len(outcar.dielectric_tensor_function))
         np.testing.assert_array_equal(outcar.dielectric_tensor_function[0],
                                       outcar.dielectric_tensor_function[
                                           0].transpose())
 
+        plasma_freq = outcar.plasma_frequencies
+        self.assertArrayAlmostEqual(plasma_freq["intraband"], np.zeros((3, 3)))
+        self.assertArrayAlmostEqual(plasma_freq["interband"],
+                                    [[367.49, 63.939, 11.976],
+                                     [63.939, 381.155, -24.461],
+                                     [11.976, -24.461, 297.844]])
+
     def test_freq_dielectric_vasp544(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.LOPTICS.vasp544"
         outcar = Outcar(filepath)
         outcar.read_freq_dielectric()
-        self.assertAlmostEqual(outcar.frequencies[0], 0)
-        self.assertAlmostEqual(outcar.frequencies[-1], 39.63964)
+        self.assertAlmostEqual(outcar.dielectric_energies[0], 0)
+        self.assertAlmostEqual(outcar.dielectric_energies[-1], 39.63964)
         self.assertAlmostEqual(outcar.dielectric_tensor_function[0][0, 0],
                                12.769435 + 0j)
         self.assertAlmostEqual(outcar.dielectric_tensor_function[-1][0, 0],
                                0.828615 + 0.016594j)
-        self.assertEqual(len(outcar.frequencies),
+        self.assertEqual(len(outcar.dielectric_energies),
                          len(outcar.dielectric_tensor_function))
         np.testing.assert_array_equal(outcar.dielectric_tensor_function[0],
                                       outcar.dielectric_tensor_function[
@@ -817,7 +828,7 @@ class OutcarTest(PymatgenTest):
                           [-6e-06, -0.008328, -9.320237]])
 
     def test_cs_core_contribution(self):
-        filename = self.TEST_FILES_DIR / "nmr" /  "cs" / "core.diff" / "core.diff.chemical.shifts.OUTCAR"
+        filename = self.TEST_FILES_DIR / "nmr" / "cs" / "core.diff" / "core.diff.chemical.shifts.OUTCAR"
         outcar = Outcar(filename)
         core_contrib = outcar.data["cs_core_contribution"]
         self.assertEqual(core_contrib,
@@ -1049,6 +1060,7 @@ class ChgcarTest(PymatgenTest):
 
 class ProcarTest(PymatgenTest):
     _multiprocess_shared_ = True
+
     def test_init(self):
         filepath = self.TEST_FILES_DIR / 'PROCAR.simple'
         p = Procar(filepath)
@@ -1075,7 +1087,6 @@ class ProcarTest(PymatgenTest):
                                0.85796295426000124)
 
     def test_phase_factors(self):
-        
         filepath = self.TEST_FILES_DIR / 'PROCAR.phase'
         p = Procar(filepath)
         self.assertAlmostEqual(p.phase_factors[Spin.up][0, 0, 0, 0],
@@ -1090,11 +1101,11 @@ class ProcarTest(PymatgenTest):
                                -0.053 + 0.007j)
         self.assertAlmostEqual(p.phase_factors[Spin.down][0, 0, 2, 0],
                                0.027 - 0.047j)
-        
+
         # new style phase factors (VASP 5.4.4+)
         filepath = self.TEST_FILES_DIR / 'PROCAR.new_format_5.4.4'
         p = Procar(filepath)
-        self.assertAlmostEqual(p.phase_factors[Spin.up][0, 0, 0, 0], -0.13+0.199j)
+        self.assertAlmostEqual(p.phase_factors[Spin.up][0, 0, 0, 0], -0.13 + 0.199j)
 
 
 class XdatcarTest(PymatgenTest):
@@ -1145,7 +1156,7 @@ class WavecarTest(PymatgenTest):
 
     def setUp(self):
         a = np.array([[10.0, 0.0, 0.0], [0.0, 10.0, 0.0],
-                          [0.0, 0.0, 10.0]])
+                      [0.0, 0.0, 10.0]])
         self.vol = np.dot(a[0, :], np.cross(a[1, :], a[2, :]))
         b = np.array([np.cross(a[1, :], a[2, :]),
                       np.cross(a[2, :], a[0, :]),
@@ -1157,11 +1168,11 @@ class WavecarTest(PymatgenTest):
     def test_standard(self):
         w = self.w
         a = np.array([[10.0, 0.0, 0.0], [0.0, 10.0, 0.0],
-                     [0.0, 0.0, 10.0]])
+                      [0.0, 0.0, 10.0]])
         vol = np.dot(a[0, :], np.cross(a[1, :], a[2, :]))
         b = np.array([np.cross(a[1, :], a[2, :]),
-                           np.cross(a[2, :], a[0, :]),
-                           np.cross(a[0, :], a[1, :])])
+                      np.cross(a[2, :], a[0, :]),
+                      np.cross(a[0, :], a[1, :])])
         b = 2 * np.pi * b / vol
 
         self.assertEqual(w.filename, self.TEST_FILES_DIR / 'WAVECAR.N2')
@@ -1297,6 +1308,24 @@ class WavecarTest(PymatgenTest):
         self.assertTrue('diff' not in c.data)
         self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng * 2))
         self.assertFalse(np.all(c.data['total'] > 0.))
+
+
+class WavederTest(PymatgenTest):
+    _multiprocess_shared_ = True
+
+    def setUp(self):
+        wder = Waveder(self.TEST_FILES_DIR / 'WAVEDER')
+        self.assertEqual(wder.nband, 36)
+        self.assertEqual(wder.nkpoint, 56)
+        self.assertEqual(wder.nelect, 8)
+        band_i = 0
+        band_j = 0
+        kp_index = 0
+        spin_index = 0
+        cart_dir_index = 0
+        cder = wder.get_orbital_derivative_between_states
+        (band_i, band_j, kp_index, spin_index, cart_dir_index)
+        self.assertEqual(cder, -1.33639226092e-103)
 
 
 if __name__ == "__main__":

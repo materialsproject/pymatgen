@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.diffraction.xrd module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.diffraction.xrd module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -62,14 +60,12 @@ this code simply goes through all reciprocal points within the limiting
 sphere, which includes all symmetrically equivalent facets. The algorithm
 is as follows</p>
 <ol class="arabic">
-<li><p class="first">Calculate reciprocal lattice of structure. Find all reciprocal points
-within the limiting sphere given by <span class="math notranslate nohighlight">\(\frac{2}{\lambda}\)</span>.</p>
-</li>
-<li><p class="first">For each reciprocal point <span class="math notranslate nohighlight">\(\mathbf{g_{hkl}}\)</span> corresponding to
+<li><p>Calculate reciprocal lattice of structure. Find all reciprocal points
+within the limiting sphere given by <span class="math notranslate nohighlight">\(\frac{2}{\lambda}\)</span>.</p></li>
+<li><p>For each reciprocal point <span class="math notranslate nohighlight">\(\mathbf{g_{hkl}}\)</span> corresponding to
 lattice plane <span class="math notranslate nohighlight">\((hkl)\)</span>, compute the Bragg condition
-<span class="math notranslate nohighlight">\(\sin(\theta) = \frac{\lambda}{2d_{hkl}}\)</span></p>
-</li>
-<li><p class="first">Compute the structure factor as the sum of the atomic scattering
+<span class="math notranslate nohighlight">\(\sin(\theta) = \frac{\lambda}{2d_{hkl}}\)</span></p></li>
+<li><p>Compute the structure factor as the sum of the atomic scattering
 factors. The atomic scattering factors are given by</p>
 <div class="math notranslate nohighlight">
 \[f(s) = Z - 41.78214 \times s^2 \times \sum\limits_{i=1}^n a_i            \exp(-b_is^2)\]</div>
@@ -80,12 +76,12 @@ structure factor is then given by</p>
 \[F_{hkl} = \sum\limits_{j=1}^N f_j \exp(2\pi i \mathbf{g_{hkl}}
 \cdot \mathbf{r})\]</div>
 </li>
-<li><p class="first">The intensity is then given by the modulus square of the structure
+<li><p>The intensity is then given by the modulus square of the structure
 factor.</p>
 <div class="math notranslate nohighlight">
 \[I_{hkl} = F_{hkl}F_{hkl}^*\]</div>
 </li>
-<li><p class="first">Finally, the Lorentz polarization correction factor is applied. This
+<li><p>Finally, the Lorentz polarization correction factor is applied. This
 factor is given by:</p>
 <div class="math notranslate nohighlight">
 \[P(\theta) = \frac{1 + \cos^2(2\theta)}
@@ -93,28 +89,24 @@ factor is given by:</p>
 </li>
 </ol>
 <p>Initializes the XRD calculator with a given radiation.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>wavelength</strong> (<em>str/float</em>) – The wavelength can be specified as either a
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wavelength</strong> (<em>str/float</em>) – The wavelength can be specified as either a
 float or a string. If it is a string, it must be one of the
 supported definitions in the AVAILABLE_RADIATION class
 variable, which provides useful commonly used wavelengths.
 If it is a float, it is interpreted as a wavelength in
-angstroms. Defaults to “CuKa”, i.e, Cu K_alpha radiation.</li>
-<li><strong>symprec</strong> (<em>float</em>) – Symmetry precision for structure refinement. If
+angstroms. Defaults to “CuKa”, i.e, Cu K_alpha radiation.</p></li>
+<li><p><strong>symprec</strong> (<em>float</em>) – Symmetry precision for structure refinement. If
 set to 0, no refinement is done. Otherwise, refinement is
-performed using spglib with provided precision.</li>
-<li><strong>(</strong><strong>{element symbol</strong> (<em>debye_waller_factors</em>) – float}): Allows the
+performed using spglib with provided precision.</p></li>
+<li><p><strong>(</strong><strong>{element symbol</strong> (<em>debye_waller_factors</em>) – float}): Allows the
 specification of Debye-Waller factors. Note that these
-factors are temperature dependent.</li>
+factors are temperature dependent.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.analysis.diffraction.xrd.XRDCalculator.AVAILABLE_RADIATION">
 <code class="descname">AVAILABLE_RADIATION</code><em class="property"> = ('CuKa', 'CuKa2', 'CuKa1', 'CuKb1', 'MoKa', 'MoKa2', 'MoKa1', 'MoKb1', 'CrKa', 'CrKa2', 'CrKa1', 'CrKb1', 'FeKa', 'FeKa2', 'FeKa1', 'FeKb1', 'CoKa', 'CoKa2', 'CoKa1', 'CoKb1', 'AgKa', 'AgKa2', 'AgKa1', 'AgKb1')</em><a class="headerlink" href="#pymatgen.analysis.diffraction.xrd.XRDCalculator.AVAILABLE_RADIATION" title="Permalink to this definition">¶</a></dt>
@@ -124,27 +116,23 @@ factors are temperature dependent.</li>
 <dt id="pymatgen.analysis.diffraction.xrd.XRDCalculator.get_pattern">
 <code class="descname">get_pattern</code><span class="sig-paren">(</span><em>structure</em>, <em>scaled=True</em>, <em>two_theta_range=(0</em>, <em>90)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffraction/xrd.html#XRDCalculator.get_pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.xrd.XRDCalculator.get_pattern" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the diffraction pattern for a structure.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure</li>
-<li><strong>scaled</strong> (<em>bool</em>) – Whether to return scaled intensities. The maximum
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure</p></li>
+<li><p><strong>scaled</strong> (<em>bool</em>) – Whether to return scaled intensities. The maximum
 peak is set to a value of 100. Defaults to True. Use False if
-you need the absolute values to combine XRD plots.</li>
-<li><strong>two_theta_range</strong> (<em>[</em><em>float of length 2</em><em>]</em>) – Tuple for range of
+you need the absolute values to combine XRD plots.</p></li>
+<li><p><strong>two_theta_range</strong> (<em>[</em><em>float of length 2</em><em>]</em>) – Tuple for range of
 two_thetas to calculate in degrees. Defaults to (0, 90). Set to
 None if you want all diffracted beams within the limiting
-sphere of radius 2 / wavelength.</li>
+sphere of radius 2 / wavelength.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(XRDPattern)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(XRDPattern)</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -170,8 +158,6 @@ sphere of radius 2 / wavelength.</li>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -189,13 +175,13 @@ sphere of radius 2 / wavelength.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -44,6 +44,36 @@ class GulpCallerTest(unittest.TestCase):
         They should be suffcient for raising errors."""
         gout = gc.run(gin)
 
+    def test_decimal(self):
+        struct = Structure.from_str("""Mg2 Al4 O8
+        1.0
+        5.003532 0.000000 2.888790
+        1.667844 4.717375 2.888790
+        0.000000 0.000000 5.777581
+        O Mg Al
+        8 2 4
+        direct
+        0.736371 0.736371 0.736371 O
+        0.263629 0.263629 0.709114 O
+        0.263629 0.709114 0.263629 O
+        0.709114 0.263629 0.263629 O
+        0.736371 0.290886 0.736371 O
+        0.290886 0.736371 0.736371 O
+        0.263629 0.263629 0.263629 O
+        0.736371 0.736371 0.290886 O
+        0.125000 0.125000 0.125000 Mg
+        0.875000 0.875000 0.875000 Mg
+        0.500000 0.500000 0.000000 Al
+        0.500000 0.500000 0.500000 Al
+        0.000000 0.500000 0.500000 Al
+        0.500000 0.000000 0.500000 Al""", fmt='poscar')
+
+        bp = BuckinghamPotential(bush_lewis_flag="bush")
+        gio = GulpIO()
+        input = gio.buckingham_input(struct, ['relax conp'])
+        caller = GulpCaller()
+        gout = caller.run(input)
+
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
 class GulpIOTest(unittest.TestCase):

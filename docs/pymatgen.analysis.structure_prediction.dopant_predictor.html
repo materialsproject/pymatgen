@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.structure_prediction.dopant_predictor module &#8212; pymatgen 2019.2.28 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.structure_prediction.dopant_predictor module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -50,78 +48,70 @@
 <dt id="pymatgen.analysis.structure_prediction.dopant_predictor.get_dopants_from_shannon_radii">
 <code class="descname">get_dopants_from_shannon_radii</code><span class="sig-paren">(</span><em>bonded_structure</em>, <em>num_dopants=5</em>, <em>match_oxi_sign=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/dopant_predictor.html#get_dopants_from_shannon_radii"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.dopant_predictor.get_dopants_from_shannon_radii" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get dopant suggestions based on Shannon radii differences.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>bonded_structure</strong> (<a class="reference internal" href="pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph" title="pymatgen.analysis.graphs.StructureGraph"><em>StructureGraph</em></a>) – A pymatgen structure graph
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bonded_structure</strong> (<a class="reference internal" href="pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph" title="pymatgen.analysis.graphs.StructureGraph"><em>StructureGraph</em></a>) – A pymatgen structure graph
 decorated with oxidation states. For example, generated using the
-CrystalNN.get_bonded_structure() method.</li>
-<li><strong>num_dopants</strong> (<em>int</em>) – The nummber of suggestions to return for
-n- and p-type dopants.</li>
-<li><strong>match_oxi_sign</strong> (<em>bool</em>) – Whether to force the dopant and original species
+CrystalNN.get_bonded_structure() method.</p></li>
+<li><p><strong>num_dopants</strong> (<em>int</em>) – The nummber of suggestions to return for
+n- and p-type dopants.</p></li>
+<li><p><strong>match_oxi_sign</strong> (<em>bool</em>) – Whether to force the dopant and original species
 to have the same sign of oxidation state. E.g. If the original site
 is in a negative charge state, then only negative dopants will be
-returned.</li>
+returned.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p>Dopant suggestions, given as a dictionary with keys “n_type” and
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>Dopant suggestions, given as a dictionary with keys “n_type” and
 “p_type”. The suggestions for each doping type are given as a list of
 dictionaries, each with they keys:</p>
 <ul class="simple">
-<li>”radii_diff”: The difference between the Shannon radii of the species.</li>
-<li>”dopant_spcies”: The dopant species.</li>
-<li>”original_species”: The substituted species.</li>
+<li><p>”radii_diff”: The difference between the Shannon radii of the species.</p></li>
+<li><p>”dopant_spcies”: The dopant species.</p></li>
+<li><p>”original_species”: The substituted species.</p></li>
 </ul>
 </p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">(dict)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(dict)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.analysis.structure_prediction.dopant_predictor.get_dopants_from_substitution_probabilities">
 <code class="descname">get_dopants_from_substitution_probabilities</code><span class="sig-paren">(</span><em>structure</em>, <em>num_dopants=5</em>, <em>threshold=0.001</em>, <em>match_oxi_sign=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/dopant_predictor.html#get_dopants_from_substitution_probabilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.dopant_predictor.get_dopants_from_substitution_probabilities" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get dopant suggestions based on substitution probabilities.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – A pymatgen structure decorated with
-oxidation states.</li>
-<li><strong>num_dopants</strong> (<em>int</em>) – The number of suggestions to return for
-n- and p-type dopants.</li>
-<li><strong>threshold</strong> (<em>float</em>) – Probability threshold for substitutions.</li>
-<li><strong>match_oxi_sign</strong> (<em>bool</em>) – Whether to force the dopant and original species
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – A pymatgen structure decorated with
+oxidation states.</p></li>
+<li><p><strong>num_dopants</strong> (<em>int</em>) – The number of suggestions to return for
+n- and p-type dopants.</p></li>
+<li><p><strong>threshold</strong> (<em>float</em>) – Probability threshold for substitutions.</p></li>
+<li><p><strong>match_oxi_sign</strong> (<em>bool</em>) – Whether to force the dopant and original species
 to have the same sign of oxidation state. E.g. If the original site
 is in a negative charge state, then only negative dopants will be
-returned.</li>
+returned.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p>Dopant suggestions, given as a dictionary with keys “n_type” and
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>Dopant suggestions, given as a dictionary with keys “n_type” and
 “p_type”. The suggestions for each doping type are given as a list of
 dictionaries, each with they keys:</p>
 <ul class="simple">
-<li>”probability”: The probability of substitution.</li>
-<li>”dopant_species”: The dopant species.</li>
-<li>”original_species”: The substituted species.</li>
+<li><p>”probability”: The probability of substitution.</p></li>
+<li><p>”dopant_species”: The dopant species.</p></li>
+<li><p>”original_species”: The substituted species.</p></li>
 </ul>
 </p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">(dict)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(dict)</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -145,8 +135,6 @@ dictionaries, each with they keys:</p>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -164,13 +152,13 @@ dictionaries, each with they keys:</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.2.28 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

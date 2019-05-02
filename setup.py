@@ -86,7 +86,7 @@ who require Python 2.7 should install pymatgen v2018.x.
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2019.2.28",
+    version="2019.5.1",
     cmdclass={'build_ext': build_ext},
     setup_requires=['numpy>=1.14.3', 'setuptools>=18.0'],
     install_requires=["numpy>=1.14.3", "requests", "ruamel.yaml>=0.15.6",
@@ -105,7 +105,7 @@ setup(
                   "pymatgen.analysis.chemenv.coordination_environments.strategy_files": ["*.json"],
                   "pymatgen.analysis.hhi": ["*.csv"],
                   "pymatgen.analysis.magnetism": ["*.json", "*.yaml"],
-                  "pymatgen.analysis.structure_predictor": ["data/*.json", "*.yaml"],
+                  "pymatgen.analysis.structure_prediction": ["data/*.json", "*.yaml"],
                   "pymatgen.io.vasp": ["*.yaml"],
                   "pymatgen.io.lammps": ["templates/*.*"],
                   "pymatgen.io.feff": ["*.yaml"],
