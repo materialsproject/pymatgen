@@ -251,18 +251,25 @@ class LobsterBandStructureSymmLine_test(PymatgenTest):
     def test_basic(self):
         bs_p = self.bs_p
         bs_spin = self.bs_spin
-        self.assertAlmostEqual(bs_p.structure[0].frac_coords[0],0.)
-        self.assertAlmostEqual(bs_p.structure[0].frac_coords[1],0.47634315)
-        self.assertAlmostEqual(bs_p.structure[0].frac_coords[2],0.666667)
-        self.assertEqual(bs_p.structure[0].species_string,'Si')
-        self.assertAlmostEqual(bs_p.structure[0].coords[0],-1.19607309)
-        self.assertAlmostEqual(bs_p.structure[0].coords[1],2.0716597)
-        self.assertAlmostEqual(bs_p.structure[0].coords[2],3.67462144)
+        self.assertAlmostEqual(bs_p.structure[0].frac_coords[0], 0.)
+        self.assertAlmostEqual(bs_p.structure[0].frac_coords[1], 0.47634315)
+        self.assertAlmostEqual(bs_p.structure[0].frac_coords[2], 0.666667)
+        self.assertEqual(bs_p.structure[0].species_string, 'Si')
+        self.assertAlmostEqual(bs_p.structure[0].coords[0], -1.19607309)
+        self.assertAlmostEqual(bs_p.structure[0].coords[1], 2.0716597)
+        self.assertAlmostEqual(bs_p.structure[0].coords[2], 3.67462144)
         self.assertAlmostEqual(bs_p.efermi, 1.06470288)
-        self.assertDictEqual(bs_p.lattice_rec.as_dict(), {'@module': 'pymatgen.core.lattice', '@class': 'Lattice',
-                                                          'matrix': [[1.2511575194890285, 0.7223560132915973, 0.0],
-                                                                     [0.0, 1.4447123171425553, 0.0],
-                                                                     [0.0, 0.0, 1.1399248502312707]]})
+
+        lattice = bs_p.lattice_rec.as_dict()
+        self.assertAlmostEqual(lattice["matrix"][0][0], 1.2511575194890285)
+        self.assertAlmostEqual(lattice["matrix"][0][1], 0.7223560132915973)
+        self.assertAlmostEqual(lattice["matrix"][0][2], 0.0)
+        self.assertAlmostEqual(lattice["matrix"][1][0], 0.0)
+        self.assertAlmostEqual(lattice["matrix"][1][1], 1.4447123171425553)
+        self.assertAlmostEqual(lattice["matrix"][1][2], 0.0)
+        self.assertAlmostEqual(lattice["matrix"][2][0], 0.0)
+        self.assertAlmostEqual(lattice["matrix"][2][1], 0.0)
+        self.assertAlmostEqual(lattice["matrix"][2][2], 1.1399248502312707)
         self.assertAlmostEqual(bs_p.kpoints[8].frac_coords[0], 0.09090909)
         self.assertAlmostEqual(bs_p.kpoints[8].frac_coords[1], 0.0)
         self.assertAlmostEqual(bs_p.kpoints[8].frac_coords[2], 0.0)
@@ -283,9 +290,13 @@ class LobsterBandStructureSymmLine_test(PymatgenTest):
                                0.003)
         self.assertAlmostEqual(bs_p.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.up][0][0]["O"]["2p"],
                                0.002 * 3 + 0.003 * 3)
-        self.assertDictEqual(
-            bs_p.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.up][0][0],
-            {'Si': {'3p': 0.003, '3s': 0.192}, 'O': {'2p': 0.015, '2s': 0.792}})
+        dict_here = bs_p.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.up][0][
+            0]
+        self.assertAlmostEqual(dict_here["Si"]["3s"], 0.192)
+        self.assertAlmostEqual(dict_here["Si"]["3p"], 0.003)
+        self.assertAlmostEqual(dict_here["O"]["2s"], 0.792)
+        self.assertAlmostEqual(dict_here["O"]["2p"], 0.015)
+
         self.assertAlmostEqual(bs_spin.get_projection_on_elements()[Spin.up][0][0]["Si"], 3 * (0.001 + 0.064))
         self.assertAlmostEqual(
             bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.up][0][0]["Si"]["3p"],
@@ -293,10 +304,13 @@ class LobsterBandStructureSymmLine_test(PymatgenTest):
         self.assertAlmostEqual(
             bs_spin.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.up][0][0]["O"]["2p"],
             0.002 * 3 + 0.003 * 3)
-        self.assertDictEqual(
-            bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.up][0][0],
-            {'Si': {'3p': 0.003, '3s': 0.192}, 'O': {'2p': 0.015, '2s': 0.792}})
 
+        dict_here = \
+            bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.up][0][0]
+        self.assertAlmostEqual(dict_here["Si"]["3s"], 0.192)
+        self.assertAlmostEqual(dict_here["Si"]["3p"], 0.003)
+        self.assertAlmostEqual(dict_here["O"]["2s"], 0.792)
+        self.assertAlmostEqual(dict_here["O"]["2p"], 0.015)
         self.assertAlmostEqual(bs_spin.get_projection_on_elements()[Spin.up][0][0]["Si"], 3 * (0.001 + 0.064))
         self.assertAlmostEqual(
             bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.down][0][0]["Si"]["3p"],
@@ -304,21 +318,33 @@ class LobsterBandStructureSymmLine_test(PymatgenTest):
         self.assertAlmostEqual(
             bs_spin.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.down][0][0]["O"]["2p"],
             0.002 * 3 + 0.003 * 3)
-        self.assertDictEqual(
-            bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.down][0][0],
-            {'Si': {'3p': 0.003, '3s': 0.192}, 'O': {'2p': 0.015, '2s': 0.792}})
+        dict_here = \
+            bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.down][0][0]
+        self.assertAlmostEqual(dict_here["Si"]["3s"], 0.192)
+        self.assertAlmostEqual(dict_here["Si"]["3p"], 0.003)
+        self.assertAlmostEqual(dict_here["O"]["2s"], 0.792)
+        self.assertAlmostEqual(dict_here["O"]["2p"], 0.015)
 
     def test_get_branch(self):
-        self.assertDictEqual(self.bs_p.get_branch(0)[0],
-                             {'name': '\\Gamma-K', 'start_index': 0, 'end_index': 70, 'index': 0})
+        branch = self.bs_p.get_branch(0)[0]
+        self.assertEqual(branch["name"], '\\Gamma-K')
+        self.assertEqual(branch["start_index"], 0)
+        self.assertEqual(branch["end_index"], 70)
+        self.assertEqual(branch["index"], 0)
 
     def test_get_direct_band_gap_dict(self):
         direct_dict = self.bs_p.get_direct_band_gap_dict()
-        self.assertDictEqual(direct_dict,
-                             {Spin.up: {'value': 6.005999999999999, 'kpoint_index': 0, 'band_indices': [22, 24]}})
+        self.assertAlmostEqual(direct_dict[Spin.up]["value"], 6.005999999999999)
+        self.assertEqual(direct_dict[Spin.up]["kpoint_index"], 0)
+        self.assertListEqual(direct_dict[Spin.up]["band_indices"], [22, 24])
+
         direct_dict = self.bs_spin.get_direct_band_gap_dict()
-        self.assertDictEqual(direct_dict, {Spin.up: {'value': 6.006, 'kpoint_index': 0, 'band_indices': [22, 24]},
-                                           Spin.down: {'value': 6.006, 'kpoint_index': 0, 'band_indices': [22, 24]}})
+        self.assertAlmostEqual(direct_dict[Spin.up]["value"], 6.005999999999999)
+        self.assertEqual(direct_dict[Spin.up]["kpoint_index"], 0)
+        self.assertListEqual(direct_dict[Spin.up]["band_indices"], [22, 24])
+        self.assertAlmostEqual(direct_dict[Spin.down]["value"], 6.005999999999999)
+        self.assertEqual(direct_dict[Spin.down]["kpoint_index"], 0)
+        self.assertListEqual(direct_dict[Spin.down]["band_indices"], [22, 24])
 
     def test_get_direct_band_gap(self):
         self.assertAlmostEqual(self.bs_p.get_direct_band_gap(), 6.005999999999999)
@@ -353,9 +379,9 @@ class LobsterBandStructureSymmLine_test(PymatgenTest):
         self.assertEqual(len(vbm['band_index'][Spin.up]), 1, "wrong VBM number of bands")
         self.assertEqual(vbm['band_index'][Spin.up][0], 23, "wrong VBM band index")
         self.assertEqual(vbm['kpoint_index'][0], 68, "wrong VBM kpoint index")
-        self.assertEqual(vbm['kpoint'].frac_coords[0], 0.34615384615385, "wrong VBM kpoint frac coords")
-        self.assertEqual(vbm['kpoint'].frac_coords[1], 0.30769230769231, "wrong VBM kpoint frac coords")
-        self.assertEqual(vbm['kpoint'].frac_coords[2], 0.0, "wrong VBM kpoint frac coords")
+        self.assertAlmostEqual(vbm['kpoint'].frac_coords[0], 0.34615384615385, "wrong VBM kpoint frac coords")
+        self.assertAlmostEqual(vbm['kpoint'].frac_coords[1], 0.30769230769231, "wrong VBM kpoint frac coords")
+        self.assertAlmostEqual(vbm['kpoint'].frac_coords[2], 0.0, "wrong VBM kpoint frac coords")
         self.assertEqual(vbm['kpoint'].label, None, "wrong VBM kpoint label")
         vbm_spin = self.bs_spin.get_vbm()
         self.assertAlmostEqual(vbm_spin['energy'], 0.6297027399999999, "wrong VBM energy")
@@ -363,9 +389,9 @@ class LobsterBandStructureSymmLine_test(PymatgenTest):
         self.assertEqual(len(vbm_spin['band_index'][Spin.down]), 1, "wrong VBM number of bands")
         self.assertEqual(vbm_spin['band_index'][Spin.up][0], 23, "wrong VBM band index")
         self.assertEqual(vbm_spin['kpoint_index'][0], 68, "wrong VBM kpoint index")
-        self.assertEqual(vbm_spin['kpoint'].frac_coords[0], 0.34615384615385, "wrong VBM kpoint frac coords")
-        self.assertEqual(vbm_spin['kpoint'].frac_coords[1], 0.30769230769231, "wrong VBM kpoint frac coords")
-        self.assertEqual(vbm_spin['kpoint'].frac_coords[2], 0.0, "wrong VBM kpoint frac coords")
+        self.assertAlmostEqual(vbm_spin['kpoint'].frac_coords[0], 0.34615384615385, "wrong VBM kpoint frac coords")
+        self.assertAlmostEqual(vbm_spin['kpoint'].frac_coords[1], 0.30769230769231, "wrong VBM kpoint frac coords")
+        self.assertAlmostEqual(vbm_spin['kpoint'].frac_coords[2], 0.0, "wrong VBM kpoint frac coords")
         self.assertEqual(vbm_spin['kpoint'].label, None, "wrong VBM kpoint label")
 
     def test_get_band_gap(self):
