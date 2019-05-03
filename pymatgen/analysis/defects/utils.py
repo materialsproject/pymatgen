@@ -52,6 +52,7 @@ hart_to_ev = 27.2114
 ang_to_bohr = 1.8897
 invang_to_ev = 3.80986
 kb = 8.6173324e-5  # eV / K
+kumagai_to_V = 1.809512739e2  # = Electron charge * 1e10 / VacuumPermittivity Constant
 
 motif_cn_op = {}
 for cn, di in cn_opt_params.items():
@@ -1286,3 +1287,109 @@ def converge(f, step, tol, max_h):
         if h > max_h:
             raise Exception("Did not converge before {}".format(h))
     return g
+
+
+def tune_for_gamma( lattice, epsilon):
+    """
+    This tunes the gamma parameter for Kumagai anisotropic
+    Ewald calculation. Method is to find a gamma parameter which generates a similar
+    number of reciprocal and real lattice vectors,
+    given the suggested cut off radii by Kumagai and Oba
+    """
+    logger.debug("Converging for ewald parameter...")
+    prec = 25 #a reasonable precision to tune gamma for
+
+    gamma = (2 * np.average(lattice.abc)) ** (-1/2.)
+    recip_set, _, real_set, _ = generate_R_and_G_vecs(gamma, prec, lattice, epsilon)
+    recip_set = recip_set[0]
+    real_set = real_set[0]
+
+    logger.debug("First approach with gamma ={}\nProduced {} real vecs and {} recip "
+                 "vecs.".format(gamma, len(real_set), len(recip_set)))
+
+    while float(len(real_set)) / len(recip_set) > 1.05 or \
+          float(len(recip_set)) / len(real_set) > 1.05:
+        gamma *= (float(len(real_set)) / float(len(recip_set)))  ** 0.17
+        logger.debug("\tNot converged...Try modifying gamma to {}.".format(gamma))
+        recip_set, _, real_set, _ = generate_R_and_G_vecs(gamma, prec, lattice, epsilon)
+        recip_set = recip_set[0]
+        real_set = real_set[0]
+        logger.debug("Now have {} real vecs and {} recip vecs.".format(len(real_set), len(recip_set)))
+
+    logger.debug("Converged with gamma = {}".format(gamma))
+
+    return gamma
+
+
+def generate_R_and_G_vecs(gamma, prec_set, lattice, epsilon):
+    """
+    This returns a set of real and reciprocal lattice vectors
+    (and real/recip summation values)
+    based on a list of precision values (prec_set)
+
+    gamma (float): Ewald parameter
+    prec_set (list or number): for prec values to consider (20, 25, 30 are sensible numbers)
+    lattice: Lattice object of supercell in question
+
+    """
+    if type(prec_set) != list:
+        prec_set = [prec_set]
+
+    [a1, a2, a3] = lattice.matrix  # Angstrom
+    volume = lattice.volume
+    [b1, b2, b3] = lattice.reciprocal_lattice.matrix # 1/ Angstrom
+    invepsilon = np.linalg.inv(epsilon)
+    rd_epsilon = np.sqrt(np.linalg.det(epsilon))
+
+    #generate reciprocal vector set (for each prec_set)
+    recip_set = [[] for prec in prec_set]
+    recip_summation_values = [0. for prec in prec_set]
+    recip_cut_set = [(2 * gamma * prec) for prec in prec_set]
+
+    i_max = int(math.ceil(max(recip_cut_set) / np.linalg.norm(b1)))
+    j_max = int(math.ceil(max(recip_cut_set) / np.linalg.norm(b2)))
+    k_max = int(math.ceil(max(recip_cut_set) / np.linalg.norm(b3)))
+    for i in np.arange(-i_max, i_max + 1):
+        for j in np.arange(-j_max, j_max + 1):
+            for k in np.arange(-k_max, k_max + 1):
+                if not i and not j and not k:
+                    continue
+                gvec = i * b1 + j * b2 + k * b3
+                normgvec = np.linalg.norm(gvec)
+                for recip_cut_ind, recip_cut in enumerate(recip_cut_set):
+                    if normgvec <= recip_cut:
+                        recip_set[recip_cut_ind].append( gvec)
+
+                        Gdotdiel = np.dot(gvec, np.dot(epsilon, gvec))
+                        summand = math.exp(-Gdotdiel / (4 * (gamma**2))) / Gdotdiel
+                        recip_summation_values[recip_cut_ind] += summand
+
+    recip_summation_values = np.array(recip_summation_values)
+    recip_summation_values /= volume
+
+    #generate real vector set (for each prec_set)
+    real_set = [[] for prec in prec_set]
+    real_summation_values = [0. for prec in prec_set]
+    real_cut_set = [( prec / gamma) for prec in prec_set]
+
+    i_max = int(math.ceil(max(real_cut_set) / np.linalg.norm(a1)))
+    j_max = int(math.ceil(max(real_cut_set) / np.linalg.norm(a2)))
+    k_max = int(math.ceil(max(real_cut_set) / np.linalg.norm(a3)))
+    for i in np.arange(-i_max, i_max + 1):
+        for j in np.arange(-j_max, j_max + 1):
+            for k in np.arange(-k_max, k_max + 1):
+                rvec = i * a1 + j * a2 + k * a3
+                normrvec = np.linalg.norm(rvec)
+                for real_cut_ind, real_cut in enumerate(real_cut_set):
+                    if normrvec <= real_cut:
+                        real_set[real_cut_ind].append( rvec)
+                        if normrvec > 1e-8:
+                            sqrt_loc_res = np.sqrt( np.dot(rvec, np.dot(invepsilon, rvec)))
+                            nmr = math.erfc(gamma * sqrt_loc_res)
+                            real_summation_values[real_cut_ind] += nmr / sqrt_loc_res
+
+    real_summation_values = np.array( real_summation_values)
+    real_summation_values /= (4 * np.pi * rd_epsilon)
+
+    return recip_set, recip_summation_values, real_set, real_summation_values
+
