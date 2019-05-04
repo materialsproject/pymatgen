@@ -463,7 +463,7 @@ class MPNonSCFSetTest(PymatgenTest):
         prev_run = self.TEST_FILES_DIR / "relaxation"
         vis = MPNonSCFSet.from_prev_calc(
             prev_calc_dir=prev_run, copy_chgcar=False, optics=True,
-            mode="Boltztrap", nedos=2001)
+            mode="Uniform", nedos=2001)
 
         self.assertEqual(vis.incar["NSW"], 0)
         # Check that the ENCUT has been inherited.
