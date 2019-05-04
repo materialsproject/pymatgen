@@ -474,7 +474,7 @@ class MPNonSCFSetTest(PymatgenTest):
         self.assertEqual(vis.incar["ISMEAR"], -5)
 
         self.assertTrue(vis.incar["LOPTICS"])
-        self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Reciprocal)
+        self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Gamma)
 
     def test_user_kpoint_override(self):
         user_kpoints_override = Kpoints(
