@@ -9,15 +9,18 @@ import numpy as np
 import random
 
 from pymatgen.analysis.defects.utils import QModel, eV_to_k, \
-    generate_reciprocal_vectors_squared, \
+    generate_reciprocal_vectors_squared, genrecip, \
     closestsites, StructureMotifInterstitial, TopographyAnalyzer, \
-    ChargeDensityAnalyzer, converge, calculate_vol
+    ChargeDensityAnalyzer, converge, calculate_vol, \
+    tune_for_gamma, generate_R_and_G_vecs
+
 from pymatgen.util.testing import PymatgenTest
 
 from pymatgen.core import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 
+from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.outputs import Chgcar
 
 try:
@@ -26,7 +29,7 @@ except ImportError:
     peak_local_max = None
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
-                        'test_files', "chgden")
+                        'test_files', 'chgden')
 
 
 class DefectsUtilsTest(PymatgenTest):
@@ -46,8 +49,12 @@ class DefectsUtilsTest(PymatgenTest):
         self.assertAlmostEqual(eV_to_k(1.), 0.9681404248678961)
 
     def test_genrecip(self):
-        # TODO
-        pass
+        a = 6.
+        lattconsts = [a, a / 2., 3. * a]
+        lattvectors = [[lattconsts[i] if i == j else 0. for j in range(3)] for i
+                       in range(3)]
+        recip_list = list( genrecip(lattvectors[0], lattvectors[1], lattvectors[2], 300))
+        self.assertEqual( len(recip_list), 25620)
 
     def test_generate_reciprocal_vectors_squared(self):
         # test cubic case
@@ -106,6 +113,27 @@ class DefectsUtilsTest(PymatgenTest):
         self.assertAlmostEqual(converge(np.sqrt, 0.1, 0.1, 1.0),
                                0.6324555320336759)
 
+    def test_tune_for_gamma(self):
+        lattice = Lattice( [[ 4.692882, -8.12831 ,  0.],
+                            [ 4.692882,  8.12831 ,  0.],
+                            [ 0.,  0., 10.03391 ]])
+        epsilon = 10. * np.identity(3)
+        gamma = tune_for_gamma( lattice, epsilon)
+        self.assertAlmostEqual(gamma, 0.19357221)
+
+    def test_generate_R_and_G_vecs(self):
+        gamma = 0.19357221
+        prec = 28
+        lattice = Lattice( [[ 4.692882, -8.12831 ,  0.],
+                            [ 4.692882,  8.12831 ,  0.],
+                            [ 0.,  0., 10.03391 ]])
+        epsilon = 10. * np.identity(3)
+        g_vecs, recip_summation, r_vecs, real_summation = generate_R_and_G_vecs( gamma, prec,
+                                                                                 lattice, epsilon)
+        self.assertEqual(len(g_vecs[0]), 16418)
+        self.assertAlmostEqual(recip_summation[0], 2.8946556e-15)
+        self.assertEqual(len(r_vecs[0]), 16299)
+        self.assertAlmostEqual(real_summation[0], 0.00679361)
 
 class StructureMotifInterstitialTest(PymatgenTest):
     def setUp(self):

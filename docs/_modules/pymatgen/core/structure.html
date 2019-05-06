@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.structure &#8212; pymatgen 2019.4.11 documentation</title>
+    <title>pymatgen.core.structure &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.4.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.5.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -886,7 +886,7 @@
 <span class="sd">        Overall charge of the structure</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_charge</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">IStructure</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">charge</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">charge</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_charge</span>
 
@@ -1134,7 +1134,8 @@
                                       <span class="n">include_image</span><span class="o">=</span><span class="n">include_image</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">nn</span> <span class="k">if</span> <span class="n">site</span> <span class="o">!=</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span></div>
 
-<div class="viewcode-block" id="IStructure.get_all_neighbors"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.get_all_neighbors">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_neighbors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_image</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="IStructure.get_all_neighbors"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.get_all_neighbors">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_neighbors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_image</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                          <span class="n">include_site</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get neighbors for each atom in the unit cell, out to a distance r</span>
 <span class="sd">        Returns a list of list of neighbors for each site in structure.</span>
@@ -1147,10 +1148,11 @@
 <span class="sd">        The return type is a [(site, dist) ...] since most of the time,</span>
 <span class="sd">        subsequent processing requires the distance.</span>
 
-<span class="sd">        A note about periodic images: Before computing the neighbors, this operation</span>
-<span class="sd">        translates all atoms to within the unit cell (having fractional coordinates within [0,1)).</span>
-<span class="sd">        This means that the &quot;image&quot; of a site does not correspond to how much it has been</span>
-<span class="sd">        translates from its current position, but which image of the unit cell it resides.</span>
+<span class="sd">        A note about periodic images: Before computing the neighbors, this</span>
+<span class="sd">        operation translates all atoms to within the unit cell (having</span>
+<span class="sd">        fractional coordinates within [0,1)). This means that the &quot;image&quot; of a</span>
+<span class="sd">        site does not correspond to how much it has been translates from its</span>
+<span class="sd">        current position, but which image of the unit cell it resides.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            r (float): Radius of sphere.</span>
@@ -1158,15 +1160,18 @@
 <span class="sd">                in the returned data</span>
 <span class="sd">            include_image (bool): Whether to include the supercell image</span>
 <span class="sd">                in the returned data</span>
+<span class="sd">            include_site (bool): Whether to include the site in the returned</span>
+<span class="sd">                data. Defaults to True.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of a list of nearest neighbors for each site, i.e.,</span>
-<span class="sd">            [[(site, dist, index) ...], ..]</span>
+<span class="sd">            [[(site, dist, index, image) ...], ..]</span>
 <span class="sd">            Index only supplied if include_index = True.</span>
 <span class="sd">            The index is the index of the site in the original (non-supercell)</span>
 <span class="sd">            structure. This is needed for ewaldmatrix by keeping track of which</span>
 <span class="sd">            sites contribute to the ewald sum.</span>
 <span class="sd">            Image only supplied if include_image = True</span>
+<span class="sd">            Site is supplied only if include_site = True (the default).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Use same algorithm as get_sites_in_sphere to determine supercell but</span>
         <span class="c1"># loop over all atoms in crystal</span>
@@ -1178,28 +1183,35 @@
         <span class="n">all_ranges</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">nmin</span><span class="p">,</span> <span class="n">nmax</span><span class="p">)]</span>
 
         <span class="n">latt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span>
+        <span class="n">matrix</span> <span class="o">=</span> <span class="n">latt</span><span class="o">.</span><span class="n">matrix</span>
         <span class="n">neighbors</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">))]</span>
         <span class="n">all_fcoords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="n">coords_in_cell</span> <span class="o">=</span> <span class="n">latt</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">all_fcoords</span><span class="p">)</span>
+        <span class="n">coords_in_cell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">all_fcoords</span><span class="p">,</span> <span class="n">matrix</span><span class="p">)</span>
         <span class="n">site_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cart_coords</span>
 
         <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
         <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">all_ranges</span><span class="p">):</span>
-            <span class="n">coords</span> <span class="o">=</span> <span class="n">latt</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">image</span><span class="p">)</span> <span class="o">+</span> <span class="n">coords_in_cell</span>
+            <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">matrix</span><span class="p">)</span> <span class="o">+</span> <span class="n">coords_in_cell</span>
             <span class="n">all_dists</span> <span class="o">=</span> <span class="n">all_distances</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">site_coords</span><span class="p">)</span>
             <span class="n">all_within_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span><span class="n">all_dists</span> <span class="o">&lt;=</span> <span class="n">r</span><span class="p">,</span> <span class="n">all_dists</span> <span class="o">&gt;</span> <span class="mf">1e-8</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">within_r</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">all_dists</span><span class="p">,</span> <span class="n">all_within_r</span><span class="p">):</span>
-                <span class="n">nnsite</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">[</span><span class="n">j</span><span class="p">],</span>
-                                      <span class="n">latt</span><span class="p">,</span> <span class="n">properties</span><span class="o">=</span><span class="bp">self</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">properties</span><span class="p">,</span>
-                                      <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">[</span><span class="n">within_r</span><span class="p">]:</span>
-                    <span class="n">item</span> <span class="o">=</span> <span class="p">(</span><span class="n">nnsite</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">j</span><span class="p">)</span> <span class="k">if</span> <span class="n">include_index</span> <span class="k">else</span> <span class="p">(</span>
-                        <span class="n">nnsite</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">include_site</span><span class="p">:</span>
+                    <span class="n">nnsite</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">[</span><span class="n">j</span><span class="p">],</span>
+                                          <span class="n">latt</span><span class="p">,</span> <span class="n">properties</span><span class="o">=</span><span class="bp">self</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">properties</span><span class="p">,</span>
+                                          <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">[</span><span class="n">within_r</span><span class="p">]:</span>
+                    <span class="n">item</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">if</span> <span class="n">include_site</span><span class="p">:</span>
+                        <span class="n">item</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nnsite</span><span class="p">)</span>
+                    <span class="n">item</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="n">include_index</span><span class="p">:</span>
+                        <span class="n">item</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
                     <span class="c1"># Add the image, if requested</span>
                     <span class="k">if</span> <span class="n">include_image</span><span class="p">:</span>
-                        <span class="n">item</span> <span class="o">+=</span> <span class="p">(</span><span class="n">image</span><span class="p">,)</span>
+                        <span class="n">item</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
                     <span class="n">neighbors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">neighbors</span></div>
 
@@ -2586,7 +2598,7 @@
 <span class="sd">                have to be the same length as the atomic species and</span>
 <span class="sd">                fractional_coords. Defaults to None for no properties.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">Structure</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">,</span>
             <span class="n">validate_proximity</span><span class="o">=</span><span class="n">validate_proximity</span><span class="p">,</span> <span class="n">to_unit_cell</span><span class="o">=</span><span class="n">to_unit_cell</span><span class="p">,</span>
             <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="n">coords_are_cartesian</span><span class="p">,</span>
@@ -3191,10 +3203,10 @@
 <span class="sd">                sequences have to be the same length as the atomic species</span>
 <span class="sd">                and fractional_coords. Defaults to None for no properties.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">Molecule</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">,</span>
-                                       <span class="n">spin_multiplicity</span><span class="o">=</span><span class="n">spin_multiplicity</span><span class="p">,</span>
-                                       <span class="n">validate_proximity</span><span class="o">=</span><span class="n">validate_proximity</span><span class="p">,</span>
-                                       <span class="n">site_properties</span><span class="o">=</span><span class="n">site_properties</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">,</span>
+                         <span class="n">spin_multiplicity</span><span class="o">=</span><span class="n">spin_multiplicity</span><span class="p">,</span>
+                         <span class="n">validate_proximity</span><span class="o">=</span><span class="n">validate_proximity</span><span class="p">,</span>
+                         <span class="n">site_properties</span><span class="o">=</span><span class="n">site_properties</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span><span class="p">):</span>
@@ -3582,7 +3594,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.4.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.5.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

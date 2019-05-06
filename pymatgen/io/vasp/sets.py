@@ -859,10 +859,10 @@ class MPNonSCFSet(MPRelaxSet):
         Args:
             structure (Structure): Structure to compute
             prev_incar (Incar/string): Incar file from previous run.
-            mode (str): Line or Uniform mode supported.
+            mode (str): Line, Uniform or Boltztrap mode supported.
             nedos (int): nedos parameter. Default to 2001.
             reciprocal_density (int): density of k-mesh by reciprocal
-                                    volume (defaults to 100)
+                volume (defaults to 100)
             sym_prec (float): Symmetry precision (for Uniform mode).
             kpoints_line_density (int): Line density for Line mode.
             optics (bool): whether to add dielectric function
@@ -880,9 +880,9 @@ class MPNonSCFSet(MPRelaxSet):
         self.optics = optics
         self.mode = mode.lower()
 
-        if self.mode.lower() not in ["line", "uniform"]:
-            raise ValueError("Supported modes for NonSCF runs are 'Line' and "
-                             "'Uniform'!")
+        if self.mode.lower() not in ["line", "uniform", "boltztrap"]:
+            raise ValueError("Supported modes for NonSCF runs are 'Line', "
+                             "'Uniform' and 'Boltztrap!")
         if (self.mode.lower() != "uniform" or nedos < 2000) and optics:
             warnings.warn("It is recommended to use Uniform mode with a high "
                           "NEDOS for optics calculations.")
@@ -902,12 +902,14 @@ class MPNonSCFSet(MPRelaxSet):
             incar.update({"ISMEAR": -5})
         else:
             # if line mode, can't use ISMEAR=-5; also use small sigma to avoid
-            # partial occupancies for small band gap materials
+            # partial occupancies for small band gap materials.
+            # finally, explicit k-point generation (needed for bolztrap mode)
+            # is incompatible with ISMEAR = -5.
             incar.update({"ISMEAR": 0, "SIGMA": 0.01})
 
         incar.update(self.kwargs.get("user_incar_settings", {}))
 
-        if self.mode.lower() == "uniform":
+        if self.mode.lower() in "uniform":
             # Set smaller steps for DOS and optics output
             incar["NEDOS"] = self.nedos
 
@@ -920,7 +922,7 @@ class MPNonSCFSet(MPRelaxSet):
 
     @property
     def kpoints(self):
-        if self.mode == "line":
+        if self.mode.lower() == "line":
             kpath = HighSymmKpath(self.structure)
             frac_k_points, k_points_labels = kpath.get_kpoints(
                 line_density=self.kpoints_line_density,
@@ -931,7 +933,7 @@ class MPNonSCFSet(MPRelaxSet):
                 num_kpts=len(frac_k_points),
                 kpts=frac_k_points, labels=k_points_labels,
                 kpts_weights=[1] * len(frac_k_points))
-        else:
+        elif self.mode.lower() == "boltztrap":
             kpoints = Kpoints.automatic_density_by_vol(self.structure,
                                                        self.reciprocal_density)
             mesh = kpoints.kpts[0]
@@ -947,6 +949,10 @@ class MPNonSCFSet(MPRelaxSet):
                               style=Kpoints.supported_modes.Reciprocal,
                               num_kpts=len(ir_kpts),
                               kpts=kpts, kpts_weights=weights)
+        else:
+            self._config_dict["KPOINTS"]["reciprocal_density"] = \
+                self.reciprocal_density
+            kpoints = super().kpoints
 
         # override pymatgen kpoints if provided
         user_kpoints = self.kwargs.get("user_kpoints_settings", None)
