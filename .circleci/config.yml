@@ -28,6 +28,7 @@ jobs:
             export CFLAGS=$CFLAGS" -std=gnu++11"
             pip install BoltzTraP2
             export CFLAGS=${CFLAGS%% -std=gnu++11}
+            pip install --force-reinstall phonopy==1.11.12.121
             rm -r coverage_reports
       - save_cache: # special step to save dependency cache
           key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
