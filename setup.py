@@ -117,7 +117,7 @@ setup(
                   "pymatgen.analysis.diffraction": ["*.json"],
                   "pymatgen.util": ["structures/*.json"]},
     author="Pymatgen Development Team",
-    author_email="pymatgen@googlegroups.com",
+    author_email="ongsp@eng.ucsd.edu",
     maintainer="Shyue Ping Ong, Matthew Horton",
     maintainer_email="ongsp@eng.ucsd.edu, mkhorton@lbl.gov",
     url="http://www.pymatgen.org",
