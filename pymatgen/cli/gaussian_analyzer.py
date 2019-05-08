@@ -7,7 +7,6 @@
 A convenience script engine to read Gaussian output in a directory tree.
 """
 
-from __future__ import division, print_function
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"

@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
 import itertools
 import logging
 from collections import defaultdict
@@ -15,7 +14,6 @@ from fractions import Fraction
 
 import numpy as np
 
-from six.moves import filter, map, zip
 import spglib
 
 from pymatgen.core.structure import Structure, Molecule
@@ -47,7 +45,7 @@ __date__ = "May 14, 2016"
 logger = logging.getLogger(__name__)
 
 
-class SpacegroupAnalyzer(object):
+class SpacegroupAnalyzer:
     """
     Takes a pymatgen.core.structure.Structure object and a symprec.
     Uses pyspglib to perform various symmetry finding operations.
@@ -75,7 +73,7 @@ class SpacegroupAnalyzer(object):
         magmoms = []
 
         for species, g in itertools.groupby(structure,
-                                            key=lambda s: s.species_and_occu):
+                                            key=lambda s: s.species):
             if species in unique_species:
                 ind = unique_species.index(species)
                 zs.extend([ind + 1] * len(tuple(g)))
@@ -374,29 +372,29 @@ class SpacegroupAnalyzer(object):
             np.array(mesh), self._cell, is_shift=shift, symprec=self._symprec)
 
         results = []
-        tmp_map = list(mapping)
-        for i in np.unique(mapping):
+        for i, count in zip(*np.unique(mapping, return_counts=True)):
             results.append(((grid[i] + shift * (0.5, 0.5, 0.5)) / mesh,
-                            tmp_map.count(i)))
+                            count))
         return results
 
-    def get_primitive_standard_structure(self, international_monoclinic=True):
+    def get_conventional_to_primitive_transformation_matrix(self, international_monoclinic=True):
         """
-        Gives a structure with a primitive cell according to certain standards
+        Gives the transformation matrix to transform a conventional
+        unit cell to a primitive cell according to certain standards
         the standards are defined in Setyawan, W., & Curtarolo, S. (2010).
         High-throughput electronic band structure calculations:
         Challenges and tools. Computational Materials Science,
         49(2), 299-312. doi:10.1016/j.commatsci.2010.05.010
 
         Returns:
-            The structure in a primitive standardized cell
+            Transformation matrix to go from conventional to primitive cell
         """
         conv = self.get_conventional_standard_structure(
             international_monoclinic=international_monoclinic)
         lattice = self.get_lattice_type()
 
         if "P" in self.get_space_group_symbol() or lattice == "hexagonal":
-            return conv
+            return np.eye(3)
 
         if lattice == "rhombohedral":
             # check if the conventional representation is hexagonal or
@@ -423,6 +421,29 @@ class SpacegroupAnalyzer(object):
                                   dtype=np.float) / 2
         else:
             transf = np.eye(3)
+
+        return transf
+
+    def get_primitive_standard_structure(self, international_monoclinic=True):
+        """
+        Gives a structure with a primitive cell according to certain standards
+        the standards are defined in Setyawan, W., & Curtarolo, S. (2010).
+        High-throughput electronic band structure calculations:
+        Challenges and tools. Computational Materials Science,
+        49(2), 299-312. doi:10.1016/j.commatsci.2010.05.010
+
+        Returns:
+            The structure in a primitive standardized cell
+        """
+        conv = self.get_conventional_standard_structure(
+            international_monoclinic=international_monoclinic)
+        lattice = self.get_lattice_type()
+
+        if "P" in self.get_space_group_symbol() or lattice == "hexagonal":
+            return conv
+
+        transf = self.get_conventional_to_primitive_transformation_matrix(\
+            international_monoclinic=international_monoclinic)
 
         new_sites = []
         latt = Lattice(np.dot(transf, conv.lattice.matrix))
@@ -798,7 +819,7 @@ class SpacegroupAnalyzer(object):
         return str(self.get_point_group_symbol()) in laue
 
 
-class PointGroupAnalyzer(object):
+class PointGroupAnalyzer:
     """
     A class to analyze the point group of a molecule. The general outline of
     the algorithm is as follows:
@@ -854,7 +875,7 @@ class PointGroupAnalyzer(object):
             total_inertia = 0
             for site in self.centered_mol:
                 c = site.coords
-                wt = site.species_and_occu.weight
+                wt = site.species.weight
                 for i in range(3):
                     inertia_tensor[i, i] += wt * (c[(i + 1) % 3] ** 2
                                                   + c[(i + 2) % 3] ** 2)
@@ -871,7 +892,7 @@ class PointGroupAnalyzer(object):
             self.principal_axes = eigvecs.T
             self.eigvals = eigvals
             v1, v2, v3 = eigvals
-            eig_zero = abs(v1 * v2 * v3) < self.eig_tol ** 3
+            eig_zero = abs(v1 * v2 * v3) < self.eig_tol
             eig_all_same = abs(v1 - v2) < self.eig_tol and abs(
                 v1 - v3) < self.eig_tol
             eig_all_diff = abs(v1 - v2) > self.eig_tol and abs(
@@ -1015,7 +1036,7 @@ class PointGroupAnalyzer(object):
         else:
             # Iterate through all pairs of atoms to find mirror
             for s1, s2 in itertools.combinations(self.centered_mol, 2):
-                if s1.species_and_occu == s2.species_and_occu:
+                if s1.species == s2.species:
                     normal = s1.coords - s2.coords
                     if np.dot(normal, axis) < self.tol:
                         op = SymmOp.reflection(normal)
@@ -1199,8 +1220,8 @@ class PointGroupAnalyzer(object):
             coord = symmop.operate(site.coords)
             ind = find_in_coord_list(coords, coord, self.tol)
             if not (len(ind) == 1
-                    and self.centered_mol[ind[0]].species_and_occu
-                    == site.species_and_occu):
+                    and self.centered_mol[ind[0]].species
+                    == site.species):
                 return False
         return True
 
@@ -1388,7 +1409,8 @@ class PointGroupAnalyzer(object):
                     continue
                 coords[j] = np.dot(ops[i][j], coords[i])
                 coords[j] = np.dot(ops[i][j], coords[i])
-        molecule = Molecule(species=self.centered_mol.species, coords=coords)
+        molecule = Molecule(species=self.centered_mol.species_and_occu,
+                            coords=coords)
         return {'sym_mol': molecule,
                 'eq_sets': eq_sets,
                 'sym_ops': ops}
@@ -1479,10 +1501,10 @@ def cluster_sites(mol, tol, give_only_index=False):
         else:
             if give_only_index:
                 clustered_sites[
-                    (avg_dist[f[i]], site.species_and_occu)].append(i)
+                    (avg_dist[f[i]], site.species)].append(i)
             else:
                 clustered_sites[
-                    (avg_dist[f[i]], site.species_and_occu)].append(site)
+                    (avg_dist[f[i]], site.species)].append(site)
     return origin_site, clustered_sites
 
 
@@ -1539,7 +1561,7 @@ class SpacegroupOperations(list):
     def __init__(self, int_symbol, int_number, symmops):
         self.int_symbol = int_symbol
         self.int_number = int_number
-        super(SpacegroupOperations, self).__init__(symmops)
+        super().__init__(symmops)
 
     def are_symmetrically_equivalent(self, sites1, sites2, symm_prec=1e-3):
         """
@@ -1568,7 +1590,7 @@ class SpacegroupOperations(list):
             return False
 
         for op in self:
-            newsites2 = [PeriodicSite(site.species_and_occu,
+            newsites2 = [PeriodicSite(site.species,
                                       op.operate(site.frac_coords),
                                       site.lattice) for site in sites2]
             for site in newsites2:
@@ -1601,7 +1623,7 @@ class PointGroupOperations(list):
     """
     def __init__(self, sch_symbol, operations, tol=0.1):
         self.sch_symbol = sch_symbol
-        super(PointGroupOperations, self).__init__(
+        super().__init__(
             generate_full_symmops(operations, tol))
 
     def __str__(self):

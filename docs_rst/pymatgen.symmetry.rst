@@ -1,5 +1,5 @@
-pymatgen\.symmetry package
-==========================
+pymatgen.symmetry package
+=========================
 
 Subpackages
 -----------

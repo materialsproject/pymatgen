@@ -1,30 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.analysis.magnetism.jahnteller module &#8212; pymatgen 2018.9.12 documentation</title>
-    
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.magnetism.jahnteller module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '2018.9.12',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -35,8 +23,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -60,7 +47,8 @@
 <dl class="class">
 <dt id="pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer">
 <em class="property">class </em><code class="descname">JahnTellerAnalyzer</code><a class="reference internal" href="_modules/pymatgen/analysis/magnetism/jahnteller.html#JahnTellerAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Will attempt to classify if structure <em>may</em> be Jahn-Teller active.</p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Will attempt to classify if structure <em>may</em> be Jahn-Teller active.</p>
 <p>Class currently uses datafile of hard-coded common Jahn-Teller
 active ions.</p>
 <p>If structure is annotated with magnetic moments, will estimate
@@ -77,18 +65,14 @@ if structure may be high-spin or low-spin.</p>
 <dd><p>Obtain an analysis of a given structure and if it may be Jahn-Teller
 active or not. This is a heuristic, and may give false positives and
 false negatives (false positives are preferred).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> – input structure</li>
-<li><strong>(</strong><strong>bool</strong><strong>)</strong> (<em>calculate_valences</em>) – whether to attempt to calculate valences or not, structure</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – input structure</p></li>
+<li><p><strong>(</strong><strong>bool</strong><strong>)</strong> (<em>calculate_valences</em>) – whether to attempt to calculate valences or not, structure</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p>should have oxidation states to perform analysis
 :param guesstimate_spin (bool): whether to guesstimate spin state from magnetic moments
 or not, use with caution
@@ -103,21 +87,17 @@ quite distorted, this threshold is smaller than one might expect
 <dt id="pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_magnitude_of_effect_from_species">
 <code class="descname">get_magnitude_of_effect_from_species</code><span class="sig-paren">(</span><em>species</em>, <em>spin_state</em>, <em>motif</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/magnetism/jahnteller.html#JahnTellerAnalyzer.get_magnitude_of_effect_from_species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_magnitude_of_effect_from_species" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get magnitude of Jahn-Teller effect from provided species, spin state and motife.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>species</strong> – e.g. Fe2+</li>
-<li><strong>(</strong><strong>str</strong><strong>)</strong> (<em>motif</em>) – “high” or “low”</li>
-<li><strong>(</strong><strong>str</strong><strong>)</strong> – “oct” or “tet”</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>species</strong> – e.g. Fe2+</p></li>
+<li><p><strong>(</strong><strong>str</strong><strong>)</strong> (<em>motif</em>) – “high” or “low”</p></li>
+<li><p><strong>(</strong><strong>str</strong><strong>)</strong> – “oct” or “tet”</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return (str):</th><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Return (str)</dt>
+<dd class="field-even"><p></p></dd>
+</dl>
 </dd></dl>
 
 <dl class="staticmethod">
@@ -143,22 +123,18 @@ with number of electrons in each state</p>
 <em class="property">static </em><code class="descname">mu_so</code><span class="sig-paren">(</span><em>species</em>, <em>motif</em>, <em>spin_state</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/magnetism/jahnteller.html#JahnTellerAnalyzer.mu_so"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.mu_so" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the spin-only magnetic moment for a
 given species. Only supports transition metals.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>species</strong> – str or Species</li>
-<li><strong>motif</strong> – “oct” or “tet”</li>
-<li><strong>spin_state</strong> – “high” or “low”</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>species</strong> – str or Species</p></li>
+<li><p><strong>motif</strong> – “oct” or “tet”</p></li>
+<li><p><strong>spin_state</strong> – “high” or “low”</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">spin-only magnetic moment in Bohr magnetons</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>spin-only magnetic moment in Bohr magnetons</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -185,12 +161,12 @@ given species. Only supports transition metals.</p>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -206,13 +182,13 @@ given species. Only supports transition metals.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import numpy as np
 from pymatgen.core.structure import Structure
 
@@ -48,8 +47,8 @@ class SymmetrizedStructure(Structure):
         #     "%d%s" % (list(self.site_labels).count(self.site_labels[i]),
         #               wyckoff_letters[i]) for i in range(len(structure))]
 
-        super(SymmetrizedStructure, self).__init__(
-            structure.lattice, [site.species_and_occu for site in structure],
+        super().__init__(
+            structure.lattice, [site.species for site in structure],
             structure.frac_coords, site_properties=structure.site_properties)
 
         self.equivalent_indices = [[] for i in range(len(u))]

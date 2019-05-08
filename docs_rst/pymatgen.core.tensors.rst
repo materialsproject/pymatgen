@@ -1,5 +1,5 @@
-pymatgen\.core\.tensors module
-==============================
+pymatgen.core.tensors module
+============================
 
 .. automodule:: pymatgen.core.tensors
     :members:

@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import unittest
 
 from pymatgen.command_line.bader_caller import *
@@ -24,13 +23,14 @@ __date__ = "Jul 22, 2012"
 
 @unittest.skipIf(not which('bader'), "bader executable not present.")
 class BaderAnalysisTest(unittest.TestCase):
+    _multiprocess_shared_ = True
 
     def setUp(self):
         warnings.catch_warnings()
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_init(self):
         test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",

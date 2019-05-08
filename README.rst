@@ -1,6 +1,7 @@
 **Official docs:** http://www.pymatgen.org
 
 .. image:: https://circleci.com/gh/materialsproject/pymatgen.svg?style=shield&circle-token=:circle-token
+    :target: https://circleci.com/gh/materialsproject/pymatgen
 
 .. image:: https://ci.appveyor.com/api/projects/status/akdyke5jxg6gps45?svg=true
 
@@ -28,11 +29,9 @@ reports. The following are resources for pymatgen:
 
 * Please report any bugs and issues at pymatgen's `Github Issues
   page <https://github.com/materialsproject/pymatgen/issues>`_.
-* For help with any pymatgen issue, consult `Stack Overflow
-  <https://stackoverflow.com/questions/tagged/pymatgen>`_ and if
-  you cannot find an answer, please post a question with the tag "pymatgen".
-  Please note that the pymatgen Google group has been deprecated in
-  favor of Stack Overflow.
+* For help with any pymatgen issue, please use the pymatgen `Discourse page
+  <https://pymatgen.discourse.group>`_. Please note that the pymatgen Google
+  group has been deprecated in favor of Discourse.
 * `Twitter <http://twitter.com/pymatgen>`_. Follow to get news and tips.
 * `matgenb <http://matgenb.materialsvirtuallab.org>`_. For example notebooks.
 

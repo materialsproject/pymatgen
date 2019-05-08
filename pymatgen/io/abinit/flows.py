@@ -6,7 +6,6 @@ A Flow is a container for Works, and works consist of tasks.
 Flows are the final objects that can be dumped directly to a pickle file on disk
 Flows are executed using abirun (abipy).
 """
-from __future__ import unicode_literals, division, print_function
 
 import os
 import sys
@@ -19,7 +18,7 @@ import tempfile
 import numpy as np
 
 from pprint import pprint
-from six.moves import map, StringIO
+
 from tabulate import tabulate
 from pydispatch import dispatcher
 from collections import OrderedDict
@@ -73,7 +72,7 @@ class FlowResults(NodeResults):
     @classmethod
     def from_node(cls, flow):
         """Initialize an instance from a Work instance."""
-        new = super(FlowResults, cls).from_node(flow)
+        new = super().from_node(flow)
 
         # Will put all files found in outdir in GridFs
         d = {os.path.basename(f): f for f in flow.outdir.list_filepaths()}
@@ -175,7 +174,7 @@ class Flow(Node, NodeContainer, MSONable):
                           -1 denotes the latest version supported by the python interpreter.
             remove: attempt to remove working directory `workdir` if directory already exists.
         """
-        super(Flow, self).__init__()
+        super().__init__()
 
         if workdir is not None:
             if remove and os.path.exists(workdir): shutil.rmtree(workdir)
@@ -1338,7 +1337,7 @@ class Flow(Node, NodeContainer, MSONable):
 
             Invalid ids are ignored
         """
-        if not isinstance(nids, collections.Iterable): nids = [nids]
+        if not isinstance(nids, collections.abc.Iterable): nids = [nids]
 
         n2task = {task.node_id: task for task in self.iflat_tasks()}
         return [n2task[n] for n in nids if n in n2task]
@@ -2507,7 +2506,7 @@ class G0W0WithQptdmFlow(Flow):
             manager: :class:`TaskManager` object used to submit the jobs
                      Initialized from manager.yml if manager is None.
         """
-        super(G0W0WithQptdmFlow, self).__init__(workdir, manager=manager)
+        super().__init__(workdir, manager=manager)
 
         # Register the first work (GS + NSCF calculation)
         bands_work = self.register_work(BandStructureWork(scf_input, nscf_input))
@@ -2563,7 +2562,7 @@ class FlowCallbackError(Exception):
     """Exceptions raised by FlowCallback."""
 
 
-class FlowCallback(object):
+class FlowCallback:
     """
     This object implements the callbacks executed by the :class:`flow` when
     particular conditions are fulfilled. See on_dep_ok method of :class:`Flow`.
@@ -2697,11 +2696,20 @@ def g0w0_flow(workdir, scf_input, nscf_input, scr_input, sigma_inputs, manager=N
 
 class PhononFlow(Flow):
     """
-        1) One workflow for the GS run.
+    This Flow provides a high-level interface to compute phonons with DFPT
+    The flow consists of
 
-        2) nqpt works for phonon calculations. Each work contains
-           nirred tasks where nirred is the number of irreducible phonon perturbations
-           for that particular q-point.
+    1) One workflow for the GS run.
+
+    2) nqpt works for phonon calculations. Each work contains
+       nirred tasks where nirred is the number of irreducible phonon perturbations
+       for that particular q-point.
+
+    .. note:
+
+        For a much more flexible interface, use the DFPT works defined in works.py
+        For instance, EPH calculations are much easier to implement by connecting a single
+        work that computes all the q-points with the EPH tasks instead of using PhononFlow.
     """
     @classmethod
     def from_scf_input(cls, workdir, scf_input, ph_ngqpt, with_becs=True, manager=None, allocate=True):
@@ -2783,7 +2791,7 @@ class PhononFlow(Flow):
         print("Final DDB file available at %s" % out_ddb)
 
         # Call the method of the super class.
-        retcode = super(PhononFlow, self).finalize()
+        retcode = super().finalize()
         return retcode
 
 
@@ -2858,7 +2866,7 @@ class NonLinearCoeffFlow(Flow):
         print("Final DDB file available at %s" % out_ddb)
 
         # Call the method of the super class.
-        retcode = super(NonLinearCoeffFlow, self).finalize()
+        retcode = super().finalize()
         print("retcode", retcode)
         #if retcode != 0: return retcode
         return retcode

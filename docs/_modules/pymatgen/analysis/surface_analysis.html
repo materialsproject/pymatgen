@@ -1,30 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.analysis.surface_analysis &#8212; pymatgen 2018.9.12 documentation</title>
-    
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.surface_analysis &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../',
-        VERSION:     '2018.9.12',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -35,8 +23,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.9.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.5.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -75,7 +62,6 @@
 <span class="sd">        user does not need to generate a dict</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
@@ -86,6 +72,7 @@
 
 <span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="k">import</span> <span class="n">Composition</span>
 <span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.surface</span> <span class="k">import</span> <span class="n">get_slab_regions</span>
 <span class="kn">from</span> <span class="nn">pymatgen.entries.computed_entries</span> <span class="k">import</span> <span class="n">ComputedStructureEntry</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.wulff</span> <span class="k">import</span> <span class="n">WulffShape</span>
@@ -128,7 +115,7 @@
 
 <div class="viewcode-block" id="SlabEntry"><a class="viewcode-back" href="../../../pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.SlabEntry">[docs]</a><span class="k">class</span> <span class="nc">SlabEntry</span><span class="p">(</span><span class="n">ComputedStructureEntry</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A ComputedStructureEntry object encompassing all data relevant to a </span>
+<span class="sd">    A ComputedStructureEntry object encompassing all data relevant to a</span>
 <span class="sd">        slab for analyzing surface thermodynamics.</span>
 
 <span class="sd">    .. attribute:: miller_index</span>
@@ -193,7 +180,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">mark</span> <span class="o">=</span> <span class="n">marker</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="n">color</span>
 
-        <span class="nb">super</span><span class="p">(</span><span class="n">SlabEntry</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">structure</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">correction</span><span class="o">=</span><span class="n">correction</span><span class="p">,</span>
             <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">entry_id</span><span class="o">=</span><span class="n">entry_id</span><span class="p">)</span>
 
@@ -248,6 +235,18 @@
 
         <span class="c1"># Set up</span>
         <span class="n">ref_entries</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">ref_entries</span> <span class="k">else</span> <span class="n">ref_entries</span>
+
+        <span class="c1"># Check if appropriate ref_entries are present if the slab is non-stoichiometric</span>
+        <span class="c1"># TODO: There should be a way to identify which specific species are</span>
+        <span class="c1"># non-stoichiometric relative to the others in systems with more than 2 species</span>
+        <span class="n">slab_comp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+        <span class="n">ucell_entry_comp</span> <span class="o">=</span> <span class="n">ucell_entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_composition</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+        <span class="n">slab_clean_comp</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">({</span><span class="n">el</span><span class="p">:</span> <span class="n">slab_comp</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">ucell_entry_comp</span><span class="o">.</span><span class="n">keys</span><span class="p">()})</span>
+        <span class="k">if</span> <span class="n">slab_clean_comp</span><span class="o">.</span><span class="n">reduced_composition</span> <span class="o">!=</span> <span class="n">ucell_entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_composition</span><span class="p">:</span>
+            <span class="n">list_els</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">ref_entries</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">([</span><span class="n">el</span> <span class="ow">in</span> <span class="n">list_els</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">ucell_entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()]):</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Elemental references missing for the non-dopant species.&quot;</span><span class="p">)</span>
+
         <span class="n">gamma</span> <span class="o">=</span> <span class="p">(</span><span class="n">Symbol</span><span class="p">(</span><span class="s2">&quot;E_surf&quot;</span><span class="p">)</span> <span class="o">-</span> <span class="n">Symbol</span><span class="p">(</span><span class="s2">&quot;Ebulk&quot;</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">Symbol</span><span class="p">(</span><span class="s2">&quot;A&quot;</span><span class="p">))</span>
         <span class="n">ucell_comp</span> <span class="o">=</span> <span class="n">ucell_entry</span><span class="o">.</span><span class="n">composition</span>
         <span class="n">ucell_reduced_comp</span> <span class="o">=</span> <span class="n">ucell_comp</span><span class="o">.</span><span class="n">reduced_composition</span>
@@ -321,7 +320,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">struct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span>
-        <span class="n">weights</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">species_and_occu</span><span class="o">.</span><span class="n">weight</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">struct</span><span class="p">]</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">weight</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">struct</span><span class="p">]</span>
         <span class="n">center_of_mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
                                     <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
@@ -405,7 +404,7 @@
                          <span class="n">adsorbates</span><span class="o">=</span><span class="n">adsorbates</span><span class="p">,</span> <span class="n">clean_entry</span><span class="o">=</span><span class="n">clean_entry</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="SurfaceEnergyPlotter"><a class="viewcode-back" href="../../../pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter">[docs]</a><span class="k">class</span> <span class="nc">SurfaceEnergyPlotter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="SurfaceEnergyPlotter"><a class="viewcode-back" href="../../../pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter">[docs]</a><span class="k">class</span> <span class="nc">SurfaceEnergyPlotter</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A class used for generating plots to analyze the thermodynamics of surfaces</span>
 <span class="sd">        of a material. Produces stability maps of different slab configurations,</span>
@@ -1364,14 +1363,11 @@
     <span class="k">return</span> <span class="n">entry_dict</span></div>
 
 
-<div class="viewcode-block" id="WorkFunctionAnalyzer"><a class="viewcode-back" href="../../../pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer">[docs]</a><span class="k">class</span> <span class="nc">WorkFunctionAnalyzer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="WorkFunctionAnalyzer"><a class="viewcode-back" href="../../../pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer">[docs]</a><span class="k">class</span> <span class="nc">WorkFunctionAnalyzer</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A class that post processes a task document of a vasp calculation (from</span>
-<span class="sd">        using drone.assimilate). Can calculate work function from the vasp</span>
-<span class="sd">        calculations and plot the potential along the c axis. This class</span>
-<span class="sd">        assumes that LVTOT=True (i.e. the LOCPOT file was generated) for a</span>
-<span class="sd">        slab calculation and it was insert into the task document along with</span>
-<span class="sd">        the other outputs.</span>
+<span class="sd">    A class used for calculating the work function</span>
+<span class="sd">        from a slab model and visualizing the behavior</span>
+<span class="sd">        of the local potential along the slab.</span>
 
 <span class="sd">    .. attribute:: efermi</span>
 
@@ -1414,7 +1410,7 @@
 <span class="sd">        The average locpot of the slab region along the c direction</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">locpot_along_c</span><span class="p">,</span> <span class="n">efermi</span><span class="p">,</span> <span class="n">shift</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">locpot_along_c</span><span class="p">,</span> <span class="n">efermi</span><span class="p">,</span> <span class="n">shift</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">blength</span><span class="o">=</span><span class="mf">3.5</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes the WorkFunctionAnalyzer class.</span>
 
@@ -1425,21 +1421,32 @@
 <span class="sd">            shift (float): Parameter to translate the slab (and</span>
 <span class="sd">                therefore the vacuum) of the slab structure, thereby</span>
 <span class="sd">                translating the plot along the x axis.</span>
+<span class="sd">            blength (float (Ang)): The longest bond length in the material.</span>
+<span class="sd">                Used to handle pbc for noncontiguous slab layers</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># ensure shift between 0 and 1</span>
+        <span class="k">if</span> <span class="n">shift</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">shift</span> <span class="o">+=</span> <span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="nb">int</span><span class="p">(</span><span class="n">shift</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">shift</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">shift</span> <span class="o">-=</span> <span class="nb">int</span><span class="p">(</span><span class="n">shift</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shift</span> <span class="o">=</span> <span class="n">shift</span>
 
         <span class="c1"># properties that can be shifted</span>
         <span class="n">slab</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">slab</span><span class="o">.</span><span class="n">translate_sites</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">slab</span><span class="p">)],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">shift</span><span class="p">])</span>
+        <span class="n">slab</span><span class="o">.</span><span class="n">translate_sites</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">slab</span><span class="p">)],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">shift</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">slab</span> <span class="o">=</span> <span class="n">slab</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sorted_sites</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slab</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">site</span><span class="p">:</span> <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
 
         <span class="c1"># Get the plot points between 0 and c</span>
         <span class="c1"># increments of the number of locpot points</span>
-        <span class="n">locpot_along_c</span> <span class="o">=</span> <span class="n">locpot_along_c</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">along_c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">locpot_along_c</span><span class="p">))</span>
+
+        <span class="c1"># Get the plot points between 0 and c</span>
+        <span class="c1"># increments of the number of locpot points</span>
         <span class="n">locpot_along_c_mid</span><span class="p">,</span> <span class="n">locpot_end</span><span class="p">,</span> <span class="n">locpot_start</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">along_c</span><span class="p">):</span>
-            <span class="n">j</span> <span class="o">=</span> <span class="n">s</span> <span class="o">+</span> <span class="n">shift</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="n">s</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">shift</span>
             <span class="k">if</span> <span class="n">j</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">locpot_start</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">locpot_along_c</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
             <span class="k">elif</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -1448,12 +1455,20 @@
                 <span class="n">locpot_along_c_mid</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">locpot_along_c</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">locpot_along_c</span> <span class="o">=</span> <span class="n">locpot_start</span> <span class="o">+</span> <span class="n">locpot_along_c_mid</span> <span class="o">+</span> <span class="n">locpot_end</span>
 
+        <span class="c1"># identify slab region</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slab_regions</span> <span class="o">=</span> <span class="n">get_slab_regions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slab</span><span class="p">,</span> <span class="n">blength</span><span class="o">=</span><span class="n">blength</span><span class="p">)</span>
         <span class="c1"># get the average of the signal in the bulk-like region of the</span>
         <span class="c1"># slab, i.e. the average of the oscillating region. This gives</span>
         <span class="c1"># a rough appr. of the potential in the interior of the slab</span>
-        <span class="n">bulk_p</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">locpot_along_c</span><span class="p">)</span> <span class="k">if</span> \
-                  <span class="bp">self</span><span class="o">.</span><span class="n">sorted_sites</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">along_c</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> \
-                  <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">sorted_sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+        <span class="n">bulk_p</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">slab_regions</span><span class="p">:</span>
+            <span class="n">bulk_p</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">p</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">locpot_along_c</span><span class="p">)</span> <span class="k">if</span> \
+                           <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">along_c</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slab_regions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">bulk_p</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">p</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">locpot_along_c</span><span class="p">)</span> <span class="k">if</span> \
+                           <span class="bp">self</span><span class="o">.</span><span class="n">slab_regions</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">along_c</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span>
+            <span class="n">bulk_p</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">p</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">locpot_along_c</span><span class="p">)</span> <span class="k">if</span> \
+                           <span class="bp">self</span><span class="o">.</span><span class="n">slab_regions</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">along_c</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ave_bulk_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">bulk_p</span><span class="p">)</span>
 
         <span class="c1"># shift independent quantities</span>
@@ -1489,9 +1504,20 @@
         <span class="n">xg</span><span class="p">,</span> <span class="n">yg</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">locpot_along_c</span><span class="p">):</span>
             <span class="c1"># average signal is just the bulk-like potential when in the slab region</span>
-            <span class="k">if</span> <span class="n">p</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">ave_bulk_p</span> \
-                    <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">sorted_sites</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">along_c</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> \
-                            <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sorted_sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+            <span class="n">in_slab</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">slab_regions</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">along_c</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="n">in_slab</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slab_regions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">along_c</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slab_regions</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="n">in_slab</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">along_c</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slab_regions</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="n">in_slab</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="k">if</span> <span class="n">in_slab</span><span class="p">:</span>
+                <span class="n">yg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ave_bulk_p</span><span class="p">)</span>
+                <span class="n">xg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">along_c</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">p</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">ave_bulk_p</span><span class="p">:</span>
                 <span class="n">yg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ave_bulk_p</span><span class="p">)</span>
                 <span class="n">xg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">along_c</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
@@ -1522,19 +1548,21 @@
 <span class="sd">        Returns Labelled plt</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">maxc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sorted_sites</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-        <span class="n">minc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sorted_sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-        <span class="c1"># determine whether most of the vacuum is to</span>
-        <span class="c1"># the left or right for labelling purposes</span>
-        <span class="n">vleft</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">along_c</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">minc</span><span class="p">]</span>
-        <span class="n">vright</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">along_c</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="n">maxc</span><span class="p">]</span>
-        <span class="k">if</span> <span class="nb">max</span><span class="p">(</span><span class="n">vleft</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">vleft</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">max</span><span class="p">(</span><span class="n">vright</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">vright</span><span class="p">):</span>
-            <span class="n">label_in_vac</span> <span class="o">=</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">vleft</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">vleft</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span>
+        <span class="c1"># center of vacuum and bulk region</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slab_regions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">label_in_vac</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slab_regions</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">slab_regions</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="mi">2</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slab_regions</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">slab_regions</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;</span> \
+                    <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slab_regions</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">slab_regions</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="n">label_in_bulk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slab_regions</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">label_in_bulk</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slab_regions</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">slab_regions</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">label_in_vac</span> <span class="o">=</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">vright</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">vright</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span> <span class="o">+</span> <span class="n">maxc</span>
+            <span class="n">label_in_bulk</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slab_regions</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">slab_regions</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="mi">2</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">slab_regions</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">slab_regions</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">label_in_vac</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slab_regions</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">label_in_vac</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">slab_regions</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
 
-        <span class="c1"># label the vacuum locpot</span>
-        <span class="n">label_in_bulk</span> <span class="o">=</span> <span class="n">maxc</span> <span class="o">-</span> <span class="p">(</span><span class="n">maxc</span> <span class="o">-</span> <span class="n">minc</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vacuum_locpot</span><span class="p">]</span><span class="o">*</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;b--&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=-</span><span class="mi">5</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">xy</span> <span class="o">=</span> <span class="p">[</span><span class="n">label_in_bulk</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vacuum_locpot</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">ave_locpot</span><span class="o">*</span><span class="mf">0.05</span><span class="p">]</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$V_</span><span class="si">{vac}</span><span class="s2">=</span><span class="si">%.2f</span><span class="s2">$&quot;</span> <span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vacuum_locpot</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="n">xy</span><span class="p">,</span>
@@ -1591,15 +1619,15 @@
         <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">all_flat</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="WorkFunctionAnalyzer.from_files"><a class="viewcode-back" href="../../../pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.from_files">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_files</span><span class="p">(</span><span class="n">poscar_filename</span><span class="p">,</span> <span class="n">locpot_filename</span><span class="p">,</span> <span class="n">outcar_filename</span><span class="p">,</span> <span class="n">shift</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_files</span><span class="p">(</span><span class="n">poscar_filename</span><span class="p">,</span> <span class="n">locpot_filename</span><span class="p">,</span> <span class="n">outcar_filename</span><span class="p">,</span> <span class="n">shift</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">blength</span><span class="o">=</span><span class="mf">3.5</span><span class="p">):</span>
         <span class="n">p</span> <span class="o">=</span> <span class="n">Poscar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">poscar_filename</span><span class="p">)</span>
         <span class="n">l</span> <span class="o">=</span> <span class="n">Locpot</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">locpot_filename</span><span class="p">)</span>
         <span class="n">o</span> <span class="o">=</span> <span class="n">Outcar</span><span class="p">(</span><span class="n">outcar_filename</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">WorkFunctionAnalyzer</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">l</span><span class="o">.</span><span class="n">get_average_along_axis</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span>
-                                    <span class="n">o</span><span class="o">.</span><span class="n">efermi</span><span class="p">,</span> <span class="n">shift</span><span class="o">=</span><span class="n">shift</span><span class="p">)</span></div></div>
+                                    <span class="n">o</span><span class="o">.</span><span class="n">efermi</span><span class="p">,</span> <span class="n">shift</span><span class="o">=</span><span class="n">shift</span><span class="p">,</span> <span class="n">blength</span><span class="o">=</span><span class="n">blength</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="NanoscaleStability"><a class="viewcode-back" href="../../../pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.NanoscaleStability">[docs]</a><span class="k">class</span> <span class="nc">NanoscaleStability</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="NanoscaleStability"><a class="viewcode-back" href="../../../pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.NanoscaleStability">[docs]</a><span class="k">class</span> <span class="nc">NanoscaleStability</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A class for analyzing the stability of nanoparticles of different</span>
 <span class="sd">        polymorphs with respect to size. The Wulff shape will be the</span>
@@ -1857,12 +1885,12 @@
 
         <span class="k">return</span> <span class="n">plt</span></div></div>
 
-        <span class="c1"># class GetChempotRange(object):</span>
+        <span class="c1"># class GetChempotRange:</span>
         <span class="c1">#     def __init__(self, entry):</span>
         <span class="c1">#         self.entry = entry</span>
         <span class="c1">#</span>
         <span class="c1">#</span>
-        <span class="c1"># class SlabEntryGenerator(object):</span>
+        <span class="c1"># class SlabEntryGenerator:</span>
         <span class="c1">#     def __init__(self, entry):</span>
         <span class="c1">#         self.entry = entry</span>
 
@@ -1901,12 +1929,12 @@
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -1922,7 +1950,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.9.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.5.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1930,7 +1958,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

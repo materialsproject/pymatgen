@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, absolute_import
 
 """
 This module provides conversion between the Atomic Simulation Environment
@@ -26,7 +25,7 @@ except ImportError:
     ase_loaded = False
 
 
-class AseAtomsAdaptor(object):
+class AseAtomsAdaptor:
     """
     Adaptor serves as a bridge between ASE Atoms and pymatgen structure.
     """

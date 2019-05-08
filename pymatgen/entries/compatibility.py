@@ -2,13 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import os
 import abc
 import warnings
-import six
-from six.moves import filter, map
 
 from collections import defaultdict
 
@@ -50,7 +47,7 @@ class CompatibilityError(Exception):
         return self.msg
 
 
-class Correction(six.with_metaclass(abc.ABCMeta, object)):
+class Correction(metaclass=abc.ABCMeta):
     """
     A Correction class is a pre-defined scheme for correction a computed
     entry based on the type and chemistry of the structure and the
@@ -157,7 +154,7 @@ class PotcarCorrection(Correction):
                                     for sym in entry.parameters[
                                     "potcar_symbols"] if sym])
 
-        if {self.valid_potcars[str(el)] for el in
+        if {self.valid_potcars.get(str(el)) for el in
                 entry.composition.elements} != psp_settings:
             raise CompatibilityError('Incompatible potcar')
         return 0
@@ -544,7 +541,7 @@ class MaterialsProjectCompatibility(Compatibility):
         self.correct_peroxide = correct_peroxide
         self.check_potcar_hash = check_potcar_hash
         fp = os.path.join(MODULE_DIR, "MPCompatibility.yaml")
-        super(MaterialsProjectCompatibility, self).__init__(
+        super().__init__(
             [PotcarCorrection(MPRelaxSet, check_hash=check_potcar_hash),
              GasCorrection(fp),
              AnionCorrection(fp, correct_peroxide=correct_peroxide),
@@ -577,7 +574,7 @@ class MITCompatibility(Compatibility):
         self.correct_peroxide = correct_peroxide
         self.check_potcar_hash = check_potcar_hash
         fp = os.path.join(MODULE_DIR, "MITCompatibility.yaml")
-        super(MITCompatibility, self).__init__(
+        super().__init__(
             [PotcarCorrection(MITRelaxSet, check_hash=check_potcar_hash),
              GasCorrection(fp),
              AnionCorrection(fp, correct_peroxide=correct_peroxide),
@@ -610,7 +607,7 @@ class MITAqueousCompatibility(Compatibility):
         self.correct_peroxide = correct_peroxide
         self.check_potcar_hash = check_potcar_hash
         fp = os.path.join(MODULE_DIR, "MITCompatibility.yaml")
-        super(MITAqueousCompatibility, self).__init__(
+        super().__init__(
             [PotcarCorrection(MITRelaxSet, check_hash=check_potcar_hash),
              GasCorrection(fp),
              AnionCorrection(fp, correct_peroxide=correct_peroxide),
@@ -644,7 +641,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         self.correct_peroxide = correct_peroxide
         self.check_potcar_hash = check_potcar_hash
         fp = os.path.join(MODULE_DIR, "MPCompatibility.yaml")
-        super(MaterialsProjectAqueousCompatibility, self).__init__(
+        super().__init__(
             [PotcarCorrection(MPRelaxSet, check_hash=check_potcar_hash),
              GasCorrection(fp),
              AnionCorrection(fp, correct_peroxide=correct_peroxide),

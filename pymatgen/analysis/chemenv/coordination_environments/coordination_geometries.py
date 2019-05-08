@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 """
 This module contains the class describing the coordination geometries that can exist in a given structure. These
@@ -28,7 +27,7 @@ import abc
 from monty.json import MSONable, MontyDecoder
 import json
 import os
-from six import with_metaclass
+
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -38,7 +37,7 @@ EXPLICIT_PERMUTATIONS = 'EXPLICIT_PERMUTATIONS'
 SEPARATION_PLANE = 'SEPARATION_PLANE'
 
 
-class AbstractChemenvAlgorithm(with_metaclass(abc.ABCMeta, MSONable)):
+class AbstractChemenvAlgorithm(MSONable, metaclass=abc.ABCMeta):
     """
     Class used to define a Chemenv strategy for the neighbors and coordination environment to be applied to a
     StructureEnvironments object
@@ -68,7 +67,7 @@ class ExplicitPermutationsAlgorithm(AbstractChemenvAlgorithm):
         """
             Initializes a separation plane for a given perfect coordination geometry
         """
-        super(ExplicitPermutationsAlgorithm, self).__init__(
+        super().__init__(
             algorithm_type=EXPLICIT_PERMUTATIONS)
         self._permutations = permutations
 
@@ -120,7 +119,7 @@ class SeparationPlane(AbstractChemenvAlgorithm):
              mirror plane, 'EQUILIBRATED', if the plane cuts the geometry in two groups of points of the same size, is not
              going through the centre but is not a mirror plane.
             """
-        super(SeparationPlane, self).__init__(algorithm_type=SEPARATION_PLANE)
+        super().__init__(algorithm_type=SEPARATION_PLANE)
         self.mirror_plane = mirror_plane
         self.plane_points = plane_points
         self.point_groups = point_groups
@@ -314,14 +313,14 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         return out
 
 
-class CoordinationGeometry(object):
+class CoordinationGeometry:
     """
     Class used to store the ideal representation of a chemical environment or "coordination geometry"
     """
     CSM_SKIP_SEPARATION_PLANE_ALGO = 10.0 # Default value of continuous symmetry measure below which no further
                                         #  search is performed for the separation plane algorithms
 
-    class NeighborsSetsHints(object):
+    class NeighborsSetsHints:
 
         ALLOWED_HINTS_TYPES = ['single_cap', 'double_cap', 'triple_cap']
 

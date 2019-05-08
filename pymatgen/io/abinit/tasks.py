@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """This module provides functions and classes related to Task objects."""
-from __future__ import division, print_function, unicode_literals, absolute_import
 
 import os
 import time
@@ -12,12 +11,12 @@ import collections
 import abc
 import copy
 import ruamel.yaml as yaml
-import six
+from io import StringIO
 import numpy as np
 
 from pprint import pprint
 from itertools import product
-from six.moves import map, zip, StringIO
+
 from monty.string import is_string, list_strings
 from monty.termcolor import colored, cprint
 from monty.collections import AttrDict
@@ -109,7 +108,7 @@ class TaskResults(NodeResults):
     @classmethod
     def from_node(cls, task):
         """Initialize an instance from an :class:`AbinitTask` instance."""
-        new = super(TaskResults, cls).from_node(task)
+        new = super().from_node(task)
 
         new.update(
             executable=task.executable,
@@ -169,7 +168,7 @@ class ParalConf(AttrDict):
     }
 
     def __init__(self, *args, **kwargs):
-        super(ParalConf, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Add default values if not already in self.
         for k, v in self._DEFAULTS.items():
@@ -212,7 +211,7 @@ class ParalHintsError(Exception):
     """Base error class for `ParalHints`."""
 
 
-class ParalHintsParser(object):
+class ParalHintsParser:
 
     Error = ParalHintsError
 
@@ -242,7 +241,7 @@ class ParalHintsParser(object):
                 raise self.Error(err_msg)
 
 
-class ParalHints(collections.Iterable):
+class ParalHints(collections.abc.Iterable):
     """
     Iterable with the hints for the parallel execution reported by ABINIT.
     """
@@ -433,7 +432,7 @@ class ParalHints(collections.Iterable):
         return hints
 
 
-class TaskPolicy(object):
+class TaskPolicy:
     """
     This object stores the parameters used by the :class:`TaskManager` to
     create the submission script and/or to modify the ABINIT variables
@@ -456,7 +455,7 @@ class TaskPolicy(object):
         else:
             if isinstance(obj, cls):
                 return obj
-            elif isinstance(obj, collections.Mapping):
+            elif isinstance(obj, collections.abc.Mapping):
                 return cls(**obj)
             else:
                 raise TypeError("Don't know how to convert type %s to %s" % (type(obj), cls))
@@ -630,7 +629,7 @@ batch_adapter:
             else:
                 return cls.from_string(obj)
 
-        elif isinstance(obj, collections.Mapping):
+        elif isinstance(obj, collections.abc.Mapping):
             return cls.from_dict(obj)
         else:
             raise TypeError("Don't know how to convert type %s to TaskManager" % type(obj))
@@ -1045,7 +1044,7 @@ batch_adapter:
             raise ManagerIncreaseError('manager failed to increase time')
 
 
-class AbinitBuild(object):
+class AbinitBuild:
     """
     This object stores information on the options used to build Abinit
 
@@ -1192,7 +1191,7 @@ class AbinitBuild(object):
         return op(parse_version(self.version), parse_version(version_string))
 
 
-class FakeProcess(object):
+class FakeProcess:
     """
     This object is attached to a :class:`Task` instance if the task has not been submitted
     This trick allows us to simulate a process that is still running so that
@@ -1222,7 +1221,7 @@ class MyTimedelta(datetime.timedelta):
 
     def __str__(self):
         """Remove microseconds from timedelta default __str__"""
-        s = super(MyTimedelta, self).__str__()
+        s = super().__str__()
         microsec = s.find(".")
         if microsec != -1: s = s[:microsec]
         return s
@@ -1235,7 +1234,7 @@ class MyTimedelta(datetime.timedelta):
         return cls(delta.days, delta.seconds, delta.microseconds)
 
 
-class TaskDateTimes(object):
+class TaskDateTimes:
     """
     Small object containing useful :class:`datetime.datatime` objects associated to important events.
 
@@ -1305,7 +1304,7 @@ class TaskRestartError(TaskError):
     """Exception raised while trying to restart the :class:`Task`."""
 
 
-class Task(six.with_metaclass(abc.ABCMeta, Node)):
+class Task(Node, metaclass=abc.ABCMeta):
     """
     A Task is a node that performs some kind of calculation.
     This is base class providing low-level methods.
@@ -1335,7 +1334,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                   None means that this Task has no dependency.
         """
         # Init the node
-        super(Task, self).__init__()
+        super().__init__()
 
         self._input = input
 
@@ -1731,8 +1730,11 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.start_lockfile.remove()
         self.qerr_file.remove()
         self.qout_file.remove()
+        if self.mpiabort_file.exists:
+            self.mpiabort_file.remove()
 
         self.set_status(self.S_INIT, msg="Reset on %s" % time.asctime())
+        self.num_restarts = 0
         self.set_qjob(None)
 
         # Reset finalized flags.
@@ -3163,7 +3165,7 @@ class AbinitTask(Task):
         return None
 
 
-class ProduceHist(object):
+class ProduceHist:
     """
     Mixin class for an :class:`AbinitTask` producing a HIST file.
     Provide the method `open_hist` that reads and return a HIST file.
@@ -3284,7 +3286,7 @@ class ScfTask(GsTask):
         return None
 
     def get_results(self, **kwargs):
-        results = super(ScfTask, self).get_results(**kwargs)
+        results = super().get_results(**kwargs)
 
         # Open the GSR file and add its data to results.out
         with self.open_gsr() as gsr:
@@ -3302,7 +3304,7 @@ class CollinearThenNonCollinearScfTask(ScfTask):
     initialized from the previous WFK file.
     """
     def __init__(self, input, workdir=None, manager=None, deps=None):
-        super(CollinearThenNonCollinearScfTask, self).__init__(input, workdir=workdir, manager=manager, deps=deps)
+        super().__init__(input, workdir=workdir, manager=manager, deps=deps)
         # Enforce nspinor = 1, nsppol = 2 and prtwf = 1.
         self._input = self.input.deepcopy()
         self.input.set_spin_mode("polarized")
@@ -3310,7 +3312,7 @@ class CollinearThenNonCollinearScfTask(ScfTask):
         self.collinear_done = False
 
     def _on_ok(self):
-        results = super(CollinearThenNonCollinearScfTask, self)._on_ok()
+        results = super()._on_ok()
         if not self.collinear_done:
             self.input.set_spin_mode("spinor")
             self.collinear_done = True
@@ -3353,7 +3355,7 @@ class NscfTask(GsTask):
             else:
                 self.set_vars(ngfft=den_mesh)
 
-        super(NscfTask, self).setup()
+        super().setup()
 
     def restart(self):
         """NSCF calculations can be restarted only if we have the WFK file."""
@@ -3374,7 +3376,7 @@ class NscfTask(GsTask):
         return self._restart()
 
     def get_results(self, **kwargs):
-        results = super(NscfTask, self).get_results(**kwargs)
+        results = super().get_results(**kwargs)
 
         # Read the GSR file.
         with self.open_gsr() as gsr:
@@ -3505,7 +3507,7 @@ class RelaxTask(GsTask, ProduceHist):
             raise ValueError("Wrong value for what %s" % what)
 
     def get_results(self, **kwargs):
-        results = super(RelaxTask, self).get_results(**kwargs)
+        results = super().get_results(**kwargs)
 
         # Open the GSR file and add its data to results.out
         with self.open_gsr() as gsr:
@@ -3528,7 +3530,7 @@ class RelaxTask(GsTask, ProduceHist):
         This change is needed so that we can specify dependencies with the syntax {node: "DEN"}
         without having to know the number of iterations needed to converge the run in node!
         """
-        super(RelaxTask, self).fix_ofiles()
+        super().fix_ofiles()
 
         # Find the last TIM?_DEN file.
         last_timden = self.outdir.find_last_timden_file()
@@ -3652,13 +3654,21 @@ class DfptTask(AbinitTask):
                     infile = self.indir.path_in("in_1WF%d" % ddk_case)
                     os.symlink(out_ddk, infile)
 
-                elif d == "WFK":
+                elif d in ("WFK", "WFQ"):
                     gs_task = dep.node
-                    out_wfk = gs_task.outdir.has_abiext("WFK")
+                    out_wfk = gs_task.outdir.has_abiext(d)
                     if not out_wfk:
-                        raise RuntimeError("%s didn't produce the WFK file" % gs_task)
-                    if not os.path.exists(self.indir.path_in("in_WFK")):
-                        os.symlink(out_wfk, self.indir.path_in("in_WFK"))
+                        raise RuntimeError("%s didn't produce the %s file" % (gs_task, d))
+
+                    if d == "WFK":
+                        bname = "in_WFK"
+                    elif d == "WFQ":
+                        bname = "in_WFQ"
+                    else:
+                        raise ValueError("Don't know how to handle `%s`" % d)
+
+                    if not os.path.exists(self.indir.path_in(bname)):
+                            os.symlink(out_wfk, self.indir.path_in(bname))
 
                 elif d == "DEN":
                     gs_task = dep.node
@@ -3689,6 +3699,48 @@ class DfptTask(AbinitTask):
                 else:
                     raise ValueError("Don't know how to handle extension: %s" % str(dep.exts))
 
+    def restart(self):
+        """
+        DFPT calculations can be restarted only if we have the 1WF file or the 1DEN file.
+        from which we can read the first-order wavefunctions or the first order density.
+        Prefer 1WF over 1DEN since we can reuse the wavefunctions.
+        """
+        # Abinit adds the idir-ipert index at the end of the file and this breaks the extension
+        # e.g. out_1WF4, out_DEN4. find_1wf_files and find_1den_files returns the list of files found
+        restart_file, irdvars = None, None
+
+        # Highest priority to the 1WF file because restart is more efficient.
+        wf_files = self.outdir.find_1wf_files()
+        if wf_files is not None:
+            restart_file = wf_files[0].path
+            irdvars = irdvars_for_ext("1WF")
+            if len(wf_files) != 1:
+                restart_file = None
+                self.history.critical("Found more than one 1WF file in outdir. Restart is ambiguous!")
+
+        if restart_file is None:
+            den_files = self.outdir.find_1den_files()
+            if den_files is not None:
+                restart_file = den_files[0].path
+                irdvars = {"ird1den": 1}
+                if len(den_files) != 1:
+                    restart_file = None
+                    self.history.critical("Found more than one 1DEN file in outdir. Restart is ambiguous!")
+
+        if restart_file is None:
+            # Raise because otherwise restart is equivalent to a run from scratch --> infinite loop!
+            raise self.RestartError("%s: Cannot find the 1WF|1DEN file to restart from." % self)
+
+        # Move file.
+        self.history.info("Will restart from %s", restart_file)
+        restart_file = self.out_to_in(restart_file)
+
+        # Add the appropriate variable for restarting.
+        self.set_vars(irdvars)
+
+        # Now we can resubmit the job.
+        return self._restart()
+
 
 class DdeTask(DfptTask):
     """Task for DDE calculations (perturbation wrt electric field)."""
@@ -3696,7 +3748,7 @@ class DdeTask(DfptTask):
     color_rgb = np.array((61, 158, 255)) / 255
 
     def get_results(self, **kwargs):
-        results = super(DdeTask, self).get_results(**kwargs)
+        results = super().get_results(**kwargs)
         return results.register_gridfs_file(DDB=(self.outdir.has_abiext("DDE"), "t"))
 
 
@@ -3707,10 +3759,10 @@ class DteTask(DfptTask):
     # @check_spectator
     def start(self, **kwargs):
         kwargs['autoparal'] = False
-        return super(DteTask, self).start(**kwargs)
+        return super().start(**kwargs)
 
     def get_results(self, **kwargs):
-        results = super(DteTask, self).get_results(**kwargs)
+        results = super().get_results(**kwargs)
         return results.register_gridfs_file(DDB=(self.outdir.has_abiext("DDE"), "t"))
 
 
@@ -3720,7 +3772,7 @@ class DdkTask(DfptTask):
 
     #@check_spectator
     def _on_ok(self):
-        super(DdkTask, self)._on_ok()
+        super()._on_ok()
         # Client code expects to find du/dk in DDK file.
         # Here I create a symbolic link out_1WF13 --> out_DDK
         # so that we can use deps={ddk_task: "DDK"} in the high-level API.
@@ -3729,7 +3781,7 @@ class DdkTask(DfptTask):
         self.outdir.symlink_abiext('1WF', 'DDK')
 
     def get_results(self, **kwargs):
-        results = super(DdkTask, self).get_results(**kwargs)
+        results = super().get_results(**kwargs)
         return results.register_gridfs_file(DDK=(self.outdir.has_abiext("DDK"), "t"))
 
 
@@ -3750,48 +3802,6 @@ class PhononTask(DfptTask):
     """
     color_rgb = np.array((0, 150, 250)) / 255
 
-    def restart(self):
-        """
-        Phonon calculations can be restarted only if we have the 1WF file or the 1DEN file.
-        from which we can read the first-order wavefunctions or the first order density.
-        Prefer 1WF over 1DEN since we can reuse the wavefunctions.
-        """
-        # Abinit adds the idir-ipert index at the end of the file and this breaks the extension
-        # e.g. out_1WF4, out_DEN4. find_1wf_files and find_1den_files returns the list of files found
-        restart_file, irdvars = None, None
-
-        # Highest priority to the 1WF file because restart is more efficient.
-        wf_files = self.outdir.find_1wf_files()
-        if wf_files is not None:
-            restart_file = wf_files[0].path
-            irdvars = irdvars_for_ext("1WF")
-            if len(wf_files) != 1:
-                restart_file = None
-                logger.critical("Found more than one 1WF file. Restart is ambiguous!")
-
-        if restart_file is None:
-            den_files = self.outdir.find_1den_files()
-            if den_files is not None:
-                restart_file = den_files[0].path
-                irdvars = {"ird1den": 1}
-                if len(den_files) != 1:
-                    restart_file = None
-                    logger.critical("Found more than one 1DEN file. Restart is ambiguous!")
-
-        if restart_file is None:
-            # Raise because otherwise restart is equivalent to a run from scratch --> infinite loop!
-            raise self.RestartError("%s: Cannot find the 1WF|1DEN file to restart from." % self)
-
-        # Move file.
-        self.history.info("Will restart from %s", restart_file)
-        restart_file = self.out_to_in(restart_file)
-
-        # Add the appropriate variable for restarting.
-        self.set_vars(irdvars)
-
-        # Now we can resubmit the job.
-        return self._restart()
-
     def inspect(self, **kwargs):
         """
         Plot the Phonon SCF cycle results with matplotlib.
@@ -3805,7 +3815,7 @@ class PhononTask(DfptTask):
             return scf_cycle.plot(**kwargs)
 
     def get_results(self, **kwargs):
-        results = super(PhononTask, self).get_results(**kwargs)
+        results = super().get_results(**kwargs)
         return results.register_gridfs_files(DDB=(self.outdir.has_abiext("DDB"), "t"))
 
 
@@ -3969,7 +3979,7 @@ class SigmaTask(ManyBodyTask):
             raise RuntimeError("Cannot find SIGRES file!")
 
     def get_results(self, **kwargs):
-        results = super(SigmaTask, self).get_results(**kwargs)
+        results = super().get_results(**kwargs)
 
         # Open the SIGRES file and add its data to results.out
         with self.open_sigres() as sigres:
@@ -4091,7 +4101,7 @@ class BseTask(ManyBodyTask):
             return None
 
     def get_results(self, **kwargs):
-        results = super(BseTask, self).get_results(**kwargs)
+        results = super().get_results(**kwargs)
 
         with self.open_mdf() as mdf:
             #results["out"].update(mdf.as_dict())
@@ -4134,11 +4144,11 @@ class OpticTask(Task):
 
         deps.update({self.nscf_node: "WFK"})
 
-        super(OpticTask, self).__init__(optic_input, workdir=workdir, manager=manager, deps=deps)
+        super().__init__(optic_input, workdir=workdir, manager=manager, deps=deps)
 
     def set_workdir(self, workdir, chroot=False):
         """Set the working directory of the task."""
-        super(OpticTask, self).set_workdir(workdir, chroot=chroot)
+        super().set_workdir(workdir, chroot=chroot)
         # Small hack: the log file of optics is actually the main output file.
         self.output_file = self.log_file
 
@@ -4216,7 +4226,7 @@ class OpticTask(Task):
         """
 
     def get_results(self, **kwargs):
-        return super(OpticTask, self).get_results(**kwargs)
+        return super().get_results(**kwargs)
 
     def fix_abicritical(self):
         """
@@ -4508,7 +4518,7 @@ class AnaddbTask(Task):
         if self.ddk_node is not None:
             deps.update({self.ddk_node: "DDK"})
 
-        super(AnaddbTask, self).__init__(input=anaddb_input, workdir=workdir, manager=manager, deps=deps)
+        super().__init__(input=anaddb_input, workdir=workdir, manager=manager, deps=deps)
 
     @classmethod
     def temp_shell_task(cls, inp, ddb_node, mpi_procs=1,
@@ -4633,5 +4643,5 @@ class AnaddbTask(Task):
             return None
 
     def get_results(self, **kwargs):
-        results = super(AnaddbTask, self).get_results(**kwargs)
+        results = super().get_results(**kwargs)
         return results

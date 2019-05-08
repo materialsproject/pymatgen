@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals
 
 """
 Created on Jan 22, 2013
@@ -22,42 +21,64 @@ gulp_present = which('gulp')
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
-class GulpCallerInitTest(unittest.TestCase):
-    def test_default_init(self):
-        gulp_caller = GulpCaller()
-
-    def test_explicit_path(self):
-        gulp_caller = GulpCaller(gulp_present)
-
-
-@unittest.skipIf(not gulp_present, "gulp not present.")
 class GulpCallerTest(unittest.TestCase):
 
-    def setUp(self):
+    def test_run(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
         mgo_specie = ["Mg"]*4 + ["O"]*4
         mgo_frac_cord = [[0,0,0], [0.5,0.5,0], [0.5,0,0.5], [0,0.5,0.5],
                          [0.5,0,0], [0,0.5,0], [0,0,0.5], [0.5,0.5,0.5]]
         mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
-        self.gio = GulpIO()
-        gin = self.gio.keyword_line('optimise', 'conp')
-        gin += self.gio.structure_lines(mgo_uc, symm_flg=False)
+        gio = GulpIO()
+        gin = gio.keyword_line('optimise', 'conp')
+        gin += gio.structure_lines(mgo_uc, symm_flg=False)
         #gin += self.gc.gulp_lib('catlow.lib')
         gin += "species\nMg    core  2.00000\nO core  0.86902\nO shel -2.86902\n"
         gin += "buck\n"
         gin += "Mg core O shel   946.627 0.31813  0.00000 0.0 10.0\n"
         gin += "O  shel O shel 22764.000 0.14900 27.87900 0.0 12.0\n"
-        self.gin = gin
-        self.gc = GulpCaller()
+        gin = gin
+        gc = GulpCaller()
 
-    def test_run(self):
         """Some inherent checks are in the run_gulp function itself.
         They should be suffcient for raising errors."""
-        gout = self.gc.run(self.gin)
+        gout = gc.run(gin)
+
+    def test_decimal(self):
+        struct = Structure.from_str("""Mg2 Al4 O8
+        1.0
+        5.003532 0.000000 2.888790
+        1.667844 4.717375 2.888790
+        0.000000 0.000000 5.777581
+        O Mg Al
+        8 2 4
+        direct
+        0.736371 0.736371 0.736371 O
+        0.263629 0.263629 0.709114 O
+        0.263629 0.709114 0.263629 O
+        0.709114 0.263629 0.263629 O
+        0.736371 0.290886 0.736371 O
+        0.290886 0.736371 0.736371 O
+        0.263629 0.263629 0.263629 O
+        0.736371 0.736371 0.290886 O
+        0.125000 0.125000 0.125000 Mg
+        0.875000 0.875000 0.875000 Mg
+        0.500000 0.500000 0.000000 Al
+        0.500000 0.500000 0.500000 Al
+        0.000000 0.500000 0.500000 Al
+        0.500000 0.000000 0.500000 Al""", fmt='poscar')
+
+        bp = BuckinghamPotential(bush_lewis_flag="bush")
+        gio = GulpIO()
+        input = gio.buckingham_input(struct, ['relax conp'])
+        caller = GulpCaller()
+        gout = caller.run(input)
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
 class GulpIOTest(unittest.TestCase):
+    _multiprocess_shared_ = True
+
     def setUp(self):
         p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.Al12O18'),
                              check_for_POTCAR=False)
@@ -202,6 +223,7 @@ class GulpIOTest(unittest.TestCase):
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
 class GlobalFunctionsTest(unittest.TestCase):
+
     def setUp(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
         mgo_specie = ["Mg",'O']*4
@@ -239,6 +261,8 @@ class GlobalFunctionsTest(unittest.TestCase):
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
 class BuckinghamPotentialLewisTest(unittest.TestCase):
+    _multiprocess_shared_ = True
+
     def setUp(self):
         self.bpl = BuckinghamPotential('lewis')
 
@@ -267,6 +291,7 @@ class BuckinghamPotentialLewisTest(unittest.TestCase):
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
 class BuckinghamPotentialBushTest(unittest.TestCase):
+    _multiprocess_shared_ = True
 
     def setUp(self):
         self.bpb = BuckinghamPotential('bush')

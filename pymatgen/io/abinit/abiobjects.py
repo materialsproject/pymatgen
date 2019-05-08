@@ -4,11 +4,9 @@
 """
 Low-level objects providing an abstraction for the objects involved in the calculation.
 """
-from __future__ import unicode_literals, division, print_function
 
 import collections
 import abc
-import six
 import numpy as np
 import pymatgen.core.units as units
 
@@ -142,10 +140,10 @@ def structure_from_abivars(cls=None, *args, **kwargs):
 
     znucl_type, typat = d["znucl"], d["typat"]
 
-    if not isinstance(znucl_type, collections.Iterable):
+    if not isinstance(znucl_type, collections.abc.Iterable):
         znucl_type = [znucl_type]
 
-    if not isinstance(typat, collections.Iterable):
+    if not isinstance(typat, collections.abc.Iterable):
         typat = [typat]
 
     if len(typat) != len(coords):
@@ -247,7 +245,7 @@ def contract(s):
     return " ".join("%d*%s" % (c, t) for c, t in count)
 
 
-class AbivarAble(six.with_metaclass(abc.ABCMeta, object)):
+class AbivarAble(metaclass=abc.ABCMeta):
     """
     An `AbivarAble` object provides a method `to_abivars`
     that returns a dictionary with the abinit variables.
@@ -269,7 +267,7 @@ class AbivarAble(six.with_metaclass(abc.ABCMeta, object)):
 
 
 @singleton
-class MandatoryVariable(object):
+class MandatoryVariable:
     """
     Singleton used to tag mandatory variables, just because I can use
     the cool syntax: variable is MANDATORY!
@@ -277,7 +275,7 @@ class MandatoryVariable(object):
 
 
 @singleton
-class DefaultVariable(object):
+class DefaultVariable:
     """Singleton used to tag variables that will have the default value"""
 
 MANDATORY = MandatoryVariable()
@@ -438,7 +436,7 @@ class ElectronsAlgorithm(dict, AbivarAble, MSONable):
         dielam=None, diegap=None, dielng=None, diecut=None, nstep=50)
 
     def __init__(self, *args, **kwargs):
-        super(ElectronsAlgorithm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         for k in self:
             if k not in self._DEFAULT:
@@ -471,7 +469,7 @@ class Electrons(AbivarAble, MSONable):
             comment: String comment for Electrons
             charge: Total charge of the system. Default is 0.
         """
-        super(Electrons, self).__init__()
+        super().__init__()
 
         self.comment = comment
         self.smearing = Smearing.as_smearing(smearing)
@@ -587,10 +585,10 @@ class KSampling(AbivarAble, MSONable):
         .. note::
             The default behavior of the constructor is monkhorst.
         """
-        if isinstance(mode, six.string_types):
+        if isinstance(mode, str):
             mode = KSamplingModes[mode]
 
-        super(KSampling, self).__init__()
+        super().__init__()
 
         self.mode = mode
         self.comment = comment
@@ -1012,7 +1010,7 @@ class PPModel(AbivarAble, MSONable):
         return cls(mode=mode, plasmon_freq=plasmon_freq)
 
     def __init__(self, mode="godby", plasmon_freq=None):
-        if isinstance(mode, six.string_types):
+        if isinstance(mode, str):
             mode = PPModelModes[mode]
         self.mode = mode
         self.plasmon_freq = plasmon_freq

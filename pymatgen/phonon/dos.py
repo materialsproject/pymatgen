@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import numpy as np
 import scipy.constants as const
 
@@ -327,7 +326,7 @@ class CompletePhononDos(PhononDos):
         Dict of partial densities of the form {Site:Densities}
     """
     def __init__(self, structure, total_dos, pdoss):
-        super(CompletePhononDos, self).__init__(
+        super().__init__(
             frequencies=total_dos.frequencies, densities=total_dos.densities)
         self.pdos = {s: np.array(d) for s, d in pdoss.items()}
         self.structure = structure

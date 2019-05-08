@@ -1,5 +1,5 @@
-pymatgen\.io\.qchem package
-===========================
+pymatgen.io.qchem package
+=========================
 
 Subpackages
 -----------

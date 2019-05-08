@@ -2,8 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, print_function, unicode_literals
-from __future__ import absolute_import
 
 """
 This module provides classes for the Piezoelectric tensor
@@ -38,7 +36,7 @@ class PiezoTensor(Tensor):
             input_matrix (3x3x3 array-like): the 3x6 array-like
                 representing the piezo tensor
         """
-        obj = super(PiezoTensor, cls).__new__(cls, input_array, check_rank=3)
+        obj = super().__new__(cls, input_array, check_rank=3)
         if not (obj - np.transpose(obj, (0, 2, 1)) < tol).all():
             warnings.warn("Input piezo tensor does "
                           "not satisfy standard symmetries")

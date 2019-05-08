@@ -2,11 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import numpy as np
-
-import six
 import warnings
+import functools
 from monty.json import MSONable
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.core.periodic_table import get_el_sp
@@ -56,7 +54,7 @@ class DOS(Spectrum):
     YLABEL = "Density"
 
     def __init__(self, energies, densities, efermi):
-        super(DOS, self).__init__(energies, densities, efermi)
+        super().__init__(energies, densities, efermi)
         self.efermi = efermi
 
     def get_interpolated_gap(self, tol=0.001, abs_tol=False, spin=None):
@@ -434,7 +432,7 @@ class FermiDos(Dos):
     """
 
     def __init__(self, dos, structure=None, nelecs=None, bandgap=None):
-        super(FermiDos, self).__init__(
+        super().__init__(
             dos.efermi, energies=dos.energies,
             densities={k: np.array(d) for k, d in dos.densities.items()})
         if structure is None:
@@ -461,6 +459,8 @@ class FermiDos(Dos):
             else:
                 eref = (evbm + ecbm) / 2.0
             idx_fermi = np.argmin(abs(self.energies - eref))
+            if idx_fermi == self.idx_vbm: #need fermi level and vbm to be different indices
+                idx_fermi += 1
             self.energies[:idx_fermi] -= (bandgap - (ecbm - evbm)) / 2.0
             self.energies[idx_fermi:] += (bandgap - (ecbm - evbm)) / 2.0
 
@@ -582,7 +582,7 @@ class CompleteDos(Dos):
     """
 
     def __init__(self, structure, total_dos, pdoss):
-        super(CompleteDos, self).__init__(
+        super().__init__(
             total_dos.efermi, energies=total_dos.energies,
             densities={k: np.array(d) for k, d in total_dos.densities.items()})
         self.pdos = pdoss
@@ -611,7 +611,7 @@ class CompleteDos(Dos):
         Returns:
             Dos containing summed orbital densities for site.
         """
-        site_dos = six.moves.reduce(add_densities, self.pdos[site].values())
+        site_dos = functools.reduce(add_densities, self.pdos[site].values())
         return Dos(self.efermi, self.energies, site_dos)
 
     def get_site_spd_dos(self, site):
@@ -655,9 +655,9 @@ class CompleteDos(Dos):
                     elif orb in (Orbital.dx2, Orbital.dz2):
                         eg_dos.append(pdos)
         return {"t2g": Dos(self.efermi, self.energies,
-                           six.moves.reduce(add_densities, t2g_dos)),
+                           functools.reduce(add_densities, t2g_dos)),
                 "e_g": Dos(self.efermi, self.energies,
-                           six.moves.reduce(add_densities, eg_dos))}
+                           functools.reduce(add_densities, eg_dos))}
 
     def get_spd_dos(self):
         """
@@ -845,9 +845,9 @@ class LobsterCompleteDos(CompleteDos):
                     elif _get_orb_lobster(orb) in (Orbital.dx2, Orbital.dz2):
                         eg_dos.append(pdos)
         return {"t2g": Dos(self.efermi, self.energies,
-                           six.moves.reduce(add_densities, t2g_dos)),
+                           functools.reduce(add_densities, t2g_dos)),
                 "e_g": Dos(self.efermi, self.energies,
-                           six.moves.reduce(add_densities, eg_dos))}
+                           functools.reduce(add_densities, eg_dos))}
 
     def get_spd_dos(self):
         """

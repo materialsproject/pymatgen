@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import re
 import math
@@ -15,8 +14,6 @@ import warnings
 import numpy as np
 from monty.fractions import lcm
 import fractions
-
-from six.moves import reduce
 
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.core.sites import PeriodicSite
@@ -73,7 +70,7 @@ makestr_cmd = which('makestr.x') or which('makeStr.x') or which('makeStr.py')
           "and 'makestr.x' or 'makeStr.py' to be in the path. Please download the "
           "library at http://enum.sourceforge.net/ and follow the instructions in "
           "the README to compile these two executables accordingly.")
-class EnumlibAdaptor(object):
+class EnumlibAdaptor:
     """
     An adaptor for enumlib.
 
@@ -188,7 +185,7 @@ class EnumlibAdaptor(object):
                 ordered_sites.append(sites)
             else:
                 sp_label = []
-                species = {k: v for k, v in sites[0].species_and_occu.items()}
+                species = {k: v for k, v in sites[0].species.items()}
                 if sum(species.values()) < 1 - EnumlibAdaptor.amount_tol:
                     # Let us first make add a dummy element for every single
                     # site whose total occupancies don't sum to 1.
@@ -263,19 +260,25 @@ class EnumlibAdaptor(object):
         output.append("partial")
 
         ndisordered = sum([len(s) for s in disordered_sites])
-
-        base = int(ndisordered*reduce(lcm,
-                                      [f.limit_denominator(
-                                          ndisordered *
+        base = int(ndisordered*lcm(*[f.limit_denominator(ndisordered *
                                           self.max_cell_size).denominator
                                        for f in map(fractions.Fraction,
                                                     index_amounts)]))
+
+        # This multiplicative factor of 10 is to prevent having too small bases
+        # which can lead to rounding issues in the next step.
+        # An old bug was that a base was set to 8, with a conc of 0.4:0.6. That
+        # resulted in a range that overlaps and a conc of 0.5 satisfying this
+        # enumeration. See Cu7Te5.cif test file.
+        base *= 10
+
         # base = ndisordered #10 ** int(math.ceil(math.log10(ndisordered)))
         # To get a reasonable number of structures, we fix concentrations to the
         # range expected in the original structure.
         total_amounts = sum(index_amounts)
         for amt in index_amounts:
             conc = amt / total_amounts
+
             if abs(conc * base - round(conc * base)) < 1e-5:
                 output.append("{} {} {}".format(int(round(conc * base)),
                                                 int(round(conc * base)),
@@ -362,7 +365,7 @@ class EnumlibAdaptor(object):
                         site_properties[k] = [v]
             ordered_structure = Structure(
                 original_latt,
-                [site.species_and_occu for site in self.ordered_sites],
+                [site.species for site in self.ordered_sites],
                 [site.frac_coords for site in self.ordered_sites],
                 site_properties=site_properties
             )
@@ -388,18 +391,20 @@ class EnumlibAdaptor(object):
                                       for row in transformation]
                     logger.debug("Supercell matrix: {}".format(transformation))
                     s = ordered_structure * transformation
-                    sites.extend([site.to_unit_cell for site in s])
+                    sites.extend([site.to_unit_cell() for site in s])
                     super_latt = sites[-1].lattice
                 else:
                     super_latt = new_latt
 
                 for site in sub_structure:
                     if site.specie.symbol != "X":  # We exclude vacancies.
-                        sites.append(PeriodicSite(site.species_and_occu,
-                                                  site.frac_coords,
-                                                  super_latt,
-                                                  properties=disordered_site_properties)
-                                     .to_unit_cell)
+                        sites.append(
+                            PeriodicSite(site.species,
+                                         site.frac_coords,
+                                         super_latt,
+                                         to_unit_cell=True,
+                                         properties=disordered_site_properties)
+                        )
                     else:
                         warnings.warn("Skipping sites that include species X.")
                 structs.append(Structure.from_sites(sorted(sites)))

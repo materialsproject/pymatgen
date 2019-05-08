@@ -1,9 +1,11 @@
 Change log
 ==========
 
-v2018.9.12
-----------
-* Use boltztrap2 (@fraricci)
-* Refactoring of tensor code to core (@montoyjh)
-* Support for new Lobster version (@JaGeo)
-* Misc bug fixes
+v2019.5.1
+---------
+* Small speeds to Structure.get_all_neighbors.
+* Big fixes for gulp_caller. (@kmu)
+* Plot fatbands from Lobster. (@jageo)
+* Speed up get_ir_mesh (@utf)
+* Parsing of plasma frequencies from Outcar.
+* Miscellaneous bug fixes.

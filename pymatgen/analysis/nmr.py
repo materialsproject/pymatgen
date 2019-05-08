@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 from pymatgen.core.tensors import SquareTensor
 from collections import namedtuple
 
@@ -58,9 +57,9 @@ class ChemicalShielding(SquareTensor):
         t_array = np.array(cs_matrix)
 
         if t_array.shape == (3, ):
-            return super(ChemicalShielding, cls).__new__(cls, np.diag(cs_matrix), vscale)
+            return super().__new__(cls, np.diag(cs_matrix), vscale)
         elif t_array.shape == (3, 3):
-            return super(ChemicalShielding, cls).__new__(cls, cs_matrix, vscale)
+            return super().__new__(cls, cs_matrix, vscale)
 
     @property
     def principal_axis_system(self):
@@ -142,9 +141,9 @@ class ElectricFieldGradient(SquareTensor):
         t_array=np.array(efg_matrix)
 
         if t_array.shape == (3, ):
-            return super(ElectricFieldGradient, cls).__new__(cls, np.diag(efg_matrix), vscale)
+            return super().__new__(cls, np.diag(efg_matrix), vscale)
         elif t_array.shape == (3, 3):
-            return super(ElectricFieldGradient, cls).__new__(cls, efg_matrix, vscale)
+            return super().__new__(cls, efg_matrix, vscale)
 
     @property
     def principal_axis_system(self):
