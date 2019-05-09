@@ -1,6 +1,14 @@
 Change log
 ==========
 
+v2019.5.8
+---------
+* Numerous updates and improvements to defect classes (@dbroberg)
+* New API for MEGNET models, see http://megnet.crystals.ai (@shyuep)
+* Update to NMR symmeterization (@dongsenfo)
+* Change CIF indexing (@kmu)
+* Add BoltzTraP mode to NonSCF input sets (@utf)
+
 v2019.5.1
 ---------
 * Small speeds to Structure.get_all_neighbors.
