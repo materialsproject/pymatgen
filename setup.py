@@ -109,7 +109,7 @@ setup(
                   "pymatgen.io.vasp": ["*.yaml"],
                   "pymatgen.io.lammps": ["templates/*.*"],
                   "pymatgen.io.feff": ["*.yaml"],
-                  "pymatgen.symmetry": ["*.yaml", "*.json"],
+                  "pymatgen.symmetry": ["*.yaml", "*.json", "*.sqlite"],
                   "pymatgen.entries": ["*.yaml"],
                   "pymatgen.vis": ["ElementColorSchemes.yaml"],
                   "pymatgen.command_line": ["OxideTersoffPotentials"],
