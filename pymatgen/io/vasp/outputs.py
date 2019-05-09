@@ -25,7 +25,6 @@ from monty.re import regrep
 from monty.os.path import zpath
 from monty.dev import deprecated
 
-
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element
@@ -1642,7 +1641,8 @@ class Outcar:
 
         # Check if the calculation type is DFPT
         self.dfpt = False
-        self.read_pattern({'ibrion': "IBRION =\s+([\-\d]+)"}, terminate_on_match=True,
+        self.read_pattern({'ibrion': r"IBRION =\s+([\-\d]+)"},
+                          terminate_on_match=True,
                           postprocess=int)
         if self.data.get("ibrion", [[0]])[0][0] > 6:
             self.dfpt = True
@@ -1840,7 +1840,6 @@ class Outcar:
         data = {"REAL": [], "IMAGINARY": []}
         count = 0
         component = "IMAGINARY"
-
         with zopen(self.filename, "rt") as f:
             for l in f:
                 l = l.strip()
@@ -3198,7 +3197,7 @@ class Locpot(VolumetricData):
     """
 
     def __init__(self, poscar, data):
-        super(Locpot, self).__init__(poscar.structure, data)
+        super().__init__(poscar.structure, data)
         self.name = poscar.comment
 
     @staticmethod
@@ -3217,7 +3216,7 @@ class Chgcar(VolumetricData):
     """
 
     def __init__(self, poscar, data, data_aug=None):
-        super(Chgcar, self).__init__(poscar.structure, data, data_aug=data_aug)
+        super().__init__(poscar.structure, data, data_aug=data_aug)
         self.poscar = poscar
         self.name = poscar.comment
         self._distance_matrix = {}
@@ -4492,7 +4491,6 @@ class Wavederf:
         return self.data[:, band_i - 1, band_j - 1, :]
 
 
-
 class Waveder:
     """
     Class for reading a WAVEDER file.
@@ -4550,7 +4548,6 @@ class Waveder:
         """
         return self._nelect
 
-
     def get_orbital_derivative_between_states(self, band_i, band_j, kpoint, spin, cart_dir):
         """
         Method returning a value
@@ -4573,8 +4570,6 @@ class Waveder:
             raise ValueError("cart_dir index out of bounds")
 
         return self._cder_data[band_i, band_j, kpoint, spin, cart_dir]
-
-
 
 
 class UnconvergedVASPWarning(Warning):
