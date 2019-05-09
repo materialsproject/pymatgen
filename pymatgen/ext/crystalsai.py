@@ -35,6 +35,7 @@ class CrystalAIRester:
 
     def __init__(self):
         self.session = requests.Session()
+        self.url = "http://megnet.crystals.ai"
 
     def __enter__(self):
         """
@@ -48,9 +49,29 @@ class CrystalAIRester:
         """
         self.session.close()
 
+    def get_available_models(self):
+        """
+        Returns:
+            Available model names. It should be noted that model names starting
+            with log10 are for the log10 of that quantity.
+        """
+        response = self.session.get(self.url + "/models")
+        return response.json()
+
     def predict_mp(self, model_name, mp_id):
+        """
+        Predict using the http://megnet.crystals.ai API.
+
+        :param model_name: An available model in the
+            http://megnet.crystals.ai API. Use get_available_models to find
+            the model names.
+        :param mp_id: A Materials Project id.
+        :return: Predicted value. It should be noted that model names starting
+            with log10 are for the log10 of that quantity and you should apply
+            10 ** prediction to get the actual value.
+        """
         response = None
-        url = "http://megnet.crystals.ai/predict_mp/%s/%s" % (model_name, mp_id)
+        url = self.url + "/predict_mp/%s/%s" % (model_name, mp_id)
         try:
             response = self.session.get(url)
             if response.status_code in [200, 400]:
@@ -63,8 +84,19 @@ class CrystalAIRester:
             raise ValueError(msg)
 
     def predict_structure(self, model_name, structure):
+        """
+        Predict using the http://megnet.crystals.ai API.
+
+        :param model_name: An available model in the
+            http://megnet.crystals.ai API. Use get_available_models to find
+            the model names.
+        :param structure: A Pymatgen Structure.
+        :return: Predicted value. It should be noted that model names starting
+            with log10 are for the log10 of that quantity and you should apply
+            10 ** prediction to get the actual value.
+        """
         response = None
-        url = "http://megnet.crystals.ai/predict_structure/%s" % model_name
+        url = self.url + "/predict_structure/%s" % model_name
         try:
             data = {
                 "structure": structure.to(fmt="POSCAR"),
