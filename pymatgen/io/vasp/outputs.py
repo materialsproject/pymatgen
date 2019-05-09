@@ -25,6 +25,7 @@ from monty.re import regrep
 from monty.os.path import zpath
 from monty.dev import deprecated
 
+
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element
@@ -649,24 +650,37 @@ class Vasprun(MSONable):
 
         TODO: Fix for other functional types like PW91, other vdW types, etc.
         """
+        GGA_TYPES = {"RE": "revPBE", "PE": "PBE", "PS": "PBESol", "RP": "RevPBE+PADE", "AM": "AM05", "OR": "optPBE",
+                     "BO": "optB88", "MK": "optB86b", "--": "None"}
 
-        METAGGA_TYPES = {"TPSS", "RTPSS", "M06L", "MBJL", "SCAN", "MS0", "MS1", "MS2"}
+        METAGGA_TYPES = {"TPSS": "TPSS", "RTPSS": "revTPSS", "M06L": "M06-L", "MBJ": "modified Becke-Johnson",
+                         "SCAN": "SCAN", "MS0": "MadeSimple0", "MS1": "MadeSimple1", "MS2": "MadeSimple2"}
 
-        if self.parameters.get("LHFCALC", False):
+        if self.parameters.get("AEXX", 1.00) == 1.00:
             rt = "HF"
-        elif self.parameters.get("METAGGA", "").strip().upper() in METAGGA_TYPES:
-            rt = self.parameters["METAGGA"].strip().upper()
-        elif self.parameters.get("LUSE_VDW", False):
-            vdw_gga = {"RE": "DF", "OR": "optPBE", "BO": "optB88",
-                       "MK": "optB86b", "ML": "DF2"}
-            gga = self.parameters.get("GGA").upper()
-            rt = "vdW-" + vdw_gga[gga]
+        elif self.parameters.get("HFSCREEN", 0.30) == 0.30:
+            rt = "HSE03"
+        elif self.parameters.get("HFSCREEN", 0.20) == 0.20:
+            rt = "HSE06"
+        elif self.parameters.get("AEXX", 0.20) == 0.20:
+            rt = "B3LYP"
+        elif self.parameters.get("BPARAM", 15.70) == 15.70:
+            if self.incar.get("METAGGA", "").strip().upper() in METAGGA_TYPES:
+                rt = GGA_TYPES[self.parameters.get("GGA", "").strip().upper()]+"+"+\
+                     METAGGA_TYPES[self.incar.get("METAGGA", "").strip().upper()]+"+rVV10"
+            else:
+                rt = GGA_TYPES[self.parameters.get("GGA", "").strip().upper()]+"+rVV10"
+        elif self.incar.get("METAGGA", "").strip().upper() in METAGGA_TYPES:
+            rt = GGA_TYPES[self.parameters.get("GGA", "").strip().upper()]+"+"+\
+                 METAGGA_TYPES[self.incar.get("METAGGA", "").strip().upper()]
+            if self.is_hubbard:
+                rt += "+U"
         elif self.potcar_symbols[0].split()[0] == 'PAW':
             rt = "LDA"
-        else:
-            rt = "GGA"
-        if self.is_hubbard:
-            rt += "+U"
+        elif self.parameters.get("GGA", "").strip().upper() in GGA_TYPES:
+            rt = GGA_TYPES[self.parameters.get("GGA", "").strip().upper()]
+            if self.is_hubbard:
+                rt += "+U"
         return rt
 
     @property
@@ -1628,8 +1642,7 @@ class Outcar:
 
         # Check if the calculation type is DFPT
         self.dfpt = False
-        self.read_pattern({'ibrion': r"IBRION =\s+([\-\d]+)"},
-                          terminate_on_match=True,
+        self.read_pattern({'ibrion': "IBRION =\s+([\-\d]+)"}, terminate_on_match=True,
                           postprocess=int)
         if self.data.get("ibrion", [[0]])[0][0] > 6:
             self.dfpt = True
@@ -1827,6 +1840,7 @@ class Outcar:
         data = {"REAL": [], "IMAGINARY": []}
         count = 0
         component = "IMAGINARY"
+
         with zopen(self.filename, "rt") as f:
             for l in f:
                 l = l.strip()
@@ -3184,7 +3198,7 @@ class Locpot(VolumetricData):
     """
 
     def __init__(self, poscar, data):
-        super().__init__(poscar.structure, data)
+        super(Locpot, self).__init__(poscar.structure, data)
         self.name = poscar.comment
 
     @staticmethod
@@ -3203,7 +3217,7 @@ class Chgcar(VolumetricData):
     """
 
     def __init__(self, poscar, data, data_aug=None):
-        super().__init__(poscar.structure, data, data_aug=data_aug)
+        super(Chgcar, self).__init__(poscar.structure, data, data_aug=data_aug)
         self.poscar = poscar
         self.name = poscar.comment
         self._distance_matrix = {}
@@ -4478,6 +4492,7 @@ class Wavederf:
         return self.data[:, band_i - 1, band_j - 1, :]
 
 
+
 class Waveder:
     """
     Class for reading a WAVEDER file.
@@ -4535,6 +4550,7 @@ class Waveder:
         """
         return self._nelect
 
+
     def get_orbital_derivative_between_states(self, band_i, band_j, kpoint, spin, cart_dir):
         """
         Method returning a value
@@ -4557,6 +4573,8 @@ class Waveder:
             raise ValueError("cart_dir index out of bounds")
 
         return self._cder_data[band_i, band_j, kpoint, spin, cart_dir]
+
+
 
 
 class UnconvergedVASPWarning(Warning):
