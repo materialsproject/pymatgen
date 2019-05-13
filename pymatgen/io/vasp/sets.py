@@ -1042,7 +1042,7 @@ class MPNonSCFSet(MPRelaxSet):
                           "recommended as there is no guarantee the copied "
                           "files will be appropriate for the standardized"
                           " structure. copy_chgcar is enforced to be false.")
-            copy_chgcar = False
+            self.copy_chgcar = False
 
         # Turn off spin when magmom for every site is smaller than 0.02.
         if outcar and outcar.magnetization:
@@ -1175,7 +1175,7 @@ class MPSOCSet(MPStaticSet):
                           "recommended as there is no guarantee the copied "
                           "files will be appropriate for the standardized"
                           " structure. copy_chgcar is enforced to be false.")
-            copy_chgcar = False
+            self.copy_chgcar = False
 
         # override magmom if provided
         if self.magmom:
@@ -1185,7 +1185,7 @@ class MPSOCSet(MPStaticSet):
         # magmom has to be 3D for SOC calculation.
         if hasattr(self._structure[0], "magmom"):
             if not isinstance(self._structure[0].magmom, list):
-                structure = self._structure.copy(
+                self._structure = self._structure.copy(
                     site_properties={"magmom": [[0, 0, site.magmom]
                                                 for site in self._structure]})
         else:
@@ -1231,22 +1231,23 @@ class MPSOCSet(MPStaticSet):
 
 
 class MPNMRSet(MPStaticSet):
+    """
+    Init a MPNMRSet.
+
+    Args:
+        structure (Structure): Structure to compute
+        mode (str): The NMR calculation to run
+                        "cs": for Chemical Shift
+                        "efg" for Electric Field Gradient
+        isotopes (list): list of Isotopes for quadrupole moments
+        prev_incar (Incar): Incar file from previous run.
+        reciprocal_density (int): density of k-mesh by reciprocal
+                                volume (defaults to 100)
+        **kwargs: kwargs supported by MPStaticSet.
+    """
+
     def __init__(self, structure, mode="cs", isotopes=None,
                  prev_incar=None, reciprocal_density=100, **kwargs):
-        """
-        Init a MPNMRSet.
-
-        Args:
-            structure (Structure): Structure to compute
-            mode (str): The NMR calculation to run
-                            "cs": for Chemical Shift
-                            "efg" for Electric Field Gradient
-            isotopes (list): list of Isotopes for quadrupole moments
-            prev_incar (Incar): Incar file from previous run.
-            reciprocal_density (int): density of k-mesh by reciprocal
-                                    volume (defaults to 100)
-            \\*\\*kwargs: kwargs supported by MPStaticSet.
-        """
         self.mode = mode
         self.isotopes = isotopes if isotopes else []
         super().__init__(structure, prev_incar=prev_incar,
@@ -1327,34 +1328,42 @@ class MVLGWSet(DictSet):
     Note that unlike all other input sets in this module, the PBE_54 series of
     functional is set as the default. These have much improved performance for
     GW calculations.
+
+    A typical sequence is mode="STATIC" -> mode="DIAG" -> mode="GW" ->
+    mode="BSE". For all steps other than the first one (static), the
+    recommendation is to use from_prev_calculation on the preceding run in
+    the series.
+
+    Args:
+        structure (Structure): Input structure.
+        prev_incar (Incar/string): Incar file from previous run.
+        mode (str): Supported modes are "STATIC" (default), "DIAG", "GW",
+            and "BSE".
+        nbands (int): For subsequent calculations, it is generally
+            recommended to perform NBANDS convergence starting from the
+            NBANDS of the previous run for DIAG, and to use the exact same
+            NBANDS for GW and BSE. This parameter is used by
+            from_previous_calculation to set nband.
+        potcar_functional (str): Defaults to "PBE_54".
+        copy_wavecar: Whether to copy the old WAVECAR, WAVEDER and associated
+            files when starting from a previous calculation.
+        nbands_factor (int): Multiplicative factor for NBANDS when starting
+            from a previous calculation. Only applies if mode=="DIAG".
+            Need to be tested for convergence.
+        ncores (int): Numbers of cores used for the calculation. VASP will alter
+            NBANDS if it was not dividable by ncores. Only applies if
+            mode=="DIAG".
+        **kwargs: All kwargs supported by DictSet. Typically,
+            user_incar_settings is a commonly used option.
     """
     CONFIG = _load_yaml_config("MVLGWSet")
 
     SUPPORTED_MODES = ("DIAG", "GW", "STATIC", "BSE")
 
     def __init__(self, structure, prev_incar=None, nbands=None,
-                 potcar_functional="PBE_54",
-                 reciprocal_density=100, mode="STATIC", **kwargs):
-        """
-        A typical sequence is mode="STATIC" -> mode="DIAG" -> mode="GW" ->
-        mode="BSE". For all steps other than the first one (static), the
-        recommendation is to use from_prev_calculation on the preceding run in
-        the series.
-
-        Args:
-            structure (Structure): Input structure.
-            prev_incar (Incar/string): Incar file from previous run.
-            mode (str): Supported modes are "STATIC" (default), "DIAG", "GW",
-                and "BSE".
-            nbands (int): For subsequent calculations, it is generally
-                recommended to perform NBANDS convergence starting from the
-                NBANDS of the previous run for DIAG, and to use the exact same
-                NBANDS for GW and BSE. This parameter is used by
-                from_previous_calculation to set nband.
-            potcar_functional (str): Defaults to "PBE_54".
-            \\*\\*kwargs: All kwargs supported by DictSet. Typically,
-                user_incar_settings is a commonly used option.
-        """
+                 potcar_functional="PBE_54", reciprocal_density=100,
+                 mode="STATIC", copy_wavecar=True, nbands_factor=5, ncores=16,
+                 **kwargs):
         super().__init__(structure, MVLGWSet.CONFIG, **kwargs)
         self.prev_incar = prev_incar
         self.nbands = nbands
@@ -1365,6 +1374,9 @@ class MVLGWSet(DictSet):
             raise ValueError("%s not one of the support modes : %s" %
                              (self.mode, MVLGWSet.SUPPORTED_MODES))
         self.kwargs = kwargs
+        self.copy_wavecar = copy_wavecar
+        self.nbands_factor = nbands_factor
+        self.ncores = ncores
 
     @property
     def kpoints(self):
@@ -1418,32 +1430,20 @@ class MVLGWSet(DictSet):
 
         return incar
 
-    @classmethod
-    def from_prev_calc(cls, prev_calc_dir, copy_wavecar=True, mode="DIAG",
-                       nbands_factor=5, ncores=16, **kwargs):
+    def override_from_prev_calc(self, prev_calc_dir='.'):
         """
-        Generate a set of Vasp input files for GW or BSE calculations from a
-        directory of previous Exact Diag Vasp run.
+        Update the input set to include settings from a previous calculation.
 
         Args:
-            prev_calc_dir (str): The directory contains the outputs(
-                vasprun.xml of previous vasp run.
-            copy_wavecar: Whether to copy the old WAVECAR, WAVEDER and
-                associated files. Defaults to True.
-            mode (str): Supported modes are "STATIC", "DIAG" (default), "GW",
-                and "BSE".
-            nbands_factor (int): Multiplicative factor for NBANDS. Only applies
-                if mode=="DIAG". Need to be tested for convergence.
-            ncores (int): numbers of cores you do calculations. VASP will alter
-                NBANDS if it was not dividable by ncores. Only applies
-                if mode=="DIAG".
-            \\*\\*kwargs: All kwargs supported by MVLGWSet,
-                other than structure, prev_incar and mode, which
-                are determined from the prev_calc_dir.
+            prev_calc_dir (str): The path to the previous calculation directory.
+
+        Returns:
+            The input set with the settings (structure, k-points, incar, etc)
+            updated using the previous VASP run.
         """
         vasprun, outcar = get_vasprun_outcar(prev_calc_dir)
-        prev_incar = vasprun.incar
-        structure = vasprun.final_structure
+        self.prev_incar = vasprun.incar
+        self._structure = vasprun.final_structure
 
         if self.standardize:
             warnings.warn("Use of standardize=True with from_prev_run is not "
@@ -1451,13 +1451,14 @@ class MVLGWSet(DictSet):
                           "files will be appropriate for the standardized "
                           "structure.")
 
-        nbands = int(vasprun.parameters["NBANDS"])
-        if mode.upper() == "DIAG":
-            nbands = int(np.ceil(nbands * nbands_factor / ncores) * ncores)
+        self.nbands = int(vasprun.parameters["NBANDS"])
+        if self.mode.upper() == "DIAG":
+            self.nbands = int(np.ceil(self.nbands * self.nbands_factor /
+                                      self.ncores) * self.ncores)
 
         # copy WAVECAR, WAVEDER (derivatives)
         files_to_transfer = {}
-        if copy_wavecar:
+        if self.copy_wavecar:
             for fname in ("WAVECAR", "WAVEDER", "WFULL"):
                 w = sorted(glob.glob(str(Path(prev_calc_dir) / (fname + "*"))))
                 if w:
@@ -1469,9 +1470,27 @@ class MVLGWSet(DictSet):
                     else:
                         files_to_transfer[fname] = str(w[-1])
 
-        return cls(structure=structure, prev_incar=prev_incar,
-                   nbands=nbands, mode=mode,
-                   files_to_transfer=files_to_transfer, **kwargs)
+        self.files_to_transfer.update(files_to_transfer)
+
+        return self
+
+    @classmethod
+    def from_prev_calc(cls, prev_calc_dir, mode="DIAG", **kwargs):
+        """
+        Generate a set of Vasp input files for GW or BSE calculations from a
+        directory of previous Exact Diag Vasp run.
+
+        Args:
+            prev_calc_dir (str): The directory contains the outputs(
+                vasprun.xml of previous vasp run.
+            mode (str): Supported modes are "STATIC", "DIAG" (default), "GW",
+                and "BSE".
+            **kwargs: All kwargs supported by MVLGWSet, other than structure,
+                prev_incar and mode, which are determined from the
+                prev_calc_dir.
+        """
+        input_set = cls(mode=mode, **kwargs)
+        return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
 
 
 class MVLSlabSet(MPRelaxSet):
@@ -1484,8 +1503,7 @@ class MVLSlabSet(MPRelaxSet):
         k_product: default to 50, kpoint number * length for a & b directions,
             also for c direction in bulk calculations
         bulk (bool): Set to True for bulk calculation. Defaults to False.
-        **kwargs:
-            Other kwargs supported by :class:`DictSet`.
+        **kwargs: Other kwargs supported by :class:`DictSet`.
     """
 
     def __init__(self, structure, k_product=50, bulk=False,
@@ -1501,6 +1519,7 @@ class MVLSlabSet(MPRelaxSet):
         self.auto_dipole = auto_dipole
         self.kwargs = kwargs
         self.set_mix = set_mix
+        self.kpt_calc = None
 
         slab_incar = {"EDIFF": 1e-4, "EDIFFG": -0.02, "ENCUT": 400,
                       "ISMEAR": 0, "SIGMA": 0.05, "ISIF": 3}
@@ -1541,13 +1560,14 @@ class MVLSlabSet(MPRelaxSet):
         kpt.style = 'Gamma'
 
         # use k_product to calculate kpoints, k_product = kpts[0][0] * a
-        abc = self.structure.lattice.abc
-        kpt_calc = [int(self.k_product / abc[0] + 0.5),
-                    int(self.k_product / abc[1] + 0.5), 1]
+        lattice_abc = self.structure.lattice.abc
+        kpt_calc = [int(self.k_product / lattice_abc[0] + 0.5),
+                    int(self.k_product / lattice_abc[1] + 0.5), 1]
+
         self.kpt_calc = kpt_calc
         # calculate kpts (c direction) for bulk. (for slab, set to 1)
         if self.bulk:
-            kpt_calc[2] = int(self.k_product / abc[2] + 0.5)
+            kpt_calc[2] = int(self.k_product / lattice_abc[2] + 0.5)
 
         kpt.kpts[0] = kpt_calc
 
@@ -1652,24 +1672,24 @@ class MVLRelax52Set(DictSet):
     Implementation of VaspInputSet utilizing the public Materials Project
     parameters for INCAR & KPOINTS and VASP's recommended PAW potentials for
     POTCAR.
+
+    Keynotes from VASP manual:
+        1. Recommended potentials for calculations using vasp.5.2+
+        2. If dimers with short bonds are present in the compound (O2, CO,
+            N2, F2, P2, S2, Cl2), it is recommended to use the h potentials.
+            Specifically, C_h, O_h, N_h, F_h, P_h, S_h, Cl_h
+        3. Released on Oct 28, 2018 by VASP. Please refer to VASP
+            Manual 1.2, 1.3 & 10.2.1 for more details.
+
+    Args:
+        structure (Structure): input structure.
+        potcar_functional (str): choose from "PBE_52" and "PBE_54".
+        **kwargs: Other kwargs supported by :class:`DictSet`.
     """
     CONFIG = _load_yaml_config("MVLRelax52Set")
 
     def __init__(self, structure, potcar_functional="PBE_52", **kwargs):
-        """
-        Keynotes from VASP manual:
-            1. Recommended potentials for calculations using vasp.5.2+
-            2. If dimers with short bonds are present in the compound (O2, CO,
-                N2, F2, P2, S2, Cl2), it is recommended to use the h potentials.
-                Specifically, C_h, O_h, N_h, F_h, P_h, S_h, Cl_h
-            3. Released on Oct 28, 2018 by VASP. Please refer to VASP
-                Manual 1.2, 1.3 & 10.2.1 for more details.
 
-        Args:
-            structure (Structure): input structure.
-            potcar_functional (str): choose from "PBE_52" and "PBE_54".
-            \\*\\*kwargs: Other kwargs supported by :class:`DictSet`.
-        """
         if potcar_functional not in ["PBE_52", "PBE_54"]:
             raise ValueError("Please select from PBE_52 and PBE_54!")
 
@@ -1685,7 +1705,7 @@ class MITNEBSet(MITRelaxSet):
 
     Args:
         unset_encut (bool): Whether to unset ENCUT.
-        \\*\\*kwargs: Other kwargs supported by :class:`DictSet`.
+        **kwargs: Other kwargs supported by :class:`DictSet`.
     """
 
     def __init__(self, structures, unset_encut=False, **kwargs):
@@ -1776,10 +1796,10 @@ class MITNEBSet(MITRelaxSet):
                     str(output_dir / image / 'POTCAR'))
         if write_path_cif:
             sites = set()
-            l = self.structures[0].lattice
+            lat = self.structures[0].lattice
             for site in chain(*(s.sites for s in self.structures)):
                 sites.add(
-                    PeriodicSite(site.species, site.frac_coords, l))
+                    PeriodicSite(site.species, site.frac_coords, lat))
             nebpath = Structure.from_sites(sorted(sites))
             nebpath.to(filename=str(output_dir / 'path.cif'))
 
@@ -1788,22 +1808,21 @@ class MITMDSet(MITRelaxSet):
     """
     Clas for writing a vasp md run. This DOES NOT do multiple stage
     runs.
+
+    Args:
+        structure (Structure): Input structure.
+        start_temp (int): Starting temperature.
+        end_temp (int): Final temperature.
+        nsteps (int): Number of time steps for simulations. NSW parameter.
+        time_step (int): The time step for the simulation. The POTIM
+            parameter. Defaults to 2fs.
+        spin_polarized (bool): Whether to do spin polarized calculations.
+            The ISPIN parameter. Defaults to False.
+        **kwargs: Other kwargs supported by :class:`DictSet`.
     """
 
     def __init__(self, structure, start_temp, end_temp, nsteps, time_step=2,
                  spin_polarized=False, **kwargs):
-        """
-        Args:
-            structure (Structure): Input structure.
-            start_temp (int): Starting temperature.
-            end_temp (int): Final temperature.
-            nsteps (int): Number of time steps for simulations. NSW parameter.
-            time_step (int): The time step for the simulation. The POTIM
-                parameter. Defaults to 2fs.
-            spin_polarized (bool): Whether to do spin polarized calculations.
-                The ISPIN parameter. Defaults to False.
-            \\*\\*kwargs: Other kwargs supported by :class:`DictSet`.
-        """
 
         # MD default settings
         defaults = {'TEBEG': start_temp, 'TEEND': end_temp, 'NSW': nsteps,
@@ -1841,28 +1860,30 @@ class MITMDSet(MITRelaxSet):
 class MPMDSet(MPRelaxSet):
     """
     This a modified version of the old MITMDSet pre 2018/03/12.
+
     This set serves as the basis for the amorphous skyline paper.
-    (1) Aykol, M.; Dwaraknath, S. S.; Sun, W.; Persson, K. A.
-    Thermodynamic Limit for Synthesis of Metastable Inorganic Materials. Sci. Adv. 2018, 4 (4).
-     Class for writing a vasp md run. This DOES NOT do multiple stage
-    runs.
-     Precision remains normal, to increase accuracy of stress tensor.
+
+    (1) Aykol, M.; Dwaraknath, S. S.; Sun, W.; Persson, K. A. Thermodynamic
+        Limit for Synthesis of Metastable Inorganic Materials. Sci. Adv. 2018,
+        4 (4).
+
+    Class for writing a vasp md run. This DOES NOT do multiple stage runs.
+    Precision remains normal, to increase accuracy of stress tensor.
+
+    Args:
+        structure (Structure): Input structure.
+        start_temp (int): Starting temperature.
+        end_temp (int): Final temperature.
+        nsteps (int): Number of time steps for simulations. NSW parameter.
+        time_step (int): The time step for the simulation. The POTIM
+            parameter. Defaults to 2fs.
+        spin_polarized (bool): Whether to do spin polarized calculations.
+            The ISPIN parameter. Defaults to False.
+        **kwargs: Other kwargs supported by :class:`DictSet`.
     """
 
     def __init__(self, structure, start_temp, end_temp, nsteps,
                  spin_polarized=False, **kwargs):
-        """
-        Args:
-            structure (Structure): Input structure.
-            start_temp (int): Starting temperature.
-            end_temp (int): Final temperature.
-            nsteps (int): Number of time steps for simulations. NSW parameter.
-            time_step (int): The time step for the simulation. The POTIM
-                parameter. Defaults to 2fs.
-            spin_polarized (bool): Whether to do spin polarized calculations.
-                The ISPIN parameter. Defaults to False.
-            \\*\\*kwargs: Other kwargs supported by :class:`DictSet`.
-        """
 
         # MD default settings
         defaults = {'TEBEG': start_temp, 'TEEND': end_temp, 'NSW': nsteps,
@@ -1903,25 +1924,25 @@ class MPMDSet(MPRelaxSet):
 class MVLNPTMDSet(MITMDSet):
     """
     Class for writing a vasp md run in NPT ensemble.
+
+    Notes:
+        To eliminate Pulay stress, the default ENCUT is set to a rather large
+        value of ENCUT, which is 1.5 * ENMAX.
+
+    Args:
+        structure (Structure): input structure.
+        start_temp (int): Starting temperature.
+        end_temp (int): Final temperature.
+        nsteps(int): Number of time steps for simulations. NSW parameter.
+        time_step (int): The time step for the simulation. The POTIM
+            parameter. Defaults to 2fs.
+        spin_polarized (bool): Whether to do spin polarized calculations.
+            The ISPIN parameter. Defaults to False.
+        **kwargs: Other kwargs supported by :class:`DictSet`.
     """
 
     def __init__(self, structure, start_temp, end_temp, nsteps, time_step=2,
                  spin_polarized=False, **kwargs):
-        """
-        Notes:
-            To eliminate Pulay stress, the default ENCUT is set to a rather
-            large value of ENCUT, which is 1.5 * ENMAX.
-        Args:
-            structure (Structure): input structure.
-            start_temp (int): Starting temperature.
-            end_temp (int): Final temperature.
-            nsteps(int): Number of time steps for simulations. NSW parameter.
-            time_step (int): The time step for the simulation. The POTIM
-                parameter. Defaults to 2fs.
-            spin_polarized (bool): Whether to do spin polarized calculations.
-                The ISPIN parameter. Defaults to False.
-            \\*\\*kwargs: Other kwargs supported by :class:`DictSet`.
-        """
         user_incar_settings = kwargs.get("user_incar_settings", {})
 
         # NPT-AIMD default settings
@@ -1951,31 +1972,30 @@ class MVLScanRelaxSet(MPRelaxSet):
     """
     Class for writing a relax input set using Strongly Constrained and
     Appropriately Normed (SCAN) semilocal density functional.
+
+    Notes:
+        1. This functional is only available from VASP.5.4.3 upwards.
+
+        2. Meta-GGA calculations require POTCAR files that include
+        information on the kinetic energy density of the core-electrons,
+        i.e. "PBE_52" or "PBE_54". Make sure the POTCAR including the
+        following lines (see VASP wiki for more details):
+
+            $ grep kinetic POTCAR
+            kinetic energy-density
+            mkinetic energy-density pseudized
+            kinetic energy density (partial)
+
+    Args:
+        structure (Structure): input structure.
+        potcar_functional (str): choose from "PBE_52" and "PBE_54".
+        vdw (str): set "rVV10" to enable SCAN+rVV10, which is a versatile
+            van der Waals density functional by combing the SCAN functional
+            with the rVV10 non-local correlation functional.
+        **kwargs: Other kwargs supported by :class:`DictSet`.
     """
 
     def __init__(self, structure, potcar_functional="PBE_52", **kwargs):
-        """
-        Notes:
-            1. This functional is only available from VASP.5.4.3 upwards.
-
-            2. Meta-GGA calculations require POTCAR files that include
-            information on the kinetic energy density of the core-electrons,
-            i.e. "PBE_52" or "PBE_54". Make sure the POTCAR including the
-            following lines (see VASP wiki for more details):
-
-                $ grep kinetic POTCAR
-                kinetic energy-density
-                mkinetic energy-density pseudized
-                kinetic energy density (partial)
-
-        Args:
-            structure (Structure): input structure.
-            potcar_functional (str): choose from "PBE_52" and "PBE_54".
-            vdw (str): set "rVV10" to enable SCAN+rVV10, which is a versatile
-                van der Waals density functional by combing the SCAN functional
-                with the rVV10 non-local correlation functional.
-            \\*\\*kwargs: Other kwargs supported by :class:`DictSet`.
-        """
         if potcar_functional not in ["PBE_52", "PBE_54"]:
             raise ValueError("SCAN calculations required PBE_52 or PBE_54!")
 
@@ -2038,18 +2058,18 @@ def get_structure_from_prev_run(vasprun, outcar=None):
         for k in ("LDAUU", "LDAUJ", "LDAUL"):
             vals = vasprun.incar[k]
             m = {}
-            l = []
+            l_val = []
             s = 0
             for site in structure:
                 if site.specie.symbol not in m:
                     m[site.specie.symbol] = vals[s]
                     s += 1
-                l.append(m[site.specie.symbol])
-            if len(l) == len(structure):
-                site_properties.update({k.lower(): l})
+                l_val.append(m[site.specie.symbol])
+            if len(l_val) == len(structure):
+                site_properties.update({k.lower(): l_val})
             else:
                 raise ValueError("length of list {} not the same as"
-                                 "structure".format(l))
+                                 "structure".format(l_val))
 
     return structure.copy(site_properties=site_properties)
 
@@ -2118,7 +2138,7 @@ def batch_write_input(structures, vasp_input_set=MPRelaxSet, output_dir=".",
             Defaults to False.
         include_cif (bool): Whether to output a CIF as well. CIF files are
             generally better supported in visualization programs.
-        \\*\\*kwargs: Additional kwargs are passed to the vasp_input_set class
+        **kwargs: Additional kwargs are passed to the vasp_input_set class
             in addition to structure.
     """
     output_dir = Path(output_dir)
