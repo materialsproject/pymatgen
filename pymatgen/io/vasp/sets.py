@@ -580,11 +580,10 @@ class MPStaticSet(MPRelaxSet):
         prev_incar (Incar): Incar file from previous run.
         prev_kpoints (Kpoints): Kpoints from previous run.
         lepsilon (bool): Whether to add static dielectric calculation
-        reciprocal_density (int): For static calculations,
-            we usually set the reciprocal density by volume. This is a
-            convenience arg to change that, rather than using
-            user_kpoints_settings. Defaults to 100, which is ~50% more than
-            that of standard relaxation calculations.
+        reciprocal_density (int): For static calculations, we usually set the
+            reciprocal density by volume. This is a convenience arg to change
+            that, rather than using user_kpoints_settings. Defaults to 100,
+            which is ~50% more than that of standard relaxation calculations.
         small_gap_multiply ([float, float]): If the gap is less than
             1st index, multiply the default reciprocal_density by the 2nd
             index.
@@ -681,6 +680,16 @@ class MPStaticSet(MPRelaxSet):
         return kpoints
 
     def override_from_prev_calc(self, prev_calc_dir='.'):
+        """
+        Update the input set to include settings from a previous calculation.
+
+        Args:
+            prev_calc_dir (str): The path to the previous calculation directory.
+
+        Returns:
+            The input set with the settings (structure, k-points, incar, etc)
+            updated using the previous VASP run.
+        """
         vasprun, outcar = get_vasprun_outcar(prev_calc_dir)
 
         self.prev_incar = vasprun.incar
@@ -692,10 +701,9 @@ class MPStaticSet(MPRelaxSet):
                           "files will be appropriate for the standardized "
                           "structure.")
 
-        # We will make a standard structure for the given symprec.
         self._structure = get_structure_from_prev_run(vasprun, outcar)
 
-        # multiply the reciprocal density if needed:
+        # multiply the reciprocal density if needed
         if self.small_gap_multiply:
             gap = vasprun.eigenvalue_band_properties[0]
             if gap <= self.small_gap_multiply[0]:
@@ -722,36 +730,39 @@ class MPStaticSet(MPRelaxSet):
 
 
 class MPHSEBSSet(MPHSERelaxSet):
+    """
+    Implementation of a VaspInputSet for HSE band structure computations.
+    Remember that HSE band structures must be self-consistent in VASP. A
+    band structure along symmetry lines for instance needs BOTH a uniform
+    grid with appropriate weights AND a path along the lines with weight 0.
+
+    Thus, the "Uniform" mode is just like regular static SCF but allows
+    adding custom kpoints (e.g., corresponding to known VBM/CBM) to the
+    uniform grid that have zero weight (e.g., for better gap estimate).
+
+    The "Line" mode is just like Uniform mode, but additionally adds
+    k-points along symmetry lines with zero weight.
+
+    Args:
+        structure (Structure): Structure to compute
+        user_incar_settings (dict): A dict specifying additional incar
+            settings
+        added_kpoints (list): a list of kpoints (list of 3 number list)
+            added to the run. The k-points are in fractional coordinates
+        mode (str): "Line" - generate k-points along symmetry lines for
+            bandstructure. "Uniform" - generate uniform k-points grid
+        add_vbm_cbm (bool): Adds the VBM and CBM to added_kpoints, if
+            starting from a previous calculation.
+        reciprocal_density (int): k-point density to use for uniform mesh.
+        copy_chgcar (bool): Whether to copy the CHGCAR of a previous run.
+        kpoints_line_density (int): k-point density for high symmetry lines
+        **kwargs (dict): Any other parameters to pass into DictSet.
+
+    """
 
     def __init__(self, structure, user_incar_settings=None, added_kpoints=None,
-                 mode="Uniform", reciprocal_density=None,
-                 kpoints_line_density=20, **kwargs):
-        """
-        Implementation of a VaspInputSet for HSE band structure computations.
-        Remember that HSE band structures must be self-consistent in VASP. A
-        band structure along symmetry lines for instance needs BOTH a uniform
-        grid with appropriate weights AND a path along the lines with weight 0.
-
-        Thus, the "Uniform" mode is just like regular static SCF but allows
-        adding custom kpoints (e.g., corresponding to known VBM/CBM) to the
-        uniform grid that have zero weight (e.g., for better gap estimate).
-
-        The "Line" mode is just like Uniform mode, but additionally adds
-        k-points along symmetry lines with zero weight.
-
-        Args:
-            structure (Structure): Structure to compute
-            user_incar_settings (dict): A dict specifying additional incar
-                settings
-            added_kpoints (list): a list of kpoints (list of 3 number list)
-                added to the run. The k-points are in fractional coordinates
-            mode (str): "Line" - generate k-points along symmetry lines for
-                bandstructure. "Uniform" - generate uniform k-points grid
-            reciprocal_density (int): k-point density to use for uniform mesh
-            kpoints_line_density (int): k-point density for high symmetry lines
-            **kwargs (dict): Any other parameters to pass into DictVaspInputSet
-
-        """
+                 mode="Uniform", reciprocal_density=None, copy_chgcar=True,
+                 add_vbm_cbm=True, kpoints_line_density=20, **kwargs):
         super().__init__(structure, **kwargs)
         self.user_incar_settings = user_incar_settings or {}
         self._config_dict["INCAR"].update({
@@ -764,9 +775,17 @@ class MPHSEBSSet(MPHSERelaxSet):
         })
         self.added_kpoints = added_kpoints if added_kpoints is not None else []
         self.mode = mode
-        self.reciprocal_density = reciprocal_density or \
-            self.kpoints_settings['reciprocal_density']
+
+        if (not reciprocal_density or
+                "reciprocal_density" not in self.user_kpoints_settings):
+            self.reciprocal_density = 50
+        else:
+            self.reciprocal_density = reciprocal_density or \
+                self.user_kpoints_settings['reciprocal_density']
+
         self.kpoints_line_density = kpoints_line_density
+        self.add_vbm_cbm = add_vbm_cbm
+        self.copy_chgcar = copy_chgcar
 
     @property
     def kpoints(self):
@@ -812,39 +831,32 @@ class MPHSEBSSet(MPHSERelaxSet):
                        num_kpts=len(kpts), kpts=kpts, kpts_weights=weights,
                        labels=all_labels)
 
-    @classmethod
-    def from_prev_calc(cls, prev_calc_dir, mode="gap",
-                       reciprocal_density=50, copy_chgcar=True, **kwargs):
+    def override_from_prev_calc(self, prev_calc_dir='.'):
         """
-        Generate a set of Vasp input files for HSE calculations from a
-        directory of previous Vasp run. if mode=="gap", it explicitly adds VBM
-        and CBM of the prev run to the k-point list of this run.
+        Update the input set to include settings from a previous calculation.
 
         Args:
-            prev_calc_dir (str): Directory containing the outputs
-                (vasprun.xml and OUTCAR) of previous vasp run.
-            mode (str): Either "uniform", "gap" or "line"
-            reciprocal_density (int): density of k-mesh
-            copy_chgcar (bool): whether to copy CHGCAR of previous run
-            \\*\\*kwargs: All kwargs supported by MPHSEBSStaticSet,
-                other than prev_structure which is determined from the previous
-                calc dir.
-        """
+            prev_calc_dir (str): The path to the previous calculation directory.
 
+        Returns:
+            The input set with the settings (structure, k-points, incar, etc)
+            updated using the previous VASP run.
+        """
         vasprun, outcar = get_vasprun_outcar(prev_calc_dir)
 
-        # note: don't standardize the cell because we want to retain k-points
-        prev_structure = get_structure_from_prev_run(vasprun, outcar)
+        self._structure = get_structure_from_prev_run(vasprun, outcar)
 
+        # note: recommend not standardizing the cell because we want to retain
+        # k-points
         if self.standardize:
-            warnings.warn("Use of standardize=True with from_prev_run is not "
+            warnings.warn("Use of standardize=True with from_prev_calc is not "
                           "recommended as there is no guarantee the copied "
                           "files will be appropriate for the standardized "
                           "structure.")
 
-        added_kpoints = []
+        if self.add_vbm_cbm:
+            added_kpoints = []
 
-        if mode.lower() == "gap":
             bs = vasprun.get_band_structure()
             vbm, cbm = bs.get_vbm()["kpoint"], bs.get_cbm()["kpoint"]
             if vbm:
@@ -852,38 +864,64 @@ class MPHSEBSSet(MPHSERelaxSet):
             if cbm:
                 added_kpoints.append(cbm.frac_coords)
 
+            self.added_kpoints.extend(added_kpoints)
+
         files_to_transfer = {}
-        if copy_chgcar:
+        if self.copy_chgcar:
             chgcars = sorted(glob.glob(str(Path(prev_calc_dir) / "CHGCAR*")))
             if chgcars:
                 files_to_transfer["CHGCAR"] = str(chgcars[-1])
 
-        return cls(
-            structure=prev_structure,
-            added_kpoints=added_kpoints, reciprocal_density=reciprocal_density,
-            mode=mode, files_to_transfer=files_to_transfer, **kwargs)
+        self.files_to_transfer.update(files_to_transfer)
+
+        return self
+
+    @classmethod
+    def from_prev_calc(cls, prev_calc_dir, **kwargs):
+        """
+        Generate a set of Vasp input files for HSE calculations from a
+        directory of previous Vasp run.
+
+        Args:
+            prev_calc_dir (str): Directory containing the outputs
+                (vasprun.xml and OUTCAR) of previous vasp run.
+            **kwargs: All kwargs supported by MPHSEBSStaticSet, other than
+                prev_structure which is determined from the previous calc dir.
+        """
+        input_set = cls(**kwargs)
+        return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
 
 
 class MPNonSCFSet(MPRelaxSet):
+    """
+    Init a MPNonSCFSet. Typically, you would use the classmethod
+    from_prev_calc to initialize from a previous SCF run.
+
+    Args:
+        structure (Structure): Structure to compute
+        prev_incar (Incar/string): Incar file from previous run.
+        mode (str): Line, Uniform or Boltztrap mode supported.
+        nedos (int): nedos parameter. Default to 2001.
+        reciprocal_density (int): density of k-mesh by reciprocal
+            volume (defaults to 100)
+        sym_prec (float): Symmetry precision (for Uniform mode).
+        kpoints_line_density (int): Line density for Line mode.
+        optics (bool): whether to add dielectric function
+        copy_chgcar: Whether to copy the old CHGCAR when starting from a
+            previous calculation.
+        nbands_factor (float): Multiplicative factor for NBANDS when starting
+            from a previous calculation. Choose a higher number if you are
+            doing an LOPTICS calculation.
+        small_gap_multiply ([float, float]): When starting from a previous
+            calculation, if the gap is less than 1st index, multiply the default
+            reciprocal_density by the 2nd index.
+        **kwargs: kwargs supported by MPRelaxSet.
+    """
+
     def __init__(self, structure, prev_incar=None,
                  mode="line", nedos=2001, reciprocal_density=100, sym_prec=0.1,
-                 kpoints_line_density=20, optics=False, **kwargs):
-        """
-        Init a MPNonSCFSet. Typically, you would use the classmethod
-        from_prev_calc to initialize from a previous SCF run.
-
-        Args:
-            structure (Structure): Structure to compute
-            prev_incar (Incar/string): Incar file from previous run.
-            mode (str): Line, Uniform or Boltztrap mode supported.
-            nedos (int): nedos parameter. Default to 2001.
-            reciprocal_density (int): density of k-mesh by reciprocal
-                volume (defaults to 100)
-            sym_prec (float): Symmetry precision (for Uniform mode).
-            kpoints_line_density (int): Line density for Line mode.
-            optics (bool): whether to add dielectric function
-            \\*\\*kwargs: kwargs supported by MPVaspInputSet.
-        """
+                 kpoints_line_density=20, optics=False, copy_chgcar=True,
+                 nbands_factor=1.2, small_gap_multiply=None, **kwargs):
         super().__init__(structure, **kwargs)
         if isinstance(prev_incar, str):
             prev_incar = Incar.from_file(prev_incar)
@@ -895,10 +933,14 @@ class MPNonSCFSet(MPRelaxSet):
         self.kpoints_line_density = kpoints_line_density
         self.optics = optics
         self.mode = mode.lower()
+        self.copy_chgcar = copy_chgcar
+        self.nbands_factor = nbands_factor
+        self.small_gap_multiply = small_gap_multiply
 
         if self.mode.lower() not in ["line", "uniform", "boltztrap"]:
             raise ValueError("Supported modes for NonSCF runs are 'Line', "
                              "'Uniform' and 'Boltztrap!")
+
         if (self.mode.lower() != "uniform" or nedos < 2000) and optics:
             warnings.warn("It is recommended to use Uniform mode with a high "
                           "NEDOS for optics calculations.")
@@ -977,12 +1019,67 @@ class MPNonSCFSet(MPRelaxSet):
 
         return kpoints
 
+    def override_from_prev_calc(self, prev_calc_dir='.'):
+        """
+        Update the input set to include settings from a previous calculation.
+
+        Args:
+            prev_calc_dir (str): The path to the previous calculation directory.
+
+        Returns:
+            The input set with the settings (structure, k-points, incar, etc)
+            updated using the previous VASP run.
+        """
+        vasprun, outcar = get_vasprun_outcar(prev_calc_dir)
+
+        self.prev_incar = vasprun.incar
+
+        # Get a Magmom-decorated structure
+        self._structure = get_structure_from_prev_run(vasprun, outcar)
+
+        if self.standardize:
+            warnings.warn("Use of standardize=True with from_prev_run is not "
+                          "recommended as there is no guarantee the copied "
+                          "files will be appropriate for the standardized"
+                          " structure. copy_chgcar is enforced to be false.")
+            copy_chgcar = False
+
+        # Turn off spin when magmom for every site is smaller than 0.02.
+        if outcar and outcar.magnetization:
+            site_magmom = np.array([i['tot'] for i in outcar.magnetization])
+            ispin = 2 if np.any(site_magmom[np.abs(site_magmom) > 0.02]) else 1
+
+        elif vasprun.is_spin:
+            ispin = 2
+
+        else:
+            ispin = 1
+
+        nbands = int(np.ceil(vasprun.parameters["NBANDS"] * self.nbands_factor))
+        self.prev_incar.update({"ISPIN": ispin, "NBANDS": nbands})
+
+        files_to_transfer = {}
+
+        if self.copy_chgcar:
+            chgcars = sorted(glob.glob(str(Path(prev_calc_dir) / "CHGCAR*")))
+            if chgcars:
+                files_to_transfer["CHGCAR"] = str(chgcars[-1])
+
+        self.files_to_transfer.update(files_to_transfer)
+
+        # multiply the reciprocal density if needed:
+        if self.small_gap_multiply:
+            gap = vasprun.eigenvalue_band_properties[0]
+            if gap <= self.small_gap_multiply[0]:
+                self.reciprocal_density = (self.reciprocal_density *
+                                           self.small_gap_multiply[1])
+                self.kpoints_line_density = (self.kpoints_line_density *
+                                             self.small_gap_multiply[1])
+
+        return self
+
     @classmethod
-    def from_prev_calc(cls, prev_calc_dir, copy_chgcar=True,
-                       nbands_factor=1.2, standardize=False, sym_prec=0.1,
-                       international_monoclinic=True, reciprocal_density=100,
-                       kpoints_line_density=20, small_gap_multiply=None,
-                       **kwargs):
+    def from_prev_calc(cls, prev_calc_dir, **kwargs):
         """
         Generate a set of Vasp input files for NonSCF calculations from a
         directory of previous static Vasp run.
@@ -990,105 +1087,52 @@ class MPNonSCFSet(MPRelaxSet):
         Args:
             prev_calc_dir (str): The directory contains the outputs(
                 vasprun.xml and OUTCAR) of previous vasp run.
-            copy_chgcar: Whether to copy the old CHGCAR. Defaults to True.
-            nbands_factor (float): Multiplicative factor for NBANDS. Choose a
-                higher number if you are doing an LOPTICS calculation.
-            standardize (float): Whether to standardize to a primitive
-                standard cell. Defaults to False.
-            sym_prec (float): Tolerance for symmetry finding. If not 0,
-                the final structure from the previous run will be symmetrized
-                to get a primitive standard cell. Set to 0 if you don't want
-                that.
-            international_monoclinic (bool): Whether to use international
-                convention (vs Curtarolo) for monoclinic. Defaults True.
-            reciprocal_density (int): density of k-mesh by reciprocal
-                volume in uniform mode (defaults to 100)
-            kpoints_line_density (int): density of k-mesh in line mode
-                (defaults to 20)
-            small_gap_multiply ([float, float]): If the gap is less than
-                1st index, multiply the default reciprocal_density by the 2nd
-                index.
-            \\*\\*kwargs: All kwargs supported by MPNonSCFSet,
-                other than structure, prev_incar and prev_chgcar which
-                are determined from the prev_calc_dir.
+            **kwargs: All kwargs supported by MPNonSCFSet, other than structure,
+                prev_incar and prev_chgcar which are determined from the
+                prev_calc_dir.
         """
-        vasprun, outcar = get_vasprun_outcar(prev_calc_dir)
-
-        incar = vasprun.incar
-
-        # Get a Magmom-decorated structure
-        structure = get_structure_from_prev_run(vasprun, outcar)
-
-        if self.standardize:
-            warnings.warn("Use of standardize=True with from_prev_run is not "
-                          "recommended as there is no guarantee the copied "
-                          "files will be appropriate for the standardized "
-                          "structure.")
-
-        # Turn off spin when magmom for every site is smaller than 0.02.
-        if outcar and outcar.magnetization:
-            site_magmom = np.array([i['tot'] for i in outcar.magnetization])
-            ispin = 2 if np.any(site_magmom[np.abs(site_magmom) > 0.02]) else 1
-        elif vasprun.is_spin:
-            ispin = 2
-        else:
-            ispin = 1
-        nbands = int(np.ceil(vasprun.parameters["NBANDS"] * nbands_factor))
-        incar.update({"ISPIN": ispin, "NBANDS": nbands})
-
-        files_to_transfer = {}
-
-        if standardize:
-            warnings.warn("Use of standardize=True with from_prev_run is not "
-                          "recommended as there is no guarantee the copied "
-                          "files will be appropriate for the standardized"
-                          " structure. copy_chgcar is enforced to be false.")
-            copy_chgcar = False
-
-        if copy_chgcar:
-            chgcars = sorted(glob.glob(str(Path(prev_calc_dir) / "CHGCAR*")))
-            if chgcars:
-                files_to_transfer["CHGCAR"] = str(chgcars[-1])
-
-        # multiply the reciprocal density if needed:
-        if small_gap_multiply:
-            gap = vasprun.eigenvalue_band_properties[0]
-            if gap <= small_gap_multiply[0]:
-                reciprocal_density = reciprocal_density * small_gap_multiply[1]
-                kpoints_line_density = kpoints_line_density * \
-                    small_gap_multiply[1]
-
-        return cls(structure=structure, prev_incar=incar,
-                   reciprocal_density=reciprocal_density,
-                   kpoints_line_density=kpoints_line_density,
-                   files_to_transfer=files_to_transfer, **kwargs)
+        input_set = cls(**kwargs)
+        return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
 
 
 class MPSOCSet(MPStaticSet):
-    def __init__(self, structure, saxis=(0, 0, 1), prev_incar=None,
-                 reciprocal_density=100, **kwargs):
-        """
-        Init a MPSOCSet.
+    """
+    An input set for running spin-orbit coupling (SOC) calculations.
 
-        Args:
-            structure (Structure): the structure must have the 'magmom' site
-                property and each magnetic moment value must have 3
-                components. eg:- magmom = [[0,0,2], ...]
-            saxis (tuple): magnetic moment orientation
-            prev_incar (Incar): Incar file from previous run.
-            reciprocal_density (int): density of k-mesh by reciprocal
-                                    volume (defaults to 100)
-            \\*\\*kwargs: kwargs supported by MPVaspInputSet.
-        """
-        if not hasattr(structure[0], "magmom") and \
-                not isinstance(structure[0].magmom, list):
+    Args:
+        structure (Structure): the structure must have the 'magmom' site
+            property and each magnetic moment value must have 3
+            components. eg: ``magmom = [[0,0,2], ...]``
+        saxis (tuple): magnetic moment orientation
+        copy_chgcar: Whether to copy the old CHGCAR. Defaults to True.
+        nbands_factor (float): Multiplicative factor for NBANDS. Choose a
+            higher number if you are doing an LOPTICS calculation.
+        reciprocal_density (int): density of k-mesh by reciprocal volume.
+        small_gap_multiply ([float, float]): If the gap is less than
+            1st index, multiply the default reciprocal_density by the 2nd
+            index.
+        magmom (list[list[float]]): Override for the structure magmoms.
+        **kwargs: kwargs supported by MPStaticSet.
+    """
+
+    def __init__(self, structure, saxis=(0, 0, 1), copy_chgcar=True,
+                 nbands_factor=1.2, reciprocal_density=100,
+                 small_gap_multiply=None, magmom=None, **kwargs):
+
+        if (not hasattr(structure[0], "magmom") and
+                not isinstance(structure[0].magmom, list)):
             raise ValueError(
                 "The structure must have the 'magmom' site "
                 "property and each magnetic moment value must have 3 "
                 "components. eg:- magmom = [0,0,2]")
+
+        super().__init__(structure, reciprocal_density=reciprocal_density,
+                         **kwargs)
         self.saxis = saxis
-        super().__init__(structure, prev_incar=prev_incar,
-                         reciprocal_density=reciprocal_density, **kwargs)
+        self.copy_chgcar = copy_chgcar
+        self.nbands_factor = nbands_factor
+        self.small_gap_multiply = small_gap_multiply
+        self.magmom = magmom
 
     @property
     def incar(self):
@@ -1103,11 +1147,73 @@ class MPSOCSet(MPStaticSet):
 
         return incar
 
+    def override_from_prev_calc(self, prev_calc_dir='.'):
+        """
+        Update the input set to include settings from a previous calculation.
+
+        Args:
+            prev_calc_dir (str): The path to the previous calculation directory.
+
+        Returns:
+            The input set with the settings (structure, k-points, incar, etc)
+            updated using the previous VASP run.
+        """
+        vasprun, outcar = get_vasprun_outcar(prev_calc_dir)
+
+        self.prev_incar = vasprun.incar
+
+        # Remove magmoms from previous INCAR, since we will prefer
+        # the final calculated magmoms
+        # TODO: revisit in context of MPStaticSet incar logic
+        if 'MAGMOM' in self.prev_incar:
+            del self.prev_incar['magmom']
+
+        # Get a magmom-decorated structure
+        self._structure = get_structure_from_prev_run(vasprun, outcar)
+        if self.standardize:
+            warnings.warn("Use of standardize=True with from_prev_run is not "
+                          "recommended as there is no guarantee the copied "
+                          "files will be appropriate for the standardized"
+                          " structure. copy_chgcar is enforced to be false.")
+            copy_chgcar = False
+
+        # override magmom if provided
+        if self.magmom:
+            self._structure = self._structure.copy(
+                site_properties={"magmom": self.magmom})
+
+        # magmom has to be 3D for SOC calculation.
+        if hasattr(self._structure[0], "magmom"):
+            if not isinstance(self._structure[0].magmom, list):
+                structure = self._structure.copy(
+                    site_properties={"magmom": [[0, 0, site.magmom]
+                                                for site in self._structure]})
+        else:
+            raise ValueError("Neither the previous structure has magmom "
+                             "property nor magmom provided")
+
+        nbands = int(np.ceil(vasprun.parameters["NBANDS"] * self.nbands_factor))
+        self.prev_incar.update({"NBANDS": nbands})
+
+        files_to_transfer = {}
+        if self.copy_chgcar:
+            chgcars = sorted(glob.glob(str(Path(prev_calc_dir) / "CHGCAR*")))
+            if chgcars:
+                files_to_transfer["CHGCAR"] = str(chgcars[-1])
+
+        self.files_to_transfer.update(files_to_transfer)
+
+        # multiply the reciprocal density if needed:
+        if self.small_gap_multiply:
+            gap = vasprun.eigenvalue_band_properties[0]
+            if gap <= self.small_gap_multiply[0]:
+                self.reciprocal_density = (self.reciprocal_density *
+                                           self.small_gap_multiply[1])
+
+        return self
+
     @classmethod
-    def from_prev_calc(cls, prev_calc_dir, copy_chgcar=True,
-                       nbands_factor=1.2, standardize=False, sym_prec=0.1,
-                       international_monoclinic=True, reciprocal_density=100,
-                       small_gap_multiply=None, **kwargs):
+    def from_prev_calc(cls, prev_calc_dir, **kwargs):
         """
         Generate a set of Vasp input files for SOC calculations from a
         directory of previous static Vasp run. SOC calc requires all 3
@@ -1116,78 +1222,12 @@ class MPSOCSet(MPStaticSet):
         Args:
             prev_calc_dir (str): The directory contains the outputs(
                 vasprun.xml and OUTCAR) of previous vasp run.
-            copy_chgcar: Whether to copy the old CHGCAR. Defaults to True.
-            nbands_factor (float): Multiplicative factor for NBANDS. Choose a
-                higher number if you are doing an LOPTICS calculation.
-            standardize (float): Whether to standardize to a primitive
-                standard cell. Defaults to False.
-            sym_prec (float): Tolerance for symmetry finding. If not 0,
-                the final structure from the previous run will be symmetrized
-                to get a primitive standard cell. Set to 0 if you don't want
-                that.
-            international_monoclinic (bool): Whether to use international
-                convention (vs Curtarolo) for monoclinic. Defaults True.
-            reciprocal_density (int): density of k-mesh by reciprocal
-                volume (defaults to 100)
-            small_gap_multiply ([float, float]): If the gap is less than
-                1st index, multiply the default reciprocal_density by the 2nd
-                index.
-            \\*\\*kwargs: All kwargs supported by MPSOCSet,
-                other than structure, prev_incar and prev_chgcar which
-                are determined from the prev_calc_dir.
+            **kwargs: All kwargs supported by MPSOCSet, other than structure,
+                prev_incar and prev_chgcar which are determined from the
+                prev_calc_dir.
         """
-        vasprun, outcar = get_vasprun_outcar(prev_calc_dir)
-
-        incar = vasprun.incar
-      
-        # Remove magmoms from previous INCAR, since we will prefer
-        # the final calculated magmoms
-        # TODO: revisit in context of MPStaticSet incar logic
-        if 'MAGMOM' in incar:
-            del incar['magmom']
-      
-        # Get a magmom-decorated structure
-        structure = get_structure_from_prev_run(vasprun, outcar)
-
-        # override magmom if provided
-        if kwargs.get("magmom", None):
-            structure = structure.copy(
-                site_properties={"magmom": kwargs["magmom"]})
-            kwargs.pop("magmom", None)
-        # magmom has to be 3D for SOC calculation.
-        if hasattr(structure[0], "magmom"):
-            if not isinstance(structure[0].magmom, list):
-                structure = structure.copy(site_properties={
-                    "magmom": [[0, 0, site.magmom] for site in structure]})
-        else:
-            raise ValueError("Neither the previous structure has mamgom "
-                             "property nor magmom provided")
-
-        nbands = int(np.ceil(vasprun.parameters["NBANDS"] * nbands_factor))
-        incar.update({"NBANDS": nbands})
-
-        if standardize:
-            warnings.warn("Use of standardize=True with from_prev_run is not "
-                          "recommended as there is no guarantee the copied "
-                          "files will be appropriate for the standardized"
-                          " structure. copy_chgcar is enforced to be false.")
-            copy_chgcar = False
-
-        files_to_transfer = {}
-        if copy_chgcar:
-            chgcars = sorted(glob.glob(str(Path(prev_calc_dir) / "CHGCAR*")))
-            if chgcars:
-                files_to_transfer["CHGCAR"] = str(chgcars[-1])
-
-        # multiply the reciprocal density if needed:
-        if small_gap_multiply:
-            gap = vasprun.eigenvalue_band_properties[0]
-            if gap <= small_gap_multiply[0]:
-                reciprocal_density = reciprocal_density * small_gap_multiply[1]
-
-        return cls(structure, prev_incar=incar,
-                   files_to_transfer=files_to_transfer,
-                   reciprocal_density=reciprocal_density, **kwargs)
+        input_set = cls(**kwargs)
+        return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
 
 
 class MPNMRSet(MPStaticSet):
@@ -1538,7 +1578,7 @@ class MVLGBSet(MPRelaxSet):
             by default. Note that it does *not* override user_incar_settings,
             which can be set by the user to be anything desired.
         **kwargs:
-            Other kwargs supported by :class:`DictVaspInputSet`.
+            Other kwargs supported by :class:`MPRelaxSet`.
     """
 
     def __init__(self, structure, k_product=40, slab_mode=False, is_metal=True,
