@@ -2,30 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
-import abc
-import re
-import glob
-import shutil
-import warnings
-from itertools import chain
-from copy import deepcopy
-import numpy as np
-from pathlib import Path
-from monty.serialization import loadfn
-from monty.io import zopen
-from monty.dev import deprecated
-
-from pymatgen.core.periodic_table import Specie, Element
-from pymatgen.core.structure import Structure
-from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints, VaspInput
-from pymatgen.io.vasp.outputs import Vasprun, Outcar
-from monty.json import MSONable
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.symmetry.bandstructure import HighSymmKpath
-from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.core.sites import PeriodicSite
-
 """
 This module defines the VaspInputSet abstract base class and a concrete
 implementation for the parameters developed and tested by the core team
@@ -61,6 +37,29 @@ The above are recommendations. The following are UNBREAKABLE rules:
    E.g., self.my_arg = my_arg and self.kwargs = kwargs in the __init__. This
    ensures the as_dict and from_dict work correctly.
 """
+
+import abc
+import re
+import glob
+import shutil
+import warnings
+from itertools import chain
+from copy import deepcopy
+import numpy as np
+from pathlib import Path
+from monty.serialization import loadfn
+from monty.io import zopen
+from monty.dev import deprecated
+
+from pymatgen.core.periodic_table import Specie, Element
+from pymatgen.core.structure import Structure
+from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints, VaspInput
+from pymatgen.io.vasp.outputs import Vasprun, Outcar
+from monty.json import MSONable
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.symmetry.bandstructure import HighSymmKpath
+from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.core.sites import PeriodicSite
 
 __author__ = "Shyue Ping Ong, Wei Chen, Will Richards, Geoffroy Hautier, " \
              "Anubhav Jain"
@@ -519,8 +518,7 @@ class MITRelaxSet(DictSet):
     CONFIG = _load_yaml_config("MITRelaxSet")
 
     def __init__(self, structure, **kwargs):
-        super().__init__(
-            structure, MITRelaxSet.CONFIG, **kwargs)
+        super().__init__(structure, MITRelaxSet.CONFIG, **kwargs)
         self.kwargs = kwargs
 
 
@@ -535,8 +533,7 @@ class MPRelaxSet(DictSet):
     CONFIG = _load_yaml_config("MPRelaxSet")
 
     def __init__(self, structure, **kwargs):
-        super().__init__(
-            structure, MPRelaxSet.CONFIG, **kwargs)
+        super().__init__(structure, MPRelaxSet.CONFIG, **kwargs)
         self.kwargs = kwargs
 
 
@@ -725,7 +722,7 @@ class MPStaticSet(MPRelaxSet):
                 and prev_structure and prev_kpoints which are determined from
                 the prev_calc_dir.
         """
-        input_set = cls(**kwargs)
+        input_set = cls(_dummy_structure, **kwargs)
         return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
 
 
@@ -740,6 +737,10 @@ class MPHSEBSSet(MPHSERelaxSet):
     adding custom kpoints (e.g., corresponding to known VBM/CBM) to the
     uniform grid that have zero weight (e.g., for better gap estimate).
 
+    The "Gap" mode behaves just like the "Uniform" mode, however, if starting
+    from a previous calculation, the VBM and CBM k-points will automatically
+    be added to ``added_kpoints``.
+
     The "Line" mode is just like Uniform mode, but additionally adds
     k-points along symmetry lines with zero weight.
 
@@ -750,9 +751,7 @@ class MPHSEBSSet(MPHSERelaxSet):
         added_kpoints (list): a list of kpoints (list of 3 number list)
             added to the run. The k-points are in fractional coordinates
         mode (str): "Line" - generate k-points along symmetry lines for
-            bandstructure. "Uniform" - generate uniform k-points grid
-        add_vbm_cbm (bool): Adds the VBM and CBM to added_kpoints, if
-            starting from a previous calculation.
+            bandstructure. "Uniform" - generate uniform k-points grid.
         reciprocal_density (int): k-point density to use for uniform mesh.
         copy_chgcar (bool): Whether to copy the CHGCAR of a previous run.
         kpoints_line_density (int): k-point density for high symmetry lines
@@ -761,8 +760,8 @@ class MPHSEBSSet(MPHSERelaxSet):
     """
 
     def __init__(self, structure, user_incar_settings=None, added_kpoints=None,
-                 mode="Uniform", reciprocal_density=None, copy_chgcar=True,
-                 add_vbm_cbm=True, kpoints_line_density=20, **kwargs):
+                 mode="Gap", reciprocal_density=None, copy_chgcar=True,
+                 kpoints_line_density=20, **kwargs):
         super().__init__(structure, **kwargs)
         self.user_incar_settings = user_incar_settings or {}
         self._config_dict["INCAR"].update({
@@ -784,7 +783,6 @@ class MPHSEBSSet(MPHSERelaxSet):
                 self.user_kpoints_settings['reciprocal_density']
 
         self.kpoints_line_density = kpoints_line_density
-        self.add_vbm_cbm = add_vbm_cbm
         self.copy_chgcar = copy_chgcar
 
     @property
@@ -854,7 +852,7 @@ class MPHSEBSSet(MPHSERelaxSet):
                           "files will be appropriate for the standardized "
                           "structure.")
 
-        if self.add_vbm_cbm:
+        if self.mode.lower() == "gap":
             added_kpoints = []
 
             bs = vasprun.get_band_structure()
@@ -888,7 +886,7 @@ class MPHSEBSSet(MPHSERelaxSet):
             **kwargs: All kwargs supported by MPHSEBSStaticSet, other than
                 prev_structure which is determined from the previous calc dir.
         """
-        input_set = cls(**kwargs)
+        input_set = cls(_dummy_structure, **kwargs)
         return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
 
 
@@ -1091,7 +1089,7 @@ class MPNonSCFSet(MPRelaxSet):
                 prev_incar and prev_chgcar which are determined from the
                 prev_calc_dir.
         """
-        input_set = cls(**kwargs)
+        input_set = cls(_dummy_structure, **kwargs)
         return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
 
 
@@ -1226,7 +1224,7 @@ class MPSOCSet(MPStaticSet):
                 prev_incar and prev_chgcar which are determined from the
                 prev_calc_dir.
         """
-        input_set = cls(**kwargs)
+        input_set = cls(_dummy_structure, **kwargs)
         return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
 
 
@@ -1489,7 +1487,7 @@ class MVLGWSet(DictSet):
                 prev_incar and mode, which are determined from the
                 prev_calc_dir.
         """
-        input_set = cls(mode=mode, **kwargs)
+        input_set = cls(_dummy_structure, mode=mode, **kwargs)
         return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
 
 
@@ -2107,7 +2105,7 @@ def standardize_structure(structure, sym_prec=0.1,
         raise ValueError(
             "Standardizing cell failed! Old structure doesn't match new.")
 
-    return structure
+    return new_structure
 
 
 class BadInputSetWarning(UserWarning):
@@ -2154,3 +2152,7 @@ def batch_write_input(structures, vasp_input_set=MPRelaxSet, output_dir=".",
         v = vasp_input_set(s, **kwargs)
         v.write_input(str(d), make_dir_if_not_present=make_dir_if_not_present,
                       include_cif=include_cif)
+
+
+_dummy_structure = Structure([1, 0, 0, 0, 1, 0, 0, 0, 1], ['I'], [[0, 0, 0]],
+                             site_properties={"magmom": [[0, 0, 1]]})
