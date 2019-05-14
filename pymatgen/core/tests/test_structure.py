@@ -212,6 +212,13 @@ class IStructureTest(PymatgenTest):
             self.assertEqual(int_s[0].lattice, s.lattice)
         self.assertArrayEqual(int_s[1][1].frac_coords, [0.725, 0.5, 0.725])
 
+        # test ximages
+        int_s = struct.interpolate(struct2, ximages=np.linspace(0., 1., 3))
+        for s in int_s:
+            self.assertIsNotNone(s, "Interpolation Failed!")
+            self.assertEqual(int_s[0].lattice, s.lattice)
+        self.assertArrayEqual(int_s[1][1].frac_coords, [0.625, 0.5, 0.625])
+
         badlattice = [[1, 0.00, 0.00], [0, 1, 0.00], [0.00, 0, 1]]
         struct2 = IStructure(badlattice, ["Si"] * 2, coords2)
         self.assertRaises(ValueError, struct.interpolate, struct2)
