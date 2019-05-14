@@ -1283,7 +1283,7 @@ class IStructure(SiteCollection, MSONable):
             new_sites = sorted(new_sites)
             return self.__class__.from_sites(new_sites, charge=self._charge)
 
-    def interpolate(self, end_structure, nimages=10,
+    def interpolate(self, end_structure, nimages=10, ximages=None,
                     interpolate_lattices=False, pbc=True, autosort_tol=0):
         """
         Interpolate between this structure and end_structure. Useful for
@@ -1293,6 +1293,8 @@ class IStructure(SiteCollection, MSONable):
             end_structure (Structure): structure to interpolate between this
                 structure and end.
             nimages (int): No. of interpolation images. Defaults to 10 images.
+            ximages (list): list of interpolation images
+                (e.g. ximages=np.linspace(0., 1., 20))
             interpolate_lattices (bool): Whether to interpolate the lattices.
                 Interpolates the lengths and angles (rather than the matrix)
                 so orientation may be affected.
@@ -1375,14 +1377,15 @@ class IStructure(SiteCollection, MSONable):
             lvec = p - np.identity(3)
             lstart = self.lattice.matrix.T
 
-        for x in range(nimages + 1):
+        for x in np.arange(nimages + 1) / nimages \
+                if ximages is None else ximages:
             if interpolate_lattices:
-                l_a = np.dot(np.identity(3) + x / nimages * lvec, lstart).T
-                l = Lattice(l_a)
+                l_a = np.dot(np.identity(3) + x * lvec, lstart).T
+                lat = Lattice(l_a)
             else:
-                l = self.lattice
-            fcoords = start_coords + x / nimages * vec
-            structs.append(self.__class__(l, sp, fcoords,
+                lat = self.lattice
+            fcoords = start_coords + x * vec
+            structs.append(self.__class__(lat, sp, fcoords,
                                           site_properties=self.site_properties))
         return structs
 
