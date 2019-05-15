@@ -213,7 +213,7 @@ class IStructureTest(PymatgenTest):
         self.assertArrayEqual(int_s[1][1].frac_coords, [0.725, 0.5, 0.725])
 
         # test ximages
-        int_s = struct.interpolate(struct2, ximages=np.linspace(0., 1., 3))
+        int_s = struct.interpolate(struct2, nimages=np.linspace(0., 1., 3))
         for s in int_s:
             self.assertIsNotNone(s, "Interpolation Failed!")
             self.assertEqual(int_s[0].lattice, s.lattice)
