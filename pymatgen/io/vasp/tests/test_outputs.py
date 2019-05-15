@@ -430,6 +430,21 @@ class VasprunTest(PymatgenTest):
             self.assertAlmostEqual(vbm['energy'], 2.8218)
             self.assertEqual(vbm['kpoint'].label, None)
 
+            # test self-consistent band structure calculation for non-hybrid functionals
+            vasprun = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.forcehybridlikecalc",
+                              parse_projected_eigen=True,
+                              parse_potcar_file=False)
+            bs = vasprun.get_band_structure(kpoints_filename=self.TEST_FILES_DIR / "KPOINTS.forcehybridlikecalc",
+                                            force_hybrid_mode=True, line_mode=True)
+
+            dict_to_test = bs.get_band_gap()
+
+            self.assertTrue(dict_to_test['direct'])
+            self.assertAlmostEqual(dict_to_test['energy'], 6.007899999999999)
+            self.assertEqual(dict_to_test['transition'], "\\Gamma-\\Gamma")
+            self.assertEqual(bs.get_branch(0)[0]['start_index'], 0)
+            self.assertEqual(bs.get_branch(0)[0]['end_index'], 0)
+
     def test_sc_step_overflow(self):
         filepath = self.TEST_FILES_DIR / 'vasprun.xml.sc_overflow'
         # with warnings.catch_warnings(record=True) as w:
@@ -687,7 +702,7 @@ class OutcarTest(PymatgenTest):
                                           0].transpose())
 
         plasma_freq = outcar.plasma_frequencies
-        self.assertArrayAlmostEqual(plasma_freq["intraband"], np.zeros((3,3)))
+        self.assertArrayAlmostEqual(plasma_freq["intraband"], np.zeros((3, 3)))
         self.assertArrayAlmostEqual(plasma_freq["interband"],
                                     [[367.49, 63.939, 11.976],
                                      [63.939, 381.155, -24.461],

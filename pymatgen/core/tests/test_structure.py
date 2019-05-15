@@ -397,6 +397,11 @@ class IStructureTest(PymatgenTest):
         s.make_supercell([2, 2, 2])
         self.assertEqual(sum(map(len, s.get_all_neighbors(3))), 976)
 
+        all_nn = s.get_all_neighbors(r, include_site=False)
+        for nn in all_nn:
+            self.assertEqual(1, len(nn[0]))
+            self.assertLessEqual(nn[0][0], r)
+
     def test_get_all_neighbors_outside_cell(self):
         s = Structure(Lattice.cubic(2), ['Li', 'Li', 'Li', 'Si'],
                       [[3.1] * 3, [0.11] * 3, [-1.91] * 3, [0.5] * 3])

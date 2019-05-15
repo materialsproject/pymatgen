@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.lobster module &#8212; pymatgen 2019.4.11 documentation</title>
+    <title>pymatgen.io.lobster module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.4.11 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -170,6 +170,63 @@ tdensities[Spin.up]: numpy array of the total density of states</p>
 <dt>
 <code class="descname">tdos</code></dt>
 <dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.lobster.Fatband">
+<em class="property">class </em><code class="descname">Fatband</code><span class="sig-paren">(</span><em>filenames='.'</em>, <em>vasprun='vasprun.xml'</em>, <em>Kpointsfile='KPOINTS'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lobster.html#Fatband"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Fatband" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>reads in FATBAND_x_y.lobster files
+:param filenames: can be a list of file names or a path to a folder folder from which all “FATBAND_*” files will be read
+:type filenames: list or string
+:param vasprun: corresponding vasprun file
+:param Kpointsfile: KPOINTS file for bandstructure calculation, typically “KPOINTS”
+:param .. attribute: efermi
+:param efermi that was read in from vasprun.xml:
+:param .. attribute: eigenvals
+:param {Spin.up: [][],Spin.down:[][]}, the first index of the array</p>
+<blockquote>
+<div><p>[][] refers to the band and the second to the index of the
+kpoint. The kpoints are ordered according to the order of the
+kpoints array. If the band structure is not spin polarized, we
+only store one data set under Spin.up.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>attribute</strong> (<em>.</em>) – is_spinpolarized</p></li>
+<li><p><strong>that tells you whether this was a spin-polarized calculation</strong> (<em>Boolean</em>) – </p></li>
+<li><p><strong>attribute</strong> – <p>kpoints_array
+list of kpoint as numpy arrays, in frac_coords of the</p>
+<blockquote>
+<div><p>given lattice by default</p>
+</div></blockquote>
+</p></li>
+<li><p><strong>attribute</strong> – <p>label_dict</p>
+<dl>
+<dt>(dict) of {} this link a kpoint (in frac coords or</dt><dd><blockquote>
+<div><p>cartesian coordinates depending on the coords).</p>
+</div></blockquote>
+<p>lattice object of reciprocal lattice as read in from vasprun.xml</p>
+<p>number of bands used in the calculation</p>
+<p>dict of orbital projections as {spin: array of dict}.
+The indices of the array are [band_index, kpoint_index].
+The dict is then built the following way:
+{“string of element”: “string of orbital as read in from FATBAND file”}
+If the band structure is not spin polarized, we only store one data set under Spin.up.</p>
+<p>structure read in from vasprun.xml</p>
+</dd>
+</dl>
+</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.io.lobster.Fatband.get_bandstructure">
+<code class="descname">get_bandstructure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lobster.html#Fatband.get_bandstructure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Fatband.get_bandstructure" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns a LobsterBandStructureSymmLine object which can be plotted with a normal BSPlotter</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -318,7 +375,7 @@ string with all warnings</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.4.11 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 

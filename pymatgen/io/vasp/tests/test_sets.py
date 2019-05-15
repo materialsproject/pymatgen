@@ -399,9 +399,20 @@ class MPNonSCFSetTest(PymatgenTest):
 
     def test_init(self):
         prev_run = self.TEST_FILES_DIR / "relaxation"
+        # check boltztrap mode
+        vis = MPNonSCFSet.from_prev_calc(prev_calc_dir=prev_run,
+                                         mode="Boltztrap")
+        self.assertEqual(vis.incar["ISMEAR"], 0)
+
+        # check uniform mode
+        vis = MPNonSCFSet.from_prev_calc(prev_calc_dir=prev_run, mode="Uniform")
+        self.assertEqual(vis.incar["ISMEAR"], -5)
+
+        # test line mode
         vis = MPNonSCFSet.from_prev_calc(
             prev_calc_dir=prev_run, mode="Line", copy_chgcar=False,
             user_incar_settings={"SIGMA": 0.025})
+
         self.assertEqual(vis.incar["NSW"], 0)
         # Check that the ENCUT has been inherited.
         self.assertEqual(vis.incar["ENCUT"], 600)
@@ -421,6 +432,8 @@ class MPNonSCFSetTest(PymatgenTest):
 
         vis = MPNonSCFSet.from_prev_calc(prev_calc_dir=prev_run,
                                          mode="Line", copy_chgcar=True)
+        # check ISMEAR set correctly for line mode
+        self.assertEqual(vis.incar["ISMEAR"], 0)
         vis.write_input(self.tmp)
         self.assertTrue(os.path.exists(os.path.join(self.tmp, "CHGCAR")))
         os.remove(os.path.join(self.tmp, "CHGCAR"))
@@ -430,6 +443,21 @@ class MPNonSCFSetTest(PymatgenTest):
                                          mode="Line", copy_chgcar=True)
         vis.write_input(self.tmp)
         self.assertFalse(os.path.exists(os.path.join(self.tmp, "CHGCAR")))
+
+    def test_kpoints(self):
+        # test k-points are generated in the correct format
+        prev_run = self.TEST_FILES_DIR / "relaxation"
+        vis = MPNonSCFSet.from_prev_calc(
+            prev_calc_dir=prev_run, mode="Uniform", copy_chgcar=False)
+        self.assertEqual(np.array(vis.kpoints.kpts).shape, (1, 3))
+
+        vis = MPNonSCFSet.from_prev_calc(
+            prev_calc_dir=prev_run, mode="Line", copy_chgcar=False)
+        self.assertNotEqual(np.array(vis.kpoints.kpts).shape, (1, 3))
+
+        vis = MPNonSCFSet.from_prev_calc(
+            prev_calc_dir=prev_run, mode="Boltztrap", copy_chgcar=False)
+        self.assertNotEqual(np.array(vis.kpoints.kpts).shape, (1, 3))
 
     def test_optics(self):
         prev_run = self.TEST_FILES_DIR / "relaxation"
@@ -446,7 +474,7 @@ class MPNonSCFSetTest(PymatgenTest):
         self.assertEqual(vis.incar["ISMEAR"], -5)
 
         self.assertTrue(vis.incar["LOPTICS"])
-        self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Reciprocal)
+        self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Gamma)
 
     def test_user_kpoint_override(self):
         user_kpoints_override = Kpoints(

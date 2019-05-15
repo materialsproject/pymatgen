@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.vasp.outputs module &#8212; pymatgen 2019.4.11 documentation</title>
+    <title>pymatgen.io.vasp.outputs module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.4.11 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -355,6 +355,11 @@ read_lcalcpol(), read_core_state_eign(), read_avg_core_pot().</p>
 <dl class="method">
 <dt id="pymatgen.io.vasp.outputs.Outcar.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.outputs.Outcar.frequencies">
+<code class="descname">frequencies</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.frequencies" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -1088,7 +1093,7 @@ exited before reaching the max ionic steps for a relaxation run</p>
 
 <dl class="method">
 <dt id="pymatgen.io.vasp.outputs.Vasprun.get_band_structure">
-<code class="descname">get_band_structure</code><span class="sig-paren">(</span><em>kpoints_filename=None</em>, <em>efermi=None</em>, <em>line_mode=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Vasprun.get_band_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Vasprun.get_band_structure" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_band_structure</code><span class="sig-paren">(</span><em>kpoints_filename=None</em>, <em>efermi=None</em>, <em>line_mode=False</em>, <em>force_hybrid_mode=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Vasprun.get_band_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Vasprun.get_band_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the band structure as a BandStructure object</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1104,6 +1109,7 @@ this is where you should do it. By default, the None value
 means the code will get it from the vasprun.</p></li>
 <li><p><strong>line_mode</strong> (<em>bool</em>) – Force the band structure to be considered as
 a run along symmetry lines.</p></li>
+<li><p><strong>force_hybrid_mode</strong> (<em>bool</em>) – Makes it possible to read in self-consistent band structure calculations for every type of functional</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1932,7 +1938,7 @@ any. Note that this is sometimes very large</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.4.11 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 

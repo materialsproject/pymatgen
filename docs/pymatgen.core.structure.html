@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.structure module &#8212; pymatgen 2019.4.11 documentation</title>
+    <title>pymatgen.core.structure module &#8212; pymatgen 2019.5.1 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.4.11 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -683,7 +683,7 @@ are within merge_tol from each other will be merged. Usually
 
 <dl class="method">
 <dt id="pymatgen.core.structure.IStructure.get_all_neighbors">
-<code class="descname">get_all_neighbors</code><span class="sig-paren">(</span><em>r</em>, <em>include_index=False</em>, <em>include_image=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.get_all_neighbors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_all_neighbors" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_all_neighbors</code><span class="sig-paren">(</span><em>r</em>, <em>include_index=False</em>, <em>include_image=False</em>, <em>include_site=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.get_all_neighbors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_all_neighbors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get neighbors for each atom in the unit cell, out to a distance r
 Returns a list of list of neighbors for each site in structure.
 Use this method if you are planning on looping over all sites in the
@@ -694,10 +694,11 @@ is more efficient since it only performs one pass over a large enough
 supercell to contain all possible atoms out to a distance r.
 The return type is a [(site, dist) …] since most of the time,
 subsequent processing requires the distance.</p>
-<p>A note about periodic images: Before computing the neighbors, this operation
-translates all atoms to within the unit cell (having fractional coordinates within [0,1)).
-This means that the “image” of a site does not correspond to how much it has been
-translates from its current position, but which image of the unit cell it resides.</p>
+<p>A note about periodic images: Before computing the neighbors, this
+operation translates all atoms to within the unit cell (having
+fractional coordinates within [0,1)). This means that the “image” of a
+site does not correspond to how much it has been translates from its
+current position, but which image of the unit cell it resides.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -706,16 +707,19 @@ translates from its current position, but which image of the unit cell it reside
 in the returned data</p></li>
 <li><p><strong>include_image</strong> (<em>bool</em>) – Whether to include the supercell image
 in the returned data</p></li>
+<li><p><strong>include_site</strong> (<em>bool</em>) – Whether to include the site in the returned
+data. Defaults to True.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A list of a list of nearest neighbors for each site, i.e.,
-[[(site, dist, index) …], ..]
+[[(site, dist, index, image) …], ..]
 Index only supplied if include_index = True.
 The index is the index of the site in the original (non-supercell)
 structure. This is needed for ewaldmatrix by keeping track of which
 sites contribute to the ewald sum.
-Image only supplied if include_image = True</p>
+Image only supplied if include_image = True
+Site is supplied only if include_site = True (the default).</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1998,7 +2002,7 @@ Raised when the structure has problems, e.g., atoms that are too close.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.4.11 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
       </ul>
     </div>
 
