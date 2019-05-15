@@ -414,8 +414,8 @@ class GrainBoundaryGenerator:
         elif lat_type == 'o':
             logger.info('Make sure this is for orthorhombic system')
             if ratio is None:
-                raise RuntimeError('CSL donot exist if all axial ratios are irrational'
-                                   'for orthorhombic system')
+                raise RuntimeError('CSL does not exist if all axial ratios are irrational '
+                                   'for an orthorhombic system')
             elif len(ratio) != 3:
                 raise RuntimeError('Orthorhombic system needs correct c2:b2:a2 ratio')
         elif lat_type == 'h':

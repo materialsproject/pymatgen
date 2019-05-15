@@ -1087,7 +1087,8 @@ class IStructure(SiteCollection, MSONable):
                                       include_image=include_image)
         return [d for d in nn if site != d[0]]
 
-    def get_all_neighbors(self, r, include_index=False, include_image=False):
+    def get_all_neighbors(self, r, include_index=False, include_image=False,
+                          include_site=True):
         """
         Get neighbors for each atom in the unit cell, out to a distance r
         Returns a list of list of neighbors for each site in structure.
@@ -1100,10 +1101,11 @@ class IStructure(SiteCollection, MSONable):
         The return type is a [(site, dist) ...] since most of the time,
         subsequent processing requires the distance.
 
-        A note about periodic images: Before computing the neighbors, this operation
-        translates all atoms to within the unit cell (having fractional coordinates within [0,1)).
-        This means that the "image" of a site does not correspond to how much it has been
-        translates from its current position, but which image of the unit cell it resides.
+        A note about periodic images: Before computing the neighbors, this
+        operation translates all atoms to within the unit cell (having
+        fractional coordinates within [0,1)). This means that the "image" of a
+        site does not correspond to how much it has been translates from its
+        current position, but which image of the unit cell it resides.
 
         Args:
             r (float): Radius of sphere.
@@ -1111,15 +1113,18 @@ class IStructure(SiteCollection, MSONable):
                 in the returned data
             include_image (bool): Whether to include the supercell image
                 in the returned data
+            include_site (bool): Whether to include the site in the returned
+                data. Defaults to True.
 
         Returns:
             A list of a list of nearest neighbors for each site, i.e.,
-            [[(site, dist, index) ...], ..]
+            [[(site, dist, index, image) ...], ..]
             Index only supplied if include_index = True.
             The index is the index of the site in the original (non-supercell)
             structure. This is needed for ewaldmatrix by keeping track of which
             sites contribute to the ewald sum.
             Image only supplied if include_image = True
+            Site is supplied only if include_site = True (the default).
         """
         # Use same algorithm as get_sites_in_sphere to determine supercell but
         # loop over all atoms in crystal
@@ -1131,28 +1136,35 @@ class IStructure(SiteCollection, MSONable):
         all_ranges = [np.arange(x, y) for x, y in zip(nmin, nmax)]
 
         latt = self._lattice
+        matrix = latt.matrix
         neighbors = [list() for _ in range(len(self._sites))]
         all_fcoords = np.mod(self.frac_coords, 1)
-        coords_in_cell = latt.get_cartesian_coords(all_fcoords)
+        coords_in_cell = np.dot(all_fcoords, matrix)
         site_coords = self.cart_coords
 
         indices = np.arange(len(self))
+
         for image in itertools.product(*all_ranges):
-            coords = latt.get_cartesian_coords(image) + coords_in_cell
+            coords = np.dot(image, matrix) + coords_in_cell
             all_dists = all_distances(coords, site_coords)
             all_within_r = np.bitwise_and(all_dists <= r, all_dists > 1e-8)
 
             for (j, d, within_r) in zip(indices, all_dists, all_within_r):
-                nnsite = PeriodicSite(self[j].species, coords[j],
-                                      latt, properties=self[j].properties,
-                                      coords_are_cartesian=True)
-                for i in indices[within_r]:
-                    item = (nnsite, d[i], j) if include_index else (
-                        nnsite, d[i])
+                if include_site:
+                    nnsite = PeriodicSite(self[j].species, coords[j],
+                                          latt, properties=self[j].properties,
+                                          coords_are_cartesian=True)
 
+                for i in indices[within_r]:
+                    item = []
+                    if include_site:
+                        item.append(nnsite)
+                    item.append(d[i])
+                    if include_index:
+                        item.append(j)
                     # Add the image, if requested
                     if include_image:
-                        item += (image,)
+                        item.append(image)
                     neighbors[i].append(item)
         return neighbors
 

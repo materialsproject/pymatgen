@@ -1,6 +1,7 @@
 **Official docs:** http://www.pymatgen.org
 
 .. image:: https://circleci.com/gh/materialsproject/pymatgen.svg?style=shield&circle-token=:circle-token
+    :target: https://circleci.com/gh/materialsproject/pymatgen
 
 .. image:: https://ci.appveyor.com/api/projects/status/akdyke5jxg6gps45?svg=true
 

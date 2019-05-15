@@ -5,9 +5,11 @@
 import unittest
 import os
 import json
+import warnings
 import numpy as np
 from pymatgen import Structure
-from pymatgen.io.lobster import Cohpcar, Icohplist, Doscar, Charge, Lobsterout
+from pymatgen.io.lobster import Cohpcar, Icohplist, Doscar, Charge, Lobsterout, Fatband
+from pymatgen.io.vasp import Vasprun
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.util.testing import PymatgenTest
 
@@ -812,6 +814,229 @@ class LobsteroutTest(PymatgenTest):
                 self.assertListEqual(item, comparedict[key])
             elif type(item) == type({}):
                 self.assertDictEqual(item, comparedict[key])
+
+
+class FatbandTest(PymatgenTest):
+    def setUp(self):
+        warnings.simplefilter("ignore")
+        self.fatband_SiO2_p_x = Fatband(filenames=os.path.join(test_dir, "Fatband_SiO2/Test_p_x"),
+                                        Kpointsfile=os.path.join(test_dir, "Fatband_SiO2/Test_p_x/KPOINTS"),
+                                        vasprun=os.path.join(test_dir, "Fatband_SiO2/Test_p_x/vasprun.xml"))
+        self.vasprun_SiO2_p_x = Vasprun(filename=os.path.join(test_dir, "Fatband_SiO2/Test_p_x/vasprun.xml"))
+        self.bs_symmline = self.vasprun_SiO2_p_x.get_band_structure(line_mode=True, force_hybrid_mode=True)
+        self.fatband_SiO2_p = Fatband(filenames=os.path.join(test_dir, "Fatband_SiO2/Test_p"),
+                                      Kpointsfile=os.path.join(test_dir, "Fatband_SiO2/Test_p/KPOINTS"),
+                                      vasprun=os.path.join(test_dir, "Fatband_SiO2/Test_p/vasprun.xml"))
+        self.vasprun_SiO2_p = Vasprun(filename=os.path.join(test_dir, "Fatband_SiO2/Test_p/vasprun.xml"))
+        self.bs_symmline2 = self.vasprun_SiO2_p.get_band_structure(line_mode=True, force_hybrid_mode=True)
+        self.fatband_SiO2_spin = Fatband(filenames=os.path.join(test_dir, "Fatband_SiO2/Test_Spin"),
+                                         Kpointsfile=os.path.join(test_dir, "Fatband_SiO2/Test_Spin/KPOINTS"),
+                                         vasprun=os.path.join(test_dir, "Fatband_SiO2/Test_Spin/vasprun.xml"))
+        self.vasprun_SiO2_spin = Vasprun(filename=os.path.join(test_dir, "Fatband_SiO2/Test_Spin/vasprun.xml"))
+        self.bs_symmline_spin = self.vasprun_SiO2_p.get_band_structure(line_mode=True, force_hybrid_mode=True)
+
+    def tearDown(self):
+        warnings.simplefilter("default")
+
+    def test_attributes(self):
+        self.assertAlmostEqual(list(self.fatband_SiO2_p_x.label_dict['M'])[0], 0.5)
+        self.assertAlmostEqual(list(self.fatband_SiO2_p_x.label_dict['M'])[1], 0.0)
+        self.assertAlmostEqual(list(self.fatband_SiO2_p_x.label_dict['M'])[2], 0.0)
+        self.assertEqual(self.fatband_SiO2_p_x.efermi, self.vasprun_SiO2_p_x.efermi)
+        lattice1 = self.bs_symmline.lattice_rec.as_dict()
+        lattice2 = self.fatband_SiO2_p_x.lattice.as_dict()
+        self.assertAlmostEqual(lattice1["matrix"][0][0], lattice2["matrix"][0][0])
+        self.assertAlmostEqual(lattice1["matrix"][0][1], lattice2["matrix"][0][1])
+        self.assertAlmostEqual(lattice1["matrix"][0][2], lattice2["matrix"][0][2])
+        self.assertAlmostEqual(lattice1["matrix"][1][0], lattice2["matrix"][1][0])
+        self.assertAlmostEqual(lattice1["matrix"][1][1], lattice2["matrix"][1][1])
+        self.assertAlmostEqual(lattice1["matrix"][1][2], lattice2["matrix"][1][2])
+        self.assertAlmostEqual(lattice1["matrix"][2][0], lattice2["matrix"][2][0])
+        self.assertAlmostEqual(lattice1["matrix"][2][1], lattice2["matrix"][2][1])
+        self.assertAlmostEqual(lattice1["matrix"][2][2], lattice2["matrix"][2][2])
+        self.assertEqual(self.fatband_SiO2_p_x.eigenvals[Spin.up][1][1] - self.fatband_SiO2_p_x.efermi, -18.245)
+        self.assertEqual(self.fatband_SiO2_p_x.is_spinpolarized, False)
+        self.assertAlmostEqual(self.fatband_SiO2_p_x.kpoints_array[3][0], 0.03409091)
+        self.assertEqual(self.fatband_SiO2_p_x.kpoints_array[3][1], 0.0)
+        self.assertEqual(self.fatband_SiO2_p_x.kpoints_array[3][2], 0.0)
+        self.assertEqual(self.fatband_SiO2_p_x.nbands, 36)
+        self.assertEqual(self.fatband_SiO2_p_x.p_eigenvals[Spin.up][2][1]["Si1"]["3p_x"], 0.002)
+        self.assertAlmostEqual(self.fatband_SiO2_p_x.structure[0].frac_coords[0], 0.)
+        self.assertAlmostEqual(self.fatband_SiO2_p_x.structure[0].frac_coords[1], 0.47634315)
+        self.assertAlmostEqual(self.fatband_SiO2_p_x.structure[0].frac_coords[2], 0.666667)
+        self.assertEqual(self.fatband_SiO2_p_x.structure[0].species_string, 'Si')
+        self.assertAlmostEqual(self.fatband_SiO2_p_x.structure[0].coords[0], -1.19607309)
+        self.assertAlmostEqual(self.fatband_SiO2_p_x.structure[0].coords[1], 2.0716597)
+        self.assertAlmostEqual(self.fatband_SiO2_p_x.structure[0].coords[2], 3.67462144)
+
+        self.assertAlmostEqual(list(self.fatband_SiO2_p.label_dict['M'])[0], 0.5)
+        self.assertAlmostEqual(list(self.fatband_SiO2_p.label_dict['M'])[1], 0.0)
+        self.assertAlmostEqual(list(self.fatband_SiO2_p.label_dict['M'])[2], 0.0)
+        self.assertEqual(self.fatband_SiO2_p.efermi, self.vasprun_SiO2_p.efermi)
+        lattice1 = self.bs_symmline2.lattice_rec.as_dict()
+        lattice2 = self.fatband_SiO2_p.lattice.as_dict()
+        self.assertAlmostEqual(lattice1["matrix"][0][0], lattice2["matrix"][0][0])
+        self.assertAlmostEqual(lattice1["matrix"][0][1], lattice2["matrix"][0][1])
+        self.assertAlmostEqual(lattice1["matrix"][0][2], lattice2["matrix"][0][2])
+        self.assertAlmostEqual(lattice1["matrix"][1][0], lattice2["matrix"][1][0])
+        self.assertAlmostEqual(lattice1["matrix"][1][1], lattice2["matrix"][1][1])
+        self.assertAlmostEqual(lattice1["matrix"][1][2], lattice2["matrix"][1][2])
+        self.assertAlmostEqual(lattice1["matrix"][2][0], lattice2["matrix"][2][0])
+        self.assertAlmostEqual(lattice1["matrix"][2][1], lattice2["matrix"][2][1])
+        self.assertAlmostEqual(lattice1["matrix"][2][2], lattice2["matrix"][2][2])
+        self.assertEqual(self.fatband_SiO2_p.eigenvals[Spin.up][1][1] - self.fatband_SiO2_p.efermi, -18.245)
+        self.assertEqual(self.fatband_SiO2_p.is_spinpolarized, False)
+        self.assertAlmostEqual(self.fatband_SiO2_p.kpoints_array[3][0], 0.03409091)
+        self.assertEqual(self.fatband_SiO2_p.kpoints_array[3][1], 0.0)
+        self.assertEqual(self.fatband_SiO2_p.kpoints_array[3][2], 0.0)
+        self.assertEqual(self.fatband_SiO2_p.nbands, 36)
+        self.assertEqual(self.fatband_SiO2_p.p_eigenvals[Spin.up][2][1]["Si1"]["3p"], 0.042)
+        self.assertAlmostEqual(self.fatband_SiO2_p.structure[0].frac_coords[0], 0.)
+        self.assertAlmostEqual(self.fatband_SiO2_p.structure[0].frac_coords[1], 0.47634315)
+        self.assertAlmostEqual(self.fatband_SiO2_p.structure[0].frac_coords[2], 0.666667)
+        self.assertEqual(self.fatband_SiO2_p.structure[0].species_string, 'Si')
+        self.assertAlmostEqual(self.fatband_SiO2_p.structure[0].coords[0], -1.19607309)
+        self.assertAlmostEqual(self.fatband_SiO2_p.structure[0].coords[1], 2.0716597)
+        self.assertAlmostEqual(self.fatband_SiO2_p.structure[0].coords[2], 3.67462144)
+
+        self.assertAlmostEqual(list(self.fatband_SiO2_spin.label_dict['M'])[0], 0.5)
+        self.assertAlmostEqual(list(self.fatband_SiO2_spin.label_dict['M'])[1], 0.)
+        self.assertAlmostEqual(list(self.fatband_SiO2_spin.label_dict['M'])[2], 0.)
+        self.assertEqual(self.fatband_SiO2_spin.efermi, self.vasprun_SiO2_spin.efermi)
+        lattice1 = self.bs_symmline_spin.lattice_rec.as_dict()
+        lattice2 = self.fatband_SiO2_spin.lattice.as_dict()
+        self.assertAlmostEqual(lattice1["matrix"][0][0], lattice2["matrix"][0][0])
+        self.assertAlmostEqual(lattice1["matrix"][0][1], lattice2["matrix"][0][1])
+        self.assertAlmostEqual(lattice1["matrix"][0][2], lattice2["matrix"][0][2])
+        self.assertAlmostEqual(lattice1["matrix"][1][0], lattice2["matrix"][1][0])
+        self.assertAlmostEqual(lattice1["matrix"][1][1], lattice2["matrix"][1][1])
+        self.assertAlmostEqual(lattice1["matrix"][1][2], lattice2["matrix"][1][2])
+        self.assertAlmostEqual(lattice1["matrix"][2][0], lattice2["matrix"][2][0])
+        self.assertAlmostEqual(lattice1["matrix"][2][1], lattice2["matrix"][2][1])
+        self.assertAlmostEqual(lattice1["matrix"][2][2], lattice2["matrix"][2][2])
+        self.assertEqual(self.fatband_SiO2_spin.eigenvals[Spin.up][1][1] - self.fatband_SiO2_spin.efermi, -18.245)
+        self.assertEqual(self.fatband_SiO2_spin.eigenvals[Spin.down][1][1] - self.fatband_SiO2_spin.efermi, -18.245)
+        self.assertEqual(self.fatband_SiO2_spin.is_spinpolarized, True)
+        self.assertAlmostEqual(self.fatband_SiO2_spin.kpoints_array[3][0], 0.03409091)
+        self.assertEqual(self.fatband_SiO2_spin.kpoints_array[3][1], 0.0)
+        self.assertEqual(self.fatband_SiO2_spin.kpoints_array[3][2], 0.0)
+        self.assertEqual(self.fatband_SiO2_spin.nbands, 36)
+
+        self.assertEqual(self.fatband_SiO2_spin.p_eigenvals[Spin.up][2][1]["Si1"]["3p"], 0.042)
+        self.assertAlmostEqual(self.fatband_SiO2_spin.structure[0].frac_coords[0], 0.)
+        self.assertAlmostEqual(self.fatband_SiO2_spin.structure[0].frac_coords[1], 0.47634315)
+        self.assertAlmostEqual(self.fatband_SiO2_spin.structure[0].frac_coords[2], 0.666667)
+        self.assertEqual(self.fatband_SiO2_spin.structure[0].species_string, 'Si')
+        self.assertAlmostEqual(self.fatband_SiO2_spin.structure[0].coords[0], -1.19607309)
+        self.assertAlmostEqual(self.fatband_SiO2_spin.structure[0].coords[1], 2.0716597)
+        self.assertAlmostEqual(self.fatband_SiO2_spin.structure[0].coords[2], 3.67462144)
+
+    def test_raises(self):
+        with self.assertRaises(ValueError):
+            self.fatband_SiO2_p_x = Fatband(
+                filenames=[os.path.join(test_dir, "Fatband_SiO2/Test_p_x/FATBAND_si1_3p_x.lobster"),
+                           os.path.join(test_dir, "Fatband_SiO2/Test_p_x/FATBAND_si1_3p_x.lobster")],
+                Kpointsfile=os.path.join(test_dir, "Fatband_SiO2/Test_p_x/KPOINTS"),
+                vasprun=os.path.join(test_dir, "Fatband_SiO2/Test_p_x/vasprun.xml"))
+
+        with self.assertRaises(ValueError):
+            self.fatband_SiO2_p_x = Fatband(
+                filenames=[os.path.join(test_dir, "Fatband_SiO2/Test_p_x/FATBAND_si1_3p_x.lobster"),
+                           os.path.join(test_dir, "Fatband_SiO2/Test_p/FATBAND_si1_3p.lobster")],
+                Kpointsfile=os.path.join(test_dir, "Fatband_SiO2/Test_p_x/KPOINTS"),
+                vasprun=os.path.join(test_dir, "Fatband_SiO2/Test_p_x/vasprun.xml"))
+
+        with self.assertRaises(ValueError):
+            self.fatband_SiO2_p_x = Fatband(filenames='.',
+                                            Kpointsfile=os.path.join(test_dir, "Fatband_SiO2/Test_p_x/KPOINTS"),
+                                            vasprun=os.path.join(test_dir, "Fatband_SiO2/Test_p_x/vasprun.xml"))
+
+    def test_get_bandstructure(self):
+        bs_p = self.fatband_SiO2_p.get_bandstructure()
+        atom1 = bs_p.structure[0]
+        atom2 = self.bs_symmline2.structure[0]
+        self.assertAlmostEqual(atom1.frac_coords[0], atom2.frac_coords[0])
+        self.assertAlmostEqual(atom1.frac_coords[1], atom2.frac_coords[1])
+        self.assertAlmostEqual(atom1.frac_coords[2], atom2.frac_coords[2])
+        self.assertAlmostEqual(atom1.coords[0], atom2.coords[0])
+        self.assertAlmostEqual(atom1.coords[1], atom2.coords[1])
+        self.assertAlmostEqual(atom1.coords[2], atom2.coords[2])
+        self.assertEqual(atom1.species_string, atom2.species_string)
+        self.assertEqual(bs_p.efermi, self.bs_symmline2.efermi)
+        branch1 = bs_p.branches[0]
+        branch2 = self.bs_symmline2.branches[0]
+        self.assertEqual(branch2["name"], branch1["name"])
+        self.assertEqual(branch2["start_index"], branch1["start_index"])
+        self.assertEqual(branch2["end_index"], branch1["end_index"])
+
+        self.assertAlmostEqual(bs_p.distance[30], self.bs_symmline2.distance[30])
+        lattice1 = bs_p.lattice_rec.as_dict()
+        lattice2 = self.bs_symmline2.lattice_rec.as_dict()
+        self.assertAlmostEqual(lattice1["matrix"][0][0], lattice2["matrix"][0][0])
+        self.assertAlmostEqual(lattice1["matrix"][0][1], lattice2["matrix"][0][1])
+        self.assertAlmostEqual(lattice1["matrix"][0][2], lattice2["matrix"][0][2])
+        self.assertAlmostEqual(lattice1["matrix"][1][0], lattice2["matrix"][1][0])
+        self.assertAlmostEqual(lattice1["matrix"][1][1], lattice2["matrix"][1][1])
+        self.assertAlmostEqual(lattice1["matrix"][1][2], lattice2["matrix"][1][2])
+        self.assertAlmostEqual(lattice1["matrix"][2][0], lattice2["matrix"][2][0])
+        self.assertAlmostEqual(lattice1["matrix"][2][1], lattice2["matrix"][2][1])
+        self.assertAlmostEqual(lattice1["matrix"][2][2], lattice2["matrix"][2][2])
+
+        self.assertAlmostEqual(bs_p.kpoints[8].frac_coords[0], self.bs_symmline2.kpoints[8].frac_coords[0])
+        self.assertAlmostEqual(bs_p.kpoints[8].frac_coords[1], self.bs_symmline2.kpoints[8].frac_coords[1])
+        self.assertAlmostEqual(bs_p.kpoints[8].frac_coords[2], self.bs_symmline2.kpoints[8].frac_coords[2])
+        self.assertAlmostEqual(bs_p.kpoints[8].cart_coords[0], self.bs_symmline2.kpoints[8].cart_coords[0])
+        self.assertAlmostEqual(bs_p.kpoints[8].cart_coords[1], self.bs_symmline2.kpoints[8].cart_coords[1])
+        self.assertAlmostEqual(bs_p.kpoints[8].cart_coords[2], self.bs_symmline2.kpoints[8].cart_coords[2])
+        self.assertAlmostEqual(bs_p.kpoints[50].frac_coords[0], self.bs_symmline2.kpoints[50].frac_coords[0])
+        self.assertAlmostEqual(bs_p.kpoints[50].frac_coords[1], self.bs_symmline2.kpoints[50].frac_coords[1])
+        self.assertAlmostEqual(bs_p.kpoints[50].frac_coords[2], self.bs_symmline2.kpoints[50].frac_coords[2])
+        self.assertAlmostEqual(bs_p.kpoints[50].cart_coords[0], self.bs_symmline2.kpoints[50].cart_coords[0])
+        self.assertAlmostEqual(bs_p.kpoints[50].cart_coords[1], self.bs_symmline2.kpoints[50].cart_coords[1])
+        self.assertAlmostEqual(bs_p.kpoints[50].cart_coords[2], self.bs_symmline2.kpoints[50].cart_coords[2])
+        self.assertAlmostEqual(bs_p.get_band_gap()["energy"], self.bs_symmline2.get_band_gap()["energy"], places=2)
+        self.assertAlmostEqual(bs_p.get_projection_on_elements()[Spin.up][0][0]["Si"], 3 * (0.001 + 0.064))
+        self.assertAlmostEqual(bs_p.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.up][0][0]["Si"]["3p"],
+                               0.003)
+        self.assertAlmostEqual(bs_p.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.up][0][0]["O"]["2p"],
+                               0.002 * 3 + 0.003 * 3)
+        dict_here = bs_p.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.up][0][
+            0]
+        self.assertAlmostEqual(dict_here["Si"]["3s"], 0.192)
+        self.assertAlmostEqual(dict_here["Si"]["3p"], 0.003)
+        self.assertAlmostEqual(dict_here["O"]["2s"], 0.792)
+        self.assertAlmostEqual(dict_here["O"]["2p"], 0.015)
+
+        bs_spin = self.fatband_SiO2_spin.get_bandstructure()
+        self.assertAlmostEqual(bs_spin.get_projection_on_elements()[Spin.up][0][0]["Si"], 3 * (0.001 + 0.064))
+        self.assertAlmostEqual(
+            bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.up][0][0]["Si"]["3p"],
+            0.003)
+        self.assertAlmostEqual(
+            bs_spin.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.up][0][0]["O"]["2p"],
+            0.002 * 3 + 0.003 * 3)
+        dict_here = \
+            bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.up][0][0]
+        self.assertAlmostEqual(dict_here["Si"]["3s"], 0.192)
+        self.assertAlmostEqual(dict_here["Si"]["3p"], 0.003)
+        self.assertAlmostEqual(dict_here["O"]["2s"], 0.792)
+        self.assertAlmostEqual(dict_here["O"]["2p"], 0.015)
+
+        self.assertAlmostEqual(bs_spin.get_projection_on_elements()[Spin.up][0][0]["Si"], 3 * (0.001 + 0.064))
+        self.assertAlmostEqual(
+            bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.down][0][0]["Si"]["3p"],
+            0.003)
+        self.assertAlmostEqual(
+            bs_spin.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.down][0][0]["O"]["2p"],
+            0.002 * 3 + 0.003 * 3)
+        dict_here = \
+            bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.down][0][0]
+        self.assertAlmostEqual(dict_here["Si"]["3s"], 0.192)
+        self.assertAlmostEqual(dict_here["Si"]["3p"], 0.003)
+        self.assertAlmostEqual(dict_here["O"]["2s"], 0.792)
+        self.assertAlmostEqual(dict_here["O"]["2p"], 0.015)
+        bs_p_x = self.fatband_SiO2_p_x.get_bandstructure()
+        self.assertAlmostEqual(bs_p_x.get_projection_on_elements()[Spin.up][0][0]["Si"], 3 * (0.001 + 0.064), 2)
 
 
 if __name__ == "__main__":
