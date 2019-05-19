@@ -73,7 +73,7 @@ class SpacegroupAnalyzer:
         magmoms = []
 
         for species, g in itertools.groupby(structure,
-                                            key=lambda s: s.species_and_occu):
+                                            key=lambda s: s.species):
             if species in unique_species:
                 ind = unique_species.index(species)
                 zs.extend([ind + 1] * len(tuple(g)))
@@ -372,10 +372,9 @@ class SpacegroupAnalyzer:
             np.array(mesh), self._cell, is_shift=shift, symprec=self._symprec)
 
         results = []
-        tmp_map = list(mapping)
-        for i in np.unique(mapping):
+        for i, count in zip(*np.unique(mapping, return_counts=True)):
             results.append(((grid[i] + shift * (0.5, 0.5, 0.5)) / mesh,
-                            tmp_map.count(i)))
+                            count))
         return results
 
     def get_conventional_to_primitive_transformation_matrix(self, international_monoclinic=True):
@@ -876,7 +875,7 @@ class PointGroupAnalyzer:
             total_inertia = 0
             for site in self.centered_mol:
                 c = site.coords
-                wt = site.species_and_occu.weight
+                wt = site.species.weight
                 for i in range(3):
                     inertia_tensor[i, i] += wt * (c[(i + 1) % 3] ** 2
                                                   + c[(i + 2) % 3] ** 2)
@@ -1037,7 +1036,7 @@ class PointGroupAnalyzer:
         else:
             # Iterate through all pairs of atoms to find mirror
             for s1, s2 in itertools.combinations(self.centered_mol, 2):
-                if s1.species_and_occu == s2.species_and_occu:
+                if s1.species == s2.species:
                     normal = s1.coords - s2.coords
                     if np.dot(normal, axis) < self.tol:
                         op = SymmOp.reflection(normal)
@@ -1221,8 +1220,8 @@ class PointGroupAnalyzer:
             coord = symmop.operate(site.coords)
             ind = find_in_coord_list(coords, coord, self.tol)
             if not (len(ind) == 1
-                    and self.centered_mol[ind[0]].species_and_occu
-                    == site.species_and_occu):
+                    and self.centered_mol[ind[0]].species
+                    == site.species):
                 return False
         return True
 
@@ -1410,7 +1409,8 @@ class PointGroupAnalyzer:
                     continue
                 coords[j] = np.dot(ops[i][j], coords[i])
                 coords[j] = np.dot(ops[i][j], coords[i])
-        molecule = Molecule(species=self.centered_mol.species, coords=coords)
+        molecule = Molecule(species=self.centered_mol.species_and_occu,
+                            coords=coords)
         return {'sym_mol': molecule,
                 'eq_sets': eq_sets,
                 'sym_ops': ops}
@@ -1501,10 +1501,10 @@ def cluster_sites(mol, tol, give_only_index=False):
         else:
             if give_only_index:
                 clustered_sites[
-                    (avg_dist[f[i]], site.species_and_occu)].append(i)
+                    (avg_dist[f[i]], site.species)].append(i)
             else:
                 clustered_sites[
-                    (avg_dist[f[i]], site.species_and_occu)].append(site)
+                    (avg_dist[f[i]], site.species)].append(site)
     return origin_site, clustered_sites
 
 
@@ -1561,7 +1561,7 @@ class SpacegroupOperations(list):
     def __init__(self, int_symbol, int_number, symmops):
         self.int_symbol = int_symbol
         self.int_number = int_number
-        super(SpacegroupOperations, self).__init__(symmops)
+        super().__init__(symmops)
 
     def are_symmetrically_equivalent(self, sites1, sites2, symm_prec=1e-3):
         """
@@ -1590,7 +1590,7 @@ class SpacegroupOperations(list):
             return False
 
         for op in self:
-            newsites2 = [PeriodicSite(site.species_and_occu,
+            newsites2 = [PeriodicSite(site.species,
                                       op.operate(site.frac_coords),
                                       site.lattice) for site in sites2]
             for site in newsites2:
@@ -1623,7 +1623,7 @@ class PointGroupOperations(list):
     """
     def __init__(self, sch_symbol, operations, tol=0.1):
         self.sch_symbol = sch_symbol
-        super(PointGroupOperations, self).__init__(
+        super().__init__(
             generate_full_symmops(operations, tol))
 
     def __str__(self):

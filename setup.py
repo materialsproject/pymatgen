@@ -13,21 +13,12 @@ class build_ext(_build_ext):
     def finalize_options(self):
         _build_ext.finalize_options(self)
         # Prevent numpy from thinking it is still in its setup process:
-        if sys.version_info[0] >= 3:
-            import builtins
-            if hasattr(builtins, '__NUMPY_SETUP__'):
-                del builtins.__NUMPY_SETUP__
-            import importlib
-            import numpy
-            importlib.reload(numpy)
-        else:
-            import __builtin__
-            if hasattr(__builtin__, '__NUMPY_SETUP__'):
-                del __builtin__.__NUMPY_SETUP__
-            import imp
-            import numpy
-            imp.reload(numpy)
-
+        import builtins
+        if hasattr(builtins, '__NUMPY_SETUP__'):
+            del builtins.__NUMPY_SETUP__
+        import importlib
+        import numpy
+        importlib.reload(numpy)
         self.include_dirs.append(numpy.get_include())
 
 
@@ -55,9 +46,8 @@ Pymatgen is free to use. However, we also welcome your help to improve this
 library by making your own contributions.  These contributions can be in the
 form of additional tools or modules you develop, or feature requests and bug
 reports. Please report any bugs and issues at pymatgen's [Github page]
-(https://github.com/materialsproject/pymatgen). If you wish to be notified
-of pymatgen releases, you may become a member of
-[pymatgen's Google Groups page](https://groups.google.com/forum/?fromgroups#!forum/pymatgen/).
+(https://github.com/materialsproject/pymatgen). For help with any pymatgen
+issues, please use the [Discourse page](https://pymatgen.discourse.group).
 
 Why use pymatgen?
 =================
@@ -96,11 +86,11 @@ who require Python 2.7 should install pymatgen v2018.x.
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2019.2.24",
+    version="2019.5.8",
     cmdclass={'build_ext': build_ext},
     setup_requires=['numpy>=1.14.3', 'setuptools>=18.0'],
     install_requires=["numpy>=1.14.3", "requests", "ruamel.yaml>=0.15.6",
-                      "monty>=0.9.6", "scipy>=1.0.1", "pydispatcher>=2.0.5",
+                      "monty>=1.0.6", "scipy>=1.0.1", "pydispatcher>=2.0.5",
                       "tabulate", "spglib>=1.9.9.44", "networkx>=2.1",
                       "matplotlib>=1.5", "palettable>=2.1.1", "sympy", "pandas"],
     extras_require={
@@ -114,11 +104,12 @@ setup(
                   "pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files": ["*.txt", "*.json"],
                   "pymatgen.analysis.chemenv.coordination_environments.strategy_files": ["*.json"],
                   "pymatgen.analysis.hhi": ["*.csv"],
-                  "pymatgen.analysis.structure_predictor": ["data/*.json", "*.yaml"],
+                  "pymatgen.analysis.magnetism": ["*.json", "*.yaml"],
+                  "pymatgen.analysis.structure_prediction": ["data/*.json", "*.yaml"],
                   "pymatgen.io.vasp": ["*.yaml"],
                   "pymatgen.io.lammps": ["templates/*.*"],
                   "pymatgen.io.feff": ["*.yaml"],
-                  "pymatgen.symmetry": ["*.yaml", "*.json"],
+                  "pymatgen.symmetry": ["*.yaml", "*.json", "*.sqlite"],
                   "pymatgen.entries": ["*.yaml"],
                   "pymatgen.vis": ["ElementColorSchemes.yaml"],
                   "pymatgen.command_line": ["OxideTersoffPotentials"],
@@ -126,7 +117,7 @@ setup(
                   "pymatgen.analysis.diffraction": ["*.json"],
                   "pymatgen.util": ["structures/*.json"]},
     author="Pymatgen Development Team",
-    author_email="pymatgen@googlegroups.com",
+    author_email="ongsp@eng.ucsd.edu",
     maintainer="Shyue Ping Ong, Matthew Horton",
     maintainer_email="ongsp@eng.ucsd.edu, mkhorton@lbl.gov",
     url="http://www.pymatgen.org",

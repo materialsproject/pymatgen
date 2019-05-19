@@ -105,10 +105,10 @@ def calculate_bv_sum_unordered(site, nn_list, scale_factor=1):
     # \sum_{nn} \sum_j^N \sum_k^{N_{nn}} f_{site}_j f_{nn_i}_k vij_full
     # where vij_full is the valence bond of the fully occupied bond
     bvsum = 0
-    for specie1, occu1 in site.species_and_occu.items():
+    for specie1, occu1 in site.species.items():
         el1 = Element(specie1.symbol)
         for (nn, dist) in nn_list:
-            for specie2, occu2 in nn.species_and_occu.items():
+            for specie2, occu2 in nn.species.items():
                 el2 = Element(specie2.symbol)
                 if (el1 in ELECTRONEG or el2 in ELECTRONEG) and el1 != el2:
                     r1 = BV_PARAMS[el1]["r"]
@@ -209,7 +209,7 @@ class BVAnalyzer:
         bv_sum = calculate_bv_sum_unordered(
             site, nn, scale_factor=self.dist_scale_factor)
         prob = {}
-        for specie, occu in site.species_and_occu.items():
+        for specie, occu in site.species.items():
             el = specie.symbol
 
             prob[el] = {}
@@ -265,7 +265,7 @@ class BVAnalyzer:
 
         # Sort the equivalent sites by decreasing electronegativity.
         equi_sites = sorted(equi_sites,
-                            key=lambda sites: -sites[0].species_and_occu
+                            key=lambda sites: -sites[0].species
                             .average_electroneg)
 
         # Get a list of valences and probabilities for each symmetrically
@@ -295,7 +295,7 @@ class BVAnalyzer:
                 full_all_prob.extend(prob.values())
                 vals = []
                 for (elsp, occ) in get_z_ordered_elmap(
-                        test_site.species_and_occu):
+                        test_site.species):
                     val = list(prob[elsp.symbol].keys())
                     # Sort valences in order of decreasing probability.
                     val = sorted(val, key=lambda v: -prob[elsp.symbol][v])
@@ -371,7 +371,7 @@ class BVAnalyzer:
             fractions = []
             elements = []
             for sites in equi_sites:
-                for sp, occu in get_z_ordered_elmap(sites[0].species_and_occu):
+                for sp, occu in get_z_ordered_elmap(sites[0].species):
                     elements.append(sp.symbol)
                     fractions.append(occu)
             fractions = np.array(fractions, np.float)
@@ -391,7 +391,7 @@ class BVAnalyzer:
                 jj = 0
                 for i, sites in enumerate(equi_sites):
                     for specie, occu in get_z_ordered_elmap(
-                            sites[0].species_and_occu):
+                            sites[0].species):
                         el_oxi[specie.symbol].append(v_set[jj])
                         jj += 1
                 max_diff = max([max(v) - min(v) for v in el_oxi.values()])
@@ -518,7 +518,7 @@ def add_oxidation_state_by_site_fraction(structure, oxidation_states):
             for i, site in enumerate(structure):
                 new_sp = collections.defaultdict(float)
                 for j, (el, occu) in enumerate(get_z_ordered_elmap(site
-                        .species_and_occu)):
+                        .species)):
                     specie = Specie(el.symbol, oxidation_states[i][j])
                     new_sp[specie] += occu
                 structure[i] = new_sp

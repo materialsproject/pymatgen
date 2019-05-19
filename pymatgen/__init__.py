@@ -9,7 +9,7 @@ __author__ = "Pymatgen Development Team"
 __email__ ="pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong"
 __maintainer_email__ ="shyuep@gmail.com"
-__version__ = "2019.2.24"
+__version__ = "2019.5.8"
 
 
 SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
@@ -28,16 +28,7 @@ def _load_pmg_settings():
                 d[k] = v
             elif k in ["VASP_PSP_DIR", "MAPI_KEY", "DEFAULT_FUNCTIONAL"]:
                 d["PMG_" + k] = v
-    clean_d = {}
-    for k, v in d.items():
-        if not k.startswith("PMG_"):
-            warnings.warn('With effect from pmg 5.0, all pymatgen settings are'
-                          ' prefixed with a "PMG_". E.g., "PMG_VASP_PSP_DIR" '
-                          'instead of "VASP_PSP_DIR".')
-            clean_d["PMG_" + k] = v
-        else:
-            clean_d[k] = v
-    return clean_d
+    return dict(d)
 
 
 SETTINGS = _load_pmg_settings()

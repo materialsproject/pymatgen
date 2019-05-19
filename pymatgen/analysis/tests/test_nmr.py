@@ -20,7 +20,7 @@ class TestChemicalShieldingNotation(PymatgenTest):
 
         cs = ChemicalShielding(np.arange(9).reshape((3, 3)))
         self.assertArrayAlmostEqual(np.diag(cs.principal_axis_system),
-                                    [-1.3484692e+00, -1.1543332e-15,  1.3348469e+01], decimal=5)
+                                    [-1.74596669e+00, -1.53807726e-15, 1.37459667e+01], decimal=5)
 
     def test_notations(self):
         cs = ChemicalShielding.from_maryland_notation(

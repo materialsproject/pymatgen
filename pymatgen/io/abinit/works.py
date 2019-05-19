@@ -60,7 +60,7 @@ class WorkResults(NodeResults):
     @classmethod
     def from_node(cls, work):
         """Initialize an instance from a :class:`Work` instance."""
-        new = super(WorkResults, cls).from_node(work)
+        new = super().from_node(work)
 
         # Will put all files found in outdir in GridFs
         # Warning: assuming binary files.
@@ -481,7 +481,7 @@ class Work(BaseWork, NodeContainer):
             workdir: Path to the working directory.
             manager: :class:`TaskManager` object.
         """
-        super(Work, self).__init__()
+        super().__init__()
 
         self._tasks = []
 
@@ -882,7 +882,7 @@ class BandStructureWork(Work):
             workdir: Working directory.
             manager: :class:`TaskManager` object.
         """
-        super(BandStructureWork, self).__init__(workdir=workdir, manager=manager)
+        super().__init__(workdir=workdir, manager=manager)
 
         # Register the GS-SCF run.
         self.scf_task = self.register_scf_task(scf_input)
@@ -977,7 +977,7 @@ class RelaxWork(Work):
             workdir: Working directory.
             manager: :class:`TaskManager` object.
         """
-        super(RelaxWork, self).__init__(workdir=workdir, manager=manager)
+        super().__init__(workdir=workdir, manager=manager)
 
         self.ion_task = self.register_relax_task(ion_input)
 
@@ -1028,7 +1028,7 @@ class RelaxWork(Work):
                             .format(actual_dilatmx, self.ioncell_task.get_inpvar('dilatmx')))
                 self.ioncell_task.reset_from_scratch()
 
-        return super(RelaxWork, self).on_ok(sender)
+        return super().on_ok(sender)
 
     def plot_ion_relaxation(self, **kwargs):
         """
@@ -1071,7 +1071,7 @@ class G0W0Work(Work):
             workdir: Working directory of the calculation.
             manager: :class:`TaskManager` object.
         """
-        super(G0W0Work, self).__init__(workdir=workdir, manager=manager)
+        super().__init__(workdir=workdir, manager=manager)
 
         spread_scr = (isinstance(sigma_inputs, (list, tuple)) and
                       isinstance(scr_inputs, (list, tuple)) and
@@ -1130,7 +1130,7 @@ class SigmaConvWork(Work):
         # Cast to node instances.
         wfk_node, scr_node = Node.as_node(wfk_node), Node.as_node(scr_node)
 
-        super(SigmaConvWork, self).__init__(workdir=workdir, manager=manager)
+        super().__init__(workdir=workdir, manager=manager)
 
         # Register the SIGMA runs.
         if not isinstance(sigma_inputs, (list, tuple)):
@@ -1155,7 +1155,7 @@ class BseMdfWork(Work):
             workdir: Working directory of the calculation.
             manager: :class:`TaskManager`.
         """
-        super(BseMdfWork, self).__init__(workdir=workdir, manager=manager)
+        super().__init__(workdir=workdir, manager=manager)
 
         # Register the GS-SCF run.
         self.scf_task = self.register_scf_task(scf_input)
@@ -1612,7 +1612,7 @@ class PhononWfkqWork(Work, MergeDdb):
                        self.history.info("Removing WFQ: %s" % path)
                        os.remove(path)
 
-        return super(PhononWfkqWork, self).on_ok(sender)
+        return super().on_ok(sender)
 
     #@check_spectator
     def on_all_ok(self):
@@ -1801,7 +1801,7 @@ class GKKPWork(Work):
             infile = os.path.join(os.path.dirname(wfk_path), infile)
             os.symlink(wfk_path, infile)
 
-        return super(GKKPWork, self).on_ok(sender)
+        return super().on_ok(sender)
 
 
 class BecWork(Work, MergeDdb):
