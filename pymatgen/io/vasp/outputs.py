@@ -3180,6 +3180,42 @@ class Chgcar(VolumetricData):
             return None
 
 
+class Elfcar(VolumetricData):
+    """
+    Read an ELFCAR file which contains the Electron Localization Function (ELF)
+    as calculated by VASP.
+
+    For ELF, "total" key refers to Spin.up, and "diff" refers to Spin.down.
+
+    This also contains information on the kinetic energy density.
+    """
+
+    def __init__(self, poscar, data):
+        super().__init__(poscar.structure, data)
+        # TODO: modify VolumetricData so that the correct keys can be used.
+        # for ELF, instead of "total" and "diff" keys we have
+        # "Spin.up" and "Spin.down" keys
+        # I believe this is correct, but there's not much documentation -mkhorton
+        self.data = data
+
+    @classmethod
+    def from_file(cls, filename):
+        (poscar, data, data_aug) = VolumetricData.parse_file(filename)
+        return cls(poscar, data)
+
+    def get_alpha(self):
+        """
+        Get the parameter alpha where ELF = 1/(1+alpha^2).
+        """
+        alpha_data = {}
+        for k, v in self.data.items():
+            alpha = 1/v
+            alpha = alpha - 1
+            alpha = np.sqrt(alpha)
+            alpha_data[k] = alpha
+        return VolumetricData(self.structure, alpha_data)
+
+
 class Procar:
     """
     Object for reading a PROCAR file.
