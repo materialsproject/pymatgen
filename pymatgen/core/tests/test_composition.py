@@ -507,6 +507,12 @@ class CompositionTest(PymatgenTest):
         self.assertTrue(cmp.contains_element_type("f-block"))
         self.assertFalse(cmp.contains_element_type("s-block"))
 
+    def test_chemical_system(self):
+
+        formula = "NaCl"
+        cmp = Composition(formula)
+        self.assertEqual(cmp.chemical_system, "Cl-Na")
+
 
 class ChemicalPotentialTest(unittest.TestCase):
 

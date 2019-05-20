@@ -530,7 +530,6 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         else:
             return any([getattr(el, "is_{}".format(category)) for el in self.elements])
 
-
     def _parse_formula(self, formula):
         """
         Args:
@@ -593,6 +592,16 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 amt_str = str(amt)
             anon += ("{}{}".format(e, amt_str))
         return anon
+
+    @property
+    def chemical_system(self):
+        """
+        Get the chemical system of a Composition, for example "O-Si" for
+        SiO2. Chemical system is a string of a list of elements
+        sorted alphabetically and joined by dashes, by convention for use
+        in database keys.
+        """
+        return "-".join(sorted([str(el) for el in self.elements]))
 
     def __repr__(self):
         return "Comp: " + self.formula

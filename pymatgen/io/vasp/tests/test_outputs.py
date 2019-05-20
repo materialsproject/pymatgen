@@ -1077,6 +1077,7 @@ class ElfcarTest(PymatgenTest):
         alpha = elfcar.get_alpha()
         self.assertAlmostEqual(2.936678808979031, np.median(alpha.data["total"]))
 
+
 class ProcarTest(PymatgenTest):
     _multiprocess_shared_ = True
 
