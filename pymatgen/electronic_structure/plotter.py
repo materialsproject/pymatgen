@@ -4109,7 +4109,7 @@ def plot_brillouin_zone(bz_lattice, lines=None, labels=None, kpoints=None,
     ax.set_ylim3d(-1, 1)
     ax.set_zlim3d(-1, 1)
 
-    ax.set_aspect('equal')
+    # ax.set_aspect('equal')
     ax.axis("off")
 
     return fig
