@@ -21,7 +21,7 @@ from pymatgen.electronic_structure.core import OrbitalType
 from pymatgen.io.vasp.inputs import Kpoints, Poscar
 from pymatgen.io.vasp.outputs import Chgcar, Locpot, Oszicar, Outcar, \
     Vasprun, Procar, Xdatcar, Dynmat, BSVasprun, UnconvergedVASPWarning, \
-    VaspParserError, Wavecar, Waveder
+    VaspParserError, Wavecar, Waveder, Elfcar
 from pymatgen import Spin, Orbital, Lattice, Structure
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.electronic_structure.core import Magmom
@@ -1063,6 +1063,19 @@ class ChgcarTest(PymatgenTest):
         self.assertArrayAlmostEqual(chgcar.data['total'], chgcar_from_dict.data['total'])
         self.assertArrayAlmostEqual(chgcar.structure.lattice.matrix,
                                     chgcar_from_dict.structure.lattice.matrix)
+
+
+class ElfcarTest(PymatgenTest):
+
+    def test_init(self):
+        elfcar = Elfcar.from_file(self.TEST_FILES_DIR / 'ELFCAR.gz')
+        self.assertAlmostEqual(0.19076207645194002, np.mean(elfcar.data["total"]))
+        self.assertAlmostEqual(0.19076046677910055, np.mean(elfcar.data["diff"]))
+
+    def test_alpha(self):
+        elfcar = Elfcar.from_file(self.TEST_FILES_DIR / 'ELFCAR.gz')
+        alpha = elfcar.get_alpha()
+        self.assertAlmostEqual(2.936678808979031, np.median(alpha.data["total"]))
 
 
 class ProcarTest(PymatgenTest):
