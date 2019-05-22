@@ -2539,7 +2539,7 @@ class BSDOSPlotter:
                           [1 - (i / 1000) ** 2, 0, (i / 1000) ** 2]])
 
         # plot the bar
-        inset_ax.scatter(x, y, s=250., marker='s', edgecolor=color)
+        inset_ax.scatter(x, y, s=250., marker='s', c=color)
         inset_ax.set_xlim([-0.1, 1.7])
         inset_ax.text(1.35, 0, b_label, fontsize=13,
                       family='Times New Roman', color=(0, 0, 0),
