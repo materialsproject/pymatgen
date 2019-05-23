@@ -16,12 +16,16 @@ import numpy as np
 
 import spglib
 
+import mechanize as mech
+
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import PeriodicSite
 from pymatgen.core.operations import SymmOp
 from pymatgen.util.coord import find_in_coord_list, pbc_diff
+from pymatgen.symmetry.groups import SpaceGroup
+from pymatgen.core.operations import MagSymmOp
 
 """
 An interface to the excellent spglib library by Atsushi Togo
@@ -1631,3 +1635,81 @@ class PointGroupOperations(list):
 
     def __repr__(self):
         return self.__str__()
+
+class MagneticSpaceGroupAnalyzer:
+    """
+    Takes a pymatgen.core.structure.Structure object 
+    """
+
+    def __init__( self, structure, symprec=0.01, angle_tolerance=5):
+      # TODO: structure code such that the circular dependencies btw pymatgen.transformations 
+      #       and pymatgen.symmetry are resolved
+      from pymatgen.transformations.standard_transformations import ApplyMagSymmOpTransformation
+      from pymatgen.alchemy.materials import TransformedStructure
+
+      self._structure = structure
+      self._symprec=symprec
+      self._angle_tolerance=angle_tolerance
+
+      a = SpacegroupAnalyzer( self._structure, symprec=self._symprec, angle_tolerance=self._angle_tolerance)
+      self._space_group_data = a._space_group_data
+      g = SpaceGroup.from_int_number( int(self._space_group_data["number"]) )
+      self._oplist = g.symmetry_ops
+
+      # apply mag space group op and check if it is symm
+      mspg_list = []
+      for op in self._oplist:
+        for i in [+1, -1]:
+          mop = MagSymmOp.from_symmop( op, i )
+          trans = [ApplyMagSymmOpTransformation(mop)]
+          s_new = TransformedStructure(self._structure, trans )
+
+          if self._same_struc( s_new.final_structure,  self._structure  ):
+            mspg_list.append( mop )
+      self.magsymmetry_ops = mspg_list
+
+      # find magnetic space group corresponding to symm ops in msg_list
+      self._MagneticSpaceGroup = self._brows4MagneticSpaceGroup( [mop.as_xyzt_string() for mop in self.magsymmetry_ops] )
+
+    def get_MagneticSpaceGroup(self):
+      return self._MagneticSpaceGroup
+
+    def get_magsymmetry_ops( self ):
+      return self._MagneticSpaceGroup.symmetry_ops
+
+    def get_og_info( self ):
+      og_label = self._MagneticSpaceGroup._data["og_label"] 
+      return ( og_label, self.og_no )  
+
+    def _same_struc( self, struc1, struc2 ):
+      sites_contained = []
+      for site_a in struc1:
+        is_in = np.any([ site_a._species == site_b._species and np.allclose(site_a.frac_coords, site_b.frac_coords, atol=self._symprec) and site_a.properties == site_b.properties for site_b in struc2 ])
+        sites_contained.append( is_in )
+      return np.all( sites_contained )
+
+    def _brows4MagneticSpaceGroup( self, xyzt_string_list ):
+      from pymatgen.symmetry.maggroups import MagneticSpaceGroup
+      br = mech.Browser()
+      br.open( "http://www.cryst.ehu.es/cgi-bin/cryst/programs/checkgr.pl?tipog=gmag" )
+      br.form = list( br.forms() )[0]
+      control = br.form.find_control( "setting" )
+      control.set( 'OG', 'OG')
+      control = br.form.find_control( "generators" )
+      control.value = "\n".join( xyzt_string_list  )
+      control = br.form.find_control( "list" )
+      control.disable = True
+      br.submit()
+      br.form = list( br.forms() )[0]
+      control = br.form.find_control( "grupo" )
+      self.og_no = control.value.split(',')[1]
+
+      return MagneticSpaceGroup.from_og( [int(x) for x in self.og_no.split(".")] )
+
+ 
+
+
+
+
+
+
