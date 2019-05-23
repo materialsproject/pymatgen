@@ -440,7 +440,7 @@ class FermiDos(Dos, MSONable):
                                     dos.densities.items()})
 
         if structure is None:
-            if hasattr(self.structure, "structure"):
+            if hasattr(dos, "structure"):
                 structure = dos.structure
             else:
                 raise ValueError("Structure object is not provided and not "
