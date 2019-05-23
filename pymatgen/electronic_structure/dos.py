@@ -413,7 +413,7 @@ class Dos(MSONable):
                               for spin, dens in self.densities.items()}}
 
 
-class FermiDos(Dos):
+class FermiDos(Dos, MSONable):
     """
     This wrapper class helps relate the density of states, doping levels
     (i.e. carrier concentrations) and corresponding fermi levels. A negative
@@ -448,8 +448,6 @@ class FermiDos(Dos):
 
         self.structure = structure
         self.nelecs = nelecs or self.structure.composition.total_electrons
-        self.bandgap = bandgap
-        self._dos = dos
 
         self.volume = self.structure.volume
         self.energies = np.array(dos.energies)
@@ -606,6 +604,27 @@ class FermiDos(Dos):
                 "Could not find fermi within {}% of concentration={}".format(
                     rtol * 100, concentration))
         return fermi
+
+    @classmethod
+    def from_dict(cls, d):
+        """
+        Returns Dos object from dict representation of Dos.
+        """
+        dos = Dos(d["efermi"], d["energies"],
+                  {Spin(int(k)): v for k, v in d["densities"].items()})
+        return FermiDos(dos, structure=Structure.from_dict(d["structure"]),
+                        nelecs=d["nelecs"])
+
+    def as_dict(self):
+        """
+        Json-serializable dict representation of Dos.
+        """
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__, "efermi": self.efermi,
+                "energies": list(self.energies),
+                "densities": {str(spin): list(dens)
+                              for spin, dens in self.densities.items()},
+                "structure": self.structure, "nelecs": self.nelecs}
 
 
 class CompleteDos(Dos):
