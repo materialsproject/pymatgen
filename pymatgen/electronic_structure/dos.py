@@ -456,8 +456,8 @@ class FermiDos(Dos, MSONable):
 
         # normalize total density of states based on integral at 0K
         tdos = np.array(self.get_densities())
-        self.tdos = tdos * nelecs / (tdos * self.de)[self.energies <=
-                                                     self.efermi].sum()
+        self.tdos = tdos * self.nelecs / (tdos * self.de)[self.energies <=
+                                                          self.efermi].sum()
 
         ecbm, evbm = self.get_cbm_vbm()
         self.idx_vbm = np.argmin(abs(self.energies - evbm))
