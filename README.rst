@@ -80,9 +80,9 @@ matsci channel to install pymatgen and other packages. In line with the
 Scientific Python stack, pymatgen will now support only Py3.x from v2019.1.1. 
 Users who need Python 2.7 support should install v2018.x.
 
-The version at the Python Package Index (PyPI) is always the latest stable
-release that is relatively bug-free. The easiest way to install pymatgen on
-any system is to use pip::
+The version at the `Python Package Index (PyPI) <https://pypi.org/project/pymatgen>`_
+is always the latest stable release that is relatively bug-free. The easiest 
+way to install pymatgen on any system is via pip::
 
     pip install pymatgen
 
