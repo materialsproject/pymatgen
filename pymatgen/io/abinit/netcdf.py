@@ -448,7 +448,7 @@ class AbinitHeader(AttrDict):
     """Stores the values reported in the Abinit header."""
 
     #def __init__(self, *args, **kwargs):
-    #    super(AbinitHeader, self).__init__(*args, **kwargs)
+    #    super().__init__(*args, **kwargs)
     #    for k, v in self.items():
     #        v.__doc__ = _HDR_VARIABLES[k].doc
 

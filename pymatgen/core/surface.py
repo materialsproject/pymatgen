@@ -144,7 +144,7 @@ class Slab(Structure):
                                           lattice.alpha, lattice.beta,
                                           lattice.gamma) \
             if self.reorient_lattice else lattice
-        super(Slab, self).__init__(
+        super().__init__(
             lattice, species, coords, validate_proximity=validate_proximity,
             to_unit_cell=to_unit_cell,
             coords_are_cartesian=coords_are_cartesian,
@@ -434,7 +434,7 @@ class Slab(Structure):
         return "\n".join(outs)
 
     def as_dict(self):
-        d = super(Slab, self).as_dict()
+        d = super().as_dict()
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         d["oriented_unit_cell"] = self.oriented_unit_cell.as_dict()

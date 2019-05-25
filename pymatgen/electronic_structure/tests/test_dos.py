@@ -60,30 +60,36 @@ class FermiDosTest(unittest.TestCase):
         T = 300
         fermi0 = self.dos.efermi
         frange = [fermi0 - 0.5, fermi0, fermi0 + 2.0, fermi0 + 2.2]
-        dopings = [self.dos.get_doping(fermi=f, T=T) for f in frange]
+        dopings = [self.dos.get_doping(fermi_level=f, temperature=T) for f in frange]
         ref_dopings = [3.48077e+21, 1.9235e+18, -2.6909e+16, -4.8723e+19]
         for i, c_ref in enumerate(ref_dopings):
             self.assertLessEqual(abs(dopings[i] / c_ref - 1.0), 0.01)
 
-        calc_fermis = [self.dos.get_fermi(c=c, T=T) for c in ref_dopings]
+        calc_fermis = [self.dos.get_fermi(concentration=c, temperature=T) for c in ref_dopings]
         for j, f_ref in enumerate(frange):
             self.assertAlmostEqual(calc_fermis[j], f_ref, 4)
 
         sci_dos = FermiDos(self.dos, bandgap=3.0)
+        self.assertEqual( sci_dos.get_gap(), 3.)
+        old_cbm, old_vbm = self.dos.get_cbm_vbm()
+        old_gap = old_cbm - old_vbm
+        new_cbm, new_vbm = sci_dos.get_cbm_vbm()
+        self.assertAlmostEqual( new_cbm - old_cbm, (3. - old_gap) / 2.)
+        self.assertAlmostEqual( old_vbm - new_vbm, (3. - old_gap) / 2.)
         for i, c_ref in enumerate(ref_dopings):
             if c_ref < 0:
                 self.assertAlmostEqual(
-                    sci_dos.get_fermi(c_ref, T=T) - frange[i], 0.47, places=2)
+                    sci_dos.get_fermi(c_ref, temperature=T) - frange[i], 0.47, places=2)
             else:
                 self.assertAlmostEqual(
-                    sci_dos.get_fermi(c_ref, T=T) - frange[i], -0.47, places=2)
+                    sci_dos.get_fermi(c_ref, temperature=T) - frange[i], -0.47, places=2)
 
         self.assertAlmostEqual(sci_dos.get_fermi_interextrapolated(-1e26, 300),
                                7.5108, 4)
         self.assertAlmostEqual(sci_dos.get_fermi_interextrapolated(1e26, 300),
-                               -1.6884, 4)
+                               -1.4182, 4)
         self.assertAlmostEqual(sci_dos.get_fermi_interextrapolated(0.0, 300),
-                               3.2382, 4)
+                               2.5226, 4)
 
 
 class CompleteDosTest(unittest.TestCase):

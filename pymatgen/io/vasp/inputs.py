@@ -193,7 +193,7 @@ class Poscar(MSONable):
                     raise ValueError(name + " array must be same length as" +
                                      " the structure.")
                 value = value.tolist()
-        super(Poscar, self).__setattr__(name, value)
+        super().__setattr__(name, value)
 
     @staticmethod
     def from_file(filename, check_for_POTCAR=True, read_velocities=True):
@@ -618,7 +618,7 @@ class Incar(dict, MSONable):
         Args:
             params (dict): A set of input parameters as a dictionary.
         """
-        super(Incar, self).__init__()
+        super().__init__()
         if params:
 
             # if Incar contains vector-like magmoms given as a list
@@ -638,7 +638,7 @@ class Incar(dict, MSONable):
         valid INCAR tags. Also cleans the parameter and val by stripping
         leading and trailing white spaces.
         """
-        super(Incar, self).__setitem__(
+        super().__setitem__(
             key.strip(), Incar.proc_val(key.strip(), val.strip())
             if isinstance(val, str) else val)
 
@@ -1727,7 +1727,7 @@ class Potcar(list, MSONable):
     def __init__(self, symbols=None, functional=None, sym_potcar_map=None):
         if functional is None:
             functional = SETTINGS.get("PMG_DEFAULT_FUNCTIONAL", "PBE")
-        super(Potcar, self).__init__()
+        super().__init__()
         self.functional = functional
         if symbols is not None:
             self.set_symbols(symbols, functional, sym_potcar_map)
@@ -1841,7 +1841,7 @@ class VaspInput(dict, MSONable):
 
     def __init__(self, incar, kpoints, poscar, potcar, optional_files=None,
                  **kwargs):
-        super(VaspInput, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.update({'INCAR': incar,
                      'KPOINTS': kpoints,
                      'POSCAR': poscar,

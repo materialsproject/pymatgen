@@ -501,6 +501,35 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         """
         return get_el_sp(el).atomic_mass * abs(self[el]) / self.weight
 
+    def contains_element_type(self, category):
+        """
+        Check if Composition contains any elements matching a given category.
+
+        Args:
+            category (str): one of "noble_gas", "transition_metal",
+            "post_transition_metal", "rare_earth_metal", "metal", "metalloid",
+            "alkali", "alkaline", "halogen", "chalcogen", "lanthanoid",
+            "actinoid", "quadrupolar", "s-block", "p-block", "d-block", "f-block"
+
+
+        Returns:
+            True if any elements in Composition match category, otherwise False
+        """
+
+        allowed_categories = ("noble_gas", "transition_metal", "post_transition_metal",
+                              "rare_earth_metal", "metal", "metalloid", "alkali",
+                              "alkaline", "halogen", "chalcogen", "lanthanoid",
+                              "actinoid", "quadrupolar", "s-block", "p-block",
+                              "d-block", "f-block")
+
+        if category not in allowed_categories:
+            raise ValueError("Please pick a category from: {}".format(", ".join(allowed_categories)))
+
+        if "block" in category:
+            return any([category[0] in el.block for el in self.elements])
+        else:
+            return any([getattr(el, "is_{}".format(category)) for el in self.elements])
+
     def _parse_formula(self, formula):
         """
         Args:
@@ -563,6 +592,16 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 amt_str = str(amt)
             anon += ("{}{}".format(e, amt_str))
         return anon
+
+    @property
+    def chemical_system(self):
+        """
+        Get the chemical system of a Composition, for example "O-Si" for
+        SiO2. Chemical system is a string of a list of elements
+        sorted alphabetically and joined by dashes, by convention for use
+        in database keys.
+        """
+        return "-".join(sorted([str(el) for el in self.elements]))
 
     def __repr__(self):
         return "Comp: " + self.formula
@@ -1126,7 +1165,7 @@ class ChemicalPotential(dict, MSONable):
             *args, **kwargs: any valid dict init arguments
         """
         d = dict(*args, **kwargs)
-        super(ChemicalPotential, self).__init__((get_el_sp(k), v)
+        super().__init__((get_el_sp(k), v)
                                                 for k, v in d.items())
         if len(d) != len(self):
             raise ValueError("Duplicate potential specified")
@@ -1177,7 +1216,7 @@ class ChemicalPotential(dict, MSONable):
         return sum(self.get(k, 0) * v for k, v in composition.items())
 
     def __repr__(self):
-        return "ChemPots: " + super(ChemicalPotential, self).__repr__()
+        return "ChemPots: " + super().__repr__()
 
 
 if __name__ == "__main__":

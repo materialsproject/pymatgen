@@ -35,4 +35,4 @@ class ExcitationSpectrum(Spectrum):
     YLABEL = 'Intensity'
 
     def __init__(self, x, y):
-        super(ExcitationSpectrum, self).__init__(x, y)
+        super().__init__(x, y)
