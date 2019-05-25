@@ -2291,13 +2291,14 @@ class BSDOSPlotter:
                     current_pos = 0
                     for x_distances in x_distances_list:
                         sub_band = band[current_pos: current_pos + len(x_distances)]
-                        current_pos += len(x_distances)
 
                         self._rgbline(bs_ax, x_distances, sub_band,
-                                      colordata[spin][band_idx, :, 0],
-                                      colordata[spin][band_idx, :, 1],
-                                      colordata[spin][band_idx, :, 2],
+                                      colordata[spin][band_idx, :, 0][current_pos: current_pos + len(x_distances)],
+                                      colordata[spin][band_idx, :, 1][current_pos: current_pos + len(x_distances)],
+                                      colordata[spin][band_idx, :, 2][current_pos: current_pos + len(x_distances)],
                                       linestyles=linestyles)
+
+                        current_pos += len(x_distances)
 
         if dos:
             # Plot the DOS and projected DOS
