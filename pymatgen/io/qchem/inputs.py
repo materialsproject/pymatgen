@@ -70,7 +70,7 @@ class QCInput(MSONable):
         #   - Has a valid job_type or jobtype
 
         valid_job_types = [
-            "opt", "optimization", "sp", "freq", "frequency", "nmr"
+            "opt", "optimization", "sp", "freq", "frequency", "force", "nmr"
         ]
 
         if "basis" not in self.rem:

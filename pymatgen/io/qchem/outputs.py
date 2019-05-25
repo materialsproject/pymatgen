@@ -131,8 +131,8 @@ class QCOutput(MSONable):
         # Parse the SCF
         self._read_SCF()
 
-        # Parse the Mulliken charges
-        self._read_mulliken()
+        # Parse the Mulliken/ESP/RESP charges
+        self._read_charges()
 
         # Check for various warnings
         self._detect_general_warnings()
@@ -251,40 +251,7 @@ class QCOutput(MSONable):
                 "key": r"(?i)\s*job(?:_)*type\s*(?:=)*\s*opt"
             }).get('key')
         if self.data.get('optimization', []):
-            temp_energy_trajectory = read_pattern(
-                self.text, {
-                    "key": r"\sEnergy\sis\s+([\d\-\.]+)"
-                }).get('key')
-            if temp_energy_trajectory == None:
-                self.data["energy_trajectory"] = []
-            else:
-                real_energy_trajectory = np.zeros(len(temp_energy_trajectory))
-                for ii, entry in enumerate(temp_energy_trajectory):
-                    real_energy_trajectory[ii] = float(entry[0])
-                self.data["energy_trajectory"] = real_energy_trajectory
-                self._read_geometries()
-                if have_babel:
-                    self.data["structure_change"] = check_for_structure_changes(
-                                                        self.data["initial_molecule"],
-                                                        self.data["molecule_from_last_geometry"])
-                self._read_gradients()
-                # Then, if no optimized geometry or z-matrix is found, and no errors have been previously
-                # idenfied, check to see if the optimization failed to converge or if Lambda wasn't able
-                # to be determined.
-                if len(self.data.get("errors")) == 0 and self.data.get('optimized_geometry') is None \
-                        and len(self.data.get('optimized_zmat')) == 0:
-                    if read_pattern(
-                            self.text, {
-                                "key": r"MAXIMUM OPTIMIZATION CYCLES REACHED"
-                            },
-                            terminate_on_match=True).get('key') == [[]]:
-                        self.data["errors"] += ["out_of_opt_cycles"]
-                    elif read_pattern(
-                            self.text, {
-                                "key": r"UNABLE TO DETERMINE Lamda IN FormD"
-                            },
-                            terminate_on_match=True).get('key') == [[]]:
-                        self.data["errors"] += ["unable_to_determine_lamda"]
+            self._read_optimization_data()
 
         # Check if the calculation contains a constraint in an $opt section.
         self.data["opt_constraint"] = read_pattern(self.text, {
@@ -329,6 +296,14 @@ class QCOutput(MSONable):
             terminate_on_match=True).get("key")
         if self.data.get("single_point_job", []):
             self._read_single_point_data()
+
+        self.data["force_job"] = read_pattern(
+            self.text, {
+                "key": r"(?i)\s*job(?:_)*type\s*(?:=)*\s*force"
+            },
+            terminate_on_match=True).get("key")
+        if self.data.get("force", []):
+            self._read_force_data()
 
 
         # If the calculation did not finish and no errors have been identified yet, check for other errors
@@ -514,9 +489,9 @@ class QCOutput(MSONable):
                 self.data["Total_energy_in_the_final_basis_set"] = Total_energy
 
 
-    def _read_mulliken(self):
+    def _read_charges(self):
         """
-        Parses Mulliken charges. Also parses spins given an unrestricted SCF.
+        Parses Mulliken/ESP/RESP charges. Also parses spins given an unrestricted SCF.
         """
         if self.data.get('unrestricted', []):
             header_pattern = r"\-+\s+Ground-State Mulliken Net Atomic Charges\s+Atom\s+Charge \(a\.u\.\)\s+Spin\s\(a\.u\.\)\s+\-+"
@@ -543,6 +518,26 @@ class QCOutput(MSONable):
             real_mulliken += [temp]
 
         self.data["Mulliken"] = real_mulliken
+
+        # Check for ESP/RESP charges
+        esp_or_resp = read_pattern(
+            self.text, {
+                "key": r"Merz-Kollman (R?ESP) Net Atomic Charges"
+            }).get('key')
+        if esp_or_resp != None:
+            header_pattern = r"Merz-Kollman (R?ESP) Net Atomic Charges\s+Atom\s+Charge \(a\.u\.\)\s+\-+"
+            table_pattern = r"\s+\d+\s\w+\s+([\d\-\.]+)"
+            footer_pattern = r"\s\s\-+\s+Sum of atomic charges"
+
+            temp_esp_or_resp = read_table_pattern(self.text, header_pattern,
+                                                  table_pattern, footer_pattern)
+            real_esp_or_resp = []
+            for one_entry in temp_esp_or_resp:
+                temp = np.zeros(len(one_entry))
+                for ii, entry in enumerate(one_entry):
+                    temp[ii] = float(entry[0])
+                real_esp_or_resp += [temp]
+            self.data[esp_or_resp[0][0]] = real_esp_or_resp
 
     def _detect_general_warnings(self):
         # Check for inaccurate integrated density 
@@ -783,6 +778,41 @@ class QCOutput(MSONable):
         else:
             self.data["CDS_gradients"] = None
 
+    def _read_optimization_data(self):
+        temp_energy_trajectory = read_pattern(
+            self.text, {
+                "key": r"\sEnergy\sis\s+([\d\-\.]+)"
+            }).get('key')
+        if temp_energy_trajectory == None:
+            self.data["energy_trajectory"] = []
+        else:
+            real_energy_trajectory = np.zeros(len(temp_energy_trajectory))
+            for ii, entry in enumerate(temp_energy_trajectory):
+                real_energy_trajectory[ii] = float(entry[0])
+            self.data["energy_trajectory"] = real_energy_trajectory
+            self._read_geometries()
+            if have_babel:
+                self.data["structure_change"] = check_for_structure_changes(
+                                                    self.data["initial_molecule"],
+                                                    self.data["molecule_from_last_geometry"])
+            self._read_gradients()
+            # Then, if no optimized geometry or z-matrix is found, and no errors have been previously
+            # idenfied, check to see if the optimization failed to converge or if Lambda wasn't able
+            # to be determined.
+            if len(self.data.get("errors")) == 0 and self.data.get('optimized_geometry') is None \
+                    and len(self.data.get('optimized_zmat')) == 0:
+                if read_pattern(
+                        self.text, {
+                            "key": r"MAXIMUM OPTIMIZATION CYCLES REACHED"
+                        },
+                        terminate_on_match=True).get('key') == [[]]:
+                    self.data["errors"] += ["out_of_opt_cycles"]
+                elif read_pattern(
+                        self.text, {
+                            "key": r"UNABLE TO DETERMINE Lamda IN FormD"
+                        },
+                        terminate_on_match=True).get('key') == [[]]:
+                    self.data["errors"] += ["unable_to_determine_lamda"]
 
     def _read_frequency_data(self):
         """
@@ -930,6 +960,9 @@ class QCOutput(MSONable):
             # -1 in case of pcm
             # Two lines will match the above; we want final calculation
             self.data['final_energy'] = float(temp_dict.get('final_energy')[-1][0])
+
+    def _read_force_data(self):
+        self._read_gradients()        
 
     def _read_pcm_information(self):
         """
