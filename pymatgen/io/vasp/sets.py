@@ -383,8 +383,9 @@ class DictSet(VaspInputSet):
                     incar["EDIFF"] = float(settings["EDIFF"])
             else:
                 incar[k] = v
-
-        has_u = hubbard_u and sum(incar['LDAUU']) > 0
+        has_u = False
+        if ["LDAUU"] in list(incar.keys()):
+            has_u = hubbard_u and sum(incar['LDAUU']) > 0
         if has_u:
             # modify LMAXMIX if LSDA+U and you have d or f electrons
             # note that if the user explicitly sets LMAXMIX in settings it will
