@@ -416,7 +416,7 @@ class DefectPhaseDiagram(MSONable):
                 for d in self.defect_concentrations(
                     chemical_potentials=chemical_potentials, temperature=temperature, fermi_level=ef)
             ])
-            qd_tot += fdos.get_doping(fermi=ef + fdos_vbm, T=temperature)
+            qd_tot += fdos.get_doping(fermi_level=ef + fdos_vbm, temperature=temperature)
             return qd_tot
 
         return bisect(_get_total_q, -1., self.band_gap + 1.)
@@ -453,7 +453,7 @@ class DefectPhaseDiagram(MSONable):
         def _get_total_q(ef):
 
             qd_tot = fixed_defect_charge
-            qd_tot += fdos.get_doping(fermi=ef + fdos_vbm, T=temperature)
+            qd_tot += fdos.get_doping(fermi_level=ef + fdos_vbm, temperature=temperature)
             return qd_tot
 
         return bisect(_get_total_q, -1., self.band_gap + 1.)
