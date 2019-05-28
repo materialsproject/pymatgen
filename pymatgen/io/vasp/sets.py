@@ -360,20 +360,22 @@ class DictSet(VaspInputSet):
                 incar[k] = mag
             elif k in ('LDAUU', 'LDAUJ', 'LDAUL'):
                 if hubbard_u:
-                    if hasattr(structure[0], k.lower()):
-                        m = dict([(site.specie.symbol, getattr(site, k.lower()))
-                                  for site in structure])
-                        incar[k] = [m[sym] for sym in poscar.site_symbols]
-                    # lookup specific LDAU if specified for most_electroneg atom
-                    elif most_electroneg in v.keys() and \
-                            isinstance(v[most_electroneg], dict):
-                        incar[k] = [v[most_electroneg].get(sym, 0)
-                                    for sym in poscar.site_symbols]
-                    # else, use fallback LDAU value if it exists
-                    else:
-                        incar[k] = [v.get(sym, 0)
-                                    if isinstance(v.get(sym, 0), (float, int))
-                                    else 0 for sym in poscar.site_symbols]
+                    if isinstance(v, dict):
+                        if hasattr(structure[0], k.lower()):
+                            m = dict([(site.specie.symbol, getattr(site, k.lower()))
+                                      for site in structure])
+                            incar[k] = [m[sym] for sym in poscar.site_symbols]
+                        # lookup specific LDAU if specified for most_electroneg atom
+                        elif isinstance(v, dict) and \
+                                most_electroneg in v.keys() and \
+                                isinstance(v[most_electroneg], dict):
+                            incar[k] = [v[most_electroneg].get(sym, 0)
+                                        for sym in poscar.site_symbols]
+                        # else, use fallback LDAU value if it exists
+                        else:
+                            incar[k] = [v.get(sym, 0)
+                                        if isinstance(v.get(sym, 0), (float, int))
+                                        else 0 for sym in poscar.site_symbols]
             elif k.startswith("EDIFF") and k != "EDIFFG":
                 if "EDIFF" not in settings and k == "EDIFF_PER_ATOM":
                     incar["EDIFF"] = float(v) * structure.num_sites
@@ -748,7 +750,11 @@ class LinearResponseUSet(MPRelaxSet):
     @property
     def incar(self):
         parent_incar = super().incar
+        print(parent_incar)
         settings = dict(self._config_dict["INCAR"])
+        settings.pop("LDAUU")
+        settings.pop("LDAUJ")
+        settings.pop("LDAUL")
 
         structure = self.structure
         comp = structure.composition
@@ -798,22 +804,21 @@ class LinearResponseUSet(MPRelaxSet):
                 incar[k] = mag
             elif k in ('LDAUU', 'LDAUJ', 'LDAUL'):
                 if hubbard_u:
-                    #print("hubbard_u")
-                    if hasattr(structure[0], k.lower()):
-                        #print(1)
-                        m = dict([(site.specie.symbol, getattr(site, k.lower()))
-                                  for site in structure])
-                        incar[k] = [m[sym] for sym in poscar.site_symbols]
-                    # lookup specific LDAU if specified for most_electroneg atom
-                    elif most_electroneg in v.keys() and \
-                            isinstance(v[most_electroneg], dict):
-                        #print(2)
-                        incar[k] = [v[most_electroneg].get(sym, 0)
-                                    for sym in poscar.site_symbols]
-                    # else, use fallback LDAU value if it exists
-                    else:
-                        print(self.kwargs.get("user_incar_settings")[k])
-                        incar[k] = self.kwargs.get("user_incar_settings")[k]
+                    # #print("hubbard_u")
+                    # if hasattr(structure[0], k.lower()):
+                    #     #print(1)
+                    #     m = dict([(site.specie.symbol, getattr(site, k.lower()))
+                    #               for site in structure])
+                    #     incar[k] = [m[sym] for sym in poscar.site_symbols]
+                    # # lookup specific LDAU if specified for most_electroneg atom
+                    # elif most_electroneg in v.keys() and \
+                    #         isinstance(v[most_electroneg], dict):
+                    #     #print(2)
+                    #     incar[k] = [v[most_electroneg].get(sym, 0)
+                    #                 for sym in poscar.site_symbols]
+                    # # else, use fallback LDAU value if it exists
+                    # else:
+                    print(self.kwargs.get("user_incar_settings")[k])
             elif k.startswith("EDIFF") and k != "EDIFFG":
                 if "EDIFF" not in settings and k == "EDIFF_PER_ATOM":
                     incar["EDIFF"] = float(v) * structure.num_sites
@@ -845,6 +850,12 @@ class LinearResponseUSet(MPRelaxSet):
         # Compare ediff between previous and staticinputset values,
         # choose the tighter ediff
         incar["EDIFF"] = min(incar.get("EDIFF", 1), parent_incar["EDIFF"])
+        if self.kwargs.get("user_incar_settings")["LDAUL"]:
+            incar["LDAUL"] = self.kwargs.get("user_incar_settings")["LDAUL"]
+        if self.kwargs.get("user_incar_settings")["LDAUU"]:
+            incar["LDAUU"] = self.kwargs.get("user_incar_settings")["LDAUU"]
+        if self.kwargs.get("user_incar_settings")["LDAUJ"]:
+            incar["LDAUJ"] = self.kwargs.get("user_incar_settings")["LDAUJ"]
         return incar
 
 
