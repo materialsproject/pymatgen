@@ -836,6 +836,7 @@ class LinearResponseUSet(MPRelaxSet):
 
         incar["EDIFF"] = min(incar.get("EDIFF", 1), parent_incar["EDIFF"])
         if self.kwargs.get("user_incar_settings")["LDAUU"]:
+            print(1)
             incar["LDAUL"] = self.kwargs.get("user_incar_settings")["LDAUL"]
             incar["LDAUU"] = self.kwargs.get("user_incar_settings")["LDAUU"]
             incar["LDAUJ"] = self.kwargs.get("user_incar_settings")["LDAUJ"]
