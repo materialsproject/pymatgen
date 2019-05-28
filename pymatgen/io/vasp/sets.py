@@ -819,7 +819,6 @@ class LinearResponseUSet(MPRelaxSet):
                     #                 for sym in poscar.site_symbols]
                     # # else, use fallback LDAU value if it exists
                     # else:
-                    print(self.kwargs.get("user_incar_settings")[k])
             elif k.startswith("EDIFF") and k != "EDIFFG":
                 if "EDIFF" not in settings and k == "EDIFF_PER_ATOM":
                     incar["EDIFF"] = float(v) * structure.num_sites
@@ -850,14 +849,84 @@ class LinearResponseUSet(MPRelaxSet):
 
         # Compare ediff between previous and staticinputset values,
         # choose the tighter ediff
+
         incar["EDIFF"] = min(incar.get("EDIFF", 1), parent_incar["EDIFF"])
-        if self.kwargs.get("user_incar_settings")["LDAUL"]:
-            incar["LDAUL"] = self.kwargs.get("user_incar_settings")["LDAUL"]
         if self.kwargs.get("user_incar_settings")["LDAUU"]:
+            incar["LDAUL"] = self.kwargs.get("user_incar_settings")["LDAUL"]
             incar["LDAUU"] = self.kwargs.get("user_incar_settings")["LDAUU"]
-        if self.kwargs.get("user_incar_settings")["LDAUJ"]:
             incar["LDAUJ"] = self.kwargs.get("user_incar_settings")["LDAUJ"]
+            incar["LDAU"] = self.kwargs.get("user_incar_settings")["LDAU"]
+            incar["LDAUTYPE"] = self.kwargs.get("user_incar_settings")["LDAUTYPE"]
+            incar["LDAUPRINT"] = self.kwargs.get("user_incar_settings")["LDAUPRINT"]
+            incar["LORBIT"] = self.kwargs.get("user_incar_settings")["LORBIT"]
+
         return incar
+    @property
+    def kpoints(self):
+        self._config_dict["KPOINTS"]["reciprocal_density"] = \
+            self.reciprocal_density
+        kpoints = super().kpoints
+
+        # Prefer to use k-point scheme from previous run
+        # except for when lepsilon = True is specified
+        if self.prev_kpoints and self.prev_kpoints.style != kpoints.style:
+            if (self.prev_kpoints.style == Kpoints.supported_modes.Monkhorst) \
+                    and (not self.lepsilon):
+                k_div = [kp + 1 if kp % 2 == 1 else kp
+                         for kp in kpoints.kpts[0]]
+                kpoints = Kpoints.monkhorst_automatic(k_div)
+            else:
+                kpoints = Kpoints.gamma_automatic(kpoints.kpts[0])
+        return kpoints
+
+    def override_from_prev_calc(self, prev_calc_dir='.'):
+        """
+        Update the input set to include settings from a previous calculation.
+
+        Args:
+            prev_calc_dir (str): The path to the previous calculation directory.
+
+        Returns:
+            The input set with the settings (structure, k-points, incar, etc)
+            updated using the previous VASP run.
+        """
+        vasprun, outcar = get_vasprun_outcar(prev_calc_dir)
+
+        self.prev_incar = vasprun.incar
+        self.prev_kpoints = vasprun.kpoints
+
+        if self.standardize:
+            warnings.warn("Use of standardize=True with from_prev_run is not "
+                          "recommended as there is no guarantee the copied "
+                          "files will be appropriate for the standardized "
+                          "structure.")
+
+        self._structure = get_structure_from_prev_run(vasprun, outcar)
+
+        # multiply the reciprocal density if needed
+        if self.small_gap_multiply:
+            gap = vasprun.eigenvalue_band_properties[0]
+            if gap <= self.small_gap_multiply[0]:
+                self.reciprocal_density = (self.reciprocal_density *
+                                           self.small_gap_multiply[1])
+
+        return self
+
+    @classmethod
+    def from_prev_calc(cls, prev_calc_dir,  **kwargs):
+        """
+        Generate a set of Vasp input files for static calculations from a
+        directory of previous Vasp run.
+
+        Args:
+            prev_calc_dir (str): Directory containing the outputs(
+                vasprun.xml and OUTCAR) of previous vasp run.
+            **kwargs: All kwargs supported by MPStaticSet, other than prev_incar
+                and prev_structure and prev_kpoints which are determined from
+                the prev_calc_dir.
+        """
+        input_set = cls(_dummy_structure, **kwargs)
+        return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
 
 
 
