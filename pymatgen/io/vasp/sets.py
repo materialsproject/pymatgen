@@ -819,6 +819,7 @@ class LinearResponseUSet(MPRelaxSet):
                     #                 for sym in poscar.site_symbols]
                     # # else, use fallback LDAU value if it exists
                     # else:
+                    pass
             elif k.startswith("EDIFF") and k != "EDIFFG":
                 if "EDIFF" not in settings and k == "EDIFF_PER_ATOM":
                     incar["EDIFF"] = float(v) * structure.num_sites
