@@ -568,6 +568,8 @@ class MPHSERelaxSet(DictSet):
         self.kwargs = kwargs
 
 
+
+
 class MPStaticSet(MPRelaxSet):
     """
     Run a static calculation.
@@ -725,6 +727,76 @@ class MPStaticSet(MPRelaxSet):
         input_set = cls(_dummy_structure, **kwargs)
         return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
 
+class LinearResponseUSet(MPStaticSet):
+    def __init__(self, structure, prev_incar=None, prev_kpoints=None,
+                 lepsilon=False, lcalcpol=False, reciprocal_density=100,
+                 small_gap_multiply=None, **kwargs):
+        super().__init__(structure, **kwargs)
+        if isinstance(prev_incar, str):
+            prev_incar = Incar.from_file(prev_incar)
+        if isinstance(prev_kpoints, str):
+            prev_kpoints = Kpoints.from_file(prev_kpoints)
+
+        self.prev_incar = prev_incar
+        self.prev_kpoints = prev_kpoints
+        self.reciprocal_density = reciprocal_density
+        self.kwargs = kwargs
+        self.lepsilon = lepsilon
+        self.lcalcpol = lcalcpol
+        self.small_gap_multiply = small_gap_multiply
+
+    @property
+    def incar(self):
+        parent_incar = super().incar
+        incar = Incar(self.prev_incar) if self.prev_incar is not None else \
+            Incar(parent_incar)
+
+        incar.update(
+            {"IBRION": -1, "ISMEAR": -5, "LAECHG": True, "LCHARG": True,
+             "LORBIT": 11, "LVHAR": True, "LWAVE": False, "NSW": 0,
+             "ICHARG": 0, "ALGO": "Normal"})
+
+        if self.lepsilon:
+            incar["IBRION"] = 8
+            incar["LEPSILON"] = True
+
+            # LPEAD=T: numerical evaluation of overlap integral prevents
+            # LRF_COMMUTATOR errors and can lead to better expt. agreement
+            # but produces slightly different results
+            incar["LPEAD"] = True
+
+            # Note that DFPT calculations MUST unset NSW. NSW = 0 will fail
+            # to output ionic.
+            incar.pop("NSW", None)
+            incar.pop("NPAR", None)
+
+        if self.lcalcpol:
+            incar["LCALCPOL"] = True
+
+        for k in ["MAGMOM", "NUPDOWN"] + list(self.kwargs.get(
+                "user_incar_settings", {}).keys()):
+            # For these parameters as well as user specified settings, override
+            # the incar settings.
+            if parent_incar.get(k, None) is not None:
+                incar[k] = parent_incar[k]
+            else:
+                incar.pop(k, None)
+
+        # This is the method that should be changed - we don't want LDAU to update?
+        # if incar.get('LDAU'):
+        #     u = incar.get('LDAUU', [])
+        #     j = incar.get('LDAUJ', [])
+        #     if sum([u[x] - j[x] for x, y in enumerate(u)]) > 0:
+        #         for tag in ('LDAUU', 'LDAUL', 'LDAUJ'):
+        #             incar.update({tag: parent_incar[tag]})
+        #     # ensure to have LMAXMIX for GGA+U static run
+        #     if "LMAXMIX" not in incar:
+        #         incar.update({"LMAXMIX": parent_incar["LMAXMIX"]})
+
+        # Compare ediff between previous and staticinputset values,
+        # choose the tighter ediff
+        incar["EDIFF"] = min(incar.get("EDIFF", 1), parent_incar["EDIFF"])
+        return incar
 
 class MPHSEBSSet(MPHSERelaxSet):
     """
