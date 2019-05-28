@@ -748,6 +748,7 @@ class LinearResponseUSet(MPRelaxSet):
     @property
     def incar(self):
         parent_incar = super().incar
+        settings = dict(self._config_dict["INCAR"])
         incar = Incar(self.prev_incar) if self.prev_incar is not None else \
             Incar(parent_incar)
 
