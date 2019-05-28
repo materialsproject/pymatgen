@@ -749,6 +749,15 @@ class LinearResponseUSet(MPRelaxSet):
     def incar(self):
         parent_incar = super().incar
         settings = dict(self._config_dict["INCAR"])
+
+        structure = self.structure
+        comp = structure.composition
+        elements = sorted([el for el in comp.elements if comp[el] > 0],
+                          key=lambda e: e.X)
+        most_electroneg = elements[-1].symbol
+        poscar = Poscar(structure)
+        hubbard_u = settings.get("LDAU", False)
+
         incar = Incar(self.prev_incar) if self.prev_incar is not None else \
             Incar(parent_incar)
 
@@ -789,18 +798,22 @@ class LinearResponseUSet(MPRelaxSet):
                 incar[k] = mag
             elif k in ('LDAUU', 'LDAUJ', 'LDAUL'):
                 if hubbard_u:
+                    #print("hubbard_u")
                     if hasattr(structure[0], k.lower()):
+                        #print(1)
                         m = dict([(site.specie.symbol, getattr(site, k.lower()))
                                   for site in structure])
                         incar[k] = [m[sym] for sym in poscar.site_symbols]
                     # lookup specific LDAU if specified for most_electroneg atom
                     elif most_electroneg in v.keys() and \
                             isinstance(v[most_electroneg], dict):
+                        #print(2)
                         incar[k] = [v[most_electroneg].get(sym, 0)
                                     for sym in poscar.site_symbols]
                     # else, use fallback LDAU value if it exists
                     else:
-                        pass
+                        print(self.kwargs.get("user_incar_settings")[k])
+                        incar[k] = self.kwargs.get("user_incar_settings")[k]
             elif k.startswith("EDIFF") and k != "EDIFFG":
                 if "EDIFF" not in settings and k == "EDIFF_PER_ATOM":
                     incar["EDIFF"] = float(v) * structure.num_sites
