@@ -727,7 +727,7 @@ class MPStaticSet(MPRelaxSet):
         input_set = cls(_dummy_structure, **kwargs)
         return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
 
-class LinearResponseUSet(MPStaticSet):
+class LinearResponseUSet(MPRelaxSet):
     def __init__(self, structure, prev_incar=None, prev_kpoints=None,
                  lepsilon=False, lcalcpol=False, reciprocal_density=100,
                  small_gap_multiply=None, **kwargs):
