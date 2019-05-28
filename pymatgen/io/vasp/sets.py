@@ -773,6 +773,41 @@ class LinearResponseUSet(MPRelaxSet):
         if self.lcalcpol:
             incar["LCALCPOL"] = True
 
+        for k, v in settings.items():
+            if k == "MAGMOM":
+                mag = []
+                for site in structure:
+                    if hasattr(site, 'magmom'):
+                        mag.append(site.magmom)
+                    elif hasattr(site.specie, 'spin'):
+                        mag.append(site.specie.spin)
+                    elif str(site.specie) in v:
+                        mag.append(v.get(str(site.specie)))
+                    else:
+                        mag.append(v.get(site.specie.symbol, 0.6))
+                incar[k] = mag
+            elif k in ('LDAUU', 'LDAUJ', 'LDAUL'):
+                if hubbard_u:
+                    if hasattr(structure[0], k.lower()):
+                        m = dict([(site.specie.symbol, getattr(site, k.lower()))
+                                  for site in structure])
+                        incar[k] = [m[sym] for sym in poscar.site_symbols]
+                    # lookup specific LDAU if specified for most_electroneg atom
+                    elif most_electroneg in v.keys() and \
+                            isinstance(v[most_electroneg], dict):
+                        incar[k] = [v[most_electroneg].get(sym, 0)
+                                    for sym in poscar.site_symbols]
+                    # else, use fallback LDAU value if it exists
+                    else:
+                        pass
+            elif k.startswith("EDIFF") and k != "EDIFFG":
+                if "EDIFF" not in settings and k == "EDIFF_PER_ATOM":
+                    incar["EDIFF"] = float(v) * structure.num_sites
+                else:
+                    incar["EDIFF"] = float(settings["EDIFF"])
+            else:
+                incar[k] = v
+
         for k in ["MAGMOM", "NUPDOWN"] + list(self.kwargs.get(
                 "user_incar_settings", {}).keys()):
             # For these parameters as well as user specified settings, override
@@ -797,6 +832,8 @@ class LinearResponseUSet(MPRelaxSet):
         # choose the tighter ediff
         incar["EDIFF"] = min(incar.get("EDIFF", 1), parent_incar["EDIFF"])
         return incar
+
+
 
 class MPHSEBSSet(MPHSERelaxSet):
     """
