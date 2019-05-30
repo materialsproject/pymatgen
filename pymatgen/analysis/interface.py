@@ -128,7 +128,7 @@ class Interface(Structure):
     def shift_vector(self):
         """
         Displacement of the origin of the film structure relative to that
-        of the substrate structure
+        of the substrate structure in Cartesian coordinates.
         """
         return self._shift_vector
 
@@ -142,7 +142,10 @@ class Interface(Structure):
     @property
     def ab_shift(self):
         """
-        The 2D component of shift_vector along the surface plane
+        The 2D component of shift_vector along the interface plane
+        in fractional coordinates. I.e. If ab_shift = [a, b], the
+        Cartesian coordinate shift in the interface plane
+        is a * (first lattice vector) + b * (second lattice vector).
         """
         return np.dot(self._shift_vector, np.linalg.inv(self.lattice.matrix))[:2]
 
@@ -154,7 +157,8 @@ class Interface(Structure):
     @property
     def vacuum_thickness(self):
         """
-        Distance between the surfaces.
+        Distance between the surfaces in Angstroms
+        (in the c direction orthogonal to the interface plane).
         """
         return self._shift_vector[2]
 
