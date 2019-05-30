@@ -62,28 +62,26 @@ class ValenceIonicRadiusEvaluatorTest(PymatgenTest):
 class VoronoiNNTest(PymatgenTest):
     def setUp(self):
         self.s = self.get_structure('LiFePO4')
-        self.nn = VoronoiNN(targets=[Element("O")])
+        self.nn = VoronoiNN(self.s, targets=[Element("O")])
         self.s_sic = self.get_structure('Si')
-        self.s_sic["Si"] =  {'Si': 0.5, 'C': 0.5}
-        self.nn_sic = VoronoiNN()
+        self.s_sic["Si"] = {'Si': 0.5, 'C': 0.5}
+        self.nn_sic = VoronoiNN(self.s_sic)
 
     def test_get_voronoi_polyhedra(self):
-        self.assertEqual(len(self.nn.get_voronoi_polyhedra(self.s, 0).items()), 8)
+        self.assertEqual(len(self.nn.get_voronoi_polyhedra(0).items()), 8)
 
     def test_get_cn(self):
-        self.assertAlmostEqual(self.nn.get_cn(
-                self.s, 0, use_weights=True), 5.809265748999465, 7)
-        self.assertAlmostEqual(self.nn_sic.get_cn(
-                self.s_sic, 0, use_weights=True), 4.5381161643940668, 7)
+        self.assertAlmostEqual(self.nn.get_cn(0, use_weights=True), 5.809265748999465, 7)
+        self.assertAlmostEqual(self.nn_sic.get_cn(0, use_weights=True), 4.5381161643940668, 7)
 
     def test_get_coordinated_sites(self):
-        self.assertEqual(len(self.nn.get_nn(self.s, 0)), 8)
+        self.assertEqual(len(self.nn.get_nn(0)), 8)
 
     def test_volume(self):
         self.nn.targets = None
         volume = 0
         for n in range(len(self.s)):
-            for nn in self.nn.get_voronoi_polyhedra(self.s, n).values():
+            for nn in self.nn.get_voronoi_polyhedra(n).values():
                 volume += nn['volume']
         self.assertAlmostEqual(self.s.volume, volume)
 
@@ -91,7 +89,7 @@ class VoronoiNNTest(PymatgenTest):
         self.nn.targets = None
         for n in range(len(self.s)):
             angle = 0
-            for nn in self.nn.get_voronoi_polyhedra(self.s, n).values():
+            for nn in self.nn.get_voronoi_polyhedra(n).values():
                 angle += nn['solid_angle']
             self.assertAlmostEqual(4 * np.pi, angle)
         self.assertEqual(solid_angle([0,0,0], [[1,0,0],[-1,0,0],[0,1,0]]), pi)
@@ -100,13 +98,15 @@ class VoronoiNNTest(PymatgenTest):
         # First, make a SC lattice. Make my math easier
         s = Structure([[1, 0, 0], [0, 1, 0], [0, 0, 1]], ['Cu'], [[0, 0, 0]])
 
+        nn = VoronoiNN(s)
+
         # Get the 1NN shell
-        self.nn.targets = None
-        nns = self.nn.get_nn_shell_info(s, 0, 1)
+        nn.targets = None
+        nns = nn.get_nn_shell_info(0, 1)
         self.assertEqual(6, len(nns))
 
         # Test the 2nd NN shell
-        nns = self.nn.get_nn_shell_info(s, 0, 2)
+        nns = nn.get_nn_shell_info(0, 2)
         self.assertEqual(18, len(nns))
         self.assertArrayAlmostEqual([1] * 6,
                                     [x['weight'] for x in nns if
@@ -116,7 +116,7 @@ class VoronoiNNTest(PymatgenTest):
                                      max(np.abs(x['image'])) == 1])
 
         # Test the 3rd NN shell
-        nns = self.nn.get_nn_shell_info(s, 0, 3)
+        nns = nn.get_nn_shell_info(0, 3)
         for nn in nns:
             #  Check that the coordinates were set correctly
             self.assertArrayAlmostEqual(nn['site'].frac_coords, nn['image'])
@@ -126,14 +126,14 @@ class VoronoiNNTest(PymatgenTest):
             ["Cl1-", "Cs1+"], [[2.1045, 2.1045, 2.1045], [0, 0, 0]],
             validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=True, site_properties=None)
-        self.nn.weight = 'area'
-        nns = self.nn.get_nn_shell_info(cscl, 0, 1)
+        nn = VoronoiNN(cscl, weight='area')
+        nns = nn.get_nn_shell_info(0, 1)
         self.assertEqual(14, len(nns))
         self.assertEqual(6, np.isclose([x['weight'] for x in nns],
                                        0.125/0.32476).sum())  # Square faces
         self.assertEqual(8, np.isclose([x['weight'] for x in nns], 1).sum())
 
-        nns = self.nn.get_nn_shell_info(cscl, 0, 2)
+        nns = nn.get_nn_shell_info(0, 2)
         # Weight of getting back on to own site
         #  Square-square hop: 6*5 options times (0.125/0.32476)^2 weight each
         #  Hex-hex hop: 8*7 options times 1 weight each
@@ -144,10 +144,9 @@ class VoronoiNNTest(PymatgenTest):
     def test_adj_neighbors(self):
         # Make a simple cubic structure
         s = Structure([[1, 0, 0], [0, 1, 0], [0, 0, 1]], ['Cu'], [[0, 0, 0]])
+        nn = VoronoiNN(s)
 
-        # Compute the NNs with adjacency
-        self.nn.targets = None
-        neighbors = self.nn.get_voronoi_polyhedra(s, 0)
+        neighbors = nn.get_voronoi_polyhedra(0)
 
         # Each neighbor has 4 adjacent neighbors, all orthogonal
         for nn_key, nn_info in neighbors.items():
@@ -158,12 +157,12 @@ class VoronoiNNTest(PymatgenTest):
 
     def test_all_at_once(self):
         # Get all of the sites for LiFePO4
-        all_sites = self.nn.get_all_voronoi_polyhedra(self.s)
+        all_sites = self.nn.get_all_voronoi_polyhedra()
 
         # Make sure they are the same as the single-atom ones
         for i, site in enumerate(all_sites):
             # Compute the tessellation using only one site
-            by_one = self.nn.get_voronoi_polyhedra(self.s, i)
+            by_one = self.nn.get_voronoi_polyhedra(i)
 
             # Match the coordinates the of the neighbors, as site matching does not seem to work?
             all_coords = np.sort([x['site'].coords for x in site.values()], axis=0)
@@ -172,10 +171,10 @@ class VoronoiNNTest(PymatgenTest):
             self.assertArrayAlmostEqual(all_coords, by_one_coords)
 
         # Test the nn_info operation
-        all_nn_info = self.nn.get_all_nn_info(self.s)
+        all_nn_info = self.nn.get_all_nn_info()
         for i, info in enumerate(all_nn_info):
             # Compute using the by-one method
-            by_one = self.nn.get_nn_info(self.s, i)
+            by_one = self.nn.get_nn_info(i)
 
             # Get the weights
             all_weights = sorted([x['weight'] for x in info])
@@ -192,15 +191,16 @@ class VoronoiNNTest(PymatgenTest):
                          coords_are_cartesian=False)
 
         # Compute the voronoi tessellation
-        result = VoronoiNN().get_all_voronoi_polyhedra(strc)
+        result = VoronoiNN(strc).get_all_voronoi_polyhedra()
         self.assertEqual(3, len(result))
 
     def test_filtered(self):
-        nn = VoronoiNN(weight='area')
 
         # Make a bcc crystal
         bcc = Structure([[1, 0, 0], [0, 1, 0], [0, 0, 1]], ['Cu', 'Cu'],
                         [[0, 0, 0], [0.5, 0.5, 0.5]], coords_are_cartesian=False)
+
+        nn = VoronoiNN(bcc, weight='area')
 
         # Compute the weight of the little face
         big_face_area = np.sqrt(3) * 3 / 2 * (2 / 4 / 4)
@@ -209,16 +209,17 @@ class VoronoiNNTest(PymatgenTest):
 
         # Run one test where you get the small neighbors
         nn.tol = little_weight * 0.99
-        nns = nn.get_nn_info(bcc, 0)
+        nns = nn.get_nn_info(0)
         self.assertEqual(14, len(nns))
 
         # Run a second test where we screen out little faces
         nn.tol = little_weight * 1.01
-        nns = nn.get_nn_info(bcc, 0)
+        nns = nn.get_nn_info(0)
         self.assertEqual(8, len(nns))
 
         # Make sure it works for the `get_all` operation
-        all_nns = nn.get_all_nn_info(bcc * [2, 2, 2])
+        nn = VoronoiNN(bcc * [2, 2, 2], weight='area', tol=nn.tol)
+        all_nns = nn.get_all_nn_info()
         self.assertEqual([8,]*16, [len(x) for x in all_nns])
 
     def tearDown(self):
