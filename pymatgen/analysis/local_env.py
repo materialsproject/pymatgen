@@ -1331,7 +1331,7 @@ class CovalentBondNN(NearNeighbors):
     """
 
     def __init__(self, molecule, tol=0.2, order=True):
-        super.__init__(molecule)
+        super().__init__(molecule)
         self.tol = tol
         self.order = order
 
@@ -1349,21 +1349,21 @@ class CovalentBondNN(NearNeighbors):
 
         # This is unfortunately inefficient, but is the best way to fit the
         # current NearNeighbors scheme
-        self.bonds = self.molecule.get_covalent_bonds(tol=self.tol)
+        self.bonds = self.structure.get_covalent_bonds(tol=self.tol)
 
         siw = []
 
         for bond in self.bonds:
             capture_bond = False
-            if bond.site1 == self.molecule[n]:
+            if bond.site1 == self.structure[n]:
                 site = bond.site2
                 capture_bond = True
-            elif bond.site2 == self.molecule[n]:
+            elif bond.site2 == self.structure[n]:
                 site = bond.site1
                 capture_bond = True
 
             if capture_bond:
-                index = self.molecule.index(site)
+                index = self.structure.index(site)
                 if self.order:
                     weight = bond.get_bond_order()
                 else:
