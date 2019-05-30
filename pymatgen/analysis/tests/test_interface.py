@@ -15,7 +15,6 @@ from pymatgen.analysis.substrate_analyzer import ZSLGenerator
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.structure import Structure
-from pymatgen import MPRester
 import numpy as np 
 
 class InterfaceTest(PymatgenTest):
@@ -52,10 +51,9 @@ class InterfaceBuilderTest(PymatgenTest):
 
     @classmethod
     def setUpClass(cls):
-        mpr = MPRester()
 
-        si_struct = mpr.get_structure_by_material_id('mp-149')
-        sio2_struct = mpr.get_structure_by_material_id('mp-6930')
+        si_struct = cls.get_structure('Si')
+        sio2_struct = cls.get_structure('SiO2')
 
         sga = SpacegroupAnalyzer(si_struct)
         si_conventional = sga.get_conventional_standard_structure()
@@ -85,7 +83,7 @@ class InterfaceBuilderTest(PymatgenTest):
     def test_lattice(self):
         zsl = ZSLGenerator()
         for ib in self.ibs:
-            interface = ib.interfaces[4]
+            interface = ib.interfaces[0]
             assert zsl.is_same_vectors(interface.oriented_sub_cell.lattice.matrix[:2],
                                         interface.oriented_film_cell.lattice.matrix[:2])
 
