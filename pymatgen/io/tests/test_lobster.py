@@ -1233,7 +1233,9 @@ class LobsterinTest(unittest.TestCase):
         lobsterin1.write_KPOINTS(POSCAR_input=outfile_path2, KPOINTS_output=outfile_path, kpoints_line_density=58)
         kpoint = Kpoints.from_file(outfile_path)
         self.assertEqual(kpoint.num_kpts, 562)
-        self.assertListEqual(kpoint.kpts[-1], [-0.5, 0.5, 0.5])
+        self.assertAlmostEqual(kpoint.kpts[-1][0], -0.5)
+        self.assertAlmostEqual(kpoint.kpts[-1][1], 0.5)
+        self.assertAlmostEqual(kpoint.kpts[-1][2], 0.5)
         self.assertEqual(kpoint.labels[-1], 'T')
         kpoint2 = Kpoints.from_file(os.path.join(test_dir_doscar, "KPOINTS_band.lobster"))
 
