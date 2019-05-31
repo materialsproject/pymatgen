@@ -1220,7 +1220,7 @@ class Lobsterin(dict, MSONable):
         Diff function for lobsterin. Compares two lobsterin and indicates which parameters are the same.
         Similar to the diff in INCAR.
         Args:
-            other: Lobsterin object
+            other (Lobsterin): Lobsterin object to compare to
         Returns:
             dict with differences and similarities
         """
@@ -1297,8 +1297,8 @@ class Lobsterin(dict, MSONable):
         """
         writes a lobsterin file
         Args:
-            path: filename of the lobsterin file that will be written
-            overwritedict: dict that can be used to overwrite lobsterin, e.g. {"skipdos": True}
+            path (str): filename of the lobsterin file that will be written
+            overwritedict (dict): dict that can be used to overwrite lobsterin, e.g. {"skipdos": True}
         """
 
         # will overwrite previous entries
@@ -1354,9 +1354,9 @@ class Lobsterin(dict, MSONable):
         Will only make the run static, insert nbands, make ISYM=-1, and write a new INCAR.
         You have to check for the rest.
         Args:
-            incar_input: path to input INCAR
-            incar_output: path to output INCAR
-            further_settings: A dict can be used to include further settings, e.g. {"ISMEAR":-5}
+            incar_input (str): path to input INCAR
+            incar_output (str): path to output INCAR
+            further_settings (dict): A dict can be used to include further settings, e.g. {"ISMEAR":-5}
         """
         # reads old incar from file, this one will be modified
         incar = Incar.from_file(incar_input)
@@ -1376,8 +1376,8 @@ class Lobsterin(dict, MSONable):
         """
         will get the basis from a file for a given POTCAR. 
         Args:
-            structure: Structure object
-            POTCAR: address to POSCAR
+            structure (Structure): Structure object
+            POTCAR (str): address to POSCAR
         Returns:
             returns basis
         """
@@ -1416,9 +1416,9 @@ class Lobsterin(dict, MSONable):
         """
         writes a POSCAR with the standard primitive cell. This is needed to arrive at the correct kpath
         Args:
-            POSCAR_input: filename of input POSCAR
-            POSCAR_output: filename of output POSCAR
-            symprec: precision to find symmetry
+            POSCAR_input (str): filename of input POSCAR
+            POSCAR_output (str): filename of output POSCAR
+            symprec (float): precision to find symmetry
         """
         structure = Structure.from_file(POSCAR_input)
         kpath = HighSymmKpath(structure, symprec=symprec)
@@ -1431,12 +1431,12 @@ class Lobsterin(dict, MSONable):
         """
         writes a KPOINT file for lobster (no symmetry considered!, ISYM=-1)
         Args:
-            POSCAR_input: path to POSCAR
-            KPOINTS_output: path to output KPOINTS
-            reciprocal_density: Grid density
-            line_mode: If True, band structure will be generated
-            kpoints_line_density: density of the lines in the band structure
-            symprec: precision to determine symmetry
+            POSCAR_input (str): path to POSCAR
+            KPOINTS_output (str): path to output KPOINTS
+            reciprocal_density (int): Grid density
+            line_mode (bool): If True, band structure will be generated
+            kpoints_line_density (int): density of the lines in the band structure
+            symprec (float): precision to determine symmetry
 
         """
         structure = Structure.from_file(POSCAR_input)
@@ -1511,7 +1511,7 @@ class Lobsterin(dict, MSONable):
     def from_file(cls, lobsterin: str):
         """
         Args:
-            lobsterin: path to lobsterin
+            lobsterin (str): path to lobsterin
 
         Returns:
             Lobsterin object
@@ -1564,9 +1564,9 @@ class Lobsterin(dict, MSONable):
             POSCAR_input(str): path to POSCAR
             INCAR_input(str): path to INCAR
             POTCAR_input (str): path to POTCAR
-            dict_for_basis: can be provided: it should look the following: dict_for_basis={"Fe":'3p 3d 4s 4f', "C": '2s 2p'} and will overwrite all settings from POTCAR_input
+            dict_for_basis (dict): can be provided: it should look the following: dict_for_basis={"Fe":'3p 3d 4s 4f', "C": '2s 2p'} and will overwrite all settings from POTCAR_input
 
-            option: 'standard' will start a normal lobster run where COHPs, COOPs, DOS, CHARGE etc. will be calculated
+            option (str): 'standard' will start a normal lobster run where COHPs, COOPs, DOS, CHARGE etc. will be calculated
                         'standard_from_projection' will start a normal lobster run from a projection
                         'standard_with_fatband' will do a fatband calculation, run over all orbitals
                         'onlyprojection' will only do a projection
@@ -1577,7 +1577,7 @@ class Lobsterin(dict, MSONable):
 
 
         Returns:
-            Lobsterin with standard settings
+            Lobsterin Object with standard settings
         """
         warnings.warn(
             "Always check and test the provided basis functions. The spilling of your Lobster calculation might help")
