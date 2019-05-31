@@ -24,7 +24,7 @@ install:
   - 'conda install --yes --quiet --channel matsci spglib netcdf4 h5py'
   # - 'conda update --yes --all'
   - 'pip install -r requirements.txt'
-  - 'pip install pybtex nose coverage ase coveralls fdint ase twine networkx'
+  - 'pip install pybtex pytest ase coveralls fdint ase twine networkx'
   # Note that pyhull is excluded because it does not work on Windows.
   # Run develop to install in dev mode and build C extension.
   - "python setup.py develop"
@@ -32,8 +32,7 @@ install:
 build: false
 
 test_script:
-  - 'set NOSE_EXCLUDE_TESTS="pymatgen.ext.tests.test_matproj.MPResterTest;pymatgen.analysis.tests.test_pourbaix_diagram.PourbaixDiagramTest;pymatgen.tests.test_init.SettingsTestCase"'
-  - IF NOT "%APPVEYOR_REPO_BRANCH%" == "stable" (nosetests)
+  - IF NOT "%APPVEYOR_REPO_BRANCH%" == "stable" (pytest --ignore=pymatgen/ext/tests/test_matproj.py --ignore=pymatgen/analysis/tests/test_pourbaix_diagram.py --ignore=pymatgen/tests/test_init.py pymatgen)
 
 notifications:
   - provider: Email
