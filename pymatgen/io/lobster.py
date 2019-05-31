@@ -9,16 +9,27 @@ import warnings
 import collections
 import os
 from monty.io import zopen
+from monty.serialization import loadfn
+from monty.json import MSONable
 import fnmatch
+import itertools
+import warnings
+import spglib
 from collections import defaultdict
+from collections import OrderedDict
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.electronic_structure.dos import Dos, LobsterCompleteDos
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.bandstructure import Kpoint
 from pymatgen.io.vasp.inputs import Kpoints
-from collections import OrderedDict
 from pymatgen.electronic_structure.bandstructure import LobsterBandStructureSymmLine
+from pymatgen.core.structure import Structure
+from pymatgen.io.vasp.inputs import Incar, Kpoints, Potcar
+from pymatgen.symmetry.bandstructure import HighSymmKpath
+
+
+
 
 """
 Module for reading Lobster output files. For more information
@@ -32,6 +43,8 @@ __maintainer__ = "Marco Esters, Janine George"
 __email__ = "esters@uoregon.edu, janine.george@uclouvain.be"
 __date__ = "Dec 13, 2017"
 
+
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 class Cohpcar:
     """
@@ -933,7 +946,7 @@ class Fatband:
       .. attribute: kpoints_array
         list of kpoint as numpy arrays, in frac_coords of the
             given lattice by default
-            
+
       .. attribute: label_dict
      (dict) of {} this link a kpoint (in frac coords or
             cartesian coordinates depending on the coords).
@@ -945,9 +958,9 @@ class Fatband:
       number of bands used in the calculation
 
       .. attribute: p_eigenvals
-      dict of orbital projections as {spin: array of dict}. 
-      The indices of the array are [band_index, kpoint_index]. 
-      The dict is then built the following way: 
+      dict of orbital projections as {spin: array of dict}.
+      The indices of the array are [band_index, kpoint_index].
+      The dict is then built the following way:
       {"string of element": "string of orbital as read in from FATBAND file"}
       If the band structure is not spin polarized, we only store one data set under Spin.up.
 
@@ -1119,3 +1132,511 @@ class Fatband:
                                             efermi=self.efermi, labels_dict=self.label_dict,
                                             structure=self.structure,
                                             projections=self.p_eigenvals)
+
+
+class Lobsterin(dict, MSONable):
+    """
+    This class can handle and generate lobsterin files
+    Furthermore, it can also modify INCAR files for lobster, generate KPOINT files for fatband calculations in Lobster,
+    and generate the standard primitive cells in a POSCAR file that are needed for the fatband calculations.
+    There are also several standard lobsterin files that can be easily generated
+    """
+
+    # all keywords known to this class so far
+    # reminder: lobster is not case sensitive
+    AVAILABLEKEYWORDS = ['COHPstartEnergy', 'COHPendEnergy', 'basisSet', 'cohpGenerator',
+                         'gaussianSmearingWidth', 'saveProjectionToFile', 'basisfunctions', 'skipdos',
+                         'skipcohp', 'skipcoop', 'skipPopulationAnalysis', 'skipGrossPopulation',
+                         'userecommendedbasisfunctions', 'loadProjectionFromFile', 'forceEnergyRange',
+                         'DensityOfEnergy', 'BWDF', 'BWDFCOHP', 'skipProjection', 'createFatband',
+                         'writeBasisFunctions', 'writeMatricesToFile', 'realspaceHamiltonian',
+                         'realspaceOverlap', 'printPAWRealSpaceWavefunction', 'printLCAORealSpaceWavefunction',
+                         'noFFTforVisualization', 'RMSp', 'onlyReadVasprun.xml', 'noMemoryMappedFiles',
+                         'skipPAWOrthonormalityTest', 'doNotIgnoreExcessiveBands', 'doNotUseAbsoluteSpilling',
+                         'skipReOrthonormalization', 'forceV1HMatrix', 'useOriginalTetrahedronMethod',
+                         'useDecimalPlaces', 'kSpaceCOHP']
+
+    # keyword + one float can be used in file
+    FLOATKEYWORDS = ['COHPstartEnergy', 'COHPendEnergy', 'gaussianSmearingWidth', 'useDecimalPlaces']
+    # one of these keywords +endstring can be used in file
+    STRINGKEYWORDS = ['basisSet', 'cohpGenerator', 'realspaceHamiltonian', 'realspaceOverlap',
+                      'printPAWRealSpaceWavefunction', 'printLCAORealSpaceWavefunction', 'kSpaceCOHP']
+    # the keyword alone will turn on or off a function
+    BOOLEANKEYWORDS = ['saveProjectionToFile', 'skipdos', 'skipcohp', 'skipcoop', 'loadProjectionFromFile',
+                       'forceEnergyRange', 'DensityOfEnergy', 'BWDF', 'BWDFCOHP', 'skipPopulationAnalysis',
+                       'skipGrossPopulation', 'userecommendedbasisfunctions', 'skipProjection',
+                       'writeBasisFunctions', 'writeMatricesToFile', 'noFFTforVisualization', 'RMSp',
+                       'onlyReadVasprun.xml', 'noMemoryMappedFiles', 'skipPAWOrthonormalityTest',
+                       'doNotIgnoreExcessiveBands', 'doNotUseAbsoluteSpilling', 'skipReOrthonormalization',
+                       'forceV1HMatrix', 'useOriginalTetrahedronMethod']
+    # several of these keywords + ending can be used in a lobsterin file:
+    LISTKEYWORDS = ['basisfunctions', 'cohpbetween', 'createFatband']
+
+    def __init__(self, settingsdict: dict):
+        super().__init__()
+
+        # check for duplicates
+        listkey = [key.lower() for key in settingsdict.keys()]
+        if len(listkey) != len(list(set(listkey))):
+            raise IOError("There are duplicates for the keywords! The program will stop here.")
+
+        self.update(settingsdict)
+
+    def __setitem__(self, key, val):
+        """
+        Add parameter-val pair to Lobsterin.  Warns if parameter is not in list of
+        valid lobsterintags. Also cleans the parameter and val by stripping
+        leading and trailing white spaces. Similar to INCAR class
+        """
+        # due to the missing case sensitivity of lobster, the following code is neccessary
+        found = False
+        for key_here in self.keys():
+            if key.strip().lower() == key_here.lower():
+                new_key = key_here
+                found = True
+        if not found:
+            new_key = key
+        #TODO: checken, ob key in Liste vorhandenenr Keywords
+        if new_key.lower() not in [element.lower() for element in Lobsterin.AVAILABLEKEYWORDS]:
+            raise(ValueError("Key is currently not available"))
+
+        super().__setitem__(new_key, val.strip() if isinstance(val, str) else val)
+
+    def __getitem__(self, item):
+        """
+        had to be redefined to make sure that everything is case insensitive
+        :param item:
+        :return:
+        """
+        found = False
+        for key_here in self.keys():
+            if item.strip().lower() == key_here.lower():
+                new_key = key_here
+                found = True
+        if not found:
+            new_key = item
+
+        val=dict.__getitem__(self,new_key)
+        return val
+
+    def diff(self, other):
+        """
+        Diff function for lobsterin. Compares two lobsterin and indicates which parameters are the same.
+        Similar to the diff in INCAR.
+        :param other: another lobsterin object
+        :return:
+        """
+        similar_param = {}
+        different_param = {}
+        key_list_others=[element.lower() for element in other.keys()]
+
+        for k1, v1 in self.items():
+            k1lower=k1.lower()
+            if k1lower not in key_list_others:
+                different_param[k1.upper()] = {"lobsterin1": v1, "lobsterin2": None}
+            else:
+                for key_here in other.keys():
+                    if k1.lower() == key_here.lower():
+                        new_key = key_here
+
+                if type(v1)==type(''):
+                    if v1.strip().lower() != other[new_key].strip().lower():
+
+                        different_param[k1.upper()] = {"lobsterin1": v1, "lobsterin2": other[new_key]}
+                    else:
+                        similar_param[k1.upper()] = v1
+                elif type(v1)==type([]):
+                    new_set1=set([element.strip().lower() for element in v1])
+                    new_set2=set([element.strip().lower() for element in other[new_key]])
+                    if new_set1!= new_set2:
+                        different_param[k1.upper()] = {"lobsterin1": v1, "lobsterin2": other[new_key]}
+                else:
+                    if v1 != other[new_key]:
+                        different_param[k1.upper()] = {"lobsterin1": v1, "lobsterin2": other[new_key]}
+                    else:
+                        similar_param[k1.upper()] = v1
+
+        for k2, v2 in other.items():
+            if k2.upper() not in similar_param and k2.upper() not in different_param:
+                for key_here in self.keys():
+                    if k2.lower() == key_here.lower():
+                        new_key = key_here
+                    else:
+                        new_key=k2
+                if new_key not in self:
+                    different_param[k2.upper()] = {"lobsterin1": None, "lobsterin2": v2}
+        return {"Same": similar_param, "Different": different_param}
+
+    def _get_nbands(self):
+        if self.get("basisfunctions") is None:
+            raise IOError("No basis functions are provided. The program cannot calculate nbands.")
+        else:
+            basis_functions = []
+            for string_basis in self.get("basisfunctions"):
+                # string_basis.lstrip()
+                string_basis_raw = string_basis.strip().split(" ")
+                while "" in string_basis_raw:
+                    string_basis_raw.remove("")
+                basis_functions.extend(string_basis_raw[1:])
+
+        no_basis_functions = 0
+        for basis in basis_functions:
+            if "s" in basis:
+                no_basis_functions = no_basis_functions + 1
+            elif "p" in basis:
+                no_basis_functions = no_basis_functions + 3
+            elif "d" in basis:
+                no_basis_functions = no_basis_functions + 5
+            elif "f" in basis:
+                no_basis_functions = no_basis_functions + 7
+
+        return int(no_basis_functions)
+
+    def write_lobsterin(self, path: str, overwritedict=None):
+        """
+
+        :param path: where should the file be saved
+        :param overwritedict: a dict with keywords that overwrites those from before (e.g., to overwrite one of the standard settings)
+        :return:
+        """
+
+        # will overwrite previous entries
+        # has to search first if entry is already in Lobsterindict (due to case insensitivity)
+        if overwritedict is not None:
+            for key, entry in overwritedict.items():
+                found = False
+                for key2 in self.keys():
+                    if key.lower() == key2.lower():
+                        self.get[key2] = entry
+                        found = True
+                if not found:
+                    self.get[key] = entry
+                # teste ob key in irgendeiner art in Lobsterdict
+
+        filename = path
+        with open(filename, 'w') as f:
+            for key in Lobsterin.AVAILABLEKEYWORDS:
+                if key.lower() in [element.lower() for element in self.keys()]:
+                    if key.lower() in [element.lower() for element in Lobsterin.FLOATKEYWORDS]:
+                        f.write(key + ' ' + str(self.get(key)) + '\n')
+                    elif key.lower() in [element.lower() for element in Lobsterin.BOOLEANKEYWORDS]:
+                        #checks if entry is True or False
+                        for key_here in self.keys():
+                            if key.lower() == key_here.lower():
+                                new_key = key_here
+                        if self.get(new_key):
+                            f.write(key + '\n')
+                    elif key.lower() in [element.lower() for element in Lobsterin.STRINGKEYWORDS]:
+                        f.write(key + ' ' + str(self.get(key) + '\n'))
+                    elif key.lower() in [element.lower() for element in Lobsterin.LISTKEYWORDS]:
+                        for entry in self.get(key):
+                            f.write(key + ' ' + str(entry) + '\n')
+    def as_dict(self):
+        d=dict(self)
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        #TODO: correct this part!
+        return Lobsterin({k: v for k, v in d.items() if k not in ["@module",
+                                                              "@class"]})
+
+    def write_INCAR(self, incar_input: str, incar_output="incar_input.lobster", further_settings=None):
+        """
+        # will only make the run static, insert nbands, make ISYM=-1
+        # you have to check for the rest
+
+        """
+        # reads old incar from file, this one will be modified
+        incar = Incar.from_file(incar_input)
+
+        warnings.warn("Please check your incar_input before using it. This method only changes three settings!")
+        incar["ISYM"] = -1
+        incar["NSW"] = 0
+        # get nbands from _get_nbands (use basis set that is inserted)
+        incar["NBANDS"] = self._get_nbands()
+
+        if further_settings is not None:
+            for key, item in further_settings.items():
+                incar[key] = further_settings[key]
+
+        # print it to file?
+        incar.write_file(incar_output)
+
+    @staticmethod
+    def _get_basis(structure:Structure, POTCAR:str):
+        """
+        will get the basis from a file for a given POTCAR. 
+        :param structure:
+        :param POTCAR:
+        :return:
+        """
+        potcar = Potcar.from_file(POTCAR)
+
+        for pot in potcar:
+            if pot.potential_type != "PAW":
+                raise IOError("Lobster only works with PAW! Use different POTCARs")
+
+        if potcar.functional != "PBE":
+            raise IOError("We only have BASIS options for PBE so far")
+
+        Potcar_names = [name["symbol"] for name in potcar.spec]
+        AtomTypes_Potcar = [name.split('_')[0] for name in Potcar_names]
+
+        AtomTypes = structure.symbol_set
+
+        if set(AtomTypes) != set(AtomTypes_Potcar):
+            raise IOError("Your POSCAR does not correspond to your POTCAR!")
+        # TODO: set the path correctly
+        BASIS = loadfn(os.path.join(MODULE_DIR,"BASIS_PBE_54.yaml"))['BASIS']
+
+        basis_functions = []
+        list_forin = []
+        for type in AtomTypes_Potcar:
+            if type not in BASIS:
+                raise ValueError("You have to provide the basis for" + str(
+                    type) + "manually. We don't have any information on this POTCAR.")
+            basis_functions.append(BASIS[type].split())
+            tojoin = str(type) + " "
+            tojoin2 = "".join(str(str(e) + " ") for e in BASIS[type].split())
+            list_forin.append(str(tojoin + tojoin2))
+        return list_forin
+
+    @staticmethod
+    def write_POSCAR_with_standard_primitive(POSCAR_input="POSCAR", POSCAR_output="POSCAR.lobster", symprec=0.01):
+        """
+        writes a POSCAR with the standard primitive cell. This is needed to arrive at the correct kpath
+        :param structure: Structure object
+        :param filename: name of output structure
+        :param symprec: precision to determine the spacegroup
+        :return:
+        """
+        # think about: should this be static?
+        Structure.from_file(POSCAR_input)
+        kpath = HighSymmKpath(structure, symprec=symprec)
+        new_structure = kpath.prim
+        new_structure.to(POSCAR_output)
+
+    @staticmethod
+    def write_KPOINTS(POSCAR_input="POSCAR", KPOINTS_output="KPOINTS.lobster", reciprocal_density=100, line_mode=True,
+                      kpoints_line_density=20, symprec=0.01):
+        """
+        writes a KPOINT file for lobster (no symmetry considered!, ISYM=-1)
+        :param POSCAR_input:
+        :param KPOINTS_output:
+        :param reciprocal_density:
+        :param line_mode:
+        :param kpoints_line_density:
+        :param symprec:
+        :return:
+        """
+        structure = Structure.from_file(POSCAR_input)
+        # should this really be static? -> make it similar to INCAR?
+        kpointgrid = Kpoints.automatic_density_by_vol(structure, reciprocal_density).kpts
+        mesh = kpointgrid[0]
+
+        # The following code is taken from: SpacegroupAnalyzer
+        # we need to switch off symmetry here
+        latt = structure.lattice.matrix
+        positions = structure.frac_coords
+        unique_species = []
+        zs = []
+        magmoms = []
+
+        for species, g in itertools.groupby(structure,
+                                            key=lambda s: s.species):
+            if species in unique_species:
+                ind = unique_species.index(species)
+                zs.extend([ind + 1] * len(tuple(g)))
+            else:
+                unique_species.append(species)
+                zs.extend([len(unique_species)] * len(tuple(g)))
+
+        for site in structure:
+            if hasattr(site, 'magmom'):
+                magmoms.append(site.magmom)
+            elif site.is_ordered and hasattr(site.specie, 'spin'):
+                magmoms.append(site.specie.spin)
+            else:
+                magmoms.append(0)
+
+        # For now, we are setting magmom to zero.
+        cell = latt, positions, zs, magmoms
+
+        mapping, grid = spglib.get_ir_reciprocal_mesh(mesh, cell, is_shift=[0, 0, 0])
+
+        # get the kpoints for the grid
+        kpts = []
+        weights = []
+        all_labels = []
+        for i, (ir_gp_id, gp) in enumerate(zip(mapping, grid)):
+            # print("%3d ->%3d %s" % (i, ir_gp_id, gp.astype(float) / mesh))
+            kpts.append(gp.astype(float) / mesh)
+            weights.append(1)
+            all_labels.append("")
+
+        # line mode
+        if line_mode:
+            kpath = HighSymmKpath(structure, symprec=symprec)
+            if not np.allclose(kpath.prim.lattice.matrix, structure.lattice.matrix):
+                raise ValueError(
+                    "You are not using the standard primitive cell. The k-path is not correct. Please generate a standard primitive cell first.")
+
+            frac_k_points, labels = kpath.get_kpoints(
+                line_density=kpoints_line_density,
+                coords_are_cartesian=False)
+
+            for k in range(len(frac_k_points)):
+                kpts.append(frac_k_points[k])
+                weights.append(0.0)
+                all_labels.append(labels[k])
+
+        comment = ("ISYM=-1 Kpoints" if not line_mode else "ISYM=-1, standard kpoints path from pymatgen")
+
+        KpointObject = Kpoints(comment=comment,
+                               style=Kpoints.supported_modes.Reciprocal,
+                               num_kpts=len(kpts), kpts=kpts, kpts_weights=weights,
+                               labels=all_labels)
+
+        KpointObject.write_file(filename=KPOINTS_output)
+
+    @classmethod
+    def from_file(cls, lobsterin: str):
+        with zopen(lobsterin) as f:
+            data = f.read().split("\n")
+        if len(data) == 0:
+            raise IOError("lobsterin file contains no data.")
+        Lobsterindict = {}
+
+        #TODO: Implement basisfunctions correctly!
+
+        for datum in data:
+            # will remove all commments to avoid complications
+            raw_datum = datum.split('!')[0]
+            raw_datum = raw_datum.split('//')[0]
+            raw_datum = raw_datum.split('#')[0]
+            raw_datum = raw_datum.split(' ')
+            while "" in raw_datum:
+                raw_datum.remove("")
+            if len(raw_datum) > 1:
+                # check which type of keyword this is, handle accordingly
+                if raw_datum[0].lower() not in [datum2.lower() for datum2 in Lobsterin.LISTKEYWORDS]:
+                    if raw_datum[0].lower() not in [datum2.lower() for datum2 in Lobsterin.FLOATKEYWORDS]:
+                        if raw_datum[0].lower() not in Lobsterindict:
+                            Lobsterindict[raw_datum[0].lower()] = " ".join(raw_datum[1:])
+                        else:
+                            raise ValueError("Same keyword "+str(raw_datum[0].lower()) +"twice!")
+                    else:
+                        if raw_datum[0].lower() not in Lobsterindict:
+                            Lobsterindict[raw_datum[0].lower()] = float(raw_datum[1])
+                        else:
+                            raise ValueError("Same keyword " + str(raw_datum[0].lower()) + "twice!")
+                else:
+                    if raw_datum[0].lower() not in Lobsterindict:
+                        Lobsterindict[raw_datum[0].lower()]=[" ".join(raw_datum[1:])]
+                    else:
+                        Lobsterindict[raw_datum[0].lower()].append(" ".join(raw_datum[1:]))
+
+
+            elif len(raw_datum) > 0:
+                Lobsterindict[raw_datum[0].lower()] = True
+
+        return cls(Lobsterindict)
+
+    @classmethod
+    def standard_calculations_from_vasp_files(cls, POSCAR_input, INCAR_input, POTCAR_input=None, dict_for_basis=None,
+                                              option='standard'):
+        """
+
+        #will prefer dict_for_basis over POTCAR_input information!
+        dict_for_basis can be provided: it should look the following: dict_for_basis={"Fe":'3p 3d 4s 4f', "C": '2s 2p'}
+
+        :param options: 'standard' will start a normal lobster run where COHPs, COOPs, DOS, CHARGE etc. will be calculated
+                        'standard_from_projection' will start a normal lobster run from a projection
+                        'standard_with_fatband' will do a fatband calculation, run over all orbitals
+                        'onlyprojection' will only do a projection
+                        'onlydos' will only calculate a projected dos
+                        'onlycohp' will only calculate cohp
+                        'onlycoop' will only calculate coop
+                        'onlycohpcoop' will only calculate cohp and coop
+
+
+        :return:
+        """
+        warnings.warn("Always check and test the provided basis functions. The spilling of your Lobster calculation might help")
+        # TODO: adapt smearing according to INCAR
+        # warn that fatband calc cannot be done with tetrahedron method at the moment
+        if option not in ['standard','standard_from_projection','standard_with_fatband','onlyprojection','onlydos','onlycohp','onlycoop','onlycohpcoop']:
+            raise ValueError("The option is not valid!")
+
+        Lobsterindict = {}
+        # this basis set covers most elements
+        Lobsterindict['basisSet'] = 'pbeVaspFit2015'
+        # energies around e-fermi
+        Lobsterindict['COHPstartEnergy'] = -15.0
+        Lobsterindict['COHPendEnergy'] = 5.0
+
+        if option == 'standard' or option == 'onlycohp' or option == 'onlycoop' or option == 'onlycohpcoop' or option== 'standard_with_fatband':
+            # every interaction with a distance of 6.0 is checked
+            Lobsterindict['cohpGenerator'] = "from 0.1 to 6.0 orbitalwise"
+
+            # the projection is saved
+            Lobsterindict['saveProjectionToFile'] = True
+
+        if option == 'standard_from_projection':
+            Lobsterindict['cohpGenerator'] = "from 0.1 to 6.0 orbitalwise"
+            Lobsterindict['loadProjectionFromFile'] = True
+
+        if option == 'onlycohp':
+            Lobsterindict['skipdos'] = True
+            Lobsterindict['skipcoop'] = True
+            Lobsterindict['skipPopulationAnalysis'] = True
+            Lobsterindict['skipGrossPopulation'] = True
+
+        if option == 'onlycoop':
+            Lobsterindict['skipdos'] = True
+            Lobsterindict['skipcohp'] = True
+            Lobsterindict['skipPopulationAnalysis'] = True
+            Lobsterindict['skipGrossPopulation'] = True
+
+        if option == 'onlycohpcoop':
+            Lobsterindict['skipdos'] = True
+            Lobsterindict['skipPopulationAnalysis'] = True
+            Lobsterindict['skipGrossPopulation'] = True
+
+        if option == 'onlydos':
+            Lobsterindict['skipcohp'] = True
+            Lobsterindict['skipcoop'] = True
+            Lobsterindict['skipPopulationAnalysis'] = True
+            Lobsterindict['skipGrossPopulation'] = True
+
+        if option == 'onlyprojection':
+            Lobsterindict['skipdos'] = True
+            Lobsterindict['skipcohp'] = True
+            Lobsterindict['skipcoop'] = True
+            Lobsterindict['skipPopulationAnalysis'] = True
+            Lobsterindict['skipGrossPopulation'] = True
+            Lobsterindict['saveProjectionToFile'] = True
+
+        incar = Incar.from_file(INCAR_input)
+        if incar["ISMEAR"] == 0:
+            Lobsterindict['gaussianSmearingWidth'] = incar["SIGMA"]
+
+        if incar["ISMEAR"] != 0 and option == "standard_with_fatband":
+            raise ValueError("ISMEAR has to be 0 for a fatband calculation with Lobster")
+
+        if dict_for_basis is not None:
+            #dict_for_basis={"Fe":'3p 3d 4s 4f', "C": '2s 2p'}
+            #will just insert this basis and not check with poscar
+            basis=[key+' '+value for key, value in dict_for_basis.items()]
+        else:
+            basis = Lobsterin._get_basis(structure=Structure.from_file(POSCAR_input),
+                                                                   POTCAR=POTCAR_input)
+
+        Lobsterindict["basisfunctions"]=basis
+        if option=='standard_with_fatband':
+            Lobsterindict['createFatband']=basis
+
+        return cls(Lobsterindict)
