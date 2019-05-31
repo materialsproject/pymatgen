@@ -1700,6 +1700,10 @@ def get_okeeffe_distance_prediction(el1, el2):
     return r1 + r2 - r1 * r2 * pow(sqrt(c1) - sqrt(c2), 2) / (c1 * r1 + c2 * r2)
 
 
+@deprecated(message="This function is deprecated due to insufficient generality. "
+                    "Please use the StructureGraph class, or "
+                    "NearNeighbors.get_bonded_structure() instead. "
+                    "This class has methods to get neighbors of a given site.")
 def get_neighbors_of_site_with_index(
     struct, n, approach="min_dist", delta=0.1, cutoff=10.0
 ):
@@ -1722,13 +1726,13 @@ def get_neighbors_of_site_with_index(
     """
 
     if approach == "min_dist":
-        return MinimumDistanceNN(tol=delta, cutoff=cutoff).get_nn(struct, n)
+        return MinimumDistanceNN(struct, tol=delta, cutoff=cutoff).get_nn(n)
     elif approach == "voronoi":
-        return VoronoiNN(tol=delta, cutoff=cutoff).get_nn(struct, n)
+        return VoronoiNN(struct, tol=delta, cutoff=cutoff).get_nn(n)
     elif approach == "min_OKeeffe":
-        return MinimumOKeeffeNN(tol=delta, cutoff=cutoff).get_nn(struct, n)
+        return MinimumOKeeffeNN(struct, tol=delta, cutoff=cutoff).get_nn(n)
     elif approach == "min_VIRE":
-        return MinimumVIRENN(tol=delta, cutoff=cutoff).get_nn(struct, n)
+        return MinimumVIRENN(struct, tol=delta, cutoff=cutoff).get_nn(n)
     else:
         raise RuntimeError("unsupported neighbor-finding method ({}).".format(approach))
 

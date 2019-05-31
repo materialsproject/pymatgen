@@ -545,7 +545,7 @@ class MotifIdentificationTest(PymatgenTest):
         del self.nacl
         del self.cscl
 
-class NearNeighborTest(PymatgenTest):
+class NearNeighborConformanceTest(PymatgenTest):
 
     def setUp(self):
         self.diamond = Structure(
@@ -566,7 +566,7 @@ class NearNeighborTest(PymatgenTest):
         for subclass in subclasses:
             # Critic2NN has external dependency, is tested separately
             if 'Critic2' not in str(subclass):
-                nn_info = subclass().get_nn_info(self.diamond, 0)
+                nn_info = subclass(self.diamond).get_nn_info(0)
                 self.assertEqual(nn_info[0]['site_index'], 1)
                 self.assertEqual(nn_info[0]['image'][0], 1)
 
