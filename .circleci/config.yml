@@ -50,7 +50,7 @@ jobs:
             echo "NOSE_EXCLUDE_TESTS=$NOSE_EXCLUDE_TESTS"
             source activate test_env
             pip install --quiet -e .
-            nosetests --config=nose.cfg --cover-html --cover-html-dir=coverage_reports --with-timer --timer-top-n 30
+            pytest --cov=pymatgen --cov-report html:coverage_reports pymatgen
             # Command line tests
             pmg structure --convert --filenames test_files/Li2O.cif POSCAR.pmg
             pmg structure --convert --filenames POSCAR.pmg pmg.cif
