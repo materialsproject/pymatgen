@@ -1179,8 +1179,8 @@ class LobsterinTest(unittest.TestCase):
         self.assertAlmostEqual(self.Lobsterinfromfile.diff(self.Lobsterinfromfile2)["Same"]["COHPSTARTENERGY"], -15.0)
 
         # test diff in both directions
-        self.assertDictEqual(self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Same"],
-                             self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Same"])
+        self.assertListEqual(list(self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Same"].keys()),
+                             list(self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Same"].keys()))
         self.assertListEqual(list(self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"].keys()),
                              list(self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"].keys()))
         self.assertEqual(self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"]["SKIPCOHP"]["lobsterin1"],
