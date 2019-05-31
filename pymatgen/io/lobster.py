@@ -28,9 +28,6 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Potcar
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
-
-
-
 """
 Module for reading Lobster output files. For more information
 on LOBSTER see www.cohp.de.
@@ -43,8 +40,8 @@ __maintainer__ = "Marco Esters, Janine George"
 __email__ = "esters@uoregon.edu, janine.george@uclouvain.be"
 __date__ = "Dec 13, 2017"
 
-
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 
 class Cohpcar:
     """
@@ -1139,7 +1136,10 @@ class Lobsterin(dict, MSONable):
     This class can handle and generate lobsterin files
     Furthermore, it can also modify INCAR files for lobster, generate KPOINT files for fatband calculations in Lobster,
     and generate the standard primitive cells in a POSCAR file that are needed for the fatband calculations.
-    There are also several standard lobsterin files that can be easily generated
+    There are also several standard lobsterin files that can be easily generated.
+    Args:
+        settingsdict: dict to initialize Lobsterin
+
     """
 
     # all keywords known to this class so far
@@ -1174,19 +1174,17 @@ class Lobsterin(dict, MSONable):
 
     def __init__(self, settingsdict: dict):
         super().__init__()
-
         # check for duplicates
         listkey = [key.lower() for key in settingsdict.keys()]
         if len(listkey) != len(list(set(listkey))):
             raise IOError("There are duplicates for the keywords! The program will stop here.")
-
         self.update(settingsdict)
 
     def __setitem__(self, key, val):
         """
         Add parameter-val pair to Lobsterin.  Warns if parameter is not in list of
         valid lobsterintags. Also cleans the parameter and val by stripping
-        leading and trailing white spaces. Similar to INCAR class
+        leading and trailing white spaces. Similar to INCAR class.
         """
         # due to the missing case sensitivity of lobster, the following code is neccessary
         found = False
@@ -1196,17 +1194,15 @@ class Lobsterin(dict, MSONable):
                 found = True
         if not found:
             new_key = key
-        #TODO: checken, ob key in Liste vorhandenenr Keywords
+        # TODO: checken, ob key in Liste vorhandenenr Keywords
         if new_key.lower() not in [element.lower() for element in Lobsterin.AVAILABLEKEYWORDS]:
-            raise(ValueError("Key is currently not available"))
+            raise (ValueError("Key is currently not available"))
 
         super().__setitem__(new_key, val.strip() if isinstance(val, str) else val)
 
     def __getitem__(self, item):
         """
-        had to be redefined to make sure that everything is case insensitive
-        :param item:
-        :return:
+        implements getitem from dict to avoid problems with cases
         """
         found = False
         for key_here in self.keys():
@@ -1216,22 +1212,24 @@ class Lobsterin(dict, MSONable):
         if not found:
             new_key = item
 
-        val=dict.__getitem__(self,new_key)
+        val = dict.__getitem__(self, new_key)
         return val
 
     def diff(self, other):
         """
         Diff function for lobsterin. Compares two lobsterin and indicates which parameters are the same.
         Similar to the diff in INCAR.
-        :param other: another lobsterin object
-        :return:
+        Args:
+            other: Lobsterin object
+        Returns:
+            dict with differences and similarities
         """
         similar_param = {}
         different_param = {}
-        key_list_others=[element.lower() for element in other.keys()]
+        key_list_others = [element.lower() for element in other.keys()]
 
         for k1, v1 in self.items():
-            k1lower=k1.lower()
+            k1lower = k1.lower()
             if k1lower not in key_list_others:
                 different_param[k1.upper()] = {"lobsterin1": v1, "lobsterin2": None}
             else:
@@ -1239,16 +1237,16 @@ class Lobsterin(dict, MSONable):
                     if k1.lower() == key_here.lower():
                         new_key = key_here
 
-                if type(v1)==type(''):
+                if type(v1) == type(''):
                     if v1.strip().lower() != other[new_key].strip().lower():
 
                         different_param[k1.upper()] = {"lobsterin1": v1, "lobsterin2": other[new_key]}
                     else:
                         similar_param[k1.upper()] = v1
-                elif type(v1)==type([]):
-                    new_set1=set([element.strip().lower() for element in v1])
-                    new_set2=set([element.strip().lower() for element in other[new_key]])
-                    if new_set1!= new_set2:
+                elif type(v1) == type([]):
+                    new_set1 = set([element.strip().lower() for element in v1])
+                    new_set2 = set([element.strip().lower() for element in other[new_key]])
+                    if new_set1 != new_set2:
                         different_param[k1.upper()] = {"lobsterin1": v1, "lobsterin2": other[new_key]}
                 else:
                     if v1 != other[new_key]:
@@ -1262,12 +1260,15 @@ class Lobsterin(dict, MSONable):
                     if k2.lower() == key_here.lower():
                         new_key = key_here
                     else:
-                        new_key=k2
+                        new_key = k2
                 if new_key not in self:
                     different_param[k2.upper()] = {"lobsterin1": None, "lobsterin2": v2}
         return {"Same": similar_param, "Different": different_param}
 
     def _get_nbands(self):
+        """
+        get basis functions from a file
+        """
         if self.get("basisfunctions") is None:
             raise IOError("No basis functions are provided. The program cannot calculate nbands.")
         else:
@@ -1292,12 +1293,12 @@ class Lobsterin(dict, MSONable):
 
         return int(no_basis_functions)
 
-    def write_lobsterin(self, path: str, overwritedict=None):
+    def write_lobsterin(self, path="lobsterin", overwritedict=None):
         """
-
-        :param path: where should the file be saved
-        :param overwritedict: a dict with keywords that overwrites those from before (e.g., to overwrite one of the standard settings)
-        :return:
+        writes a lobsterin file
+        Args:
+            path: filename of the lobsterin file that will be written
+            overwritedict: dict that can be used to overwrite lobsterin, e.g. {"skipdos": True}
         """
 
         # will overwrite previous entries
@@ -1311,7 +1312,6 @@ class Lobsterin(dict, MSONable):
                         found = True
                 if not found:
                     self.get[key] = entry
-                # teste ob key in irgendeiner art in Lobsterdict
 
         filename = path
         with open(filename, 'w') as f:
@@ -1320,7 +1320,7 @@ class Lobsterin(dict, MSONable):
                     if key.lower() in [element.lower() for element in Lobsterin.FLOATKEYWORDS]:
                         f.write(key + ' ' + str(self.get(key)) + '\n')
                     elif key.lower() in [element.lower() for element in Lobsterin.BOOLEANKEYWORDS]:
-                        #checks if entry is True or False
+                        # checks if entry is True or False
                         for key_here in self.keys():
                             if key.lower() == key_here.lower():
                                 new_key = key_here
@@ -1331,47 +1331,55 @@ class Lobsterin(dict, MSONable):
                     elif key.lower() in [element.lower() for element in Lobsterin.LISTKEYWORDS]:
                         for entry in self.get(key):
                             f.write(key + ' ' + str(entry) + '\n')
+
     def as_dict(self):
-        d=dict(self)
+        """
+        get dict
+        """
+        d = dict(self)
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         return d
 
     @classmethod
     def from_dict(cls, d):
-        #TODO: correct this part!
-        return Lobsterin({k: v for k, v in d.items() if k not in ["@module",
-                                                              "@class"]})
-
-    def write_INCAR(self, incar_input: str, incar_output="incar_input.lobster", further_settings=None):
         """
-        # will only make the run static, insert nbands, make ISYM=-1
-        # you have to check for the rest
+        initalize from dict
+        """
+        return Lobsterin({k: v for k, v in d.items() if k not in ["@module",
+                                                                  "@class"]})
 
+    def write_INCAR(self, incar_input="INCAR", incar_output="INCAR.lobster", further_settings=None):
+        """
+        Will only make the run static, insert nbands, make ISYM=-1, and write a new INCAR.
+        You have to check for the rest.
+        Args:
+            incar_input: path to input INCAR
+            incar_output: path to output INCAR
+            further_settings: A dict can be used to include further settings, e.g. {"ISMEAR":-5}
         """
         # reads old incar from file, this one will be modified
         incar = Incar.from_file(incar_input)
-
         warnings.warn("Please check your incar_input before using it. This method only changes three settings!")
         incar["ISYM"] = -1
         incar["NSW"] = 0
         # get nbands from _get_nbands (use basis set that is inserted)
         incar["NBANDS"] = self._get_nbands()
-
         if further_settings is not None:
             for key, item in further_settings.items():
                 incar[key] = further_settings[key]
-
-        # print it to file?
+        # print it to file
         incar.write_file(incar_output)
 
     @staticmethod
-    def _get_basis(structure:Structure, POTCAR:str):
+    def _get_basis(structure: Structure, POTCAR: str):
         """
         will get the basis from a file for a given POTCAR. 
-        :param structure:
-        :param POTCAR:
-        :return:
+        Args:
+            structure: Structure object
+            POTCAR: address to POSCAR
+        Returns:
+            returns basis
         """
         potcar = Potcar.from_file(POTCAR)
 
@@ -1389,8 +1397,7 @@ class Lobsterin(dict, MSONable):
 
         if set(AtomTypes) != set(AtomTypes_Potcar):
             raise IOError("Your POSCAR does not correspond to your POTCAR!")
-        # TODO: set the path correctly
-        BASIS = loadfn(os.path.join(MODULE_DIR,"BASIS_PBE_54.yaml"))['BASIS']
+        BASIS = loadfn(os.path.join(MODULE_DIR, "BASIS_PBE_54.yaml"))['BASIS']
 
         basis_functions = []
         list_forin = []
@@ -1408,35 +1415,34 @@ class Lobsterin(dict, MSONable):
     def write_POSCAR_with_standard_primitive(POSCAR_input="POSCAR", POSCAR_output="POSCAR.lobster", symprec=0.01):
         """
         writes a POSCAR with the standard primitive cell. This is needed to arrive at the correct kpath
-        :param structure: Structure object
-        :param filename: name of output structure
-        :param symprec: precision to determine the spacegroup
-        :return:
+        Args:
+            POSCAR_input: filename of input POSCAR
+            POSCAR_output: filename of output POSCAR
+            symprec: precision to find symmetry
         """
-        # think about: should this be static?
-        Structure.from_file(POSCAR_input)
+        structure = Structure.from_file(POSCAR_input)
         kpath = HighSymmKpath(structure, symprec=symprec)
         new_structure = kpath.prim
-        new_structure.to(POSCAR_output)
+        new_structure.to(fmt='POSCAR', filename=POSCAR_output)
 
     @staticmethod
     def write_KPOINTS(POSCAR_input="POSCAR", KPOINTS_output="KPOINTS.lobster", reciprocal_density=100, line_mode=True,
                       kpoints_line_density=20, symprec=0.01):
         """
         writes a KPOINT file for lobster (no symmetry considered!, ISYM=-1)
-        :param POSCAR_input:
-        :param KPOINTS_output:
-        :param reciprocal_density:
-        :param line_mode:
-        :param kpoints_line_density:
-        :param symprec:
-        :return:
+        Args:
+            POSCAR_input: path to POSCAR
+            KPOINTS_output: path to output KPOINTS
+            reciprocal_density: Grid density
+            line_mode: If True, band structure will be generated
+            kpoints_line_density: density of the lines in the band structure
+            symprec: precision to determine symmetry
+
         """
         structure = Structure.from_file(POSCAR_input)
         # should this really be static? -> make it similar to INCAR?
         kpointgrid = Kpoints.automatic_density_by_vol(structure, reciprocal_density).kpts
         mesh = kpointgrid[0]
-
         # The following code is taken from: SpacegroupAnalyzer
         # we need to switch off symmetry here
         latt = structure.lattice.matrix
@@ -1462,9 +1468,8 @@ class Lobsterin(dict, MSONable):
             else:
                 magmoms.append(0)
 
-        # For now, we are setting magmom to zero.
+        # For now, we are setting magmom to zero. (Taken from INCAR class)
         cell = latt, positions, zs, magmoms
-
         mapping, grid = spglib.get_ir_reciprocal_mesh(mesh, cell, is_shift=[0, 0, 0])
 
         # get the kpoints for the grid
@@ -1504,13 +1509,18 @@ class Lobsterin(dict, MSONable):
 
     @classmethod
     def from_file(cls, lobsterin: str):
+        """
+        Args:
+            lobsterin: path to lobsterin
+
+        Returns:
+            Lobsterin object
+        """
         with zopen(lobsterin) as f:
             data = f.read().split("\n")
         if len(data) == 0:
             raise IOError("lobsterin file contains no data.")
         Lobsterindict = {}
-
-        #TODO: Implement basisfunctions correctly!
 
         for datum in data:
             # will remove all commments to avoid complications
@@ -1527,7 +1537,7 @@ class Lobsterin(dict, MSONable):
                         if raw_datum[0].lower() not in Lobsterindict:
                             Lobsterindict[raw_datum[0].lower()] = " ".join(raw_datum[1:])
                         else:
-                            raise ValueError("Same keyword "+str(raw_datum[0].lower()) +"twice!")
+                            raise ValueError("Same keyword " + str(raw_datum[0].lower()) + "twice!")
                     else:
                         if raw_datum[0].lower() not in Lobsterindict:
                             Lobsterindict[raw_datum[0].lower()] = float(raw_datum[1])
@@ -1535,25 +1545,28 @@ class Lobsterin(dict, MSONable):
                             raise ValueError("Same keyword " + str(raw_datum[0].lower()) + "twice!")
                 else:
                     if raw_datum[0].lower() not in Lobsterindict:
-                        Lobsterindict[raw_datum[0].lower()]=[" ".join(raw_datum[1:])]
+                        Lobsterindict[raw_datum[0].lower()] = [" ".join(raw_datum[1:])]
                     else:
                         Lobsterindict[raw_datum[0].lower()].append(" ".join(raw_datum[1:]))
-
-
             elif len(raw_datum) > 0:
                 Lobsterindict[raw_datum[0].lower()] = True
 
         return cls(Lobsterindict)
 
     @classmethod
-    def standard_calculations_from_vasp_files(cls, POSCAR_input, INCAR_input, POTCAR_input=None, dict_for_basis=None,
+    def standard_calculations_from_vasp_files(cls, POSCAR_input="POSCAR", INCAR_input="INCAR", POTCAR_input=None,
+                                              dict_for_basis=None,
                                               option='standard'):
         """
+        will generate Lobsterin with standard settings
 
-        #will prefer dict_for_basis over POTCAR_input information!
-        dict_for_basis can be provided: it should look the following: dict_for_basis={"Fe":'3p 3d 4s 4f', "C": '2s 2p'}
+        Args:
+            POSCAR_input(str): path to POSCAR
+            INCAR_input(str): path to INCAR
+            POTCAR_input (str): path to POTCAR
+            dict_for_basis: can be provided: it should look the following: dict_for_basis={"Fe":'3p 3d 4s 4f', "C": '2s 2p'} and will overwrite all settings from POTCAR_input
 
-        :param options: 'standard' will start a normal lobster run where COHPs, COOPs, DOS, CHARGE etc. will be calculated
+            option: 'standard' will start a normal lobster run where COHPs, COOPs, DOS, CHARGE etc. will be calculated
                         'standard_from_projection' will start a normal lobster run from a projection
                         'standard_with_fatband' will do a fatband calculation, run over all orbitals
                         'onlyprojection' will only do a projection
@@ -1563,12 +1576,14 @@ class Lobsterin(dict, MSONable):
                         'onlycohpcoop' will only calculate cohp and coop
 
 
-        :return:
+        Returns:
+            Lobsterin with standard settings
         """
-        warnings.warn("Always check and test the provided basis functions. The spilling of your Lobster calculation might help")
-        # TODO: adapt smearing according to INCAR
+        warnings.warn(
+            "Always check and test the provided basis functions. The spilling of your Lobster calculation might help")
         # warn that fatband calc cannot be done with tetrahedron method at the moment
-        if option not in ['standard','standard_from_projection','standard_with_fatband','onlyprojection','onlydos','onlycohp','onlycoop','onlycohpcoop']:
+        if option not in ['standard', 'standard_from_projection', 'standard_with_fatband', 'onlyprojection', 'onlydos',
+                          'onlycohp', 'onlycoop', 'onlycohpcoop']:
             raise ValueError("The option is not valid!")
 
         Lobsterindict = {}
@@ -1578,10 +1593,9 @@ class Lobsterin(dict, MSONable):
         Lobsterindict['COHPstartEnergy'] = -15.0
         Lobsterindict['COHPendEnergy'] = 5.0
 
-        if option == 'standard' or option == 'onlycohp' or option == 'onlycoop' or option == 'onlycohpcoop' or option== 'standard_with_fatband':
+        if option == 'standard' or option == 'onlycohp' or option == 'onlycoop' or option == 'onlycohpcoop' or option == 'standard_with_fatband':
             # every interaction with a distance of 6.0 is checked
             Lobsterindict['cohpGenerator'] = "from 0.1 to 6.0 orbitalwise"
-
             # the projection is saved
             Lobsterindict['saveProjectionToFile'] = True
 
@@ -1623,20 +1637,17 @@ class Lobsterin(dict, MSONable):
         incar = Incar.from_file(INCAR_input)
         if incar["ISMEAR"] == 0:
             Lobsterindict['gaussianSmearingWidth'] = incar["SIGMA"]
-
         if incar["ISMEAR"] != 0 and option == "standard_with_fatband":
             raise ValueError("ISMEAR has to be 0 for a fatband calculation with Lobster")
-
         if dict_for_basis is not None:
-            #dict_for_basis={"Fe":'3p 3d 4s 4f', "C": '2s 2p'}
-            #will just insert this basis and not check with poscar
-            basis=[key+' '+value for key, value in dict_for_basis.items()]
+            # dict_for_basis={"Fe":'3p 3d 4s 4f', "C": '2s 2p'}
+            # will just insert this basis and not check with poscar
+            basis = [key + ' ' + value for key, value in dict_for_basis.items()]
         else:
             basis = Lobsterin._get_basis(structure=Structure.from_file(POSCAR_input),
-                                                                   POTCAR=POTCAR_input)
-
-        Lobsterindict["basisfunctions"]=basis
-        if option=='standard_with_fatband':
-            Lobsterindict['createFatband']=basis
+                                         POTCAR=POTCAR_input)
+        Lobsterindict["basisfunctions"] = basis
+        if option == 'standard_with_fatband':
+            Lobsterindict['createFatband'] = basis
 
         return cls(Lobsterindict)
