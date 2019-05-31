@@ -344,7 +344,7 @@ class CovalentBondNNTest(PymatgenTest):
         del self.acetylene
 
 
-class MiniDistNNTest(PymatgenTest):
+class BasicNearNeighborsTests(PymatgenTest):
 
     def setUp(self):
         self.diamond = Structure(
@@ -368,80 +368,77 @@ class MiniDistNNTest(PymatgenTest):
             coords_are_cartesian=True, site_properties=None)
         self.mos2 = Structure(
             Lattice([[3.19, 0, 0], [-1.595, 2.763, 0], [0, 0, 17.44]]),
-            ['Mo', 'S', 'S'], [[-1e-06, 1.842, 3.72], [1.595, 0.92, 5.29], \
+            ['Mo', 'S', 'S'], [[-1e-06, 1.842, 3.72], [1.595, 0.92, 5.29],
             [1.595, 0.92, 2.155]], coords_are_cartesian=True)
 
     def test_all_nn_classes(self):
-        self.assertAlmostEqual(MinimumDistanceNN(cutoff=5, get_all_sites=True).get_cn(
-            self.cscl, 0), 14)
-        self.assertAlmostEqual(MinimumDistanceNN().get_cn(
-            self.diamond, 0), 4)
-        self.assertAlmostEqual(MinimumDistanceNN().get_cn(
-            self.nacl, 0), 6)
-        self.assertAlmostEqual(MinimumDistanceNN(tol=0.01).get_cn(
-            self.cscl, 0), 8)
-        self.assertAlmostEqual(MinimumDistanceNN(tol=0.1).get_cn(
-            self.mos2, 0), 6)
-        for image in MinimumDistanceNN(tol=0.1).get_nn_images(self.mos2, 0):
+        self.assertAlmostEqual(MinimumDistanceNN(
+            self.cscl, cutoff=5, get_all_sites=True).get_cn(0), 14)
+        self.assertAlmostEqual(MinimumDistanceNN(
+            self.diamond).get_cn(0), 4)
+        self.assertAlmostEqual(MinimumDistanceNN(self.nacl).get_cn(0), 6)
+        self.assertAlmostEqual(MinimumDistanceNN(
+            self.cscl, tol=0.01).get_cn(0), 8)
+        self.assertAlmostEqual(MinimumDistanceNN(
+            self.mos2, tol=0.1).get_cn(0), 6)
+        for image in MinimumDistanceNN(self.mos2, tol=0.1).get_nn_images(0):
             self.assertTrue(image in [(0, 0, 0), (0, 1, 0), (-1, 0, 0),
                                       (0, 0, 0), (0, 1, 0), (-1, 0, 0)])
 
-        self.assertAlmostEqual(MinimumOKeeffeNN(tol=0.01).get_cn(
-            self.diamond, 0), 4)
-        self.assertAlmostEqual(MinimumOKeeffeNN(tol=0.01).get_cn(
-            self.nacl, 0), 6)
-        self.assertAlmostEqual(MinimumOKeeffeNN(tol=0.01).get_cn(
-            self.cscl, 0), 8)
+        self.assertAlmostEqual(MinimumOKeeffeNN(
+            self.diamond, tol=0.01).get_cn(0), 4)
+        self.assertAlmostEqual(MinimumOKeeffeNN(
+            self.nacl, tol=0.01).get_cn(0), 6)
+        self.assertAlmostEqual(MinimumOKeeffeNN(
+            self.cscl, tol=0.01).get_cn(0), 8)
 
-        self.assertAlmostEqual(MinimumVIRENN(tol=0.01).get_cn(
-            self.diamond, 0), 4)
-        self.assertAlmostEqual(MinimumVIRENN(tol=0.01).get_cn(
-            self.nacl, 0), 6)
-        self.assertAlmostEqual(MinimumVIRENN(tol=0.01).get_cn(
-            self.cscl, 0), 8)
+        self.assertAlmostEqual(MinimumVIRENN(
+            self.diamond, tol=0.01).get_cn(0), 4)
+        self.assertAlmostEqual(MinimumVIRENN(
+            self.nacl, tol=0.01).get_cn(0), 6)
+        self.assertAlmostEqual(MinimumVIRENN(
+            self.cscl, tol=0.01).get_cn(0), 8)
 
-        self.assertAlmostEqual(BrunnerNN_reciprocal(tol=0.01).get_cn(
-            self.diamond, 0), 4)
-        self.assertAlmostEqual(BrunnerNN_reciprocal(tol=0.01).get_cn(
-            self.nacl, 0), 6)
-        self.assertAlmostEqual(BrunnerNN_reciprocal(tol=0.01).get_cn(
-            self.cscl, 0), 14)
+        self.assertAlmostEqual(BrunnerNN_reciprocal(self.diamond, tol=0.01).get_cn(0), 4)
+        self.assertAlmostEqual(BrunnerNN_reciprocal(self.nacl, tol=0.01).get_cn(0), 6)
+        self.assertAlmostEqual(BrunnerNN_reciprocal(self.cscl, tol=0.01).get_cn(0), 14)
 
-        self.assertAlmostEqual(BrunnerNN_relative(tol=0.01).get_cn(
-            self.diamond, 0), 16)
-        self.assertAlmostEqual(BrunnerNN_relative(tol=0.01).get_cn(
-            self.nacl, 0), 18)
-        self.assertAlmostEqual(BrunnerNN_relative(tol=0.01).get_cn(
-            self.cscl, 0), 8)
+        self.assertAlmostEqual(BrunnerNN_relative(
+            self.diamond, tol=0.01).get_cn(0), 16)
+        self.assertAlmostEqual(BrunnerNN_relative(
+            self.nacl, tol=0.01).get_cn(0), 18)
+        self.assertAlmostEqual(BrunnerNN_relative(
+            self.cscl, tol=0.01).get_cn(0), 8)
 
-        self.assertAlmostEqual(BrunnerNN_real(tol=0.01).get_cn(
-            self.diamond, 0), 16)
-        self.assertAlmostEqual(BrunnerNN_real(tol=0.01).get_cn(
-            self.nacl, 0), 18)
-        self.assertAlmostEqual(BrunnerNN_real(tol=0.01).get_cn(
-            self.cscl, 0), 8)
+        self.assertAlmostEqual(BrunnerNN_real(
+            self.diamond, tol=0.01).get_cn(0), 16)
+        self.assertAlmostEqual(BrunnerNN_real(
+            self.nacl, tol=0.01).get_cn(0), 18)
+        self.assertAlmostEqual(BrunnerNN_real(
+            self.cscl, tol=0.01).get_cn(0), 8)
 
-        self.assertAlmostEqual(EconNN(tol=0.01).get_cn(
-            self.diamond, 0), 4)
-        self.assertAlmostEqual(EconNN(tol=0.01).get_cn(
-            self.nacl, 0), 6)
-        self.assertAlmostEqual(EconNN(tol=0.01).get_cn(
-            self.cscl, 0), 14)
+        self.assertAlmostEqual(EconNN(
+            self.diamond, tol=0.01).get_cn(0), 4)
+        self.assertAlmostEqual(EconNN(
+            self.nacl, tol=0.01).get_cn(0), 6)
+        self.assertAlmostEqual(EconNN(
+            self.cscl, tol=0.01).get_cn(0), 14)
 
-        self.assertAlmostEqual(VoronoiNN(tol=0.5).get_cn(
-            self.diamond, 0), 4)
-        self.assertAlmostEqual(VoronoiNN(tol=0.5).get_cn(
-            self.nacl, 0), 6)
-        self.assertAlmostEqual(VoronoiNN(tol=0.5).get_cn(
-            self.cscl, 0), 8)
+        self.assertAlmostEqual(VoronoiNN(
+            self.diamond, tol=0.5).get_cn(0), 4)
+        self.assertAlmostEqual(VoronoiNN(
+            self.nacl, tol=0.5).get_cn(0), 6)
+        self.assertAlmostEqual(VoronoiNN(
+            self.cscl, tol=0.5).get_cn(0), 8)
 
     def test_get_local_order_params(self):
 
-        nn = MinimumDistanceNN()
-        ops = nn.get_local_order_parameters(self.diamond, 0)
+        nn = MinimumDistanceNN(self.diamond)
+        ops = nn.get_local_order_parameters(0)
         self.assertAlmostEqual(ops['tetrahedral'], 0.9999934389036574)
 
-        ops = nn.get_local_order_parameters(self.nacl, 0)
+        nn = MinimumDistanceNN(self.nacl)
+        ops = nn.get_local_order_parameters(0)
         self.assertAlmostEqual(ops['octahedral'], 0.9999995266669)
 
     def tearDown(self):

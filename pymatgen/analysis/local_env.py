@@ -111,7 +111,7 @@ class ValenceIonicRadiusEvaluator:
         If valence is zero, atomic radius is used.
         """
         radii = []
-        vnn = VoronoiNN()
+        vnn = VoronoiNN(self.structure)
 
         def nearest_key(sorted_vals, key):
             i = bisect_left(sorted_vals, key)
@@ -143,13 +143,13 @@ class ValenceIonicRadiusEvaluator:
 
             el = site.specie.symbol
             oxi_state = int(round(site.specie.oxi_state))
-            coord_no = int(round(vnn.get_cn(self._structure, i)))
+            coord_no = int(round(vnn.get_cn(i)))
             try:
                 tab_oxi_states = sorted(map(int, _ion_radii[el].keys()))
                 oxi_state = nearest_key(tab_oxi_states, oxi_state)
                 radius = _ion_radii[el][str(oxi_state)][str(coord_no)]
             except KeyError:
-                if vnn.get_cn(self._structure, i) - coord_no > 0:
+                if vnn.get_cn(i) - coord_no > 0:
                     new_coord_no = coord_no + 1
                 else:
                     new_coord_no = coord_no - 1
@@ -563,7 +563,7 @@ class NearNeighbors:
         """
         # code from @nisse3000, moved here from graphs to avoid circular
         # import, also makes sense to have this as a general NN method
-        cn = self.get_cn(self.structure, n)
+        cn = self.get_cn(n)
         if cn in [int(k_cn) for k_cn in cn_opt_params.keys()]:
             names = [k for k in cn_opt_params[cn].keys()]
             types = []
