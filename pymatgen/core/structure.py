@@ -1134,7 +1134,6 @@ class IStructure(SiteCollection, MSONable):
         nmax = np.ceil(np.max(self.frac_coords, axis=0)) + maxr
 
         all_ranges = [np.arange(x, y) for x, y in zip(nmin, nmax)]
-
         latt = self._lattice
         matrix = latt.matrix
         neighbors = [list() for _ in range(len(self._sites))]
@@ -1166,6 +1165,165 @@ class IStructure(SiteCollection, MSONable):
                     if include_image:
                         item.append(image)
                     neighbors[i].append(item)
+        return neighbors
+
+    def get_all_neighbors_cell_list(self, r, include_index=False, include_image=False,
+                                    include_site=True):
+        """
+        A cell list algorithm with O(N) scaling for finding the neighbors.
+        This is a speed improvement compared to the O(N^2) scaling for get_all_neighbors
+
+        A note about periodic images: Before computing the neighbors, this
+        operation translates all atoms to within the unit cell (having
+        fractional coordinates within [0,1)). This means that the "image" of a
+        site does not correspond to how much it has been translates from its
+        current position, but which image of the unit cell it resides.
+
+        Args:
+            r (float): Radius of sphere.
+            include_index (bool): Whether to include the non-supercell site
+                in the returned data
+            include_image (bool): Whether to include the supercell image
+                in the returned data
+            include_site (bool): Whether to include the site in the returned
+                data. Defaults to True.
+
+        Returns:
+            A list of a list of nearest neighbors for each site, i.e.,
+            [[(site, dist, index, image) ...], ..]
+            Index only supplied if include_index = True.
+            The index is the index of the site in the original (non-supercell)
+            structure. This is needed for ewaldmatrix by keeping track of which
+            sites contribute to the ewald sum.
+            Image only supplied if include_image = True
+            Site is supplied only if include_site = True (the default).
+        """
+
+        def compute_cube_index(coords, global_min, radius):
+            """
+            Compute the cube index from coordinates
+
+            :param coords: (nx3 array) atom coordinates
+            :param global_min: (float) lower boundary of coordinates
+            :param radius: (float) cutoff radius
+            :return: (nx3 array) int indices
+            """
+            return np.array(np.floor((coords - global_min) / radius), dtype=int)
+
+        def one_to_three(label1d, ny, nz):
+            """
+            Convert a 1D index array to 3D index array
+
+            :param label1d: (array) 1D index array
+            :param ny: (int) number of cells in y direction
+            :param nz: (int) number of cells in z direction
+            :return: (nx3) int array of index
+            """
+            last = np.mod(label1d, nz)
+            second = np.mod((label1d - last) / nz, ny)
+            first = (label1d - last - second * nz) / (ny * nz)
+            return np.concatenate([first, second, last], axis=1)
+
+        def three_to_one(label3d, ny, nz):
+            """
+            The reverse of one_to_three
+            """
+            return np.array(label3d[:, 0] * ny * nz + label3d[:, 1] * ny + label3d[:, 2]).reshape((-1, 1))
+
+        def find_neighbors(label, ny, nz):
+            """
+            Given a cube index, find the neighbor cube indices
+            :param label: (array) (n,) or (n x 3) indice array
+            :param ny: (int) number of cells in y direction
+            :param nz: (int) number of cells in z direction
+            :return: neighbor cell indices
+            """
+            array = [[-1, 0, 1]] * 3
+            neighbor_vectors = np.array(list(itertools.product(*array)), dtype=int)
+            if np.shape(label)[1] == 1:
+                label3d = one_to_three(label, ny, nz)
+            else:
+                label3d = label
+            all_labels = label3d[:, None, :] - neighbor_vectors[None, :, :]
+            filtered_labels = []
+            # filter out out-of-bound labels i.e., label < 0
+            for labels in all_labels:
+                filtered_labels.append(labels[np.all(labels > -1e-5, axis=1)])
+            return filtered_labels
+
+        recp_len = np.array(self.lattice.reciprocal_lattice.abc)
+        maxr = np.ceil((r + 0.15) * recp_len / (2 * math.pi))
+        nmin = np.floor(np.min(self.frac_coords, axis=0)) - maxr
+        nmax = np.ceil(np.max(self.frac_coords, axis=0)) + maxr
+        all_ranges = [np.arange(x, y) for x, y in zip(nmin, nmax)]
+        latt = self._lattice
+        matrix = latt.matrix
+        all_fcoords = np.mod(self.frac_coords, 1)
+        coords_in_cell = np.dot(all_fcoords, matrix)
+        site_coords = self.cart_coords
+        coords_min = np.min(site_coords, axis=0)
+        coords_max = np.max(site_coords, axis=0)
+        # The lower bound of all considered atom coords
+        global_min = coords_min - r
+        global_max = coords_max + r
+
+        # Filter out those beyond max range
+        valid_coords = []
+        valid_images = []
+        valid_indices = []
+        for image in itertools.product(*all_ranges):
+            coords = np.dot(image, matrix) + coords_in_cell
+            valid_index_bool = np.all(np.bitwise_and(coords >= global_min,  coords <= global_max), axis=1)
+            indices = np.arange(len(self))
+            if np.any(valid_index_bool):
+                valid_coords.append(coords[valid_index_bool])
+                valid_images.extend([list(image)] * np.sum(valid_index_bool))
+                valid_indices.extend([k for k in indices if valid_index_bool[k]])
+        valid_coords = np.concatenate(valid_coords, axis=0)
+
+        # Divide the valid 3D space into cubes and compute the cube ids
+        all_cube_index = compute_cube_index(valid_coords, global_min, r)
+        nx, ny, nz = np.max(all_cube_index, axis=0) + 1
+        all_cube_index = three_to_one(all_cube_index, ny, nz)
+        cell_cube_index = three_to_one(compute_cube_index(site_coords, global_min, r), ny, nz)
+        # create cube index to coordinates, images, and indices map
+        cube_to_coords = collections.defaultdict(list)
+        cube_to_images = collections.defaultdict(list)
+        cube_to_indices = collections.defaultdict(list)
+        for i, j, k, l in zip(all_cube_index.ravel(), valid_coords, valid_images, valid_indices):
+            cube_to_coords[i].append(j)
+            cube_to_images[i].append(k)
+            cube_to_indices[i].append(l)
+
+        for i in cube_to_coords:
+            cube_to_coords[i] = np.array(cube_to_coords[i])
+
+        # find all neighboring cubes for each atom in the lattice cell
+        cell_neighbors = find_neighbors(cell_cube_index, ny, nz)
+        neighbors = []
+        for i, j in zip(site_coords, cell_neighbors):
+            l1 = np.array(three_to_one(j, ny, nz), dtype=int).ravel()
+            # use the cube index map to find the all the neighboring
+            # coords, images, and indices
+            atom_neighbors_coords = np.concatenate([cube_to_coords[k] for k in l1 if k in cube_to_coords], axis=0)
+            atom_neigbhor_images = list(itertools.chain(*[cube_to_images[k] for k in l1 if k in cube_to_coords]))
+            atom_neighbor_indices = list(itertools.chain(*[cube_to_indices[k] for k in l1 if k in cube_to_coords]))
+            dist = np.linalg.norm(atom_neighbors_coords - i, axis=1)
+            nns = []
+            for coord, m, n, d in zip(atom_neighbors_coords, atom_neighbor_indices, atom_neigbhor_images, dist):
+                if (d > 1e-8) and (d <= r):
+                    item = []
+                    if include_site:
+                        item += [PeriodicSite(self[m].specie, coord, latt,
+                                              properties=self[m].properties,
+                                              coords_are_cartesian=True)]
+                    item += [d]
+                    if include_index:
+                        item += [m]
+                    if include_image:
+                        item += [tuple(n)]
+                    nns.append(item)
+            neighbors.append(nns)
         return neighbors
 
     def get_neighbors_in_shell(self, origin, r, dr, include_index=False, include_image=False):
