@@ -1179,10 +1179,15 @@ class LobsterinTest(unittest.TestCase):
         self.assertAlmostEqual(self.Lobsterinfromfile.diff(self.Lobsterinfromfile2)["Same"]["COHPSTARTENERGY"], -15.0)
 
         # test diff in both directions
-        self.assertListEqual(list(self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Same"].keys()),
-                             list(self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Same"].keys()))
-        self.assertListEqual(list(self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"].keys()),
-                             list(self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"].keys()))
+        for entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Same"].keys():
+            self.assertTrue(entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Same"].keys())
+        for entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Same"].keys():
+            self.assertTrue(entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Same"].keys())
+        for entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"].keys():
+            self.assertTrue(entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"].keys())
+        for entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"].keys():
+            self.assertTrue(entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"].keys())
+
         self.assertEqual(self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"]["SKIPCOHP"]["lobsterin1"],
                          self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"]["SKIPCOHP"]["lobsterin2"])
 
