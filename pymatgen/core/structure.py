@@ -1220,9 +1220,11 @@ class IStructure(SiteCollection, MSONable):
                 in the returned data
             include_site (bool): Whether to include the site in the returned
                 data. Defaults to True.
-            indices (list): list of integer site indices for finding neighbors, if
-                it is set to None, neighbors for all sites will be computed
-            sites (list of Sites): sites for getting all neighbors
+            indices (list or int or None): list of integer site indices or single index
+                for finding neighbors, if it is set to None, neighbors for all sites
+                will be computed
+            sites (list of Sites or Site or None): sites for getting all neighbors,
+                default is None
 
         Returns:
             A list of a list of nearest neighbors for each site, i.e.,
