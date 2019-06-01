@@ -1290,9 +1290,10 @@ class IStructure(SiteCollection, MSONable):
             return filtered_labels
 
         # site_coords are the coords for neighbor centers
-
+        is_single_site = False
         if isinstance(indices, int):
             indices = [indices]
+            is_single_site = True
 
         if sites is None:
             if indices is None:
@@ -1303,6 +1304,7 @@ class IStructure(SiteCollection, MSONable):
                 raise ValueError('Either specify indices or sites, not both.')
             if isinstance(sites, Site):
                 sites = [sites]
+                is_single_site = True
             site_coords = np.array([i.coords for i in sites])
         recp_len = np.array(self.lattice.reciprocal_lattice.abc)
         maxr = np.ceil((r + 0.15) * recp_len / (2 * math.pi))
@@ -1379,7 +1381,7 @@ class IStructure(SiteCollection, MSONable):
                         item += [tuple(n)]
                     nns.append(item)
             neighbors.append(nns)
-        if len(neighbors) == 1:
+        if is_single_site:
             return neighbors[0]
         return neighbors
 
