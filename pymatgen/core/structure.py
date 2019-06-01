@@ -1264,7 +1264,7 @@ class IStructure(SiteCollection, MSONable):
             """
             The reverse of one_to_three
             """
-            return np.array(label3d[:, 0] * ny * nz + label3d[:, 1] * ny + label3d[:, 2]).reshape((-1, 1))
+            return np.array(label3d[:, 0] * ny * nz + label3d[:, 1] * nz + label3d[:, 2]).reshape((-1, 1))
 
         def find_neighbors(label, nx, ny, nz):
             """
@@ -1289,29 +1289,32 @@ class IStructure(SiteCollection, MSONable):
                 filtered_labels.append(labels[ind])
             return filtered_labels
 
-        if (indices is not None) and (sites is not None):
-            raise ValueError('Either specify indices or sites, not both.')
+        # site_coords are the coords for neighbor centers
 
-        if indices is None:
-            indices = list(range(len(self)))
         if isinstance(indices, int):
             indices = [indices]
+
+        if sites is None:
+            if indices is None:
+                indices = list(range(len(self)))
+            site_coords = np.array([self.cart_coords[i] for i in indices])
+        else:
+            if indices is not None:
+                raise ValueError('Either specify indices or sites, not both.')
+            if isinstance(sites, Site):
+                sites = [sites]
+            site_coords = np.array([i.coords for i in sites])
         recp_len = np.array(self.lattice.reciprocal_lattice.abc)
         maxr = np.ceil((r + 0.15) * recp_len / (2 * math.pi))
-        nmin = np.floor(np.min(self.frac_coords, axis=0)) - maxr
-        nmax = np.ceil(np.max(self.frac_coords, axis=0)) + maxr
+        frac_coords = self.lattice.get_fractional_coords(site_coords)
+        nmin = np.floor(np.min(frac_coords, axis=0)) - maxr
+        nmax = np.ceil(np.max(frac_coords, axis=0)) + maxr
         all_ranges = [np.arange(x, y) for x, y in zip(nmin, nmax)]
         latt = self._lattice
         matrix = latt.matrix
         all_fcoords = np.mod(self.frac_coords, 1)
         coords_in_cell = np.dot(all_fcoords, matrix)
-        # site_coords are the coords for neighbor centers
-        if sites is None:
-            site_coords = self.cart_coords
-        else:
-            if isinstance(sites, Site):
-                sites = [sites]
-            site_coords = np.array([i.coords for i in sites])
+
         coords_min = np.min(site_coords, axis=0)
         coords_max = np.max(site_coords, axis=0)
         # The lower bound of all considered atom coords
@@ -1324,19 +1327,19 @@ class IStructure(SiteCollection, MSONable):
         valid_indices = []
         for image in itertools.product(*all_ranges):
             coords = np.dot(image, matrix) + coords_in_cell
-            valid_index_bool = np.all(np.bitwise_and(coords > global_min,  coords < global_max), axis=1)
-            indices = np.arange(len(self))
+            valid_index_bool = np.all(np.bitwise_and(coords > global_min[None, :],  coords < global_max[None, :]),
+                                      axis=1)
+            ind = np.arange(len(self))
             if np.any(valid_index_bool):
                 valid_coords.append(coords[valid_index_bool])
                 valid_images.extend([list(image)] * np.sum(valid_index_bool))
-                valid_indices.extend([k for k in indices if valid_index_bool[k]])
+                valid_indices.extend([k for k in ind if valid_index_bool[k]])
         valid_coords = np.concatenate(valid_coords, axis=0)
-
         # Divide the valid 3D space into cubes and compute the cube ids
         all_cube_index = compute_cube_index(valid_coords, global_min, r)
         nx, ny, nz = compute_cube_index(global_max, global_min, r) + 1
         all_cube_index = three_to_one(all_cube_index, ny, nz)
-        cell_cube_index = three_to_one(compute_cube_index(site_coords, global_min, r), ny, nz)
+        site_cube_index = three_to_one(compute_cube_index(site_coords, global_min, r), ny, nz)
         # create cube index to coordinates, images, and indices map
         cube_to_coords = collections.defaultdict(list)
         cube_to_images = collections.defaultdict(list)
@@ -1350,13 +1353,10 @@ class IStructure(SiteCollection, MSONable):
             cube_to_coords[i] = np.array(cube_to_coords[i])
 
         # find all neighboring cubes for each atom in the lattice cell
-        cell_neighbors = find_neighbors(cell_cube_index, nx, ny, nz)
+        site_neighbors = find_neighbors(site_cube_index, nx, ny, nz)
         neighbors = []
 
-        if sites is None:
-            site_coords = [site_coords[i] for i in indices]
-            cell_neighbors = [cell_neighbors[i] for i in indices]
-        for i, j in zip(site_coords, cell_neighbors):
+        for i, j in zip(site_coords, site_neighbors):
             l1 = np.array(three_to_one(j, ny, nz), dtype=int).ravel()
             # use the cube index map to find the all the neighboring
             # coords, images, and indices
@@ -1369,7 +1369,7 @@ class IStructure(SiteCollection, MSONable):
                 if (d > 1e-8) and (d <= r):
                     item = []
                     if include_site:
-                        item += [PeriodicSite(self[m].specie, coord, latt,
+                        item += [PeriodicSite(self[m].species, coord, latt,
                                               properties=self[m].properties,
                                               coords_are_cartesian=True)]
                     item += [d]
