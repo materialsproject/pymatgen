@@ -1082,13 +1082,37 @@ class IStructure(SiteCollection, MSONable):
             If include_supercell == True, the tuple for each neighbor also includes
             the index of supercell.
         """
+        return self.get_all_neighbors(r, include_index=include_index, include_image=include_image,
+                                      include_site=True, sites=site)
+
+    def get_neighbors_old(self, site, r, include_index=False, include_image=False):
+        """
+        Get all neighbors to a site within a sphere of radius r.  Excludes the
+        site itself.
+
+        Args:
+            site (Site): Which is the center of the sphere.
+            r (float): Radius of sphere.
+            include_index (bool): Whether the non-supercell site index
+                is included in the returned data
+            include_image (bool): Whether to include the supercell image
+                is included in the returned data
+
+        Returns:
+            [(site, dist) ...] since most of the time, subsequent processing
+            requires the distance.
+            If include_index == True, the tuple for each neighbor also includes
+            the index of the neighbor.
+            If include_supercell == True, the tuple for each neighbor also includes
+            the index of supercell.
+        """
         nn = self.get_sites_in_sphere(site.coords, r,
                                       include_index=include_index,
                                       include_image=include_image)
         return [d for d in nn if site != d[0]]
 
-    def get_all_neighbors(self, r, include_index=False, include_image=False,
-                          include_site=True):
+    def get_all_neighbors_old(self, r, include_index=False, include_image=False,
+                              include_site=True):
         """
         Get neighbors for each atom in the unit cell, out to a distance r
         Returns a list of list of neighbors for each site in structure.
@@ -1167,11 +1191,20 @@ class IStructure(SiteCollection, MSONable):
                     neighbors[i].append(item)
         return neighbors
 
-    def get_all_neighbors_cell_list(self, r, include_index=False, include_image=False,
-                                    include_site=True):
+    def get_all_neighbors(self, r, include_index=False,
+                          include_image=False, include_site=True,
+                          indices=None, sites=None):
         """
-        A cell list algorithm with O(N) scaling for finding the neighbors.
-        This is a speed improvement compared to the O(N^2) scaling for get_all_neighbors
+        Get neighbors for each atom in the unit cell, out to a distance r
+        Returns a list of list of neighbors for each site in structure.
+        Use this method if you are planning on looping over all sites in the
+        crystal. If you only want neighbors for a particular site, use the
+        method get_neighbors as it may not have to build such a large supercell
+        However if you are looping over all sites in the crystal, this method
+        is more efficient since it only performs one pass over a large enough
+        supercell to contain all possible atoms out to a distance r.
+        The return type is a [(site, dist) ...] since most of the time,
+        subsequent processing requires the distance.
 
         A note about periodic images: Before computing the neighbors, this
         operation translates all atoms to within the unit cell (having
@@ -1187,6 +1220,9 @@ class IStructure(SiteCollection, MSONable):
                 in the returned data
             include_site (bool): Whether to include the site in the returned
                 data. Defaults to True.
+            indices (list): list of integer site indices for finding neighbors, if
+                it is set to None, neighbors for all sites will be computed
+            sites (list of Sites): sites for getting all neighbors
 
         Returns:
             A list of a list of nearest neighbors for each site, i.e.,
@@ -1230,10 +1266,11 @@ class IStructure(SiteCollection, MSONable):
             """
             return np.array(label3d[:, 0] * ny * nz + label3d[:, 1] * ny + label3d[:, 2]).reshape((-1, 1))
 
-        def find_neighbors(label, ny, nz):
+        def find_neighbors(label, nx, ny, nz):
             """
             Given a cube index, find the neighbor cube indices
             :param label: (array) (n,) or (n x 3) indice array
+            :param nx: (int) number of cells in y direction
             :param ny: (int) number of cells in y direction
             :param nz: (int) number of cells in z direction
             :return: neighbor cell indices
@@ -1248,9 +1285,17 @@ class IStructure(SiteCollection, MSONable):
             filtered_labels = []
             # filter out out-of-bound labels i.e., label < 0
             for labels in all_labels:
-                filtered_labels.append(labels[np.all(labels > -1e-5, axis=1)])
+                ind = (labels[:, 0] < nx) * (labels[:, 1] < ny) * (labels[:, 2] < nz) * np.all(labels > -1e-5, axis=1)
+                filtered_labels.append(labels[ind])
             return filtered_labels
 
+        if (indices is not None) and (sites is not None):
+            raise ValueError('Either specify indices or sites, not both.')
+
+        if indices is None:
+            indices = list(range(len(self)))
+        if isinstance(indices, int):
+            indices = [indices]
         recp_len = np.array(self.lattice.reciprocal_lattice.abc)
         maxr = np.ceil((r + 0.15) * recp_len / (2 * math.pi))
         nmin = np.floor(np.min(self.frac_coords, axis=0)) - maxr
@@ -1260,12 +1305,18 @@ class IStructure(SiteCollection, MSONable):
         matrix = latt.matrix
         all_fcoords = np.mod(self.frac_coords, 1)
         coords_in_cell = np.dot(all_fcoords, matrix)
-        site_coords = self.cart_coords
+        # site_coords are the coords for neighbor centers
+        if sites is None:
+            site_coords = self.cart_coords
+        else:
+            if isinstance(sites, Site):
+                sites = [sites]
+            site_coords = np.array([i.coords for i in sites])
         coords_min = np.min(site_coords, axis=0)
         coords_max = np.max(site_coords, axis=0)
         # The lower bound of all considered atom coords
-        global_min = coords_min - r
-        global_max = coords_max + r
+        global_min = coords_min - r - 1e-8
+        global_max = coords_max + r + 1e-8
 
         # Filter out those beyond max range
         valid_coords = []
@@ -1273,7 +1324,7 @@ class IStructure(SiteCollection, MSONable):
         valid_indices = []
         for image in itertools.product(*all_ranges):
             coords = np.dot(image, matrix) + coords_in_cell
-            valid_index_bool = np.all(np.bitwise_and(coords >= global_min,  coords <= global_max), axis=1)
+            valid_index_bool = np.all(np.bitwise_and(coords > global_min,  coords < global_max), axis=1)
             indices = np.arange(len(self))
             if np.any(valid_index_bool):
                 valid_coords.append(coords[valid_index_bool])
@@ -1283,7 +1334,7 @@ class IStructure(SiteCollection, MSONable):
 
         # Divide the valid 3D space into cubes and compute the cube ids
         all_cube_index = compute_cube_index(valid_coords, global_min, r)
-        nx, ny, nz = np.max(all_cube_index, axis=0) + 1
+        nx, ny, nz = compute_cube_index(global_max, global_min, r) + 1
         all_cube_index = three_to_one(all_cube_index, ny, nz)
         cell_cube_index = three_to_one(compute_cube_index(site_coords, global_min, r), ny, nz)
         # create cube index to coordinates, images, and indices map
@@ -1299,8 +1350,12 @@ class IStructure(SiteCollection, MSONable):
             cube_to_coords[i] = np.array(cube_to_coords[i])
 
         # find all neighboring cubes for each atom in the lattice cell
-        cell_neighbors = find_neighbors(cell_cube_index, ny, nz)
+        cell_neighbors = find_neighbors(cell_cube_index, nx, ny, nz)
         neighbors = []
+
+        if sites is None:
+            site_coords = [site_coords[i] for i in indices]
+            cell_neighbors = [cell_neighbors[i] for i in indices]
         for i, j in zip(site_coords, cell_neighbors):
             l1 = np.array(three_to_one(j, ny, nz), dtype=int).ravel()
             # use the cube index map to find the all the neighboring
@@ -1308,7 +1363,7 @@ class IStructure(SiteCollection, MSONable):
             atom_neighbors_coords = np.concatenate([cube_to_coords[k] for k in l1 if k in cube_to_coords], axis=0)
             atom_neigbhor_images = list(itertools.chain(*[cube_to_images[k] for k in l1 if k in cube_to_coords]))
             atom_neighbor_indices = list(itertools.chain(*[cube_to_indices[k] for k in l1 if k in cube_to_coords]))
-            dist = np.linalg.norm(atom_neighbors_coords - i, axis=1)
+            dist = np.linalg.norm(atom_neighbors_coords - i[None, :], axis=1)
             nns = []
             for coord, m, n, d in zip(atom_neighbors_coords, atom_neighbor_indices, atom_neigbhor_images, dist):
                 if (d > 1e-8) and (d <= r):
@@ -1324,6 +1379,8 @@ class IStructure(SiteCollection, MSONable):
                         item += [tuple(n)]
                     nns.append(item)
             neighbors.append(nns)
+        if len(neighbors) == 1:
+            return neighbors[0]
         return neighbors
 
     def get_neighbors_in_shell(self, origin, r, dr, include_index=False, include_image=False):
