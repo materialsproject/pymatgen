@@ -1357,7 +1357,8 @@ class IStructure(SiteCollection, MSONable):
         # find all neighboring cubes for each atom in the lattice cell
         site_neighbors = find_neighbors(site_cube_index, nx, ny, nz)
         neighbors = []
-
+        if np.all([len(i) == 0 for i in site_neighbors]):
+            return []
         for i, j in zip(site_coords, site_neighbors):
             l1 = np.array(three_to_one(j, ny, nz), dtype=int).ravel()
             # use the cube index map to find the all the neighboring
