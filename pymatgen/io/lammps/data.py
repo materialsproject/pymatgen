@@ -301,7 +301,7 @@ class LammpsData(MSONable):
         return Structure(latt, species, coords, coords_are_cartesian=True,
                          site_properties=site_properties)
 
-    def get_string(self, distance=6, velocity=8, charge=3):
+    def get_string(self, distance=6, velocity=8, charge=4):
         """
         Returns the string representation of LammpsData, essentially
         the string to be written to a file.
@@ -536,7 +536,7 @@ class LammpsData(MSONable):
 
         return file_template.format(stats=stats, box=box, body=body)
 
-    def write_file(self, filename, distance=6, velocity=8, charge=3):
+    def write_file(self, filename, distance=6, velocity=8, charge=4):
         """
         Writes LammpsData to file.
 
@@ -1459,7 +1459,7 @@ class CombinedData(LammpsData):
             assert atom_style == style_return, "Data have different atom_style as specified."
         return cls(mols, names, list_of_numbers, coordinates, style_return)
 
-    def get_string(self, distance=6, velocity=8, charge=3):
+    def get_string(self, distance=6, velocity=8, charge=4):
         """
         Returns the string representation of CombinedData, essentially
         the string to be written to a file. Combination info is included.
