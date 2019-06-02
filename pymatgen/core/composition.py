@@ -40,7 +40,7 @@ __date__ = "Nov 10, 2012"
 
 
 @total_ordering
-class Composition(collections.Hashable, collections.Mapping, MSONable):
+class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
     """
     Represents a Composition, which is essentially a {element:amount} mapping
     type. Composition is written to be immutable and hashable,

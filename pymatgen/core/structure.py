@@ -1083,7 +1083,7 @@ class IStructure(SiteCollection, MSONable):
             the index of supercell.
         """
         return self.get_all_neighbors(r, include_index=include_index, include_image=include_image,
-                                      include_site=True, sites=site)
+                                      include_site=True, indices=[self.index(site)])
 
     def get_neighbors_old(self, site, r, include_index=False, include_image=False):
         """
@@ -1193,7 +1193,7 @@ class IStructure(SiteCollection, MSONable):
 
     def get_all_neighbors(self, r, include_index=False,
                           include_image=False, include_site=True,
-                          indices=None, sites=None):
+                          indices=None):
         """
         Get neighbors for each atom in the unit cell, out to a distance r
         Returns a list of list of neighbors for each site in structure.
@@ -1291,23 +1291,9 @@ class IStructure(SiteCollection, MSONable):
                 filtered_labels.append(labels[ind])
             return filtered_labels
 
-        # site_coords are the coords for neighbor centers
-        is_single_site = False
-        if isinstance(indices, int):
-            indices = [indices]
-            is_single_site = True
+        indices = indices or list(range(len(self)))
+        site_coords = np.array([self.cart_coords[i] for i in indices])
 
-        if sites is None:
-            if indices is None:
-                indices = list(range(len(self)))
-            site_coords = np.array([self.cart_coords[i] for i in indices])
-        else:
-            if indices is not None:
-                raise ValueError('Either specify indices or sites, not both.')
-            if isinstance(sites, Site):
-                sites = [sites]
-                is_single_site = True
-            site_coords = np.array([i.coords for i in sites])
         recp_len = np.array(self.lattice.reciprocal_lattice.abc)
         maxr = np.ceil((r + 0.15) * recp_len / (2 * math.pi))
         frac_coords = self.lattice.get_fractional_coords(site_coords)
@@ -1384,7 +1370,7 @@ class IStructure(SiteCollection, MSONable):
                         item += [tuple(n)]
                     nns.append(item)
             neighbors.append(nns)
-        if is_single_site:
+        if len(indices) == 1:
             return neighbors[0]
         return neighbors
 

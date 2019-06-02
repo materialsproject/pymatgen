@@ -3,7 +3,7 @@
 # Distributed under the terms of the MIT License.
 
 from pathlib import Path
-from collections import Iterable
+from collections.abc import Iterable
 import warnings
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.periodic_table import Element, Specie
