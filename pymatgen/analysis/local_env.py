@@ -1378,7 +1378,7 @@ class CovalentBondNN(NearNeighbors):
                                 for n in range(len(structure))]
             structure.add_site_property('order_parameters', order_parameters)
 
-        mg = MoleculeGraph.with_local_env_strategy(structure, self)
+        mg = MoleculeGraph.with_local_env_strategy(structure, self, extend_structure=False)
 
         return mg
 
