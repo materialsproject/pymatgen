@@ -3,6 +3,7 @@
 # Distributed under the terms of the MIT License.
 
 from pathlib import Path
+from collections import Iterable
 import warnings
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.periodic_table import Element, Specie
@@ -11,6 +12,7 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import IStructure, Structure, IMolecule, \
     StructureError, Molecule
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.sites import PeriodicSite
 from pymatgen.electronic_structure.core import Magmom
 import random
 import os
@@ -419,6 +421,60 @@ class IStructureTest(PymatgenTest):
                 d = sum((site.coords - nn[0].coords) ** 2) ** 0.5
                 self.assertAlmostEqual(d, nn[1])
         self.assertEqual(list(map(len, all_nn)), [2, 2, 2, 0])
+
+    def test_get_all_neighbors_old(self):
+        s = self.struct
+
+        r = random.uniform(3, 6)
+        all_nn = s.get_all_neighbors_old(r, True, True)
+        for i in range(len(s)):
+            self.assertEqual(4, len(all_nn[i][0]))
+            self.assertEqual(len(all_nn[i]), len(s.get_neighbors(s[i], r)))
+
+        for site, nns in zip(s, all_nn):
+            for nn in nns:
+                self.assertTrue(nn[0].is_periodic_image(s[nn[2]]))
+                d = sum((site.coords - nn[0].coords) ** 2) ** 0.5
+                self.assertAlmostEqual(d, nn[1])
+
+        s = Structure(Lattice.cubic(1), ['Li'], [[0, 0, 0]])
+        s.make_supercell([2, 2, 2])
+        self.assertEqual(sum(map(len, s.get_all_neighbors_old(3))), 976)
+
+        all_nn = s.get_all_neighbors_old(r, include_site=False)
+        for nn in all_nn:
+            self.assertEqual(1, len(nn[0]))
+            self.assertLessEqual(nn[0][0], r)
+
+    def test_get_all_neighbors_old_outside_cell(self):
+        s = Structure(Lattice.cubic(2), ['Li', 'Li', 'Li', 'Si'],
+                      [[3.1] * 3, [0.11] * 3, [-1.91] * 3, [0.5] * 3])
+        all_nn = s.get_all_neighbors_old(0.2, True)
+        for site, nns in zip(s, all_nn):
+            for nn in nns:
+                self.assertTrue(nn[0].is_periodic_image(s[nn[2]]))
+                d = sum((site.coords - nn[0].coords) ** 2) ** 0.5
+                self.assertAlmostEqual(d, nn[1])
+        self.assertEqual(list(map(len, all_nn)), [2, 2, 2, 0])
+
+    def test_get_all_neighbors_equal(self):
+        s = Structure(Lattice.cubic(2), ['Li', 'Li', 'Li', 'Si'],
+                      [[3.1] * 3, [0.11] * 3, [-1.91] * 3, [0.5] * 3])
+        nn_traditional = s.get_all_neighbors_old(4, include_index=True, include_image=True,
+                                                 include_site=True)
+        nn_cell_lists = s.get_all_neighbors(4, include_index=True, include_image=True,
+                                            include_site=True)
+        nn_traditional = [sorted(i, key=lambda x: (x[1], x[2], x[3][0], x[3][1], x[3][2])) for i in nn_traditional]
+        nn_cell_lists = [sorted(i, key=lambda x: (x[1], x[2], x[3][0], x[3][1], x[3][2])) for i in nn_cell_lists]
+
+        def _is_equal(nn1, nn2):
+            if isinstance(nn1, Iterable):
+                return np.all([_is_equal(i, j) for i, j in zip(nn1, nn2)])
+            elif isinstance(nn1, PeriodicSite):
+                return np.linalg.norm(nn1.coords - nn2.coords) < 0.001
+            else:
+                return np.abs(nn1 - nn2) < 0.001
+        self.assertTrue(_is_equal(nn_traditional, nn_cell_lists))
 
     def test_get_dist_matrix(self):
         ans = [[0., 2.3516318],
