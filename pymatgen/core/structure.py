@@ -1082,8 +1082,9 @@ class IStructure(SiteCollection, MSONable):
             If include_supercell == True, the tuple for each neighbor also includes
             the index of supercell.
         """
-        return self.get_all_neighbors(r, include_index=include_index, include_image=include_image,
-                                      include_site=True, indices=[self.index(site)])
+        return self.get_all_neighbors(r, include_index=include_index,
+                                      include_image=include_image,
+                                      include_site=True, sites=[site])
 
     def get_neighbors_old(self, site, r, include_index=False, include_image=False):
         """
@@ -1193,7 +1194,7 @@ class IStructure(SiteCollection, MSONable):
 
     def get_all_neighbors(self, r, include_index=False,
                           include_image=False, include_site=True,
-                          indices=None):
+                          sites=None):
         """
         Get neighbors for each atom in the unit cell, out to a distance r
         Returns a list of list of neighbors for each site in structure.
@@ -1220,11 +1221,9 @@ class IStructure(SiteCollection, MSONable):
                 in the returned data
             include_site (bool): Whether to include the site in the returned
                 data. Defaults to True.
-            indices (list or int or None): list of integer site indices or single index
-                for finding neighbors, if it is set to None, neighbors for all sites
-                will be computed
             sites (list of Sites or Site or None): sites for getting all neighbors,
-                default is None
+                default is None, which means neighbors will be obtained for all
+                sites.
 
         Returns:
             A list of a list of nearest neighbors for each site, i.e.,
@@ -1291,8 +1290,8 @@ class IStructure(SiteCollection, MSONable):
                 filtered_labels.append(labels[ind])
             return filtered_labels
 
-        indices = indices or list(range(len(self)))
-        site_coords = np.array([self.cart_coords[i] for i in indices])
+        sites = sites or self.sites
+        site_coords = np.array([site.coords for site in sites])
 
         recp_len = np.array(self.lattice.reciprocal_lattice.abc)
         maxr = np.ceil((r + 0.15) * recp_len / (2 * math.pi))
@@ -1370,7 +1369,7 @@ class IStructure(SiteCollection, MSONable):
                         item += [tuple(n)]
                     nns.append(item)
             neighbors.append(nns)
-        if len(indices) == 1:
+        if len(sites) == 1:
             return neighbors[0]
         return neighbors
 
