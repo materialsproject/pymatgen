@@ -1290,16 +1290,17 @@ class IStructure(SiteCollection, MSONable):
                 filtered_labels.append(labels[ind])
             return filtered_labels
 
-        sites = sites or self.sites
+        latt = self.lattice
+        if sites is None:
+            sites = self.sites
         site_coords = np.array([site.coords for site in sites])
 
-        recp_len = np.array(self.lattice.reciprocal_lattice.abc)
+        recp_len = np.array(latt.reciprocal_lattice.abc)
         maxr = np.ceil((r + 0.15) * recp_len / (2 * math.pi))
-        frac_coords = self.lattice.get_fractional_coords(site_coords)
+        frac_coords = latt.get_fractional_coords(site_coords)
         nmin = np.floor(np.min(frac_coords, axis=0)) - maxr
         nmax = np.ceil(np.max(frac_coords, axis=0)) + maxr
         all_ranges = [np.arange(x, y) for x, y in zip(nmin, nmax)]
-        latt = self._lattice
         matrix = latt.matrix
         all_fcoords = np.mod(self.frac_coords, 1)
         coords_in_cell = np.dot(all_fcoords, matrix)
@@ -1346,17 +1347,18 @@ class IStructure(SiteCollection, MSONable):
         neighbors = []
         if np.all([len(i) == 0 for i in site_neighbors]):
             return []
-        for i, j in zip(site_coords, site_neighbors):
+        for sp, i, j in zip(self.species, site_coords, site_neighbors):
             l1 = np.array(three_to_one(j, ny, nz), dtype=int).ravel()
             # use the cube index map to find the all the neighboring
             # coords, images, and indices
-            atom_neighbors_coords = np.concatenate([cube_to_coords[k] for k in l1 if k in cube_to_coords], axis=0)
-            atom_neigbhor_images = list(itertools.chain(*[cube_to_images[k] for k in l1 if k in cube_to_coords]))
-            atom_neighbor_indices = list(itertools.chain(*[cube_to_indices[k] for k in l1 if k in cube_to_coords]))
-            dist = np.linalg.norm(atom_neighbors_coords - i[None, :], axis=1)
+            ks = [k for k in l1 if k in cube_to_coords]
+            nn_coords = np.concatenate([cube_to_coords[k] for k in ks], axis=0)
+            nn_images = list(itertools.chain(*[cube_to_images[k] for k in ks]))
+            nn_indices = list(itertools.chain(*[cube_to_indices[k] for k in ks]))
+            dist = np.linalg.norm(nn_coords - i[None, :], axis=1)
             nns = []
-            for coord, m, n, d in zip(atom_neighbors_coords, atom_neighbor_indices, atom_neigbhor_images, dist):
-                if (d > 1e-8) and (d <= r):
+            for coord, m, n, d in zip(nn_coords, nn_indices, nn_images, dist):
+                if 1e-8 < d <= r:
                     item = []
                     if include_site:
                         item += [PeriodicSite(self[m].species, coord, latt,

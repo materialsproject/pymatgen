@@ -412,8 +412,7 @@ class IStructureTest(PymatgenTest):
             self.assertLessEqual(nn[0][0], r)
 
     def test_get_all_neighbors_crosscheck_old(self):
-        done = False
-        while not done:
+        for i in range(100):
             alpha, beta, gamma = np.random.rand(3) * 180
             a, b, c = 3 + np.random.rand(3) * 5
             species = ["H"] * 5
@@ -430,9 +429,11 @@ class IStructureTest(PymatgenTest):
                     sites1 = [i[0] for i in nn_new]
                     sites2 = [i[0] for i in nn_old]
                     self.assertEqual(set(sites1), set(sites2))
-                done = True
+                break
             except Exception as ex:
-                done = False
+                pass
+        else:
+            raise ValueError("No valid structure tested.")
 
     def test_get_all_neighbors_outside_cell(self):
         s = Structure(Lattice.cubic(2), ['Li', 'Li', 'Li', 'Si'],
