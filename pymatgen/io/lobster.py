@@ -1429,7 +1429,6 @@ class Lobsterin(dict, MSONable):
     def write_KPOINTS(POSCAR_input="POSCAR", KPOINTS_output="KPOINTS.lobster", reciprocal_density=100, from_grid=False,
                       input_grid=[5, 5, 5], line_mode=True,
                       kpoints_line_density=20, symprec=0.01):
-        # TODO: include a way to generate it from a given grid
         """
         writes a KPOINT file for lobster (no symmetry considered!, ISYM=-1)
         Args:
