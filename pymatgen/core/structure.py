@@ -1084,7 +1084,7 @@ class IStructure(SiteCollection, MSONable):
         """
         return self.get_all_neighbors(r, include_index=include_index,
                                       include_image=include_image,
-                                      include_site=True, sites=[site])
+                                      include_site=True, sites=[site])[0]
 
     def get_neighbors_old(self, site, r, include_index=False, include_image=False):
         """
@@ -1369,8 +1369,6 @@ class IStructure(SiteCollection, MSONable):
                         item += [tuple(n)]
                     nns.append(item)
             neighbors.append(nns)
-        if len(sites) == 1:
-            return neighbors[0]
         return neighbors
 
     def get_neighbors_in_shell(self, origin, r, dr, include_index=False, include_image=False):
