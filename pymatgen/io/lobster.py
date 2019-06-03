@@ -1451,7 +1451,7 @@ class Lobsterin(dict, MSONable):
             mesh = kpointgrid[0]
         else:
             mesh = input_grid
-        print(mesh)
+
         # The following code is taken from: SpacegroupAnalyzer
         # we need to switch off symmetry here
         latt = structure.lattice.matrix
