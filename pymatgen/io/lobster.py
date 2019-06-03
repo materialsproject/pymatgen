@@ -1194,7 +1194,6 @@ class Lobsterin(dict, MSONable):
                 found = True
         if not found:
             new_key = key
-        # TODO: checken, ob key in Liste vorhandenenr Keywords
         if new_key.lower() not in [element.lower() for element in Lobsterin.AVAILABLEKEYWORDS]:
             raise (ValueError("Key is currently not available"))
 
@@ -1391,6 +1390,7 @@ class Lobsterin(dict, MSONable):
             raise IOError("We only have BASIS options for PBE so far")
 
         Potcar_names = [name["symbol"] for name in potcar.spec]
+
         AtomTypes_Potcar = [name.split('_')[0] for name in Potcar_names]
 
         AtomTypes = structure.symbol_set
@@ -1401,12 +1401,12 @@ class Lobsterin(dict, MSONable):
 
         basis_functions = []
         list_forin = []
-        for type in AtomTypes_Potcar:
+        for itype, type in enumerate(Potcar_names):
             if type not in BASIS:
                 raise ValueError("You have to provide the basis for" + str(
                     type) + "manually. We don't have any information on this POTCAR.")
             basis_functions.append(BASIS[type].split())
-            tojoin = str(type) + " "
+            tojoin = str(AtomTypes_Potcar[itype]) + " "
             tojoin2 = "".join(str(str(e) + " ") for e in BASIS[type].split())
             list_forin.append(str(tojoin + tojoin2))
         return list_forin
@@ -1426,7 +1426,8 @@ class Lobsterin(dict, MSONable):
         new_structure.to(fmt='POSCAR', filename=POSCAR_output)
 
     @staticmethod
-    def write_KPOINTS(POSCAR_input="POSCAR", KPOINTS_output="KPOINTS.lobster", reciprocal_density=100, line_mode=True,
+    def write_KPOINTS(POSCAR_input="POSCAR", KPOINTS_output="KPOINTS.lobster", reciprocal_density=100, from_grid=False,
+                      input_grid=[5, 5, 5], line_mode=True,
                       kpoints_line_density=20, symprec=0.01):
         """
         writes a KPOINT file for lobster (no symmetry considered!, ISYM=-1)
@@ -1434,6 +1435,8 @@ class Lobsterin(dict, MSONable):
             POSCAR_input (str): path to POSCAR
             KPOINTS_output (str): path to output KPOINTS
             reciprocal_density (int): Grid density
+            from_grid (bool): If True KPOINTS will be generated with the help of a grid given in input_grid. Otherwise, they will be generated from the reciprocal_density
+            input_grid (list): grid to generate the KPOINTS file
             line_mode (bool): If True, band structure will be generated
             kpoints_line_density (int): density of the lines in the band structure
             symprec (float): precision to determine symmetry
@@ -1441,8 +1444,12 @@ class Lobsterin(dict, MSONable):
         """
         structure = Structure.from_file(POSCAR_input)
         # should this really be static? -> make it similar to INCAR?
-        kpointgrid = Kpoints.automatic_density_by_vol(structure, reciprocal_density).kpts
-        mesh = kpointgrid[0]
+        if not from_grid:
+            kpointgrid = Kpoints.automatic_density_by_vol(structure, reciprocal_density).kpts
+            mesh = kpointgrid[0]
+        else:
+            mesh = input_grid
+
         # The following code is taken from: SpacegroupAnalyzer
         # we need to switch off symmetry here
         latt = structure.lattice.matrix
@@ -1498,7 +1505,8 @@ class Lobsterin(dict, MSONable):
                 weights.append(0.0)
                 all_labels.append(labels[k])
 
-        comment = ("ISYM=-1 Kpoints" if not line_mode else "ISYM=-1, standard kpoints path from pymatgen")
+        comment = (
+            "ISYM=-1, grid: " + str(mesh) if not line_mode else "ISYM=-1, grid: " + str(mesh) + " plus kpoint path")
 
         KpointObject = Kpoints(comment=comment,
                                style=Kpoints.supported_modes.Reciprocal,

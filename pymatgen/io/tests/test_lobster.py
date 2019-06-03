@@ -1197,6 +1197,9 @@ class LobsterinTest(unittest.TestCase):
         self.assertListEqual(lobsterin1._get_basis(Structure.from_file(os.path.join(test_dir_doscar, "Fe3O4.cif")),
                                                    POTCAR=os.path.join(test_dir_doscar, "POTCAR.Fe3O4")),
                              ['Fe 3d 4p 4s ', 'O 2p 2s '])
+        self.assertListEqual(lobsterin1._get_basis(Structure.from_file(os.path.join(test_dir, "POSCAR.GaAs")),
+                                                   POTCAR=os.path.join(test_dir, "POTCAR.GaAs")),
+                             ['Ga 3d 4p 4s ', 'As 4p 4s '])
 
     def test_write_lobsterin(self):
         # write lobsterin, read it and compare it
@@ -1271,6 +1274,19 @@ class LobsterinTest(unittest.TestCase):
 
         # without line mode
         lobsterin1.write_KPOINTS(POSCAR_input=outfile_path2, KPOINTS_output=outfile_path, line_mode=False)
+        kpoint = Kpoints.from_file(outfile_path)
+        kpoint2 = Kpoints.from_file(os.path.join(test_dir_doscar, "IBZKPT.lobster"))
+
+        for num_kpt, list_kpoint in enumerate(kpoint.kpts):
+            self.assertAlmostEqual(list_kpoint[0], kpoint2.kpts[num_kpt][0])
+            self.assertAlmostEqual(list_kpoint[1], kpoint2.kpts[num_kpt][1])
+            self.assertAlmostEqual(list_kpoint[2], kpoint2.kpts[num_kpt][2])
+
+        self.assertEqual(kpoint.num_kpts, 108)
+
+        # without line mode, use grid instead of reciprocal density
+        lobsterin1.write_KPOINTS(POSCAR_input=outfile_path2, KPOINTS_output=outfile_path, line_mode=False,
+                                 from_grid=True, input_grid=[6, 6, 3])
         kpoint = Kpoints.from_file(outfile_path)
         kpoint2 = Kpoints.from_file(os.path.join(test_dir_doscar, "IBZKPT.lobster"))
 
