@@ -12,7 +12,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.surface import Slab, SlabGenerator, generate_all_slabs, \
     get_symmetrically_distinct_miller_indices, ReconstructionGenerator, \
-    miller_index_from_sites, get_d
+    miller_index_from_sites, get_d, get_slab_regions
 from pymatgen.symmetry.groups import SpaceGroup
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
@@ -35,21 +35,21 @@ class SlabTest(PymatgenTest):
 
         Ti = Structure(Lattice.hexagonal(4.6, 2.82), ["Ti", "Ti", "Ti"],
                        [[0.000000, 0.000000, 0.000000],
-                       [0.333333, 0.666667, 0.500000],
-                       [0.666667, 0.333333, 0.500000]])
+                        [0.333333, 0.666667, 0.500000],
+                        [0.666667, 0.333333, 0.500000]])
 
         Ag_fcc = Structure(Lattice.cubic(4.06), ["Ag", "Ag", "Ag", "Ag"],
                            [[0.000000, 0.000000, 0.000000],
-                           [0.000000, 0.500000, 0.500000],
-                           [0.500000, 0.000000, 0.500000],
-                           [0.500000, 0.500000, 0.000000]])
+                            [0.000000, 0.500000, 0.500000],
+                            [0.500000, 0.000000, 0.500000],
+                            [0.500000, 0.500000, 0.000000]])
 
         self.ti = Ti
         self.agfcc = Ag_fcc
         self.zno1 = zno1
         self.zno55 = zno55
         self.h = Structure(Lattice.cubic(3), ["H"],
-                            [[0, 0, 0]])
+                           [[0, 0, 0]])
         self.libcc = Structure(Lattice.cubic(3.51004), ["Li", "Li"],
                                [[0, 0, 0], [0.5, 0.5, 0.5]])
 
@@ -59,7 +59,7 @@ class SlabTest(PymatgenTest):
                         self.zno55.miller_index,
                         self.zno55.oriented_unit_cell,
                         0, self.zno55.scale_factor)
-        m =self.zno55.lattice.matrix
+        m = self.zno55.lattice.matrix
         area = np.linalg.norm(np.cross(m[0], m[1]))
         self.assertAlmostEqual(zno_slab.surface_area, area)
         self.assertEqual(zno_slab.lattice.lengths_and_angles,
@@ -92,7 +92,7 @@ class SlabTest(PymatgenTest):
         self.assertEqual(species, ["Zn2+"] * 4 + ["O2-"] * 4)
 
     def test_methods(self):
-        #Test various structure methods
+        # Test various structure methods
         self.zno55.get_primitive_structure()
 
     def test_as_from_dict(self):
@@ -117,25 +117,28 @@ class SlabTest(PymatgenTest):
         for bool in [True, False]:
             # We will also set the slab to be centered and
             # off centered in order to test the center of mass
-            slabgen = SlabGenerator(self.agfcc, (3, 1, 0), 10, 10, center_slab=bool)
+            slabgen = SlabGenerator(self.agfcc, (3, 1, 0), 10, 10,
+                                    center_slab=bool)
             slab = slabgen.get_slabs()[0]
             surf_sites_dict = slab.get_surface_sites()
-            self.assertEqual(len(surf_sites_dict["top"]), len(surf_sites_dict["bottom"]))
+            self.assertEqual(len(surf_sites_dict["top"]),
+                             len(surf_sites_dict["bottom"]))
             total_surf_sites = sum([len(surf_sites_dict[key])
                                     for key in surf_sites_dict.keys()])
             self.assertTrue(slab.is_symmetric())
-            self.assertEqual(total_surf_sites/2, 4)
+            self.assertEqual(total_surf_sites / 2, 4)
             self.assertTrue(slab.have_equivalent_surfaces())
 
             # Test if the ratio of surface sites per area is
             # constant, ie are the surface energies the same
-            r1 = total_surf_sites/(2*slab.surface_area)
-            slabgen = SlabGenerator(self.agfcc, (3, 1, 0), 10, 10, primitive=False)
+            r1 = total_surf_sites / (2 * slab.surface_area)
+            slabgen = SlabGenerator(self.agfcc, (3, 1, 0), 10, 10,
+                                    primitive=False)
             slab = slabgen.get_slabs()[0]
             surf_sites_dict = slab.get_surface_sites()
             total_surf_sites = sum([len(surf_sites_dict[key])
                                     for key in surf_sites_dict.keys()])
-            r2 = total_surf_sites/(2*slab.surface_area)
+            r2 = total_surf_sites / (2 * slab.surface_area)
             self.assertArrayEqual(r1, r2)
 
     def test_symmetrization(self):
@@ -153,8 +156,10 @@ class SlabTest(PymatgenTest):
 
         all_Ag_fcc_slabs = generate_all_slabs(self.agfcc, 2, 10, 10, bonds=None,
                                               tol=1e-3, max_broken_bonds=0,
-                                              lll_reduce=False, center_slab=False,
-                                              primitive=True, max_normal_search=2,
+                                              lll_reduce=False,
+                                              center_slab=False,
+                                              primitive=True,
+                                              max_normal_search=2,
                                               symmetrize=True)
 
         all_slabs = [all_Ti_slabs, all_Ag_fcc_slabs]
@@ -211,12 +216,33 @@ class SlabTest(PymatgenTest):
             m = s.lattice.matrix
             return np.linalg.norm(np.cross(m[0], m[1]))
 
-        all_slabs = generate_all_slabs(self.agfcc, 2, 10, 10, max_normal_search=3)
+        all_slabs = generate_all_slabs(self.agfcc, 2, 10, 10,
+                                       max_normal_search=3)
         for slab in all_slabs:
             ouc = slab.oriented_unit_cell
+
             self.assertAlmostEqual(surface_area(slab), surface_area(ouc))
             self.assertGreaterEqual(len(slab), len(ouc))
 
+    def test_get_slab_regions(self):
+
+        # If a slab layer in the slab cell is not completely inside
+        # the cell (noncontiguous), check that get_slab_regions will
+        # be able to identify where the slab layers are located
+
+        s = self.get_structure("LiFePO4")
+        slabgen = SlabGenerator(s, (0, 0, 1), 15, 15)
+        slab = slabgen.get_slabs()[0]
+        slab.translate_sites([i for i, site in enumerate(slab)], [0, 0, -0.25])
+        bottom_c, top_c = [], []
+        for site in slab:
+            if site.frac_coords[2] < 0.5:
+                bottom_c.append(site.frac_coords[2])
+            else:
+                top_c.append(site.frac_coords[2])
+        ranges = get_slab_regions(slab)
+        self.assertEqual(tuple(ranges[0]), (0, max(bottom_c)))
+        self.assertEqual(tuple(ranges[1]), (min(top_c), 1))
 
 class SlabGeneratorTest(PymatgenTest):
 
@@ -237,14 +263,14 @@ class SlabGeneratorTest(PymatgenTest):
 
         lattice_Dy = Lattice.hexagonal(3.58, 25.61)
         frac_coords_Dy = [[0.00000, 0.00000, 0.00000],
-                       [0.66667, 0.33333, 0.11133],
-                       [0.00000, 0.00000, 0.222],
-                       [0.66667, 0.33333, 0.33333],
-                       [0.33333, 0.66666, 0.44467],
-                       [0.66667, 0.33333, 0.55533],
-                       [0.33333, 0.66667, 0.66667],
-                       [0.00000, 0.00000, 0.778],
-                       [0.33333, 0.66667, 0.88867]]
+                          [0.66667, 0.33333, 0.11133],
+                          [0.00000, 0.00000, 0.222],
+                          [0.66667, 0.33333, 0.33333],
+                          [0.33333, 0.66666, 0.44467],
+                          [0.66667, 0.33333, 0.55533],
+                          [0.33333, 0.66667, 0.66667],
+                          [0.00000, 0.00000, 0.778],
+                          [0.33333, 0.66667, 0.88867]]
         species_Dy = ['Dy', 'Dy', 'Dy', 'Dy', 'Dy', 'Dy', 'Dy', 'Dy', 'Dy']
         self.Dy = Structure(lattice_Dy, species_Dy, frac_coords_Dy)
 
@@ -256,11 +282,11 @@ class SlabGeneratorTest(PymatgenTest):
 
         fcc = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Fe"],
                                         [[0, 0, 0]])
-        gen = SlabGenerator(fcc, [1, 1, 1], 10, 10)
+        gen = SlabGenerator(fcc, [1, 1, 1], 10, 10, max_normal_search=1)
         slab = gen.get_slab()
-        gen = SlabGenerator(fcc, [1, 1, 1], 10, 10, primitive=False)
-        slab_non_prim = gen.get_slab()
         self.assertEqual(len(slab), 6)
+        gen = SlabGenerator(fcc, [1, 1, 1], 10, 10, primitive=False, max_normal_search=1)
+        slab_non_prim = gen.get_slab()
         self.assertEqual(len(slab_non_prim), len(slab) * 4)
 
         # Some randomized testing of cell vectors
@@ -268,10 +294,17 @@ class SlabGeneratorTest(PymatgenTest):
             i = random.randint(1, 230)
             sg = SpaceGroup.from_int_number(i)
             if sg.crystal_system == "hexagonal" or (sg.crystal_system == \
-                    "trigonal" and (sg.symbol.endswith("H") or
-                    sg.int_number in [143, 144, 145, 147, 149, 150, 151, 152,
-                                      153, 154, 156, 157, 158, 159, 162, 163,
-                                      164, 165])):
+                                                    "trigonal" and (
+                                                            sg.symbol.endswith(
+                                                                "H") or
+                                                            sg.int_number in [
+                                                                143, 144, 145,
+                                                                147, 149, 150,
+                                                                151, 152,
+                                                                153, 154, 156,
+                                                                157, 158, 159,
+                                                                162, 163,
+                                                                164, 165])):
                 latt = Lattice.hexagonal(5, 10)
             else:
                 # Cubic lattice is compatible with all other space groups.
@@ -308,14 +341,14 @@ class SlabGeneratorTest(PymatgenTest):
                                     len(gen.oriented_unit_cell))
 
         sc = Structure(Lattice.hexagonal(3.32, 5.15), ["Sc", "Sc"],
-                       [[1/3, 2/3, 0.25], [2/3, 1/3, 0.75]])
+                       [[1 / 3, 2 / 3, 0.25], [2 / 3, 1 / 3, 0.75]])
         gen = SlabGenerator(sc, (1, 1, 1), 10, 10, max_normal_search=1)
         self.assertAlmostEqual(gen.oriented_unit_cell.lattice.angles[1], 90)
 
     def test_get_slabs(self):
         gen = SlabGenerator(self.get_structure("CsCl"), [0, 0, 1], 10, 10)
 
-        #Test orthogonality of some internal variables.
+        # Test orthogonality of some internal variables.
         a, b, c = gen.oriented_unit_cell.lattice.matrix
         self.assertAlmostEqual(np.dot(a, gen._normal), 0)
         self.assertAlmostEqual(np.dot(b, gen._normal), 0)
@@ -333,7 +366,7 @@ class SlabGeneratorTest(PymatgenTest):
         self.assertEqual(len(gen.get_slabs(
             bonds={("P", "O"): 3, ("Fe", "O"): 3})), 0)
 
-        #If we allow some broken bonds, there are a few slabs.
+        # If we allow some broken bonds, there are a few slabs.
         self.assertEqual(len(gen.get_slabs(
             bonds={("P", "O"): 3, ("Fe", "O"): 3},
             max_broken_bonds=2)), 2)
@@ -341,10 +374,10 @@ class SlabGeneratorTest(PymatgenTest):
         # At this threshold, only the origin and center Li results in
         # clustering. All other sites are non-clustered. So the of
         # slabs is of sites in LiFePO4 unit cell - 2 + 1.
-        self.assertEqual(len(gen.get_slabs(tol=1e-4)), 15)
+        self.assertEqual(len(gen.get_slabs(tol=1e-4, ftol=1e-4)), 15)
 
-        LiCoO2=Structure.from_file(get_path("icsd_LiCoO2.cif"),
-                                          primitive=False)
+        LiCoO2 = Structure.from_file(get_path("icsd_LiCoO2.cif"),
+                                     primitive=False)
         gen = SlabGenerator(LiCoO2, [0, 0, 1], 10, 10)
         lco = gen.get_slabs(bonds={("Co", "O"): 3})
         self.assertEqual(len(lco), 1)
@@ -365,8 +398,9 @@ class SlabGeneratorTest(PymatgenTest):
         # min_slab_size and min_vac_size will give us the same number of atoms
         natoms = []
         for a in [1, 1.4, 2.5, 3.6]:
-            s = Structure.from_spacegroup("Im-3m", Lattice.cubic(a), ["Fe"], [[0,0,0]])
-            slabgen = SlabGenerator(s, (1,1,1), 10, 10, in_unit_planes=True,
+            s = Structure.from_spacegroup("Im-3m", Lattice.cubic(a), ["Fe"],
+                                          [[0, 0, 0]])
+            slabgen = SlabGenerator(s, (1, 1, 1), 10, 10, in_unit_planes=True,
                                     max_normal_search=2)
             natoms.append(len(slabgen.get_slab()))
         n = natoms[0]
@@ -397,11 +431,29 @@ class SlabGeneratorTest(PymatgenTest):
         self.assertAlmostEqual(norm_slab.lattice.angles[0], 90)
         self.assertAlmostEqual(norm_slab.lattice.angles[1], 90)
 
+    def test_get_orthogonal_c_slab_site_props(self):
+        TeI = Structure.from_file(get_path("icsd_TeI.cif"),
+                                  primitive=False)
+        trclnc_TeI = SlabGenerator(TeI, (0, 0, 1), 10, 10)
+        TeI_slabs = trclnc_TeI.get_slabs()
+        slab = TeI_slabs[0]
+        # Add site property to slab
+        sd_list = [[True, True, True] for site in slab.sites]
+        new_sp = slab.site_properties
+        new_sp['selective_dynamics'] = sd_list
+        slab_with_site_props = slab.copy(site_properties=new_sp)
+
+        # Get orthogonal slab
+        norm_slab = slab_with_site_props.get_orthogonal_c_slab()
+
+        # Check if site properties is consistent (or kept)
+        self.assertEqual(slab_with_site_props.site_properties, norm_slab.site_properties)
+
     def test_get_tasker2_slabs(self):
         # The uneven distribution of ions on the (111) facets of Halite
         # type slabs are typical examples of Tasker 3 structures. We
         # will test this algo to generate a Tasker 2 structure instead
-        slabgen = SlabGenerator(self.MgO, (1,1,1), 10, 10,
+        slabgen = SlabGenerator(self.MgO, (1, 1, 1), 10, 10,
                                 max_normal_search=1)
         # We generate the Tasker 3 structure first
         slab = slabgen.get_slabs()[0]
@@ -409,7 +461,7 @@ class SlabGeneratorTest(PymatgenTest):
         self.assertTrue(slab.is_polar())
         # Now to generate the Tasker 2 structure, we must
         # ensure there are enough ions on top to move around
-        slab.make_supercell([2,1,1])
+        slab.make_supercell([2, 1, 1])
         slabs = slab.get_tasker2_slabs()
         # Check if our Tasker 2 slab is nonpolar and symmetric
         for slab in slabs:
@@ -419,7 +471,7 @@ class SlabGeneratorTest(PymatgenTest):
     def test_nonstoichiometric_symmetrized_slab(self):
         # For the (111) halite slab, sometimes a nonstoichiometric
         # system is preferred over the stoichiometric Tasker 2.
-        slabgen = SlabGenerator(self.MgO, (1,1,1), 10, 10,
+        slabgen = SlabGenerator(self.MgO, (1, 1, 1), 10, 10,
                                 max_normal_search=1)
         slabs = slabgen.get_slabs(symmetrize=True)
 
@@ -442,7 +494,7 @@ class SlabGeneratorTest(PymatgenTest):
 
         # Tests to see if sites are added to opposite side
         s = self.get_structure("LiFePO4")
-        slabgen = SlabGenerator(s, (0,0,1), 10, 10, center_slab=True)
+        slabgen = SlabGenerator(s, (0, 0, 1), 10, 10, center_slab=True)
         slab = slabgen.get_slab()
         surface_sites = slab.get_surface_sites()
 
@@ -457,7 +509,7 @@ class SlabGeneratorTest(PymatgenTest):
         bottom_index = [ss[1] for ss in surface_sites["bottom"]]
         slab = slabgen.move_to_other_side(slab, bottom_index)
         all_top = [slab[i].frac_coords[2] > slab.center_of_mass[2]
-                      for i in bottom_index]
+                   for i in bottom_index]
         self.assertTrue(all(all_top))
 
 
@@ -467,11 +519,11 @@ class ReconstructionGeneratorTests(PymatgenTest):
 
         l = Lattice.cubic(3.51)
         species = ["Ni"]
-        coords = [[0,0,0]]
+        coords = [[0, 0, 0]]
         self.Ni = Structure.from_spacegroup("Fm-3m", l, species, coords)
         l = Lattice.cubic(2.819000)
         species = ["Fe"]
-        coords = [[0,0,0]]
+        coords = [[0, 0, 0]]
         self.Fe = Structure.from_spacegroup("Im-3m", l, species, coords)
         self.Si = Structure.from_spacegroup("Fd-3m", Lattice.cubic(5.430500),
                                             ["Si"], [(0, 0, 0.5)])
@@ -488,21 +540,21 @@ class ReconstructionGeneratorTests(PymatgenTest):
         slab = recon.get_unreconstructed_slabs()[0]
         recon_slab = recon.build_slabs()[0]
         self.assertTrue(recon_slab.reconstruction)
-        self.assertEqual(len(slab), len(recon_slab)+2)
+        self.assertEqual(len(slab), len(recon_slab) + 2)
         self.assertTrue(recon_slab.is_symmetric())
 
         # Test if the ouc corresponds to the reconstructed slab
         recon_ouc = recon_slab.oriented_unit_cell
         ouc = slab.oriented_unit_cell
-        self.assertEqual(ouc.lattice.b*2, recon_ouc.lattice.b)
-        self.assertEqual(len(ouc)*2, len(recon_ouc))
+        self.assertEqual(ouc.lattice.b * 2, recon_ouc.lattice.b)
+        self.assertEqual(len(ouc) * 2, len(recon_ouc))
 
         # Test a reconstruction where we simply add atoms
         recon = ReconstructionGenerator(self.Ni, 10, 10,
                                         "fcc_111_adatom_t_1x1")
         slab = recon.get_unreconstructed_slabs()[0]
         recon_slab = recon.build_slabs()[0]
-        self.assertEqual(len(slab), len(recon_slab)-2)
+        self.assertEqual(len(slab), len(recon_slab) - 2)
         self.assertTrue(recon_slab.is_symmetric())
 
         # If a slab references another slab,
@@ -518,7 +570,7 @@ class ReconstructionGeneratorTests(PymatgenTest):
                                         "diamond_111_1x2")
         slab = recon.get_unreconstructed_slabs()[0]
         recon_slab = recon.build_slabs()[0]
-        self.assertEqual(len(slab), len(recon_slab)-8)
+        self.assertEqual(len(slab), len(recon_slab) - 8)
         self.assertTrue(recon_slab.is_symmetric())
 
         # Test a reconstruction where terminations give
@@ -546,7 +598,8 @@ class ReconstructionGeneratorTests(PymatgenTest):
         m = StructureMatcher()
         for n in self.rec_archive.keys():
             if "base_reconstruction" in self.rec_archive[n].keys():
-                arch = self.rec_archive[self.rec_archive[n]["base_reconstruction"]]
+                arch = self.rec_archive[
+                    self.rec_archive[n]["base_reconstruction"]]
                 sg = arch["spacegroup"]["symbol"]
             else:
                 sg = self.rec_archive[n]["spacegroup"]["symbol"]
@@ -562,8 +615,9 @@ class ReconstructionGeneratorTests(PymatgenTest):
 
             slabs = rec.build_slabs()
             s = Structure.from_file(get_path(os.path.join("reconstructions",
-                                                          el+"_"+n+".cif")))
-            self.assertTrue(any([len(m.group_structures([s, slab]))==1 for slab in slabs]))
+                                                          el + "_" + n + ".cif")))
+            self.assertTrue(any(
+                [len(m.group_structures([s, slab])) == 1 for slab in slabs]))
 
 
 class MillerIndexFinderTests(PymatgenTest):
@@ -572,7 +626,7 @@ class MillerIndexFinderTests(PymatgenTest):
         self.cscl = Structure.from_spacegroup(
             "Pm-3m", Lattice.cubic(4.2), ["Cs", "Cl"],
             [[0, 0, 0], [0.5, 0.5, 0.5]])
-        self.Fe = Structure.from_spacegroup(\
+        self.Fe = Structure.from_spacegroup( \
             "Im-3m", Lattice.cubic(2.82), ["Fe"],
             [[0, 0, 0]])
         self.lifepo4 = self.get_structure("LiFePO4")
@@ -602,7 +656,8 @@ class MillerIndexFinderTests(PymatgenTest):
         indices = get_symmetrically_distinct_miller_indices(self.cscl, 2)
         self.assertEqual(len(indices), 6)
 
-        self.assertEqual(len(get_symmetrically_distinct_miller_indices(self.lifepo4, 1)), 7)
+        self.assertEqual(
+            len(get_symmetrically_distinct_miller_indices(self.lifepo4, 1)), 7)
 
         # The TeI P-1 structure should have 13 unique millers (only inversion
         # symmetry eliminates pairs)
@@ -629,7 +684,7 @@ class MillerIndexFinderTests(PymatgenTest):
 
         # make sure it generates reconstructions
         slabs = generate_all_slabs(self.Fe, 1, 10, 10,
-                                   include_reconstructions = True)
+                                   include_reconstructions=True)
 
         # Four possible slabs, (100), (110), (111) and the zigzag (100).
         self.assertEqual(len(slabs), 4)
@@ -663,7 +718,7 @@ class MillerIndexFinderTests(PymatgenTest):
 
         # Now we test this out for repair_broken_bonds()
         slabs1_repair = generate_all_slabs(self.lifepo4, 1, 10, 10, tol=0.1,
-                                    bonds={("P", "O"): 3}, repair=True)
+                                           bonds={("P", "O"): 3}, repair=True)
         self.assertGreater(len(slabs1_repair), len(slabs1))
 
         # Lets see if there are no broken PO4 polyhedrons
@@ -693,8 +748,8 @@ class MillerIndexFinderTests(PymatgenTest):
         # test on a cubic system
         m = Lattice.cubic(1)
         s1 = np.array([0.5, -1.5, 3])
-        s2 = np.array([0.5, 3.,-1.5])
-        s3 = np.array([2.5, 1.5,-4.])
+        s2 = np.array([0.5, 3., -1.5])
+        s3 = np.array([2.5, 1.5, -4.])
         self.assertEqual(miller_index_from_sites(m, [s1, s2, s3]),
                          (2, 1, 1))
 

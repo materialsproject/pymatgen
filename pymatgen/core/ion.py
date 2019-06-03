@@ -35,7 +35,7 @@ class Ion(Composition, MSONable):
         Flexible Ion construction, similar to Composition.
         For more information, please see pymatgen.core.Composition
         """
-        super(Ion, self).__init__(composition)
+        super().__init__(composition)
         self._charge = charge
 
     @classmethod
@@ -72,7 +72,7 @@ class Ion(Composition, MSONable):
         Returns a formula string, with elements sorted by electronegativity,
         e.g., Li4 Fe4 P4 O16.
         """
-        formula = super(Ion, self).formula
+        formula = super().formula
         chg_str = ""
         if self.charge > 0:
             chg_str = " +" + formula_double_format(self.charge, False)
@@ -86,7 +86,7 @@ class Ion(Composition, MSONable):
         An anonymized formula. Appends charge to the end
         of anonymized composition
         """
-        anon_formula = super(Ion, self).anonymized_formula
+        anon_formula = super().anonymized_formula
         chg = self._charge
         chg_str = ""
         if chg > 0:
@@ -100,7 +100,7 @@ class Ion(Composition, MSONable):
         """
         Returns a reduced formula string with appended charge.
         """
-        reduced_formula = super(Ion, self).reduced_formula
+        reduced_formula = super().reduced_formula
         charge = self._charge / self.get_reduced_composition_and_factor()[1]
         if charge > 0:
             if abs(charge) == 1:
@@ -122,7 +122,7 @@ class Ion(Composition, MSONable):
         """
         Returns a reduced formula string with appended charge
         """
-        alph_formula = super(Ion, self).alphabetical_formula
+        alph_formula = super().alphabetical_formula
         chg_str = ""
         if self.charge > 0:
             chg_str = " +" + formula_double_format(self.charge, False)
@@ -142,7 +142,7 @@ class Ion(Composition, MSONable):
         Returns:
             dict with composition, as well as charge
         """
-        d = super(Ion, self).as_dict()
+        d = super().as_dict()
         d['charge'] = self.charge
         return d
 

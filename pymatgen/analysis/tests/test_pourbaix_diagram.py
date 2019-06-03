@@ -210,7 +210,7 @@ class PourbaixDiagramTest(unittest.TestCase):
         pbx = PourbaixDiagram(entries + [custom_ion_entry], filter_solids=True,
                               comp_dict={"Na": 1, "Sn": 12, "C": 24})
         self.assertAlmostEqual(pbx.get_decomposition_energy(custom_ion_entry, 5, 2),
-                               8.31202738629504, 2)
+                               8.31202738629504, 1)
 
     def test_nofilter(self):
         entries = self.test_data['Ag-Te']

@@ -102,7 +102,7 @@ def draw_cg(vis, site, neighbors, cg=None, perm=None, perfect2local_map=None,
             else:
                 faces = cg.faces(neighbors)
                 edges = cg.edges(neighbors)
-            symbol = list(site.species_and_occu.keys())[0].symbol
+            symbol = list(site.species.keys())[0].symbol
             if faces_color_override:
                 mycolor = faces_color_override
             else:
@@ -237,7 +237,7 @@ def compute_environments(chemenv_configuration):
                         continue
                     if len(ces) == 0:
                         continue
-                    comp = site.species_and_occu
+                    comp = site.species
                     #ce = strategy.get_site_coordination_environment(site)
                     if strategy.uniquely_determines_coordination_environments:
                         ce = ces[0]
@@ -323,8 +323,8 @@ def compute_environments(chemenv_configuration):
                     ce = strategy.get_site_coordination_environment(site)
                     if ce is not None and ce[0] != UNCLEAR_ENVIRONMENT_SYMBOL:
                         for mydelta in mydeltas:
-                            psite = PeriodicSite(site._species, site._fcoords + mydelta, site._lattice,
-                                                 properties=site._properties)
+                            psite = PeriodicSite(site.species, site.frac_coords + mydelta, site.lattice,
+                                                 properties=site.properties)
                             vis.add_site(psite)
                             neighbors = strategy.get_site_neighbors(psite)
                             draw_cg(vis, psite, neighbors, cg=lgf.allcg.get_geometry_from_mp_symbol(ce[0]),

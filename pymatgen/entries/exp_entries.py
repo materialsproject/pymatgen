@@ -53,7 +53,7 @@ class ExpEntry(PDEntry, MSONable):
             raise ValueError("List of Thermodata does not contain enthalpy "
                              "values.")
         self.temperature = temperature
-        super(ExpEntry, self).__init__(comp, enthalpy)
+        super().__init__(comp, enthalpy)
 
     def __repr__(self):
         return "ExpEntry {}, Energy = {:.4f}".format(self.composition.formula,

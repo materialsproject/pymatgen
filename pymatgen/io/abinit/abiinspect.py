@@ -10,10 +10,7 @@ import os
 import numpy as np
 import ruamel.yaml as yaml
 
-try:
-    from collections.abc import Mapping, Iterable, Iterator
-except ImportError:
-    from collections import Mapping, Iterable, Iterator
+from collections.abc import Mapping, Iterable, Iterator
 from collections import OrderedDict
 from tabulate import tabulate
 from monty.functools import lazy_property

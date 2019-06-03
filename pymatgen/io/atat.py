@@ -46,7 +46,7 @@ class Mcsqs:
         # add species
         for site in self.structure:
             species_str = []
-            for sp, occu in sorted(site.species_and_occu.items()):
+            for sp, occu in sorted(site.species.items()):
                 if isinstance(sp, Specie):
                     sp = sp.element
                 species_str.append("{}={}".format(sp, occu))

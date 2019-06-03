@@ -44,7 +44,7 @@ class XANES(Spectrum):
     YLABEL = 'Intensity'
 
     def __init__(self, x, y, structure, absorption_specie, edge):
-        super(XANES, self).__init__(x, y, structure, absorption_specie, edge)
+        super().__init__(x, y, structure, absorption_specie, edge)
         self.structure = structure
         self.absorption_specie = absorption_specie
         self.edge = edge
@@ -54,5 +54,5 @@ class XANES(Spectrum):
         return "%s %s Edge for %s: %s" % (
             self.absorption_specie, self.edge,
             self.structure.composition.reduced_formula,
-            super(XANES, self).__str__()
+            super().__str__()
         )

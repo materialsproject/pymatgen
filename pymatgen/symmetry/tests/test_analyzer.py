@@ -47,7 +47,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         s = p.structure.copy()
         site = s[0]
         del s[0]
-        s.append(site.species_and_occu, site.frac_coords)
+        s.append(site.species, site.frac_coords)
         self.sg3 = SpacegroupAnalyzer(s, 0.001)
         graphite = self.get_structure('Graphite')
         graphite.add_site_property("magmom", [0.1] * len(graphite))
@@ -142,7 +142,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
                     self.assertTrue(np.allclose(latt.get_fractional_coords(newcart),
                                                 newfrac))
                     found = False
-                    newsite = PeriodicSite(site.species_and_occu, newcart, latt,
+                    newsite = PeriodicSite(site.species, newcart, latt,
                                            coords_are_cartesian=True)
                     for testsite in structure:
                         if newsite.is_periodic_image(testsite, 1e-3):

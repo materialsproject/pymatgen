@@ -43,7 +43,7 @@ class DiffractionPattern(Spectrum):
                 intensity.
             d_hkls: List of interplanar spacings.
         """
-        super(DiffractionPattern, self).__init__(x, y, hkls, d_hkls)
+        super().__init__(x, y, hkls, d_hkls)
         self.hkls = hkls
         self.d_hkls = d_hkls
 

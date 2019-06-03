@@ -541,7 +541,7 @@ class MaterialsProjectCompatibility(Compatibility):
         self.correct_peroxide = correct_peroxide
         self.check_potcar_hash = check_potcar_hash
         fp = os.path.join(MODULE_DIR, "MPCompatibility.yaml")
-        super(MaterialsProjectCompatibility, self).__init__(
+        super().__init__(
             [PotcarCorrection(MPRelaxSet, check_hash=check_potcar_hash),
              GasCorrection(fp),
              AnionCorrection(fp, correct_peroxide=correct_peroxide),
@@ -574,7 +574,7 @@ class MITCompatibility(Compatibility):
         self.correct_peroxide = correct_peroxide
         self.check_potcar_hash = check_potcar_hash
         fp = os.path.join(MODULE_DIR, "MITCompatibility.yaml")
-        super(MITCompatibility, self).__init__(
+        super().__init__(
             [PotcarCorrection(MITRelaxSet, check_hash=check_potcar_hash),
              GasCorrection(fp),
              AnionCorrection(fp, correct_peroxide=correct_peroxide),
@@ -607,7 +607,7 @@ class MITAqueousCompatibility(Compatibility):
         self.correct_peroxide = correct_peroxide
         self.check_potcar_hash = check_potcar_hash
         fp = os.path.join(MODULE_DIR, "MITCompatibility.yaml")
-        super(MITAqueousCompatibility, self).__init__(
+        super().__init__(
             [PotcarCorrection(MITRelaxSet, check_hash=check_potcar_hash),
              GasCorrection(fp),
              AnionCorrection(fp, correct_peroxide=correct_peroxide),
@@ -641,7 +641,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         self.correct_peroxide = correct_peroxide
         self.check_potcar_hash = check_potcar_hash
         fp = os.path.join(MODULE_DIR, "MPCompatibility.yaml")
-        super(MaterialsProjectAqueousCompatibility, self).__init__(
+        super().__init__(
             [PotcarCorrection(MPRelaxSet, check_hash=check_potcar_hash),
              GasCorrection(fp),
              AnionCorrection(fp, correct_peroxide=correct_peroxide),

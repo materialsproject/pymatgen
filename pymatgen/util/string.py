@@ -204,7 +204,7 @@ def disordered_formula(disordered_struct, symbols=('x', 'y', 'z'), fmt='plain'):
         raise ValueError("Structure is not disordered, "
                          "so disordered formula not defined.")
 
-    disordered_site_compositions = {site.species_and_occu
+    disordered_site_compositions = {site.species
                                     for site in disordered_struct if not site.is_ordered}
 
     if len(disordered_site_compositions) > 1:

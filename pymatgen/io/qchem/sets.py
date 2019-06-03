@@ -126,7 +126,7 @@ class QChemDictSet(QCInput):
                     for k, v in temp_smx.items():
                         mysmx[k] = v
 
-        super(QChemDictSet, self).__init__(
+        super().__init__(
             self.molecule, rem=myrem, pcm=mypcm, solvent=mysolvent, smx=mysmx)
 
 
@@ -149,7 +149,7 @@ class OptSet(QChemDictSet):
         self.scf_algorithm = scf_algorithm
         self.max_scf_cycles = max_scf_cycles
         self.geom_opt_max_cycles = geom_opt_max_cycles
-        super(OptSet, self).__init__(
+        super().__init__(
             molecule=molecule,
             job_type="opt",
             dft_rung=dft_rung,
@@ -179,7 +179,7 @@ class SinglePointSet(QChemDictSet):
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
         self.max_scf_cycles = max_scf_cycles
-        super(SinglePointSet, self).__init__(
+        super().__init__(
             molecule=molecule,
             job_type="sp",
             dft_rung=dft_rung,
@@ -208,7 +208,7 @@ class FreqSet(QChemDictSet):
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
         self.max_scf_cycles = max_scf_cycles
-        super(FreqSet, self).__init__(
+        super().__init__(
             molecule=molecule,
             job_type="freq",
             dft_rung=dft_rung,

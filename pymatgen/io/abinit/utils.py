@@ -672,7 +672,7 @@ def map2rpn(map, obj):
     for k, v in map.items():
 
         if k in _ALL_OPS:
-            if isinstance(v, collections.Mapping):
+            if isinstance(v, collections.abc.Mapping):
                 # e.g "$not": {"$gt": "one"}
                 # print("in op_vmap",k, v)
                 values = map2rpn(v, obj)
@@ -705,7 +705,7 @@ def map2rpn(map, obj):
             except TypeError:
                 k = k
 
-            if isinstance(v, collections.Mapping):
+            if isinstance(v, collections.abc.Mapping):
                 # "one": {"$eq": 1.0}}
                 values = map2rpn(v, obj)
                 rpn.append(k)

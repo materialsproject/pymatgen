@@ -128,9 +128,10 @@ class GulpIO:
         if cell_flg:
             gin += "cell\n"
             l = structure.lattice
-            lat_str = [str(i) for i in [l.a, l.b, l.c, l.alpha, l.beta,
-                                        l.gamma]]
-            gin += " ".join(lat_str) + "\n"
+            lat_str = "{0:6f} {1:6f} {2:6f} {3:6f} {4:6f} {5:6f}".format(
+                l.a, l.b, l.c, l.alpha, l.beta, l.gamma
+            )
+            gin += lat_str + "\n"
 
         if frac_flg:
             gin += "frac\n"

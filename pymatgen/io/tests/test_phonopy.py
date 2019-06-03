@@ -1,10 +1,13 @@
 
 import os
 import unittest
+import sys
+
 from pymatgen.core.periodic_table import Element
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.phonopy import *
-import sys
+
+from monty.tempfile import ScratchDir
 
 if sys.version_info >= (3, 0):
     try:
@@ -123,6 +126,14 @@ class GetDisplacedStructuresTest(PymatgenTest):
         self.assertEqual(structures[10].num_sites, 128)
         self.assertArrayAlmostEqual(structures[0].lattice._matrix,
                                     structures[8].lattice._matrix, 8)
+        
+        # test writing output
+        with ScratchDir("."):
+            structures = get_displaced_structures(pmg_structure=pmg_s,
+                                                  atom_disp=0.01,
+                                                  supercell_matrix=supercell_matrix,
+                                                  yaml_fname="test.yaml")
+            self.assertTrue(os.path.exists("test.yaml"))
 
 
 if __name__ == '__main__':

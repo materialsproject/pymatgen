@@ -423,7 +423,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
             for ind in indices:
                 new_sp = {sp: occu * fraction
                           for sp, occu
-                          in structure[ind].species_and_occu.items()}
+                          in structure[ind].species.items()}
                 s[ind] = new_sp
         # Perform enumeration
         from pymatgen.transformations.advanced_transformations import \

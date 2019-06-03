@@ -649,7 +649,7 @@ def compute_average_oxidation_state(site):
     """
     try:
         avg_oxi = sum([sp.oxi_state * occu
-                       for sp, occu in site.species_and_occu.items()
+                       for sp, occu in site.species.items()
                        if sp is not None])
         return avg_oxi
     except AttributeError:
