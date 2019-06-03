@@ -17,6 +17,7 @@ __date__ = "4/23/19"
 import os
 import unittest
 import numpy as np
+
 import pymatgen
 from pymatgen.analysis.piezo import PiezoTensor
 from pymatgen.analysis.piezo_sensitivity import *
@@ -28,7 +29,7 @@ try:
 	from phonopy import Phonopy
 except ImportError:
     Phonopy = None
-    
+
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files', 'piezo_sensitivity')
 
@@ -290,7 +291,6 @@ class PiezoSensitivityTest(PymatgenTest):
 			self.assertTrue(np.allclose(asum2, np.zeros([3,3]), atol = 1e-05))
 if __name__ == '__main__':
     unittest.main()
-
 
 
 
