@@ -1194,7 +1194,6 @@ class Lobsterin(dict, MSONable):
                 found = True
         if not found:
             new_key = key
-        # TODO: checken, ob key in Liste vorhandenenr Keywords
         if new_key.lower() not in [element.lower() for element in Lobsterin.AVAILABLEKEYWORDS]:
             raise (ValueError("Key is currently not available"))
 
