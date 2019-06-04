@@ -1347,7 +1347,7 @@ class IStructure(SiteCollection, MSONable):
         neighbors = []
         if np.all([len(i) == 0 for i in site_neighbors]):
             return []
-        for sp, i, j in zip(self.species, site_coords, site_neighbors):
+        for sp, i, j in zip(self.species_and_occu, site_coords, site_neighbors):
             l1 = np.array(three_to_one(j, ny, nz), dtype=int).ravel()
             # use the cube index map to find the all the neighboring
             # coords, images, and indices
