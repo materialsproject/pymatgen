@@ -3,7 +3,7 @@
 # Distributed under the terms of the MIT License.
 
 from pathlib import Path
-from collections import Iterable
+from collections.abc import Iterable
 import warnings
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.periodic_table import Element, Specie
@@ -410,6 +410,30 @@ class IStructureTest(PymatgenTest):
         for nn in all_nn:
             self.assertEqual(1, len(nn[0]))
             self.assertLessEqual(nn[0][0], r)
+
+    def test_get_all_neighbors_crosscheck_old(self):
+        for i in range(100):
+            alpha, beta, gamma = np.random.rand(3) * 180
+            a, b, c = 3 + np.random.rand(3) * 5
+            species = ["H"] * 5
+            frac_coords = np.random.rand(5, 3)
+            try:
+                s = Structure.from_spacegroup("P1",
+                                              Lattice.from_parameters(a, b, c,
+                                                                      alpha,
+                                                                      beta,
+                                                                      gamma),
+                                              species, frac_coords)
+                for nn_new, nn_old in zip(s.get_all_neighbors(4),
+                                          s.get_all_neighbors_old(4)):
+                    sites1 = [i[0] for i in nn_new]
+                    sites2 = [i[0] for i in nn_old]
+                    self.assertEqual(set(sites1), set(sites2))
+                break
+            except Exception as ex:
+                pass
+        else:
+            raise ValueError("No valid structure tested.")
 
     def test_get_all_neighbors_outside_cell(self):
         s = Structure(Lattice.cubic(2), ['Li', 'Li', 'Li', 'Si'],
