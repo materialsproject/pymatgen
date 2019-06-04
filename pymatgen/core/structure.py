@@ -1290,6 +1290,9 @@ class IStructure(SiteCollection, MSONable):
                 filtered_labels.append(labels[ind])
             return filtered_labels
 
+        # radius too small
+        if r < 1e-10:
+            return [[]]
         latt = self.lattice
         if sites is None:
             sites = self.sites
@@ -1345,8 +1348,9 @@ class IStructure(SiteCollection, MSONable):
         # find all neighboring cubes for each atom in the lattice cell
         site_neighbors = find_neighbors(site_cube_index, nx, ny, nz)
         neighbors = []
+        # if no neighbors were found, return list of empty list
         if np.all([len(i) == 0 for i in site_neighbors]):
-            return []
+            return [[]]
         for sp, i, j in zip(self.species_and_occu, site_coords, site_neighbors):
             l1 = np.array(three_to_one(j, ny, nz), dtype=int).ravel()
             # use the cube index map to find the all the neighboring
