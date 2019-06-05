@@ -1367,8 +1367,7 @@ class IStructure(SiteCollection, MSONable):
                                              properties=self[m].properties,
                                              coords_are_cartesian=True)
 
-                    # filtering out centering atom, if two identical sites exists
-                    # only filter the first one
+                    # filtering out all sites that are identical to centering site
                     if (site_temp.specie == site.specie) and (d < 1e-8):
                         continue
                     if include_site:
