@@ -389,7 +389,6 @@ class IStructureTest(PymatgenTest):
                                       include_index=True, include_image=True)
         self.assertEqual(len(nn), 47)
         self.assertEqual(nn[0][-2], 0)
-
         r = random.uniform(3, 6)
         all_nn = s.get_all_neighbors(r, True, True)
         for i in range(len(s)):
@@ -446,6 +445,24 @@ class IStructureTest(PymatgenTest):
                 self.assertAlmostEqual(d, nn[1])
         self.assertEqual(list(map(len, all_nn)), [2, 2, 2, 0])
 
+    def test_get_all_neighbors_small_cutoff(self):
+        s = Structure(Lattice.cubic(2), ['Li', 'Li', 'Li', 'Si'],
+                      [[3.1] * 3, [0.11] * 3, [-1.91] * 3, [0.5] * 3])
+        all_nn = s.get_all_neighbors(1e-5, True)
+        self.assertEqual(len(all_nn), len(s))
+        self.assertEqual([], all_nn[0])
+
+        all_nn = s.get_all_neighbors(0, True)
+        self.assertEqual(len(all_nn), len(s))
+        self.assertEqual([], all_nn[0])
+
+    def test_coincide_sites(self):
+        s = Structure(Lattice.cubic(5), ['Li', 'Li', 'Li'],
+                      [[0.1, 0.1, 0.1], [0.1, 0.1, 0.1], [3, 3, 3]],
+                      coords_are_cartesian=True)
+        all_nn = s.get_all_neighbors(1e-5, True)
+        self.assertEqual([len(i) for i in all_nn], [1, 1, 0])
+
     def test_get_all_neighbors_old(self):
         s = self.struct
 
@@ -453,7 +470,7 @@ class IStructureTest(PymatgenTest):
         all_nn = s.get_all_neighbors_old(r, True, True)
         for i in range(len(s)):
             self.assertEqual(4, len(all_nn[i][0]))
-            self.assertEqual(len(all_nn[i]), len(s.get_neighbors(s[i], r)))
+            self.assertEqual(len(all_nn[i]), len(s.get_neighbors_old(s[i], r)))
 
         for site, nns in zip(s, all_nn):
             for nn in nns:
