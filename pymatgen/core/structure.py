@@ -1355,9 +1355,11 @@ class IStructure(SiteCollection, MSONable):
             dist = np.linalg.norm(nn_coords - i[None, :], axis=1)
             nns = []
             for coord, index, image, d in zip(nn_coords, nn_indices, nn_images, dist):
-                if d < r + numerical_tol and (d > numerical_tol or self[index].species != site.species):
+                # filtering out all sites that are beyond the cutoff and
+                # those that are identical to center site
+                if d < r + numerical_tol and (d > numerical_tol or
+                                              self[index] != site):
                     item = []
-                    # filtering out all sites that are identical to center site
                     if include_site:
                         item.append(PeriodicSite(
                             self[index].species, coord, latt,
