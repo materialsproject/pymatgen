@@ -768,7 +768,7 @@ class LammpsData(MSONable):
             coords = [float(x) for x in line[1:]]
 
             if atom_type not in masses:
-                masses[atom_type] = [atom_type, Element(atom_type).atomic_mass]
+                masses[atom_type] = Element (atom_type).atomic_mass
 
             atoms[atom_id] = {'id': atom_id+1, 'type': atom_type}
             if charges:
