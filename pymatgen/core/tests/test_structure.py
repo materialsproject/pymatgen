@@ -461,7 +461,7 @@ class IStructureTest(PymatgenTest):
                       [[0.1, 0.1, 0.1], [0.1, 0.1, 0.1], [3, 3, 3]],
                       coords_are_cartesian=True)
         all_nn = s.get_all_neighbors(1e-5, True)
-        self.assertEqual([len(i) for i in all_nn], [1, 1, 0])
+        self.assertEqual([len(i) for i in all_nn], [0, 0, 0])
 
     def test_get_all_neighbors_old(self):
         s = self.struct

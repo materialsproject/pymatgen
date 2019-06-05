@@ -1360,7 +1360,6 @@ class IStructure(SiteCollection, MSONable):
             nn_indices = list(itertools.chain(*[cube_to_indices[k] for k in ks]))
             dist = np.linalg.norm(nn_coords - i[None, :], axis=1)
             nns = []
-            is_filtered = False
             for coord, m, n, d in zip(nn_coords, nn_indices, nn_images, dist):
                 if d < r + 1e-10:
                     item = []
@@ -1370,8 +1369,7 @@ class IStructure(SiteCollection, MSONable):
 
                     # filtering out centering atom, if two identical sites exists
                     # only filter the first one
-                    if (site_temp.specie == site.specie) and (d < 1e-8) and (not is_filtered):
-                        is_filtered = True
+                    if (site_temp.specie == site.specie) and (d < 1e-8):
                         continue
                     if include_site:
                         item += [site_temp]
