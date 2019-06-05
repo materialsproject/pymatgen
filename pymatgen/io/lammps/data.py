@@ -770,7 +770,7 @@ class LammpsData(MSONable):
 
             atoms[atom_id] = {'id': atom_id+1, 'type': atom_type_id}
 
-            if atom_type not in masses:
+            if atom_type not in masses.values():
                 masses[atom_id+1] = {'type': atom_type_id, 'mass': Element(atom_type).atomic_mass}
                 atom_type_id += 1
 
