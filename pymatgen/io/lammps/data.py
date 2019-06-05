@@ -759,7 +759,7 @@ class LammpsData(MSONable):
         Natoms = f1[0].strip()
         atoms  = {}
         masses = {}
-        atom_types = []
+        atom_types = {}
         post_lines = f1[2:]
         atom_type_id = 1
         for atom_id in range(len(post_lines)):
@@ -768,12 +768,13 @@ class LammpsData(MSONable):
 
             coords = [float(x) for x in line[1:]]
 
-            atoms[atom_id] = {'id': atom_id+1, 'type': atom_type_id}
-
-            if atom_type not in atom_types:
-                masses[atom_type_id] = {'element': atom_type, 'type': atom_type_id, 'mass': Element(atom_type).atomic_mass}
-                atom_types.append(atom_type)
+            if atom_type not in atom_types.keys():
+                masses[atom_type_id] = {'element': atom_type, 'type': atom_type_id,
+                                        'mass': Element(atom_type).atomic_mass}
+                atom_types[atom_type] = atom_type_id
                 atom_type_id += 1
+
+            atoms[atom_id] = {'id': atom_id+1, 'type': atom_types[atom_type]}
 
             if charges:
                 atoms[atom_id]['charge'] = charges[atom_type]
@@ -784,8 +785,6 @@ class LammpsData(MSONable):
 
         atoms_df = pd.DataFrame.from_dict(atoms, orient='index')
         masses_df = pd.DataFrame.from_dict(masses, orient='index')
-
-        print(masses_df)
 
         count = 1
         for key, value in masses.items():
