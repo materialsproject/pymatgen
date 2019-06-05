@@ -367,7 +367,7 @@ class LammpsData(MSONable):
         for k, v in body_dict.items():
             index = True if k != "PairIJ Coeffs" else False
             df_string = v.to_string(header=False, formatters=formatters,
-                                    index_names=False, index=True)
+                                    index_names=False, index=False)
             parts.append(section_template.format(kw=k, df=df_string))
         body = "\n".join(parts)
 
@@ -761,16 +761,19 @@ class LammpsData(MSONable):
         masses = {}
         atom_types = {}
         post_lines = f1[2:]
+        atom_type_id = 1
         for atom_id in range(len(post_lines)):
             line = post_lines[atom_id].split()
             atom_type = line[0]
 
             coords = [float(x) for x in line[1:]]
 
-            if atom_type not in masses:
-                masses[atom_type] = Element(atom_type).atomic_mass
+            atoms[atom_id] = {'id': atom_id+1, 'type': atom_type_id}
 
-            atoms[atom_id] = {'id': atom_id+1, 'type': atom_type}
+            if atom_type not in masses:
+                masses[atom_id+1] = {'type': atom_type_id, 'mass': Element(atom_type).atomic_mass}
+                atom_type_id += 1
+
             if charges:
                 atoms[atom_id]['charge'] = charges[atom_type]
             atoms[atom_id]['x'] = coords[0]
@@ -778,7 +781,10 @@ class LammpsData(MSONable):
             atoms[atom_id]['z'] = coords[2]
 
         atoms_df = pd.DataFrame.from_dict(atoms, orient='index')
-        masses_df = pd.Series(masses).to_frame()
+        masses_df = pd.DataFrame.from_dict(masses, orient='index')
+
+        print(masses_df)
+        print(atoms_df)
 
         count = 1
         for key, value in masses.items():
