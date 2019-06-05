@@ -759,7 +759,7 @@ class LammpsData(MSONable):
         Natoms = f1[0].strip()
         atoms  = {}
         masses = {}
-        atom_types = {}
+        atom_types = []
         post_lines = f1[2:]
         atom_type_id = 1
         for atom_id in range(len(post_lines)):
@@ -770,12 +770,14 @@ class LammpsData(MSONable):
 
             atoms[atom_id] = {'id': atom_id+1, 'type': atom_type_id}
 
-            if atom_type not in masses.values():
-                masses[atom_id+1] = {'type': atom_type_id, 'mass': Element(atom_type).atomic_mass}
+            if atom_type not in atom_types:
+                masses[atom_type_id] = {'element': atom_type, 'type': atom_type_id, 'mass': Element(atom_type).atomic_mass}
+                atom_types.append(atom_type)
                 atom_type_id += 1
 
             if charges:
                 atoms[atom_id]['charge'] = charges[atom_type]
+
             atoms[atom_id]['x'] = coords[0]
             atoms[atom_id]['y'] = coords[1]
             atoms[atom_id]['z'] = coords[2]
@@ -784,14 +786,13 @@ class LammpsData(MSONable):
         masses_df = pd.DataFrame.from_dict(masses, orient='index')
 
         print(masses_df)
-        print(atoms_df)
 
         count = 1
         for key, value in masses.items():
             atoms_df = atoms_df.replace(key, count)
             count += 1
 
-        return LammpsData(box=LammpsBox(box), masses=masses_df, atoms=atoms_df, atom_style=atom_style)
+        return LammpsData(box=LammpsBox(box), masses=masses_df.drop(columns='element'), atoms=atoms_df, atom_style=atom_style)
 
     @classmethod
     def from_structure(cls, structure, ff_elements=None, atom_style="charge"):
