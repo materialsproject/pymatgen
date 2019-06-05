@@ -1347,7 +1347,7 @@ class IStructure(SiteCollection, MSONable):
         # if no neighbors were found, return list of empty list
         if np.all([len(i) == 0 for i in site_neighbors]):
             return [[]] * len(self)
-        for sp, i, j in zip(self.species_and_occu, site_coords, site_neighbors):
+        for sp, i, j, site in zip(self.species_and_occu, site_coords, site_neighbors, sites):
             l1 = np.array(three_to_one(j, ny, nz), dtype=int).ravel()
             # use the cube index map to find the all the neighboring
             # coords, images, and indices
@@ -1360,13 +1360,21 @@ class IStructure(SiteCollection, MSONable):
             nn_indices = list(itertools.chain(*[cube_to_indices[k] for k in ks]))
             dist = np.linalg.norm(nn_coords - i[None, :], axis=1)
             nns = []
+            is_filtered = False
             for coord, m, n, d in zip(nn_coords, nn_indices, nn_images, dist):
                 if d < r + 1e-10:
                     item = []
+                    site_temp = PeriodicSite(self[m].species, coord, latt,
+                                             properties=self[m].properties,
+                                             coords_are_cartesian=True)
+
+                    # filtering out centering atom, if two identical sites exists
+                    # only filter the first one
+                    if (site_temp.specie == site.specie) and (d < 1e-8) and (not is_filtered):
+                        is_filtered = True
+                        continue
                     if include_site:
-                        item += [PeriodicSite(self[m].species, coord, latt,
-                                              properties=self[m].properties,
-                                              coords_are_cartesian=True)]
+                        item += [site_temp]
                     item += [d]
                     if include_index:
                         item += [m]
@@ -1374,11 +1382,6 @@ class IStructure(SiteCollection, MSONable):
                         item += [tuple(n)]
                     nns.append(item)
 
-            # filtering the centering atom
-            dist_index = 1 if include_site else 0
-            n_dist = [nn[dist_index] for nn in nns]
-            ind_min = np.argmin(n_dist)
-            nns.pop(ind_min)
             neighbors.append(nns)
         return neighbors
 
