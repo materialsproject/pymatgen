@@ -365,7 +365,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
             try:
                 adaptor.run()
             except EnumError:
-                warn("Unable to enumerate for max_cell_size = %d".format(
+                warn("Unable to enumerate for max_cell_size = {}".format(
                     max_cell_size))
             structures = adaptor.structures
             if structures:
