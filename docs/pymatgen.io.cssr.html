@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.cssr module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.io.cssr module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -46,7 +46,7 @@
 <span id="pymatgen-io-cssr-module"></span><h1>pymatgen.io.cssr module<a class="headerlink" href="#module-pymatgen.io.cssr" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.io.cssr.Cssr">
-<em class="property">class </em><code class="descname">Cssr</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cssr.html#Cssr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cssr.Cssr" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Cssr</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cssr.html#Cssr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cssr.Cssr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Basic object for working with Cssr file. Right now, only conversion from
 a Structure to a Cssr file is supported.</p>
@@ -55,9 +55,9 @@ a Structure to a Cssr file is supported.</p>
 <dd class="field-odd"><p><strong>structure</strong> (<em>Structure/IStructure</em>) – A structure to create the Cssr object.</p>
 </dd>
 </dl>
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.io.cssr.Cssr.from_file">
-<em class="property">static </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cssr.html#Cssr.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cssr.Cssr.from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cssr.html#Cssr.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cssr.Cssr.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads a CSSR file to a Cssr object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -69,9 +69,9 @@ a Structure to a Cssr file is supported.</p>
 </dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.io.cssr.Cssr.from_string">
-<em class="property">static </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cssr.html#Cssr.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cssr.Cssr.from_string" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param">string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cssr.html#Cssr.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cssr.Cssr.from_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads a string representation to a Cssr object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -85,7 +85,7 @@ a Structure to a Cssr file is supported.</p>
 
 <dl class="method">
 <dt id="pymatgen.io.cssr.Cssr.write_file">
-<code class="descname">write_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cssr.html#Cssr.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cssr.Cssr.write_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cssr.html#Cssr.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cssr.Cssr.write_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write out a CSSR file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -112,10 +112,10 @@ a Structure to a Cssr file is supported.</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -134,13 +134,13 @@ a Structure to a Cssr file is supported.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

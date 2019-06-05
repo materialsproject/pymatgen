@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.diffraction.xrd module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.analysis.diffraction.xrd module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,9 +44,19 @@
             
   <div class="section" id="module-pymatgen.analysis.diffraction.xrd">
 <span id="pymatgen-analysis-diffraction-xrd-module"></span><h1>pymatgen.analysis.diffraction.xrd module<a class="headerlink" href="#module-pymatgen.analysis.diffraction.xrd" title="Permalink to this headline">¶</a></h1>
+<dl class="data">
+<dt id="pymatgen.analysis.diffraction.xrd.ATOMIC_SCATTERING_PARAMS">
+<code class="sig-name descname">ATOMIC_SCATTERING_PARAMS</code><em class="property"> = {'Ac': [[6.278, 28.323], [5.195, 4.949], [2.321, 0.557], [0, 0]], 'Ag': [[2.036, 61.497], [3.272, 11.824], [2.511, 2.846], [0.837, 0.327]], 'Al': [[2.276, 72.322], [2.428, 19.773], [0.858, 3.08], [0.317, 0.408]], 'Am': [[6.378, 29.156], [5.495, 5.102], [2.495, 0.565], [0, 0]], 'Ar': [[1.274, 26.682], [2.19, 8.813], [0.793, 2.219], [0.326, 0.307]], 'As': [[2.399, 45.718], [2.79, 12.817], [1.529, 2.28], [0.594, 0.328]], 'At': [[6.133, 28.047], [5.031, 4.957], [2.239, 0.558], [0, 0]], 'Au': [[2.388, 42.866], [4.226, 9.743], [2.689, 2.264], [1.255, 0.307]], 'B': [[0.945, 46.444], [1.312, 14.178], [0.419, 3.223], [0.116, 0.377]], 'Ba': [[7.821, 117.657], [6.004, 18.778], [3.28, 3.263], [1.103, 0.376]], 'Be': [[1.25, 60.804], [1.334, 18.591], [0.36, 3.653], [0.106, 0.416]], 'Bi': [[3.841, 50.261], [4.679, 11.999], [3.192, 2.56], [1.363, 0.318]], 'Bk': [[6.502, 28.375], [5.478, 4.975], [2.51, 0.561], [0, 0]], 'Br': [[2.166, 33.899], [2.904, 10.497], [1.395, 2.041], [0.589, 0.307]], 'C': [[0.731, 36.995], [1.195, 11.297], [0.456, 2.814], [0.125, 0.346]], 'Ca': [[4.47, 99.523], [2.971, 22.696], [1.97, 4.195], [0.482, 0.417]], 'Cd': [[2.574, 55.675], [3.259, 11.838], [2.547, 2.784], [0.838, 0.322]], 'Ce': [[5.007, 28.283], [3.98, 5.183], [1.678, 0.589], [0, 0]], 'Cf': [[6.548, 28.461], [5.526, 4.965], [2.52, 0.557], [0, 0]], 'Cl': [[1.452, 30.935], [2.292, 9.98], [0.787, 2.234], [0.322, 0.323]], 'Cm': [[6.46, 28.396], [5.469, 4.97], [2.471, 0.554], [0, 0]], 'Co': [[2.367, 61.431], [2.236, 14.18], [1.724, 2.725], [0.515, 0.344]], 'Cr': [[2.307, 78.405], [2.334, 15.785], [1.823, 3.157], [0.49, 0.364]], 'Cs': [[6.062, 155.837], [5.986, 19.695], [3.303, 3.335], [1.096, 0.379]], 'Cu': [[1.579, 62.94], [1.82, 12.453], [1.658, 2.504], [0.532, 0.333]], 'D': [[0.202, 30.868], [0.244, 8.544], [0.082, 1.273], [0, 0]], 'Dy': [[5.332, 28.888], [4.37, 5.198], [1.863, 0.581], [0, 0]], 'Er': [[5.436, 28.655], [4.437, 5.117], [1.891, 0.577], [0, 0]], 'Eu': [[6.267, 100.298], [4.844, 16.066], [3.202, 2.98], [1.2, 0.367]], 'F': [[0.387, 20.239], [0.811, 6.609], [0.475, 1.931], [0.146, 0.279]], 'Fe': [[2.544, 64.424], [2.343, 14.88], [1.759, 2.854], [0.506, 0.35]], 'Fr': [[6.201, 28.2], [5.121, 4.954], [2.275, 0.556], [0, 0]], 'Ga': [[2.321, 65.602], [2.486, 15.458], [1.688, 2.581], [0.599, 0.351]], 'Gd': [[5.225, 29.158], [4.314, 5.259], [1.827, 0.586], [0, 0]], 'Ge': [[2.447, 55.893], [2.702, 14.393], [1.616, 2.446], [0.601, 0.342]], 'H': [[0.202, 30.868], [0.244, 8.544], [0.082, 1.273], [0, 0]], 'He': [[0.091, 18.183], [0.181, 6.212], [0.11, 1.803], [0.036, 0.284]], 'Hf': [[5.588, 29.001], [4.619, 5.164], [1.997, 0.579], [0, 0]], 'Hg': [[2.682, 42.822], [4.241, 9.856], [2.755, 2.295], [1.27, 0.307]], 'Ho': [[5.376, 28.773], [4.403, 5.174], [1.884, 0.582], [0, 0]], 'I': [[3.473, 39.441], [4.06, 11.816], [2.522, 2.415], [0.84, 0.298]], 'In': [[3.153, 66.649], [3.557, 14.449], [2.818, 2.976], [0.884, 0.335]], 'Ir': [[5.754, 29.159], [4.851, 5.152], [2.096, 0.57], [0, 0]], 'K': [[3.951, 137.075], [2.545, 22.402], [1.98, 4.532], [0.482, 0.434]], 'Kr': [[2.034, 29.999], [2.927, 9.598], [1.342, 1.952], [0.589, 0.299]], 'La': [[4.94, 28.716], [3.968, 5.245], [1.663, 0.594], [0, 0]], 'Li': [[1.611, 107.638], [1.246, 30.48], [0.326, 4.533], [0.099, 0.495]], 'Lu': [[5.553, 28.907], [4.58, 5.16], [1.969, 0.577], [0, 0]], 'Mg': [[2.268, 73.67], [1.803, 20.175], [0.839, 3.013], [0.289, 0.405]], 'Mn': [[2.747, 67.786], [2.456, 15.674], [1.792, 3.0], [0.498, 0.357]], 'Mo': [[3.12, 72.464], [3.906, 14.642], [2.361, 3.237], [0.85, 0.366]], 'N': [[0.572, 28.847], [1.043, 9.054], [0.465, 2.421], [0.131, 0.317]], 'Na': [[2.241, 108.004], [1.333, 24.505], [0.907, 3.391], [0.286, 0.435]], 'Nb': [[4.237, 27.415], [3.105, 5.074], [1.234, 0.593], [0, 0]], 'Nd': [[5.151, 28.304], [4.075, 5.073], [1.683, 0.571], [0, 0]], 'Ne': [[0.303, 17.64], [0.72, 5.86], [0.475, 1.762], [0.153, 0.266]], 'Ni': [[2.21, 58.727], [2.134, 13.553], [1.689, 2.609], [0.524, 0.339]], 'Np': [[6.323, 29.142], [5.414, 5.096], [2.453, 0.568], [0, 0]], 'O': [[0.455, 23.78], [0.917, 7.622], [0.472, 2.144], [0.138, 0.296]], 'Os': [[5.75, 28.933], [4.773, 5.139], [2.079, 0.573], [0, 0]], 'P': [[1.888, 44.876], [2.469, 13.538], [0.805, 2.642], [0.32, 0.361]], 'Pa': [[6.306, 28.688], [5.303, 5.026], [2.386, 0.561], [0, 0]], 'Pb': [[3.51, 52.914], [4.552, 11.884], [3.154, 2.571], [1.359, 0.321]], 'Pd': [[4.436, 28.67], [3.454, 5.269], [1.383, 0.595], [0, 0]], 'Pm': [[5.201, 28.079], [4.094, 5.081], [1.719, 0.576], [0, 0]], 'Po': [[6.07, 28.075], [4.997, 4.999], [2.232, 0.563], [0, 0]], 'Pr': [[5.085, 28.588], [4.043, 5.143], [1.684, 0.581], [0, 0]], 'Pt': [[5.803, 29.016], [4.87, 5.15], [2.127, 0.572], [0, 0]], 'Pu': [[6.415, 28.836], [5.419, 5.022], [2.449, 0.561], [0, 0]], 'Ra': [[6.215, 28.382], [5.17, 5.002], [2.316, 0.562], [0, 0]], 'Rb': [[4.776, 140.782], [3.859, 18.991], [2.234, 3.701], [0.868, 0.419]], 'Re': [[5.695, 28.968], [4.74, 5.156], [2.064, 0.575], [0, 0]], 'Rh': [[4.431, 27.911], [3.343, 5.153], [1.345, 0.592], [0, 0]], 'Rn': [[4.078, 38.406], [4.978, 11.02], [3.096, 2.355], [1.326, 0.299]], 'Ru': [[4.358, 27.881], [3.298, 5.179], [1.323, 0.594], [0, 0]], 'S': [[1.659, 36.65], [2.386, 11.488], [0.79, 2.469], [0.321, 0.34]], 'Sb': [[3.564, 50.487], [3.844, 13.316], [2.687, 2.691], [0.864, 0.316]], 'Sc': [[3.966, 88.96], [2.917, 20.606], [1.925, 3.856], [0.48, 0.399]], 'Se': [[2.298, 38.83], [2.854, 11.536], [1.456, 2.146], [0.59, 0.316]], 'Si': [[2.129, 57.775], [2.533, 16.476], [0.835, 2.88], [0.322, 0.386]], 'Sm': [[5.255, 28.016], [4.113, 5.037], [1.743, 0.577], [0, 0]], 'Sn': [[3.45, 59.104], [3.735, 14.179], [2.118, 2.855], [0.877, 0.327]], 'Sr': [[5.848, 104.972], [4.003, 19.367], [2.342, 3.737], [0.88, 0.414]], 'Ta': [[5.659, 28.807], [4.63, 5.114], [2.014, 0.578], [0, 0]], 'Tb': [[5.272, 29.046], [4.347, 5.226], [1.844, 0.585], [0, 0]], 'Tc': [[4.318, 28.246], [3.27, 5.148], [1.287, 0.59], [0, 0]], 'Te': [[4.785, 27.999], [3.688, 5.083], [1.5, 0.581], [0, 0]], 'Th': [[6.264, 28.651], [5.263, 5.03], [2.367, 0.563], [0, 0]], 'Ti': [[3.565, 81.982], [2.818, 19.049], [1.893, 3.59], [0.483, 0.386]], 'Tl': [[5.932, 29.086], [4.972, 5.126], [2.195, 0.572], [0, 0]], 'Tm': [[5.441, 29.149], [4.51, 5.264], [1.956, 0.59], [0, 0]], 'U': [[6.767, 85.951], [6.729, 15.642], [4.014, 2.936], [1.561, 0.335]], 'V': [[3.245, 76.379], [2.698, 17.726], [1.86, 3.363], [0.486, 0.374]], 'W': [[5.709, 28.782], [4.677, 5.084], [2.019, 0.572], [0, 0]], 'Xe': [[3.366, 35.509], [4.147, 11.117], [2.443, 2.294], [0.829, 0.289]], 'Y': [[4.129, 27.548], [3.012, 5.088], [1.179, 0.591], [0, 0]], 'Yb': [[5.529, 28.927], [4.533, 5.144], [1.945, 0.578], [0, 0]], 'Zn': [[1.942, 54.162], [1.95, 12.518], [1.619, 2.416], [0.543, 0.33]], 'Zr': [[4.105, 28.492], [3.144, 5.277], [1.229, 0.601], [0, 0]]}</em><a class="headerlink" href="#pymatgen.analysis.diffraction.xrd.ATOMIC_SCATTERING_PARAMS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="data">
+<dt id="pymatgen.analysis.diffraction.xrd.WAVELENGTHS">
+<code class="sig-name descname">WAVELENGTHS</code><em class="property"> = {'AgKa': 0.560885, 'AgKa1': 0.559421, 'AgKa2': 0.563813, 'AgKb1': 0.497082, 'CoKa': 1.79026, 'CoKa1': 1.78896, 'CoKa2': 1.79285, 'CoKb1': 1.63079, 'CrKa': 2.291, 'CrKa1': 2.2897, 'CrKa2': 2.29361, 'CrKb1': 2.08487, 'CuKa': 1.54184, 'CuKa1': 1.54056, 'CuKa2': 1.54439, 'CuKb1': 1.39222, 'FeKa': 1.93735, 'FeKa1': 1.93604, 'FeKa2': 1.93998, 'FeKb1': 1.75661, 'MoKa': 0.71073, 'MoKa1': 0.7093, 'MoKa2': 0.71359, 'MoKb1': 0.63229}</em><a class="headerlink" href="#pymatgen.analysis.diffraction.xrd.WAVELENGTHS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="class">
 <dt id="pymatgen.analysis.diffraction.xrd.XRDCalculator">
-<em class="property">class </em><code class="descname">XRDCalculator</code><span class="sig-paren">(</span><em>wavelength='CuKa'</em>, <em>symprec=0</em>, <em>debye_waller_factors=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffraction/xrd.html#XRDCalculator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.xrd.XRDCalculator" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">XRDCalculator</code><span class="sig-paren">(</span><em class="sig-param">wavelength='CuKa'</em>, <em class="sig-param">symprec=0</em>, <em class="sig-param">debye_waller_factors=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffraction/xrd.html#XRDCalculator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.xrd.XRDCalculator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.analysis.diffraction.core.html#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator" title="pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator</span></code></a></p>
 <p>Computes the XRD pattern of a crystal structure.</p>
 <p>This code is implemented by Shyue Ping Ong as part of UCSD’s NANO106 -
@@ -109,12 +119,12 @@ factors are temperature dependent.</p></li>
 </dl>
 <dl class="attribute">
 <dt id="pymatgen.analysis.diffraction.xrd.XRDCalculator.AVAILABLE_RADIATION">
-<code class="descname">AVAILABLE_RADIATION</code><em class="property"> = ('CuKa', 'CuKa2', 'CuKa1', 'CuKb1', 'MoKa', 'MoKa2', 'MoKa1', 'MoKb1', 'CrKa', 'CrKa2', 'CrKa1', 'CrKb1', 'FeKa', 'FeKa2', 'FeKa1', 'FeKb1', 'CoKa', 'CoKa2', 'CoKa1', 'CoKb1', 'AgKa', 'AgKa2', 'AgKa1', 'AgKb1')</em><a class="headerlink" href="#pymatgen.analysis.diffraction.xrd.XRDCalculator.AVAILABLE_RADIATION" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">AVAILABLE_RADIATION</code><em class="property"> = ('CuKa', 'CuKa2', 'CuKa1', 'CuKb1', 'MoKa', 'MoKa2', 'MoKa1', 'MoKb1', 'CrKa', 'CrKa2', 'CrKa1', 'CrKb1', 'FeKa', 'FeKa2', 'FeKa1', 'FeKb1', 'CoKa', 'CoKa2', 'CoKa1', 'CoKb1', 'AgKa', 'AgKa2', 'AgKa1', 'AgKb1')</em><a class="headerlink" href="#pymatgen.analysis.diffraction.xrd.XRDCalculator.AVAILABLE_RADIATION" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.diffraction.xrd.XRDCalculator.get_pattern">
-<code class="descname">get_pattern</code><span class="sig-paren">(</span><em>structure</em>, <em>scaled=True</em>, <em>two_theta_range=(0</em>, <em>90)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffraction/xrd.html#XRDCalculator.get_pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.xrd.XRDCalculator.get_pattern" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_pattern</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">scaled=True</em>, <em class="sig-param">two_theta_range=(0</em>, <em class="sig-param">90)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffraction/xrd.html#XRDCalculator.get_pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.xrd.XRDCalculator.get_pattern" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the diffraction pattern for a structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -153,10 +163,10 @@ sphere of radius 2 / wavelength.</p></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -175,13 +185,13 @@ sphere of radius 2 / wavelength.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

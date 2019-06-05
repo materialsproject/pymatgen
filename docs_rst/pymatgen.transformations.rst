@@ -22,6 +22,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.transformations
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

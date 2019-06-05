@@ -20,6 +20,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.io.vasp
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

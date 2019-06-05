@@ -1,0 +1,988 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>pybtex.database &#8212; pymatgen 2019.6.5 documentation</title>
+    <link rel="stylesheet" href="../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pybtex.database</h1><div class="highlight"><pre>
+<span></span><span class="c1"># vim: fileencoding=utf-8</span>
+<span class="c1"># Copyright (c) 2006-2019  Andrey Golovigin</span>
+<span class="c1">#</span>
+<span class="c1"># Permission is hereby granted, free of charge, to any person obtaining</span>
+<span class="c1"># a copy of this software and associated documentation files (the</span>
+<span class="c1"># &quot;Software&quot;), to deal in the Software without restriction, including</span>
+<span class="c1"># without limitation the rights to use, copy, modify, merge, publish,</span>
+<span class="c1"># distribute, sublicense, and/or sell copies of the Software, and to</span>
+<span class="c1"># permit persons to whom the Software is furnished to do so, subject to</span>
+<span class="c1"># the following conditions:</span>
+<span class="c1">#</span>
+<span class="c1"># The above copyright notice and this permission notice shall be</span>
+<span class="c1"># included in all copies or substantial portions of the Software.</span>
+<span class="c1">#</span>
+<span class="c1"># THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND,</span>
+<span class="c1"># EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF</span>
+<span class="c1"># MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.</span>
+<span class="c1"># IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY</span>
+<span class="c1"># CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,</span>
+<span class="c1"># TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE</span>
+<span class="c1"># SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">Mapping</span>
+<span class="kn">from</span> <span class="nn">pybtex.plugin</span> <span class="k">import</span> <span class="n">find_plugin</span>
+
+<span class="kn">import</span> <span class="nn">six</span>
+
+<span class="kn">from</span> <span class="nn">pybtex.exceptions</span> <span class="k">import</span> <span class="n">PybtexError</span>
+<span class="kn">from</span> <span class="nn">pybtex.utils</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">deprecated</span><span class="p">,</span>
+    <span class="n">OrderedCaseInsensitiveDict</span><span class="p">,</span> <span class="n">CaseInsensitiveDefaultDict</span><span class="p">,</span> <span class="n">CaseInsensitiveSet</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pybtex.richtext</span> <span class="k">import</span> <span class="n">Text</span>
+<span class="kn">from</span> <span class="nn">pybtex.bibtex.utils</span> <span class="k">import</span> <span class="n">split_tex_string</span><span class="p">,</span> <span class="n">scan_bibtex_string</span>
+<span class="kn">from</span> <span class="nn">pybtex.errors</span> <span class="k">import</span> <span class="n">report_error</span>
+<span class="kn">from</span> <span class="nn">pybtex.py3compat</span> <span class="k">import</span> <span class="n">fix_unicode_literals_in_doctest</span><span class="p">,</span> <span class="n">python_2_unicode_compatible</span>
+
+
+<span class="k">class</span> <span class="nc">BibliographyDataError</span><span class="p">(</span><span class="n">PybtexError</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">InvalidNameString</span><span class="p">(</span><span class="n">PybtexError</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name_string</span><span class="p">):</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="s1">&#39;Too many commas in </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">name_string</span><span class="p">))</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">InvalidNameString</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="BibliographyData"><a class="viewcode-back" href="../../pymatgen.io.cif.html#pymatgen.io.cif.BibliographyData">[docs]</a><span class="k">class</span> <span class="nc">BibliographyData</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entries</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">preamble</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wanted_entries</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_crossrefs</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A :py:class:`.BibliographyData` object contains a dictionary of bibliography</span>
+<span class="sd">        entries referenced by their keys.</span>
+<span class="sd">        Each entry represented by an :py:class:`.Entry` object.</span>
+
+<span class="sd">        Additionally, :py:class:`.BibliographyData` may contain a LaTeX</span>
+<span class="sd">        preamble defined by ``@PREAMBLE`` commands in the BibTeX file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">entries</span> <span class="o">=</span> <span class="n">OrderedCaseInsensitiveDict</span><span class="p">()</span>
+        <span class="sd">&#39;&#39;&#39;A dictionary of bibliography entries referenced by their keys.</span>
+
+<span class="sd">        The dictionary is case insensitive:</span>
+
+<span class="sd">        &gt;&gt;&gt; bib_data = parse_string(&quot;&quot;&quot;</span>
+<span class="sd">        ...     @ARTICLE{gnats,</span>
+<span class="sd">        ...         author = {L[eslie] A. Aamport},</span>
+<span class="sd">        ...         title = {The Gnats and Gnus Document Preparation System},</span>
+<span class="sd">        ...     }</span>
+<span class="sd">        ... &quot;&quot;&quot;, &#39;bibtex&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; bib_data.entries[&#39;gnats&#39;] == bib_data.entries[&#39;GNATS&#39;]</span>
+<span class="sd">        True</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">crossref_count</span> <span class="o">=</span> <span class="n">CaseInsensitiveDefaultDict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_crossrefs</span> <span class="o">=</span> <span class="n">min_crossrefs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_preamble</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">wanted_entries</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wanted_entries</span> <span class="o">=</span> <span class="n">CaseInsensitiveSet</span><span class="p">(</span><span class="n">wanted_entries</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">citations</span> <span class="o">=</span> <span class="n">CaseInsensitiveSet</span><span class="p">(</span><span class="n">wanted_entries</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wanted_entries</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">citations</span> <span class="o">=</span> <span class="n">CaseInsensitiveSet</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">entries</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entries</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+                <span class="n">entries</span> <span class="o">=</span> <span class="n">entries</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_entry</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">preamble</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_preamble</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">preamble</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">BibliographyData</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">BibliographyData</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="n">other</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">entries</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">entries</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preamble</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_preamble</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;BibliographyData(entries=</span><span class="si">{entries}</span><span class="s1">, preamble=</span><span class="si">{preamble}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">entries</span><span class="o">=</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entries</span><span class="p">),</span>
+            <span class="n">preamble</span><span class="o">=</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_preamble</span><span class="p">),</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="BibliographyData.add_to_preamble"><a class="viewcode-back" href="../../pymatgen.io.cif.html#pymatgen.io.cif.BibliographyData.add_to_preamble">[docs]</a>    <span class="k">def</span> <span class="nf">add_to_preamble</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">values</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_preamble</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">values</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">preamble</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        LaTeX preamble.</span>
+
+<span class="sd">        &gt;&gt;&gt; bib_data = parse_string(r&quot;&quot;&quot;</span>
+<span class="sd">        ...     @PREAMBLE{&quot;\newcommand{\noopsort}[1]{}&quot;}</span>
+<span class="sd">        ... &quot;&quot;&quot;, &#39;bibtex&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; print(bib_data.preamble)</span>
+<span class="sd">        \newcommand{\noopsort}[1]{}</span>
+
+<span class="sd">        .. versionadded:: 0.19</span>
+<span class="sd">            Earlier versions used :py:meth:`.get_preamble()`, which is now deprecated.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_preamble</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BibliographyData.get_preamble"><a class="viewcode-back" href="../../pymatgen.io.cif.html#pymatgen.io.cif.BibliographyData.get_preamble">[docs]</a>    <span class="nd">@deprecated</span><span class="p">(</span><span class="s1">&#39;0.19&#39;</span><span class="p">,</span> <span class="s1">&#39;use BibliographyData.preamble instead&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get_preamble</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        .. deprecated:: 0.19</span>
+<span class="sd">            Use :py:attr:`.preamble` instead.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">preamble</span></div>
+
+<div class="viewcode-block" id="BibliographyData.want_entry"><a class="viewcode-back" href="../../pymatgen.io.cif.html#pymatgen.io.cif.BibliographyData.want_entry">[docs]</a>    <span class="k">def</span> <span class="nf">want_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wanted_entries</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="ow">or</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">wanted_entries</span>
+            <span class="ow">or</span> <span class="s1">&#39;*&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">wanted_entries</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="BibliographyData.get_canonical_key"><a class="viewcode-back" href="../../pymatgen.io.cif.html#pymatgen.io.cif.BibliographyData.get_canonical_key">[docs]</a>    <span class="k">def</span> <span class="nf">get_canonical_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">citations</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">citations</span><span class="o">.</span><span class="n">get_canonical_key</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">key</span></div>
+
+<div class="viewcode-block" id="BibliographyData.add_entry"><a class="viewcode-back" href="../../pymatgen.io.cif.html#pymatgen.io.cif.BibliographyData.add_entry">[docs]</a>    <span class="k">def</span> <span class="nf">add_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">want_entry</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entries</span><span class="p">:</span>
+            <span class="n">report_error</span><span class="p">(</span><span class="n">BibliographyDataError</span><span class="p">(</span><span class="s1">&#39;repeated bibliograhpy entry: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">key</span><span class="p">))</span>
+            <span class="k">return</span>
+        <span class="n">entry</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_canonical_key</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entries</span><span class="p">[</span><span class="n">entry</span><span class="o">.</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">entry</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">crossref</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s1">&#39;crossref&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">wanted_entries</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">wanted_entries</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">crossref</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BibliographyData.add_entries"><a class="viewcode-back" href="../../pymatgen.io.cif.html#pymatgen.io.cif.BibliographyData.add_entries">[docs]</a>    <span class="k">def</span> <span class="nf">add_entries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entries</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_entry</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span></div>
+
+    <span class="nd">@fix_unicode_literals_in_doctest</span>
+    <span class="k">def</span> <span class="nf">_get_crossreferenced_citations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">citations</span><span class="p">,</span> <span class="n">min_crossrefs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get cititations not cited explicitly but referenced by other citations.</span>
+
+<span class="sd">        &gt;&gt;&gt; from pybtex.database import Entry</span>
+<span class="sd">        &gt;&gt;&gt; data = BibliographyData({</span>
+<span class="sd">        ...     &#39;main_article&#39;: Entry(&#39;article&#39;, {&#39;crossref&#39;: &#39;xrefd_arcicle&#39;}),</span>
+<span class="sd">        ...     &#39;xrefd_arcicle&#39;: Entry(&#39;article&#39;),</span>
+<span class="sd">        ... })</span>
+<span class="sd">        &gt;&gt;&gt; list(data._get_crossreferenced_citations([], min_crossrefs=1))</span>
+<span class="sd">        []</span>
+<span class="sd">        &gt;&gt;&gt; list(data._get_crossreferenced_citations([&#39;main_article&#39;], min_crossrefs=1))</span>
+<span class="sd">        [u&#39;xrefd_arcicle&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; list(data._get_crossreferenced_citations([&#39;Main_article&#39;], min_crossrefs=1))</span>
+<span class="sd">        [u&#39;xrefd_arcicle&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; list(data._get_crossreferenced_citations([&#39;main_article&#39;], min_crossrefs=2))</span>
+<span class="sd">        []</span>
+<span class="sd">        &gt;&gt;&gt; list(data._get_crossreferenced_citations([&#39;xrefd_arcicle&#39;], min_crossrefs=1))</span>
+<span class="sd">        []</span>
+
+<span class="sd">        &gt;&gt;&gt; data2 = BibliographyData(data.entries, wanted_entries=data.entries.keys())</span>
+<span class="sd">        &gt;&gt;&gt; list(data2._get_crossreferenced_citations([], min_crossrefs=1))</span>
+<span class="sd">        []</span>
+<span class="sd">        &gt;&gt;&gt; list(data2._get_crossreferenced_citations([&#39;main_article&#39;], min_crossrefs=1))</span>
+<span class="sd">        [u&#39;xrefd_arcicle&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; list(data2._get_crossreferenced_citations([&#39;Main_article&#39;], min_crossrefs=1))</span>
+<span class="sd">        [u&#39;xrefd_arcicle&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; list(data2._get_crossreferenced_citations([&#39;main_article&#39;], min_crossrefs=2))</span>
+<span class="sd">        []</span>
+<span class="sd">        &gt;&gt;&gt; list(data2._get_crossreferenced_citations([&#39;xrefd_arcicle&#39;], min_crossrefs=1))</span>
+<span class="sd">        []</span>
+<span class="sd">        &gt;&gt;&gt; list(data2._get_crossreferenced_citations([&#39;xrefd_arcicle&#39;], min_crossrefs=1))</span>
+<span class="sd">        []</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">crossref_count</span> <span class="o">=</span> <span class="n">CaseInsensitiveDefaultDict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">citation_set</span> <span class="o">=</span> <span class="n">CaseInsensitiveSet</span><span class="p">(</span><span class="n">citations</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">citation</span> <span class="ow">in</span> <span class="n">citations</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entries</span><span class="p">[</span><span class="n">citation</span><span class="p">]</span>
+                <span class="n">crossref</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s1">&#39;crossref&#39;</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">crossref_entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entries</span><span class="p">[</span><span class="n">crossref</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">report_error</span><span class="p">(</span><span class="n">BibliographyDataError</span><span class="p">(</span>
+                    <span class="s1">&#39;bad cross-reference: entry &quot;</span><span class="si">{key}</span><span class="s1">&quot; refers to &#39;</span>
+                    <span class="s1">&#39;entry &quot;</span><span class="si">{crossref}</span><span class="s1">&quot; which does not exist.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">key</span><span class="o">=</span><span class="n">citation</span><span class="p">,</span> <span class="n">crossref</span><span class="o">=</span><span class="n">crossref</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">))</span>
+                <span class="k">continue</span>
+
+            <span class="n">canonical_crossref</span> <span class="o">=</span> <span class="n">crossref_entry</span><span class="o">.</span><span class="n">key</span>
+            <span class="n">crossref_count</span><span class="p">[</span><span class="n">canonical_crossref</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">crossref_count</span><span class="p">[</span><span class="n">canonical_crossref</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">min_crossrefs</span> <span class="ow">and</span> <span class="n">canonical_crossref</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">citation_set</span><span class="p">:</span>
+                <span class="n">citation_set</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">canonical_crossref</span><span class="p">)</span>
+                <span class="k">yield</span> <span class="n">canonical_crossref</span>
+
+    <span class="nd">@fix_unicode_literals_in_doctest</span>
+    <span class="k">def</span> <span class="nf">_expand_wildcard_citations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">citations</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Expand wildcard citations (\citation{*} in .aux file).</span>
+
+<span class="sd">        &gt;&gt;&gt; from pybtex.database import Entry</span>
+<span class="sd">        &gt;&gt;&gt; data = BibliographyData((</span>
+<span class="sd">        ...     (&#39;uno&#39;, Entry(&#39;article&#39;)),</span>
+<span class="sd">        ...     (&#39;dos&#39;, Entry(&#39;article&#39;)),</span>
+<span class="sd">        ...     (&#39;tres&#39;, Entry(&#39;article&#39;)),</span>
+<span class="sd">        ...     (&#39;cuatro&#39;, Entry(&#39;article&#39;)),</span>
+<span class="sd">        ... ))</span>
+<span class="sd">        &gt;&gt;&gt; list(data._expand_wildcard_citations([]))</span>
+<span class="sd">        []</span>
+<span class="sd">        &gt;&gt;&gt; list(data._expand_wildcard_citations([&#39;*&#39;]))</span>
+<span class="sd">        [u&#39;uno&#39;, u&#39;dos&#39;, u&#39;tres&#39;, u&#39;cuatro&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; list(data._expand_wildcard_citations([&#39;uno&#39;, &#39;*&#39;]))</span>
+<span class="sd">        [u&#39;uno&#39;, u&#39;dos&#39;, u&#39;tres&#39;, u&#39;cuatro&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; list(data._expand_wildcard_citations([&#39;dos&#39;, &#39;*&#39;]))</span>
+<span class="sd">        [u&#39;dos&#39;, u&#39;uno&#39;, u&#39;tres&#39;, u&#39;cuatro&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; list(data._expand_wildcard_citations([&#39;*&#39;, &#39;uno&#39;]))</span>
+<span class="sd">        [u&#39;uno&#39;, u&#39;dos&#39;, u&#39;tres&#39;, u&#39;cuatro&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; list(data._expand_wildcard_citations([&#39;*&#39;, &#39;DOS&#39;]))</span>
+<span class="sd">        [u&#39;uno&#39;, u&#39;dos&#39;, u&#39;tres&#39;, u&#39;cuatro&#39;]</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">citation_set</span> <span class="o">=</span> <span class="n">CaseInsensitiveSet</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">citation</span> <span class="ow">in</span> <span class="n">citations</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">citation</span> <span class="o">==</span> <span class="s1">&#39;*&#39;</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entries</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">citation_set</span><span class="p">:</span>
+                        <span class="n">citation_set</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                        <span class="k">yield</span> <span class="n">key</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">citation</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">citation_set</span><span class="p">:</span>
+                    <span class="n">citation_set</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">citation</span><span class="p">)</span>
+                    <span class="k">yield</span> <span class="n">citation</span>
+
+<div class="viewcode-block" id="BibliographyData.add_extra_citations"><a class="viewcode-back" href="../../pymatgen.io.cif.html#pymatgen.io.cif.BibliographyData.add_extra_citations">[docs]</a>    <span class="k">def</span> <span class="nf">add_extra_citations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">citations</span><span class="p">,</span> <span class="n">min_crossrefs</span><span class="p">):</span>
+        <span class="n">expanded_citations</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_expand_wildcard_citations</span><span class="p">(</span><span class="n">citations</span><span class="p">))</span>
+        <span class="n">crossrefs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_crossreferenced_citations</span><span class="p">(</span><span class="n">expanded_citations</span><span class="p">,</span> <span class="n">min_crossrefs</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">expanded_citations</span> <span class="o">+</span> <span class="n">crossrefs</span></div>
+
+<div class="viewcode-block" id="BibliographyData.to_string"><a class="viewcode-back" href="../../pymatgen.io.cif.html#pymatgen.io.cif.BibliographyData.to_string">[docs]</a>    <span class="k">def</span> <span class="nf">to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bib_format</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the data as a unicode string in the given format.</span>
+
+<span class="sd">        :param bib_format: Data format (&quot;bibtex&quot;, &quot;yaml&quot;, etc.).</span>
+
+<span class="sd">        .. versionadded:: 0.19</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">writer</span> <span class="o">=</span> <span class="n">find_plugin</span><span class="p">(</span><span class="s1">&#39;pybtex.database.output&#39;</span><span class="p">,</span> <span class="n">bib_format</span><span class="p">)(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">writer</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BibliographyData.to_bytes"><a class="viewcode-back" href="../../pymatgen.io.cif.html#pymatgen.io.cif.BibliographyData.to_bytes">[docs]</a>    <span class="k">def</span> <span class="nf">to_bytes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bib_format</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the data as a byte string in the given format.</span>
+
+<span class="sd">        :param bib_format: Data format (&quot;bibtex&quot;, &quot;yaml&quot;, etc.).</span>
+
+<span class="sd">        .. versionadded:: 0.19</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">writer</span> <span class="o">=</span> <span class="n">find_plugin</span><span class="p">(</span><span class="s1">&#39;pybtex.database.output&#39;</span><span class="p">,</span> <span class="n">bib_format</span><span class="p">)(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">writer</span><span class="o">.</span><span class="n">to_bytes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BibliographyData.to_file"><a class="viewcode-back" href="../../pymatgen.io.cif.html#pymatgen.io.cif.BibliographyData.to_file">[docs]</a>    <span class="k">def</span> <span class="nf">to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">bib_format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save the data to a file.</span>
+
+<span class="sd">        :param file: A file name or a file-like object.</span>
+<span class="sd">        :param bib_format: Data format (&quot;bibtex&quot;, &quot;yaml&quot;, etc.).</span>
+<span class="sd">            If not specified, Pybtex will try to guess by the file name.</span>
+
+<span class="sd">        .. versionadded:: 0.19</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">file</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">writer</span> <span class="o">=</span> <span class="n">find_plugin</span><span class="p">(</span><span class="s1">&#39;pybtex.database.output&#39;</span><span class="p">,</span> <span class="n">bib_format</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">)(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">writer</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BibliographyData.lower"><a class="viewcode-back" href="../../pymatgen.io.cif.html#pymatgen.io.cif.BibliographyData.lower">[docs]</a>    <span class="nd">@fix_unicode_literals_in_doctest</span>
+    <span class="k">def</span> <span class="nf">lower</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">u</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Return another :py:class:`.BibliographyData` with all identifiers converted to lowercase.</span>
+
+<span class="sd">        &gt;&gt;&gt; data = parse_string(&quot;&quot;&quot;</span>
+<span class="sd">        ...     @BOOK{Obrazy,</span>
+<span class="sd">        ...         title = &quot;Obrazy z Rus&quot;,</span>
+<span class="sd">        ...         author = &quot;Karel Havlíček Borovský&quot;,</span>
+<span class="sd">        ...     }</span>
+<span class="sd">        ...     @BOOK{Elegie,</span>
+<span class="sd">        ...         title = &quot;Tirolské elegie&quot;,</span>
+<span class="sd">        ...         author = &quot;Karel Havlíček Borovský&quot;,</span>
+<span class="sd">        ...     }</span>
+<span class="sd">        ... &quot;&quot;&quot;, &#39;bibtex&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; data_lower = data.lower()</span>
+<span class="sd">        &gt;&gt;&gt; data_lower.entries.keys()</span>
+<span class="sd">        [u&#39;obrazy&#39;, u&#39;elegie&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; for entry in data_lower.entries.values():</span>
+<span class="sd">        ...     entry.key</span>
+<span class="sd">        ...     entry.persons.keys()</span>
+<span class="sd">        ...     entry.fields.keys()</span>
+<span class="sd">        u&#39;obrazy&#39;</span>
+<span class="sd">        [u&#39;author&#39;]</span>
+<span class="sd">        [u&#39;title&#39;]</span>
+<span class="sd">        u&#39;elegie&#39;</span>
+<span class="sd">        [u&#39;author&#39;]</span>
+<span class="sd">        [u&#39;title&#39;]</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">entries_lower</span> <span class="o">=</span> <span class="p">((</span><span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">entry</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entries</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)(</span>
+            <span class="n">entries</span><span class="o">=</span><span class="n">entries_lower</span><span class="p">,</span>
+            <span class="n">preamble</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_preamble</span><span class="p">,</span>
+            <span class="n">wanted_entries</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wanted_entries</span><span class="p">,</span>
+            <span class="n">min_crossrefs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">min_crossrefs</span><span class="p">,</span>
+        <span class="p">)</span></div></div>
+
+
+<span class="k">class</span> <span class="nc">RichFieldProxyDict</span><span class="p">(</span><span class="n">Mapping</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fields</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span> <span class="o">=</span> <span class="n">fields</span>
+
+    <span class="k">def</span> <span class="nf">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span><span class="o">.</span><span class="fm">__contains__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span><span class="o">.</span><span class="fm">__iter__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Text</span><span class="o">.</span><span class="n">from_latex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fields</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+
+
+<div class="viewcode-block" id="Entry"><a class="viewcode-back" href="../../pymatgen.io.cif.html#pymatgen.io.cif.Entry">[docs]</a><span class="k">class</span> <span class="nc">Entry</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A bibliography entry.&quot;&quot;&quot;</span>
+
+    <span class="nb">type</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;Entry type (``&#39;book&#39;``, ``&#39;article&#39;``, etc.).&quot;&quot;&quot;</span>
+
+    <span class="n">key</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;Entry key (for example, ``&#39;fukushima1980neocognitron&#39;``).&quot;&quot;&quot;</span>
+
+    <span class="n">fields</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;A dictionary of entry fields.</span>
+<span class="sd">    The dictionary is ordered and case-insensitive.&quot;&quot;&quot;</span>
+
+    <span class="n">persons</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A dictionary of entry persons, by their roles.</span>
+
+<span class="sd">    The most often used roles are ``&#39;author&#39;`` and ``&#39;editor&#39;``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="sd">&quot;&quot;&quot;A reference to the containing :py:class:`.BibliographyData` object. Used to resolve crossrefs.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">persons</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">fields</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fields</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">persons</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">persons</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">type_</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">original_type</span> <span class="o">=</span> <span class="n">type_</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="o">=</span> <span class="n">OrderedCaseInsensitiveDict</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">persons</span> <span class="o">=</span> <span class="n">OrderedCaseInsensitiveDict</span><span class="p">(</span><span class="n">persons</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Entry</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">Entry</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="n">other</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">type</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">fields</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">persons</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">persons</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># represent the fields as a list of tuples for simplicity</span>
+        <span class="n">repr_fields</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+
+        <span class="k">return</span> <span class="s1">&#39;Entry(</span><span class="si">{type_}</span><span class="s1">, fields=</span><span class="si">{fields}</span><span class="s1">, persons=</span><span class="si">{persons}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">type_</span><span class="o">=</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">),</span>
+            <span class="n">fields</span><span class="o">=</span><span class="n">repr_fields</span><span class="p">,</span>
+            <span class="n">persons</span><span class="o">=</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">persons</span><span class="p">),</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="Entry.add_person"><a class="viewcode-back" href="../../pymatgen.io.cif.html#pymatgen.io.cif.Entry.add_person">[docs]</a>    <span class="k">def</span> <span class="nf">add_person</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">person</span><span class="p">,</span> <span class="n">role</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">role</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">person</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Entry.lower"><a class="viewcode-back" href="../../pymatgen.io.cif.html#pymatgen.io.cif.Entry.lower">[docs]</a>    <span class="k">def</span> <span class="nf">lower</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span>
+            <span class="n">fields</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+            <span class="n">persons</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+        <span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_find_person_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">role</span><span class="p">):</span>
+        <span class="n">persons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">persons</span><span class="p">[</span><span class="n">role</span><span class="p">]</span>
+        <span class="k">return</span> <span class="s1">&#39; and &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">text_type</span><span class="p">(</span><span class="n">person</span><span class="p">)</span> <span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">persons</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_find_crossref_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bib_data</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">bib_data</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="s1">&#39;crossref&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">referenced_entry</span> <span class="o">=</span> <span class="n">bib_data</span><span class="o">.</span><span class="n">entries</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s1">&#39;crossref&#39;</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="n">referenced_entry</span><span class="o">.</span><span class="n">_find_field</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">bib_data</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_find_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bib_data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find the field with the given ``name`` according to this rules:</span>
+
+<span class="sd">        - If the given field ``name`` in in ``self.fields``, just return</span>
+<span class="sd">          self.fields[name].</span>
+
+<span class="sd">        - Otherwise, if ``name`` is ``&quot;authors&quot;`` or ``&quot;editors&quot;`` (or any other</span>
+<span class="sd">          person role), return the list of names as a string, separated by</span>
+<span class="sd">          ``&quot; and &quot;``.</span>
+
+<span class="sd">        - Otherwise, if this entry has a ``crossreff`` field, look up for the</span>
+<span class="sd">          cross-referenced entry and try to find its field with the given</span>
+<span class="sd">          ``name``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_person_field</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_crossref_field</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">bib_data</span><span class="p">)</span></div>
+
+
+<span class="nd">@python_2_unicode_compatible</span>
+<span class="nd">@fix_unicode_literals_in_doctest</span>
+<span class="k">class</span> <span class="nc">Person</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A person or some other person-like entity.</span>
+
+<span class="sd">    &gt;&gt;&gt; knuth = Person(&#39;Donald E. Knuth&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; knuth.first_names</span>
+<span class="sd">    [u&#39;Donald&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; knuth.middle_names</span>
+<span class="sd">    [u&#39;E.&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; knuth.last_names</span>
+<span class="sd">    [u&#39;Knuth&#39;]</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">first_names</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A list of first names.</span>
+
+<span class="sd">    .. versionadded:: 0.19</span>
+<span class="sd">        Earlier versions used :py:meth:`.first`, which is now deprecated.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">middle_names</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A list of middle names.</span>
+
+<span class="sd">    .. versionadded:: 0.19</span>
+<span class="sd">        Earlier versions used :py:meth:`.middle`, which is now deprecated.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">prelast_names</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A list of pre-last (aka von) name parts.</span>
+
+<span class="sd">    .. versionadded:: 0.19</span>
+<span class="sd">        Earlier versions used :py:meth:`.middle`, which is now deprecated.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">last_names</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A list of last names.</span>
+
+<span class="sd">    .. versionadded:: 0.19</span>
+<span class="sd">        Earlier versions used :py:meth:`.last`, which is now deprecated.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">lineage_names</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A list of linage (aka Jr) name parts.</span>
+
+<span class="sd">    .. versionadded:: 0.19</span>
+<span class="sd">        Earlier versions used :py:meth:`.lineage`, which is now deprecated.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">valid_roles</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;author&#39;</span><span class="p">,</span> <span class="s1">&#39;editor&#39;</span><span class="p">]</span>
+    <span class="n">style1_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;^(.+),\s*(.+)$&#39;</span><span class="p">)</span>
+    <span class="n">style2_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;^(.+),\s*(.+),\s*(.+)$&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">string</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">first</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">middle</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">prelast</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">last</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">lineage</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param string: The full name string.</span>
+<span class="sd">            It will be parsed and split into separate first, last, middle,</span>
+<span class="sd">            pre-last and lineage name parst.</span>
+
+<span class="sd">            Supported name formats are:</span>
+
+<span class="sd">            - von Last, First</span>
+<span class="sd">            - von Last, Jr, First</span>
+<span class="sd">            - First von Last</span>
+
+<span class="sd">            (see BibTeX manual for explanation)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">first_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">middle_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prelast_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineage_names</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">string</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">string</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parse_string</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">first_names</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">split_tex_string</span><span class="p">(</span><span class="n">first</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">middle_names</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">split_tex_string</span><span class="p">(</span><span class="n">middle</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prelast_names</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">split_tex_string</span><span class="p">(</span><span class="n">prelast</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_names</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">split_tex_string</span><span class="p">(</span><span class="n">last</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineage_names</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">split_tex_string</span><span class="p">(</span><span class="n">lineage</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@fix_unicode_literals_in_doctest</span>
+    <span class="k">def</span> <span class="nf">bibtex_first_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;A list of first and middle names together.</span>
+<span class="sd">        (BibTeX treats all middle names as first.)</span>
+
+<span class="sd">        .. versionadded:: 0.19</span>
+<span class="sd">            Earlier versions used :py:meth:`Person.bibtex_first`, which is now deprecated.</span>
+
+
+<span class="sd">        &gt;&gt;&gt; knuth = Person(&#39;Donald E. Knuth&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; knuth.bibtex_first_names</span>
+<span class="sd">        [u&#39;Donald&#39;, u&#39;E.&#39;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">first_names</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">middle_names</span>
+
+    <span class="nd">@fix_unicode_literals_in_doctest</span>
+    <span class="k">def</span> <span class="nf">_parse_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Extract various parts of the name from a string.</span>
+
+<span class="sd">        &gt;&gt;&gt; p = Person(&#39;Avinash K. Dixit&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; print(p.first_names)</span>
+<span class="sd">        [u&#39;Avinash&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; print(p.middle_names)</span>
+<span class="sd">        [u&#39;K.&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; print(p.prelast_names)</span>
+<span class="sd">        []</span>
+<span class="sd">        &gt;&gt;&gt; print(p.last_names)</span>
+<span class="sd">        [u&#39;Dixit&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; print(p.lineage_names)</span>
+<span class="sd">        []</span>
+<span class="sd">        &gt;&gt;&gt; print(six.text_type(p))</span>
+<span class="sd">        Dixit, Avinash K.</span>
+<span class="sd">        &gt;&gt;&gt; p == Person(six.text_type(p))</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; p = Person(&#39;Dixit, Jr, Avinash K. &#39;)</span>
+<span class="sd">        &gt;&gt;&gt; print(p.first_names)</span>
+<span class="sd">        [u&#39;Avinash&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; print(p.middle_names)</span>
+<span class="sd">        [u&#39;K.&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; print(p.prelast_names)</span>
+<span class="sd">        []</span>
+<span class="sd">        &gt;&gt;&gt; print(p.last_names)</span>
+<span class="sd">        [u&#39;Dixit&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; print(p.lineage_names)</span>
+<span class="sd">        [u&#39;Jr&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; print(six.text_type(p))</span>
+<span class="sd">        Dixit, Jr, Avinash K.</span>
+<span class="sd">        &gt;&gt;&gt; p == Person(six.text_type(p))</span>
+<span class="sd">        True</span>
+
+<span class="sd">        &gt;&gt;&gt; p = Person(&#39;abc&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; print(p.first_names, p.middle_names, p.prelast_names, p.last_names, p.lineage_names)</span>
+<span class="sd">        [] [] [] [u&#39;abc&#39;] []</span>
+<span class="sd">        &gt;&gt;&gt; p = Person(&#39;Viktorov, Michail~Markovitch&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; print(p.first_names, p.middle_names, p.prelast_names, p.last_names, p.lineage_names)</span>
+<span class="sd">        [u&#39;Michail&#39;] [u&#39;Markovitch&#39;] [] [u&#39;Viktorov&#39;] []</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">process_first_middle</span><span class="p">(</span><span class="n">parts</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">first_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">middle_names</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+        <span class="k">def</span> <span class="nf">process_von_last</span><span class="p">(</span><span class="n">parts</span><span class="p">):</span>
+            <span class="c1"># von cannot be the last name in the list</span>
+            <span class="n">von_last</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">definitely_not_von</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">:]</span>
+
+            <span class="k">if</span> <span class="n">von_last</span><span class="p">:</span>
+                <span class="n">von</span><span class="p">,</span> <span class="n">last</span> <span class="o">=</span> <span class="n">rsplit_at</span><span class="p">(</span><span class="n">von_last</span><span class="p">,</span> <span class="n">is_von_name</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">prelast_names</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">von</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">last_names</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">last</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">last_names</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">definitely_not_von</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">find_pos</span><span class="p">(</span><span class="n">lst</span><span class="p">,</span> <span class="n">pred</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lst</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">pred</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">i</span>
+            <span class="k">return</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="k">def</span> <span class="nf">split_at</span><span class="p">(</span><span class="n">lst</span><span class="p">,</span> <span class="n">pred</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Split the given list into two parts.</span>
+
+<span class="sd">            The second part starts with the first item for which the given</span>
+<span class="sd">            predicate is True.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">find_pos</span><span class="p">(</span><span class="n">lst</span><span class="p">,</span> <span class="n">pred</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">lst</span><span class="p">[:</span><span class="n">pos</span><span class="p">],</span> <span class="n">lst</span><span class="p">[</span><span class="n">pos</span><span class="p">:]</span>
+
+        <span class="k">def</span> <span class="nf">rsplit_at</span><span class="p">(</span><span class="n">lst</span><span class="p">,</span> <span class="n">pred</span><span class="p">):</span>
+            <span class="n">rpos</span> <span class="o">=</span> <span class="n">find_pos</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">lst</span><span class="p">),</span> <span class="n">pred</span><span class="p">)</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">)</span> <span class="o">-</span> <span class="n">rpos</span>
+            <span class="k">return</span> <span class="n">lst</span><span class="p">[:</span><span class="n">pos</span><span class="p">],</span> <span class="n">lst</span><span class="p">[</span><span class="n">pos</span><span class="p">:]</span>
+
+        <span class="k">def</span> <span class="nf">is_von_name</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">string</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">isupper</span><span class="p">():</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="n">string</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">islower</span><span class="p">():</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">char</span><span class="p">,</span> <span class="n">brace_level</span> <span class="ow">in</span> <span class="n">scan_bibtex_string</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">brace_level</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">char</span><span class="o">.</span><span class="n">isalpha</span><span class="p">():</span>
+                        <span class="k">return</span> <span class="n">char</span><span class="o">.</span><span class="n">islower</span><span class="p">()</span>
+                    <span class="k">elif</span> <span class="n">brace_level</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">char</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">):</span>
+                        <span class="k">return</span> <span class="n">special_char_islower</span><span class="p">(</span><span class="n">char</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">def</span> <span class="nf">special_char_islower</span><span class="p">(</span><span class="n">special_char</span><span class="p">):</span>
+            <span class="n">control_sequence</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">special_char</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>  <span class="c1"># skip the backslash</span>
+                <span class="k">if</span> <span class="n">control_sequence</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">char</span><span class="o">.</span><span class="n">isalpha</span><span class="p">():</span>
+                        <span class="n">control_sequence</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">char</span><span class="o">.</span><span class="n">isalpha</span><span class="p">():</span>
+                        <span class="k">return</span> <span class="n">char</span><span class="o">.</span><span class="n">islower</span><span class="p">()</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">parts</span> <span class="o">=</span> <span class="n">split_tex_string</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">report_error</span><span class="p">(</span><span class="n">InvalidNameString</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+            <span class="n">last_parts</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+            <span class="n">parts</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">last_parts</span><span class="p">)]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>  <span class="c1"># von Last, Jr, First</span>
+            <span class="n">process_von_last</span><span class="p">(</span><span class="n">split_tex_string</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lineage_names</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">split_tex_string</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="n">process_first_middle</span><span class="p">(</span><span class="n">split_tex_string</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># von Last, First</span>
+            <span class="n">process_von_last</span><span class="p">(</span><span class="n">split_tex_string</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="n">process_first_middle</span><span class="p">(</span><span class="n">split_tex_string</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># First von Last</span>
+            <span class="n">parts</span> <span class="o">=</span> <span class="n">split_tex_string</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">first_middle</span><span class="p">,</span> <span class="n">von_last</span> <span class="o">=</span> <span class="n">split_at</span><span class="p">(</span><span class="n">parts</span><span class="p">,</span> <span class="n">is_von_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">von_last</span> <span class="ow">and</span> <span class="n">first_middle</span><span class="p">:</span>
+                <span class="n">last</span> <span class="o">=</span> <span class="n">first_middle</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+                <span class="n">von_last</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">last</span><span class="p">)</span>
+            <span class="n">process_first_middle</span><span class="p">(</span><span class="n">first_middle</span><span class="p">)</span>
+            <span class="n">process_von_last</span><span class="p">(</span><span class="n">von_last</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># should hot really happen</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Person</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">Person</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="n">other</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">first_names</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">first_names</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">middle_names</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">middle_names</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">prelast_names</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">prelast_names</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_names</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">last_names</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineage_names</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">lineage_names</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># von Last, Jr, First</span>
+        <span class="n">von_last</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prelast_names</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_names</span><span class="p">)</span>
+        <span class="n">jr</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineage_names</span><span class="p">)</span>
+        <span class="n">first</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">first_names</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">middle_names</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">part</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="p">(</span><span class="n">von_last</span><span class="p">,</span> <span class="n">jr</span><span class="p">,</span> <span class="n">first</span><span class="p">)</span> <span class="k">if</span> <span class="n">part</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;Person(</span><span class="si">{0}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">text_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)))</span>
+
+    <span class="k">def</span> <span class="nf">get_part_as_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span> <span class="o">+</span> <span class="s1">&#39;_names&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
+
+    <span class="nd">@fix_unicode_literals_in_doctest</span>
+    <span class="k">def</span> <span class="nf">get_part</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">abbr</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a list of name parts by `type`.</span>
+
+<span class="sd">        &gt;&gt;&gt; knuth = Person(&#39;Donald E. Knuth&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; knuth.get_part(&#39;first&#39;)</span>
+<span class="sd">        [u&#39;Donald&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; knuth.get_part(&#39;last&#39;)</span>
+<span class="sd">        [u&#39;Knuth&#39;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">names</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span> <span class="o">+</span> <span class="s1">&#39;_names&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">abbr</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">warnings</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Person.get_part(abbr=True) is deprecated since 0.19: use pybtex.textutils.abbreviate()&#39;</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="kn">from</span> <span class="nn">pybtex.textutils</span> <span class="k">import</span> <span class="n">abbreviate</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">abbreviate</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">names</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rich_first_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A list of first names converted to :ref:`rich text &lt;rich-text&gt;`.</span>
+
+<span class="sd">        .. versionadded:: 0.20</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">Text</span><span class="o">.</span><span class="n">from_latex</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">first_names</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rich_middle_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A list of middle names converted to :ref:`rich text &lt;rich-text&gt;`.</span>
+
+<span class="sd">        .. versionadded:: 0.20</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">Text</span><span class="o">.</span><span class="n">from_latex</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">middle_names</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rich_prelast_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A list of pre-last (aka von) name parts converted to :ref:`rich text &lt;rich-text&gt;`.</span>
+
+<span class="sd">        .. versionadded:: 0.20</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">Text</span><span class="o">.</span><span class="n">from_latex</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prelast_names</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rich_last_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A list of last names converted to :ref:`rich text &lt;rich-text&gt;`.</span>
+
+<span class="sd">        .. versionadded:: 0.20</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">Text</span><span class="o">.</span><span class="n">from_latex</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_names</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rich_lineage_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A list of lineage (aka Jr) name parts converted to :ref:`rich text &lt;rich-text&gt;`.</span>
+
+<span class="sd">        .. versionadded:: 0.20</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">Text</span><span class="o">.</span><span class="n">from_latex</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineage_names</span><span class="p">]</span>
+
+    <span class="nd">@deprecated</span><span class="p">(</span><span class="s1">&#39;0.19&#39;</span><span class="p">,</span> <span class="s1">&#39;use Person.first_names instead&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">first</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">abbr</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        .. deprecated:: 0.19</span>
+<span class="sd">            Use :py:attr:`.first_names` instead.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_part</span><span class="p">(</span><span class="s1">&#39;first&#39;</span><span class="p">,</span> <span class="n">abbr</span><span class="p">)</span>
+
+    <span class="nd">@deprecated</span><span class="p">(</span><span class="s1">&#39;0.19&#39;</span><span class="p">,</span> <span class="s1">&#39;use Person.middle_names instead&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">middle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">abbr</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        .. deprecated:: 0.19</span>
+<span class="sd">            Use :py:attr:`.middle_names` instead.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_part</span><span class="p">(</span><span class="s1">&#39;middle&#39;</span><span class="p">,</span> <span class="n">abbr</span><span class="p">)</span>
+
+    <span class="nd">@deprecated</span><span class="p">(</span><span class="s1">&#39;0.19&#39;</span><span class="p">,</span> <span class="s1">&#39;use Person.prelast_names instead&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">prelast</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">abbr</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        .. deprecated:: 0.19</span>
+<span class="sd">            Use :py:attr:`.prelast_names` instead.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_part</span><span class="p">(</span><span class="s1">&#39;prelast&#39;</span><span class="p">,</span> <span class="n">abbr</span><span class="p">)</span>
+
+    <span class="nd">@deprecated</span><span class="p">(</span><span class="s1">&#39;0.19&#39;</span><span class="p">,</span> <span class="s1">&#39;use Person.last_names instead&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">last</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">abbr</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        .. deprecated:: 0.19</span>
+<span class="sd">            Use :py:attr:`.last_names` instead.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_part</span><span class="p">(</span><span class="s1">&#39;last&#39;</span><span class="p">,</span> <span class="n">abbr</span><span class="p">)</span>
+
+    <span class="nd">@deprecated</span><span class="p">(</span><span class="s1">&#39;0.19&#39;</span><span class="p">,</span> <span class="s1">&#39;use Person.lineage_names instead&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">lineage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">abbr</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        .. deprecated:: 0.19</span>
+<span class="sd">            Use :py:attr:`.lineage_names` instead.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_part</span><span class="p">(</span><span class="s1">&#39;lineage&#39;</span><span class="p">,</span> <span class="n">abbr</span><span class="p">)</span>
+
+    <span class="nd">@deprecated</span><span class="p">(</span><span class="s1">&#39;0.19&#39;</span><span class="p">,</span> <span class="s1">&#39;use Person.bibtex_first_names instead&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">bibtex_first</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        .. deprecated:: 0.19</span>
+<span class="sd">            Use :py:attr:`.bibtex_first_names` instead.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bibtex_first_names</span>
+
+
+<span class="k">def</span> <span class="nf">parse_file</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">bib_format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read bibliography data from file and return a :py:class:`.BibliographyData` object.</span>
+
+<span class="sd">    :param file: A file name or a file-like object.</span>
+<span class="sd">    :param bib_format: Data format (&quot;bibtex&quot;, &quot;yaml&quot;, etc.).</span>
+<span class="sd">        If not specified, Pybtex will try to guess by the file name.</span>
+
+<span class="sd">    .. versionadded:: 0.19</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">file</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">find_plugin</span><span class="p">(</span><span class="s1">&#39;pybtex.database.input&#39;</span><span class="p">,</span> <span class="n">bib_format</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">)(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_file</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">parse_string</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">bib_format</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse a Unicode string containing bibliography data and return a :py:class:`.BibliographyData` object.</span>
+
+<span class="sd">    :param value: Unicode string.</span>
+<span class="sd">    :param bib_format: Data format (&quot;bibtex&quot;, &quot;yaml&quot;, etc.).</span>
+
+<span class="sd">    .. versionadded:: 0.19</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">find_plugin</span><span class="p">(</span><span class="s1">&#39;pybtex.database.input&#39;</span><span class="p">,</span> <span class="n">bib_format</span><span class="p">)(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_string</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">parse_bytes</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">bib_format</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse a byte string containing bibliography data and return a :py:class:`.BibliographyData` object.</span>
+
+<span class="sd">    :param value: Byte string.</span>
+<span class="sd">    :param bib_format: Data format (for example, &quot;bibtexml&quot;).</span>
+
+<span class="sd">    .. versionadded:: 0.19</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">find_plugin</span><span class="p">(</span><span class="s1">&#39;pybtex.database.input&#39;</span><span class="p">,</span> <span class="n">bib_format</span><span class="p">)(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_bytes</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

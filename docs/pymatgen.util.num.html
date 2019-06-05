@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.util.num module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.util.num module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -47,7 +47,7 @@
 <p>This module provides utilities for basic math operations.</p>
 <dl class="function">
 <dt id="pymatgen.util.num.abs_cap">
-<code class="descname">abs_cap</code><span class="sig-paren">(</span><em>val</em>, <em>max_abs_val=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/num.html#abs_cap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.abs_cap" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">abs_cap</code><span class="sig-paren">(</span><em class="sig-param">val</em>, <em class="sig-param">max_abs_val=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/num.html#abs_cap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.abs_cap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the value with its absolute value capped at max_abs_val.
 Particularly useful in passing values to trignometric functions where
 numerical errors may result in an argument &gt; 1 being passed in.</p>
@@ -66,7 +66,7 @@ numerical errors may result in an argument &gt; 1 being passed in.</p>
 
 <dl class="function">
 <dt id="pymatgen.util.num.make_symmetric_matrix_from_upper_tri">
-<code class="descname">make_symmetric_matrix_from_upper_tri</code><span class="sig-paren">(</span><em>val</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/num.html#make_symmetric_matrix_from_upper_tri"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.make_symmetric_matrix_from_upper_tri" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">make_symmetric_matrix_from_upper_tri</code><span class="sig-paren">(</span><em class="sig-param">val</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/num.html#make_symmetric_matrix_from_upper_tri"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.make_symmetric_matrix_from_upper_tri" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a symmetric matrix in upper triangular matrix form as flat array indexes as:
 [A_xx,A_yy,A_zz,A_xy,A_xz,A_yz]
 This will generate the full matrix:
@@ -75,7 +75,7 @@ This will generate the full matrix:
 
 <dl class="function">
 <dt id="pymatgen.util.num.maxloc">
-<code class="descname">maxloc</code><span class="sig-paren">(</span><em>seq</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/num.html#maxloc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.maxloc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">maxloc</code><span class="sig-paren">(</span><em class="sig-param">seq</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/num.html#maxloc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.maxloc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the index of the (first) maximum in seq</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">maxloc</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span>
 </pre></div>
@@ -84,14 +84,14 @@ This will generate the full matrix:
 
 <dl class="function">
 <dt id="pymatgen.util.num.min_max_indexes">
-<code class="descname">min_max_indexes</code><span class="sig-paren">(</span><em>seq</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/num.html#min_max_indexes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.min_max_indexes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">min_max_indexes</code><span class="sig-paren">(</span><em class="sig-param">seq</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/num.html#min_max_indexes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.min_max_indexes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Uses enumerate, max, and min to return the indices of the values
 in a list with the maximum and minimum value:</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.num.minloc">
-<code class="descname">minloc</code><span class="sig-paren">(</span><em>seq</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/num.html#minloc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.minloc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">minloc</code><span class="sig-paren">(</span><em class="sig-param">seq</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/num.html#minloc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.minloc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the index of the (first) minimum in seq</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">minloc</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span>
 </pre></div>
@@ -100,7 +100,7 @@ in a list with the maximum and minimum value:</p>
 
 <dl class="function">
 <dt id="pymatgen.util.num.monotonic">
-<code class="descname">monotonic</code><span class="sig-paren">(</span><em>values</em>, <em>mode='&lt;'</em>, <em>atol=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/num.html#monotonic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.monotonic" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">monotonic</code><span class="sig-paren">(</span><em class="sig-param">values</em>, <em class="sig-param">mode='&lt;'</em>, <em class="sig-param">atol=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/num.html#monotonic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.monotonic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns False if values are not monotonic (decreasing|increasing).
 mode is “&lt;” for a decreasing sequence, “&gt;” for an increasing sequence.
 Two numbers are considered equal if they differ less that atol.</p>
@@ -115,26 +115,26 @@ Two numbers are considered equal if they differ less that atol.</p>
 
 <dl class="function">
 <dt id="pymatgen.util.num.non_decreasing">
-<code class="descname">non_decreasing</code><span class="sig-paren">(</span><em>values</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/num.html#non_decreasing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.non_decreasing" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">non_decreasing</code><span class="sig-paren">(</span><em class="sig-param">values</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/num.html#non_decreasing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.non_decreasing" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if values are not decreasing.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.num.non_increasing">
-<code class="descname">non_increasing</code><span class="sig-paren">(</span><em>values</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/num.html#non_increasing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.non_increasing" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">non_increasing</code><span class="sig-paren">(</span><em class="sig-param">values</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/num.html#non_increasing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.non_increasing" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if values are not increasing.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.num.round_to_sigfigs">
-<code class="descname">round_to_sigfigs</code><span class="sig-paren">(</span><em>num</em>, <em>sigfigs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/num.html#round_to_sigfigs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.round_to_sigfigs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">round_to_sigfigs</code><span class="sig-paren">(</span><em class="sig-param">num</em>, <em class="sig-param">sigfigs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/num.html#round_to_sigfigs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.round_to_sigfigs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rounds a number rounded to a specific number of significant
 figures instead of to a specific precision.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.num.sort_dict">
-<code class="descname">sort_dict</code><span class="sig-paren">(</span><em>d</em>, <em>key=None</em>, <em>reverse=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/num.html#sort_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.sort_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sort_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em>, <em class="sig-param">key=None</em>, <em class="sig-param">reverse=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/num.html#sort_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.sort_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sorts a dict by value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -154,13 +154,13 @@ of the dict i.e. key = lambda t : t[1]</p></li>
 
 <dl class="function">
 <dt id="pymatgen.util.num.strictly_decreasing">
-<code class="descname">strictly_decreasing</code><span class="sig-paren">(</span><em>values</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/num.html#strictly_decreasing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.strictly_decreasing" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">strictly_decreasing</code><span class="sig-paren">(</span><em class="sig-param">values</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/num.html#strictly_decreasing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.strictly_decreasing" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if values are stricly decreasing.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.num.strictly_increasing">
-<code class="descname">strictly_increasing</code><span class="sig-paren">(</span><em>values</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/num.html#strictly_increasing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.strictly_increasing" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">strictly_increasing</code><span class="sig-paren">(</span><em class="sig-param">values</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/num.html#strictly_increasing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.strictly_increasing" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if values are stricly increasing.</p>
 </dd></dl>
 
@@ -180,10 +180,10 @@ of the dict i.e. key = lambda t : t[1]</p></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -202,13 +202,13 @@ of the dict i.e. key = lambda t : t[1]</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

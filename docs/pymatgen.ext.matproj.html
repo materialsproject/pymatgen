@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.ext.matproj module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.ext.matproj module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -46,7 +46,7 @@
 <span id="pymatgen-ext-matproj-module"></span><h1>pymatgen.ext.matproj module<a class="headerlink" href="#module-pymatgen.ext.matproj" title="Permalink to this headline">¶</a></h1>
 <dl class="exception">
 <dt id="pymatgen.ext.matproj.MPRestError">
-<em class="property">exception </em><code class="descname">MPRestError</code><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRestError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRestError" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="sig-name descname">MPRestError</code><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRestError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRestError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Exception class for MPRestAdaptor.
 Raised when the query has problems, e.g., bad query format.</p>
@@ -54,7 +54,7 @@ Raised when the query has problems, e.g., bad query format.</p>
 
 <dl class="class">
 <dt id="pymatgen.ext.matproj.MPRester">
-<em class="property">class </em><code class="descname">MPRester</code><span class="sig-paren">(</span><em>api_key=None</em>, <em>endpoint=None</em>, <em>include_user_agent=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">MPRester</code><span class="sig-paren">(</span><em class="sig-param">api_key=None</em>, <em class="sig-param">endpoint=None</em>, <em class="sig-param">include_user_agent=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A class to conveniently interface with the Materials Project REST
 interface. The recommended way to use MPRester is with the “with” context
@@ -91,7 +91,7 @@ Set to False to disable the user agent.</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.delete_snl">
-<code class="descname">delete_snl</code><span class="sig-paren">(</span><em>snl_ids</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.delete_snl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.delete_snl" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">delete_snl</code><span class="sig-paren">(</span><em class="sig-param">snl_ids</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.delete_snl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.delete_snl" title="Permalink to this definition">¶</a></dt>
 <dd><p>Delete earlier submitted SNLs.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -111,7 +111,7 @@ the future.</p>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.find_structure">
-<code class="descname">find_structure</code><span class="sig-paren">(</span><em>filename_or_structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.find_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.find_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">find_structure</code><span class="sig-paren">(</span><em class="sig-param">filename_or_structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.find_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.find_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds matching structures on the Materials Project site.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -128,7 +128,7 @@ the future.</p>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_all_substrates">
-<code class="descname">get_all_substrates</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_all_substrates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_all_substrates" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_all_substrates</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_all_substrates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_all_substrates" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the list of all possible substrates considered in the
 Materials Project substrate database</p>
 <dl class="field-list simple">
@@ -140,7 +140,7 @@ Materials Project substrate database</p>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_bandstructure_by_material_id">
-<code class="descname">get_bandstructure_by_material_id</code><span class="sig-paren">(</span><em>material_id</em>, <em>line_mode=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_bandstructure_by_material_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_bandstructure_by_material_id" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_bandstructure_by_material_id</code><span class="sig-paren">(</span><em class="sig-param">material_id</em>, <em class="sig-param">line_mode=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_bandstructure_by_material_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_bandstructure_by_material_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a BandStructure corresponding to a material_id.</p>
 <p>REST Endpoint: <a class="reference external" href="https://www.materialsproject.org/rest/v2/materials">https://www.materialsproject.org/rest/v2/materials</a>/&lt;mp-id&gt;/vasp/bandstructure or
 <a class="reference external" href="https://www.materialsproject.org/rest/v2/materials">https://www.materialsproject.org/rest/v2/materials</a>/&lt;mp-id&gt;/vasp/bandstructure_uniform</p>
@@ -160,7 +160,7 @@ Materials Project substrate database</p>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_cohesive_energy">
-<code class="descname">get_cohesive_energy</code><span class="sig-paren">(</span><em>material_id</em>, <em>per_atom=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_cohesive_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_cohesive_energy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_cohesive_energy</code><span class="sig-paren">(</span><em class="sig-param">material_id</em>, <em class="sig-param">per_atom=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_cohesive_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_cohesive_energy" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Gets the cohesive for a material (eV per formula unit). Cohesive energy</dt><dd><p>is defined as the difference between the bulk energy and the sum of
 total DFT energy of isolated atoms for atom elements in the bulk.</p>
@@ -181,7 +181,7 @@ total DFT energy of isolated atoms for atom elements in the bulk.</p>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_data">
-<code class="descname">get_data</code><span class="sig-paren">(</span><em>chemsys_formula_id</em>, <em>data_type='vasp'</em>, <em>prop=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_data" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_data</code><span class="sig-paren">(</span><em class="sig-param">chemsys_formula_id</em>, <em class="sig-param">data_type='vasp'</em>, <em class="sig-param">prop=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Flexible method to get any data using the Materials Project REST
 interface. Generally used by other methods for more specific queries.</p>
 <p>Format of REST return is <em>always</em> a list of dict (regardless of the
@@ -207,7 +207,7 @@ general list of useful properties.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_doc">
-<code class="descname">get_doc</code><span class="sig-paren">(</span><em>materials_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_doc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_doc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_doc</code><span class="sig-paren">(</span><em class="sig-param">materials_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_doc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_doc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the entire data document for one materials id. Use this judiciously.</p>
 <p>REST Endpoint: <a class="reference external" href="https://www.materialsproject.org/materials">https://www.materialsproject.org/materials</a>/&lt;mp-id&gt;/doc.</p>
 <dl class="field-list simple">
@@ -223,7 +223,7 @@ details page.</p>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_dos_by_material_id">
-<code class="descname">get_dos_by_material_id</code><span class="sig-paren">(</span><em>material_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_dos_by_material_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_dos_by_material_id" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dos_by_material_id</code><span class="sig-paren">(</span><em class="sig-param">material_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_dos_by_material_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_dos_by_material_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a Dos corresponding to a material_id.</p>
 <p>REST Endpoint: <a class="reference external" href="https://www.materialsproject.org/rest/v2/materials">https://www.materialsproject.org/rest/v2/materials</a>/&lt;mp-id&gt;/vasp/dos</p>
 <dl class="field-list simple">
@@ -239,7 +239,7 @@ e.g., mp-1234).</p>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_entries">
-<code class="descname">get_entries</code><span class="sig-paren">(</span><em>chemsys_formula_id_criteria</em>, <em>compatible_only=True</em>, <em>inc_structure=None</em>, <em>property_data=None</em>, <em>conventional_unit_cell=False</em>, <em>sort_by_e_above_hull=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_entries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_entries" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_entries</code><span class="sig-paren">(</span><em class="sig-param">chemsys_formula_id_criteria</em>, <em class="sig-param">compatible_only=True</em>, <em class="sig-param">inc_structure=None</em>, <em class="sig-param">property_data=None</em>, <em class="sig-param">conventional_unit_cell=False</em>, <em class="sig-param">sort_by_e_above_hull=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_entries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_entries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a list of ComputedEntries or ComputedStructureEntries corresponding
 to a chemical system, formula, or materials_id or full criteria.</p>
 <dl class="field-list simple">
@@ -276,7 +276,7 @@ e_above_hull (will query e_above_hull as a property_data if True).</p></li>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_entries_in_chemsys">
-<code class="descname">get_entries_in_chemsys</code><span class="sig-paren">(</span><em>elements</em>, <em>compatible_only=True</em>, <em>inc_structure=None</em>, <em>property_data=None</em>, <em>conventional_unit_cell=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_entries_in_chemsys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_entries_in_chemsys" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_entries_in_chemsys</code><span class="sig-paren">(</span><em class="sig-param">elements</em>, <em class="sig-param">compatible_only=True</em>, <em class="sig-param">inc_structure=None</em>, <em class="sig-param">property_data=None</em>, <em class="sig-param">conventional_unit_cell=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_entries_in_chemsys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_entries_in_chemsys" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper method to get a list of ComputedEntries in a chemical system.
 For example, elements = [“Li”, “Fe”, “O”] will return a list of all
 entries in the Li-Fe-O chemical system, i.e., all LixOy,
@@ -313,7 +313,7 @@ conventional unit cell</p></li>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_entry_by_material_id">
-<code class="descname">get_entry_by_material_id</code><span class="sig-paren">(</span><em>material_id</em>, <em>compatible_only=True</em>, <em>inc_structure=None</em>, <em>property_data=None</em>, <em>conventional_unit_cell=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_entry_by_material_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_entry_by_material_id" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_entry_by_material_id</code><span class="sig-paren">(</span><em class="sig-param">material_id</em>, <em class="sig-param">compatible_only=True</em>, <em class="sig-param">inc_structure=None</em>, <em class="sig-param">property_data=None</em>, <em class="sig-param">conventional_unit_cell=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_entry_by_material_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_entry_by_material_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a ComputedEntry corresponding to a material_id.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -346,7 +346,7 @@ conventional unit cell</p></li>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_exp_entry">
-<code class="descname">get_exp_entry</code><span class="sig-paren">(</span><em>formula</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_exp_entry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_exp_entry" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_exp_entry</code><span class="sig-paren">(</span><em class="sig-param">formula</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_exp_entry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_exp_entry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an ExpEntry object, which is the experimental equivalent of a
 ComputedEntry and can be used for analyses using experimental data.</p>
 <dl class="field-list simple">
@@ -361,7 +361,7 @@ ComputedEntry and can be used for analyses using experimental data.</p>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_exp_thermo_data">
-<code class="descname">get_exp_thermo_data</code><span class="sig-paren">(</span><em>formula</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_exp_thermo_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_exp_thermo_data" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_exp_thermo_data</code><span class="sig-paren">(</span><em class="sig-param">formula</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_exp_thermo_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_exp_thermo_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a list of ThermoData objects associated with a formula using the
 Materials Project REST interface.</p>
 <dl class="field-list simple">
@@ -376,7 +376,7 @@ Materials Project REST interface.</p>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_interface_reactions">
-<code class="descname">get_interface_reactions</code><span class="sig-paren">(</span><em>reactant1</em>, <em>reactant2</em>, <em>open_el=None</em>, <em>relative_mu=None</em>, <em>use_hull_energy=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_interface_reactions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_interface_reactions" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_interface_reactions</code><span class="sig-paren">(</span><em class="sig-param">reactant1</em>, <em class="sig-param">reactant2</em>, <em class="sig-param">open_el=None</em>, <em class="sig-param">relative_mu=None</em>, <em class="sig-param">use_hull_energy=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_interface_reactions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_interface_reactions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets critical reactions between two reactants.</p>
 <p>Get critical reactions (“kinks” in the mixing ratio where
 reaction products change) between two reactants. See the
@@ -413,7 +413,7 @@ in eV/atom, and <cite>rxn</cite> is a
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_materials_id_from_task_id">
-<code class="descname">get_materials_id_from_task_id</code><span class="sig-paren">(</span><em>task_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_materials_id_from_task_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_materials_id_from_task_id" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_materials_id_from_task_id</code><span class="sig-paren">(</span><em class="sig-param">task_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_materials_id_from_task_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_materials_id_from_task_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a new MP materials id from a task id (which can be
 equivalent to an old materials id)</p>
 <dl class="field-list simple">
@@ -428,7 +428,7 @@ equivalent to an old materials id)</p>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_materials_id_references">
-<code class="descname">get_materials_id_references</code><span class="sig-paren">(</span><em>material_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_materials_id_references"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_materials_id_references" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_materials_id_references</code><span class="sig-paren">(</span><em class="sig-param">material_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_materials_id_references"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_materials_id_references" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns all references for a materials id.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -442,7 +442,7 @@ equivalent to an old materials id)</p>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_materials_ids">
-<code class="descname">get_materials_ids</code><span class="sig-paren">(</span><em>chemsys_formula</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_materials_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_materials_ids" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_materials_ids</code><span class="sig-paren">(</span><em class="sig-param">chemsys_formula</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_materials_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_materials_ids" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all materials ids for a formula or chemsys.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -457,7 +457,7 @@ or formula (e.g., Fe2O3).</p>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_phonon_bandstructure_by_material_id">
-<code class="descname">get_phonon_bandstructure_by_material_id</code><span class="sig-paren">(</span><em>material_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_phonon_bandstructure_by_material_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_phonon_bandstructure_by_material_id" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_phonon_bandstructure_by_material_id</code><span class="sig-paren">(</span><em class="sig-param">material_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_phonon_bandstructure_by_material_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_phonon_bandstructure_by_material_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get phonon dispersion data corresponding to a material_id.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -474,7 +474,7 @@ or formula (e.g., Fe2O3).</p>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_phonon_ddb_by_material_id">
-<code class="descname">get_phonon_ddb_by_material_id</code><span class="sig-paren">(</span><em>material_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_phonon_ddb_by_material_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_phonon_ddb_by_material_id" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_phonon_ddb_by_material_id</code><span class="sig-paren">(</span><em class="sig-param">material_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_phonon_ddb_by_material_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_phonon_ddb_by_material_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get ABINIT Derivative Data Base (DDB) output for phonon calculations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -491,7 +491,7 @@ or formula (e.g., Fe2O3).</p>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_phonon_dos_by_material_id">
-<code class="descname">get_phonon_dos_by_material_id</code><span class="sig-paren">(</span><em>material_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_phonon_dos_by_material_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_phonon_dos_by_material_id" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_phonon_dos_by_material_id</code><span class="sig-paren">(</span><em class="sig-param">material_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_phonon_dos_by_material_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_phonon_dos_by_material_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get phonon density of states data corresponding to a material_id.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -508,7 +508,7 @@ or formula (e.g., Fe2O3).</p>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_pourbaix_entries">
-<code class="descname">get_pourbaix_entries</code><span class="sig-paren">(</span><em>chemsys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_pourbaix_entries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_pourbaix_entries" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_pourbaix_entries</code><span class="sig-paren">(</span><em class="sig-param">chemsys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_pourbaix_entries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_pourbaix_entries" title="Permalink to this definition">¶</a></dt>
 <dd><p>A helper function to get all entries necessary to generate
 a pourbaix diagram from the rest interface.</p>
 <dl class="field-list simple">
@@ -521,7 +521,7 @@ system, e.g. [‘Li’, ‘Fe’]</p>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_reaction">
-<code class="descname">get_reaction</code><span class="sig-paren">(</span><em>reactants</em>, <em>products</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_reaction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_reaction" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_reaction</code><span class="sig-paren">(</span><em class="sig-param">reactants</em>, <em class="sig-param">products</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_reaction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_reaction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets a reaction from the Materials Project.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -538,13 +538,13 @@ system, e.g. [‘Li’, ‘Fe’]</p>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_stability">
-<code class="descname">get_stability</code><span class="sig-paren">(</span><em>entries</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_stability"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_stability" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_stability</code><span class="sig-paren">(</span><em class="sig-param">entries</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_stability"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_stability" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the stability of all entries.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_structure_by_material_id">
-<code class="descname">get_structure_by_material_id</code><span class="sig-paren">(</span><em>material_id</em>, <em>final=True</em>, <em>conventional_unit_cell=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_structure_by_material_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_structure_by_material_id" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_structure_by_material_id</code><span class="sig-paren">(</span><em class="sig-param">material_id</em>, <em class="sig-param">final=True</em>, <em class="sig-param">conventional_unit_cell=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_structure_by_material_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_structure_by_material_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a Structure corresponding to a material_id.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -565,7 +565,7 @@ conventional unit cell</p></li>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_structures">
-<code class="descname">get_structures</code><span class="sig-paren">(</span><em>chemsys_formula_id</em>, <em>final=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_structures" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_structures</code><span class="sig-paren">(</span><em class="sig-param">chemsys_formula_id</em>, <em class="sig-param">final=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_structures" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a list of Structures corresponding to a chemical system, formula,
 or materials_id.</p>
 <dl class="field-list simple">
@@ -585,7 +585,7 @@ or formula (e.g., Fe2O3) or materials_id (e.g., mp-1234).</p></li>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_substrates">
-<code class="descname">get_substrates</code><span class="sig-paren">(</span><em>material_id</em>, <em>number=50</em>, <em>orient=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_substrates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_substrates" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_substrates</code><span class="sig-paren">(</span><em class="sig-param">material_id</em>, <em class="sig-param">number=50</em>, <em class="sig-param">orient=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_substrates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_substrates" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a substrate list for a material id. The list is in order of
 increasing elastic energy if a elastic tensor is available for
 the material_id. Otherwise the list is in order of increasing
@@ -607,7 +607,7 @@ n=0 returns all available matches</p></li>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_surface_data">
-<code class="descname">get_surface_data</code><span class="sig-paren">(</span><em>material_id</em>, <em>inc_structures=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_surface_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_surface_data" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_surface_data</code><span class="sig-paren">(</span><em class="sig-param">material_id</em>, <em class="sig-param">inc_structures=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_surface_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_surface_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets surface data for a material. Useful for Wulff shapes.</p>
 <p>Reference for surface data:</p>
 <p>Tran, R., Xu, Z., Radhakrishnan, B., Winston, D., Sun, W., Persson, K.
@@ -630,7 +630,7 @@ These are unnecessary for Wulff shape construction.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_task_data">
-<code class="descname">get_task_data</code><span class="sig-paren">(</span><em>chemsys_formula_id</em>, <em>prop=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_task_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_task_data" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_task_data</code><span class="sig-paren">(</span><em class="sig-param">chemsys_formula_id</em>, <em class="sig-param">prop=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_task_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_task_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Flexible method to get any data using the Materials Project REST
 interface. Generally used by other methods for more specific queries.
 Unlike the <a href="#id1"><span class="problematic" id="id2">:func:`get_data`_</span></a>, this method queries the task collection
@@ -653,7 +653,7 @@ general list of useful properties.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_wulff_shape">
-<code class="descname">get_wulff_shape</code><span class="sig-paren">(</span><em>material_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_wulff_shape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_wulff_shape" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_wulff_shape</code><span class="sig-paren">(</span><em class="sig-param">material_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_wulff_shape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_wulff_shape" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructs a Wulff shape for a material.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -665,9 +665,9 @@ general list of useful properties.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.parse_criteria">
-<em class="property">static </em><code class="descname">parse_criteria</code><span class="sig-paren">(</span><em>criteria_string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.parse_criteria"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.parse_criteria" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">parse_criteria</code><span class="sig-paren">(</span><em class="sig-param">criteria_string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.parse_criteria"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.parse_criteria" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parses a powerful and simple string criteria and generates a proper
 mongo syntax criteria.</p>
 <dl class="field-list simple">
@@ -695,7 +695,7 @@ reduced formula FeO or with materials_id mp-1234.</p>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.query">
-<code class="descname">query</code><span class="sig-paren">(</span><em>criteria</em>, <em>properties</em>, <em>chunk_size=500</em>, <em>max_tries_per_chunk=5</em>, <em>mp_decode=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.query" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">query</code><span class="sig-paren">(</span><em class="sig-param">criteria</em>, <em class="sig-param">properties</em>, <em class="sig-param">chunk_size=500</em>, <em class="sig-param">max_tries_per_chunk=5</em>, <em class="sig-param">mp_decode=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.query" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs an advanced query using MongoDB-like syntax for directly
 querying the Materials Project database. This allows one to perform
 queries which are otherwise too cumbersome to perform using the standard
@@ -762,7 +762,7 @@ the raw python dict, i.e., set to False.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.query_snl">
-<code class="descname">query_snl</code><span class="sig-paren">(</span><em>criteria</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.query_snl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.query_snl" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">query_snl</code><span class="sig-paren">(</span><em class="sig-param">criteria</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.query_snl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.query_snl" title="Permalink to this definition">¶</a></dt>
 <dd><p>Query for submitted SNLs.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -785,7 +785,7 @@ the future.</p>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.submit_snl">
-<code class="descname">submit_snl</code><span class="sig-paren">(</span><em>snl</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.submit_snl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.submit_snl" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">submit_snl</code><span class="sig-paren">(</span><em class="sig-param">snl</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.submit_snl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.submit_snl" title="Permalink to this definition">¶</a></dt>
 <dd><p>Submits a list of StructureNL to the Materials Project site.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -811,7 +811,7 @@ the future.</p>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.submit_structures">
-<code class="descname">submit_structures</code><span class="sig-paren">(</span><em>structures</em>, <em>authors</em>, <em>projects=None</em>, <em>references=''</em>, <em>remarks=None</em>, <em>data=None</em>, <em>histories=None</em>, <em>created_at=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.submit_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.submit_structures" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">submit_structures</code><span class="sig-paren">(</span><em class="sig-param">structures</em>, <em class="sig-param">authors</em>, <em class="sig-param">projects=None</em>, <em class="sig-param">references=''</em>, <em class="sig-param">remarks=None</em>, <em class="sig-param">data=None</em>, <em class="sig-param">histories=None</em>, <em class="sig-param">created_at=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.submit_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.submit_structures" title="Permalink to this definition">¶</a></dt>
 <dd><p>Submits a list of structures to the Materials Project as SNL files.
 The argument list mirrors the arguments for the StructureNL object,
 except that a list of structures with the same metadata is used as an
@@ -852,7 +852,7 @@ same as the list of structures if not None.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.submit_vasp_directory">
-<code class="descname">submit_vasp_directory</code><span class="sig-paren">(</span><em>rootdir</em>, <em>authors</em>, <em>projects=None</em>, <em>references=''</em>, <em>remarks=None</em>, <em>master_data=None</em>, <em>master_history=None</em>, <em>created_at=None</em>, <em>ncpus=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.submit_vasp_directory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.submit_vasp_directory" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">submit_vasp_directory</code><span class="sig-paren">(</span><em class="sig-param">rootdir</em>, <em class="sig-param">authors</em>, <em class="sig-param">projects=None</em>, <em class="sig-param">references=''</em>, <em class="sig-param">remarks=None</em>, <em class="sig-param">master_data=None</em>, <em class="sig-param">master_history=None</em>, <em class="sig-param">created_at=None</em>, <em class="sig-param">ncpus=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.submit_vasp_directory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.submit_vasp_directory" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assimilates all vasp run directories beneath a particular
 directory using BorgQueen to obtain structures, and then submits thhem
 to the Materials Project as SNL files. VASP related meta data like
@@ -892,12 +892,12 @@ assimilate. Defaults to None, which means serial.</p></li>
 
 <dl class="attribute">
 <dt id="pymatgen.ext.matproj.MPRester.supported_properties">
-<code class="descname">supported_properties</code><em class="property"> = ('energy', 'energy_per_atom', 'volume', 'formation_energy_per_atom', 'nsites', 'unit_cell_formula', 'pretty_formula', 'is_hubbard', 'elements', 'nelements', 'e_above_hull', 'hubbards', 'is_compatible', 'spacegroup', 'task_ids', 'band_gap', 'density', 'icsd_id', 'icsd_ids', 'cif', 'total_magnetization', 'material_id', 'oxide_type', 'tags', 'elasticity')</em><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.supported_properties" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">supported_properties</code><em class="property"> = ('energy', 'energy_per_atom', 'volume', 'formation_energy_per_atom', 'nsites', 'unit_cell_formula', 'pretty_formula', 'is_hubbard', 'elements', 'nelements', 'e_above_hull', 'hubbards', 'is_compatible', 'spacegroup', 'task_ids', 'band_gap', 'density', 'icsd_id', 'icsd_ids', 'cif', 'total_magnetization', 'material_id', 'oxide_type', 'tags', 'elasticity')</em><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.supported_properties" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.ext.matproj.MPRester.supported_task_properties">
-<code class="descname">supported_task_properties</code><em class="property"> = ('energy', 'energy_per_atom', 'volume', 'formation_energy_per_atom', 'nsites', 'unit_cell_formula', 'pretty_formula', 'is_hubbard', 'elements', 'nelements', 'e_above_hull', 'hubbards', 'is_compatible', 'spacegroup', 'band_gap', 'density', 'icsd_id', 'cif')</em><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.supported_task_properties" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">supported_task_properties</code><em class="property"> = ('energy', 'energy_per_atom', 'volume', 'formation_energy_per_atom', 'nsites', 'unit_cell_formula', 'pretty_formula', 'is_hubbard', 'elements', 'nelements', 'e_above_hull', 'hubbards', 'is_compatible', 'spacegroup', 'band_gap', 'density', 'icsd_id', 'cif')</em><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.supported_task_properties" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -918,10 +918,10 @@ assimilate. Defaults to None, which means serial.</p></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -940,13 +940,13 @@ assimilate. Defaults to None, which means serial.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.gb.grain module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.analysis.gb.grain module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -46,7 +46,7 @@
 <span id="pymatgen-analysis-gb-grain-module"></span><h1>pymatgen.analysis.gb.grain module<a class="headerlink" href="#module-pymatgen.analysis.gb.grain" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.analysis.gb.grain.GrainBoundary">
-<em class="property">class </em><code class="descname">GrainBoundary</code><span class="sig-paren">(</span><em>lattice</em>, <em>species</em>, <em>coords</em>, <em>rotation_axis</em>, <em>rotation_angle</em>, <em>gb_plane</em>, <em>join_plane</em>, <em>init_cell</em>, <em>vacuum_thickness</em>, <em>ab_shift</em>, <em>site_properties</em>, <em>oriented_unit_cell</em>, <em>validate_proximity=False</em>, <em>coords_are_cartesian=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundary" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">GrainBoundary</code><span class="sig-paren">(</span><em class="sig-param">lattice</em>, <em class="sig-param">species</em>, <em class="sig-param">coords</em>, <em class="sig-param">rotation_axis</em>, <em class="sig-param">rotation_angle</em>, <em class="sig-param">gb_plane</em>, <em class="sig-param">join_plane</em>, <em class="sig-param">init_cell</em>, <em class="sig-param">vacuum_thickness</em>, <em class="sig-param">ab_shift</em>, <em class="sig-param">site_properties</em>, <em class="sig-param">oriented_unit_cell</em>, <em class="sig-param">validate_proximity=False</em>, <em class="sig-param">coords_are_cartesian=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.structure.Structure</span></code></a></p>
 <p>Subclass of Structure representing a GrainBoundary (gb) object.
 Implements additional attributes pertaining to gbs, but the
@@ -112,7 +112,7 @@ coordinates in cartesian coordinates. Defaults to False.</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.analysis.gb.grain.GrainBoundary.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundary.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundary.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundary.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundary.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dict representation of Structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -136,21 +136,21 @@ include “abivars”.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.gb.grain.GrainBoundary.bottom_grain">
-<code class="descname">bottom_grain</code><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundary.bottom_grain" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">bottom_grain</code><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundary.bottom_grain" title="Permalink to this definition">¶</a></dt>
 <dd><p>return the bottom grain (Structure) of the GB.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.gb.grain.GrainBoundary.coincidents">
-<code class="descname">coincidents</code><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundary.coincidents" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">coincidents</code><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundary.coincidents" title="Permalink to this definition">¶</a></dt>
 <dd><p>return the a list of coincident sites.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.gb.grain.GrainBoundary.copy">
-<code class="descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundary.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundary.copy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundary.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundary.copy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience method to get a copy of the structure, with options to add
 site properties.</p>
 <dl class="field-list simple">
@@ -161,9 +161,9 @@ optionally sanitized.</p>
 </dl>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.gb.grain.GrainBoundary.from_dict">
-<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundary.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundary.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundary.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundary.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reconstitute a Structure object from a dict representation of Structure
 created using as_dict().</p>
 <dl class="field-list simple">
@@ -178,7 +178,7 @@ created using as_dict().</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.gb.grain.GrainBoundary.get_sorted_structure">
-<code class="descname">get_sorted_structure</code><span class="sig-paren">(</span><em>key=None</em>, <em>reverse=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundary.get_sorted_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundary.get_sorted_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_sorted_structure</code><span class="sig-paren">(</span><em class="sig-param">key=None</em>, <em class="sig-param">reverse=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundary.get_sorted_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundary.get_sorted_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a sorted copy of the structure. The parameters have the same
 meaning as in list.sort. By default, sites are sorted by the
 electronegativity of the species. Note that Slab has to override this
@@ -196,24 +196,24 @@ as if each comparison were reversed.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.gb.grain.GrainBoundary.sigma">
-<code class="descname">sigma</code><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundary.sigma" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">sigma</code><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundary.sigma" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method returns the sigma value of the gb.
 If using ‘quick_gen’ to generate GB, this value is not valid.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.gb.grain.GrainBoundary.sigma_from_site_prop">
-<code class="descname">sigma_from_site_prop</code><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundary.sigma_from_site_prop" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">sigma_from_site_prop</code><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundary.sigma_from_site_prop" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method returns the sigma value of the gb from site properties.
 If the GB structure merge some atoms due to the atoms too closer with
 each other, this property will not work.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.gb.grain.GrainBoundary.top_grain">
-<code class="descname">top_grain</code><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundary.top_grain" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">top_grain</code><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundary.top_grain" title="Permalink to this definition">¶</a></dt>
 <dd><p>return the top grain (Structure) of the GB.</p>
 </dd></dl>
 
@@ -221,7 +221,7 @@ each other, this property will not work.</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.gb.grain.GrainBoundaryGenerator">
-<em class="property">class </em><code class="descname">GrainBoundaryGenerator</code><span class="sig-paren">(</span><em>initial_structure</em>, <em>symprec=0.1</em>, <em>angle_tolerance=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">GrainBoundaryGenerator</code><span class="sig-paren">(</span><em class="sig-param">initial_structure</em>, <em class="sig-param">symprec=0.1</em>, <em class="sig-param">angle_tolerance=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This class is to generate grain boundaries (GBs) from bulk
 conventional cell (fcc, bcc can from the primitive cell), and works for Cubic,
@@ -253,9 +253,9 @@ User should make sure the symmetry is what you want.</p>
 </dd>
 </dl>
 <p>angle_tolerance (float): Angle tolerance for symmetry finding.</p>
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_possible_plane_cubic">
-<em class="property">static </em><code class="descname">enum_possible_plane_cubic</code><span class="sig-paren">(</span><em>plane_cutoff</em>, <em>r_axis</em>, <em>r_angle</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.enum_possible_plane_cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_possible_plane_cubic" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">enum_possible_plane_cubic</code><span class="sig-paren">(</span><em class="sig-param">plane_cutoff</em>, <em class="sig-param">r_axis</em>, <em class="sig-param">r_angle</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.enum_possible_plane_cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_possible_plane_cubic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find all possible plane combinations for GBs given a rotaion axis and angle for
 cubic system, and classify them to different categories, including ‘Twist’,
 ‘Symmetric tilt’, ‘Normal tilt’, ‘Mixed’ GBs.</p>
@@ -281,9 +281,9 @@ and values as the combination of the two plane miller index</p>
 </dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_cubic">
-<em class="property">static </em><code class="descname">enum_sigma_cubic</code><span class="sig-paren">(</span><em>cutoff</em>, <em>r_axis</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.enum_sigma_cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_cubic" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">enum_sigma_cubic</code><span class="sig-paren">(</span><em class="sig-param">cutoff</em>, <em class="sig-param">r_axis</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.enum_sigma_cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_cubic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find all possible sigma values and corresponding rotation angles
 within a sigma value cutoff with known rotation axis in cubic system.
 The algorithm for this code is from reference, Acta Cryst, A40,108(1984)
@@ -310,9 +310,9 @@ result in equivalent microstructures.</p>
 </dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_hex">
-<em class="property">static </em><code class="descname">enum_sigma_hex</code><span class="sig-paren">(</span><em>cutoff</em>, <em>r_axis</em>, <em>c2_a2_ratio</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.enum_sigma_hex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_hex" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">enum_sigma_hex</code><span class="sig-paren">(</span><em class="sig-param">cutoff</em>, <em class="sig-param">r_axis</em>, <em class="sig-param">c2_a2_ratio</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.enum_sigma_hex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_hex" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find all possible sigma values and corresponding rotation angles
 within a sigma value cutoff with known rotation axis in hexagonal system.
 The algorithm for this code is from reference, Acta Cryst, A38,550(1982)</p>
@@ -344,9 +344,9 @@ angles may result in equivalent microstructures.</p>
 </dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_ort">
-<em class="property">static </em><code class="descname">enum_sigma_ort</code><span class="sig-paren">(</span><em>cutoff</em>, <em>r_axis</em>, <em>c2_b2_a2_ratio</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.enum_sigma_ort"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_ort" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">enum_sigma_ort</code><span class="sig-paren">(</span><em class="sig-param">cutoff</em>, <em class="sig-param">r_axis</em>, <em class="sig-param">c2_b2_a2_ratio</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.enum_sigma_ort"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_ort" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find all possible sigma values and corresponding rotation angles
 within a sigma value cutoff with known rotation axis in orthorhombic system.
 The algorithm for this code is from reference, Scipta Metallurgica 27, 291(1992)</p>
@@ -378,9 +378,9 @@ angles may result in equivalent microstructures.</p>
 </dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_rho">
-<em class="property">static </em><code class="descname">enum_sigma_rho</code><span class="sig-paren">(</span><em>cutoff</em>, <em>r_axis</em>, <em>ratio_alpha</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.enum_sigma_rho"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_rho" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">enum_sigma_rho</code><span class="sig-paren">(</span><em class="sig-param">cutoff</em>, <em class="sig-param">r_axis</em>, <em class="sig-param">ratio_alpha</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.enum_sigma_rho"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_rho" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find all possible sigma values and corresponding rotation angles
 within a sigma value cutoff with known rotation axis in rhombohedral system.
 The algorithm for this code is from reference, Acta Cryst, A45,505(1989).</p>
@@ -413,9 +413,9 @@ angles may result in equivalent microstructures.</p>
 </dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_tet">
-<em class="property">static </em><code class="descname">enum_sigma_tet</code><span class="sig-paren">(</span><em>cutoff</em>, <em>r_axis</em>, <em>c2_a2_ratio</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.enum_sigma_tet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_tet" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">enum_sigma_tet</code><span class="sig-paren">(</span><em class="sig-param">cutoff</em>, <em class="sig-param">r_axis</em>, <em class="sig-param">c2_a2_ratio</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.enum_sigma_tet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_tet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find all possible sigma values and corresponding rotation angles
 within a sigma value cutoff with known rotation axis in tetragonal system.
 The algorithm for this code is from reference, Acta Cryst, B46,117(1990)</p>
@@ -448,7 +448,7 @@ angles may result in equivalent microstructures.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.gb.grain.GrainBoundaryGenerator.gb_from_parameters">
-<code class="descname">gb_from_parameters</code><span class="sig-paren">(</span><em>rotation_axis, rotation_angle, expand_times=4, vacuum_thickness=0.0, ab_shift=[0, 0], normal=False, ratio=None, plane=None, max_search=20, tol_coi=1e-08, rm_ratio=0.7, quick_gen=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.gb_from_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.gb_from_parameters" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">gb_from_parameters</code><span class="sig-paren">(</span><em class="sig-param">rotation_axis, rotation_angle, expand_times=4, vacuum_thickness=0.0, ab_shift=[0, 0], normal=False, ratio=None, plane=None, max_search=20, tol_coi=1e-08, rm_ratio=0.7, quick_gen=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.gb_from_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.gb_from_parameters" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -522,7 +522,7 @@ will be removed. Default to 0.7.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.gb.grain.GrainBoundaryGenerator.get_ratio">
-<code class="descname">get_ratio</code><span class="sig-paren">(</span><em>max_denominator=5</em>, <em>index_none=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.get_ratio"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.get_ratio" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_ratio</code><span class="sig-paren">(</span><em class="sig-param">max_denominator=5</em>, <em class="sig-param">index_none=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.get_ratio"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.get_ratio" title="Permalink to this definition">¶</a></dt>
 <dd><p>find the axial ratio needed for GB generator input.
 :param max_denominator: the maximum denominator for</p>
 <blockquote>
@@ -539,9 +539,9 @@ will be removed. Default to 0.7.</p>
 </dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.gb.grain.GrainBoundaryGenerator.get_rotation_angle_from_sigma">
-<em class="property">static </em><code class="descname">get_rotation_angle_from_sigma</code><span class="sig-paren">(</span><em>sigma</em>, <em>r_axis</em>, <em>lat_type='C'</em>, <em>ratio=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.get_rotation_angle_from_sigma"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.get_rotation_angle_from_sigma" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">get_rotation_angle_from_sigma</code><span class="sig-paren">(</span><em class="sig-param">sigma</em>, <em class="sig-param">r_axis</em>, <em class="sig-param">lat_type='C'</em>, <em class="sig-param">ratio=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.get_rotation_angle_from_sigma"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.get_rotation_angle_from_sigma" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find all possible rotation angle for the given sigma value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -580,9 +580,9 @@ to the correct possible sigma value right smaller than the wrong sigma value pro
 </dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.gb.grain.GrainBoundaryGenerator.get_trans_mat">
-<em class="property">static </em><code class="descname">get_trans_mat</code><span class="sig-paren">(</span><em>r_axis, angle, normal=False, trans_cry=array([[1., 0., 0.],        [0., 1., 0.],        [0., 0., 1.]]), lat_type='c', ratio=None, surface=None, max_search=20, quick_gen=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.get_trans_mat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.get_trans_mat" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">get_trans_mat</code><span class="sig-paren">(</span><em class="sig-param">r_axis, angle, normal=False, trans_cry=array([[1., 0., 0.],        [0., 1., 0.],        [0., 0., 1.]]), lat_type='c', ratio=None, surface=None, max_search=20, quick_gen=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.get_trans_mat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.get_trans_mat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find the two transformation matrix for each grain from given rotation axis,
 GB plane, rotation angle and corresponding ratio (see explanation for ratio
 below).
@@ -647,9 +647,9 @@ t2 (3 by 3 integer array):</p>
 </dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.gb.grain.GrainBoundaryGenerator.reduce_mat">
-<em class="property">static </em><code class="descname">reduce_mat</code><span class="sig-paren">(</span><em>mat</em>, <em>mag</em>, <em>r_matrix</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.reduce_mat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.reduce_mat" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">reduce_mat</code><span class="sig-paren">(</span><em class="sig-param">mat</em>, <em class="sig-param">mag</em>, <em class="sig-param">r_matrix</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.reduce_mat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.reduce_mat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reduce integer array mat’s determinant mag times by linear combination
 of its row vectors, so that the new array after rotation (r_matrix) is
 still an integer array</p>
@@ -667,9 +667,9 @@ still an integer array</p>
 </dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.gb.grain.GrainBoundaryGenerator.slab_from_csl">
-<em class="property">static </em><code class="descname">slab_from_csl</code><span class="sig-paren">(</span><em>csl</em>, <em>surface</em>, <em>normal</em>, <em>trans_cry</em>, <em>max_search=20</em>, <em>quick_gen=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.slab_from_csl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.slab_from_csl" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">slab_from_csl</code><span class="sig-paren">(</span><em class="sig-param">csl</em>, <em class="sig-param">surface</em>, <em class="sig-param">normal</em>, <em class="sig-param">trans_cry</em>, <em class="sig-param">max_search=20</em>, <em class="sig-param">quick_gen=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.slab_from_csl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.slab_from_csl" title="Permalink to this definition">¶</a></dt>
 <dd><p>By linear operation of csl lattice vectors to get the best corresponding
 slab lattice. That is the area of a,b vectors (within the surface plane)
 is the smallest, the c vector first, has shortest length perpendicular
@@ -697,9 +697,9 @@ cell if set to true.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.gb.grain.GrainBoundaryGenerator.vec_to_surface">
-<em class="property">static </em><code class="descname">vec_to_surface</code><span class="sig-paren">(</span><em>vec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.vec_to_surface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.vec_to_surface" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">vec_to_surface</code><span class="sig-paren">(</span><em class="sig-param">vec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#GrainBoundaryGenerator.vec_to_surface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.vec_to_surface" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform a float vector to a surface miller index with integers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -715,7 +715,7 @@ cell if set to true.</p></li>
 
 <dl class="function">
 <dt id="pymatgen.analysis.gb.grain.factors">
-<code class="descname">factors</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#factors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.factors" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">factors</code><span class="sig-paren">(</span><em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#factors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.factors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the factors of a integer.
 :param n: the input integer</p>
 <dl class="field-list simple">
@@ -727,7 +727,7 @@ cell if set to true.</p></li>
 
 <dl class="function">
 <dt id="pymatgen.analysis.gb.grain.fix_pbc">
-<code class="descname">fix_pbc</code><span class="sig-paren">(</span><em>structure</em>, <em>matrix=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#fix_pbc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.fix_pbc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">fix_pbc</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">matrix=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#fix_pbc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.fix_pbc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set all frac_coords of the input structure within [0,1].</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -743,9 +743,14 @@ input structure’s matrix</p></li>
 </dl>
 </dd></dl>
 
+<dl class="data">
+<dt id="pymatgen.analysis.gb.grain.logger">
+<code class="sig-name descname">logger</code><em class="property"> = &lt;Logger pymatgen.analysis.gb.grain (WARNING)&gt;</em><a class="headerlink" href="#pymatgen.analysis.gb.grain.logger" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="function">
 <dt id="pymatgen.analysis.gb.grain.symm_group_cubic">
-<code class="descname">symm_group_cubic</code><span class="sig-paren">(</span><em>mat</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#symm_group_cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.symm_group_cubic" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">symm_group_cubic</code><span class="sig-paren">(</span><em class="sig-param">mat</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/gb/grain.html#symm_group_cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.gb.grain.symm_group_cubic" title="Permalink to this definition">¶</a></dt>
 <dd><blockquote>
 <div><p>obtain cubic symmetric eqivalents of the list of vectors.</p>
 </div></blockquote>
@@ -775,10 +780,10 @@ input structure’s matrix</p></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -797,13 +802,13 @@ input structure’s matrix</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

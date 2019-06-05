@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.exciting.inputs module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.io.exciting.inputs module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -46,7 +46,7 @@
 <span id="pymatgen-io-exciting-inputs-module"></span><h1>pymatgen.io.exciting.inputs module<a class="headerlink" href="#module-pymatgen.io.exciting.inputs" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.io.exciting.inputs.ExcitingInput">
-<em class="property">class </em><code class="descname">ExcitingInput</code><span class="sig-paren">(</span><em>structure</em>, <em>title=None</em>, <em>lockxyz=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/exciting/inputs.html#ExcitingInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">ExcitingInput</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">title=None</em>, <em class="sig-param">lockxyz=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/exciting/inputs.html#ExcitingInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Object for representing the data stored in the structure part of the
 exciting input.</p>
@@ -63,62 +63,62 @@ where N is number of sites. Defaults to None.</p></li>
 </dl>
 <dl class="attribute">
 <dt id="pymatgen.io.exciting.inputs.ExcitingInput.structure">
-<code class="descname">structure</code><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">structure</code><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Associated Structure.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.exciting.inputs.ExcitingInput.title">
-<code class="descname">title</code><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.title" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">title</code><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.title" title="Permalink to this definition">¶</a></dt>
 <dd><p>Optional title string.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.exciting.inputs.ExcitingInput.lockxyz">
-<code class="descname">lockxyz</code><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.lockxyz" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">lockxyz</code><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.lockxyz" title="Permalink to this definition">¶</a></dt>
 <dd><p>Lockxyz attribute for each site if available. A Nx3 array of
 booleans.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.exciting.inputs.ExcitingInput.bohr2ang">
-<code class="descname">bohr2ang</code><em class="property"> = 0.5291692995889712</em><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.bohr2ang" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">bohr2ang</code><em class="property"> = 0.5291692995889712</em><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.bohr2ang" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.io.exciting.inputs.ExcitingInput.from_file">
-<em class="property">static </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/exciting/inputs.html#ExcitingInput.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/exciting/inputs.html#ExcitingInput.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.from_file" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.io.exciting.inputs.ExcitingInput.from_string">
-<em class="property">static </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/exciting/inputs.html#ExcitingInput.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.from_string" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/exciting/inputs.html#ExcitingInput.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.from_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads the exciting input from a string</p>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.io.exciting.inputs.ExcitingInput.indent">
-<em class="property">static </em><code class="descname">indent</code><span class="sig-paren">(</span><em>elem</em>, <em>level=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/exciting/inputs.html#ExcitingInput.indent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.indent" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">indent</code><span class="sig-paren">(</span><em class="sig-param">elem</em>, <em class="sig-param">level=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/exciting/inputs.html#ExcitingInput.indent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.indent" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">lockxyz</code></dt>
+<em class="property">property </em><code class="sig-name descname">lockxyz</code></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.exciting.inputs.ExcitingInput.write_etree">
-<code class="descname">write_etree</code><span class="sig-paren">(</span><em>celltype</em>, <em>cartesian=False</em>, <em>bandstr=False</em>, <em>symprec=0.4</em>, <em>angle_tolerance=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/exciting/inputs.html#ExcitingInput.write_etree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.write_etree" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_etree</code><span class="sig-paren">(</span><em class="sig-param">celltype</em>, <em class="sig-param">cartesian=False</em>, <em class="sig-param">bandstr=False</em>, <em class="sig-param">symprec=0.4</em>, <em class="sig-param">angle_tolerance=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/exciting/inputs.html#ExcitingInput.write_etree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.write_etree" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.exciting.inputs.ExcitingInput.write_file">
-<code class="descname">write_file</code><span class="sig-paren">(</span><em>celltype</em>, <em>filename</em>, <em>cartesian=False</em>, <em>bandstr=False</em>, <em>symprec=0.4</em>, <em>angle_tolerance=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/exciting/inputs.html#ExcitingInput.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.write_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param">celltype</em>, <em class="sig-param">filename</em>, <em class="sig-param">cartesian=False</em>, <em class="sig-param">bandstr=False</em>, <em class="sig-param">symprec=0.4</em>, <em class="sig-param">angle_tolerance=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/exciting/inputs.html#ExcitingInput.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.write_file" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.exciting.inputs.ExcitingInput.write_string">
-<code class="descname">write_string</code><span class="sig-paren">(</span><em>celltype</em>, <em>cartesian=False</em>, <em>bandstr=False</em>, <em>symprec=0.4</em>, <em>angle_tolerance=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/exciting/inputs.html#ExcitingInput.write_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.write_string" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_string</code><span class="sig-paren">(</span><em class="sig-param">celltype</em>, <em class="sig-param">cartesian=False</em>, <em class="sig-param">bandstr=False</em>, <em class="sig-param">symprec=0.4</em>, <em class="sig-param">angle_tolerance=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/exciting/inputs.html#ExcitingInput.write_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.write_string" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -139,10 +139,10 @@ booleans.</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -161,13 +161,13 @@ booleans.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

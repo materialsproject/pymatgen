@@ -6,17 +6,17 @@ Subpackages
 
 .. toctree::
 
-    pymatgen.analysis.chemenv
-    pymatgen.analysis.cost
-    pymatgen.analysis.defects
-    pymatgen.analysis.diffraction
-    pymatgen.analysis.elasticity
-    pymatgen.analysis.ferroelectricity
-    pymatgen.analysis.gb
-    pymatgen.analysis.hhi
-    pymatgen.analysis.magnetism
-    pymatgen.analysis.structure_prediction
-    pymatgen.analysis.xas
+   pymatgen.analysis.chemenv
+   pymatgen.analysis.cost
+   pymatgen.analysis.defects
+   pymatgen.analysis.diffraction
+   pymatgen.analysis.elasticity
+   pymatgen.analysis.ferroelectricity
+   pymatgen.analysis.gb
+   pymatgen.analysis.hhi
+   pymatgen.analysis.magnetism
+   pymatgen.analysis.structure_prediction
+   pymatgen.analysis.xas
 
 Submodules
 ----------
@@ -60,6 +60,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.analysis
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

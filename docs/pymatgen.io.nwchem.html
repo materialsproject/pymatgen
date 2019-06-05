@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.nwchem module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.io.nwchem module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,9 +44,14 @@
             
   <div class="section" id="module-pymatgen.io.nwchem">
 <span id="pymatgen-io-nwchem-module"></span><h1>pymatgen.io.nwchem module<a class="headerlink" href="#module-pymatgen.io.nwchem" title="Permalink to this headline">¶</a></h1>
+<dl class="data">
+<dt id="pymatgen.io.nwchem.NWCHEM_BASIS_LIBRARY">
+<code class="sig-name descname">NWCHEM_BASIS_LIBRARY</code><em class="property"> = {'2zapa-nr', '2zapa-nr_cv', '3-21++g', '3-21++gs', '3-21g', '3-21gs', '3-21gs_polarization', '3-21gsp', '3zapa-nr', '3zapa-nr_cv', '4-22gsp', '4-31g', '4zapa-nr', '4zapa-nr_cv', '5zapa-nr', '5zapa-nr_cv', '5zp', '5zp-dkh', '6-31++g', '6-31++gs', '6-31++gss', '6-31++gss-j', '6-31+g', '6-31+gs', '6-31+gs-j', '6-31+gss', '6-311++g', '6-311++g2d_2p', '6-311++g3df_3pd', '6-311++gs', '6-311++gss', '6-311++gss-j', '6-311+g', '6-311+g2d_p', '6-311+gs', '6-311+gs-j', '6-311+gss', '6-311g', '6-311g-j', '6-311g2df_2pd', '6-311gs', '6-311gs_polarization', '6-311gss', '6-311gss_polarization', '6-31g', '6-31g-blaudeau', '6-31g-j', '6-31g2df_p', '6-31g3df_3pd', '6-31gs', '6-31gs-blaudeau', '6-31gs_polarization', '6-31gss', '6-31gss_polarization', '6zapa-nr', '6zp', '6zp-dkh', '7zapa-nr', 'a5zp', 'adzp', 'ahlrichs_coulomb_fitting', 'ahlrichs_polarization', 'ahlrichs_pvdz', 'ahlrichs_tzv', 'ahlrichs_vdz', 'ahlrichs_vtz', 'ano-rcc', 'apr-cc-pvq+dz', 'aqzp', 'atzp', 'aug-cc-pcv5z', 'aug-cc-pcvdz', 'aug-cc-pcvqz', 'aug-cc-pcvt+dz', 'aug-cc-pcvtz', 'aug-cc-pv5+dz', 'aug-cc-pv5+dz_diffuse', 'aug-cc-pv5z', 'aug-cc-pv5z-dk', 'aug-cc-pv5z-dk_diffuse', 'aug-cc-pv5z-nr_mp2_fitting', 'aug-cc-pv5z-pp', 'aug-cc-pv5z-pp-ri_diffuse', 'aug-cc-pv5z-pp_diffuse', 'aug-cc-pv5z-pp_mp2_fitting', 'aug-cc-pv5z-pp_optri', 'aug-cc-pv5z-ri_diffuse', 'aug-cc-pv5z_diffuse', 'aug-cc-pv5z_optri', 'aug-cc-pv6+dz', 'aug-cc-pv6+dz_diffuse', 'aug-cc-pv6z', 'aug-cc-pv6z-ri_diffuse', 'aug-cc-pv6z_diffuse', 'aug-cc-pv7+dz', 'aug-cc-pv7z', 'aug-cc-pvd+dz', 'aug-cc-pvd+dz_diffuse', 'aug-cc-pvdz', 'aug-cc-pvdz-dk', 'aug-cc-pvdz-dk_diffuse', 'aug-cc-pvdz-pp', 'aug-cc-pvdz-pp-ri_diffuse', 'aug-cc-pvdz-pp_diffuse', 'aug-cc-pvdz-pp_mp2_fitting', 'aug-cc-pvdz-pp_optri', 'aug-cc-pvdz-ri_diffuse', 'aug-cc-pvdz_diffuse', 'aug-cc-pvdz_optri', 'aug-cc-pvq+dz', 'aug-cc-pvq+dz_diffuse', 'aug-cc-pvqz', 'aug-cc-pvqz-dk', 'aug-cc-pvqz-dk_diffuse', 'aug-cc-pvqz-nr_mp2_fitting', 'aug-cc-pvqz-pp', 'aug-cc-pvqz-pp-ri_diffuse', 'aug-cc-pvqz-pp_diffuse', 'aug-cc-pvqz-pp_mp2_fitting', 'aug-cc-pvqz-pp_optri', 'aug-cc-pvqz-ri_diffuse', 'aug-cc-pvqz_diffuse', 'aug-cc-pvqz_optri', 'aug-cc-pvt+dz', 'aug-cc-pvt+dz_diffuse', 'aug-cc-pvtz', 'aug-cc-pvtz-dk', 'aug-cc-pvtz-dk_diffuse', 'aug-cc-pvtz-j', 'aug-cc-pvtz-pp', 'aug-cc-pvtz-pp-ri_diffuse', 'aug-cc-pvtz-pp_diffuse', 'aug-cc-pvtz-pp_mp2_fitting', 'aug-cc-pvtz-pp_optri', 'aug-cc-pvtz-ri_diffuse', 'aug-cc-pvtz_diffuse', 'aug-cc-pvtz_mp2_fitting', 'aug-cc-pvtz_optri', 'aug-cc-pwcv5z', 'aug-cc-pwcv5z-dk', 'aug-cc-pwcv5z-nr', 'aug-cc-pwcv5z-pp_mp2_fitting', 'aug-cc-pwcv5z-pp_optri', 'aug-cc-pwcvdz', 'aug-cc-pwcvdz-pp_mp2_fitting', 'aug-cc-pwcvdz-pp_optri', 'aug-cc-pwcvqz', 'aug-cc-pwcvqz-dk', 'aug-cc-pwcvqz-nr', 'aug-cc-pwcvqz-pp_mp2_fitting', 'aug-cc-pwcvqz-pp_optri', 'aug-cc-pwcvtz', 'aug-cc-pwcvtz-dk', 'aug-cc-pwcvtz-nr', 'aug-cc-pwcvtz-nr_mp2_fitting', 'aug-cc-pwcvtz-pp_mp2_fitting', 'aug-cc-pwcvtz-pp_optri', 'aug-mcc-pv5z', 'aug-mcc-pv6z', 'aug-mcc-pv7z', 'aug-mcc-pv8z', 'aug-mcc-pvqz', 'aug-mcc-pvtz', 'aug-pc-0', 'aug-pc-1', 'aug-pc-2', 'aug-pc-3', 'aug-pc-4', 'aug-pcj-0', 'aug-pcj-0_2006', 'aug-pcj-1', 'aug-pcj-1_2006', 'aug-pcj-2', 'aug-pcj-2_2006', 'aug-pcj-3', 'aug-pcj-3_2006', 'aug-pcj-4', 'aug-pcj-4_2006', 'aug-pcs-0', 'aug-pcs-1', 'aug-pcs-2', 'aug-pcs-3', 'aug-pcs-4', 'aug-pcseg-0', 'aug-pcseg-1', 'aug-pcseg-2', 'aug-pcseg-3', 'aug-pcseg-4', 'aug-pcsseg-0', 'aug-pcsseg-1', 'aug-pcsseg-2', 'aug-pcsseg-3', 'aug-pcsseg-4', 'aug-pv7z', 'aug-pv7z_diffuse', 'b2_basis_set_for_zn', 'bauschlicher_ano', 'binning-curtiss_1d_polarization', 'binning-curtiss_df_polarization', 'binning_curtiss_sv', 'binning_curtiss_svp', 'binning_curtiss_vtz', 'binning_curtiss_vtzp', 'blaudeau_polarization', 'cc-pcv5z', 'cc-pcv6z', 'cc-pcv6zold', 'cc-pcvdz', 'cc-pcvdz-f12', 'cc-pcvdz-f12_mp2_fitting', 'cc-pcvdz-f12_optri', 'cc-pcvdzold', 'cc-pcvqz', 'cc-pcvqz-f12', 'cc-pcvqz-f12_mp2_fitting', 'cc-pcvqz-f12_optri', 'cc-pcvqzold', 'cc-pcvtz', 'cc-pcvtz-f12', 'cc-pcvtz-f12_mp2_fitting', 'cc-pcvtz-f12_optri', 'cc-pcvtzold', 'cc-pv5+dz', 'cc-pv5+dz-ri', 'cc-pv5z', 'cc-pv5z-dk', 'cc-pv5z-nr_mp2_fitting', 'cc-pv5z-pp', 'cc-pv5z-pp-ri', 'cc-pv5z-pp_mp2_fitting', 'cc-pv5z-ri', 'cc-pv5zfi_sf_fw', 'cc-pv5zfi_sf_lc', 'cc-pv5zfi_sf_sc', 'cc-pv5zpt_sf_fw', 'cc-pv5zpt_sf_lc', 'cc-pv5zpt_sf_sc', 'cc-pv6+dz', 'cc-pv6+dz-ri', 'cc-pv6z', 'cc-pv6z-ri', 'cc-pv8z', 'cc-pv9z', 'cc-pvd+dz', 'cc-pvd+dz-ri', 'cc-pvdz', 'cc-pvdz-dk', 'cc-pvdz-dk3', 'cc-pvdz-f12', 'cc-pvdz-f12_mp2_fitting', 'cc-pvdz-f12_optri', 'cc-pvdz-fit2-1', 'cc-pvdz-pp', 'cc-pvdz-pp-ri', 'cc-pvdz-pp_mp2_fitting', 'cc-pvdz-ri', 'cc-pvdzfi_sf_fw', 'cc-pvdzfi_sf_lc', 'cc-pvdzfi_sf_sc', 'cc-pvdzpt_sf_fw', 'cc-pvdzpt_sf_lc', 'cc-pvdzpt_sf_sc', 'cc-pvdzseg-opt', 'cc-pvq+dz', 'cc-pvq+dz-ri', 'cc-pvqz', 'cc-pvqz-dk', 'cc-pvqz-dk3', 'cc-pvqz-f12', 'cc-pvqz-f12_mp2_fitting', 'cc-pvqz-f12_optri', 'cc-pvqz-nr_mp2_fitting', 'cc-pvqz-pp', 'cc-pvqz-pp-ri', 'cc-pvqz-pp_mp2_fitting', 'cc-pvqz-ri', 'cc-pvqzfi_sf_fw', 'cc-pvqzfi_sf_lc', 'cc-pvqzfi_sf_sc', 'cc-pvqzpt_sf_fw', 'cc-pvqzpt_sf_lc', 'cc-pvqzpt_sf_sc', 'cc-pvqzseg-opt', 'cc-pvt+dz', 'cc-pvt+dz+', 'cc-pvt+dz-dk', 'cc-pvt+dz-ri', 'cc-pvtz', 'cc-pvtz-dk', 'cc-pvtz-dk3', 'cc-pvtz-f12', 'cc-pvtz-f12_mp2_fitting', 'cc-pvtz-f12_optri', 'cc-pvtz-fit2-1', 'cc-pvtz-pp', 'cc-pvtz-pp-ri', 'cc-pvtz-pp_mp2_fitting', 'cc-pvtz-ri', 'cc-pvtz_mp2_fitting', 'cc-pvtzfi_sf_fw', 'cc-pvtzfi_sf_lc', 'cc-pvtzfi_sf_sc', 'cc-pvtzpt_sf_fw', 'cc-pvtzpt_sf_lc', 'cc-pvtzpt_sf_sc', 'cc-pvtzseg-opt', 'cc-pwcv5z', 'cc-pwcv5z-dk', 'cc-pwcv5z-nr', 'cc-pwcv5z-pp', 'cc-pwcv5z-pp_mp2_fitting', 'cc-pwcv5z-ri', 'cc-pwcv5z-ri_tight', 'cc-pwcv5z_core_set', 'cc-pwcv5z_tight', 'cc-pwcvdz', 'cc-pwcvdz-dk3', 'cc-pwcvdz-pp', 'cc-pwcvdz-pp_mp2_fitting', 'cc-pwcvdz-ri', 'cc-pwcvdz-ri_tight', 'cc-pwcvdz_tight', 'cc-pwcvqz', 'cc-pwcvqz-dk', 'cc-pwcvqz-dk3', 'cc-pwcvqz-nr', 'cc-pwcvqz-pp', 'cc-pwcvqz-pp_mp2_fitting', 'cc-pwcvqz-ri', 'cc-pwcvqz-ri_tight', 'cc-pwcvqz_tight', 'cc-pwcvtz', 'cc-pwcvtz-dk', 'cc-pwcvtz-dk3', 'cc-pwcvtz-nr', 'cc-pwcvtz-nr_mp2_fitting', 'cc-pwcvtz-pp', 'cc-pwcvtz-pp_mp2_fitting', 'cc-pwcvtz-ri', 'cc-pwcvtz-ri_tight', 'cc-pwcvtz_tight', 'ccemd-2', 'ccemd-3', 'ccj-pv5z', 'ccj-pvdz', 'ccj-pvqz', 'ccj-pvtz', 'chipman_dzp_+_diffuse', 'coemd-2', 'coemd-3', 'coemd-4', 'coemd-ref', 'cologne_dkh2', 'core_valence_functions_cc-pcv5z', 'core_valence_functions_cc-pcv6z', 'core_valence_functions_cc-pcv6zold', 'core_valence_functions_cc-pcvdz', 'core_valence_functions_cc-pcvdzold', 'core_valence_functions_cc-pcvqz', 'core_valence_functions_cc-pcvqzold', 'core_valence_functions_cc-pcvtz', 'core_valence_functions_cc-pcvtzold', 'crenbl_ecp', 'crenbs_ecp', 'cvtz', 'd-aug-cc-pv5z', 'd-aug-cc-pv5z_diffuse', 'd-aug-cc-pv6z', 'd-aug-cc-pv6z_diffuse', 'd-aug-cc-pvdz', 'd-aug-cc-pvdz_diffuse', 'd-aug-cc-pvqz', 'd-aug-cc-pvqz_diffuse', 'd-aug-cc-pvtz', 'd-aug-cc-pvtz_diffuse', 'def2-ecp', 'def2-qzvp', 'def2-qzvpd', 'def2-qzvpp', 'def2-qzvppd', 'def2-svp', 'def2-svpd', 'def2-tzvp', 'def2-tzvpd', 'def2-tzvpp', 'def2-tzvppd', 'demon_coulomb_fitting', 'dgauss_a1_dft_coulomb_fitting', 'dgauss_a1_dft_exchange_fitting', 'dgauss_a2_dft_coulomb_fitting', 'dgauss_a2_dft_exchange_fitting', 'dhf-ecp', 'dhf-qzvp', 'dhf-qzvpp', 'dhf-svp', 'dhf-tzvp', 'dhf-tzvpp', 'dhms_polarization', 'dunning-hay_diffuse', 'dunning-hay_double_rydberg', 'dunning-hay_rydberg', 'dz_+_double_rydberg_dunning-hay', 'dz_+_rydberg_dunning', 'dz_dunning', 'dzp', 'dzp-dkh', 'dzp_+_diffuse_dunning', 'dzp_+_rydberg_dunning', 'dzp_dunning', 'dzq', 'dzvp2_dft_orbital', 'dzvp_dft_orbital', 'feller_misc._cvdz', 'feller_misc._cvqz', 'feller_misc._cvtz', 'g3largexp', 'g3mp2large', 'g3mp2largexp', 'gamess_pvtz', 'gamess_vtz', 'glendening_polarization', 'hay-wadt_mb_n+1_ecp', 'hay-wadt_vdz_n+1_ecp', 'hay_wadt_n-1_ecp', 'hondo7_polarization', 'huzinaga_polarization', 'iglo-ii', 'iglo-iii', 'jul-cc-pvd+dz', 'jul-cc-pvq+dz', 'jul-cc-pvt+dz', 'jun-cc-pvd+dz', 'jun-cc-pvq+dz', 'jun-cc-pvt+dz', 'lanl08', 'lanl08+', 'lanl08d', 'lanl08f', 'lanl2-10s8p7d3f2g', 'lanl2-5s4p4d2f', 'lanl2-6s4p4d2f', 'lanl2-[10s8p7d3f2g]', 'lanl2-[5s4p4d2f]', 'lanl2-[6s4p4d2f]', 'lanl2dz+1d1f', 'lanl2dz+2s2p2d2f', 'lanl2dz_ecp', 'lanl2dzdp_ecp', 'lanl2dzdp_ecp_polarization', 'lanl2tz', 'lanl2tz+', 'lanl2tzf', 'm6-31g', 'm6-31gs', 'maug-cc-pvd+dz', 'maug-cc-pvdz', 'maug-cc-pvq+dz', 'maug-cc-pvqz', 'maug-cc-pvt+dz', 'maug-cc-pvtz', 'may-cc-pvq+dz', 'may-cc-pvt+dz', 'mclean_chandler_vtz', 'mg3s', 'midi!', 'midi_huzinaga', 'mini_huzinaga', 'mini_scaled', 'minis-bsip1', 'modified_lanl2dz', 'nasa_ames_ano', 'nasa_ames_ano2', 'nasa_ames_cc-pcv5z', 'nasa_ames_cc-pcvqz', 'nasa_ames_cc-pcvtz', 'nasa_ames_cc-pv5z', 'nasa_ames_cc-pvqz', 'nasa_ames_cc-pvtz', 'nlo-v', 'nmr-dkh_tz2p', 'partridge_uncontracted_1', 'partridge_uncontracted_2', 'partridge_uncontracted_3', 'partridge_uncontracted_4', 'pc-0', 'pc-1', 'pc-2', 'pc-3', 'pc-4', 'pcemd-2', 'pcemd-3', 'pcemd-4', 'pcj-0', 'pcj-0_2006', 'pcj-1', 'pcj-1_2006', 'pcj-2', 'pcj-2_2006', 'pcj-3', 'pcj-3_2006', 'pcj-4', 'pcj-4_2006', 'pcs-0', 'pcs-1', 'pcs-2', 'pcs-3', 'pcs-4', 'pcseg-0', 'pcseg-1', 'pcseg-2', 'pcseg-3', 'pcseg-4', 'pcsseg-0', 'pcsseg-1', 'pcsseg-2', 'pcsseg-3', 'pcsseg-4', 'pople-style_diffuse', 'pople_2d_2p_polarization', 'pople_2df_2pd_polarization', 'pople_3df_3pd_polarization', 'psbkjc', 'pt_-_mdzp', 'pv6z', 'pv7z', 'q-aug-cc-pv5z_diffuse', 'q-aug-cc-pv6z_diffuse', 'q-aug-cc-pvdz_diffuse', 'q-aug-cc-pvqz_diffuse', 'q-aug-cc-pvtz_diffuse', 'qmmm_zhang_3-21g_ecp', 'qmmm_zhang_6-31gs_ecp', 'qzp', 'qzp-dkh', 'rel-modelpotentials', 'roos-ano-dz', 'roos-ano-tz', 'roos_augmented_double_zeta_ano', 'roos_augmented_triple_zeta_ano', 's3-21g', 's3-21gs', 's6-31g', 's6-31gs', 'sadlej+', 'sadlej_pvtz', 'sarc-dkh', 'sarc-zora', 'sarc2-qzv-dkh', 'sarc2-qzv-dkh_jk', 'sarc2-qzv-zora', 'sarc2-qzv-zora_jk', 'sarc2-qzvp-dkh', 'sarc2-qzvp-dkh_jk', 'sarc2-qzvp-zora', 'sarc2-qzvp-zora_jk', 'sbkjc_ecp', 'sbkjc_polarized_p_2d_-_lfk', 'sbkjc_vdz_ecp', 'sdb-aug-cc-pvqz', 'sdb-aug-cc-pvqz_diffuse', 'sdb-aug-cc-pvtz', 'sdb-aug-cc-pvtz_diffuse', 'sdb-cc-pvqz', 'sdb-cc-pvtz', 'sdb_rlc_ecp', 'sto-2g', 'sto-3g', 'sto-3gs', 'sto-3gs_polarization', 'sto-6g', 'stuttgart-koeln_mcdhf_rsc_ecp', 'stuttgart_rlc_ecp', 'stuttgart_rsc_1997_ecp', 'stuttgart_rsc_ano_ecp', 'stuttgart_rsc_ecp', 'stuttgart_rsc_segmented_ecp', 'sv_+_double_rydberg_dunning-hay', 'sv_+_rydberg_dunning-hay', 'sv_dunning-hay', 'svp_+_diffuse_+_rydberg', 'svp_+_diffuse_dunning-hay', 'svp_+_rydberg_dunning-hay', 'svp_dunning-hay', 't-aug-cc-pv5z_diffuse', 't-aug-cc-pv6z_diffuse', 't-aug-cc-pvdz_diffuse', 't-aug-cc-pvqz_diffuse', 't-aug-cc-pvtz_diffuse', 'tz_dunning', 'tzp', 'tzp-dkh', 'tzvp_dft_orbital', 'ugbs', 'un-ccemd-ref', 'un-pcemd-ref', 'wachters+f', 'weigend_coulomb_fitting', 'wtbs', 'x2c-coulomb-fitting', 'x2c-svpall', 'x2c-svpall-2c', 'x2c-tzvpall', 'x2c-tzvpall-2c', 'x2c-tzvppall', 'x2c-tzvppall-2c', 'z3pol'}</em><a class="headerlink" href="#pymatgen.io.nwchem.NWCHEM_BASIS_LIBRARY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="class">
 <dt id="pymatgen.io.nwchem.NwInput">
-<em class="property">class </em><code class="descname">NwInput</code><span class="sig-paren">(</span><em>mol</em>, <em>tasks</em>, <em>directives=None</em>, <em>geometry_options=('units'</em>, <em>'angstroms')</em>, <em>symmetry_options=None</em>, <em>memory_options=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInput" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">NwInput</code><span class="sig-paren">(</span><em class="sig-param">mol</em>, <em class="sig-param">tasks</em>, <em class="sig-param">directives=None</em>, <em class="sig-param">geometry_options=('units'</em>, <em class="sig-param">'angstroms')</em>, <em class="sig-param">symmetry_options=None</em>, <em class="sig-param">memory_options=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInput" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>An object representing a Nwchem input file, which is essentially a list
 of tasks on a particular molecule.</p>
@@ -71,18 +76,18 @@ E.g “total 1000 mb stack 400 mb”</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.io.nwchem.NwInput.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwInput.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInput.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwInput.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInput.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>A JSON serializable dict representation of an object.</p>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.io.nwchem.NwInput.from_dict">
-<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwInput.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInput.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwInput.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInput.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.io.nwchem.NwInput.from_file">
-<em class="property">classmethod </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwInput.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInput.from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwInput.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInput.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read an NwInput from a file. Currently tested to work with
 files generated from this class itself.</p>
 <dl class="field-list simple">
@@ -95,9 +100,9 @@ files generated from this class itself.</p>
 </dl>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.io.nwchem.NwInput.from_string">
-<em class="property">classmethod </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>string_input</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwInput.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInput.from_string" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param">string_input</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwInput.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInput.from_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read an NwInput from a string. Currently tested to work with
 files generated from this class itself.</p>
 <dl class="field-list simple">
@@ -110,29 +115,29 @@ files generated from this class itself.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.nwchem.NwInput.molecule">
-<code class="descname">molecule</code><a class="headerlink" href="#pymatgen.io.nwchem.NwInput.molecule" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">molecule</code><a class="headerlink" href="#pymatgen.io.nwchem.NwInput.molecule" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns molecule associated with this GaussianInput.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.nwchem.NwInput.write_file">
-<code class="descname">write_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwInput.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInput.write_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwInput.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInput.write_file" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="exception">
 <dt id="pymatgen.io.nwchem.NwInputError">
-<em class="property">exception </em><code class="descname">NwInputError</code><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwInputError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInputError" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="sig-name descname">NwInputError</code><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwInputError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInputError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Error class for NwInput.</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.io.nwchem.NwOutput">
-<em class="property">class </em><code class="descname">NwOutput</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwOutput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwOutput" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">NwOutput</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwOutput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwOutput" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A Nwchem output file parser. Very basic for now - supports only dft and
 only parses energies and geometries. Please note that Nwchem typically
@@ -145,7 +150,7 @@ eV in the parser.</p>
 </dl>
 <dl class="method">
 <dt id="pymatgen.io.nwchem.NwOutput.get_excitation_spectrum">
-<code class="descname">get_excitation_spectrum</code><span class="sig-paren">(</span><em>width=0.1</em>, <em>npoints=2000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwOutput.get_excitation_spectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwOutput.get_excitation_spectrum" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_excitation_spectrum</code><span class="sig-paren">(</span><em class="sig-param">width=0.1</em>, <em class="sig-param">npoints=2000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwOutput.get_excitation_spectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwOutput.get_excitation_spectrum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate an excitation spectra from the singlet roots of TDDFT
 calculations.</p>
 <dl class="field-list simple">
@@ -168,7 +173,7 @@ curve.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.io.nwchem.NwOutput.parse_tddft">
-<code class="descname">parse_tddft</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwOutput.parse_tddft"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwOutput.parse_tddft" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">parse_tddft</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwOutput.parse_tddft"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwOutput.parse_tddft" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parses TDDFT roots. Adapted from nw_spectrum.py script.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -204,7 +209,7 @@ curve.</p></li>
 
 <dl class="class">
 <dt id="pymatgen.io.nwchem.NwTask">
-<em class="property">class </em><code class="descname">NwTask</code><span class="sig-paren">(</span><em>charge</em>, <em>spin_multiplicity</em>, <em>basis_set</em>, <em>basis_set_option='cartesian'</em>, <em>title=None</em>, <em>theory='dft'</em>, <em>operation='optimize'</em>, <em>theory_directives=None</em>, <em>alternate_directives=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">NwTask</code><span class="sig-paren">(</span><em class="sig-param">charge</em>, <em class="sig-param">spin_multiplicity</em>, <em class="sig-param">basis_set</em>, <em class="sig-param">basis_set_option='cartesian'</em>, <em class="sig-param">title=None</em>, <em class="sig-param">theory='dft'</em>, <em class="sig-param">operation='optimize'</em>, <em class="sig-param">theory_directives=None</em>, <em class="sig-param">alternate_directives=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Base task for Nwchem.</p>
 <p>Very flexible arguments to support many types of potential setups.
@@ -239,13 +244,13 @@ constant of 78, you’d supply {‘cosmo’: {“dielectric”: 78}}.</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.io.nwchem.NwTask.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwTask.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwTask.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>A JSON serializable dict representation of an object.</p>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.io.nwchem.NwTask.dft_task">
-<em class="property">classmethod </em><code class="descname">dft_task</code><span class="sig-paren">(</span><em>mol</em>, <em>xc='b3lyp'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwTask.dft_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.dft_task" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">dft_task</code><span class="sig-paren">(</span><em class="sig-param">mol</em>, <em class="sig-param">xc='b3lyp'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwTask.dft_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.dft_task" title="Permalink to this definition">¶</a></dt>
 <dd><p>A class method for quickly creating DFT tasks with optional
 cosmo parameter .</p>
 <dl class="field-list simple">
@@ -260,9 +265,9 @@ theory is always “dft” for a dft task.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.io.nwchem.NwTask.esp_task">
-<em class="property">classmethod </em><code class="descname">esp_task</code><span class="sig-paren">(</span><em>mol</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwTask.esp_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.esp_task" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">esp_task</code><span class="sig-paren">(</span><em class="sig-param">mol</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwTask.esp_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.esp_task" title="Permalink to this definition">¶</a></dt>
 <dd><p>A class method for quickly creating ESP tasks with RESP
 charge fitting.</p>
 <dl class="field-list simple">
@@ -276,14 +281,14 @@ theory is always “dft” for a dft task.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.io.nwchem.NwTask.from_dict">
-<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwTask.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwTask.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.io.nwchem.NwTask.from_molecule">
-<em class="property">classmethod </em><code class="descname">from_molecule</code><span class="sig-paren">(</span><em>mol</em>, <em>theory</em>, <em>charge=None</em>, <em>spin_multiplicity=None</em>, <em>basis_set='6-31g'</em>, <em>basis_set_option='cartesian'</em>, <em>title=None</em>, <em>operation='optimize'</em>, <em>theory_directives=None</em>, <em>alternate_directives=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwTask.from_molecule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.from_molecule" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_molecule</code><span class="sig-paren">(</span><em class="sig-param">mol</em>, <em class="sig-param">theory</em>, <em class="sig-param">charge=None</em>, <em class="sig-param">spin_multiplicity=None</em>, <em class="sig-param">basis_set='6-31g'</em>, <em class="sig-param">basis_set_option='cartesian'</em>, <em class="sig-param">title=None</em>, <em class="sig-param">operation='optimize'</em>, <em class="sig-param">theory_directives=None</em>, <em class="sig-param">alternate_directives=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/nwchem.html#NwTask.from_molecule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.from_molecule" title="Permalink to this definition">¶</a></dt>
 <dd><p>Very flexible arguments to support many types of potential setups.
 Users should use more friendly static methods unless they need the
 flexibility.</p>
@@ -320,12 +325,12 @@ example, to perform cosmo calculations with DFT, you’d supply
 
 <dl class="attribute">
 <dt id="pymatgen.io.nwchem.NwTask.operations">
-<code class="descname">operations</code><em class="property"> = {'': 'dummy', 'dynamics': 'Perform classical molecular dynamics.', 'energy': 'Evaluate the single point energy.', 'freq': 'Same as frequencies.', 'frequencies': 'Compute second derivatives and print out an analysis of molecular vibrations.', 'gradient': 'Evaluate the derivative of the energy with respect to nuclear coordinates.', 'hessian': 'Compute second derivatives.', 'optimize': 'Minimize the energy by varying the molecular structure.', 'property': 'Calculate the properties for the wave function.', 'saddle': 'Conduct a search for a transition state (or saddle point).', 'thermodynamics': 'Perform multi-configuration thermodynamic integration using classical MD.', 'vscf': 'Compute anharmonic contributions to the vibrational modes.'}</em><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.operations" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">operations</code><em class="property"> = {'': 'dummy', 'dynamics': 'Perform classical molecular dynamics.', 'energy': 'Evaluate the single point energy.', 'freq': 'Same as frequencies.', 'frequencies': 'Compute second derivatives and print out an analysis of molecular vibrations.', 'gradient': 'Evaluate the derivative of the energy with respect to nuclear coordinates.', 'hessian': 'Compute second derivatives.', 'optimize': 'Minimize the energy by varying the molecular structure.', 'property': 'Calculate the properties for the wave function.', 'saddle': 'Conduct a search for a transition state (or saddle point).', 'thermodynamics': 'Perform multi-configuration thermodynamic integration using classical MD.', 'vscf': 'Compute anharmonic contributions to the vibrational modes.'}</em><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.operations" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.nwchem.NwTask.theories">
-<code class="descname">theories</code><em class="property"> = {'band': 'Pseudopotential plane-wave DFT for solids using NWPW', 'ccsd': 'Coupled-cluster single and double excitations', 'ccsd(t)': 'Coupled-cluster linearized triples approximation', 'ccsd+t(ccsd)': 'Fourth order triples contribution', 'dft': 'DFT', 'direct_mp2': 'MP2 using a full-direct algorithm', 'esp': 'ESP', 'g3gn': 'some description', 'mcscf': 'Multiconfiguration SCF', 'md': 'Classical molecular dynamics simulation', 'mp2': 'MP2 using a semi-direct algorithm', 'pspw': 'Pseudopotential plane-wave DFT for molecules and insulating solids using NWPW', 'rimp2': 'MP2 using the RI approximation', 'scf': 'Hartree-Fock', 'selci': 'Selected CI with perturbation correction', 'sodft': 'Spin-Orbit DFT', 'tce': 'Tensor Contraction Engine', 'tddft': 'Time Dependent DFT'}</em><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.theories" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">theories</code><em class="property"> = {'band': 'Pseudopotential plane-wave DFT for solids using NWPW', 'ccsd': 'Coupled-cluster single and double excitations', 'ccsd(t)': 'Coupled-cluster linearized triples approximation', 'ccsd+t(ccsd)': 'Fourth order triples contribution', 'dft': 'DFT', 'direct_mp2': 'MP2 using a full-direct algorithm', 'esp': 'ESP', 'g3gn': 'some description', 'mcscf': 'Multiconfiguration SCF', 'md': 'Classical molecular dynamics simulation', 'mp2': 'MP2 using a semi-direct algorithm', 'pspw': 'Pseudopotential plane-wave DFT for molecules and insulating solids using NWPW', 'rimp2': 'MP2 using the RI approximation', 'scf': 'Hartree-Fock', 'selci': 'Selected CI with perturbation correction', 'sodft': 'Spin-Orbit DFT', 'tce': 'Tensor Contraction Engine', 'tddft': 'Time Dependent DFT'}</em><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.theories" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -346,10 +351,10 @@ example, to perform cosmo calculations with DFT, you’d supply
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -368,13 +373,13 @@ example, to perform cosmo calculations with DFT, you’d supply
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

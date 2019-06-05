@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.phonopy module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.io.phonopy module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,9 +44,619 @@
             
   <div class="section" id="module-pymatgen.io.phonopy">
 <span id="pymatgen-io-phonopy-module"></span><h1>pymatgen.io.phonopy module<a class="headerlink" href="#module-pymatgen.io.phonopy" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.io.phonopy.Phonopy">
+<em class="property">class </em><code class="sig-name descname">Phonopy</code><span class="sig-paren">(</span><em class="sig-param">unitcell</em>, <em class="sig-param">supercell_matrix</em>, <em class="sig-param">primitive_matrix=None</em>, <em class="sig-param">nac_params=None</em>, <em class="sig-param">distance=None</em>, <em class="sig-param">factor=15.633302300230191</em>, <em class="sig-param">is_auto_displacements=None</em>, <em class="sig-param">dynamical_matrix_decimals=None</em>, <em class="sig-param">force_constants_decimals=None</em>, <em class="sig-param">symprec=1e-05</em>, <em class="sig-param">is_symmetry=True</em>, <em class="sig-param">use_lapack_solver=False</em>, <em class="sig-param">log_level=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.displacement_directions">
+<em class="property">property </em><code class="sig-name descname">displacement_directions</code><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.displacement_directions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.displacements">
+<em class="property">property </em><code class="sig-name descname">displacements</code><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.displacements" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.dynamical_matrix">
+<em class="property">property </em><code class="sig-name descname">dynamical_matrix</code><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.dynamical_matrix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.force_constants">
+<em class="property">property </em><code class="sig-name descname">force_constants</code><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.force_constants" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.generate_displacements">
+<code class="sig-name descname">generate_displacements</code><span class="sig-paren">(</span><em class="sig-param">distance=0.01</em>, <em class="sig-param">is_plusminus='auto'</em>, <em class="sig-param">is_diagonal=True</em>, <em class="sig-param">is_trigonal=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.generate_displacements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.generate_displacements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate displacements automatically</p>
+<dl>
+<dt>displacemsts: List of displacements in Cartesian coordinates.</dt><dd><p>[[0, 0.01, 0.00, 0.00], …]</p>
+</dd>
+<dt>where each set of elements is defined by:</dt><dd><p>First value:      Atom index in supercell starting with 0
+Second to fourth: Displacement in Cartesian coordinates</p>
+</dd>
+<dt>displacement_directions:</dt><dd><p>List of directions with respect to axes. This gives only the
+symmetrically non equivalent directions. The format is like:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>[[0, 1, 0, 0],</dt><dd><p>[7, 1, 0, 1], …]</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl>
+<dt>where each list is defined by:</dt><dd><p>First value:      Atom index in supercell starting with 0
+Second to fourth: If the direction is displaced or not ( 1, 0, or -1 )</p>
+<blockquote>
+<div><p>with respect to the axes.</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_Debye_frequency">
+<code class="sig-name descname">get_Debye_frequency</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_Debye_frequency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_Debye_frequency" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_band_structure">
+<code class="sig-name descname">get_band_structure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_band_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_band_structure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_displacement_dataset">
+<code class="sig-name descname">get_displacement_dataset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_displacement_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_displacement_dataset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_displacement_directions">
+<code class="sig-name descname">get_displacement_directions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_displacement_directions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_displacement_directions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_displacements">
+<code class="sig-name descname">get_displacements</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_displacements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_displacements" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_dynamical_matrix">
+<code class="sig-name descname">get_dynamical_matrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_dynamical_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_dynamical_matrix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_dynamical_matrix_at_q">
+<code class="sig-name descname">get_dynamical_matrix_at_q</code><span class="sig-paren">(</span><em class="sig-param">q</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_dynamical_matrix_at_q"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_dynamical_matrix_at_q" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_force_constants">
+<code class="sig-name descname">get_force_constants</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_force_constants"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_force_constants" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_frequencies">
+<code class="sig-name descname">get_frequencies</code><span class="sig-paren">(</span><em class="sig-param">q</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_frequencies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_frequencies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate phonon frequencies at q</p>
+<p>q: q-vector in reduced coordinates of primitive cell</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_frequencies_with_eigenvectors">
+<code class="sig-name descname">get_frequencies_with_eigenvectors</code><span class="sig-paren">(</span><em class="sig-param">q</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_frequencies_with_eigenvectors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_frequencies_with_eigenvectors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate phonon frequencies and eigenvectors at q</p>
+<p>q: q-vector in reduced coordinates of primitive cell</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_group_velocity">
+<code class="sig-name descname">get_group_velocity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_group_velocity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_group_velocity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_group_velocity_at_q">
+<code class="sig-name descname">get_group_velocity_at_q</code><span class="sig-paren">(</span><em class="sig-param">q_point</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_group_velocity_at_q"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_group_velocity_at_q" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_irreps">
+<code class="sig-name descname">get_irreps</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_irreps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_irreps" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_iter_mesh">
+<code class="sig-name descname">get_iter_mesh</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_iter_mesh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_iter_mesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns IterMesh instance</p>
+<p>This instance object does not store all phonon data. With very
+dense mesh and eigenvectors needed, IterMesh can save memory
+space, but expected to be slow.</p>
+<p>This object is used as an iterator. Phonon frequencies and
+eigenvectos are obtained as below:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>for i, (freqs, eigvecs) in enumerate(iter_mesh):</dt><dd><p>print(i + 1)
+print(freqs)
+print(eigvecs)</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_mesh">
+<code class="sig-name descname">get_mesh</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_mesh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_mesh" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_mesh_grid_info">
+<code class="sig-name descname">get_mesh_grid_info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_mesh_grid_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_mesh_grid_info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_modulated_supercells">
+<code class="sig-name descname">get_modulated_supercells</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_modulated_supercells"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_modulated_supercells" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns cells with modulations as Atoms instances</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_modulations_and_supercell">
+<code class="sig-name descname">get_modulations_and_supercell</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_modulations_and_supercell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_modulations_and_supercell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return modulations and supercell</p>
+<p>(modulations, supercell)</p>
+<p>modulations: Atomic modulations of supercell in Cartesian coordinates
+supercell: Supercell as an Atoms instance.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_moment">
+<code class="sig-name descname">get_moment</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_moment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_moment" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_nac_params">
+<code class="sig-name descname">get_nac_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_nac_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_nac_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_partial_DOS">
+<code class="sig-name descname">get_partial_DOS</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_partial_DOS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_partial_DOS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retern frequencies and partial_dos.
+The first element is freqs and the second is partial_dos.</p>
+<p>frequencies: [freq1, freq2, …]
+partial_dos:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>[[atom1-freq1, atom1-freq2, …],</dt><dd><p>[atom2-freq1, atom2-freq2, …],
+…]</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_primitive">
+<code class="sig-name descname">get_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_primitive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_primitive" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_primitive_matrix">
+<code class="sig-name descname">get_primitive_matrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_primitive_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_primitive_matrix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_primitive_symmetry">
+<code class="sig-name descname">get_primitive_symmetry</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_primitive_symmetry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_primitive_symmetry" title="Permalink to this definition">¶</a></dt>
+<dd><p>return symmetry of primitive cell</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_qpoints_phonon">
+<code class="sig-name descname">get_qpoints_phonon</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_qpoints_phonon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_qpoints_phonon" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_rotational_condition_of_fc">
+<code class="sig-name descname">get_rotational_condition_of_fc</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_rotational_condition_of_fc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_rotational_condition_of_fc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_supercell">
+<code class="sig-name descname">get_supercell</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_supercell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_supercell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_supercell_matrix">
+<code class="sig-name descname">get_supercell_matrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_supercell_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_supercell_matrix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_supercells_with_displacements">
+<code class="sig-name descname">get_supercells_with_displacements</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_supercells_with_displacements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_supercells_with_displacements" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_symmetry">
+<code class="sig-name descname">get_symmetry</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_symmetry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_symmetry" title="Permalink to this definition">¶</a></dt>
+<dd><p>return symmetry of supercell</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_thermal_displacement_matrices">
+<code class="sig-name descname">get_thermal_displacement_matrices</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_thermal_displacement_matrices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_thermal_displacement_matrices" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_thermal_displacements">
+<code class="sig-name descname">get_thermal_displacements</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_thermal_displacements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_thermal_displacements" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_thermal_properties">
+<code class="sig-name descname">get_thermal_properties</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_thermal_properties"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_thermal_properties" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_total_DOS">
+<code class="sig-name descname">get_total_DOS</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_total_DOS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_total_DOS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retern frequencies and total dos.
+The first element is freqs and the second is total dos.</p>
+<p>frequencies: [freq1, freq2, …]
+total_dos: [dos1, dos2, …]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_unit_conversion_factor">
+<code class="sig-name descname">get_unit_conversion_factor</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_unit_conversion_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_unit_conversion_factor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_unitcell">
+<code class="sig-name descname">get_unitcell</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_unitcell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_unitcell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.get_version">
+<code class="sig-name descname">get_version</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.get_version"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.get_version" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.plot_band_structure">
+<code class="sig-name descname">plot_band_structure</code><span class="sig-paren">(</span><em class="sig-param">labels=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.plot_band_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.plot_band_structure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.plot_band_structure_and_dos">
+<code class="sig-name descname">plot_band_structure_and_dos</code><span class="sig-paren">(</span><em class="sig-param">pdos_indices=None</em>, <em class="sig-param">labels=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.plot_band_structure_and_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.plot_band_structure_and_dos" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.plot_partial_DOS">
+<code class="sig-name descname">plot_partial_DOS</code><span class="sig-paren">(</span><em class="sig-param">pdos_indices=None</em>, <em class="sig-param">legend=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.plot_partial_DOS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.plot_partial_DOS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.plot_thermal_displacements">
+<code class="sig-name descname">plot_thermal_displacements</code><span class="sig-paren">(</span><em class="sig-param">is_legend=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.plot_thermal_displacements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.plot_thermal_displacements" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.plot_thermal_properties">
+<code class="sig-name descname">plot_thermal_properties</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.plot_thermal_properties"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.plot_thermal_properties" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.plot_total_DOS">
+<code class="sig-name descname">plot_total_DOS</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.plot_total_DOS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.plot_total_DOS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.primitive">
+<em class="property">property </em><code class="sig-name descname">primitive</code><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.primitive" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.produce_force_constants">
+<code class="sig-name descname">produce_force_constants</code><span class="sig-paren">(</span><em class="sig-param">forces=None</em>, <em class="sig-param">calculate_full_force_constants=True</em>, <em class="sig-param">computation_algorithm='svd'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.produce_force_constants"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.produce_force_constants" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.run_mesh">
+<code class="sig-name descname">run_mesh</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.run_mesh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.run_mesh" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.set_Debye_frequency">
+<code class="sig-name descname">set_Debye_frequency</code><span class="sig-paren">(</span><em class="sig-param">freq_max_fit=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.set_Debye_frequency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.set_Debye_frequency" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.set_band_structure">
+<code class="sig-name descname">set_band_structure</code><span class="sig-paren">(</span><em class="sig-param">bands</em>, <em class="sig-param">is_eigenvectors=False</em>, <em class="sig-param">is_band_connection=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.set_band_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.set_band_structure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.set_displacement_dataset">
+<code class="sig-name descname">set_displacement_dataset</code><span class="sig-paren">(</span><em class="sig-param">displacement_dataset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.set_displacement_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.set_displacement_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><dl>
+<dt>displacement_dataset:</dt><dd><dl>
+<dt>{‘natom’: number_of_atoms_in_supercell,</dt><dd><dl>
+<dt>‘first_atoms’: [</dt><dd><dl class="simple">
+<dt>{‘number’: atom index of displaced atom,</dt><dd><p>‘displacement’: displacement in Cartesian coordinates,
+‘direction’: displacement direction with respect to axes
+‘forces’: forces on atoms in supercell},</p>
+</dd>
+</dl>
+<p>{…}, …]}</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.set_dynamical_matrix">
+<code class="sig-name descname">set_dynamical_matrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.set_dynamical_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.set_dynamical_matrix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.set_force_constants">
+<code class="sig-name descname">set_force_constants</code><span class="sig-paren">(</span><em class="sig-param">force_constants</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.set_force_constants"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.set_force_constants" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.set_force_constants_zero_with_radius">
+<code class="sig-name descname">set_force_constants_zero_with_radius</code><span class="sig-paren">(</span><em class="sig-param">cutoff_radius</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.set_force_constants_zero_with_radius"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.set_force_constants_zero_with_radius" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.set_forces">
+<code class="sig-name descname">set_forces</code><span class="sig-paren">(</span><em class="sig-param">sets_of_forces</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.set_forces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.set_forces" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>sets_of_forces:</dt><dd><dl class="simple">
+<dt>[[[f_1x, f_1y, f_1z], [f_2x, f_2y, f_2z], …], # first supercell</dt><dd><p>[[f_1x, f_1y, f_1z], [f_2x, f_2y, f_2z], …], # second supercell
+…                                                  ]</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.set_group_velocity">
+<code class="sig-name descname">set_group_velocity</code><span class="sig-paren">(</span><em class="sig-param">q_length=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.set_group_velocity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.set_group_velocity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.set_irreps">
+<code class="sig-name descname">set_irreps</code><span class="sig-paren">(</span><em class="sig-param">q</em>, <em class="sig-param">is_little_cogroup=False</em>, <em class="sig-param">nac_q_direction=None</em>, <em class="sig-param">degeneracy_tolerance=0.0001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.set_irreps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.set_irreps" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.set_iter_mesh">
+<code class="sig-name descname">set_iter_mesh</code><span class="sig-paren">(</span><em class="sig-param">mesh</em>, <em class="sig-param">shift=None</em>, <em class="sig-param">is_time_reversal=True</em>, <em class="sig-param">is_mesh_symmetry=True</em>, <em class="sig-param">is_eigenvectors=False</em>, <em class="sig-param">is_gamma_center=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.set_iter_mesh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.set_iter_mesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an IterMesh instance</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.set_masses">
+<code class="sig-name descname">set_masses</code><span class="sig-paren">(</span><em class="sig-param">masses</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.set_masses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.set_masses" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.set_mesh">
+<code class="sig-name descname">set_mesh</code><span class="sig-paren">(</span><em class="sig-param">mesh</em>, <em class="sig-param">shift=None</em>, <em class="sig-param">is_time_reversal=True</em>, <em class="sig-param">is_mesh_symmetry=True</em>, <em class="sig-param">is_eigenvectors=False</em>, <em class="sig-param">is_gamma_center=False</em>, <em class="sig-param">run_immediately=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.set_mesh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.set_mesh" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.set_modulations">
+<code class="sig-name descname">set_modulations</code><span class="sig-paren">(</span><em class="sig-param">dimension</em>, <em class="sig-param">phonon_modes</em>, <em class="sig-param">delta_q=None</em>, <em class="sig-param">derivative_order=None</em>, <em class="sig-param">nac_q_direction=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.set_modulations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.set_modulations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.set_moment">
+<code class="sig-name descname">set_moment</code><span class="sig-paren">(</span><em class="sig-param">order=1</em>, <em class="sig-param">is_projection=False</em>, <em class="sig-param">freq_min=None</em>, <em class="sig-param">freq_max=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.set_moment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.set_moment" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.set_nac_params">
+<code class="sig-name descname">set_nac_params</code><span class="sig-paren">(</span><em class="sig-param">nac_params=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.set_nac_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.set_nac_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.set_partial_DOS">
+<code class="sig-name descname">set_partial_DOS</code><span class="sig-paren">(</span><em class="sig-param">sigma=None</em>, <em class="sig-param">freq_min=None</em>, <em class="sig-param">freq_max=None</em>, <em class="sig-param">freq_pitch=None</em>, <em class="sig-param">tetrahedron_method=False</em>, <em class="sig-param">direction=None</em>, <em class="sig-param">xyz_projection=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.set_partial_DOS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.set_partial_DOS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.set_qpoints_phonon">
+<code class="sig-name descname">set_qpoints_phonon</code><span class="sig-paren">(</span><em class="sig-param">q_points</em>, <em class="sig-param">nac_q_direction=None</em>, <em class="sig-param">is_eigenvectors=False</em>, <em class="sig-param">write_dynamical_matrices=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.set_qpoints_phonon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.set_qpoints_phonon" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.set_thermal_displacement_matrices">
+<code class="sig-name descname">set_thermal_displacement_matrices</code><span class="sig-paren">(</span><em class="sig-param">t_step=10</em>, <em class="sig-param">t_max=1000</em>, <em class="sig-param">t_min=0</em>, <em class="sig-param">cutoff_frequency=None</em>, <em class="sig-param">t_cif=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.set_thermal_displacement_matrices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.set_thermal_displacement_matrices" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>cutoff_frequency:</dt><dd><p>phonon modes that have frequencies below cutoff_frequency
+are ignored.</p>
+</dd>
+<dt>direction:</dt><dd><p>Projection direction in reduced coordinates</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.set_thermal_displacements">
+<code class="sig-name descname">set_thermal_displacements</code><span class="sig-paren">(</span><em class="sig-param">t_step=10</em>, <em class="sig-param">t_max=1000</em>, <em class="sig-param">t_min=0</em>, <em class="sig-param">temperatures=None</em>, <em class="sig-param">direction=None</em>, <em class="sig-param">cutoff_frequency=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.set_thermal_displacements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.set_thermal_displacements" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>cutoff_frequency:</dt><dd><p>phonon modes that have frequencies below cutoff_frequency
+are ignored.</p>
+</dd>
+<dt>direction:</dt><dd><p>Projection direction in reduced coordinates (</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.set_thermal_distances">
+<code class="sig-name descname">set_thermal_distances</code><span class="sig-paren">(</span><em class="sig-param">atom_pairs</em>, <em class="sig-param">t_step=10</em>, <em class="sig-param">t_max=1000</em>, <em class="sig-param">t_min=0</em>, <em class="sig-param">cutoff_frequency=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.set_thermal_distances"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.set_thermal_distances" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>atom_pairs: List of list</dt><dd><p>Mean square distances are calculated for the atom_pairs
+e.g. [[1, 2], [1, 4]]</p>
+</dd>
+<dt>cutoff_frequency:</dt><dd><p>phonon modes that have frequencies below cutoff_frequency
+are ignored.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.set_thermal_properties">
+<code class="sig-name descname">set_thermal_properties</code><span class="sig-paren">(</span><em class="sig-param">t_step=10</em>, <em class="sig-param">t_max=1000</em>, <em class="sig-param">t_min=0</em>, <em class="sig-param">temperatures=None</em>, <em class="sig-param">is_projection=False</em>, <em class="sig-param">band_indices=None</em>, <em class="sig-param">cutoff_frequency=None</em>, <em class="sig-param">pretend_real=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.set_thermal_properties"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.set_thermal_properties" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.set_total_DOS">
+<code class="sig-name descname">set_total_DOS</code><span class="sig-paren">(</span><em class="sig-param">sigma=None</em>, <em class="sig-param">freq_min=None</em>, <em class="sig-param">freq_max=None</em>, <em class="sig-param">freq_pitch=None</em>, <em class="sig-param">tetrahedron_method=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.set_total_DOS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.set_total_DOS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.set_unitcell">
+<code class="sig-name descname">set_unitcell</code><span class="sig-paren">(</span><em class="sig-param">unitcell</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.set_unitcell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.set_unitcell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.show_irreps">
+<code class="sig-name descname">show_irreps</code><span class="sig-paren">(</span><em class="sig-param">show_irreps=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.show_irreps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.show_irreps" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.supercell">
+<em class="property">property </em><code class="sig-name descname">supercell</code><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.supercell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.symmetrize_force_constants">
+<code class="sig-name descname">symmetrize_force_constants</code><span class="sig-paren">(</span><em class="sig-param">iteration=3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.symmetrize_force_constants"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.symmetrize_force_constants" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.symmetrize_force_constants_by_space_group">
+<code class="sig-name descname">symmetrize_force_constants_by_space_group</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.symmetrize_force_constants_by_space_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.symmetrize_force_constants_by_space_group" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.symmetry">
+<em class="property">property </em><code class="sig-name descname">symmetry</code><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.symmetry" title="Permalink to this definition">¶</a></dt>
+<dd><p>return symmetry of supercell</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.unit_conversion_factor">
+<em class="property">property </em><code class="sig-name descname">unit_conversion_factor</code><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.unit_conversion_factor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.unitcell">
+<em class="property">property </em><code class="sig-name descname">unitcell</code><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.unitcell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.write_animation">
+<code class="sig-name descname">write_animation</code><span class="sig-paren">(</span><em class="sig-param">q_point=None</em>, <em class="sig-param">anime_type='v_sim'</em>, <em class="sig-param">band_index=None</em>, <em class="sig-param">amplitude=None</em>, <em class="sig-param">num_div=None</em>, <em class="sig-param">shift=None</em>, <em class="sig-param">filename=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.write_animation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.write_animation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.write_hdf5_band_structure">
+<code class="sig-name descname">write_hdf5_band_structure</code><span class="sig-paren">(</span><em class="sig-param">labels=None</em>, <em class="sig-param">comment=None</em>, <em class="sig-param">filename='band.hdf5'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.write_hdf5_band_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.write_hdf5_band_structure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.write_hdf5_mesh">
+<code class="sig-name descname">write_hdf5_mesh</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.write_hdf5_mesh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.write_hdf5_mesh" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.write_hdf5_qpoints_phonon">
+<code class="sig-name descname">write_hdf5_qpoints_phonon</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.write_hdf5_qpoints_phonon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.write_hdf5_qpoints_phonon" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.write_modulations">
+<code class="sig-name descname">write_modulations</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.write_modulations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.write_modulations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create MPOSCAR’s</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.write_partial_DOS">
+<code class="sig-name descname">write_partial_DOS</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.write_partial_DOS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.write_partial_DOS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.write_thermal_displacement_matrix_to_cif">
+<code class="sig-name descname">write_thermal_displacement_matrix_to_cif</code><span class="sig-paren">(</span><em class="sig-param">temperature_index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.write_thermal_displacement_matrix_to_cif"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.write_thermal_displacement_matrix_to_cif" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.write_total_DOS">
+<code class="sig-name descname">write_total_DOS</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.write_total_DOS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.write_total_DOS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.write_yaml_band_structure">
+<code class="sig-name descname">write_yaml_band_structure</code><span class="sig-paren">(</span><em class="sig-param">labels=None</em>, <em class="sig-param">comment=None</em>, <em class="sig-param">filename='band.yaml'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.write_yaml_band_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.write_yaml_band_structure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.write_yaml_irreps">
+<code class="sig-name descname">write_yaml_irreps</code><span class="sig-paren">(</span><em class="sig-param">show_irreps=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.write_yaml_irreps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.write_yaml_irreps" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.write_yaml_mesh">
+<code class="sig-name descname">write_yaml_mesh</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.write_yaml_mesh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.write_yaml_mesh" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.write_yaml_modulations">
+<code class="sig-name descname">write_yaml_modulations</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.write_yaml_modulations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.write_yaml_modulations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.write_yaml_qpoints_phonon">
+<code class="sig-name descname">write_yaml_qpoints_phonon</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.write_yaml_qpoints_phonon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.write_yaml_qpoints_phonon" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.write_yaml_thermal_displacement_matrices">
+<code class="sig-name descname">write_yaml_thermal_displacement_matrices</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.write_yaml_thermal_displacement_matrices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.write_yaml_thermal_displacement_matrices" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.write_yaml_thermal_displacements">
+<code class="sig-name descname">write_yaml_thermal_displacements</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.write_yaml_thermal_displacements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.write_yaml_thermal_displacements" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.write_yaml_thermal_distances">
+<code class="sig-name descname">write_yaml_thermal_distances</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.write_yaml_thermal_distances"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.write_yaml_thermal_distances" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.phonopy.Phonopy.write_yaml_thermal_properties">
+<code class="sig-name descname">write_yaml_thermal_properties</code><span class="sig-paren">(</span><em class="sig-param">filename='thermal_properties.yaml'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/phonopy/api_phonopy.html#Phonopy.write_yaml_thermal_properties"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.Phonopy.write_yaml_thermal_properties" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="function">
 <dt id="pymatgen.io.phonopy.eigvec_to_eigdispl">
-<code class="descname">eigvec_to_eigdispl</code><span class="sig-paren">(</span><em>v</em>, <em>q</em>, <em>frac_coords</em>, <em>mass</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/phonopy.html#eigvec_to_eigdispl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.eigvec_to_eigdispl" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">eigvec_to_eigdispl</code><span class="sig-paren">(</span><em class="sig-param">v</em>, <em class="sig-param">q</em>, <em class="sig-param">frac_coords</em>, <em class="sig-param">mass</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/phonopy.html#eigvec_to_eigdispl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.eigvec_to_eigdispl" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts a single eigenvector to an eigendisplacement in the primitive cell
 according to the formula:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">exp</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">pi</span><span class="o">*</span><span class="n">i</span><span class="o">*</span><span class="p">(</span><span class="n">frac_coords</span> \<span class="n">dot</span> <span class="n">q</span><span class="p">)</span> <span class="o">/</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">mass</span><span class="p">)</span> <span class="o">*</span> <span class="n">v</span>
@@ -68,7 +678,7 @@ multiplicative and phase factors are set to 1.</p>
 
 <dl class="function">
 <dt id="pymatgen.io.phonopy.get_complete_ph_dos">
-<code class="descname">get_complete_ph_dos</code><span class="sig-paren">(</span><em>partial_dos_path</em>, <em>phonopy_yaml_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/phonopy.html#get_complete_ph_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_complete_ph_dos" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_complete_ph_dos</code><span class="sig-paren">(</span><em class="sig-param">partial_dos_path</em>, <em class="sig-param">phonopy_yaml_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/phonopy.html#get_complete_ph_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_complete_ph_dos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a pymatgen CompletePhononDos from a partial_dos.dat and
 phonopy.yaml files.
 The second is produced when generating a Dos and is needed to extract
@@ -85,7 +695,7 @@ the structure.</p>
 
 <dl class="function">
 <dt id="pymatgen.io.phonopy.get_displaced_structures">
-<code class="descname">get_displaced_structures</code><span class="sig-paren">(</span><em>pmg_structure</em>, <em>atom_disp=0.01</em>, <em>supercell_matrix=None</em>, <em>yaml_fname=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/phonopy.html#get_displaced_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_displaced_structures" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_displaced_structures</code><span class="sig-paren">(</span><em class="sig-param">pmg_structure</em>, <em class="sig-param">atom_disp=0.01</em>, <em class="sig-param">supercell_matrix=None</em>, <em class="sig-param">yaml_fname=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/phonopy.html#get_displaced_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_displaced_structures" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a set of symmetrically inequivalent displaced structures for
 phonon calculations.</p>
 <dl class="field-list simple">
@@ -108,7 +718,7 @@ which the first element is the perfect supercell structure.</p>
 
 <dl class="function">
 <dt id="pymatgen.io.phonopy.get_ph_bs_symm_line">
-<code class="descname">get_ph_bs_symm_line</code><span class="sig-paren">(</span><em>bands_path</em>, <em>has_nac=False</em>, <em>labels_dict=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/phonopy.html#get_ph_bs_symm_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_ph_bs_symm_line" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_ph_bs_symm_line</code><span class="sig-paren">(</span><em class="sig-param">bands_path</em>, <em class="sig-param">has_nac=False</em>, <em class="sig-param">labels_dict=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/phonopy.html#get_ph_bs_symm_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_ph_bs_symm_line" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a pymatgen PhononBandStructure from a band.yaml file.
 The labels will be extracted from the dictionary, if present.
 If the ‘eigenvector’  key is found the eigendisplacements will be
@@ -131,7 +741,7 @@ exp(2*pi*i*(frac_coords dot q) / sqrt(mass) * v</p>
 
 <dl class="function">
 <dt id="pymatgen.io.phonopy.get_ph_bs_symm_line_from_dict">
-<code class="descname">get_ph_bs_symm_line_from_dict</code><span class="sig-paren">(</span><em>bands_dict</em>, <em>has_nac=False</em>, <em>labels_dict=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/phonopy.html#get_ph_bs_symm_line_from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_ph_bs_symm_line_from_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_ph_bs_symm_line_from_dict</code><span class="sig-paren">(</span><em class="sig-param">bands_dict</em>, <em class="sig-param">has_nac=False</em>, <em class="sig-param">labels_dict=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/phonopy.html#get_ph_bs_symm_line_from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_ph_bs_symm_line_from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a pymatgen PhononBandStructure object from the dictionary
 extracted by the band.yaml file produced by phonopy. The labels
 will be extracted from the dictionary, if present. If the ‘eigenvector’
@@ -156,7 +766,7 @@ Its value will replace the data contained in the band.yaml.</p></li>
 
 <dl class="function">
 <dt id="pymatgen.io.phonopy.get_ph_dos">
-<code class="descname">get_ph_dos</code><span class="sig-paren">(</span><em>total_dos_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/phonopy.html#get_ph_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_ph_dos" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_ph_dos</code><span class="sig-paren">(</span><em class="sig-param">total_dos_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/phonopy.html#get_ph_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_ph_dos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a pymatgen PhononDos from a total_dos.dat file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -167,7 +777,7 @@ Its value will replace the data contained in the band.yaml.</p></li>
 
 <dl class="function">
 <dt id="pymatgen.io.phonopy.get_phonopy_structure">
-<code class="descname">get_phonopy_structure</code><span class="sig-paren">(</span><em>pmg_structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/phonopy.html#get_phonopy_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_phonopy_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_phonopy_structure</code><span class="sig-paren">(</span><em class="sig-param">pmg_structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/phonopy.html#get_phonopy_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_phonopy_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a pymatgen Structure object to a PhonopyAtoms object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -178,7 +788,7 @@ Its value will replace the data contained in the band.yaml.</p></li>
 
 <dl class="function">
 <dt id="pymatgen.io.phonopy.get_pmg_structure">
-<code class="descname">get_pmg_structure</code><span class="sig-paren">(</span><em>phonopy_structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/phonopy.html#get_pmg_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_pmg_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_pmg_structure</code><span class="sig-paren">(</span><em class="sig-param">phonopy_structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/phonopy.html#get_pmg_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_pmg_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a PhonopyAtoms object to pymatgen Structure object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -189,7 +799,7 @@ Its value will replace the data contained in the band.yaml.</p></li>
 
 <dl class="function">
 <dt id="pymatgen.io.phonopy.get_structure_from_dict">
-<code class="descname">get_structure_from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/phonopy.html#get_structure_from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_structure_from_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_structure_from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/phonopy.html#get_structure_from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_structure_from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extracts a structure from the dictionary extracted from the output
 files of phonopy like phonopy.yaml or band.yaml.
 Adds “phonopy_masses” in the site_properties of the structures.
@@ -212,10 +822,10 @@ Compatible with older phonopy versions.</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -234,13 +844,13 @@ Compatible with older phonopy versions.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

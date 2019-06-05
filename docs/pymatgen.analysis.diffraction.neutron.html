@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.diffraction.neutron module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.analysis.diffraction.neutron module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,9 +44,14 @@
             
   <div class="section" id="module-pymatgen.analysis.diffraction.neutron">
 <span id="pymatgen-analysis-diffraction-neutron-module"></span><h1>pymatgen.analysis.diffraction.neutron module<a class="headerlink" href="#module-pymatgen.analysis.diffraction.neutron" title="Permalink to this headline">¶</a></h1>
+<dl class="data">
+<dt id="pymatgen.analysis.diffraction.neutron.ATOMIC_SCATTERING_LEN">
+<code class="sig-name descname">ATOMIC_SCATTERING_LEN</code><em class="property"> = {'100Mo': 6.73, '102Pd': 7.7, '104Pd': 7.7, '105Pd': 5.5, '106Cd': 5.0, '106Pd': 6.4, '107Ag': 7.555, '108Cd': 5.4, '108Pd': 4.1, '109Ag': 4.165, '10B': -0.1, '110Cd': 5.9, '110Pd': 7.7, '111Cd': 6.5, '112Cd': 6.4, '112Sn': 6.0, '113Cd': -8.0, '113In': 5.39, '114Cd': 7.5, '114Sn': 6.2, '115In': 4.01, '115Sn': 6.0, '116Cd': 6.3, '116Sn': 5.93, '117Sn': 6.48, '118Sn': 6.07, '119Sn': 6.12, '11B': 6.65, '120Sn': 6.49, '120Te': 5.3, '121Sb': 5.71, '122Sn': 5.74, '122Te': 3.8, '123Sb': 5.38, '123Te': -0.05, '124Sn': 5.97, '124Te': 7.96, '125Te': 5.02, '126Te': 5.56, '128Te': 5.89, '12C': 6.6511, '130Ba': -3.6, '130Te': 6.02, '132Ba': 7.8, '134Ba': 5.7, '135Ba': 4.67, '136Ba': 4.91, '136Ce': 5.8, '137Ba': 6.83, '138Ba': 4.84, '138Ce': 6.7, '138La': 8.0, '139La': 8.24, '13C': 6.19, '140Ce': 4.84, '142Ce': 4.75, '142Nd': 7.7, '143Nd': 14.0, '144Nd': 2.8, '144Sm': -3.0, '145Nd': 14.0, '146Nd': 8.7, '147Sm': 14.0, '148Nd': 5.7, '148Sm': -3.0, '149Sm': -19.2, '14N': 9.37, '150Nd': 5.3, '150Sm': 14.0, '151Eu': 6.13, '152Gd': 10.0, '152Sm': -5.0, '153Eu': 8.22, '154Gd': 10.0, '154Sm': 9.3, '155Gd': 6.0, '156Dy': 6.1, '156Gd': 6.3, '157Gd': -1.14, '158Dy': 6.0, '158Gd': 9.0, '15N': 6.44, '160Dy': 6.7, '160Gd': 9.15, '161Dy': 10.3, '162Dy': -1.4, '162Er': 8.8, '163Dy': 5.0, '164Dy': 49.4, '164Er': 8.2, '166Er': 10.6, '167Er': 3.0, '168Er': 7.4, '168Yb': -4.07, '16O': 5.803, '170Er': 9.6, '170Yb': 6.77, '171Yb': 9.66, '172Yb': 9.43, '173Yb': 9.56, '174Hf': 10.9, '174Yb': 19.3, '175Lu': 7.24, '176Hf': 6.61, '176Lu': 6.1, '176Yb': 8.72, '177Hf': 0.8, '178Hf': 5.9, '179Hf': 7.46, '17O': 5.78, '180Hf': 13.2, '180Ta': 7.0, '180W': 5.0, '181Ta': 6.91, '182W': 6.97, '183W': 6.53, '184Os': 10.0, '184W': 7.48, '185Re': 9.0, '186Os': 11.6, '186W': -0.72, '187Os': 10.0, '187Re': 9.3, '188Os': 7.6, '189Os': 10.7, '18O': 5.84, '190Os': 11.0, '190Pt': 9.0, '192Os': 11.5, '192Pt': 9.9, '194Pt': 10.55, '195Pt': 8.83, '196Hg': 30.3, '196Pt': 9.89, '198Pt': 7.8, '199Hg': 16.9, '1H': -3.7406, '203Tl': 6.99, '204Pb': 9.9, '205Tl': 9.52, '206Pb': 9.22, '207Pb': 9.28, '208Pb': 9.5, '20Ne': 4.631, '21Ne': 6.66, '22Ne': 3.87, '233U': 10.1, '234U': 12.4, '235U': 10.47, '238Pu': 14.1, '238U': 8.402, '239Pu': 7.7, '240Pu': 3.5, '242Pu': 8.1, '244Cm': 9.5, '246Cm': 9.3, '248Cm': 7.7, '24Mg': 5.66, '25Mg': 3.62, '26Mg': 4.89, '28Si': 4.107, '29Si': 4.7, '2H': 6.671, '30Si': 4.58, '32S': 2.804, '33S': 4.74, '34S': 3.48, '35Cl': 11.65, '36Ar': 24.9, '36S': 3.0, '37Cl': 3.08, '38Ar': 3.5, '39K': 3.74, '3H': 4.792, '3He': 5.74, '40Ar': 1.83, '40Ca': 4.8, '40K': 3.0, '41K': 2.69, '42Ca': 3.36, '43Ca': -1.56, '44Ca': 1.42, '46Ca': 3.6, '46Ti': 4.93, '47Ti': 3.63, '48Ca': 0.39, '48Ti': -6.08, '49Ti': 1.04, '4He': 3.26, '50Cr': -4.5, '50Ti': 6.18, '50V': 7.6, '51V': -0.402, '52Cr': 4.92, '53Cr': -4.2, '54Cr': 4.55, '54Fe': 4.2, '56Fe': 9.94, '57Fe': 2.3, '58Fe': 15.0, '58Ni': 14.4, '60Ni': 2.8, '61Ni': 7.6, '62Ni': -8.7, '63Cu': 6.43, '64Ni': -0.37, '64Zn': 5.22, '65Cu': 10.61, '66Zn': 5.97, '67Zn': 7.56, '68Zn': 6.03, '69Ga': 7.88, '6Li': 2.0, '70Ge': 10.0, '70Zn': 6.0, '71Ga': 6.4, '72Ge': 8.51, '73Ge': 5.02, '74Ge': 7.58, '74Se': 0.8, '76Ge': 8.2, '76Se': 12.2, '77Se': 8.25, '78Se': 8.24, '79Br': 6.8, '7Li': -2.22, '80Se': 7.48, '81Br': 6.79, '82Se': 6.34, '84Sr': 7.0, '85Rb': 7.03, '86Kr': 8.1, '86Sr': 5.67, '87Rb': 7.23, '87Sr': 7.4, '88Sr': 7.15, '90Zr': 6.4, '91Zr': 8.7, '92Mo': 6.91, '92Zr': 7.4, '94Mo': 6.8, '94Zr': 8.2, '95Mo': 6.91, '96Mo': 6.2, '96Zr': 5.5, '97Mo': 7.24, '98Mo': 6.58, 'Ag': 5.922, 'Al': 3.449, 'Am': 8.3, 'Ar': 1.909, 'As': 6.58, 'Au': 7.63, 'B': 5.3, 'Ba': 5.07, 'Be': 7.79, 'Bi': 8.532, 'Br': 6.795, 'C': 6.646, 'Ca': 4.7, 'Cd': 4.87, 'Ce': 4.84, 'Cl': 9.577, 'Co': 2.49, 'Cr': 3.635, 'Cs': 5.42, 'Cu': 7.718, 'Dy': 16.9, 'Er': 7.79, 'Eu': 7.22, 'F': 5.654, 'Fe': 9.45, 'Ga': 7.288, 'Gd': 6.5, 'Ge': 8.185, 'H': -3.739, 'He': 3.26, 'Hf': 7.7, 'Hg': 12.692, 'Ho': 8.01, 'I': 5.28, 'In': 4.065, 'Ir': 10.6, 'K': 3.67, 'Kr': 7.81, 'La': 8.24, 'Li': -1.9, 'Lu': 7.21, 'Mg': 5.375, 'Mn': -3.73, 'Mo': 6.715, 'N': 9.36, 'Na': 3.63, 'Nb': 7.054, 'Nd': 7.69, 'Ne': 4.566, 'Ni': 10.3, 'Np': 10.55, 'O': 5.803, 'Os': 10.7, 'P': 5.13, 'Pa': 9.1, 'Pb': 9.405, 'Pd': 5.91, 'Pm': 12.6, 'Pr': 4.58, 'Pt': 9.6, 'Ra': 10.0, 'Rb': 7.09, 'Re': 9.2, 'Rh': 5.88, 'Ru': 7.03, 'S': 2.847, 'Sb': 5.57, 'Sc': 12.29, 'Se': 7.97, 'Si': 4.1491, 'Sm': 0.8, 'Sn': 6.225, 'Sr': 7.02, 'Ta': 6.91, 'Tb': 7.38, 'Tc': 6.8, 'Te': 5.8, 'Th': 10.31, 'Ti': -3.438, 'Tl': 8.776, 'Tm': 7.07, 'U': 8.417, 'V': -0.3824, 'W': 4.86, 'Xe': 4.92, 'Y': 7.75, 'Yb': 12.43, 'Zn': 5.68, 'Zr': 7.16}</em><a class="headerlink" href="#pymatgen.analysis.diffraction.neutron.ATOMIC_SCATTERING_LEN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="class">
 <dt id="pymatgen.analysis.diffraction.neutron.NDCalculator">
-<em class="property">class </em><code class="descname">NDCalculator</code><span class="sig-paren">(</span><em>wavelength=1.54184</em>, <em>symprec=0</em>, <em>debye_waller_factors=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffraction/neutron.html#NDCalculator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.neutron.NDCalculator" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">NDCalculator</code><span class="sig-paren">(</span><em class="sig-param">wavelength=1.54184</em>, <em class="sig-param">symprec=0</em>, <em class="sig-param">debye_waller_factors=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffraction/neutron.html#NDCalculator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.neutron.NDCalculator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.analysis.diffraction.core.html#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator" title="pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator</span></code></a></p>
 <p>Computes the powder neutron diffraction pattern of a crystal structure.
 This code is a slight modification of XRDCalculator in
@@ -74,7 +79,7 @@ factors are temperature dependent.</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.analysis.diffraction.neutron.NDCalculator.get_pattern">
-<code class="descname">get_pattern</code><span class="sig-paren">(</span><em>structure</em>, <em>scaled=True</em>, <em>two_theta_range=(0</em>, <em>90)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffraction/neutron.html#NDCalculator.get_pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.neutron.NDCalculator.get_pattern" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_pattern</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">scaled=True</em>, <em class="sig-param">two_theta_range=(0</em>, <em class="sig-param">90)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffraction/neutron.html#NDCalculator.get_pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.neutron.NDCalculator.get_pattern" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the powder neutron diffraction pattern for a structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -113,10 +118,10 @@ sphere of radius 2 / wavelength.</p></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -135,13 +140,13 @@ sphere of radius 2 / wavelength.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

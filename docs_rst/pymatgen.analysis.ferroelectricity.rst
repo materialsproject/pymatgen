@@ -12,6 +12,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.analysis.ferroelectricity
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.operations module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.core.operations module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -46,7 +46,7 @@
 <span id="pymatgen-core-operations-module"></span><h1>pymatgen.core.operations module<a class="headerlink" href="#module-pymatgen.core.operations" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.core.operations.MagSymmOp">
-<em class="property">class </em><code class="descname">MagSymmOp</code><span class="sig-paren">(</span><em>affine_transformation_matrix</em>, <em>time_reversal</em>, <em>tol=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#MagSymmOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.MagSymmOp" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">MagSymmOp</code><span class="sig-paren">(</span><em class="sig-param">affine_transformation_matrix</em>, <em class="sig-param">time_reversal</em>, <em class="sig-param">tol=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#MagSymmOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.MagSymmOp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.core.operations.SymmOp" title="pymatgen.core.operations.SymmOp"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.operations.SymmOp</span></code></a></p>
 <p>Thin wrapper around SymmOp to extend it to support magnetic symmetry
 by including a  time reversal operator. Magnetic symmetry is similar
@@ -70,25 +70,25 @@ affine transformation.</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.core.operations.MagSymmOp.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#MagSymmOp.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.MagSymmOp.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#MagSymmOp.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.MagSymmOp.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>A JSON serializable dict representation of an object.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.operations.MagSymmOp.as_xyzt_string">
-<code class="descname">as_xyzt_string</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#MagSymmOp.as_xyzt_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.MagSymmOp.as_xyzt_string" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_xyzt_string</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#MagSymmOp.as_xyzt_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.MagSymmOp.as_xyzt_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a string of the form ‘x, y, z, +1’, ‘-x, -y, z, -1’,
 ‘-y+1/2, x+1/2, z+1/2, +1’, etc. Only works for integer rotation matrices</p>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.core.operations.MagSymmOp.from_dict">
-<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#MagSymmOp.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.MagSymmOp.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#MagSymmOp.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.MagSymmOp.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.core.operations.MagSymmOp.from_rotation_and_translation_and_time_reversal">
-<em class="property">static </em><code class="descname">from_rotation_and_translation_and_time_reversal</code><span class="sig-paren">(</span><em>rotation_matrix=((1</em>, <em>0</em>, <em>0)</em>, <em>(0</em>, <em>1</em>, <em>0)</em>, <em>(0</em>, <em>0</em>, <em>1))</em>, <em>translation_vec=(0</em>, <em>0</em>, <em>0)</em>, <em>time_reversal=1</em>, <em>tol=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#MagSymmOp.from_rotation_and_translation_and_time_reversal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.MagSymmOp.from_rotation_and_translation_and_time_reversal" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_rotation_and_translation_and_time_reversal</code><span class="sig-paren">(</span><em class="sig-param">rotation_matrix=((1</em>, <em class="sig-param">0</em>, <em class="sig-param">0)</em>, <em class="sig-param">(0</em>, <em class="sig-param">1</em>, <em class="sig-param">0)</em>, <em class="sig-param">(0</em>, <em class="sig-param">0</em>, <em class="sig-param">1))</em>, <em class="sig-param">translation_vec=(0</em>, <em class="sig-param">0</em>, <em class="sig-param">0)</em>, <em class="sig-param">time_reversal=1</em>, <em class="sig-param">tol=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#MagSymmOp.from_rotation_and_translation_and_time_reversal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.MagSymmOp.from_rotation_and_translation_and_time_reversal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a symmetry operation from a rotation matrix, translation
 vector and time reversal operator.</p>
 <dl class="field-list simple">
@@ -106,9 +106,9 @@ vector and time reversal operator.</p>
 </dl>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.core.operations.MagSymmOp.from_symmop">
-<em class="property">classmethod </em><code class="descname">from_symmop</code><span class="sig-paren">(</span><em>symmop</em>, <em>time_reversal</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#MagSymmOp.from_symmop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.MagSymmOp.from_symmop" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_symmop</code><span class="sig-paren">(</span><em class="sig-param">symmop</em>, <em class="sig-param">time_reversal</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#MagSymmOp.from_symmop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.MagSymmOp.from_symmop" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize a MagSymmOp from a SymmOp and time reversal operator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -123,9 +123,9 @@ vector and time reversal operator.</p>
 </dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.core.operations.MagSymmOp.from_xyzt_string">
-<em class="property">static </em><code class="descname">from_xyzt_string</code><span class="sig-paren">(</span><em>xyzt_string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#MagSymmOp.from_xyzt_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.MagSymmOp.from_xyzt_string" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_xyzt_string</code><span class="sig-paren">(</span><em class="sig-param">xyzt_string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#MagSymmOp.from_xyzt_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.MagSymmOp.from_xyzt_string" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>xyz_string</strong> – string of the form ‘x, y, z, +1’, ‘-x, -y, z, -1’,
@@ -139,7 +139,7 @@ vector and time reversal operator.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.operations.MagSymmOp.operate_magmom">
-<code class="descname">operate_magmom</code><span class="sig-paren">(</span><em>magmom</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#MagSymmOp.operate_magmom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.MagSymmOp.operate_magmom" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">operate_magmom</code><span class="sig-paren">(</span><em class="sig-param">magmom</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#MagSymmOp.operate_magmom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.MagSymmOp.operate_magmom" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply time reversal operator on the magnetic moment. Note that
 magnetic moments transform as axial vectors, not polar vectors.</p>
 <p>See ‘Symmetry and magnetic structures’, Rodríguez-Carvajal and
@@ -161,14 +161,14 @@ Bourée for a good discussion. DOI: 10.1051/epjconf/20122200010</p>
 
 <dl class="class">
 <dt id="pymatgen.core.operations.SymmOp">
-<em class="property">class </em><code class="descname">SymmOp</code><span class="sig-paren">(</span><em>affine_transformation_matrix</em>, <em>tol=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">SymmOp</code><span class="sig-paren">(</span><em class="sig-param">affine_transformation_matrix</em>, <em class="sig-param">tol=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>A symmetry operation in cartesian space. Consists of a rotation plus a
 translation. Implementation is as an affine transformation matrix of rank 4
 for efficiency. Read: <a class="reference external" href="http://en.wikipedia.org/wiki/Affine_transformation">http://en.wikipedia.org/wiki/Affine_transformation</a>.</p>
 <dl class="attribute">
 <dt id="pymatgen.core.operations.SymmOp.affine_matrix">
-<code class="descname">affine_matrix</code><a class="headerlink" href="#pymatgen.core.operations.SymmOp.affine_matrix" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">affine_matrix</code><a class="headerlink" href="#pymatgen.core.operations.SymmOp.affine_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>A 4x4 numpy.array representing the symmetry operation.</p>
 </dd></dl>
 
@@ -187,7 +187,7 @@ affine transformation.</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.core.operations.SymmOp.apply_rotation_only">
-<code class="descname">apply_rotation_only</code><span class="sig-paren">(</span><em>vector</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.apply_rotation_only"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.apply_rotation_only" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">apply_rotation_only</code><span class="sig-paren">(</span><em class="sig-param">vector</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.apply_rotation_only"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.apply_rotation_only" title="Permalink to this definition">¶</a></dt>
 <dd><p>Vectors should only be operated by the rotation matrix and not the
 translation vector.</p>
 <dl class="field-list simple">
@@ -199,7 +199,7 @@ translation vector.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.operations.SymmOp.are_symmetrically_related">
-<code class="descname">are_symmetrically_related</code><span class="sig-paren">(</span><em>point_a</em>, <em>point_b</em>, <em>tol=0.001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.are_symmetrically_related"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.are_symmetrically_related" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">are_symmetrically_related</code><span class="sig-paren">(</span><em class="sig-param">point_a</em>, <em class="sig-param">point_b</em>, <em class="sig-param">tol=0.001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.are_symmetrically_related"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.are_symmetrically_related" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if two points are symmetrically related.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -217,20 +217,20 @@ translation vector.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.operations.SymmOp.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>A JSON serializable dict representation of an object.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.operations.SymmOp.as_xyz_string">
-<code class="descname">as_xyz_string</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.as_xyz_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.as_xyz_string" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_xyz_string</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.as_xyz_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.as_xyz_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a string of the form ‘x, y, z’, ‘-x, -y, z’,
 ‘-y+1/2, x+1/2, z+1/2’, etc. Only works for integer rotation matrices</p>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.core.operations.SymmOp.from_axis_angle_and_translation">
-<em class="property">static </em><code class="descname">from_axis_angle_and_translation</code><span class="sig-paren">(</span><em>axis</em>, <em>angle</em>, <em>angle_in_radians=False</em>, <em>translation_vec=(0</em>, <em>0</em>, <em>0)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.from_axis_angle_and_translation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.from_axis_angle_and_translation" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_axis_angle_and_translation</code><span class="sig-paren">(</span><em class="sig-param">axis</em>, <em class="sig-param">angle</em>, <em class="sig-param">angle_in_radians=False</em>, <em class="sig-param">translation_vec=(0</em>, <em class="sig-param">0</em>, <em class="sig-param">0)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.from_axis_angle_and_translation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.from_axis_angle_and_translation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a SymmOp for a rotation about a given axis plus translation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -249,14 +249,14 @@ radians. Or else, units of degrees are assumed.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.core.operations.SymmOp.from_dict">
-<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.core.operations.SymmOp.from_origin_axis_angle">
-<em class="property">static </em><code class="descname">from_origin_axis_angle</code><span class="sig-paren">(</span><em>origin</em>, <em>axis</em>, <em>angle</em>, <em>angle_in_radians=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.from_origin_axis_angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.from_origin_axis_angle" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_origin_axis_angle</code><span class="sig-paren">(</span><em class="sig-param">origin</em>, <em class="sig-param">axis</em>, <em class="sig-param">angle</em>, <em class="sig-param">angle_in_radians=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.from_origin_axis_angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.from_origin_axis_angle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a SymmOp for a rotation about a given axis through an
 origin.</p>
 <dl class="field-list simple">
@@ -276,9 +276,9 @@ radians. Or else, units of degrees are assumed.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.core.operations.SymmOp.from_rotation_and_translation">
-<em class="property">static </em><code class="descname">from_rotation_and_translation</code><span class="sig-paren">(</span><em>rotation_matrix=((1</em>, <em>0</em>, <em>0)</em>, <em>(0</em>, <em>1</em>, <em>0)</em>, <em>(0</em>, <em>0</em>, <em>1))</em>, <em>translation_vec=(0</em>, <em>0</em>, <em>0)</em>, <em>tol=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.from_rotation_and_translation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.from_rotation_and_translation" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_rotation_and_translation</code><span class="sig-paren">(</span><em class="sig-param">rotation_matrix=((1</em>, <em class="sig-param">0</em>, <em class="sig-param">0)</em>, <em class="sig-param">(0</em>, <em class="sig-param">1</em>, <em class="sig-param">0)</em>, <em class="sig-param">(0</em>, <em class="sig-param">0</em>, <em class="sig-param">1))</em>, <em class="sig-param">translation_vec=(0</em>, <em class="sig-param">0</em>, <em class="sig-param">0)</em>, <em class="sig-param">tol=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.from_rotation_and_translation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.from_rotation_and_translation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a symmetry operation from a rotation matrix and a translation
 vector.</p>
 <dl class="field-list simple">
@@ -295,9 +295,9 @@ vector.</p>
 </dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.core.operations.SymmOp.from_xyz_string">
-<em class="property">static </em><code class="descname">from_xyz_string</code><span class="sig-paren">(</span><em>xyz_string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.from_xyz_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.from_xyz_string" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_xyz_string</code><span class="sig-paren">(</span><em class="sig-param">xyz_string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.from_xyz_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.from_xyz_string" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>xyz_string</strong> – string of the form ‘x, y, z’, ‘-x, -y, z’,
@@ -309,15 +309,15 @@ vector.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.core.operations.SymmOp.inverse">
-<code class="descname">inverse</code><a class="headerlink" href="#pymatgen.core.operations.SymmOp.inverse" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">inverse</code><a class="headerlink" href="#pymatgen.core.operations.SymmOp.inverse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns inverse of transformation.</p>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.core.operations.SymmOp.inversion">
-<em class="property">static </em><code class="descname">inversion</code><span class="sig-paren">(</span><em>origin=(0</em>, <em>0</em>, <em>0)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.inversion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.inversion" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">inversion</code><span class="sig-paren">(</span><em class="sig-param">origin=(0</em>, <em class="sig-param">0</em>, <em class="sig-param">0)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.inversion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.inversion" title="Permalink to this definition">¶</a></dt>
 <dd><p>Inversion symmetry operation about axis.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -332,7 +332,7 @@ to [0, 0, 0].</p>
 
 <dl class="method">
 <dt id="pymatgen.core.operations.SymmOp.operate">
-<code class="descname">operate</code><span class="sig-paren">(</span><em>point</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.operate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.operate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">operate</code><span class="sig-paren">(</span><em class="sig-param">point</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.operate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.operate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply the operation on a point.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -346,7 +346,7 @@ to [0, 0, 0].</p>
 
 <dl class="method">
 <dt id="pymatgen.core.operations.SymmOp.operate_multi">
-<code class="descname">operate_multi</code><span class="sig-paren">(</span><em>points</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.operate_multi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.operate_multi" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">operate_multi</code><span class="sig-paren">(</span><em class="sig-param">points</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.operate_multi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.operate_multi" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply the operation on a list of points.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -358,9 +358,9 @@ to [0, 0, 0].</p>
 </dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.core.operations.SymmOp.reflection">
-<em class="property">static </em><code class="descname">reflection</code><span class="sig-paren">(</span><em>normal</em>, <em>origin=(0</em>, <em>0</em>, <em>0)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.reflection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.reflection" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">reflection</code><span class="sig-paren">(</span><em class="sig-param">normal</em>, <em class="sig-param">origin=(0</em>, <em class="sig-param">0</em>, <em class="sig-param">0)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.reflection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.reflection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns reflection symmetry operation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -377,15 +377,15 @@ through.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.core.operations.SymmOp.rotation_matrix">
-<code class="descname">rotation_matrix</code><a class="headerlink" href="#pymatgen.core.operations.SymmOp.rotation_matrix" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">rotation_matrix</code><a class="headerlink" href="#pymatgen.core.operations.SymmOp.rotation_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>A 3x3 numpy.array representing the rotation matrix.</p>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.core.operations.SymmOp.rotoreflection">
-<em class="property">static </em><code class="descname">rotoreflection</code><span class="sig-paren">(</span><em>axis</em>, <em>angle</em>, <em>origin=(0</em>, <em>0</em>, <em>0)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.rotoreflection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.rotoreflection" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">rotoreflection</code><span class="sig-paren">(</span><em class="sig-param">axis</em>, <em class="sig-param">angle</em>, <em class="sig-param">origin=(0</em>, <em class="sig-param">0</em>, <em class="sig-param">0)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.rotoreflection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.rotoreflection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a roto-reflection symmetry operation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -404,7 +404,7 @@ Defaults to (0, 0, 0).</p></li>
 
 <dl class="method">
 <dt id="pymatgen.core.operations.SymmOp.transform_tensor">
-<code class="descname">transform_tensor</code><span class="sig-paren">(</span><em>tensor</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.transform_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.transform_tensor" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">transform_tensor</code><span class="sig-paren">(</span><em class="sig-param">tensor</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.transform_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.transform_tensor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies rotation portion to a tensor. Note that tensor has to be in
 full form, not the Voigt form.</p>
 <dl class="field-list simple">
@@ -417,9 +417,9 @@ full form, not the Voigt form.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.core.operations.SymmOp.translation_vector">
-<code class="descname">translation_vector</code><a class="headerlink" href="#pymatgen.core.operations.SymmOp.translation_vector" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">translation_vector</code><a class="headerlink" href="#pymatgen.core.operations.SymmOp.translation_vector" title="Permalink to this definition">¶</a></dt>
 <dd><p>A rank 1 numpy.array of dim 3 representing the translation vector.</p>
 </dd></dl>
 
@@ -441,10 +441,10 @@ full form, not the Voigt form.</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -463,13 +463,13 @@ full form, not the Voigt form.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

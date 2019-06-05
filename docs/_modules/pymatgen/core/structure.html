@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.structure &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.core.structure &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.5.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -94,7 +94,7 @@
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Sep 23, 2011&quot;</span>
 
 
-<div class="viewcode-block" id="SiteCollection"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection">[docs]</a><span class="k">class</span> <span class="nc">SiteCollection</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Sequence</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
+<div class="viewcode-block" id="SiteCollection"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.SiteCollection">[docs]</a><span class="k">class</span> <span class="nc">SiteCollection</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Sequence</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Basic SiteCollection. Essentially a sequence of Sites or PeriodicSites.</span>
 <span class="sd">    This serves as a base class for Molecule (a collection of Site, i.e., no</span>
@@ -113,7 +113,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span>
 
-<div class="viewcode-block" id="SiteCollection.get_distance"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection.get_distance">[docs]</a>    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="SiteCollection.get_distance"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.SiteCollection.get_distance">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">get_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">j</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns distance between sites at index i and j.</span>
@@ -178,14 +178,14 @@
                 <span class="n">types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">types</span>
 
-<div class="viewcode-block" id="SiteCollection.group_by_types"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection.group_by_types">[docs]</a>    <span class="k">def</span> <span class="nf">group_by_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SiteCollection.group_by_types"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.SiteCollection.group_by_types">[docs]</a>    <span class="k">def</span> <span class="nf">group_by_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Iterate over species grouped by type&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">types_of_specie</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span> <span class="o">==</span> <span class="n">t</span><span class="p">:</span>
                     <span class="k">yield</span> <span class="n">site</span></div>
 
-<div class="viewcode-block" id="SiteCollection.indices_from_symbol"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection.indices_from_symbol">[docs]</a>    <span class="k">def</span> <span class="nf">indices_from_symbol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symbol</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<div class="viewcode-block" id="SiteCollection.indices_from_symbol"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.SiteCollection.indices_from_symbol">[docs]</a>    <span class="k">def</span> <span class="nf">indices_from_symbol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symbol</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a tuple with the sequential indices of the sites</span>
 <span class="sd">        that contain an element with the given chemical symbol.</span>
@@ -290,7 +290,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">all</span><span class="p">((</span><span class="n">site</span><span class="o">.</span><span class="n">is_ordered</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">))</span>
 
-<div class="viewcode-block" id="SiteCollection.get_angle"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection.get_angle">[docs]</a>    <span class="k">def</span> <span class="nf">get_angle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">j</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<div class="viewcode-block" id="SiteCollection.get_angle"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.SiteCollection.get_angle">[docs]</a>    <span class="k">def</span> <span class="nf">get_angle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">j</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns angle specified by three sites.</span>
 
@@ -306,7 +306,7 @@
         <span class="n">v2</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span> <span class="o">-</span> <span class="bp">self</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span>
         <span class="k">return</span> <span class="n">get_angle</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s2">&quot;degrees&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SiteCollection.get_dihedral"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection.get_dihedral">[docs]</a>    <span class="k">def</span> <span class="nf">get_dihedral</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">j</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">l</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<div class="viewcode-block" id="SiteCollection.get_dihedral"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.SiteCollection.get_dihedral">[docs]</a>    <span class="k">def</span> <span class="nf">get_dihedral</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">j</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">l</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns dihedral angle specified by four sites.</span>
 
@@ -327,7 +327,7 @@
         <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v2</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v23</span><span class="p">),</span>
                                        <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">v12</span><span class="p">,</span> <span class="n">v23</span><span class="p">)))</span></div>
 
-<div class="viewcode-block" id="SiteCollection.is_valid"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection.is_valid">[docs]</a>    <span class="k">def</span> <span class="nf">is_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">DISTANCE_TOLERANCE</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="SiteCollection.is_valid"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.SiteCollection.is_valid">[docs]</a>    <span class="k">def</span> <span class="nf">is_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">DISTANCE_TOLERANCE</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        True if SiteCollection does not contain atoms that are too close</span>
 <span class="sd">        together. Note that the distance definition is based on type of</span>
@@ -346,7 +346,7 @@
         <span class="n">all_dists</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_matrix</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">triu_indices</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="mi">1</span><span class="p">)]</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">all_dists</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">tol</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SiteCollection.to"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection.to">[docs]</a>    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="SiteCollection.to"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.SiteCollection.to">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmt</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generates well-known string representations of SiteCollections (e.g.,</span>
@@ -354,7 +354,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="SiteCollection.from_str"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection.from_str">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="SiteCollection.from_str"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.SiteCollection.from_str">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">from_str</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">input_string</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fmt</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -362,7 +362,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="SiteCollection.from_file"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection.from_file">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="SiteCollection.from_file"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.SiteCollection.from_file">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -370,7 +370,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="SiteCollection.add_site_property"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection.add_site_property">[docs]</a>    <span class="k">def</span> <span class="nf">add_site_property</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">property_name</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+<div class="viewcode-block" id="SiteCollection.add_site_property"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.SiteCollection.add_site_property">[docs]</a>    <span class="k">def</span> <span class="nf">add_site_property</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">property_name</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adds a property to a site.</span>
 
@@ -384,7 +384,7 @@
         <span class="k">for</span> <span class="n">site</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sites</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
             <span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="n">property_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span></div>
 
-<div class="viewcode-block" id="SiteCollection.remove_site_property"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection.remove_site_property">[docs]</a>    <span class="k">def</span> <span class="nf">remove_site_property</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">property_name</span><span class="p">):</span>
+<div class="viewcode-block" id="SiteCollection.remove_site_property"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.SiteCollection.remove_site_property">[docs]</a>    <span class="k">def</span> <span class="nf">remove_site_property</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">property_name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adds a property to a site.</span>
 
@@ -394,7 +394,7 @@
         <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sites</span><span class="p">:</span>
             <span class="k">del</span> <span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="n">property_name</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="SiteCollection.replace_species"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection.replace_species">[docs]</a>    <span class="k">def</span> <span class="nf">replace_species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species_mapping</span><span class="p">):</span>
+<div class="viewcode-block" id="SiteCollection.replace_species"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.SiteCollection.replace_species">[docs]</a>    <span class="k">def</span> <span class="nf">replace_species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species_mapping</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Swap species.</span>
 
@@ -429,7 +429,7 @@
                         <span class="n">c</span> <span class="o">+=</span> <span class="p">{</span><span class="n">new_sp</span><span class="p">:</span> <span class="n">amt</span><span class="p">}</span>
                 <span class="n">site</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">c</span></div>
 
-<div class="viewcode-block" id="SiteCollection.add_oxidation_state_by_element"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection.add_oxidation_state_by_element">[docs]</a>    <span class="k">def</span> <span class="nf">add_oxidation_state_by_element</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oxidation_states</span><span class="p">):</span>
+<div class="viewcode-block" id="SiteCollection.add_oxidation_state_by_element"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.SiteCollection.add_oxidation_state_by_element">[docs]</a>    <span class="k">def</span> <span class="nf">add_oxidation_state_by_element</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oxidation_states</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add oxidation states.</span>
 
@@ -448,7 +448,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Oxidation state of all elements must be &quot;</span>
                              <span class="s2">&quot;specified in the dictionary.&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SiteCollection.add_oxidation_state_by_site"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection.add_oxidation_state_by_site">[docs]</a>    <span class="k">def</span> <span class="nf">add_oxidation_state_by_site</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oxidation_states</span><span class="p">):</span>
+<div class="viewcode-block" id="SiteCollection.add_oxidation_state_by_site"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.SiteCollection.add_oxidation_state_by_site">[docs]</a>    <span class="k">def</span> <span class="nf">add_oxidation_state_by_site</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oxidation_states</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add oxidation states to a structure by site.</span>
 
@@ -466,7 +466,7 @@
                 <span class="n">new_sp</span><span class="p">[</span><span class="n">Specie</span><span class="p">(</span><span class="n">sym</span><span class="p">,</span> <span class="n">ox</span><span class="p">)]</span> <span class="o">=</span> <span class="n">occu</span>
             <span class="n">site</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">new_sp</span></div>
 
-<div class="viewcode-block" id="SiteCollection.remove_oxidation_states"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection.remove_oxidation_states">[docs]</a>    <span class="k">def</span> <span class="nf">remove_oxidation_states</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SiteCollection.remove_oxidation_states"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.SiteCollection.remove_oxidation_states">[docs]</a>    <span class="k">def</span> <span class="nf">remove_oxidation_states</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Removes oxidation states from a structure.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -477,7 +477,7 @@
                 <span class="n">new_sp</span><span class="p">[</span><span class="n">Element</span><span class="p">(</span><span class="n">sym</span><span class="p">)]</span> <span class="o">+=</span> <span class="n">occu</span>
             <span class="n">site</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">new_sp</span></div>
 
-<div class="viewcode-block" id="SiteCollection.add_oxidation_state_by_guess"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection.add_oxidation_state_by_guess">[docs]</a>    <span class="k">def</span> <span class="nf">add_oxidation_state_by_guess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="SiteCollection.add_oxidation_state_by_guess"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.SiteCollection.add_oxidation_state_by_guess">[docs]</a>    <span class="k">def</span> <span class="nf">add_oxidation_state_by_guess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Decorates the structure with oxidation state, guessing</span>
 <span class="sd">        using Composition.oxi_state_guesses()</span>
@@ -490,7 +490,7 @@
                      <span class="p">[</span><span class="nb">dict</span><span class="p">([(</span><span class="n">e</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">composition</span><span class="p">])]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_oxidation_state_by_element</span><span class="p">(</span><span class="n">oxid_guess</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
 
-<div class="viewcode-block" id="SiteCollection.add_spin_by_element"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection.add_spin_by_element">[docs]</a>    <span class="k">def</span> <span class="nf">add_spin_by_element</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spins</span><span class="p">):</span>
+<div class="viewcode-block" id="SiteCollection.add_spin_by_element"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.SiteCollection.add_spin_by_element">[docs]</a>    <span class="k">def</span> <span class="nf">add_spin_by_element</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spins</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add spin states to a structure.</span>
 
@@ -507,7 +507,7 @@
                               <span class="n">properties</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;spin&#39;</span><span class="p">:</span> <span class="n">spins</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">sp</span><span class="p">),</span> <span class="n">spins</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sym</span><span class="p">,</span> <span class="kc">None</span><span class="p">))})]</span> <span class="o">=</span> <span class="n">occu</span>
             <span class="n">site</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">new_sp</span></div>
 
-<div class="viewcode-block" id="SiteCollection.add_spin_by_site"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection.add_spin_by_site">[docs]</a>    <span class="k">def</span> <span class="nf">add_spin_by_site</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spins</span><span class="p">):</span>
+<div class="viewcode-block" id="SiteCollection.add_spin_by_site"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.SiteCollection.add_spin_by_site">[docs]</a>    <span class="k">def</span> <span class="nf">add_spin_by_site</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spins</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add spin states to a structure by site.</span>
 
@@ -528,7 +528,7 @@
                               <span class="n">properties</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;spin&#39;</span><span class="p">:</span> <span class="n">spin</span><span class="p">})]</span> <span class="o">=</span> <span class="n">occu</span>
             <span class="n">site</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">new_sp</span></div>
 
-<div class="viewcode-block" id="SiteCollection.remove_spin"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection.remove_spin">[docs]</a>    <span class="k">def</span> <span class="nf">remove_spin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SiteCollection.remove_spin"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.SiteCollection.remove_spin">[docs]</a>    <span class="k">def</span> <span class="nf">remove_spin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Removes spin states from a structure.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -539,7 +539,7 @@
                 <span class="n">new_sp</span><span class="p">[</span><span class="n">Specie</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="n">oxidation_state</span><span class="o">=</span><span class="n">oxi_state</span><span class="p">)]</span> <span class="o">+=</span> <span class="n">occu</span>
             <span class="n">site</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">new_sp</span></div>
 
-<div class="viewcode-block" id="SiteCollection.extract_cluster"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection.extract_cluster">[docs]</a>    <span class="k">def</span> <span class="nf">extract_cluster</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_sites</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="SiteCollection.extract_cluster"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.SiteCollection.extract_cluster">[docs]</a>    <span class="k">def</span> <span class="nf">extract_cluster</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_sites</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Extracts a cluster of atoms based on bond lengths</span>
 
@@ -567,7 +567,7 @@
         <span class="k">return</span> <span class="n">cluster</span></div></div>
 
 
-<div class="viewcode-block" id="IStructure"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure">[docs]</a><span class="k">class</span> <span class="nc">IStructure</span><span class="p">(</span><span class="n">SiteCollection</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">):</span>
+<div class="viewcode-block" id="IStructure"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IStructure">[docs]</a><span class="k">class</span> <span class="nc">IStructure</span><span class="p">(</span><span class="n">SiteCollection</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Basic immutable Structure object with periodicity. Essentially a sequence</span>
 <span class="sd">    of PeriodicSites having a common lattice. IStructure is made to be</span>
@@ -646,7 +646,7 @@
                                   <span class="s2">&quot;less than 0.01 Angstrom apart!&quot;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_charge</span> <span class="o">=</span> <span class="n">charge</span>
 
-<div class="viewcode-block" id="IStructure.from_sites"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.from_sites">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="IStructure.from_sites"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IStructure.from_sites">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_sites</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sites</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">validate_proximity</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                    <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -690,7 +690,7 @@
                    <span class="n">validate_proximity</span><span class="o">=</span><span class="n">validate_proximity</span><span class="p">,</span>
                    <span class="n">to_unit_cell</span><span class="o">=</span><span class="n">to_unit_cell</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="IStructure.from_spacegroup"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.from_spacegroup">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="IStructure.from_spacegroup"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IStructure.from_spacegroup">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_spacegroup</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sg</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">site_properties</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                         <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -776,7 +776,7 @@
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">latt</span><span class="p">,</span> <span class="n">all_sp</span><span class="p">,</span> <span class="n">all_coords</span><span class="p">,</span>
                    <span class="n">site_properties</span><span class="o">=</span><span class="n">all_site_properties</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="IStructure.from_magnetic_spacegroup"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.from_magnetic_spacegroup">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="IStructure.from_magnetic_spacegroup"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IStructure.from_magnetic_spacegroup">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_magnetic_spacegroup</span><span class="p">(</span>
             <span class="bp">cls</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">site_properties</span><span class="p">,</span>
             <span class="n">transform_setting</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">):</span>
@@ -921,7 +921,7 @@
         <span class="n">m</span> <span class="o">=</span> <span class="n">Mass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">weight</span><span class="p">,</span> <span class="s2">&quot;amu&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">m</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;g&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">volume</span> <span class="o">*</span> <span class="n">Length</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;ang&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;cm&quot;</span><span class="p">)</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)</span>
 
-<div class="viewcode-block" id="IStructure.get_space_group_info"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.get_space_group_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_space_group_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="o">=</span><span class="mf">5.0</span><span class="p">):</span>
+<div class="viewcode-block" id="IStructure.get_space_group_info"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IStructure.get_space_group_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_space_group_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="o">=</span><span class="mf">5.0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convenience method to quickly get the spacegroup of a structure.</span>
 
@@ -940,7 +940,7 @@
                                <span class="n">angle_tolerance</span><span class="o">=</span><span class="n">angle_tolerance</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">a</span><span class="o">.</span><span class="n">get_space_group_symbol</span><span class="p">(),</span> <span class="n">a</span><span class="o">.</span><span class="n">get_space_group_number</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="IStructure.matches"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.matches">[docs]</a>    <span class="k">def</span> <span class="nf">matches</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="IStructure.matches"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IStructure.matches">[docs]</a>    <span class="k">def</span> <span class="nf">matches</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check whether this structure is similar to another structure.</span>
 <span class="sd">        Basically a convenience method to call structure matching fitting.</span>
@@ -1044,7 +1044,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span><span class="o">.</span><span class="n">volume</span>
 
-<div class="viewcode-block" id="IStructure.get_distance"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.get_distance">[docs]</a>    <span class="k">def</span> <span class="nf">get_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">jimage</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="IStructure.get_distance"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IStructure.get_distance">[docs]</a>    <span class="k">def</span> <span class="nf">get_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">jimage</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get distance between site i and j assuming periodic boundary</span>
 <span class="sd">        conditions. If the index jimage of two sites atom j is not specified it</span>
@@ -1064,7 +1064,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">jimage</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="IStructure.get_sites_in_sphere"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.get_sites_in_sphere">[docs]</a>    <span class="k">def</span> <span class="nf">get_sites_in_sphere</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pt</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_image</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="IStructure.get_sites_in_sphere"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IStructure.get_sites_in_sphere">[docs]</a>    <span class="k">def</span> <span class="nf">get_sites_in_sphere</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pt</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_image</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find all sites within a sphere from the point. This includes sites</span>
 <span class="sd">        in other periodic images.</span>
@@ -1108,7 +1108,32 @@
             <span class="n">neighbors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn_data</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">neighbors</span></div>
 
-<div class="viewcode-block" id="IStructure.get_neighbors"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.get_neighbors">[docs]</a>    <span class="k">def</span> <span class="nf">get_neighbors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_image</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="IStructure.get_neighbors"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IStructure.get_neighbors">[docs]</a>    <span class="k">def</span> <span class="nf">get_neighbors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_image</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all neighbors to a site within a sphere of radius r.  Excludes the</span>
+<span class="sd">        site itself.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            site (Site): Which is the center of the sphere.</span>
+<span class="sd">            r (float): Radius of sphere.</span>
+<span class="sd">            include_index (bool): Whether the non-supercell site index</span>
+<span class="sd">                is included in the returned data</span>
+<span class="sd">            include_image (bool): Whether to include the supercell image</span>
+<span class="sd">                is included in the returned data</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            [(site, dist) ...] since most of the time, subsequent processing</span>
+<span class="sd">            requires the distance.</span>
+<span class="sd">            If include_index == True, the tuple for each neighbor also includes</span>
+<span class="sd">            the index of the neighbor.</span>
+<span class="sd">            If include_supercell == True, the tuple for each neighbor also includes</span>
+<span class="sd">            the index of supercell.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_all_neighbors</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="n">include_index</span><span class="p">,</span>
+                                      <span class="n">include_image</span><span class="o">=</span><span class="n">include_image</span><span class="p">,</span>
+                                      <span class="n">include_site</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sites</span><span class="o">=</span><span class="p">[</span><span class="n">site</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="IStructure.get_neighbors_old"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IStructure.get_neighbors_old">[docs]</a>    <span class="k">def</span> <span class="nf">get_neighbors_old</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_image</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all neighbors to a site within a sphere of radius r.  Excludes the</span>
 <span class="sd">        site itself.</span>
@@ -1134,8 +1159,8 @@
                                       <span class="n">include_image</span><span class="o">=</span><span class="n">include_image</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">nn</span> <span class="k">if</span> <span class="n">site</span> <span class="o">!=</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span></div>
 
-<div class="viewcode-block" id="IStructure.get_all_neighbors"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.get_all_neighbors">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_neighbors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_image</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                          <span class="n">include_site</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="IStructure.get_all_neighbors_old"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IStructure.get_all_neighbors_old">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_neighbors_old</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_image</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                              <span class="n">include_site</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get neighbors for each atom in the unit cell, out to a distance r</span>
 <span class="sd">        Returns a list of list of neighbors for each site in structure.</span>
@@ -1181,7 +1206,6 @@
         <span class="n">nmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span> <span class="o">+</span> <span class="n">maxr</span>
 
         <span class="n">all_ranges</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">nmin</span><span class="p">,</span> <span class="n">nmax</span><span class="p">)]</span>
-
         <span class="n">latt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span>
         <span class="n">matrix</span> <span class="o">=</span> <span class="n">latt</span><span class="o">.</span><span class="n">matrix</span>
         <span class="n">neighbors</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">))]</span>
@@ -1215,7 +1239,190 @@
                     <span class="n">neighbors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">neighbors</span></div>
 
-<div class="viewcode-block" id="IStructure.get_neighbors_in_shell"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.get_neighbors_in_shell">[docs]</a>    <span class="k">def</span> <span class="nf">get_neighbors_in_shell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">origin</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">dr</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_image</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="IStructure.get_all_neighbors"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IStructure.get_all_neighbors">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_neighbors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                          <span class="n">include_image</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_site</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                          <span class="n">sites</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">numerical_tol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get neighbors for each atom in the unit cell, out to a distance r</span>
+<span class="sd">        Returns a list of list of neighbors for each site in structure.</span>
+<span class="sd">        Use this method if you are planning on looping over all sites in the</span>
+<span class="sd">        crystal. If you only want neighbors for a particular site, use the</span>
+<span class="sd">        method get_neighbors as it may not have to build such a large supercell</span>
+<span class="sd">        However if you are looping over all sites in the crystal, this method</span>
+<span class="sd">        is more efficient since it only performs one pass over a large enough</span>
+<span class="sd">        supercell to contain all possible atoms out to a distance r.</span>
+<span class="sd">        The return type is a [(site, dist) ...] since most of the time,</span>
+<span class="sd">        subsequent processing requires the distance.</span>
+
+<span class="sd">        A note about periodic images: Before computing the neighbors, this</span>
+<span class="sd">        operation translates all atoms to within the unit cell (having</span>
+<span class="sd">        fractional coordinates within [0,1)). This means that the &quot;image&quot; of a</span>
+<span class="sd">        site does not correspond to how much it has been translates from its</span>
+<span class="sd">        current position, but which image of the unit cell it resides.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            r (float): Radius of sphere.</span>
+<span class="sd">            include_index (bool): Whether to include the non-supercell site</span>
+<span class="sd">                in the returned data</span>
+<span class="sd">            include_image (bool): Whether to include the supercell image</span>
+<span class="sd">                in the returned data</span>
+<span class="sd">            include_site (bool): Whether to include the site in the returned</span>
+<span class="sd">                data. Defaults to True.</span>
+<span class="sd">            sites (list of Sites or Site or None): sites for getting all neighbors,</span>
+<span class="sd">                default is None, which means neighbors will be obtained for all</span>
+<span class="sd">                sites.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A list of a list of nearest neighbors for each site, i.e.,</span>
+<span class="sd">            [[(site, dist, index, image) ...], ..]</span>
+<span class="sd">            Index only supplied if include_index = True.</span>
+<span class="sd">            The index is the index of the site in the original (non-supercell)</span>
+<span class="sd">            structure. This is needed for ewaldmatrix by keeping track of which</span>
+<span class="sd">            sites contribute to the ewald sum.</span>
+<span class="sd">            Image only supplied if include_image = True</span>
+<span class="sd">            Site is supplied only if include_site = True (the default).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">compute_cube_index</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">global_min</span><span class="p">,</span> <span class="n">radius</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Compute the cube index from coordinates</span>
+
+<span class="sd">            :param coords: (nx3 array) atom coordinates</span>
+<span class="sd">            :param global_min: (float) lower boundary of coordinates</span>
+<span class="sd">            :param radius: (float) cutoff radius</span>
+<span class="sd">            :return: (nx3 array) int indices</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">((</span><span class="n">coords</span> <span class="o">-</span> <span class="n">global_min</span><span class="p">)</span> <span class="o">/</span> <span class="n">radius</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">one_to_three</span><span class="p">(</span><span class="n">label1d</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Convert a 1D index array to 3D index array</span>
+
+<span class="sd">            :param label1d: (array) 1D index array</span>
+<span class="sd">            :param ny: (int) number of cells in y direction</span>
+<span class="sd">            :param nz: (int) number of cells in z direction</span>
+<span class="sd">            :return: (nx3) int array of index</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">last</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">label1d</span><span class="p">,</span> <span class="n">nz</span><span class="p">)</span>
+            <span class="n">second</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">((</span><span class="n">label1d</span> <span class="o">-</span> <span class="n">last</span><span class="p">)</span> <span class="o">/</span> <span class="n">nz</span><span class="p">,</span> <span class="n">ny</span><span class="p">)</span>
+            <span class="n">first</span> <span class="o">=</span> <span class="p">(</span><span class="n">label1d</span> <span class="o">-</span> <span class="n">last</span> <span class="o">-</span> <span class="n">second</span> <span class="o">*</span> <span class="n">nz</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">ny</span> <span class="o">*</span> <span class="n">nz</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">first</span><span class="p">,</span> <span class="n">second</span><span class="p">,</span> <span class="n">last</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">three_to_one</span><span class="p">(</span><span class="n">label3d</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            The reverse of one_to_three</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">label3d</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">ny</span> <span class="o">*</span> <span class="n">nz</span> <span class="o">+</span> <span class="n">label3d</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">nz</span> <span class="o">+</span> <span class="n">label3d</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="k">def</span> <span class="nf">find_neighbors</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Given a cube index, find the neighbor cube indices</span>
+<span class="sd">            :param label: (array) (n,) or (n x 3) indice array</span>
+<span class="sd">            :param nx: (int) number of cells in y direction</span>
+<span class="sd">            :param ny: (int) number of cells in y direction</span>
+<span class="sd">            :param nz: (int) number of cells in z direction</span>
+<span class="sd">            :return: neighbor cell indices</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">array</span> <span class="o">=</span> <span class="p">[[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span> <span class="o">*</span> <span class="mi">3</span>
+            <span class="n">neighbor_vectors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">array</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">label</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">label3d</span> <span class="o">=</span> <span class="n">one_to_three</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">label3d</span> <span class="o">=</span> <span class="n">label</span>
+            <span class="n">all_labels</span> <span class="o">=</span> <span class="n">label3d</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">neighbor_vectors</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+            <span class="n">filtered_labels</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="c1"># filter out out-of-bound labels i.e., label &lt; 0</span>
+            <span class="k">for</span> <span class="n">labels</span> <span class="ow">in</span> <span class="n">all_labels</span><span class="p">:</span>
+                <span class="n">ind</span> <span class="o">=</span> <span class="p">(</span><span class="n">labels</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">nx</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">labels</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">ny</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">labels</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">nz</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">labels</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mf">1e-5</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">filtered_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="n">ind</span><span class="p">])</span>
+            <span class="k">return</span> <span class="n">filtered_labels</span>
+
+        <span class="n">latt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span>
+        <span class="k">if</span> <span class="n">sites</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sites</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sites</span>
+        <span class="n">site_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">])</span>
+        <span class="n">recp_len</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">latt</span><span class="o">.</span><span class="n">reciprocal_lattice</span><span class="o">.</span><span class="n">abc</span><span class="p">)</span>
+        <span class="n">maxr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="n">r</span> <span class="o">+</span> <span class="mf">0.15</span><span class="p">)</span> <span class="o">*</span> <span class="n">recp_len</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+        <span class="n">frac_coords</span> <span class="o">=</span> <span class="n">latt</span><span class="o">.</span><span class="n">get_fractional_coords</span><span class="p">(</span><span class="n">site_coords</span><span class="p">)</span>
+        <span class="n">nmin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span> <span class="o">-</span> <span class="n">maxr</span>
+        <span class="n">nmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span> <span class="o">+</span> <span class="n">maxr</span>
+        <span class="n">all_ranges</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">nmin</span><span class="p">,</span> <span class="n">nmax</span><span class="p">)]</span>
+        <span class="n">matrix</span> <span class="o">=</span> <span class="n">latt</span><span class="o">.</span><span class="n">matrix</span>
+        <span class="n">all_fcoords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">coords_in_cell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">all_fcoords</span><span class="p">,</span> <span class="n">matrix</span><span class="p">)</span>
+        <span class="n">coords_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">site_coords</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">coords_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">site_coords</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="c1"># The lower bound of all considered atom coords</span>
+        <span class="n">global_min</span> <span class="o">=</span> <span class="n">coords_min</span> <span class="o">-</span> <span class="n">r</span> <span class="o">-</span> <span class="n">numerical_tol</span>
+        <span class="n">global_max</span> <span class="o">=</span> <span class="n">coords_max</span> <span class="o">+</span> <span class="n">r</span> <span class="o">+</span> <span class="n">numerical_tol</span>
+
+        <span class="c1"># Filter out those beyond max range</span>
+        <span class="n">valid_coords</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">valid_images</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">valid_indices</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">all_ranges</span><span class="p">):</span>
+            <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">matrix</span><span class="p">)</span> <span class="o">+</span> <span class="n">coords_in_cell</span>
+            <span class="n">valid_index_bool</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span><span class="n">coords</span> <span class="o">&gt;</span> <span class="n">global_min</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:],</span>  <span class="n">coords</span> <span class="o">&lt;</span> <span class="n">global_max</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]),</span>
+                                      <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">valid_index_bool</span><span class="p">):</span>
+                <span class="n">valid_coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coords</span><span class="p">[</span><span class="n">valid_index_bool</span><span class="p">])</span>
+                <span class="n">valid_images</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="nb">list</span><span class="p">(</span><span class="n">image</span><span class="p">)]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">valid_index_bool</span><span class="p">))</span>
+                <span class="n">valid_indices</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ind</span> <span class="k">if</span> <span class="n">valid_index_bool</span><span class="p">[</span><span class="n">k</span><span class="p">]])</span>
+        <span class="n">valid_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">valid_coords</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="c1"># Divide the valid 3D space into cubes and compute the cube ids</span>
+        <span class="n">all_cube_index</span> <span class="o">=</span> <span class="n">compute_cube_index</span><span class="p">(</span><span class="n">valid_coords</span><span class="p">,</span> <span class="n">global_min</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+        <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nz</span> <span class="o">=</span> <span class="n">compute_cube_index</span><span class="p">(</span><span class="n">global_max</span><span class="p">,</span> <span class="n">global_min</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">all_cube_index</span> <span class="o">=</span> <span class="n">three_to_one</span><span class="p">(</span><span class="n">all_cube_index</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="p">)</span>
+        <span class="n">site_cube_index</span> <span class="o">=</span> <span class="n">three_to_one</span><span class="p">(</span><span class="n">compute_cube_index</span><span class="p">(</span><span class="n">site_coords</span><span class="p">,</span> <span class="n">global_min</span><span class="p">,</span> <span class="n">r</span><span class="p">),</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="p">)</span>
+        <span class="c1"># create cube index to coordinates, images, and indices map</span>
+        <span class="n">cube_to_coords</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="n">cube_to_images</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="n">cube_to_indices</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">all_cube_index</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">valid_coords</span><span class="p">,</span>
+                              <span class="n">valid_images</span><span class="p">,</span> <span class="n">valid_indices</span><span class="p">):</span>
+            <span class="n">cube_to_coords</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+            <span class="n">cube_to_images</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+            <span class="n">cube_to_indices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+
+        <span class="c1"># find all neighboring cubes for each atom in the lattice cell</span>
+        <span class="n">site_neighbors</span> <span class="o">=</span> <span class="n">find_neighbors</span><span class="p">(</span><span class="n">site_cube_index</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="p">)</span>
+        <span class="n">neighbors</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">sp</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">,</span> <span class="n">site_coords</span><span class="p">,</span> <span class="n">site_neighbors</span><span class="p">,</span> <span class="n">sites</span><span class="p">):</span>
+            <span class="n">l1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">three_to_one</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+            <span class="c1"># use the cube index map to find the all the neighboring</span>
+            <span class="c1"># coords, images, and indices</span>
+            <span class="n">ks</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">l1</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">cube_to_coords</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ks</span><span class="p">:</span>
+                <span class="n">neighbors</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+                <span class="k">continue</span>
+            <span class="n">nn_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">cube_to_coords</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ks</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">nn_images</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">cube_to_images</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ks</span><span class="p">])</span>
+            <span class="n">nn_indices</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">cube_to_indices</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ks</span><span class="p">])</span>
+            <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">nn_coords</span> <span class="o">-</span> <span class="n">i</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">nns</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">coord</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">nn_coords</span><span class="p">,</span> <span class="n">nn_indices</span><span class="p">,</span> <span class="n">nn_images</span><span class="p">,</span> <span class="n">dist</span><span class="p">):</span>
+                <span class="c1"># filtering out all sites that are beyond the cutoff and</span>
+                <span class="c1"># those that are identical to center site</span>
+                <span class="k">if</span> <span class="n">d</span> <span class="o">&lt;</span> <span class="n">r</span> <span class="o">+</span> <span class="n">numerical_tol</span> <span class="ow">and</span> <span class="p">(</span><span class="n">d</span> <span class="o">&gt;</span> <span class="n">numerical_tol</span> <span class="ow">or</span>
+                                              <span class="bp">self</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">!=</span> <span class="n">site</span><span class="p">):</span>
+                    <span class="n">item</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">if</span> <span class="n">include_site</span><span class="p">:</span>
+                        <span class="n">item</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PeriodicSite</span><span class="p">(</span>
+                            <span class="bp">self</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">species</span><span class="p">,</span> <span class="n">coord</span><span class="p">,</span> <span class="n">latt</span><span class="p">,</span>
+                            <span class="n">properties</span><span class="o">=</span><span class="bp">self</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">properties</span><span class="p">,</span>
+                            <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+                    <span class="n">item</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">include_index</span><span class="p">:</span>
+                        <span class="n">item</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">include_image</span><span class="p">:</span>
+                        <span class="n">item</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">image</span><span class="p">))</span>
+                    <span class="n">nns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+            <span class="n">neighbors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nns</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">neighbors</span></div>
+
+<div class="viewcode-block" id="IStructure.get_neighbors_in_shell"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IStructure.get_neighbors_in_shell">[docs]</a>    <span class="k">def</span> <span class="nf">get_neighbors_in_shell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">origin</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">dr</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_image</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns all sites in a shell centered on origin (coords) between radii</span>
 <span class="sd">        r-dr and r+dr.</span>
@@ -1244,7 +1451,7 @@
         <span class="n">inner</span> <span class="o">=</span> <span class="n">r</span> <span class="o">-</span> <span class="n">dr</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">outer</span> <span class="k">if</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">inner</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="IStructure.get_sorted_structure"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.get_sorted_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_sorted_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="IStructure.get_sorted_structure"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IStructure.get_sorted_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_sorted_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a sorted copy of the structure. The parameters have the same</span>
 <span class="sd">        meaning as in list.sort. By default, sites are sorted by the</span>
@@ -1260,7 +1467,7 @@
         <span class="n">sites</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">sites</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_charge</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="IStructure.get_reduced_structure"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.get_reduced_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_reduced_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reduction_algo</span><span class="o">=</span><span class="s2">&quot;niggli&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="IStructure.get_reduced_structure"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IStructure.get_reduced_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_reduced_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reduction_algo</span><span class="o">=</span><span class="s2">&quot;niggli&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a reduced structure.</span>
 
@@ -1284,7 +1491,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="IStructure.copy"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site_properties</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sanitize</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="IStructure.copy"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IStructure.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site_properties</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sanitize</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convenience method to get a copy of the structure, with options to add</span>
 <span class="sd">        site properties.</span>
@@ -1330,7 +1537,7 @@
             <span class="n">new_sites</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">new_sites</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">new_sites</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_charge</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="IStructure.interpolate"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.interpolate">[docs]</a>    <span class="k">def</span> <span class="nf">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">end_structure</span><span class="p">,</span> <span class="n">nimages</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+<div class="viewcode-block" id="IStructure.interpolate"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IStructure.interpolate">[docs]</a>    <span class="k">def</span> <span class="nf">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">end_structure</span><span class="p">,</span> <span class="n">nimages</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
                     <span class="n">interpolate_lattices</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">pbc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autosort_tol</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Interpolate between this structure and end_structure. Useful for</span>
@@ -1339,7 +1546,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            end_structure (Structure): structure to interpolate between this</span>
 <span class="sd">                structure and end.</span>
-<span class="sd">            nimages (int): No. of interpolation images. Defaults to 10 images.</span>
+<span class="sd">            nimages (int,list): No. of interpolation images or a list of</span>
+<span class="sd">                interpolation images. Defaults to 10 images.</span>
 <span class="sd">            interpolate_lattices (bool): Whether to interpolate the lattices.</span>
 <span class="sd">                Interpolates the lengths and angles (rather than the matrix)</span>
 <span class="sd">                so orientation may be affected.</span>
@@ -1362,6 +1570,9 @@
 
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">interpolate_lattices</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span> <span class="o">==</span> <span class="n">end_structure</span><span class="o">.</span><span class="n">lattice</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Structures with different lattices!&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nimages</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Iterable</span><span class="p">):</span>
+            <span class="n">nimages</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nimages</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">nimages</span>
 
         <span class="c1"># Check that both structures have the same species</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
@@ -1422,18 +1633,18 @@
             <span class="n">lvec</span> <span class="o">=</span> <span class="n">p</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
             <span class="n">lstart</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="o">.</span><span class="n">T</span>
 
-        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nimages</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">nimages</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">interpolate_lattices</span><span class="p">:</span>
-                <span class="n">l_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="n">x</span> <span class="o">/</span> <span class="n">nimages</span> <span class="o">*</span> <span class="n">lvec</span><span class="p">,</span> <span class="n">lstart</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
-                <span class="n">l</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span><span class="n">l_a</span><span class="p">)</span>
+                <span class="n">l_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="n">x</span> <span class="o">*</span> <span class="n">lvec</span><span class="p">,</span> <span class="n">lstart</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+                <span class="n">lat</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span><span class="n">l_a</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">l</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span>
-            <span class="n">fcoords</span> <span class="o">=</span> <span class="n">start_coords</span> <span class="o">+</span> <span class="n">x</span> <span class="o">/</span> <span class="n">nimages</span> <span class="o">*</span> <span class="n">vec</span>
-            <span class="n">structs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="n">fcoords</span><span class="p">,</span>
+                <span class="n">lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span>
+            <span class="n">fcoords</span> <span class="o">=</span> <span class="n">start_coords</span> <span class="o">+</span> <span class="n">x</span> <span class="o">*</span> <span class="n">vec</span>
+            <span class="n">structs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="n">fcoords</span><span class="p">,</span>
                                           <span class="n">site_properties</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">site_properties</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">structs</span></div>
 
-<div class="viewcode-block" id="IStructure.get_miller_index_from_site_indexes"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.get_miller_index_from_site_indexes">[docs]</a>    <span class="k">def</span> <span class="nf">get_miller_index_from_site_indexes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site_ids</span><span class="p">,</span> <span class="n">round_dp</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+<div class="viewcode-block" id="IStructure.get_miller_index_from_site_indexes"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IStructure.get_miller_index_from_site_indexes">[docs]</a>    <span class="k">def</span> <span class="nf">get_miller_index_from_site_indexes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site_ids</span><span class="p">,</span> <span class="n">round_dp</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
                                            <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the Miller index of a plane from a set of sites indexes.</span>
@@ -1458,7 +1669,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="n">site_ids</span><span class="p">],</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">round_dp</span><span class="o">=</span><span class="n">round_dp</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="IStructure.get_primitive_structure"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.get_primitive_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_primitive_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">use_site_props</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<div class="viewcode-block" id="IStructure.get_primitive_structure"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IStructure.get_primitive_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_primitive_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">use_site_props</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                 <span class="n">constrain_latt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This finds a smaller unit cell than the input. Sometimes it doesn&quot;t</span>
@@ -1700,7 +1911,7 @@
                              <span class="p">))</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outs</span><span class="p">)</span>
 
-<div class="viewcode-block" id="IStructure.as_dict"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="IStructure.as_dict"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IStructure.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Dict representation of Structure.</span>
 
@@ -1741,7 +1952,7 @@
             <span class="n">d</span><span class="p">[</span><span class="s2">&quot;sites&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site_dict</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">d</span></div>
 
-<div class="viewcode-block" id="IStructure.from_dict"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="IStructure.from_dict"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IStructure.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reconstitute a Structure object from a dict representation of Structure</span>
@@ -1762,7 +1973,7 @@
         <span class="n">charge</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;charge&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">sites</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="IStructure.to"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.to">[docs]</a>    <span class="k">def</span> <span class="nf">to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="IStructure.to"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IStructure.to">[docs]</a>    <span class="k">def</span> <span class="nf">to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Outputs the structure to a file or string.</span>
 
@@ -1833,7 +2044,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">writer</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="IStructure.from_str"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.from_str">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="IStructure.from_str"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IStructure.from_str">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_str</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">input_string</span><span class="p">,</span> <span class="n">fmt</span><span class="p">,</span> <span class="n">primitive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">merge_tol</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1888,7 +2099,7 @@
             <span class="n">s</span><span class="o">.</span><span class="n">merge_sites</span><span class="p">(</span><span class="n">merge_tol</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="IStructure.from_file"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.from_file">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="IStructure.from_file"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IStructure.from_file">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">primitive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">merge_tol</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reads a structure from a file. For example, anything ending in</span>
@@ -1974,7 +2185,7 @@
         <span class="k">return</span> <span class="n">s</span></div></div>
 
 
-<div class="viewcode-block" id="IMolecule"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IMolecule">[docs]</a><span class="k">class</span> <span class="nc">IMolecule</span><span class="p">(</span><span class="n">SiteCollection</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">):</span>
+<div class="viewcode-block" id="IMolecule"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IMolecule">[docs]</a><span class="k">class</span> <span class="nc">IMolecule</span><span class="p">(</span><span class="n">SiteCollection</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Basic immutable Molecule object without periodicity. Essentially a</span>
 <span class="sd">    sequence of sites. IMolecule is made to be immutable so that they can</span>
@@ -2087,7 +2298,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span>
 
-<div class="viewcode-block" id="IMolecule.from_sites"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.from_sites">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="IMolecule.from_sites"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IMolecule.from_sites">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_sites</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sites</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">spin_multiplicity</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                    <span class="n">validate_proximity</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -2111,7 +2322,7 @@
                    <span class="n">validate_proximity</span><span class="o">=</span><span class="n">validate_proximity</span><span class="p">,</span>
                    <span class="n">site_properties</span><span class="o">=</span><span class="n">props</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="IMolecule.break_bond"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.break_bond">[docs]</a>    <span class="k">def</span> <span class="nf">break_bond</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ind1</span><span class="p">,</span> <span class="n">ind2</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.2</span><span class="p">):</span>
+<div class="viewcode-block" id="IMolecule.break_bond"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IMolecule.break_bond">[docs]</a>    <span class="k">def</span> <span class="nf">break_bond</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ind1</span><span class="p">,</span> <span class="n">ind2</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.2</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns two molecules based on breaking the bond between atoms at index</span>
 <span class="sd">        ind1 and ind2.</span>
@@ -2156,7 +2367,7 @@
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">cluster</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">cluster</span> <span class="ow">in</span> <span class="n">clusters</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="IMolecule.get_covalent_bonds"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.get_covalent_bonds">[docs]</a>    <span class="k">def</span> <span class="nf">get_covalent_bonds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.2</span><span class="p">):</span>
+<div class="viewcode-block" id="IMolecule.get_covalent_bonds"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IMolecule.get_covalent_bonds">[docs]</a>    <span class="k">def</span> <span class="nf">get_covalent_bonds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.2</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Determines the covalent bonds in a molecule.</span>
 
@@ -2212,7 +2423,7 @@
                                             <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">])]))</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outs</span><span class="p">)</span>
 
-<div class="viewcode-block" id="IMolecule.as_dict"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="IMolecule.as_dict"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IMolecule.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Json-serializable dict representation of Molecule</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -2228,7 +2439,7 @@
             <span class="n">d</span><span class="p">[</span><span class="s2">&quot;sites&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site_dict</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">d</span></div>
 
-<div class="viewcode-block" id="IMolecule.from_dict"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="IMolecule.from_dict"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IMolecule.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reconstitute a Molecule object from a dict representation created using</span>
@@ -2245,7 +2456,7 @@
         <span class="n">spin_multiplicity</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;spin_multiplicity&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">sites</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">,</span> <span class="n">spin_multiplicity</span><span class="o">=</span><span class="n">spin_multiplicity</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="IMolecule.get_distance"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.get_distance">[docs]</a>    <span class="k">def</span> <span class="nf">get_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>
+<div class="viewcode-block" id="IMolecule.get_distance"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IMolecule.get_distance">[docs]</a>    <span class="k">def</span> <span class="nf">get_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get distance between site i and j.</span>
 
@@ -2258,7 +2469,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">j</span><span class="p">])</span></div>
 
-<div class="viewcode-block" id="IMolecule.get_sites_in_sphere"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.get_sites_in_sphere">[docs]</a>    <span class="k">def</span> <span class="nf">get_sites_in_sphere</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pt</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+<div class="viewcode-block" id="IMolecule.get_sites_in_sphere"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IMolecule.get_sites_in_sphere">[docs]</a>    <span class="k">def</span> <span class="nf">get_sites_in_sphere</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pt</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find all sites within a sphere from a point.</span>
 
@@ -2277,7 +2488,7 @@
                 <span class="n">neighbors</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">site</span><span class="p">,</span> <span class="n">dist</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">neighbors</span></div>
 
-<div class="viewcode-block" id="IMolecule.get_neighbors"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.get_neighbors">[docs]</a>    <span class="k">def</span> <span class="nf">get_neighbors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+<div class="viewcode-block" id="IMolecule.get_neighbors"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IMolecule.get_neighbors">[docs]</a>    <span class="k">def</span> <span class="nf">get_neighbors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all neighbors to a site within a sphere of radius r.  Excludes the</span>
 <span class="sd">        site itself.</span>
@@ -2293,7 +2504,7 @@
         <span class="n">nn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sites_in_sphere</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[(</span><span class="n">s</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span> <span class="ow">in</span> <span class="n">nn</span> <span class="k">if</span> <span class="n">site</span> <span class="o">!=</span> <span class="n">s</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="IMolecule.get_neighbors_in_shell"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.get_neighbors_in_shell">[docs]</a>    <span class="k">def</span> <span class="nf">get_neighbors_in_shell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">origin</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">dr</span><span class="p">):</span>
+<div class="viewcode-block" id="IMolecule.get_neighbors_in_shell"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IMolecule.get_neighbors_in_shell">[docs]</a>    <span class="k">def</span> <span class="nf">get_neighbors_in_shell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">origin</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">dr</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns all sites in a shell centered on origin (coords) between radii</span>
 <span class="sd">        r-dr and r+dr.</span>
@@ -2311,7 +2522,7 @@
         <span class="n">inner</span> <span class="o">=</span> <span class="n">r</span> <span class="o">-</span> <span class="n">dr</span>
         <span class="k">return</span> <span class="p">[(</span><span class="n">site</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span> <span class="ow">in</span> <span class="n">outer</span> <span class="k">if</span> <span class="n">dist</span> <span class="o">&gt;</span> <span class="n">inner</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="IMolecule.get_boxed_structure"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.get_boxed_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_boxed_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">images</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+<div class="viewcode-block" id="IMolecule.get_boxed_structure"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IMolecule.get_boxed_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_boxed_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">images</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
                             <span class="n">random_rotation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">min_dist</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                             <span class="n">offset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">no_cross</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -2402,7 +2613,7 @@
                    <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                    <span class="n">site_properties</span><span class="o">=</span><span class="n">sprops</span><span class="p">)</span><span class="o">.</span><span class="n">get_sorted_structure</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="IMolecule.get_centered_molecule"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.get_centered_molecule">[docs]</a>    <span class="k">def</span> <span class="nf">get_centered_molecule</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="IMolecule.get_centered_molecule"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IMolecule.get_centered_molecule">[docs]</a>    <span class="k">def</span> <span class="nf">get_centered_molecule</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a Molecule centered at the center of mass.</span>
 
@@ -2416,7 +2627,7 @@
                               <span class="n">spin_multiplicity</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_spin_multiplicity</span><span class="p">,</span>
                               <span class="n">site_properties</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">site_properties</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="IMolecule.to"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.to">[docs]</a>    <span class="k">def</span> <span class="nf">to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="IMolecule.to"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IMolecule.to">[docs]</a>    <span class="k">def</span> <span class="nf">to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Outputs the molecule to a file or string.</span>
 
@@ -2473,7 +2684,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">writer</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="IMolecule.from_str"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.from_str">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="IMolecule.from_str"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IMolecule.from_str">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_str</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">input_string</span><span class="p">,</span> <span class="n">fmt</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reads the molecule from a string.</span>
@@ -2508,7 +2719,7 @@
                                             <span class="n">file_format</span><span class="o">=</span><span class="n">fmt</span><span class="p">)</span><span class="o">.</span><span class="n">pymatgen_mol</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">m</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="IMolecule.from_file"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.from_file">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="IMolecule.from_file"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.IMolecule.from_file">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reads a molecule from a file. Supported formats include xyz,</span>
@@ -2553,7 +2764,7 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unrecognized file extension!&quot;</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="Structure"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Structure">[docs]</a><span class="k">class</span> <span class="nc">Structure</span><span class="p">(</span><span class="n">IStructure</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MutableSequence</span><span class="p">):</span>
+<div class="viewcode-block" id="Structure"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.Structure">[docs]</a><span class="k">class</span> <span class="nc">Structure</span><span class="p">(</span><span class="n">IStructure</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MutableSequence</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Mutable version of structure.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2692,7 +2903,7 @@
         <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">:</span>
             <span class="n">site</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="n">lattice</span>
 
-<div class="viewcode-block" id="Structure.append"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Structure.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<div class="viewcode-block" id="Structure.append"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.Structure.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                <span class="n">validate_proximity</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">properties</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Append a site to the structure.</span>
@@ -2714,7 +2925,7 @@
                            <span class="n">validate_proximity</span><span class="o">=</span><span class="n">validate_proximity</span><span class="p">,</span>
                            <span class="n">properties</span><span class="o">=</span><span class="n">properties</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Structure.insert"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Structure.insert">[docs]</a>    <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<div class="viewcode-block" id="Structure.insert"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.Structure.insert">[docs]</a>    <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                <span class="n">validate_proximity</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">properties</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Insert a site to the structure.</span>
@@ -2748,7 +2959,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">new_site</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Structure.replace"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Structure.replace">[docs]</a>    <span class="k">def</span> <span class="nf">replace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<div class="viewcode-block" id="Structure.replace"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.Structure.replace">[docs]</a>    <span class="k">def</span> <span class="nf">replace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                 <span class="n">properties</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Replace a single site. Takes either a species or a dict of species and</span>
@@ -2774,7 +2985,7 @@
                                 <span class="n">properties</span><span class="o">=</span><span class="n">properties</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_site</span></div>
 
-<div class="viewcode-block" id="Structure.substitute"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Structure.substitute">[docs]</a>    <span class="k">def</span> <span class="nf">substitute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">func_grp</span><span class="p">,</span> <span class="n">bond_order</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="Structure.substitute"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.Structure.substitute">[docs]</a>    <span class="k">def</span> <span class="nf">substitute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">func_grp</span><span class="p">,</span> <span class="n">bond_order</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Substitute atom at index with a functional group.</span>
 
@@ -2877,7 +3088,7 @@
                                  <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s_new</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Structure.remove_species"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Structure.remove_species">[docs]</a>    <span class="k">def</span> <span class="nf">remove_species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
+<div class="viewcode-block" id="Structure.remove_species"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.Structure.remove_species">[docs]</a>    <span class="k">def</span> <span class="nf">remove_species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove all occurrences of several species from a structure.</span>
 
@@ -2896,7 +3107,7 @@
                     <span class="n">properties</span><span class="o">=</span><span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span> <span class="o">=</span> <span class="n">new_sites</span></div>
 
-<div class="viewcode-block" id="Structure.remove_sites"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Structure.remove_sites">[docs]</a>    <span class="k">def</span> <span class="nf">remove_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">):</span>
+<div class="viewcode-block" id="Structure.remove_sites"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.Structure.remove_sites">[docs]</a>    <span class="k">def</span> <span class="nf">remove_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Delete sites with at indices.</span>
 
@@ -2906,7 +3117,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">)</span>
                        <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="Structure.apply_operation"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Structure.apply_operation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_operation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symmop</span><span class="p">,</span> <span class="n">fractional</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Structure.apply_operation"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.Structure.apply_operation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_operation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symmop</span><span class="p">,</span> <span class="n">fractional</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Apply a symmetry operation to the structure and return the new</span>
 <span class="sd">        structure. The lattice is operated by the rotation matrix only.</span>
@@ -2954,7 +3165,7 @@
         <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">:</span>
             <span class="n">site</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="n">new_lattice</span>
 
-<div class="viewcode-block" id="Structure.apply_strain"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Structure.apply_strain">[docs]</a>    <span class="k">def</span> <span class="nf">apply_strain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strain</span><span class="p">):</span>
+<div class="viewcode-block" id="Structure.apply_strain"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.Structure.apply_strain">[docs]</a>    <span class="k">def</span> <span class="nf">apply_strain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strain</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Apply a strain to the lattice.</span>
 
@@ -2968,7 +3179,7 @@
         <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">strain</span><span class="p">))</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span><span class="o">.</span><span class="n">matrix</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Structure.sort"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Structure.sort">[docs]</a>    <span class="k">def</span> <span class="nf">sort</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Structure.sort"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.Structure.sort">[docs]</a>    <span class="k">def</span> <span class="nf">sort</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sort a structure in place. The parameters have the same meaning as in</span>
 <span class="sd">        list.sort. By default, sites are sorted by the electronegativity of</span>
@@ -2986,7 +3197,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Structure.translate_sites"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Structure.translate_sites">[docs]</a>    <span class="k">def</span> <span class="nf">translate_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">vector</span><span class="p">,</span> <span class="n">frac_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<div class="viewcode-block" id="Structure.translate_sites"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.Structure.translate_sites">[docs]</a>    <span class="k">def</span> <span class="nf">translate_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">vector</span><span class="p">,</span> <span class="n">frac_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                         <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Translate specific sites by some vector, keeping the sites within the</span>
@@ -3015,7 +3226,7 @@
                 <span class="n">fcoords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">fcoords</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span> <span class="o">=</span> <span class="n">fcoords</span></div>
 
-<div class="viewcode-block" id="Structure.rotate_sites"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Structure.rotate_sites">[docs]</a>    <span class="k">def</span> <span class="nf">rotate_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">theta</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="Structure.rotate_sites"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.Structure.rotate_sites">[docs]</a>    <span class="k">def</span> <span class="nf">rotate_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">theta</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                      <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Rotate specific sites by some angle around vector at anchor.</span>
@@ -3058,7 +3269,7 @@
                 <span class="n">properties</span><span class="o">=</span><span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_site</span></div>
 
-<div class="viewcode-block" id="Structure.perturb"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Structure.perturb">[docs]</a>    <span class="k">def</span> <span class="nf">perturb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">distance</span><span class="p">):</span>
+<div class="viewcode-block" id="Structure.perturb"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.Structure.perturb">[docs]</a>    <span class="k">def</span> <span class="nf">perturb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">distance</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Performs a random perturbation of the sites in a structure to break</span>
 <span class="sd">        symmetries.</span>
@@ -3077,7 +3288,7 @@
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">)):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">translate_sites</span><span class="p">([</span><span class="n">i</span><span class="p">],</span> <span class="n">get_rand_vec</span><span class="p">(),</span> <span class="n">frac_coords</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Structure.make_supercell"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Structure.make_supercell">[docs]</a>    <span class="k">def</span> <span class="nf">make_supercell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scaling_matrix</span><span class="p">,</span> <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="Structure.make_supercell"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.Structure.make_supercell">[docs]</a>    <span class="k">def</span> <span class="nf">make_supercell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scaling_matrix</span><span class="p">,</span> <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a supercell.</span>
 
@@ -3104,7 +3315,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">sites</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">lattice</span></div>
 
-<div class="viewcode-block" id="Structure.scale_lattice"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Structure.scale_lattice">[docs]</a>    <span class="k">def</span> <span class="nf">scale_lattice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volume</span><span class="p">):</span>
+<div class="viewcode-block" id="Structure.scale_lattice"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.Structure.scale_lattice">[docs]</a>    <span class="k">def</span> <span class="nf">scale_lattice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volume</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Performs a scaling of the lattice vectors so that length proportions</span>
 <span class="sd">        and angles are preserved.</span>
@@ -3114,7 +3325,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">volume</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Structure.merge_sites"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Structure.merge_sites">[docs]</a>    <span class="k">def</span> <span class="nf">merge_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;sum&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="Structure.merge_sites"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.Structure.merge_sites">[docs]</a>    <span class="k">def</span> <span class="nf">merge_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;sum&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Merges sites (adding occupancies) within tol of each other.</span>
 <span class="sd">        Removes site properties.</span>
@@ -3161,7 +3372,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span> <span class="o">=</span> <span class="n">sites</span></div>
 
-<div class="viewcode-block" id="Structure.set_charge"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Structure.set_charge">[docs]</a>    <span class="k">def</span> <span class="nf">set_charge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_charge</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">):</span>
+<div class="viewcode-block" id="Structure.set_charge"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.Structure.set_charge">[docs]</a>    <span class="k">def</span> <span class="nf">set_charge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_charge</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sets the overall structure charge</span>
 
@@ -3171,7 +3382,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_charge</span> <span class="o">=</span> <span class="n">new_charge</span></div></div>
 
 
-<div class="viewcode-block" id="Molecule"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Molecule">[docs]</a><span class="k">class</span> <span class="nc">Molecule</span><span class="p">(</span><span class="n">IMolecule</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MutableSequence</span><span class="p">):</span>
+<div class="viewcode-block" id="Molecule"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.Molecule">[docs]</a><span class="k">class</span> <span class="nc">Molecule</span><span class="p">(</span><span class="n">IMolecule</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MutableSequence</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Mutable Molecule. It has all the methods in IMolecule, but in addition,</span>
 <span class="sd">    it allows a user to perform edits on the molecule.</span>
@@ -3255,7 +3466,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="o">.</span><span class="fm">__delitem__</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Molecule.append"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Molecule.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">validate_proximity</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">properties</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Molecule.append"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.Molecule.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">validate_proximity</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">properties</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Appends a site to the molecule.</span>
 
@@ -3273,7 +3484,7 @@
                            <span class="n">validate_proximity</span><span class="o">=</span><span class="n">validate_proximity</span><span class="p">,</span>
                            <span class="n">properties</span><span class="o">=</span><span class="n">properties</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Molecule.set_charge_and_spin"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Molecule.set_charge_and_spin">[docs]</a>    <span class="k">def</span> <span class="nf">set_charge_and_spin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">charge</span><span class="p">,</span> <span class="n">spin_multiplicity</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Molecule.set_charge_and_spin"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.Molecule.set_charge_and_spin">[docs]</a>    <span class="k">def</span> <span class="nf">set_charge_and_spin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">charge</span><span class="p">,</span> <span class="n">spin_multiplicity</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the charge and spin multiplicity.</span>
 
@@ -3302,7 +3513,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_spin_multiplicity</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">nelectrons</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">2</span></div>
 
-<div class="viewcode-block" id="Molecule.insert"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Molecule.insert">[docs]</a>    <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">validate_proximity</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<div class="viewcode-block" id="Molecule.insert"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.Molecule.insert">[docs]</a>    <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">validate_proximity</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                <span class="n">properties</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Insert a site to the molecule.</span>
@@ -3326,7 +3537,7 @@
                                      <span class="s2">&quot;site!&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">new_site</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Molecule.remove_species"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Molecule.remove_species">[docs]</a>    <span class="k">def</span> <span class="nf">remove_species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
+<div class="viewcode-block" id="Molecule.remove_species"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.Molecule.remove_species">[docs]</a>    <span class="k">def</span> <span class="nf">remove_species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove all occurrences of a species from a molecule.</span>
 
@@ -3343,7 +3554,7 @@
                                       <span class="n">properties</span><span class="o">=</span><span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span> <span class="o">=</span> <span class="n">new_sites</span></div>
 
-<div class="viewcode-block" id="Molecule.remove_sites"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Molecule.remove_sites">[docs]</a>    <span class="k">def</span> <span class="nf">remove_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">):</span>
+<div class="viewcode-block" id="Molecule.remove_sites"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.Molecule.remove_sites">[docs]</a>    <span class="k">def</span> <span class="nf">remove_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Delete sites with at indices.</span>
 
@@ -3353,7 +3564,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">))</span>
                        <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="Molecule.translate_sites"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Molecule.translate_sites">[docs]</a>    <span class="k">def</span> <span class="nf">translate_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vector</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Molecule.translate_sites"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.Molecule.translate_sites">[docs]</a>    <span class="k">def</span> <span class="nf">translate_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vector</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Translate specific sites by some vector, keeping the sites within the</span>
 <span class="sd">        unit cell.</span>
@@ -3373,7 +3584,7 @@
                             <span class="n">properties</span><span class="o">=</span><span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_site</span></div>
 
-<div class="viewcode-block" id="Molecule.rotate_sites"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Molecule.rotate_sites">[docs]</a>    <span class="k">def</span> <span class="nf">rotate_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">theta</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Molecule.rotate_sites"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.Molecule.rotate_sites">[docs]</a>    <span class="k">def</span> <span class="nf">rotate_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">theta</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Rotate specific sites by some angle around vector at anchor.</span>
 
@@ -3412,7 +3623,7 @@
                             <span class="n">properties</span><span class="o">=</span><span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_site</span></div>
 
-<div class="viewcode-block" id="Molecule.perturb"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Molecule.perturb">[docs]</a>    <span class="k">def</span> <span class="nf">perturb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">distance</span><span class="p">):</span>
+<div class="viewcode-block" id="Molecule.perturb"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.Molecule.perturb">[docs]</a>    <span class="k">def</span> <span class="nf">perturb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">distance</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Performs a random perturbation of the sites in a structure to break</span>
 <span class="sd">        symmetries.</span>
@@ -3431,7 +3642,7 @@
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">)):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">translate_sites</span><span class="p">([</span><span class="n">i</span><span class="p">],</span> <span class="n">get_rand_vec</span><span class="p">())</span></div>
 
-<div class="viewcode-block" id="Molecule.apply_operation"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Molecule.apply_operation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_operation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symmop</span><span class="p">):</span>
+<div class="viewcode-block" id="Molecule.apply_operation"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.Molecule.apply_operation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_operation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symmop</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Apply a symmetry operation to the molecule.</span>
 
@@ -3446,7 +3657,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span> <span class="o">=</span> <span class="p">[</span><span class="n">operate_site</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="Molecule.copy"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Molecule.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Molecule.copy"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.Molecule.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convenience method to get a copy of the molecule.</span>
 
@@ -3455,7 +3666,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Molecule.substitute"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Molecule.substitute">[docs]</a>    <span class="k">def</span> <span class="nf">substitute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">func_grp</span><span class="p">,</span> <span class="n">bond_order</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="Molecule.substitute"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.Molecule.substitute">[docs]</a>    <span class="k">def</span> <span class="nf">substitute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">func_grp</span><span class="p">,</span> <span class="n">bond_order</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Substitute atom at index with a functional group.</span>
 
@@ -3552,7 +3763,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="StructureError"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.StructureError">[docs]</a><span class="k">class</span> <span class="nc">StructureError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureError"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.analysis.dimensionality.StructureError">[docs]</a><span class="k">class</span> <span class="nc">StructureError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception class for Structure.</span>
 <span class="sd">    Raised when the structure has problems, e.g., atoms that are too close.</span>
@@ -3572,10 +3783,10 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -3594,7 +3805,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.5.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -3602,7 +3813,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

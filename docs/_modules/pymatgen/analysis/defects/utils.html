@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.defects.utils &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.analysis.defects.utils &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.5.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -99,6 +99,7 @@
 <span class="n">ang_to_bohr</span> <span class="o">=</span> <span class="mf">1.8897</span>
 <span class="n">invang_to_ev</span> <span class="o">=</span> <span class="mf">3.80986</span>
 <span class="n">kb</span> <span class="o">=</span> <span class="mf">8.6173324e-5</span>  <span class="c1"># eV / K</span>
+<span class="n">kumagai_to_V</span> <span class="o">=</span> <span class="mf">1.809512739e2</span>  <span class="c1"># = Electron charge * 1e10 / VacuumPermittivity Constant</span>
 
 <span class="n">motif_cn_op</span> <span class="o">=</span> <span class="p">{}</span>
 <span class="k">for</span> <span class="n">cn</span><span class="p">,</span> <span class="n">di</span> <span class="ow">in</span> <span class="n">cn_opt_params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -1333,6 +1334,112 @@
         <span class="k">if</span> <span class="n">h</span> <span class="o">&gt;</span> <span class="n">max_h</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Did not converge before </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">h</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">g</span></div>
+
+
+<div class="viewcode-block" id="tune_for_gamma"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.tune_for_gamma">[docs]</a><span class="k">def</span> <span class="nf">tune_for_gamma</span><span class="p">(</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This tunes the gamma parameter for Kumagai anisotropic</span>
+<span class="sd">    Ewald calculation. Method is to find a gamma parameter which generates a similar</span>
+<span class="sd">    number of reciprocal and real lattice vectors,</span>
+<span class="sd">    given the suggested cut off radii by Kumagai and Oba</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Converging for ewald parameter...&quot;</span><span class="p">)</span>
+    <span class="n">prec</span> <span class="o">=</span> <span class="mi">25</span> <span class="c1">#a reasonable precision to tune gamma for</span>
+
+    <span class="n">gamma</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">abc</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="mf">2.</span><span class="p">)</span>
+    <span class="n">recip_set</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">real_set</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">generate_R_and_G_vecs</span><span class="p">(</span><span class="n">gamma</span><span class="p">,</span> <span class="n">prec</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">)</span>
+    <span class="n">recip_set</span> <span class="o">=</span> <span class="n">recip_set</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">real_set</span> <span class="o">=</span> <span class="n">real_set</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;First approach with gamma =</span><span class="si">{}</span><span class="se">\n</span><span class="s2">Produced </span><span class="si">{}</span><span class="s2"> real vecs and </span><span class="si">{}</span><span class="s2"> recip &quot;</span>
+                 <span class="s2">&quot;vecs.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">gamma</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">real_set</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">recip_set</span><span class="p">)))</span>
+
+    <span class="k">while</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">real_set</span><span class="p">))</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">recip_set</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1.05</span> <span class="ow">or</span> \
+          <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">recip_set</span><span class="p">))</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">real_set</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1.05</span><span class="p">:</span>
+        <span class="n">gamma</span> <span class="o">*=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">real_set</span><span class="p">))</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">recip_set</span><span class="p">)))</span>  <span class="o">**</span> <span class="mf">0.17</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Not converged...Try modifying gamma to </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">gamma</span><span class="p">))</span>
+        <span class="n">recip_set</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">real_set</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">generate_R_and_G_vecs</span><span class="p">(</span><span class="n">gamma</span><span class="p">,</span> <span class="n">prec</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">)</span>
+        <span class="n">recip_set</span> <span class="o">=</span> <span class="n">recip_set</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">real_set</span> <span class="o">=</span> <span class="n">real_set</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Now have </span><span class="si">{}</span><span class="s2"> real vecs and </span><span class="si">{}</span><span class="s2"> recip vecs.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">real_set</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">recip_set</span><span class="p">)))</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Converged with gamma = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">gamma</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">gamma</span></div>
+
+
+<div class="viewcode-block" id="generate_R_and_G_vecs"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.generate_R_and_G_vecs">[docs]</a><span class="k">def</span> <span class="nf">generate_R_and_G_vecs</span><span class="p">(</span><span class="n">gamma</span><span class="p">,</span> <span class="n">prec_set</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This returns a set of real and reciprocal lattice vectors</span>
+<span class="sd">    (and real/recip summation values)</span>
+<span class="sd">    based on a list of precision values (prec_set)</span>
+
+<span class="sd">    gamma (float): Ewald parameter</span>
+<span class="sd">    prec_set (list or number): for prec values to consider (20, 25, 30 are sensible numbers)</span>
+<span class="sd">    lattice: Lattice object of supercell in question</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">prec_set</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="n">prec_set</span> <span class="o">=</span> <span class="p">[</span><span class="n">prec_set</span><span class="p">]</span>
+
+    <span class="p">[</span><span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">,</span> <span class="n">a3</span><span class="p">]</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span>  <span class="c1"># Angstrom</span>
+    <span class="n">volume</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">volume</span>
+    <span class="p">[</span><span class="n">b1</span><span class="p">,</span> <span class="n">b2</span><span class="p">,</span> <span class="n">b3</span><span class="p">]</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">reciprocal_lattice</span><span class="o">.</span><span class="n">matrix</span> <span class="c1"># 1/ Angstrom</span>
+    <span class="n">invepsilon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">epsilon</span><span class="p">)</span>
+    <span class="n">rd_epsilon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">epsilon</span><span class="p">))</span>
+
+    <span class="c1">#generate reciprocal vector set (for each prec_set)</span>
+    <span class="n">recip_set</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">prec</span> <span class="ow">in</span> <span class="n">prec_set</span><span class="p">]</span>
+    <span class="n">recip_summation_values</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span> <span class="k">for</span> <span class="n">prec</span> <span class="ow">in</span> <span class="n">prec_set</span><span class="p">]</span>
+    <span class="n">recip_cut_set</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">gamma</span> <span class="o">*</span> <span class="n">prec</span><span class="p">)</span> <span class="k">for</span> <span class="n">prec</span> <span class="ow">in</span> <span class="n">prec_set</span><span class="p">]</span>
+
+    <span class="n">i_max</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">recip_cut_set</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">b1</span><span class="p">)))</span>
+    <span class="n">j_max</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">recip_cut_set</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">b2</span><span class="p">)))</span>
+    <span class="n">k_max</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">recip_cut_set</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">b3</span><span class="p">)))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">i_max</span><span class="p">,</span> <span class="n">i_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">j_max</span><span class="p">,</span> <span class="n">j_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">k_max</span><span class="p">,</span> <span class="n">k_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">i</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">j</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">k</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">gvec</span> <span class="o">=</span> <span class="n">i</span> <span class="o">*</span> <span class="n">b1</span> <span class="o">+</span> <span class="n">j</span> <span class="o">*</span> <span class="n">b2</span> <span class="o">+</span> <span class="n">k</span> <span class="o">*</span> <span class="n">b3</span>
+                <span class="n">normgvec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">gvec</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">recip_cut_ind</span><span class="p">,</span> <span class="n">recip_cut</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">recip_cut_set</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">normgvec</span> <span class="o">&lt;=</span> <span class="n">recip_cut</span><span class="p">:</span>
+                        <span class="n">recip_set</span><span class="p">[</span><span class="n">recip_cut_ind</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">gvec</span><span class="p">)</span>
+
+                        <span class="n">Gdotdiel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">gvec</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">epsilon</span><span class="p">,</span> <span class="n">gvec</span><span class="p">))</span>
+                        <span class="n">summand</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">Gdotdiel</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="p">(</span><span class="n">gamma</span><span class="o">**</span><span class="mi">2</span><span class="p">)))</span> <span class="o">/</span> <span class="n">Gdotdiel</span>
+                        <span class="n">recip_summation_values</span><span class="p">[</span><span class="n">recip_cut_ind</span><span class="p">]</span> <span class="o">+=</span> <span class="n">summand</span>
+
+    <span class="n">recip_summation_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">recip_summation_values</span><span class="p">)</span>
+    <span class="n">recip_summation_values</span> <span class="o">/=</span> <span class="n">volume</span>
+
+    <span class="c1">#generate real vector set (for each prec_set)</span>
+    <span class="n">real_set</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">prec</span> <span class="ow">in</span> <span class="n">prec_set</span><span class="p">]</span>
+    <span class="n">real_summation_values</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span> <span class="k">for</span> <span class="n">prec</span> <span class="ow">in</span> <span class="n">prec_set</span><span class="p">]</span>
+    <span class="n">real_cut_set</span> <span class="o">=</span> <span class="p">[(</span> <span class="n">prec</span> <span class="o">/</span> <span class="n">gamma</span><span class="p">)</span> <span class="k">for</span> <span class="n">prec</span> <span class="ow">in</span> <span class="n">prec_set</span><span class="p">]</span>
+
+    <span class="n">i_max</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">real_cut_set</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">a1</span><span class="p">)))</span>
+    <span class="n">j_max</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">real_cut_set</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">a2</span><span class="p">)))</span>
+    <span class="n">k_max</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">real_cut_set</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">a3</span><span class="p">)))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">i_max</span><span class="p">,</span> <span class="n">i_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">j_max</span><span class="p">,</span> <span class="n">j_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">k_max</span><span class="p">,</span> <span class="n">k_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">rvec</span> <span class="o">=</span> <span class="n">i</span> <span class="o">*</span> <span class="n">a1</span> <span class="o">+</span> <span class="n">j</span> <span class="o">*</span> <span class="n">a2</span> <span class="o">+</span> <span class="n">k</span> <span class="o">*</span> <span class="n">a3</span>
+                <span class="n">normrvec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">rvec</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">real_cut_ind</span><span class="p">,</span> <span class="n">real_cut</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">real_cut_set</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">normrvec</span> <span class="o">&lt;=</span> <span class="n">real_cut</span><span class="p">:</span>
+                        <span class="n">real_set</span><span class="p">[</span><span class="n">real_cut_ind</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">rvec</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">normrvec</span> <span class="o">&gt;</span> <span class="mf">1e-8</span><span class="p">:</span>
+                            <span class="n">sqrt_loc_res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">rvec</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">invepsilon</span><span class="p">,</span> <span class="n">rvec</span><span class="p">)))</span>
+                            <span class="n">nmr</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">erfc</span><span class="p">(</span><span class="n">gamma</span> <span class="o">*</span> <span class="n">sqrt_loc_res</span><span class="p">)</span>
+                            <span class="n">real_summation_values</span><span class="p">[</span><span class="n">real_cut_ind</span><span class="p">]</span> <span class="o">+=</span> <span class="n">nmr</span> <span class="o">/</span> <span class="n">sqrt_loc_res</span>
+
+    <span class="n">real_summation_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="n">real_summation_values</span><span class="p">)</span>
+    <span class="n">real_summation_values</span> <span class="o">/=</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">rd_epsilon</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">recip_set</span><span class="p">,</span> <span class="n">recip_summation_values</span><span class="p">,</span> <span class="n">real_set</span><span class="p">,</span> <span class="n">real_summation_values</span></div>
+
 </pre></div>
 
           </div>
@@ -1341,10 +1448,10 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -1363,7 +1470,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.5.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1371,7 +1478,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
