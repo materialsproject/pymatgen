@@ -415,16 +415,13 @@ class IStructureTest(PymatgenTest):
 
     def test_get_all_neighbors_crosscheck_old(self):
         for i in range(100):
-            alpha, beta, gamma = np.random.rand(3) * 180
+            alpha, beta = np.random.rand(2) * 90
             a, b, c = 3 + np.random.rand(3) * 5
             species = ["H"] * 5
             frac_coords = np.random.rand(5, 3)
             try:
-                s = Structure.from_spacegroup("P1",
-                                              Lattice.from_parameters(a, b, c,
-                                                                      alpha,
-                                                                      beta,
-                                                                      gamma),
+                latt = Lattice.from_parameters(a, b, c, alpha, beta, 90)
+                s = Structure.from_spacegroup("P1", latt,
                                               species, frac_coords)
                 for nn_new, nn_old in zip(s.get_all_neighbors(4),
                                           s.get_all_neighbors_old(4)):
