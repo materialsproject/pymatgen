@@ -410,6 +410,9 @@ class IStructureTest(PymatgenTest):
             self.assertEqual(1, len(nn[0]))
             self.assertLessEqual(nn[0][0], r)
 
+        all_nn = s.get_all_neighbors(0.05)
+        self.assertEqual([len(nn) for nn in all_nn], [0] * len(s))
+
     def test_get_all_neighbors_crosscheck_old(self):
         for i in range(100):
             alpha, beta, gamma = np.random.rand(3) * 180
