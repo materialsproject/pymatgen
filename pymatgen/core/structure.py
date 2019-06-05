@@ -1362,8 +1362,8 @@ class IStructure(SiteCollection, MSONable):
                                              properties=self[m].properties,
                                              coords_are_cartesian=True)
 
-                    # filtering out all sites that are identical to centering site
-                    if (site_temp.specie == site.specie) and (d < 1e-8):
+                    # filtering out all sites that are identical to center site
+                    if site_temp.species == site.species and d < 1e-8:
                         continue
                     if include_site:
                         item += [site_temp]
