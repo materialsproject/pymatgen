@@ -444,7 +444,7 @@ class PackmolRunner:
 
 
 class LammpsRunner:
-    def __init__(self, input_filename="lammps.in", bin="lammps"):
+    def __init__(self, input_filename="lammps.in", lammps_cmd="lammps"):
         """
         LAMMPS wrapper
 
@@ -452,20 +452,16 @@ class LammpsRunner:
             input_filename (string): input file name
             bin (string): command to run, excluding the input file name
         """
-        self.lammps_bin = bin.split()
-        if not which(self.lammps_bin[-1]):
-            raise RuntimeError(
-                "LammpsRunner requires the executable {} to be in the path. "
-                "Please download and install LAMMPS from " \
-                "http://lammps.sandia.gov. "
-                "Don't forget to add the binary to your path".format(self.lammps_bin[-1]))
+        if isinstance(lammps_cmd, str):
+            lammps_cmd = [lammps_cmd]
+        self.lammps_cmd = lammps_cmd
         self.input_filename = input_filename
 
     def run(self):
         """
         Write the input/data files and run LAMMPS.
         """
-        lammps_cmd = self.lammps_bin + ['-in', self.input_filename]
+        lammps_cmd = self.lammps_cmd + ['-in', self.input_filename]
         print("Running: {}".format(" ".join(lammps_cmd)))
         p = Popen(lammps_cmd, stdout=PIPE, stderr=PIPE)
         (stdout, stderr) = p.communicate()
