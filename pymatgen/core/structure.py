@@ -1242,61 +1242,7 @@ class IStructure(SiteCollection, MSONable):
             Site is supplied only if include_site = True (the default).
         """
 
-        def compute_cube_index(coords, global_min, radius):
-            """
-            Compute the cube index from coordinates
 
-            :param coords: (nx3 array) atom coordinates
-            :param global_min: (float) lower boundary of coordinates
-            :param radius: (float) cutoff radius
-            :return: (nx3 array) int indices
-            """
-            return np.array(np.floor((coords - global_min) / radius), dtype=int)
-
-        def one_to_three(label1d, ny, nz):
-            """
-            Convert a 1D index array to 3D index array
-
-            :param label1d: (array) 1D index array
-            :param ny: (int) number of cells in y direction
-            :param nz: (int) number of cells in z direction
-            :return: (nx3) int array of index
-            """
-            last = np.mod(label1d, nz)
-            second = np.mod((label1d - last) / nz, ny)
-            first = (label1d - last - second * nz) / (ny * nz)
-            return np.concatenate([first, second, last], axis=1)
-
-        def three_to_one(label3d, ny, nz):
-            """
-            The reverse of one_to_three
-            """
-            return np.array(label3d[:, 0] * ny * nz +
-                            label3d[:, 1] * nz + label3d[:, 2]).reshape((-1, 1))
-
-        def find_neighbors(label, nx, ny, nz):
-            """
-            Given a cube index, find the neighbor cube indices
-            :param label: (array) (n,) or (n x 3) indice array
-            :param nx: (int) number of cells in y direction
-            :param ny: (int) number of cells in y direction
-            :param nz: (int) number of cells in z direction
-            :return: neighbor cell indices
-            """
-            array = [[-1, 0, 1]] * 3
-            neighbor_vectors = np.array(list(itertools.product(*array)),
-                                        dtype=int)
-            if np.shape(label)[1] == 1:
-                label3d = one_to_three(label, ny, nz)
-            else:
-                label3d = label
-            all_labels = label3d[:, None, :] - neighbor_vectors[None, :, :]
-            filtered_labels = []
-            # filter out out-of-bound labels i.e., label < 0
-            for labels in all_labels:
-                ind = (labels[:, 0] < nx) * (labels[:, 1] < ny) * (labels[:, 2] < nz) * np.all(labels > -1e-5, axis=1)
-                filtered_labels.append(labels[ind])
-            return filtered_labels
 
         latt = self.lattice
         if sites is None:
@@ -1332,10 +1278,10 @@ class IStructure(SiteCollection, MSONable):
                 valid_indices.extend([k for k in ind if valid_index_bool[k]])
         valid_coords = np.concatenate(valid_coords, axis=0)
         # Divide the valid 3D space into cubes and compute the cube ids
-        all_cube_index = compute_cube_index(valid_coords, global_min, r)
-        nx, ny, nz = compute_cube_index(global_max, global_min, r) + 1
-        all_cube_index = three_to_one(all_cube_index, ny, nz)
-        site_cube_index = three_to_one(compute_cube_index(site_coords, global_min, r), ny, nz)
+        all_cube_index = _compute_cube_index(valid_coords, global_min, r)
+        nx, ny, nz = _compute_cube_index(global_max, global_min, r) + 1
+        all_cube_index = _three_to_one(all_cube_index, ny, nz)
+        site_cube_index = _three_to_one(_compute_cube_index(site_coords, global_min, r), ny, nz)
         # create cube index to coordinates, images, and indices map
         cube_to_coords = collections.defaultdict(list)
         cube_to_images = collections.defaultdict(list)
@@ -1350,7 +1296,7 @@ class IStructure(SiteCollection, MSONable):
         site_neighbors = find_neighbors(site_cube_index, nx, ny, nz)
         neighbors = []
         for sp, i, j, site in zip(self.species_and_occu, site_coords, site_neighbors, sites):
-            l1 = np.array(three_to_one(j, ny, nz), dtype=int).ravel()
+            l1 = np.array(_three_to_one(j, ny, nz), dtype=int).ravel()
             # use the cube index map to find the all the neighboring
             # coords, images, and indices
             ks = [k for k in l1 if k in cube_to_coords]
@@ -3722,6 +3668,69 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         del self[index]
         for site in func_grp[1:]:
             self._sites.append(site)
+
+
+# The following internal methods are used in the get_all_neighbors method.
+
+
+def _compute_cube_index(coords, global_min, radius):
+    """
+    Compute the cube index from coordinates
+
+    :param coords: (nx3 array) atom coordinates
+    :param global_min: (float) lower boundary of coordinates
+    :param radius: (float) cutoff radius
+    :return: (nx3 array) int indices
+    """
+    return np.array(np.floor((coords - global_min) / radius), dtype=int)
+
+
+def _one_to_three(label1d, ny, nz):
+    """
+    Convert a 1D index array to 3D index array
+
+    :param label1d: (array) 1D index array
+    :param ny: (int) number of cells in y direction
+    :param nz: (int) number of cells in z direction
+    :return: (nx3) int array of index
+    """
+    last = np.mod(label1d, nz)
+    second = np.mod((label1d - last) / nz, ny)
+    first = (label1d - last - second * nz) / (ny * nz)
+    return np.concatenate([first, second, last], axis=1)
+
+
+def _three_to_one(label3d, ny, nz):
+    """
+    The reverse of one_to_three
+    """
+    return np.array(label3d[:, 0] * ny * nz +
+                    label3d[:, 1] * nz + label3d[:, 2]).reshape((-1, 1))
+
+
+def find_neighbors(label, nx, ny, nz):
+    """
+    Given a cube index, find the neighbor cube indices
+    :param label: (array) (n,) or (n x 3) indice array
+    :param nx: (int) number of cells in y direction
+    :param ny: (int) number of cells in y direction
+    :param nz: (int) number of cells in z direction
+    :return: neighbor cell indices
+    """
+    array = [[-1, 0, 1]] * 3
+    neighbor_vectors = np.array(list(itertools.product(*array)),
+                                dtype=int)
+    if np.shape(label)[1] == 1:
+        label3d = _one_to_three(label, ny, nz)
+    else:
+        label3d = label
+    all_labels = label3d[:, None, :] - neighbor_vectors[None, :, :]
+    filtered_labels = []
+    # filter out out-of-bound labels i.e., label < 0
+    for labels in all_labels:
+        ind = (labels[:, 0] < nx) * (labels[:, 1] < ny) * (labels[:, 2] < nz) * np.all(labels > -1e-5, axis=1)
+        filtered_labels.append(labels[ind])
+    return filtered_labels
 
 
 class StructureError(Exception):
