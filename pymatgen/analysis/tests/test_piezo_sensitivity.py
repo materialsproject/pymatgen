@@ -35,7 +35,7 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
 
 class PiezoSensitivityTest(PymatgenTest):
 	def setUp(self):
-		self.piezo_struc = self.get_structure(os.path.join('Pb2TiZrO6'), allow_pickle=True)
+		self.piezo_struc = self.get_structure('Pb2TiZrO6')
 		self.IST = np.load(os.path.join(test_dir, "pztist.npy"), allow_pickle=True)
 		self.BEC = np.load(os.path.join(test_dir, "pztborn.npy"), allow_pickle=True)
 		self.FCM = np.load(os.path.join(test_dir, "pztfcm.npy"), allow_pickle=True)

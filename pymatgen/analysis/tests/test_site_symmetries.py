@@ -24,7 +24,7 @@ class SiteSymmetriesTest(PymatgenTest):
 	def setUp(self):
 		self.pointops = np.load(os.path.join(test_dir, "pointops.npy"), allow_pickle=True)
 		self.sharedops = np.load(os.path.join(test_dir, "sharedops.npy"), allow_pickle=True)
-		self.piezo_struc = self.get_structure(os.path.join('Pb2TiZrO6'), allow_pickle=True)
+		self.piezo_struc = self.get_structure('Pb2TiZrO6')
 	def test_get_site_symmetries(self):
 		pointops = ss.get_site_symmetries(self.piezo_struc)
 		self.assertTrue(np.all(pointops == self.pointops))
