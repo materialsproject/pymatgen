@@ -1228,7 +1228,8 @@ class IStructure(SiteCollection, MSONable):
             numerical_tol (float): This is a numerical tolerance for distances.
                 Sites which are < numerical_tol are determined to be conincident
                 with the site. Sites which are r + numerical_tol away is deemed
-                to be within r from the site.
+                to be within r from the site. The default of 1e-8 should be
+                ok in most instances.
 
         Returns:
             A list of a list of nearest neighbors for each site, i.e.,
@@ -1270,7 +1271,8 @@ class IStructure(SiteCollection, MSONable):
             """
             The reverse of one_to_three
             """
-            return np.array(label3d[:, 0] * ny * nz + label3d[:, 1] * nz + label3d[:, 2]).reshape((-1, 1))
+            return np.array(label3d[:, 0] * ny * nz +
+                            label3d[:, 1] * nz + label3d[:, 2]).reshape((-1, 1))
 
         def find_neighbors(label, nx, ny, nz):
             """
@@ -1282,7 +1284,8 @@ class IStructure(SiteCollection, MSONable):
             :return: neighbor cell indices
             """
             array = [[-1, 0, 1]] * 3
-            neighbor_vectors = np.array(list(itertools.product(*array)), dtype=int)
+            neighbor_vectors = np.array(list(itertools.product(*array)),
+                                        dtype=int)
             if np.shape(label)[1] == 1:
                 label3d = one_to_three(label, ny, nz)
             else:
