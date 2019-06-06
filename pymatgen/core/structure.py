@@ -1223,7 +1223,12 @@ class IStructure(SiteCollection, MSONable):
                 data. Defaults to True.
             sites (list of Sites or Site or None): sites for getting all neighbors,
                 default is None, which means neighbors will be obtained for all
-                sites.
+                sites. This is useful in the situation where you are interested
+                only in one subspecies type, and makes it a lot faster.
+            numerical_tol (float): This is a numerical tolerance for distances.
+                Sites which are < numerical_tol are determined to be conincident
+                with the site. Sites which are r + numerical_tol away is deemed
+                to be within r from the site.
 
         Returns:
             A list of a list of nearest neighbors for each site, i.e.,
