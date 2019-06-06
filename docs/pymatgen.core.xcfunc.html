@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.xcfunc module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.core.xcfunc module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -47,7 +47,7 @@
 <p>This module provides</p>
 <dl class="class">
 <dt id="pymatgen.core.xcfunc.XcFunc">
-<em class="property">class </em><code class="descname">XcFunc</code><span class="sig-paren">(</span><em>xc=None</em>, <em>x=None</em>, <em>c=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/xcfunc.html#XcFunc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">XcFunc</code><span class="sig-paren">(</span><em class="sig-param">xc=None</em>, <em class="sig-param">x=None</em>, <em class="sig-param">c=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/xcfunc.html#XcFunc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>This object stores information about the XC correlation functional.
 Client code usually creates the object by calling the class methods:</p>
@@ -103,66 +103,66 @@ GGA     BLYP    GGA_X_B88+GGA_C_LYP          Becke, PRA 38, 3098 (1988); Lee, Ya
 </dl>
 <dl class="attribute">
 <dt id="pymatgen.core.xcfunc.XcFunc.abinitixc_to_libxc">
-<code class="descname">abinitixc_to_libxc</code><em class="property"> = {1: {'xc': &lt;LibxcFunc.LDA_XC_TETER93: 20&gt;}, 2: {'c': &lt;LibxcFunc.LDA_C_PZ: 9&gt;, 'x': &lt;LibxcFunc.LDA_X: 1&gt;}, 4: {'c': &lt;LibxcFunc.LDA_C_WIGNER: 2&gt;, 'x': &lt;LibxcFunc.LDA_X: 1&gt;}, 5: {'c': &lt;LibxcFunc.LDA_C_HL: 4&gt;, 'x': &lt;LibxcFunc.LDA_X: 1&gt;}, 7: {'c': &lt;LibxcFunc.LDA_C_PW: 12&gt;, 'x': &lt;LibxcFunc.LDA_X: 1&gt;}, 11: {'c': &lt;LibxcFunc.GGA_C_PBE: 130&gt;, 'x': &lt;LibxcFunc.GGA_X_PBE: 101&gt;}, 14: {'c': &lt;LibxcFunc.GGA_C_PBE: 130&gt;, 'x': &lt;LibxcFunc.GGA_X_PBE_R: 102&gt;}, 15: {'c': &lt;LibxcFunc.GGA_C_PBE: 130&gt;, 'x': &lt;LibxcFunc.GGA_X_RPBE: 117&gt;}}</em><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.abinitixc_to_libxc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">abinitixc_to_libxc</code><em class="property"> = {1: {'xc': &lt;LibxcFunc.LDA_XC_TETER93: 20&gt;}, 2: {'c': &lt;LibxcFunc.LDA_C_PZ: 9&gt;, 'x': &lt;LibxcFunc.LDA_X: 1&gt;}, 4: {'c': &lt;LibxcFunc.LDA_C_WIGNER: 2&gt;, 'x': &lt;LibxcFunc.LDA_X: 1&gt;}, 5: {'c': &lt;LibxcFunc.LDA_C_HL: 4&gt;, 'x': &lt;LibxcFunc.LDA_X: 1&gt;}, 7: {'c': &lt;LibxcFunc.LDA_C_PW: 12&gt;, 'x': &lt;LibxcFunc.LDA_X: 1&gt;}, 11: {'c': &lt;LibxcFunc.GGA_C_PBE: 130&gt;, 'x': &lt;LibxcFunc.GGA_X_PBE: 101&gt;}, 14: {'c': &lt;LibxcFunc.GGA_C_PBE: 130&gt;, 'x': &lt;LibxcFunc.GGA_X_PBE_R: 102&gt;}, 15: {'c': &lt;LibxcFunc.GGA_C_PBE: 130&gt;, 'x': &lt;LibxcFunc.GGA_X_RPBE: 117&gt;}}</em><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.abinitixc_to_libxc" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.core.xcfunc.XcFunc.aliases">
-<em class="property">classmethod </em><code class="descname">aliases</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/xcfunc.html#XcFunc.aliases"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.aliases" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">aliases</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/xcfunc.html#XcFunc.aliases"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.aliases" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of registered names.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.xcfunc.XcFunc.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/xcfunc.html#XcFunc.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/xcfunc.html#XcFunc.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Makes XcFunc obey the general json interface used in pymatgen for easier serialization.</p>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.core.xcfunc.XcFunc.asxc">
-<em class="property">classmethod </em><code class="descname">asxc</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/xcfunc.html#XcFunc.asxc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.asxc" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">asxc</code><span class="sig-paren">(</span><em class="sig-param">obj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/xcfunc.html#XcFunc.asxc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.asxc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert object into Xcfunc.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.xcfunc.XcFunc.defined_aliases">
-<code class="descname">defined_aliases</code><em class="property"> = OrderedDict([((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_PW: 12&gt;), type_name(type='LDA', name='PW')), ((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_PW_MOD: 13&gt;), type_name(type='LDA', name='PW_MOD')), ((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_PZ: 9&gt;), type_name(type='LDA', name='PZ')), ((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_WIGNER: 2&gt;), type_name(type='LDA', name='W')), ((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_HL: 4&gt;), type_name(type='LDA', name='HL')), ((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_GL: 5&gt;), type_name(type='LDA', name='GL')), ((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_VWN: 7&gt;), type_name(type='LDA', name='VWN')), ((&lt;LibxcFunc.GGA_X_PW91: 109&gt;, &lt;LibxcFunc.GGA_C_PW91: 134&gt;), type_name(type='GGA', name='PW91')), ((&lt;LibxcFunc.GGA_X_PBE: 101&gt;, &lt;LibxcFunc.GGA_C_PBE: 130&gt;), type_name(type='GGA', name='PBE')), ((&lt;LibxcFunc.GGA_X_RPBE: 117&gt;, &lt;LibxcFunc.GGA_C_PBE: 130&gt;), type_name(type='GGA', name='RPBE')), ((&lt;LibxcFunc.GGA_X_PBE_R: 102&gt;, &lt;LibxcFunc.GGA_C_PBE: 130&gt;), type_name(type='GGA', name='revPBE')), ((&lt;LibxcFunc.GGA_X_PBE_SOL: 116&gt;, &lt;LibxcFunc.GGA_C_PBE_SOL: 133&gt;), type_name(type='GGA', name='PBEsol')), ((&lt;LibxcFunc.GGA_X_AM05: 120&gt;, &lt;LibxcFunc.GGA_C_AM05: 135&gt;), type_name(type='GGA', name='AM05')), ((&lt;LibxcFunc.GGA_X_B88: 106&gt;, &lt;LibxcFunc.GGA_C_LYP: 131&gt;), type_name(type='GGA', name='BLYP'))])</em><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.defined_aliases" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">defined_aliases</code><em class="property"> = OrderedDict([((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_PW: 12&gt;), type_name(type='LDA', name='PW')), ((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_PW_MOD: 13&gt;), type_name(type='LDA', name='PW_MOD')), ((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_PZ: 9&gt;), type_name(type='LDA', name='PZ')), ((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_WIGNER: 2&gt;), type_name(type='LDA', name='W')), ((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_HL: 4&gt;), type_name(type='LDA', name='HL')), ((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_GL: 5&gt;), type_name(type='LDA', name='GL')), ((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_VWN: 7&gt;), type_name(type='LDA', name='VWN')), ((&lt;LibxcFunc.GGA_X_PW91: 109&gt;, &lt;LibxcFunc.GGA_C_PW91: 134&gt;), type_name(type='GGA', name='PW91')), ((&lt;LibxcFunc.GGA_X_PBE: 101&gt;, &lt;LibxcFunc.GGA_C_PBE: 130&gt;), type_name(type='GGA', name='PBE')), ((&lt;LibxcFunc.GGA_X_RPBE: 117&gt;, &lt;LibxcFunc.GGA_C_PBE: 130&gt;), type_name(type='GGA', name='RPBE')), ((&lt;LibxcFunc.GGA_X_PBE_R: 102&gt;, &lt;LibxcFunc.GGA_C_PBE: 130&gt;), type_name(type='GGA', name='revPBE')), ((&lt;LibxcFunc.GGA_X_PBE_SOL: 116&gt;, &lt;LibxcFunc.GGA_C_PBE_SOL: 133&gt;), type_name(type='GGA', name='PBEsol')), ((&lt;LibxcFunc.GGA_X_AM05: 120&gt;, &lt;LibxcFunc.GGA_C_AM05: 135&gt;), type_name(type='GGA', name='AM05')), ((&lt;LibxcFunc.GGA_X_B88: 106&gt;, &lt;LibxcFunc.GGA_C_LYP: 131&gt;), type_name(type='GGA', name='BLYP'))])</em><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.defined_aliases" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.core.xcfunc.XcFunc.from_abinit_ixc">
-<em class="property">classmethod </em><code class="descname">from_abinit_ixc</code><span class="sig-paren">(</span><em>ixc</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/xcfunc.html#XcFunc.from_abinit_ixc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.from_abinit_ixc" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_abinit_ixc</code><span class="sig-paren">(</span><em class="sig-param">ixc</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/xcfunc.html#XcFunc.from_abinit_ixc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.from_abinit_ixc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Build the object from Abinit ixc (integer)</p>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.core.xcfunc.XcFunc.from_dict">
-<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/xcfunc.html#XcFunc.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/xcfunc.html#XcFunc.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Makes XcFunc obey the general json interface used in pymatgen for easier serialization.</p>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.core.xcfunc.XcFunc.from_name">
-<em class="property">classmethod </em><code class="descname">from_name</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/xcfunc.html#XcFunc.from_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.from_name" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_name</code><span class="sig-paren">(</span><em class="sig-param">name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/xcfunc.html#XcFunc.from_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.from_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Build the object from one of the registered names</p>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.core.xcfunc.XcFunc.from_type_name">
-<em class="property">classmethod </em><code class="descname">from_type_name</code><span class="sig-paren">(</span><em>typ</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/xcfunc.html#XcFunc.from_type_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.from_type_name" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_type_name</code><span class="sig-paren">(</span><em class="sig-param">typ</em>, <em class="sig-param">name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/xcfunc.html#XcFunc.from_type_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.from_type_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Build the object from (type, name).</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.xcfunc.XcFunc.name">
-<code class="descname">name</code><a class="reference internal" href="_modules/pymatgen/core/xcfunc.html#XcFunc.name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.name" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">name</code><a class="reference internal" href="_modules/pymatgen/core/xcfunc.html#XcFunc.name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>The name of the functional. If the functional is not found in the aliases,
 the string has the form X_NAME+C_NAME</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.xcfunc.XcFunc.type">
-<code class="descname">type</code><a class="reference internal" href="_modules/pymatgen/core/xcfunc.html#XcFunc.type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">type</code><a class="reference internal" href="_modules/pymatgen/core/xcfunc.html#XcFunc.type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.type" title="Permalink to this definition">¶</a></dt>
 <dd><p>The type of the functional.</p>
 </dd></dl>
 
@@ -184,10 +184,10 @@ the string has the form X_NAME+C_NAME</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -206,13 +206,13 @@ the string has the form X_NAME+C_NAME</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

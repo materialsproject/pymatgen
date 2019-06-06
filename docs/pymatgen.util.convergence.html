@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.util.convergence module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.util.convergence module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -46,36 +46,36 @@
 <span id="pymatgen-util-convergence-module"></span><h1>pymatgen.util.convergence module<a class="headerlink" href="#module-pymatgen.util.convergence" title="Permalink to this headline">¶</a></h1>
 <dl class="exception">
 <dt id="pymatgen.util.convergence.SplineInputError">
-<em class="property">exception </em><code class="descname">SplineInputError</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#SplineInputError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.SplineInputError" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="sig-name descname">SplineInputError</code><span class="sig-paren">(</span><em class="sig-param">msg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#SplineInputError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.SplineInputError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.determine_convergence">
-<code class="descname">determine_convergence</code><span class="sig-paren">(</span><em>xs</em>, <em>ys</em>, <em>name</em>, <em>tol=0.0001</em>, <em>extra=''</em>, <em>verbose=False</em>, <em>mode='extra'</em>, <em>plots=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#determine_convergence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.determine_convergence" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">determine_convergence</code><span class="sig-paren">(</span><em class="sig-param">xs</em>, <em class="sig-param">ys</em>, <em class="sig-param">name</em>, <em class="sig-param">tol=0.0001</em>, <em class="sig-param">extra=''</em>, <em class="sig-param">verbose=False</em>, <em class="sig-param">mode='extra'</em>, <em class="sig-param">plots=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#determine_convergence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.determine_convergence" title="Permalink to this definition">¶</a></dt>
 <dd><p>test it and at which x_value dy(x)/dx &lt; tol for all x &gt;= x_value, conv is true is such a x_value exists.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.exponential">
-<code class="descname">exponential</code><span class="sig-paren">(</span><em>x</em>, <em>a</em>, <em>b</em>, <em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#exponential"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.exponential" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">exponential</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">a</em>, <em class="sig-param">b</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#exponential"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.exponential" title="Permalink to this definition">¶</a></dt>
 <dd><p>exponential function base n to fit convergence data</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.extrapolate_reciprocal">
-<code class="descname">extrapolate_reciprocal</code><span class="sig-paren">(</span><em>xs</em>, <em>ys</em>, <em>n</em>, <em>noise</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#extrapolate_reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.extrapolate_reciprocal" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">extrapolate_reciprocal</code><span class="sig-paren">(</span><em class="sig-param">xs</em>, <em class="sig-param">ys</em>, <em class="sig-param">n</em>, <em class="sig-param">noise</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#extrapolate_reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.extrapolate_reciprocal" title="Permalink to this definition">¶</a></dt>
 <dd><p>return the parameters such that a + b / x^n hits the last two data points</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.extrapolate_simple_reciprocal">
-<code class="descname">extrapolate_simple_reciprocal</code><span class="sig-paren">(</span><em>xs</em>, <em>ys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#extrapolate_simple_reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.extrapolate_simple_reciprocal" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">extrapolate_simple_reciprocal</code><span class="sig-paren">(</span><em class="sig-param">xs</em>, <em class="sig-param">ys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#extrapolate_simple_reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.extrapolate_simple_reciprocal" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.get_derivatives">
-<code class="descname">get_derivatives</code><span class="sig-paren">(</span><em>xs</em>, <em>ys</em>, <em>fd=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#get_derivatives"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.get_derivatives" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_derivatives</code><span class="sig-paren">(</span><em class="sig-param">xs</em>, <em class="sig-param">ys</em>, <em class="sig-param">fd=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#get_derivatives"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.get_derivatives" title="Permalink to this definition">¶</a></dt>
 <dd><p>return the derivatives of y(x) at the points x
 if scipy is available a spline is generated to calculate the derivatives
 if scipy is not available the left and right slopes are calculated, if both exist the average is returned
@@ -84,29 +84,29 @@ putting fd to zero always returns the finite difference slopes</p>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.get_weights">
-<code class="descname">get_weights</code><span class="sig-paren">(</span><em>xs</em>, <em>ys</em>, <em>mode=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#get_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.get_weights" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_weights</code><span class="sig-paren">(</span><em class="sig-param">xs</em>, <em class="sig-param">ys</em>, <em class="sig-param">mode=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#get_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.get_weights" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.id_generator">
-<code class="descname">id_generator</code><span class="sig-paren">(</span><em>size=8</em>, <em>chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#id_generator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.id_generator" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">id_generator</code><span class="sig-paren">(</span><em class="sig-param">size=8</em>, <em class="sig-param">chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#id_generator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.id_generator" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.measure">
-<code class="descname">measure</code><span class="sig-paren">(</span><em>function</em>, <em>xs</em>, <em>ys</em>, <em>popt</em>, <em>weights</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#measure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.measure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">measure</code><span class="sig-paren">(</span><em class="sig-param">function</em>, <em class="sig-param">xs</em>, <em class="sig-param">ys</em>, <em class="sig-param">popt</em>, <em class="sig-param">weights</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#measure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.measure" title="Permalink to this definition">¶</a></dt>
 <dd><p>measure the quality of a fit</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.multi_curve_fit">
-<code class="descname">multi_curve_fit</code><span class="sig-paren">(</span><em>xs</em>, <em>ys</em>, <em>verbose</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#multi_curve_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.multi_curve_fit" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">multi_curve_fit</code><span class="sig-paren">(</span><em class="sig-param">xs</em>, <em class="sig-param">ys</em>, <em class="sig-param">verbose</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#multi_curve_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.multi_curve_fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>fit multiple functions to the x, y data, return the best fit</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.multi_reciprocal_extra">
-<code class="descname">multi_reciprocal_extra</code><span class="sig-paren">(</span><em>xs</em>, <em>ys</em>, <em>noise=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#multi_reciprocal_extra"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.multi_reciprocal_extra" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">multi_reciprocal_extra</code><span class="sig-paren">(</span><em class="sig-param">xs</em>, <em class="sig-param">ys</em>, <em class="sig-param">noise=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#multi_reciprocal_extra"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.multi_reciprocal_extra" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates for a series of powers ns the parameters for which the last two points are at the curve.
 With these parameters measure how well the other data points fit.
 return the best fit.</p>
@@ -114,84 +114,84 @@ return the best fit.</p>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.p0_exponential">
-<code class="descname">p0_exponential</code><span class="sig-paren">(</span><em>xs</em>, <em>ys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#p0_exponential"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.p0_exponential" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">p0_exponential</code><span class="sig-paren">(</span><em class="sig-param">xs</em>, <em class="sig-param">ys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#p0_exponential"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.p0_exponential" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.p0_reciprocal">
-<code class="descname">p0_reciprocal</code><span class="sig-paren">(</span><em>xs</em>, <em>ys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#p0_reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.p0_reciprocal" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">p0_reciprocal</code><span class="sig-paren">(</span><em class="sig-param">xs</em>, <em class="sig-param">ys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#p0_reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.p0_reciprocal" title="Permalink to this definition">¶</a></dt>
 <dd><p>predictor for first guess for reciprocal</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.p0_simple_2reciprocal">
-<code class="descname">p0_simple_2reciprocal</code><span class="sig-paren">(</span><em>xs</em>, <em>ys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#p0_simple_2reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.p0_simple_2reciprocal" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">p0_simple_2reciprocal</code><span class="sig-paren">(</span><em class="sig-param">xs</em>, <em class="sig-param">ys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#p0_simple_2reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.p0_simple_2reciprocal" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.p0_simple_4reciprocal">
-<code class="descname">p0_simple_4reciprocal</code><span class="sig-paren">(</span><em>xs</em>, <em>ys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#p0_simple_4reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.p0_simple_4reciprocal" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">p0_simple_4reciprocal</code><span class="sig-paren">(</span><em class="sig-param">xs</em>, <em class="sig-param">ys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#p0_simple_4reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.p0_simple_4reciprocal" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.p0_simple_5reciprocal">
-<code class="descname">p0_simple_5reciprocal</code><span class="sig-paren">(</span><em>xs</em>, <em>ys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#p0_simple_5reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.p0_simple_5reciprocal" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">p0_simple_5reciprocal</code><span class="sig-paren">(</span><em class="sig-param">xs</em>, <em class="sig-param">ys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#p0_simple_5reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.p0_simple_5reciprocal" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.p0_simple_reciprocal">
-<code class="descname">p0_simple_reciprocal</code><span class="sig-paren">(</span><em>xs</em>, <em>ys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#p0_simple_reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.p0_simple_reciprocal" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">p0_simple_reciprocal</code><span class="sig-paren">(</span><em class="sig-param">xs</em>, <em class="sig-param">ys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#p0_simple_reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.p0_simple_reciprocal" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.p0_single_reciprocal">
-<code class="descname">p0_single_reciprocal</code><span class="sig-paren">(</span><em>xs</em>, <em>ys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#p0_single_reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.p0_single_reciprocal" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">p0_single_reciprocal</code><span class="sig-paren">(</span><em class="sig-param">xs</em>, <em class="sig-param">ys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#p0_single_reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.p0_single_reciprocal" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.print_and_raise_error">
-<code class="descname">print_and_raise_error</code><span class="sig-paren">(</span><em>xs</em>, <em>ys</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#print_and_raise_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.print_and_raise_error" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">print_and_raise_error</code><span class="sig-paren">(</span><em class="sig-param">xs</em>, <em class="sig-param">ys</em>, <em class="sig-param">name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#print_and_raise_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.print_and_raise_error" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.print_plot_line">
-<code class="descname">print_plot_line</code><span class="sig-paren">(</span><em>function</em>, <em>popt</em>, <em>xs</em>, <em>ys</em>, <em>name</em>, <em>tol=0.05</em>, <em>extra=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#print_plot_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.print_plot_line" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">print_plot_line</code><span class="sig-paren">(</span><em class="sig-param">function</em>, <em class="sig-param">popt</em>, <em class="sig-param">xs</em>, <em class="sig-param">ys</em>, <em class="sig-param">name</em>, <em class="sig-param">tol=0.05</em>, <em class="sig-param">extra=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#print_plot_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.print_plot_line" title="Permalink to this definition">¶</a></dt>
 <dd><p>print the gnuplot command line to plot the x, y data with the fitted function using the popt parameters</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.reciprocal">
-<code class="descname">reciprocal</code><span class="sig-paren">(</span><em>x</em>, <em>a</em>, <em>b</em>, <em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.reciprocal" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reciprocal</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">a</em>, <em class="sig-param">b</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.reciprocal" title="Permalink to this definition">¶</a></dt>
 <dd><p>reciprocal function to the power n to fit convergence data</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.simple_2reciprocal">
-<code class="descname">simple_2reciprocal</code><span class="sig-paren">(</span><em>x</em>, <em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#simple_2reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.simple_2reciprocal" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">simple_2reciprocal</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">a</em>, <em class="sig-param">b</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#simple_2reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.simple_2reciprocal" title="Permalink to this definition">¶</a></dt>
 <dd><p>reciprocal function to fit convergence data</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.simple_4reciprocal">
-<code class="descname">simple_4reciprocal</code><span class="sig-paren">(</span><em>x</em>, <em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#simple_4reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.simple_4reciprocal" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">simple_4reciprocal</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">a</em>, <em class="sig-param">b</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#simple_4reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.simple_4reciprocal" title="Permalink to this definition">¶</a></dt>
 <dd><p>reciprocal function to fit convergence data</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.simple_5reciprocal">
-<code class="descname">simple_5reciprocal</code><span class="sig-paren">(</span><em>x</em>, <em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#simple_5reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.simple_5reciprocal" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">simple_5reciprocal</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">a</em>, <em class="sig-param">b</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#simple_5reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.simple_5reciprocal" title="Permalink to this definition">¶</a></dt>
 <dd><p>reciprocal function to fit convergence data</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.simple_reciprocal">
-<code class="descname">simple_reciprocal</code><span class="sig-paren">(</span><em>x</em>, <em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#simple_reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.simple_reciprocal" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">simple_reciprocal</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">a</em>, <em class="sig-param">b</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#simple_reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.simple_reciprocal" title="Permalink to this definition">¶</a></dt>
 <dd><p>reciprocal function to fit convergence data</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.single_reciprocal">
-<code class="descname">single_reciprocal</code><span class="sig-paren">(</span><em>x</em>, <em>a</em>, <em>b</em>, <em>c</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#single_reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.single_reciprocal" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">single_reciprocal</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">a</em>, <em class="sig-param">b</em>, <em class="sig-param">c</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#single_reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.single_reciprocal" title="Permalink to this definition">¶</a></dt>
 <dd><p>reciprocal function to fit convergence data</p>
 </dd></dl>
 
@@ -211,10 +211,10 @@ return the best fit.</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -233,13 +233,13 @@ return the best fit.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

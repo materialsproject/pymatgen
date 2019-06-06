@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.structure_analyzer module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.analysis.structure_analyzer module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -46,7 +46,7 @@
 <span id="pymatgen-analysis-structure-analyzer-module"></span><h1>pymatgen.analysis.structure_analyzer module<a class="headerlink" href="#module-pymatgen.analysis.structure_analyzer" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.analysis.structure_analyzer.OxideType">
-<em class="property">class </em><code class="descname">OxideType</code><span class="sig-paren">(</span><em>structure</em>, <em>relative_cutoff=1.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#OxideType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.OxideType" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">OxideType</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">relative_cutoff=1.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#OxideType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.OxideType" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Separate class for determining oxide type.</p>
 <dl class="field-list simple">
@@ -62,7 +62,7 @@ script cannot distinguish between superoxides and peroxides.</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.analysis.structure_analyzer.OxideType.parse_oxide">
-<code class="descname">parse_oxide</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#OxideType.parse_oxide"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.OxideType.parse_oxide" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">parse_oxide</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#OxideType.parse_oxide"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.OxideType.parse_oxide" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determines if an oxide is a peroxide/superoxide/ozonide/normal oxide.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -81,7 +81,7 @@ structure.</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.structure_analyzer.RelaxationAnalyzer">
-<em class="property">class </em><code class="descname">RelaxationAnalyzer</code><span class="sig-paren">(</span><em>initial_structure</em>, <em>final_structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#RelaxationAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.RelaxationAnalyzer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">RelaxationAnalyzer</code><span class="sig-paren">(</span><em class="sig-param">initial_structure</em>, <em class="sig-param">final_structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#RelaxationAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.RelaxationAnalyzer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This class analyzes the relaxation in a calculation.</p>
 <p>Please note that the input and final structures should have the same
@@ -99,7 +99,7 @@ calculation.</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.analysis.structure_analyzer.RelaxationAnalyzer.get_percentage_bond_dist_changes">
-<code class="descname">get_percentage_bond_dist_changes</code><span class="sig-paren">(</span><em>max_radius=3.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#RelaxationAnalyzer.get_percentage_bond_dist_changes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.RelaxationAnalyzer.get_percentage_bond_dist_changes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_percentage_bond_dist_changes</code><span class="sig-paren">(</span><em class="sig-param">max_radius=3.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#RelaxationAnalyzer.get_percentage_bond_dist_changes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.RelaxationAnalyzer.get_percentage_bond_dist_changes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the percentage bond distance changes for each site up to a
 maximum radius for nearest neighbors.</p>
 <dl class="field-list simple">
@@ -120,7 +120,7 @@ there is no reason to duplicate the information or computation.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.structure_analyzer.RelaxationAnalyzer.get_percentage_lattice_parameter_changes">
-<code class="descname">get_percentage_lattice_parameter_changes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#RelaxationAnalyzer.get_percentage_lattice_parameter_changes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.RelaxationAnalyzer.get_percentage_lattice_parameter_changes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_percentage_lattice_parameter_changes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#RelaxationAnalyzer.get_percentage_lattice_parameter_changes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.RelaxationAnalyzer.get_percentage_lattice_parameter_changes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the percentage lattice parameter changes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -133,7 +133,7 @@ there is no reason to duplicate the information or computation.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.structure_analyzer.RelaxationAnalyzer.get_percentage_volume_change">
-<code class="descname">get_percentage_volume_change</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#RelaxationAnalyzer.get_percentage_volume_change"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.RelaxationAnalyzer.get_percentage_volume_change" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_percentage_volume_change</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#RelaxationAnalyzer.get_percentage_volume_change"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.RelaxationAnalyzer.get_percentage_volume_change" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the percentage volume change.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -146,7 +146,7 @@ there is no reason to duplicate the information or computation.</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.structure_analyzer.VoronoiAnalyzer">
-<em class="property">class </em><code class="descname">VoronoiAnalyzer</code><span class="sig-paren">(</span><em>cutoff=5.0</em>, <em>qhull_options='Qbb Qc Qz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiAnalyzer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">VoronoiAnalyzer</code><span class="sig-paren">(</span><em class="sig-param">cutoff=5.0</em>, <em class="sig-param">qhull_options='Qbb Qc Qz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiAnalyzer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Performs a statistical analysis of Voronoi polyhedra around each site.
 Each Voronoi polyhedron is described using Schaefli notation.
@@ -172,7 +172,7 @@ simulated by molecular dynamics,</p>
 </dl>
 <dl class="method">
 <dt id="pymatgen.analysis.structure_analyzer.VoronoiAnalyzer.analyze">
-<code class="descname">analyze</code><span class="sig-paren">(</span><em>structure</em>, <em>n=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiAnalyzer.analyze"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiAnalyzer.analyze" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">analyze</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiAnalyzer.analyze"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiAnalyzer.analyze" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs Voronoi analysis and returns the polyhedra around atom n
 in Schlaefli notation.</p>
 <dl class="field-list simple">
@@ -197,7 +197,7 @@ in Schlaefli notation.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.structure_analyzer.VoronoiAnalyzer.analyze_structures">
-<code class="descname">analyze_structures</code><span class="sig-paren">(</span><em>structures</em>, <em>step_freq=10</em>, <em>most_frequent_polyhedra=15</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiAnalyzer.analyze_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiAnalyzer.analyze_structures" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">analyze_structures</code><span class="sig-paren">(</span><em class="sig-param">structures</em>, <em class="sig-param">step_freq=10</em>, <em class="sig-param">most_frequent_polyhedra=15</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiAnalyzer.analyze_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiAnalyzer.analyze_structures" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform Voronoi analysis on a list of Structures.
 Note that this might take a significant amount of time depending on the
 size and number of structures.</p>
@@ -219,16 +219,16 @@ highest frequences is stored.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.structure_analyzer.VoronoiAnalyzer.plot_vor_analysis">
-<em class="property">static </em><code class="descname">plot_vor_analysis</code><span class="sig-paren">(</span><em>voronoi_ensemble</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiAnalyzer.plot_vor_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiAnalyzer.plot_vor_analysis" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">plot_vor_analysis</code><span class="sig-paren">(</span><em class="sig-param">voronoi_ensemble</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiAnalyzer.plot_vor_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiAnalyzer.plot_vor_analysis" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.analysis.structure_analyzer.VoronoiConnectivity">
-<em class="property">class </em><code class="descname">VoronoiConnectivity</code><span class="sig-paren">(</span><em>structure</em>, <em>cutoff=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiConnectivity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiConnectivity" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">VoronoiConnectivity</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">cutoff=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiConnectivity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiConnectivity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Computes the solid angles swept out by the shared face of the voronoi
 polyhedron between two sites.</p>
@@ -240,9 +240,9 @@ polyhedron between two sites.</p>
 </ul>
 </dd>
 </dl>
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.structure_analyzer.VoronoiConnectivity.connectivity_array">
-<code class="descname">connectivity_array</code><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiConnectivity.connectivity_array" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">connectivity_array</code><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiConnectivity.connectivity_array" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides connectivity array.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -260,14 +260,14 @@ solid angle of polygon between atomi and imagej of atomj</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.structure_analyzer.VoronoiConnectivity.get_connections">
-<code class="descname">get_connections</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiConnectivity.get_connections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiConnectivity.get_connections" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_connections</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiConnectivity.get_connections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiConnectivity.get_connections" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of site pairs that are Voronoi Neighbors, along
 with their real-space distances.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.structure_analyzer.VoronoiConnectivity.get_sitej">
-<code class="descname">get_sitej</code><span class="sig-paren">(</span><em>site_index</em>, <em>image_index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiConnectivity.get_sitej"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiConnectivity.get_sitej" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_sitej</code><span class="sig-paren">(</span><em class="sig-param">site_index</em>, <em class="sig-param">image_index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiConnectivity.get_sitej"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiConnectivity.get_sitej" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assuming there is some value in the connectivity array at indices
 (1, 3, 12). sitei can be obtained directly from the input structure
 (structure[1]). sitej can be obtained by passing 3, 12 to this function</p>
@@ -281,9 +281,9 @@ with their real-space distances.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.structure_analyzer.VoronoiConnectivity.max_connectivity">
-<code class="descname">max_connectivity</code><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiConnectivity.max_connectivity" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">max_connectivity</code><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiConnectivity.max_connectivity" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns the 2d array [sitei, sitej] that represents
 the maximum connectivity of site i to any periodic
 image of site j</p>
@@ -293,7 +293,7 @@ image of site j</p>
 
 <dl class="function">
 <dt id="pymatgen.analysis.structure_analyzer.average_coordination_number">
-<code class="descname">average_coordination_number</code><span class="sig-paren">(</span><em>structures</em>, <em>freq=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#average_coordination_number"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.average_coordination_number" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">average_coordination_number</code><span class="sig-paren">(</span><em class="sig-param">structures</em>, <em class="sig-param">freq=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#average_coordination_number"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.average_coordination_number" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the ensemble averaged Voronoi coordination numbers
 of a list of Structures using VoronoiNN.
 Typically used for analyzing the output of a Molecular Dynamics run.
@@ -310,7 +310,7 @@ Typically used for analyzing the output of a Molecular Dynamics run.
 
 <dl class="function">
 <dt id="pymatgen.analysis.structure_analyzer.contains_peroxide">
-<code class="descname">contains_peroxide</code><span class="sig-paren">(</span><em>structure</em>, <em>relative_cutoff=1.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#contains_peroxide"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.contains_peroxide" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">contains_peroxide</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">relative_cutoff=1.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#contains_peroxide"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.contains_peroxide" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determines if a structure contains peroxide anions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -328,8 +328,13 @@ atoms must be to each other to be considered a peroxide.</p></li>
 </dd></dl>
 
 <dl class="function">
+<dt id="pymatgen.analysis.structure_analyzer.get_dimensionality">
+<code class="sig-name descname">get_dimensionality</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.get_dimensionality" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
 <dt id="pymatgen.analysis.structure_analyzer.get_max_bond_lengths">
-<code class="descname">get_max_bond_lengths</code><span class="sig-paren">(</span><em>structure</em>, <em>el_radius_updates=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#get_max_bond_lengths"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.get_max_bond_lengths" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_max_bond_lengths</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">el_radius_updates=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#get_max_bond_lengths"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.get_max_bond_lengths" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides max bond length estimates for a structure based on the JMol
 table and algorithms.</p>
 <dl class="field-list simple">
@@ -348,7 +353,7 @@ table and algorithms.</p>
 
 <dl class="function">
 <dt id="pymatgen.analysis.structure_analyzer.oxide_type">
-<code class="descname">oxide_type</code><span class="sig-paren">(</span><em>structure</em>, <em>relative_cutoff=1.1</em>, <em>return_nbonds=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#oxide_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.oxide_type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">oxide_type</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">relative_cutoff=1.1</em>, <em class="sig-param">return_nbonds=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#oxide_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.oxide_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determines if an oxide is a peroxide/superoxide/ozonide/normal oxide</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -364,7 +369,7 @@ max distance two O atoms must be from each other.</p></li>
 
 <dl class="function">
 <dt id="pymatgen.analysis.structure_analyzer.solid_angle">
-<code class="descname">solid_angle</code><span class="sig-paren">(</span><em>center</em>, <em>coords</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#solid_angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.solid_angle" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">solid_angle</code><span class="sig-paren">(</span><em class="sig-param">center</em>, <em class="sig-param">coords</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#solid_angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.solid_angle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper method to calculate the solid angle of a set of coords from the
 center.</p>
 <dl class="field-list simple">
@@ -382,7 +387,7 @@ center.</p>
 
 <dl class="function">
 <dt id="pymatgen.analysis.structure_analyzer.sulfide_type">
-<code class="descname">sulfide_type</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#sulfide_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.sulfide_type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sulfide_type</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#sulfide_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.sulfide_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determines if a structure is a sulfide/polysulfide</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -410,10 +415,10 @@ center.</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -432,13 +437,13 @@ center.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

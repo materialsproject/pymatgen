@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.entries.entry_tools module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.entries.entry_tools module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -48,7 +48,7 @@
 entries, such as grouping entries by structure.</p>
 <dl class="class">
 <dt id="pymatgen.entries.entry_tools.EntrySet">
-<em class="property">class </em><code class="descname">EntrySet</code><span class="sig-paren">(</span><em>entries: List[Union[pymatgen.analysis.phase_diagram.PDEntry, pymatgen.entries.computed_entries.ComputedEntry, pymatgen.entries.computed_entries.ComputedStructureEntry]]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/entries/entry_tools.html#EntrySet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.EntrySet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">EntrySet</code><span class="sig-paren">(</span><em class="sig-param">entries: List[Union[pymatgen.analysis.phase_diagram.PDEntry, pymatgen.entries.computed_entries.ComputedEntry, pymatgen.entries.computed_entries.ComputedStructureEntry]]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/entries/entry_tools.html#EntrySet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.EntrySet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.MutableSet</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>A convenient container for manipulating entries. Allows for generating
 subsets, dumping into files, etc.</p>
@@ -59,32 +59,35 @@ subsets, dumping into files, etc.</p>
 </dl>
 <dl class="method">
 <dt id="pymatgen.entries.entry_tools.EntrySet.add">
-<code class="descname">add</code><span class="sig-paren">(</span><em>element</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/entries/entry_tools.html#EntrySet.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.EntrySet.add" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add</code><span class="sig-paren">(</span><em class="sig-param">element</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/entries/entry_tools.html#EntrySet.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.EntrySet.add" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add an element.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.entries.entry_tools.EntrySet.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/entries/entry_tools.html#EntrySet.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.EntrySet.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/entries/entry_tools.html#EntrySet.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.EntrySet.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>A JSON serializable dict representation of an object.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.entries.entry_tools.EntrySet.chemsys">
-<code class="descname">chemsys</code><a class="headerlink" href="#pymatgen.entries.entry_tools.EntrySet.chemsys" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns:
-set representing the chemical system, e.g., {“Li”, “Fe”, “P”, “O”}</p>
+<em class="property">property </em><code class="sig-name descname">chemsys</code><a class="headerlink" href="#pymatgen.entries.entry_tools.EntrySet.chemsys" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>set representing the chemical system, e.g., {“Li”, “Fe”, “P”, “O”}</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.entries.entry_tools.EntrySet.discard">
-<code class="descname">discard</code><span class="sig-paren">(</span><em>element</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/entries/entry_tools.html#EntrySet.discard"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.EntrySet.discard" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">discard</code><span class="sig-paren">(</span><em class="sig-param">element</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/entries/entry_tools.html#EntrySet.discard"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.EntrySet.discard" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove an element.  Do not raise an exception if absent.</p>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.entries.entry_tools.EntrySet.from_csv">
-<em class="property">classmethod </em><code class="descname">from_csv</code><span class="sig-paren">(</span><em>filename: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/entries/entry_tools.html#EntrySet.from_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.EntrySet.from_csv" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_csv</code><span class="sig-paren">(</span><em class="sig-param">filename: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/entries/entry_tools.html#EntrySet.from_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.EntrySet.from_csv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Imports PDEntries from a csv.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -98,7 +101,7 @@ set representing the chemical system, e.g., {“Li”, “Fe”, “P”, “O�
 
 <dl class="method">
 <dt id="pymatgen.entries.entry_tools.EntrySet.get_subset_in_chemsys">
-<code class="descname">get_subset_in_chemsys</code><span class="sig-paren">(</span><em>chemsys: List[str]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/entries/entry_tools.html#EntrySet.get_subset_in_chemsys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.EntrySet.get_subset_in_chemsys" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_subset_in_chemsys</code><span class="sig-paren">(</span><em class="sig-param">chemsys: List[str]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/entries/entry_tools.html#EntrySet.get_subset_in_chemsys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.EntrySet.get_subset_in_chemsys" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an EntrySet containing only the set of entries belonging to
 a particular chemical system (in this definition, it includes all sub
 systems). For example, if the entries are from the
@@ -117,14 +120,14 @@ and Li-O entries are returned.</p>
 
 <dl class="method">
 <dt id="pymatgen.entries.entry_tools.EntrySet.remove_non_ground_states">
-<code class="descname">remove_non_ground_states</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/entries/entry_tools.html#EntrySet.remove_non_ground_states"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.EntrySet.remove_non_ground_states" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">remove_non_ground_states</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/entries/entry_tools.html#EntrySet.remove_non_ground_states"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.EntrySet.remove_non_ground_states" title="Permalink to this definition">¶</a></dt>
 <dd><p>Removes all non-ground state entries, i.e., only keep the lowest energy
 per atom entry at each composition.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.entries.entry_tools.EntrySet.to_csv">
-<code class="descname">to_csv</code><span class="sig-paren">(</span><em>filename: str</em>, <em>latexify_names: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/entries/entry_tools.html#EntrySet.to_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.EntrySet.to_csv" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to_csv</code><span class="sig-paren">(</span><em class="sig-param">filename: str</em>, <em class="sig-param">latexify_names: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/entries/entry_tools.html#EntrySet.to_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.EntrySet.to_csv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Exports PDEntries to a csv</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -142,7 +145,7 @@ e.g., Li_{2}O</p></li>
 
 <dl class="function">
 <dt id="pymatgen.entries.entry_tools.group_entries_by_structure">
-<code class="descname">group_entries_by_structure</code><span class="sig-paren">(</span><em>entries</em>, <em>species_to_remove=None</em>, <em>ltol=0.2</em>, <em>stol=0.4</em>, <em>angle_tol=5</em>, <em>primitive_cell=True</em>, <em>scale=True</em>, <em>comparator=&lt;pymatgen.analysis.structure_matcher.SpeciesComparator object&gt;</em>, <em>ncpus=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/entries/entry_tools.html#group_entries_by_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.group_entries_by_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">group_entries_by_structure</code><span class="sig-paren">(</span><em class="sig-param">entries</em>, <em class="sig-param">species_to_remove=None</em>, <em class="sig-param">ltol=0.2</em>, <em class="sig-param">stol=0.4</em>, <em class="sig-param">angle_tol=5</em>, <em class="sig-param">primitive_cell=True</em>, <em class="sig-param">scale=True</em>, <em class="sig-param">comparator=&lt;pymatgen.analysis.structure_matcher.SpeciesComparator object&gt;</em>, <em class="sig-param">ncpus=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/entries/entry_tools.html#group_entries_by_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.group_entries_by_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a sequence of ComputedStructureEntries, use structure fitter to group
 them by structural similarity.</p>
 <dl class="field-list simple">
@@ -173,6 +176,11 @@ fitting speed. Default of None means serial processing.</p></li>
 </dl>
 </dd></dl>
 
+<dl class="data">
+<dt id="pymatgen.entries.entry_tools.logger">
+<code class="sig-name descname">logger</code><em class="property"> = &lt;Logger pymatgen.entries.entry_tools (INFO)&gt;</em><a class="headerlink" href="#pymatgen.entries.entry_tools.logger" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
 
 
@@ -189,10 +197,10 @@ fitting speed. Default of None means serial processing.</p></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -211,13 +219,13 @@ fitting speed. Default of None means serial processing.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

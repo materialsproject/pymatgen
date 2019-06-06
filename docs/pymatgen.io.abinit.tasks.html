@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.abinit.tasks module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.io.abinit.tasks module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -47,7 +47,7 @@
 <p>This module provides functions and classes related to Task objects.</p>
 <dl class="class">
 <dt id="pymatgen.io.abinit.tasks.TaskManager">
-<em class="property">class </em><code class="descname">TaskManager</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">TaskManager</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>A <cite>TaskManager</cite> is responsible for the generation of the job script and the submission
 of the task, as well as for the specification of the parameters passed to the resource manager
@@ -66,81 +66,81 @@ Ideally, the TaskManager should be the <strong>main entry point</strong> used by
 </dl>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.ENTRIES">
-<code class="descname">ENTRIES</code><em class="property"> = {'batch_adapter', 'db_connector', 'policy', 'qadapters'}</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.ENTRIES" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ENTRIES</code><em class="property"> = {'batch_adapter', 'db_connector', 'policy', 'qadapters'}</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.ENTRIES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.USER_CONFIG_DIR">
-<code class="descname">USER_CONFIG_DIR</code><em class="property"> = '/Users/shyue/.abinit/abipy'</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.USER_CONFIG_DIR" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">USER_CONFIG_DIR</code><em class="property"> = '/Users/shyuepingong/.abinit/abipy'</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.USER_CONFIG_DIR" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.YAML_FILE">
-<code class="descname">YAML_FILE</code><em class="property"> = 'manager.yml'</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.YAML_FILE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">YAML_FILE</code><em class="property"> = 'manager.yml'</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.YAML_FILE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.abinit_build">
-<code class="descname">abinit_build</code><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.abinit_build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.abinit_build" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">abinit_build</code><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.abinit_build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.abinit_build" title="Permalink to this definition">¶</a></dt>
 <dd><p><a class="reference internal" href="#pymatgen.io.abinit.tasks.AbinitBuild" title="pymatgen.io.abinit.tasks.AbinitBuild"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbinitBuild</span></code></a> object with Abinit version and options used to build the code</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>A JSON serializable dict representation of an object.</p>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.as_manager">
-<em class="property">classmethod </em><code class="descname">as_manager</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.as_manager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.as_manager" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">as_manager</code><span class="sig-paren">(</span><em class="sig-param">obj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.as_manager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.as_manager" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert obj into TaskManager instance. Accepts string, filepath, dictionary, <cite>TaskManager</cite> object.
 If obj is None, the manager is initialized from the user config file.</p>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.autodoc">
-<em class="property">classmethod </em><code class="descname">autodoc</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.autodoc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.autodoc" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">autodoc</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.autodoc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.autodoc" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.cancel">
-<code class="descname">cancel</code><span class="sig-paren">(</span><em>job_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.cancel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.cancel" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">cancel</code><span class="sig-paren">(</span><em class="sig-param">job_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.cancel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.cancel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Cancel the job. Returns exit status.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.deepcopy">
-<code class="descname">deepcopy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.deepcopy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.deepcopy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">deepcopy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.deepcopy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.deepcopy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deep copy of self.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.exclude_nodes">
-<code class="descname">exclude_nodes</code><span class="sig-paren">(</span><em>nodes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.exclude_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.exclude_nodes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">exclude_nodes</code><span class="sig-paren">(</span><em class="sig-param">nodes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.exclude_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.exclude_nodes" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.from_dict">
-<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create an instance from a dictionary.</p>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.from_file">
-<em class="property">classmethod </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read the configuration parameters from the Yaml file filename.</p>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.from_string">
-<em class="property">classmethod </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.from_string" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param">s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.from_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create an instance from string s containing a YAML dictionary.</p>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.from_user_config">
-<em class="property">classmethod </em><code class="descname">from_user_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.from_user_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.from_user_config" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_user_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.from_user_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.from_user_config" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize the <a class="reference internal" href="#pymatgen.io.abinit.tasks.TaskManager" title="pymatgen.io.abinit.tasks.TaskManager"><code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code></a> from the YAML file ‘manager.yaml’.
 Search first in the working directory and then in the AbiPy configuration directory.</p>
 <dl class="field-list simple">
@@ -152,13 +152,13 @@ Search first in the working directory and then in the AbiPy configuration direct
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.get_collection">
-<code class="descname">get_collection</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.get_collection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.get_collection" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_collection</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.get_collection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.get_collection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the MongoDB collection used to store the results.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.get_njobs_in_queue">
-<code class="descname">get_njobs_in_queue</code><span class="sig-paren">(</span><em>username=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.get_njobs_in_queue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.get_njobs_in_queue" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_njobs_in_queue</code><span class="sig-paren">(</span><em class="sig-param">username=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.get_njobs_in_queue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.get_njobs_in_queue" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns the number of jobs in the queue,
 returns None when the number of jobs cannot be determined.</p>
 <dl class="field-list simple">
@@ -168,49 +168,49 @@ returns None when the number of jobs cannot be determined.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.has_db">
-<code class="descname">has_db</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.has_db" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">has_db</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.has_db" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if we are using MongoDB database</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.has_omp">
-<code class="descname">has_omp</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.has_omp" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">has_omp</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.has_omp" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if we are using OpenMP parallelization.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.has_queue">
-<code class="descname">has_queue</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.has_queue" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">has_queue</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.has_queue" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if we are submitting jobs via a queue manager.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.increase_mem">
-<code class="descname">increase_mem</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.increase_mem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.increase_mem" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">increase_mem</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.increase_mem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.increase_mem" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.increase_ncpus">
-<code class="descname">increase_ncpus</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.increase_ncpus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.increase_ncpus" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">increase_ncpus</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.increase_ncpus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.increase_ncpus" title="Permalink to this definition">¶</a></dt>
 <dd><p>increase the number of cpus, first ask the current qadapter, if that one raises a QadapterIncreaseError
 switch to the next qadapter. If all fail raise an ManagerIncreaseError</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.increase_resources">
-<code class="descname">increase_resources</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.increase_resources"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.increase_resources" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">increase_resources</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.increase_resources"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.increase_resources" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.increase_time">
-<code class="descname">increase_time</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.increase_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.increase_time" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">increase_time</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.increase_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.increase_time" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.launch">
-<code class="descname">launch</code><span class="sig-paren">(</span><em>task</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.launch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.launch" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">launch</code><span class="sig-paren">(</span><em class="sig-param">task</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.launch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.launch" title="Permalink to this definition">¶</a></dt>
 <dd><p>Build the input files and submit the task via the <code class="xref py py-class docutils literal notranslate"><span class="pre">Qadapter</span></code></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -222,60 +222,60 @@ switch to the next qadapter. If all fail raise an ManagerIncreaseError</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.max_cores">
-<code class="descname">max_cores</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.max_cores" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">max_cores</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.max_cores" title="Permalink to this definition">¶</a></dt>
 <dd><p>Maximum number of cores that can be used.
 This value is mainly used in the autoparal part to get the list of possible configurations.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.mem_per_proc">
-<code class="descname">mem_per_proc</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.mem_per_proc" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">mem_per_proc</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.mem_per_proc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Memory per MPI process.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.mpi_procs">
-<code class="descname">mpi_procs</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.mpi_procs" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">mpi_procs</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.mpi_procs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Number of MPI processes.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.new_with_fixed_mpi_omp">
-<code class="descname">new_with_fixed_mpi_omp</code><span class="sig-paren">(</span><em>mpi_procs</em>, <em>omp_threads</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.new_with_fixed_mpi_omp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.new_with_fixed_mpi_omp" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">new_with_fixed_mpi_omp</code><span class="sig-paren">(</span><em class="sig-param">mpi_procs</em>, <em class="sig-param">omp_threads</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.new_with_fixed_mpi_omp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.new_with_fixed_mpi_omp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a new <cite>TaskManager</cite> in which autoparal has been disabled.
 The jobs will be executed with <cite>mpi_procs</cite> MPI processes and <cite>omp_threads</cite> OpenMP threads.
 Useful for generating input files for benchmarks.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.num_cores">
-<code class="descname">num_cores</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.num_cores" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">num_cores</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.num_cores" title="Permalink to this definition">¶</a></dt>
 <dd><p>Total number of CPUs used to run the task.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.omp_threads">
-<code class="descname">omp_threads</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.omp_threads" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">omp_threads</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.omp_threads" title="Permalink to this definition">¶</a></dt>
 <dd><p>Number of OpenMP threads</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.qadapter">
-<code class="descname">qadapter</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.qadapter" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">qadapter</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.qadapter" title="Permalink to this definition">¶</a></dt>
 <dd><p>The qadapter used to submit jobs.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.qads">
-<code class="descname">qads</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.qads" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">qads</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.qads" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of <code class="xref py py-class docutils literal notranslate"><span class="pre">QueueAdapter</span></code> objects sorted according to priorities (highest comes first)</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.select_qadapter">
-<code class="descname">select_qadapter</code><span class="sig-paren">(</span><em>pconfs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.select_qadapter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.select_qadapter" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">select_qadapter</code><span class="sig-paren">(</span><em class="sig-param">pconfs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.select_qadapter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.select_qadapter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a list of parallel configurations, pconfs, this method select an <cite>optimal</cite> configuration
 according to some criterion as well as the <code class="xref py py-class docutils literal notranslate"><span class="pre">QueueAdapter</span></code> to use.</p>
 <dl class="field-list simple">
@@ -290,34 +290,34 @@ according to some criterion as well as the <code class="xref py py-class docutil
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.set_mem_per_proc">
-<code class="descname">set_mem_per_proc</code><span class="sig-paren">(</span><em>mem_mb</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.set_mem_per_proc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.set_mem_per_proc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_mem_per_proc</code><span class="sig-paren">(</span><em class="sig-param">mem_mb</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.set_mem_per_proc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.set_mem_per_proc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the memory (in Megabytes) per CPU.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.set_mpi_procs">
-<code class="descname">set_mpi_procs</code><span class="sig-paren">(</span><em>mpi_procs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.set_mpi_procs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.set_mpi_procs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_mpi_procs</code><span class="sig-paren">(</span><em class="sig-param">mpi_procs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.set_mpi_procs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.set_mpi_procs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the number of MPI processes to use.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.set_omp_threads">
-<code class="descname">set_omp_threads</code><span class="sig-paren">(</span><em>omp_threads</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.set_omp_threads"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.set_omp_threads" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_omp_threads</code><span class="sig-paren">(</span><em class="sig-param">omp_threads</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.set_omp_threads"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.set_omp_threads" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the number of OpenMp threads to use.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.to_shell_manager">
-<code class="descname">to_shell_manager</code><span class="sig-paren">(</span><em>mpi_procs=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.to_shell_manager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.to_shell_manager" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to_shell_manager</code><span class="sig-paren">(</span><em class="sig-param">mpi_procs=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.to_shell_manager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.to_shell_manager" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a new <cite>TaskManager</cite> with the same parameters as self but replace the <code class="xref py py-class docutils literal notranslate"><span class="pre">QueueAdapter</span></code>
 with a <code class="xref py py-class docutils literal notranslate"><span class="pre">ShellAdapter</span></code> with mpi_procs so that we can submit the job without passing through the queue.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.write_jobfile">
-<code class="descname">write_jobfile</code><span class="sig-paren">(</span><em>task</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.write_jobfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.write_jobfile" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_jobfile</code><span class="sig-paren">(</span><em class="sig-param">task</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.write_jobfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.write_jobfile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write the submission script. Return the path of the script</p>
-<table class="docutils align-center">
+<table class="docutils align-default">
 <colgroup>
 <col style="width: 27%" />
 <col style="width: 73%" />
@@ -340,62 +340,62 @@ Default: no arguments.</p></td>
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.tasks.AbinitBuild">
-<em class="property">class </em><code class="descname">AbinitBuild</code><span class="sig-paren">(</span><em>workdir=None</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitBuild"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitBuild" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">AbinitBuild</code><span class="sig-paren">(</span><em class="sig-param">workdir=None</em>, <em class="sig-param">manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitBuild"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitBuild" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This object stores information on the options used to build Abinit</p>
 <blockquote>
 <div><dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.AbinitBuild.info">
-<code class="descname">info</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitBuild.info" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">info</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitBuild.info" title="Permalink to this definition">¶</a></dt>
 <dt>
-<code class="descname">String with build information as produced by `abinit -b`</code></dt>
+<code class="sig-name descname">String with build information as produced by `abinit -b`</code></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.AbinitBuild.version">
-<code class="descname">version</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitBuild.version" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">version</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitBuild.version" title="Permalink to this definition">¶</a></dt>
 <dt>
-<code class="descname">Abinit version number e.g 8.0.1 (string)</code></dt>
+<code class="sig-name descname">Abinit version number e.g 8.0.1 (string)</code></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.AbinitBuild.has_netcdf">
-<code class="descname">has_netcdf</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitBuild.has_netcdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">has_netcdf</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitBuild.has_netcdf" title="Permalink to this definition">¶</a></dt>
 <dt>
-<code class="descname">True if netcdf is enabled.</code></dt>
+<code class="sig-name descname">True if netcdf is enabled.</code></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.AbinitBuild.has_omp">
-<code class="descname">has_omp</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitBuild.has_omp" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">has_omp</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitBuild.has_omp" title="Permalink to this definition">¶</a></dt>
 <dt>
-<code class="descname">True if OpenMP is enabled.</code></dt>
+<code class="sig-name descname">True if OpenMP is enabled.</code></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.AbinitBuild.has_mpi">
-<code class="descname">has_mpi</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitBuild.has_mpi" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">has_mpi</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitBuild.has_mpi" title="Permalink to this definition">¶</a></dt>
 <dt>
-<code class="descname">True if MPI is enabled.</code></dt>
+<code class="sig-name descname">True if MPI is enabled.</code></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.AbinitBuild.has_mpiio">
-<code class="descname">has_mpiio</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitBuild.has_mpiio" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">has_mpiio</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitBuild.has_mpiio" title="Permalink to this definition">¶</a></dt>
 <dt>
-<code class="descname">True if MPI-IO is supported.</code></dt>
+<code class="sig-name descname">True if MPI-IO is supported.</code></dt>
 <dd></dd></dl>
 
 </div></blockquote>
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AbinitBuild.compare_version">
-<code class="descname">compare_version</code><span class="sig-paren">(</span><em>version_string</em>, <em>op</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitBuild.compare_version"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitBuild.compare_version" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">compare_version</code><span class="sig-paren">(</span><em class="sig-param">version_string</em>, <em class="sig-param">op</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitBuild.compare_version"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitBuild.compare_version" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compare Abinit version to <cite>version_string</cite> with operator <cite>op</cite></p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AbinitBuild.version_ge">
-<code class="descname">version_ge</code><span class="sig-paren">(</span><em>version_string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitBuild.version_ge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitBuild.version_ge" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">version_ge</code><span class="sig-paren">(</span><em class="sig-param">version_string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitBuild.version_ge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitBuild.version_ge" title="Permalink to this definition">¶</a></dt>
 <dd><p>True is Abinit version is &gt;= version_string</p>
 </dd></dl>
 
@@ -403,22 +403,22 @@ Default: no arguments.</p></td>
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.tasks.ParalHintsParser">
-<em class="property">class </em><code class="descname">ParalHintsParser</code><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHintsParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHintsParser" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">ParalHintsParser</code><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHintsParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHintsParser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.ParalHintsParser.Error">
-<code class="descname">Error</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHintsParser.Error" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">Error</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHintsParser.Error" title="Permalink to this definition">¶</a></dt>
 <dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">ParalHintsError</span></code></p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.ParalHintsParser.add_error">
-<code class="descname">add_error</code><span class="sig-paren">(</span><em>errmsg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHintsParser.add_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHintsParser.add_error" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_error</code><span class="sig-paren">(</span><em class="sig-param">errmsg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHintsParser.add_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHintsParser.add_error" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.ParalHintsParser.parse">
-<code class="descname">parse</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHintsParser.parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHintsParser.parse" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">parse</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHintsParser.parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHintsParser.parse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read the <cite>AutoParal</cite> section (YAML format) from filename.
 Assumes the file contains only one section.</p>
 </dd></dl>
@@ -427,34 +427,34 @@ Assumes the file contains only one section.</p>
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.tasks.ParalHints">
-<em class="property">class </em><code class="descname">ParalHints</code><span class="sig-paren">(</span><em>info</em>, <em>confs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">ParalHints</code><span class="sig-paren">(</span><em class="sig-param">info</em>, <em class="sig-param">confs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.Iterable</span></code></p>
 <p>Iterable with the hints for the parallel execution reported by ABINIT.</p>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.ParalHints.Error">
-<code class="descname">Error</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints.Error" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">Error</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints.Error" title="Permalink to this definition">¶</a></dt>
 <dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">ParalHintsError</span></code></p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.ParalHints.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.ParalHints.copy">
-<code class="descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints.copy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints.copy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Shallow copy of self.</p>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.ParalHints.from_dict">
-<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.ParalHints.from_mpi_omp_lists">
-<em class="property">classmethod </em><code class="descname">from_mpi_omp_lists</code><span class="sig-paren">(</span><em>mpi_procs</em>, <em>omp_threads</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints.from_mpi_omp_lists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints.from_mpi_omp_lists" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_mpi_omp_lists</code><span class="sig-paren">(</span><em class="sig-param">mpi_procs</em>, <em class="sig-param">omp_threads</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints.from_mpi_omp_lists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints.from_mpi_omp_lists" title="Permalink to this definition">¶</a></dt>
 <dd><p>Build a list of Parallel configurations from two lists
 containing the number of MPI processes and the number of OpenMP threads
 i.e. product(mpi_procs, omp_threads).
@@ -464,42 +464,42 @@ Mainly used for preparing benchmarks.</p>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.ParalHints.get_ordered_with_policy">
-<code class="descname">get_ordered_with_policy</code><span class="sig-paren">(</span><em>policy</em>, <em>max_ncpus</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints.get_ordered_with_policy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints.get_ordered_with_policy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_ordered_with_policy</code><span class="sig-paren">(</span><em class="sig-param">policy</em>, <em class="sig-param">max_ncpus</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints.get_ordered_with_policy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints.get_ordered_with_policy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sort and return a new list of configurations ordered according to the <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskPolicy</span></code> policy.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.ParalHints.max_cores">
-<code class="descname">max_cores</code><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints.max_cores"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints.max_cores" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">max_cores</code><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints.max_cores"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints.max_cores" title="Permalink to this definition">¶</a></dt>
 <dd><p>Maximum number of cores.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.ParalHints.max_efficiency">
-<code class="descname">max_efficiency</code><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints.max_efficiency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints.max_efficiency" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">max_efficiency</code><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints.max_efficiency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints.max_efficiency" title="Permalink to this definition">¶</a></dt>
 <dd><p>Maximum parallel efficiency.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.ParalHints.max_mem_per_proc">
-<code class="descname">max_mem_per_proc</code><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints.max_mem_per_proc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints.max_mem_per_proc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">max_mem_per_proc</code><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints.max_mem_per_proc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints.max_mem_per_proc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Maximum memory per MPI process.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.ParalHints.max_speedup">
-<code class="descname">max_speedup</code><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints.max_speedup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints.max_speedup" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">max_speedup</code><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints.max_speedup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints.max_speedup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Maximum speedup.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.ParalHints.multidimensional_optimization">
-<code class="descname">multidimensional_optimization</code><span class="sig-paren">(</span><em>priorities=('speedup'</em>, <em>'efficiency')</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints.multidimensional_optimization"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints.multidimensional_optimization" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">multidimensional_optimization</code><span class="sig-paren">(</span><em class="sig-param">priorities=('speedup'</em>, <em class="sig-param">'efficiency')</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints.multidimensional_optimization"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints.multidimensional_optimization" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.ParalHints.select_with_condition">
-<code class="descname">select_with_condition</code><span class="sig-paren">(</span><em>condition</em>, <em>key=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints.select_with_condition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints.select_with_condition" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">select_with_condition</code><span class="sig-paren">(</span><em class="sig-param">condition</em>, <em class="sig-param">key=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints.select_with_condition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints.select_with_condition" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove all the configurations that do not satisfy the given condition.</p>
 <blockquote>
 <div><dl>
@@ -515,19 +515,19 @@ key: Selects the sub-dictionary on which condition is applied, e.g. key=”vars�
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.ParalHints.sort_by_efficiency">
-<code class="descname">sort_by_efficiency</code><span class="sig-paren">(</span><em>reverse=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints.sort_by_efficiency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints.sort_by_efficiency" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sort_by_efficiency</code><span class="sig-paren">(</span><em class="sig-param">reverse=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints.sort_by_efficiency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints.sort_by_efficiency" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sort the configurations in place. items with highest efficiency come first</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.ParalHints.sort_by_mem_per_proc">
-<code class="descname">sort_by_mem_per_proc</code><span class="sig-paren">(</span><em>reverse=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints.sort_by_mem_per_proc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints.sort_by_mem_per_proc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sort_by_mem_per_proc</code><span class="sig-paren">(</span><em class="sig-param">reverse=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints.sort_by_mem_per_proc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints.sort_by_mem_per_proc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sort the configurations in place. items with lowest memory per proc come first.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.ParalHints.sort_by_speedup">
-<code class="descname">sort_by_speedup</code><span class="sig-paren">(</span><em>reverse=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints.sort_by_speedup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints.sort_by_speedup" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sort_by_speedup</code><span class="sig-paren">(</span><em class="sig-param">reverse=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints.sort_by_speedup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints.sort_by_speedup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sort the configurations in place. items with highest speedup come first</p>
 </dd></dl>
 
@@ -535,7 +535,7 @@ key: Selects the sub-dictionary on which condition is applied, e.g. key=”vars�
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.tasks.AbinitTask">
-<em class="property">class </em><code class="descname">AbinitTask</code><span class="sig-paren">(</span><em>input</em>, <em>workdir=None</em>, <em>manager=None</em>, <em>deps=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">AbinitTask</code><span class="sig-paren">(</span><em class="sig-param">input</em>, <em class="sig-param">workdir=None</em>, <em class="sig-param">manager=None</em>, <em class="sig-param">deps=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.tasks.Task</span></code></p>
 <p>Base class defining an ABINIT calculation</p>
 <dl class="field-list simple">
@@ -551,13 +551,13 @@ None means that this Task has no dependency.</p></li>
 </dl>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.AbinitTask.Results">
-<code class="descname">Results</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.Results" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">Results</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.Results" title="Permalink to this definition">¶</a></dt>
 <dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskResults</span></code></p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AbinitTask.autoparal_run">
-<code class="descname">autoparal_run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitTask.autoparal_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.autoparal_run" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">autoparal_run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitTask.autoparal_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.autoparal_run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find an optimal set of parameters for the execution of the task
 This method can change the ABINIT input variables and/or the
 submission parameters e.g. the number of CPUs for MPI and OpenMp.</p>
@@ -571,32 +571,32 @@ Returns 0 if success</p>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.AbinitTask.cycle_class">
-<code class="descname">cycle_class</code><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitTask.cycle_class"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.cycle_class" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">cycle_class</code><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitTask.cycle_class"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.cycle_class" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the subclass of ScfCycle associated to the task or
 None if no SCF algorithm if associated to the task.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AbinitTask.executable">
-<code class="descname">executable</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.executable" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">executable</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.executable" title="Permalink to this definition">¶</a></dt>
 <dd><p>Path to the executable required for running the Task.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AbinitTask.filesfile_string">
-<code class="descname">filesfile_string</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.filesfile_string" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">filesfile_string</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.filesfile_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>String with the list of files and prefixes needed to execute ABINIT.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AbinitTask.find_optconf">
-<code class="descname">find_optconf</code><span class="sig-paren">(</span><em>pconfs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitTask.find_optconf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.find_optconf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">find_optconf</code><span class="sig-paren">(</span><em class="sig-param">pconfs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitTask.find_optconf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.find_optconf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find the optimal Parallel configuration.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AbinitTask.fix_abicritical">
-<code class="descname">fix_abicritical</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitTask.fix_abicritical"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.fix_abicritical" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">fix_abicritical</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitTask.fix_abicritical"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.fix_abicritical" title="Permalink to this definition">¶</a></dt>
 <dd><p>method to fix crashes/error caused by abinit</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -607,7 +607,7 @@ None if no SCF algorithm if associated to the task.</p>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AbinitTask.fix_queue_critical">
-<code class="descname">fix_queue_critical</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitTask.fix_queue_critical"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.fix_queue_critical" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">fix_queue_critical</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitTask.fix_queue_critical"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.fix_queue_critical" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function tries to fix critical events originating from the queue submission system.</p>
 <p>General strategy, first try to increase resources in order to fix the problem,
 if this is not possible, call a task specific method to attempt to decrease the demands.</p>
@@ -618,9 +618,9 @@ if this is not possible, call a task specific method to attempt to decrease the 
 </dl>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AbinitTask.from_input">
-<em class="property">classmethod </em><code class="descname">from_input</code><span class="sig-paren">(</span><em>input</em>, <em>workdir=None</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitTask.from_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.from_input" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_input</code><span class="sig-paren">(</span><em class="sig-param">input</em>, <em class="sig-param">workdir=None</em>, <em class="sig-param">manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitTask.from_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.from_input" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create an instance of <cite>AbinitTask</cite> from an ABINIT input.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -633,53 +633,53 @@ if this is not possible, call a task specific method to attempt to decrease the 
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AbinitTask.is_dfpt_task">
-<code class="descname">is_dfpt_task</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.is_dfpt_task" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">is_dfpt_task</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.is_dfpt_task" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if task is a DftpTask subclass.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AbinitTask.is_gs_task">
-<code class="descname">is_gs_task</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.is_gs_task" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">is_gs_task</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.is_gs_task" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if task is GsTask subclass.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AbinitTask.isnc">
-<code class="descname">isnc</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.isnc" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">isnc</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.isnc" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if norm-conserving calculation.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AbinitTask.ispaw">
-<code class="descname">ispaw</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.ispaw" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">ispaw</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.ispaw" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if PAW calculation</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AbinitTask.parse_timing">
-<code class="descname">parse_timing</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitTask.parse_timing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.parse_timing" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">parse_timing</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitTask.parse_timing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.parse_timing" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse the timer data in the main output file of Abinit.
 Requires timopt /= 0 in the input file (usually timopt = -1)</p>
 <p>Return: <code class="xref py py-class docutils literal notranslate"><span class="pre">AbinitTimerParser</span></code> instance, None if error.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AbinitTask.pconfs">
-<code class="descname">pconfs</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.pconfs" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">pconfs</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.pconfs" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of autoparal configurations.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AbinitTask.pseudos">
-<code class="descname">pseudos</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.pseudos" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">pseudos</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.pseudos" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of pseudos used in the calculation.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AbinitTask.reset_from_scratch">
-<code class="descname">reset_from_scratch</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitTask.reset_from_scratch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.reset_from_scratch" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_from_scratch</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitTask.reset_from_scratch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.reset_from_scratch" title="Permalink to this definition">¶</a></dt>
 <dd><p>Restart from scratch, this is to be used if a job is restarted with more resources after a crash</p>
 <p>Move output files produced in workdir to _reset otherwise check_status continues
 to see the task as crashed even if the job did not run</p>
@@ -687,13 +687,13 @@ to see the task as crashed even if the job did not run</p>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AbinitTask.restart">
-<code class="descname">restart</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitTask.restart"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.restart" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">restart</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitTask.restart"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.restart" title="Permalink to this definition">¶</a></dt>
 <dd><p>general restart used when scheduler problems have been taken care of</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AbinitTask.select_files">
-<code class="descname">select_files</code><span class="sig-paren">(</span><em>what='o'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitTask.select_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.select_files" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">select_files</code><span class="sig-paren">(</span><em class="sig-param">what='o'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitTask.select_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.select_files" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function used to select the files of a task.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -716,22 +716,22 @@ all ==&gt; all files.</p>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AbinitTask.set_pconfs">
-<code class="descname">set_pconfs</code><span class="sig-paren">(</span><em>pconfs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitTask.set_pconfs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.set_pconfs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_pconfs</code><span class="sig-paren">(</span><em class="sig-param">pconfs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitTask.set_pconfs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.set_pconfs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the list of autoparal configurations.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AbinitTask.setup">
-<code class="descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitTask.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.setup" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitTask.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.setup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Abinit has the very <em>bad</em> habit of changing the file extension by appending the characters in [A,B …, Z]
 to the output file, and this breaks a lot of code that relies of the use of a unique file extension.
 Here we fix this issue by renaming run.abo to run.abo_[number] if the output file “run.abo” already
 exists. A few lines of code in python, a lot of problems if you try to implement this trick in Fortran90.</p>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AbinitTask.temp_shell_task">
-<em class="property">classmethod </em><code class="descname">temp_shell_task</code><span class="sig-paren">(</span><em>inp</em>, <em>mpi_procs=1</em>, <em>workdir=None</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitTask.temp_shell_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.temp_shell_task" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">temp_shell_task</code><span class="sig-paren">(</span><em class="sig-param">inp</em>, <em class="sig-param">mpi_procs=1</em>, <em class="sig-param">workdir=None</em>, <em class="sig-param">manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitTask.temp_shell_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.temp_shell_task" title="Permalink to this definition">¶</a></dt>
 <dd><p>Build a Task with a temporary workdir. The task is executed via the shell with 1 MPI proc.
 Mainly used for invoking Abinit to get important parameters needed to prepare the real task.</p>
 <dl class="field-list simple">
@@ -743,7 +743,7 @@ Mainly used for invoking Abinit to get important parameters needed to prepare th
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AbinitTask.uses_paral_kgb">
-<code class="descname">uses_paral_kgb</code><span class="sig-paren">(</span><em>value=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitTask.uses_paral_kgb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.uses_paral_kgb" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">uses_paral_kgb</code><span class="sig-paren">(</span><em class="sig-param">value=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitTask.uses_paral_kgb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.uses_paral_kgb" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if the task is a GS Task and uses paral_kgb with the given value.</p>
 </dd></dl>
 
@@ -751,7 +751,7 @@ Mainly used for invoking Abinit to get important parameters needed to prepare th
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.tasks.ScfTask">
-<em class="property">class </em><code class="descname">ScfTask</code><span class="sig-paren">(</span><em>input</em>, <em>workdir=None</em>, <em>manager=None</em>, <em>deps=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ScfTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ScfTask" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">ScfTask</code><span class="sig-paren">(</span><em class="sig-param">input</em>, <em class="sig-param">workdir=None</em>, <em class="sig-param">manager=None</em>, <em class="sig-param">deps=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ScfTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ScfTask" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.tasks.GsTask</span></code></p>
 <p>Self-consistent ground-state calculations.
 Provide support for in-place restart via (WFK|DEN) files</p>
@@ -768,17 +768,17 @@ None means that this Task has no dependency.</p></li>
 </dl>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.ScfTask.CRITICAL_EVENTS">
-<code class="descname">CRITICAL_EVENTS</code><em class="property"> = [&lt;class 'pymatgen.io.abinit.events.ScfConvergenceWarning'&gt;]</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.ScfTask.CRITICAL_EVENTS" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">CRITICAL_EVENTS</code><em class="property"> = [&lt;class 'pymatgen.io.abinit.events.ScfConvergenceWarning'&gt;]</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.ScfTask.CRITICAL_EVENTS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.ScfTask.color_rgb">
-<code class="descname">color_rgb</code><em class="property"> = array([1., 0., 0.])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.ScfTask.color_rgb" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">color_rgb</code><em class="property"> = array([1., 0., 0.])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.ScfTask.color_rgb" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.ScfTask.get_results">
-<code class="descname">get_results</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ScfTask.get_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ScfTask.get_results" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_results</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ScfTask.get_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ScfTask.get_results" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns <code class="xref py py-class docutils literal notranslate"><span class="pre">NodeResults</span></code> instance.
 Subclasses should extend this method (if needed) by adding
 specialized code that performs some kind of post-processing.</p>
@@ -786,7 +786,7 @@ specialized code that performs some kind of post-processing.</p>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.ScfTask.inspect">
-<code class="descname">inspect</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ScfTask.inspect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ScfTask.inspect" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">inspect</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ScfTask.inspect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ScfTask.inspect" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the SCF cycle results with matplotlib.</p>
 <dl class="simple">
 <dt>Returns</dt><dd><p><cite>matplotlib</cite> figure, None if some error occurred.</p>
@@ -796,7 +796,7 @@ specialized code that performs some kind of post-processing.</p>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.ScfTask.restart">
-<code class="descname">restart</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ScfTask.restart"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ScfTask.restart" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">restart</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ScfTask.restart"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ScfTask.restart" title="Permalink to this definition">¶</a></dt>
 <dd><p>SCF calculations can be restarted if we have either the WFK file or the DEN file.</p>
 </dd></dl>
 
@@ -804,7 +804,7 @@ specialized code that performs some kind of post-processing.</p>
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.tasks.NscfTask">
-<em class="property">class </em><code class="descname">NscfTask</code><span class="sig-paren">(</span><em>input</em>, <em>workdir=None</em>, <em>manager=None</em>, <em>deps=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#NscfTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.NscfTask" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">NscfTask</code><span class="sig-paren">(</span><em class="sig-param">input</em>, <em class="sig-param">workdir=None</em>, <em class="sig-param">manager=None</em>, <em class="sig-param">deps=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#NscfTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.NscfTask" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.tasks.GsTask</span></code></p>
 <p>Non-Self-consistent GS calculation. Provide in-place restart via WFK files</p>
 <dl class="field-list simple">
@@ -820,17 +820,17 @@ None means that this Task has no dependency.</p></li>
 </dl>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.NscfTask.CRITICAL_EVENTS">
-<code class="descname">CRITICAL_EVENTS</code><em class="property"> = [&lt;class 'pymatgen.io.abinit.events.NscfConvergenceWarning'&gt;]</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.NscfTask.CRITICAL_EVENTS" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">CRITICAL_EVENTS</code><em class="property"> = [&lt;class 'pymatgen.io.abinit.events.NscfConvergenceWarning'&gt;]</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.NscfTask.CRITICAL_EVENTS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.NscfTask.color_rgb">
-<code class="descname">color_rgb</code><em class="property"> = array([0.78431373, 0.31372549, 0.39215686])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.NscfTask.color_rgb" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">color_rgb</code><em class="property"> = array([0.78431373, 0.31372549, 0.39215686])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.NscfTask.color_rgb" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.NscfTask.get_results">
-<code class="descname">get_results</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#NscfTask.get_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.NscfTask.get_results" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_results</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#NscfTask.get_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.NscfTask.get_results" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns <code class="xref py py-class docutils literal notranslate"><span class="pre">NodeResults</span></code> instance.
 Subclasses should extend this method (if needed) by adding
 specialized code that performs some kind of post-processing.</p>
@@ -838,13 +838,13 @@ specialized code that performs some kind of post-processing.</p>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.NscfTask.restart">
-<code class="descname">restart</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#NscfTask.restart"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.NscfTask.restart" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">restart</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#NscfTask.restart"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.NscfTask.restart" title="Permalink to this definition">¶</a></dt>
 <dd><p>NSCF calculations can be restarted only if we have the WFK file.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.NscfTask.setup">
-<code class="descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#NscfTask.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.NscfTask.setup" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#NscfTask.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.NscfTask.setup" title="Permalink to this definition">¶</a></dt>
 <dd><p>NSCF calculations should use the same FFT mesh as the one employed in the GS task
 (in principle, it’s possible to interpolate inside Abinit but tests revealed some numerical noise
 Here we change the input file of the NSCF task to have the same FFT mesh.</p>
@@ -854,7 +854,7 @@ Here we change the input file of the NSCF task to have the same FFT mesh.</p>
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.tasks.RelaxTask">
-<em class="property">class </em><code class="descname">RelaxTask</code><span class="sig-paren">(</span><em>input</em>, <em>workdir=None</em>, <em>manager=None</em>, <em>deps=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#RelaxTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.RelaxTask" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">RelaxTask</code><span class="sig-paren">(</span><em class="sig-param">input</em>, <em class="sig-param">workdir=None</em>, <em class="sig-param">manager=None</em>, <em class="sig-param">deps=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#RelaxTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.RelaxTask" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.tasks.GsTask</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.tasks.ProduceHist</span></code></p>
 <p>Task for structural optimizations.</p>
 <dl class="field-list simple">
@@ -870,17 +870,17 @@ None means that this Task has no dependency.</p></li>
 </dl>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.RelaxTask.CRITICAL_EVENTS">
-<code class="descname">CRITICAL_EVENTS</code><em class="property"> = [&lt;class 'pymatgen.io.abinit.events.RelaxConvergenceWarning'&gt;]</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.RelaxTask.CRITICAL_EVENTS" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">CRITICAL_EVENTS</code><em class="property"> = [&lt;class 'pymatgen.io.abinit.events.RelaxConvergenceWarning'&gt;]</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.RelaxTask.CRITICAL_EVENTS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.RelaxTask.color_rgb">
-<code class="descname">color_rgb</code><em class="property"> = array([1.        , 0.23921569, 1.        ])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.RelaxTask.color_rgb" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">color_rgb</code><em class="property"> = array([1.        , 0.23921569, 1.        ])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.RelaxTask.color_rgb" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.RelaxTask.fix_ofiles">
-<code class="descname">fix_ofiles</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#RelaxTask.fix_ofiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.RelaxTask.fix_ofiles" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">fix_ofiles</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#RelaxTask.fix_ofiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.RelaxTask.fix_ofiles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Note that ABINIT produces lots of out_TIM1_DEN files for each step.
 Here we list all TIM*_DEN files, we select the last one and we rename it in out_DEN</p>
 <p>This change is needed so that we can specify dependencies with the syntax {node: “DEN”}
@@ -889,13 +889,13 @@ without having to know the number of iterations needed to converge the run in no
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.RelaxTask.get_final_structure">
-<code class="descname">get_final_structure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#RelaxTask.get_final_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.RelaxTask.get_final_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_final_structure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#RelaxTask.get_final_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.RelaxTask.get_final_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read the final structure from the GSR file.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.RelaxTask.get_results">
-<code class="descname">get_results</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#RelaxTask.get_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.RelaxTask.get_results" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_results</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#RelaxTask.get_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.RelaxTask.get_results" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns <code class="xref py py-class docutils literal notranslate"><span class="pre">NodeResults</span></code> instance.
 Subclasses should extend this method (if needed) by adding
 specialized code that performs some kind of post-processing.</p>
@@ -903,7 +903,7 @@ specialized code that performs some kind of post-processing.</p>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.RelaxTask.inspect">
-<code class="descname">inspect</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#RelaxTask.inspect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.RelaxTask.inspect" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">inspect</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#RelaxTask.inspect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.RelaxTask.inspect" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the evolution of the structural relaxation with matplotlib.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -921,12 +921,12 @@ plot the evolution of the SCF cycles (etotal, residuals, etc).</p>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.RelaxTask.reduce_dilatmx">
-<code class="descname">reduce_dilatmx</code><span class="sig-paren">(</span><em>target=1.01</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#RelaxTask.reduce_dilatmx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.RelaxTask.reduce_dilatmx" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reduce_dilatmx</code><span class="sig-paren">(</span><em class="sig-param">target=1.01</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#RelaxTask.reduce_dilatmx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.RelaxTask.reduce_dilatmx" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.RelaxTask.restart">
-<code class="descname">restart</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#RelaxTask.restart"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.RelaxTask.restart" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">restart</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#RelaxTask.restart"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.RelaxTask.restart" title="Permalink to this definition">¶</a></dt>
 <dd><p>Restart the structural relaxation.</p>
 <p>Structure relaxations can be restarted only if we have the WFK file or the DEN or the GSR file
 from which we can read the last structure (mandatory) and the wavefunctions (not mandatory but useful).
@@ -943,7 +943,7 @@ the modification of the structure done during the structure relaxation.</p>
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.tasks.DdkTask">
-<em class="property">class </em><code class="descname">DdkTask</code><span class="sig-paren">(</span><em>input</em>, <em>workdir=None</em>, <em>manager=None</em>, <em>deps=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#DdkTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.DdkTask" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">DdkTask</code><span class="sig-paren">(</span><em class="sig-param">input</em>, <em class="sig-param">workdir=None</em>, <em class="sig-param">manager=None</em>, <em class="sig-param">deps=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#DdkTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.DdkTask" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.tasks.DfptTask</span></code></p>
 <p>Task for DDK calculations.</p>
 <dl class="field-list simple">
@@ -959,12 +959,12 @@ None means that this Task has no dependency.</p></li>
 </dl>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.DdkTask.color_rgb">
-<code class="descname">color_rgb</code><em class="property"> = array([0. , 0.8, 0.8])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.DdkTask.color_rgb" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">color_rgb</code><em class="property"> = array([0. , 0.8, 0.8])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.DdkTask.color_rgb" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.DdkTask.get_results">
-<code class="descname">get_results</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#DdkTask.get_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.DdkTask.get_results" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_results</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#DdkTask.get_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.DdkTask.get_results" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns <code class="xref py py-class docutils literal notranslate"><span class="pre">NodeResults</span></code> instance.
 Subclasses should extend this method (if needed) by adding
 specialized code that performs some kind of post-processing.</p>
@@ -974,7 +974,7 @@ specialized code that performs some kind of post-processing.</p>
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.tasks.PhononTask">
-<em class="property">class </em><code class="descname">PhononTask</code><span class="sig-paren">(</span><em>input</em>, <em>workdir=None</em>, <em>manager=None</em>, <em>deps=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#PhononTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.PhononTask" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">PhononTask</code><span class="sig-paren">(</span><em class="sig-param">input</em>, <em class="sig-param">workdir=None</em>, <em class="sig-param">manager=None</em>, <em class="sig-param">deps=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#PhononTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.PhononTask" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.tasks.DfptTask</span></code></p>
 <p>DFPT calculations for a single atomic perturbation.
 Provide support for in-place restart via (1WF|1DEN) files</p>
@@ -991,12 +991,12 @@ None means that this Task has no dependency.</p></li>
 </dl>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.PhononTask.color_rgb">
-<code class="descname">color_rgb</code><em class="property"> = array([0.        , 0.58823529, 0.98039216])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.PhononTask.color_rgb" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">color_rgb</code><em class="property"> = array([0.        , 0.58823529, 0.98039216])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.PhononTask.color_rgb" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.PhononTask.get_results">
-<code class="descname">get_results</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#PhononTask.get_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.PhononTask.get_results" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_results</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#PhononTask.get_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.PhononTask.get_results" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns <code class="xref py py-class docutils literal notranslate"><span class="pre">NodeResults</span></code> instance.
 Subclasses should extend this method (if needed) by adding
 specialized code that performs some kind of post-processing.</p>
@@ -1004,7 +1004,7 @@ specialized code that performs some kind of post-processing.</p>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.PhononTask.inspect">
-<code class="descname">inspect</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#PhononTask.inspect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.PhononTask.inspect" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">inspect</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#PhononTask.inspect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.PhononTask.inspect" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the Phonon SCF cycle results with matplotlib.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -1017,7 +1017,7 @@ specialized code that performs some kind of post-processing.</p>
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.tasks.ElasticTask">
-<em class="property">class </em><code class="descname">ElasticTask</code><span class="sig-paren">(</span><em>input</em>, <em>workdir=None</em>, <em>manager=None</em>, <em>deps=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ElasticTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ElasticTask" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">ElasticTask</code><span class="sig-paren">(</span><em class="sig-param">input</em>, <em class="sig-param">workdir=None</em>, <em class="sig-param">manager=None</em>, <em class="sig-param">deps=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ElasticTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ElasticTask" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.tasks.DfptTask</span></code></p>
 <p>DFPT calculations for a single strain perturbation (uniaxial or shear strain).
 Provide support for in-place restart via (1WF|1DEN) files</p>
@@ -1034,14 +1034,14 @@ None means that this Task has no dependency.</p></li>
 </dl>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.ElasticTask.color_rgb">
-<code class="descname">color_rgb</code><em class="property"> = array([1. , 0.8, 1. ])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.ElasticTask.color_rgb" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">color_rgb</code><em class="property"> = array([1. , 0.8, 1. ])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.ElasticTask.color_rgb" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.tasks.SigmaTask">
-<em class="property">class </em><code class="descname">SigmaTask</code><span class="sig-paren">(</span><em>input</em>, <em>workdir=None</em>, <em>manager=None</em>, <em>deps=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#SigmaTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.SigmaTask" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">SigmaTask</code><span class="sig-paren">(</span><em class="sig-param">input</em>, <em class="sig-param">workdir=None</em>, <em class="sig-param">manager=None</em>, <em class="sig-param">deps=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#SigmaTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.SigmaTask" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.tasks.ManyBodyTask</span></code></p>
 <p>Tasks for SIGMA calculations. Provides support for in-place restart via QPS files</p>
 <dl class="field-list simple">
@@ -1057,17 +1057,17 @@ None means that this Task has no dependency.</p></li>
 </dl>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.SigmaTask.CRITICAL_EVENTS">
-<code class="descname">CRITICAL_EVENTS</code><em class="property"> = [&lt;class 'pymatgen.io.abinit.events.QPSConvergenceWarning'&gt;]</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.SigmaTask.CRITICAL_EVENTS" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">CRITICAL_EVENTS</code><em class="property"> = [&lt;class 'pymatgen.io.abinit.events.QPSConvergenceWarning'&gt;]</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.SigmaTask.CRITICAL_EVENTS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.SigmaTask.color_rgb">
-<code class="descname">color_rgb</code><em class="property"> = array([0., 1., 0.])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.SigmaTask.color_rgb" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">color_rgb</code><em class="property"> = array([0., 1., 0.])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.SigmaTask.color_rgb" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.SigmaTask.get_results">
-<code class="descname">get_results</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#SigmaTask.get_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.SigmaTask.get_results" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_results</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#SigmaTask.get_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.SigmaTask.get_results" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns <code class="xref py py-class docutils literal notranslate"><span class="pre">NodeResults</span></code> instance.
 Subclasses should extend this method (if needed) by adding
 specialized code that performs some kind of post-processing.</p>
@@ -1075,7 +1075,7 @@ specialized code that performs some kind of post-processing.</p>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.SigmaTask.get_scissors_builder">
-<code class="descname">get_scissors_builder</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#SigmaTask.get_scissors_builder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.SigmaTask.get_scissors_builder" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_scissors_builder</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#SigmaTask.get_scissors_builder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.SigmaTask.get_scissors_builder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an instance of <code class="xref py py-class docutils literal notranslate"><span class="pre">ScissorsBuilder</span></code> from the SIGRES file.</p>
 <dl class="simple">
 <dt>Raise:</dt><dd><p><cite>RuntimeError</cite> if SIGRES file is not found.</p>
@@ -1085,20 +1085,20 @@ specialized code that performs some kind of post-processing.</p>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.SigmaTask.open_sigres">
-<code class="descname">open_sigres</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#SigmaTask.open_sigres"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.SigmaTask.open_sigres" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">open_sigres</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#SigmaTask.open_sigres"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.SigmaTask.open_sigres" title="Permalink to this definition">¶</a></dt>
 <dd><p>Open the SIGRES file located in the in self.outdir.
 Returns <code class="xref py py-class docutils literal notranslate"><span class="pre">SigresFile</span></code> object, None if file could not be found or file is not readable.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.SigmaTask.restart">
-<code class="descname">restart</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#SigmaTask.restart"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.SigmaTask.restart" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">restart</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#SigmaTask.restart"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.SigmaTask.restart" title="Permalink to this definition">¶</a></dt>
 <dd><p>general restart used when scheduler problems have been taken care of</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.SigmaTask.sigres_path">
-<code class="descname">sigres_path</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.SigmaTask.sigres_path" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">sigres_path</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.SigmaTask.sigres_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Absolute path of the SIGRES file. Empty string if file is not present.</p>
 </dd></dl>
 
@@ -1106,7 +1106,7 @@ Returns <code class="xref py py-class docutils literal notranslate"><span class=
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.tasks.EphTask">
-<em class="property">class </em><code class="descname">EphTask</code><span class="sig-paren">(</span><em>input</em>, <em>workdir=None</em>, <em>manager=None</em>, <em>deps=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#EphTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.EphTask" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">EphTask</code><span class="sig-paren">(</span><em class="sig-param">input</em>, <em class="sig-param">workdir=None</em>, <em class="sig-param">manager=None</em>, <em class="sig-param">deps=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#EphTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.EphTask" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.tasks.AbinitTask" title="pymatgen.io.abinit.tasks.AbinitTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.tasks.AbinitTask</span></code></a></p>
 <p>Class for electron-phonon calculations.</p>
 <dl class="field-list simple">
@@ -1122,14 +1122,14 @@ None means that this Task has no dependency.</p></li>
 </dl>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.EphTask.color_rgb">
-<code class="descname">color_rgb</code><em class="property"> = array([1.        , 0.50196078, 0.        ])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.EphTask.color_rgb" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">color_rgb</code><em class="property"> = array([1.        , 0.50196078, 0.        ])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.EphTask.color_rgb" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.tasks.OpticTask">
-<em class="property">class </em><code class="descname">OpticTask</code><span class="sig-paren">(</span><em>optic_input</em>, <em>nscf_node</em>, <em>ddk_nodes</em>, <em>use_ddknc=False</em>, <em>workdir=None</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#OpticTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">OpticTask</code><span class="sig-paren">(</span><em class="sig-param">optic_input</em>, <em class="sig-param">nscf_node</em>, <em class="sig-param">ddk_nodes</em>, <em class="sig-param">use_ddknc=False</em>, <em class="sig-param">workdir=None</em>, <em class="sig-param">manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#OpticTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.tasks.Task</span></code></p>
 <p>Task for the computation of optical spectra with optic i.e.
 RPA without local-field effects and velocity operator computed from DDK files.</p>
@@ -1148,7 +1148,7 @@ Order (x, y, z)</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.OpticTask.autoparal_run">
-<code class="descname">autoparal_run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#OpticTask.autoparal_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask.autoparal_run" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">autoparal_run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#OpticTask.autoparal_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask.autoparal_run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find an optimal set of parameters for the execution of the Optic task
 This method can change the submission parameters e.g. the number of CPUs for MPI and OpenMp.</p>
 <p>Returns 0 if success</p>
@@ -1156,36 +1156,36 @@ This method can change the submission parameters e.g. the number of CPUs for MPI
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.OpticTask.color_rgb">
-<code class="descname">color_rgb</code><em class="property"> = array([1. , 0.8, 0.4])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask.color_rgb" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">color_rgb</code><em class="property"> = array([1. , 0.8, 0.4])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask.color_rgb" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.OpticTask.ddk_filepaths">
-<code class="descname">ddk_filepaths</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask.ddk_filepaths" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">ddk_filepaths</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask.ddk_filepaths" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns (at runtime) the absolute path of the DDK files produced by the DDK runs.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.OpticTask.executable">
-<code class="descname">executable</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask.executable" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">executable</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask.executable" title="Permalink to this definition">¶</a></dt>
 <dd><p>Path to the executable required for running the <a class="reference internal" href="#pymatgen.io.abinit.tasks.OpticTask" title="pymatgen.io.abinit.tasks.OpticTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpticTask</span></code></a>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.OpticTask.filesfile_string">
-<code class="descname">filesfile_string</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask.filesfile_string" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">filesfile_string</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask.filesfile_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>String with the list of files and prefixes needed to execute ABINIT.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.OpticTask.fix_abicritical">
-<code class="descname">fix_abicritical</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#OpticTask.fix_abicritical"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask.fix_abicritical" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">fix_abicritical</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#OpticTask.fix_abicritical"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask.fix_abicritical" title="Permalink to this definition">¶</a></dt>
 <dd><p>Cannot fix abicritical errors for optic</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.OpticTask.fix_queue_critical">
-<code class="descname">fix_queue_critical</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#OpticTask.fix_queue_critical"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask.fix_queue_critical" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">fix_queue_critical</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#OpticTask.fix_queue_critical"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask.fix_queue_critical" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function tries to fix critical events originating from the queue submission system.</p>
 <p>General strategy, first try to increase resources in order to fix the problem,
 if this is not possible, call a task specific method to attempt to decrease the demands.</p>
@@ -1198,7 +1198,7 @@ if this is not possible, call a task specific method to attempt to decrease the 
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.OpticTask.get_results">
-<code class="descname">get_results</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#OpticTask.get_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask.get_results" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_results</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#OpticTask.get_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask.get_results" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns <code class="xref py py-class docutils literal notranslate"><span class="pre">NodeResults</span></code> instance.
 Subclasses should extend this method (if needed) by adding
 specialized code that performs some kind of post-processing.</p>
@@ -1206,45 +1206,45 @@ specialized code that performs some kind of post-processing.</p>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.OpticTask.make_input">
-<code class="descname">make_input</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#OpticTask.make_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask.make_input" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">make_input</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#OpticTask.make_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask.make_input" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct and write the input file of the calculation.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.OpticTask.make_links">
-<code class="descname">make_links</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#OpticTask.make_links"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask.make_links" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">make_links</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#OpticTask.make_links"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask.make_links" title="Permalink to this definition">¶</a></dt>
 <dd><p>Optic allows the user to specify the paths of the input file.
 hence we don’t need to create symbolic links.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.OpticTask.reset_from_scratch">
-<code class="descname">reset_from_scratch</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#OpticTask.reset_from_scratch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask.reset_from_scratch" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_from_scratch</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#OpticTask.reset_from_scratch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask.reset_from_scratch" title="Permalink to this definition">¶</a></dt>
 <dd><p>restart from scratch, this is to be used if a job is restarted with more resources after a crash</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.OpticTask.set_vars">
-<code class="descname">set_vars</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#OpticTask.set_vars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask.set_vars" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_vars</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#OpticTask.set_vars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask.set_vars" title="Permalink to this definition">¶</a></dt>
 <dd><p>Optic does not use <cite>get</cite> or <cite>ird</cite> variables hence we should never try
 to change the input when we connect this task</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.OpticTask.set_workdir">
-<code class="descname">set_workdir</code><span class="sig-paren">(</span><em>workdir</em>, <em>chroot=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#OpticTask.set_workdir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask.set_workdir" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_workdir</code><span class="sig-paren">(</span><em class="sig-param">workdir</em>, <em class="sig-param">chroot=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#OpticTask.set_workdir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask.set_workdir" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the working directory of the task.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.OpticTask.setup">
-<code class="descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#OpticTask.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask.setup" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#OpticTask.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask.setup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Public method called before submitting the task.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.OpticTask.wfk_filepath">
-<code class="descname">wfk_filepath</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask.wfk_filepath" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">wfk_filepath</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask.wfk_filepath" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns (at runtime) the absolute path of the WFK file produced by the NSCF run.</p>
 </dd></dl>
 
@@ -1252,7 +1252,7 @@ to change the input when we connect this task</p>
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.tasks.AnaddbTask">
-<em class="property">class </em><code class="descname">AnaddbTask</code><span class="sig-paren">(</span><em>anaddb_input</em>, <em>ddb_node</em>, <em>gkk_node=None</em>, <em>md_node=None</em>, <em>ddk_node=None</em>, <em>workdir=None</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AnaddbTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AnaddbTask" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">AnaddbTask</code><span class="sig-paren">(</span><em class="sig-param">anaddb_input</em>, <em class="sig-param">ddb_node</em>, <em class="sig-param">gkk_node=None</em>, <em class="sig-param">md_node=None</em>, <em class="sig-param">ddk_node=None</em>, <em class="sig-param">workdir=None</em>, <em class="sig-param">manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AnaddbTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AnaddbTask" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.tasks.Task</span></code></p>
 <p>Task for Anaddb runs (post-processing of DFPT calculations).</p>
 <p>Create an instance of <a class="reference internal" href="#pymatgen.io.abinit.tasks.AnaddbTask" title="pymatgen.io.abinit.tasks.AnaddbTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnaddbTask</span></code></a> from a string containing the input.</p>
@@ -1271,81 +1271,81 @@ to change the input when we connect this task</p>
 </dl>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.AnaddbTask.color_rgb">
-<code class="descname">color_rgb</code><em class="property"> = array([0.8, 0.4, 1. ])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.AnaddbTask.color_rgb" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">color_rgb</code><em class="property"> = array([0.8, 0.4, 1. ])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.AnaddbTask.color_rgb" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AnaddbTask.ddb_filepath">
-<code class="descname">ddb_filepath</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AnaddbTask.ddb_filepath" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">ddb_filepath</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AnaddbTask.ddb_filepath" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns (at runtime) the absolute path of the input DDB file.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AnaddbTask.ddk_filepath">
-<code class="descname">ddk_filepath</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AnaddbTask.ddk_filepath" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">ddk_filepath</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AnaddbTask.ddk_filepath" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns (at runtime) the absolute path of the input DKK file.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AnaddbTask.executable">
-<code class="descname">executable</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AnaddbTask.executable" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">executable</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AnaddbTask.executable" title="Permalink to this definition">¶</a></dt>
 <dd><p>Path to the executable required for running the <a class="reference internal" href="#pymatgen.io.abinit.tasks.AnaddbTask" title="pymatgen.io.abinit.tasks.AnaddbTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnaddbTask</span></code></a>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AnaddbTask.filesfile_string">
-<code class="descname">filesfile_string</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AnaddbTask.filesfile_string" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">filesfile_string</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AnaddbTask.filesfile_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>String with the list of files and prefixes needed to execute ABINIT.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AnaddbTask.get_results">
-<code class="descname">get_results</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AnaddbTask.get_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AnaddbTask.get_results" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_results</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AnaddbTask.get_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AnaddbTask.get_results" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns <code class="xref py py-class docutils literal notranslate"><span class="pre">NodeResults</span></code> instance.
 Subclasses should extend this method (if needed) by adding
 specialized code that performs some kind of post-processing.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AnaddbTask.gkk_filepath">
-<code class="descname">gkk_filepath</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AnaddbTask.gkk_filepath" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">gkk_filepath</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AnaddbTask.gkk_filepath" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns (at runtime) the absolute path of the input GKK file.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AnaddbTask.make_links">
-<code class="descname">make_links</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AnaddbTask.make_links"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AnaddbTask.make_links" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">make_links</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AnaddbTask.make_links"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AnaddbTask.make_links" title="Permalink to this definition">¶</a></dt>
 <dd><p>Anaddb allows the user to specify the paths of the input file.
 hence we don’t need to create symbolic links.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AnaddbTask.md_filepath">
-<code class="descname">md_filepath</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AnaddbTask.md_filepath" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">md_filepath</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AnaddbTask.md_filepath" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns (at runtime) the absolute path of the input MD file.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AnaddbTask.open_phbst">
-<code class="descname">open_phbst</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AnaddbTask.open_phbst"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AnaddbTask.open_phbst" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">open_phbst</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AnaddbTask.open_phbst"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AnaddbTask.open_phbst" title="Permalink to this definition">¶</a></dt>
 <dd><p>Open PHBST file produced by Anaddb and returns <code class="xref py py-class docutils literal notranslate"><span class="pre">PhbstFile</span></code> object.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AnaddbTask.open_phdos">
-<code class="descname">open_phdos</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AnaddbTask.open_phdos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AnaddbTask.open_phdos" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">open_phdos</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AnaddbTask.open_phdos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AnaddbTask.open_phdos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Open PHDOS file produced by Anaddb and returns <code class="xref py py-class docutils literal notranslate"><span class="pre">PhdosFile</span></code> object.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AnaddbTask.setup">
-<code class="descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AnaddbTask.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AnaddbTask.setup" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AnaddbTask.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AnaddbTask.setup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Public method called before submitting the task.</p>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AnaddbTask.temp_shell_task">
-<em class="property">classmethod </em><code class="descname">temp_shell_task</code><span class="sig-paren">(</span><em>inp</em>, <em>ddb_node</em>, <em>mpi_procs=1</em>, <em>gkk_node=None</em>, <em>md_node=None</em>, <em>ddk_node=None</em>, <em>workdir=None</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AnaddbTask.temp_shell_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AnaddbTask.temp_shell_task" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">temp_shell_task</code><span class="sig-paren">(</span><em class="sig-param">inp</em>, <em class="sig-param">ddb_node</em>, <em class="sig-param">mpi_procs=1</em>, <em class="sig-param">gkk_node=None</em>, <em class="sig-param">md_node=None</em>, <em class="sig-param">ddk_node=None</em>, <em class="sig-param">workdir=None</em>, <em class="sig-param">manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AnaddbTask.temp_shell_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AnaddbTask.temp_shell_task" title="Permalink to this definition">¶</a></dt>
 <dd><p>Build a <a class="reference internal" href="#pymatgen.io.abinit.tasks.AnaddbTask" title="pymatgen.io.abinit.tasks.AnaddbTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnaddbTask</span></code></a> with a temporary workdir. The task is executed via
 the shell with 1 MPI proc. Mainly used for post-processing the DDB files.</p>
 <dl class="field-list simple">
@@ -1364,7 +1364,7 @@ the shell with 1 MPI proc. Mainly used for post-processing the DDB files.</p>
 
 <dl class="function">
 <dt id="pymatgen.io.abinit.tasks.set_user_config_taskmanager">
-<code class="descname">set_user_config_taskmanager</code><span class="sig-paren">(</span><em>manager</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#set_user_config_taskmanager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.set_user_config_taskmanager" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_user_config_taskmanager</code><span class="sig-paren">(</span><em class="sig-param">manager</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#set_user_config_taskmanager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.set_user_config_taskmanager" title="Permalink to this definition">¶</a></dt>
 <dd><p>Change the default manager returned by TaskManager.from_user_config.</p>
 </dd></dl>
 
@@ -1384,10 +1384,10 @@ the shell with 1 MPI proc. Mainly used for post-processing the DDB files.</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -1406,13 +1406,13 @@ the shell with 1 MPI proc. Mainly used for post-processing the DDB files.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

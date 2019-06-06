@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.defects.thermodynamics &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.analysis.defects.thermodynamics &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.5.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -49,13 +49,19 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
 <span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="k">import</span> <span class="n">HalfspaceIntersection</span>
 <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="k">import</span> <span class="n">bisect</span>
-<span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">groupby</span><span class="p">,</span> <span class="n">chain</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">chain</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.dos</span> <span class="k">import</span> <span class="n">FermiDos</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.core</span> <span class="k">import</span> <span class="n">DefectEntry</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="k">import</span> <span class="n">PointDefectComparator</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib.cm</span> <span class="k">as</span> <span class="nn">cm</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Danny Broberg, Shyam Dwaraknath&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2018, The Materials Project&quot;</span>
@@ -65,11 +71,13 @@
 <span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Development&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Mar 15, 2018&quot;</span>
 
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <div class="viewcode-block" id="DefectPhaseDiagram"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.thermodynamics.html#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram">[docs]</a><span class="k">class</span> <span class="nc">DefectPhaseDiagram</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This is similar to a PhaseDiagram object in pymatgen, but has ability to do quick analysis of defect formation energies</span>
-<span class="sd">    when fed DefectEntry objects</span>
+<span class="sd">    This is similar to a PhaseDiagram object in pymatgen,</span>
+<span class="sd">    but has ability to do quick analysis of defect formation energies</span>
+<span class="sd">    when fed DefectEntry objects.</span>
 
 <span class="sd">    uses many of the capabilities from PyCDT&#39;s DefectsAnalyzer class...</span>
 
@@ -77,13 +85,27 @@
 <span class="sd">        a) stability of charge states for a given defect,</span>
 <span class="sd">        b) list of all formation ens</span>
 <span class="sd">        c) transition levels in the gap</span>
-<span class="sd">        d)</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        dentries ([DefectEntry]): A list of DefectEntry objects</span>
+<span class="sd">        vbm (float): Valence Band energy to use for all defect entries.</span>
+<span class="sd">            NOTE if using band shifting-type correction then this VBM</span>
+<span class="sd">            should still be that of the GGA calculation</span>
+<span class="sd">            (the bandedgeshifting_correction accounts for shift&#39;s</span>
+<span class="sd">            contribution to formation energy).</span>
+<span class="sd">        band_gap (float): Band gap to use for all defect entries.</span>
+<span class="sd">            NOTE if using band shifting-type correction then this gap</span>
+<span class="sd">            should still be that of the Hybrid calculation you are shifting to.</span>
+<span class="sd">        filter_compatible (bool): Whether to consider entries which were ruled</span>
+<span class="sd">            incompatible by the DefectComaptibility class. Note this must be set to False</span>
+<span class="sd">            if you desire a suggestion for larger supercell sizes.</span>
+<span class="sd">            Default is True (to omit calculations which have &quot;is_compatible&quot;=False in</span>
+<span class="sd">                DefectEntry&#39;sparameters)</span>
+<span class="sd">        metadata (dict): Dictionary of metadata to store with the PhaseDiagram. Has</span>
+<span class="sd">            no impact on calculations.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entries</span><span class="p">,</span> <span class="n">vbm</span><span class="p">,</span> <span class="n">band_gap</span><span class="p">,</span> <span class="n">filter_compatible</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entries</span><span class="p">,</span> <span class="n">vbm</span><span class="p">,</span> <span class="n">band_gap</span><span class="p">,</span> <span class="n">filter_compatible</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="p">{}):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vbm</span> <span class="o">=</span> <span class="n">vbm</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">band_gap</span> <span class="o">=</span> <span class="n">band_gap</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">filter_compatible</span> <span class="o">=</span> <span class="n">filter_compatible</span>
@@ -93,7 +115,52 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">entries</span> <span class="o">=</span> <span class="n">entries</span>
 
+        <span class="k">for</span> <span class="n">ent_ind</span><span class="p">,</span> <span class="n">ent</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entries</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s1">&#39;vbm&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ent</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">or</span> <span class="n">ent</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;vbm&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">vbm</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Entry </span><span class="si">{}</span><span class="s2"> did not have vbm equal to given DefectPhaseDiagram value.&quot;</span>
+                            <span class="s2">&quot; Manually overriding.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">ent</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+                <span class="n">new_ent</span> <span class="o">=</span> <span class="n">ent</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">new_ent</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;vbm&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vbm</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">entries</span><span class="p">[</span><span class="n">ent_ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_ent</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">find_stable_charges</span><span class="p">()</span>
+
+<div class="viewcode-block" id="DefectPhaseDiagram.as_dict"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.thermodynamics.html#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Json-serializable dict representation of DefectPhaseDiagram</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+             <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+             <span class="s2">&quot;entries&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">entry</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entries</span><span class="p">],</span>
+             <span class="s2">&quot;vbm&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">vbm</span><span class="p">,</span>
+             <span class="s2">&quot;band_gap&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">band_gap</span><span class="p">,</span>
+             <span class="s2">&quot;filter_compatible&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_compatible</span><span class="p">,</span>
+             <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">d</span></div>
+
+<div class="viewcode-block" id="DefectPhaseDiagram.from_dict"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.thermodynamics.html#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reconstitute a DefectPhaseDiagram object from a dict representation created using</span>
+<span class="sd">        as_dict().</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            d (dict): dict representation of DefectPhaseDiagram.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DefectPhaseDiagram object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">entries</span> <span class="o">=</span> <span class="p">[</span><span class="n">DefectEntry</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">entry_dict</span><span class="p">)</span> <span class="k">for</span> <span class="n">entry_dict</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;entries&quot;</span><span class="p">)]</span>
+        <span class="n">vbm</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;vbm&quot;</span><span class="p">]</span>
+        <span class="n">band_gap</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;band_gap&quot;</span><span class="p">]</span>
+        <span class="n">filter_compatible</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;filter_compatible&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;metadata&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="k">if</span> <span class="s1">&#39;entry_id&#39;</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="s1">&#39;entry_id&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">:</span>
+            <span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;entry_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;entry_id&#39;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">entries</span><span class="p">,</span> <span class="n">vbm</span><span class="p">,</span> <span class="n">band_gap</span><span class="p">,</span> <span class="n">filter_compatible</span><span class="o">=</span><span class="n">filter_compatible</span><span class="p">,</span>
+                   <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DefectPhaseDiagram.find_stable_charges"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.thermodynamics.html#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.find_stable_charges">[docs]</a>    <span class="k">def</span> <span class="nf">find_stable_charges</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -113,28 +180,49 @@
 <span class="sd">        the Pourbaix Diagram</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">def</span> <span class="nf">similar_defect</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">similar_defects</span><span class="p">(</span> <span class="n">entryset</span><span class="p">):</span>
             <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Used to filter out similar defects of different charges which</span>
-<span class="sd">            are defined by the same type and location</span>
+<span class="sd">            Used for grouping similar defects of different charges</span>
+<span class="sd">            Can distinguish identical defects even if they are not in same position</span>
 <span class="sd">            &quot;&quot;&quot;</span>
-            <span class="k">return</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">site</span><span class="p">)</span>
+            <span class="n">pdc</span> <span class="o">=</span> <span class="n">PointDefectComparator</span><span class="p">(</span> <span class="n">check_charge</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">check_primitive_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                         <span class="n">check_lattice_scale</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">grp_def_sets</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">grp_def_indices</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">ent_ind</span><span class="p">,</span> <span class="n">ent</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span> <span class="n">entryset</span><span class="p">):</span>
+                <span class="c1"># TODO: more pythonic way of grouping entry sets with PointDefectComparator.</span>
+                <span class="c1"># this is currently most time intensive part of DefectPhaseDiagram</span>
+                <span class="n">matched_ind</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">for</span> <span class="n">grp_ind</span><span class="p">,</span> <span class="n">defgrp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">grp_def_sets</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">pdc</span><span class="o">.</span><span class="n">are_equal</span><span class="p">(</span> <span class="n">ent</span><span class="o">.</span><span class="n">defect</span><span class="p">,</span> <span class="n">defgrp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">defect</span><span class="p">):</span>
+                        <span class="n">matched_ind</span> <span class="o">=</span> <span class="n">grp_ind</span>
+                        <span class="k">break</span>
+                <span class="k">if</span> <span class="n">matched_ind</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">grp_def_sets</span><span class="p">[</span><span class="n">matched_ind</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">ent</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+                    <span class="n">grp_def_indices</span><span class="p">[</span><span class="n">matched_ind</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">ent_ind</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">grp_def_sets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="p">[</span><span class="n">ent</span><span class="o">.</span><span class="n">copy</span><span class="p">()])</span>
+                    <span class="n">grp_def_indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="p">[</span><span class="n">ent_ind</span><span class="p">])</span>
+
+            <span class="k">return</span> <span class="nb">zip</span><span class="p">(</span><span class="n">grp_def_sets</span><span class="p">,</span> <span class="n">grp_def_indices</span><span class="p">)</span>
 
         <span class="c1"># Limits for search</span>
         <span class="c1"># E_fermi = { -1 eV to band gap+1}</span>
-        <span class="c1"># the 1 eV padding provides</span>
-        <span class="c1"># E_formation. = { -21 eV to 20 eV}</span>
-        <span class="n">limits</span> <span class="o">=</span> <span class="p">[[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">band_gap</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">21</span><span class="p">,</span> <span class="mi">20</span><span class="p">]]</span>
+        <span class="c1"># E_formation = { (min(Eform) - 30) to (max(Eform) + 30)}</span>
+        <span class="n">all_eform</span> <span class="o">=</span> <span class="p">[</span><span class="n">one_def</span><span class="o">.</span><span class="n">formation_energy</span><span class="p">(</span><span class="n">fermi_level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">band_gap</span><span class="o">/</span><span class="mf">2.</span><span class="p">)</span> <span class="k">for</span> <span class="n">one_def</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entries</span><span class="p">]</span>
+        <span class="n">min_y_lim</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">all_eform</span><span class="p">)</span> <span class="o">-</span> <span class="mi">30</span>
+        <span class="n">max_y_lim</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">all_eform</span><span class="p">)</span> <span class="o">+</span> <span class="mi">30</span>
+        <span class="n">limits</span> <span class="o">=</span> <span class="p">[[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">band_gap</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="n">min_y_lim</span><span class="p">,</span> <span class="n">max_y_lim</span><span class="p">]]</span>
 
         <span class="n">stable_entries</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">finished_charges</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">transition_level_map</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="c1"># Grouping by defect types</span>
-        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">defects</span> <span class="ow">in</span> <span class="n">groupby</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entries</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">similar_defect</span><span class="p">),</span> <span class="n">similar_defect</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">defects</span><span class="p">,</span> <span class="n">index_list</span> <span class="ow">in</span> <span class="n">similar_defects</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">entries</span><span class="p">):</span>
             <span class="n">defects</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">defects</span><span class="p">)</span>
 
-            <span class="c1"># prepping coefficient matrix forx half-space intersection</span>
+            <span class="c1"># prepping coefficient matrix for half-space intersection</span>
             <span class="c1"># [-Q, 1, -1*(E_form+Q*VBM)] -&gt; -Q*E_fermi+E+-1*(E_form+Q*VBM) &lt;= 0  where E_fermi and E are the variables in the hyperplanes</span>
             <span class="n">hyperplanes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
                 <span class="p">[[</span><span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">entry</span><span class="o">.</span><span class="n">charge</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">energy</span> <span class="o">+</span> <span class="n">entry</span><span class="o">.</span><span class="n">charge</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">vbm</span><span class="p">)]</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">defects</span><span class="p">])</span>
@@ -143,7 +231,7 @@
                                   <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">limits</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]]]</span>
             <span class="n">hs_hyperplanes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">hyperplanes</span><span class="p">,</span> <span class="n">border_hyperplanes</span><span class="p">])</span>
 
-            <span class="n">interior_point</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">band_gap</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">20</span><span class="p">]</span>
+            <span class="n">interior_point</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">band_gap</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">all_eform</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.</span><span class="p">]</span>
 
             <span class="n">hs_ints</span> <span class="o">=</span> <span class="n">HalfspaceIntersection</span><span class="p">(</span><span class="n">hs_hyperplanes</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">interior_point</span><span class="p">))</span>
 
@@ -156,30 +244,55 @@
             <span class="c1"># sort based on transition level</span>
             <span class="n">ints_and_facets</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">ints_and_facets</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">int_and_facet</span><span class="p">:</span> <span class="n">int_and_facet</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]))</span>
 
+            <span class="c1"># log a defect name for tracking (using full index list to avoid naming</span>
+            <span class="c1"># in-equivalent defects with same name)</span>
+            <span class="n">str_index_list</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span> <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">index_list</span><span class="p">)]</span>
+            <span class="n">track_name</span> <span class="o">=</span> <span class="n">defects</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;@&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">str_index_list</span><span class="p">))</span>
+
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ints_and_facets</span><span class="p">):</span>
                 <span class="c1"># Unpack into lists</span>
                 <span class="n">_</span><span class="p">,</span> <span class="n">facets</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">ints_and_facets</span><span class="p">)</span>
                 <span class="c1"># Map of transition level: charge states</span>
 
-                <span class="n">transition_level_map</span><span class="p">[</span><span class="n">defects</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">transition_level_map</span><span class="p">[</span><span class="n">track_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
                     <span class="n">intersection</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="p">[</span><span class="n">defects</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">charge</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">facet</span><span class="p">]</span>
                     <span class="k">for</span> <span class="n">intersection</span><span class="p">,</span> <span class="n">facet</span> <span class="ow">in</span> <span class="n">ints_and_facets</span>
                 <span class="p">}</span>
 
-                <span class="n">stable_entries</span><span class="p">[</span><span class="n">defects</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">defects</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">dual</span> <span class="ow">in</span> <span class="n">facets</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">dual</span><span class="p">]))</span>
+                <span class="n">stable_entries</span><span class="p">[</span><span class="n">track_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">defects</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">dual</span> <span class="ow">in</span> <span class="n">facets</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">dual</span><span class="p">]))</span>
 
-                <span class="n">finished_charges</span><span class="p">[</span><span class="n">defects</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">defect</span><span class="o">.</span><span class="n">charge</span> <span class="k">for</span> <span class="n">defect</span> <span class="ow">in</span> <span class="n">defects</span><span class="p">]</span>
+                <span class="n">finished_charges</span><span class="p">[</span><span class="n">track_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">defect</span><span class="o">.</span><span class="n">charge</span> <span class="k">for</span> <span class="n">defect</span> <span class="ow">in</span> <span class="n">defects</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># if ints_and_facets is empty, then there is likely only one defect...</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">defects</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ints and facets was empty but more than one defect exists... why?&quot;</span><span class="p">)</span>
+                    <span class="c1">#confirm formation energies dominant for one defect over other identical defects</span>
+                    <span class="n">name_set</span> <span class="o">=</span> <span class="p">[</span><span class="n">one_def</span><span class="o">.</span><span class="n">name</span><span class="o">+</span><span class="s1">&#39;_chg&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">one_def</span><span class="o">.</span><span class="n">charge</span><span class="p">)</span> <span class="k">for</span> <span class="n">one_def</span> <span class="ow">in</span> <span class="n">defects</span><span class="p">]</span>
+                    <span class="n">vb_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">one_def</span><span class="o">.</span><span class="n">formation_energy</span><span class="p">(</span> <span class="n">fermi_level</span><span class="o">=</span><span class="n">limits</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">one_def</span> <span class="ow">in</span> <span class="n">defects</span><span class="p">]</span>
+                    <span class="n">cb_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">one_def</span><span class="o">.</span><span class="n">formation_energy</span><span class="p">(</span> <span class="n">fermi_level</span><span class="o">=</span><span class="n">limits</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">one_def</span> <span class="ow">in</span> <span class="n">defects</span><span class="p">]</span>
 
-                <span class="n">transition_level_map</span><span class="p">[</span><span class="n">defects</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                    <span class="n">vbm_def_index</span> <span class="o">=</span> <span class="n">vb_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span> <span class="nb">min</span><span class="p">(</span><span class="n">vb_list</span><span class="p">))</span>
+                    <span class="n">name_stable_below_vbm</span> <span class="o">=</span> <span class="n">name_set</span><span class="p">[</span><span class="n">vbm_def_index</span><span class="p">]</span>
+                    <span class="n">cbm_def_index</span> <span class="o">=</span> <span class="n">cb_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span> <span class="nb">min</span><span class="p">(</span><span class="n">cb_list</span><span class="p">))</span>
+                    <span class="n">name_stable_above_cbm</span> <span class="o">=</span> <span class="n">name_set</span><span class="p">[</span><span class="n">cbm_def_index</span><span class="p">]</span>
 
-                <span class="n">stable_entries</span><span class="p">[</span><span class="n">defects</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">([</span><span class="n">defects</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+                    <span class="k">if</span> <span class="n">name_stable_below_vbm</span> <span class="o">!=</span> <span class="n">name_stable_above_cbm</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;HalfSpace identified only one stable charge out of list: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                                         <span class="s2">&quot;But </span><span class="si">{}</span><span class="s2"> is stable below vbm and </span><span class="si">{}</span><span class="s2"> is &quot;</span>
+                                         <span class="s2">&quot;stable above cbm.</span><span class="se">\n</span><span class="s2">List of VBM formation energies: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                                         <span class="s2">&quot;List of CBM formation energies: </span><span class="si">{}</span><span class="s2">&quot;</span>
+                                         <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name_set</span><span class="p">,</span> <span class="n">name_stable_below_vbm</span><span class="p">,</span> <span class="n">name_stable_above_cbm</span><span class="p">,</span>
+                                                   <span class="n">vb_list</span><span class="p">,</span> <span class="n">cb_list</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> is only stable defect out of </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">name_stable_below_vbm</span><span class="p">,</span> <span class="n">name_set</span><span class="p">))</span>
+                        <span class="n">transition_level_map</span><span class="p">[</span><span class="n">track_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                        <span class="n">stable_entries</span><span class="p">[</span><span class="n">track_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">([</span><span class="n">defects</span><span class="p">[</span><span class="n">vbm_def_index</span><span class="p">]])</span>
+                        <span class="n">finished_charges</span><span class="p">[</span><span class="n">track_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">one_def</span><span class="o">.</span><span class="n">charge</span> <span class="k">for</span> <span class="n">one_def</span> <span class="ow">in</span> <span class="n">defects</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">transition_level_map</span><span class="p">[</span><span class="n">track_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
-                <span class="n">finished_charges</span><span class="p">[</span><span class="n">defects</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">defects</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">charge</span><span class="p">]</span>
+                    <span class="n">stable_entries</span><span class="p">[</span><span class="n">track_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">([</span><span class="n">defects</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
 
+                    <span class="n">finished_charges</span><span class="p">[</span><span class="n">track_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">defects</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">charge</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">transition_level_map</span> <span class="o">=</span> <span class="n">transition_level_map</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">transition_levels</span> <span class="o">=</span> <span class="p">{</span>
@@ -242,7 +355,7 @@
 
 <div class="viewcode-block" id="DefectPhaseDiagram.suggest_charges"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.thermodynamics.html#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.suggest_charges">[docs]</a>    <span class="k">def</span> <span class="nf">suggest_charges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Suggest possible charges for defects to computee based on proximity</span>
+<span class="sd">        Suggest possible charges for defects to compute based on proximity</span>
 <span class="sd">        of known transitions from entires to VBM and CBM</span>
 
 <span class="sd">        Args:</span>
@@ -278,21 +391,70 @@
 
         <span class="k">return</span> <span class="n">recommendations</span></div>
 
+<div class="viewcode-block" id="DefectPhaseDiagram.suggest_larger_supercells"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.thermodynamics.html#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.suggest_larger_supercells">[docs]</a>    <span class="k">def</span> <span class="nf">suggest_larger_supercells</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Suggest larger supercells for different defect+chg combinations based on use of</span>
+<span class="sd">        compatibility analysis. Does this for any charged defects which have is_compatible = False,</span>
+<span class="sd">        and the defect+chg formation energy is stable at fermi levels within the band gap.</span>
+
+<span class="sd">        NOTE: Requires self.filter_compatible = False</span>
+<span class="sd">        Args:</span>
+<span class="sd">            tolerance (float): tolerance with respect to the VBM and CBM for considering</span>
+<span class="sd">                               larger supercells for a given charge</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_compatible</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot suggest larger supercells if filter_compatible is True.&quot;</span><span class="p">)</span>
+
+        <span class="n">recommendations</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">def_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">defect_types</span><span class="p">:</span>
+            <span class="n">template_entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stable_entries</span><span class="p">[</span><span class="n">def_type</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">defect_indices</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">def_ind</span><span class="p">)</span> <span class="k">for</span> <span class="n">def_ind</span> <span class="ow">in</span> <span class="n">def_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;@&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)]</span>
+
+            <span class="k">for</span> <span class="n">charge</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">finished_charges</span><span class="p">[</span><span class="n">def_type</span><span class="p">]:</span>
+                <span class="n">chg_defect</span> <span class="o">=</span> <span class="n">template_entry</span><span class="o">.</span><span class="n">defect</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">chg_defect</span><span class="o">.</span><span class="n">set_charge</span> <span class="p">(</span> <span class="n">charge</span><span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">entry_index</span> <span class="ow">in</span> <span class="n">defect_indices</span><span class="p">:</span>
+                    <span class="n">entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entries</span><span class="p">[</span><span class="n">entry_index</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">charge</span> <span class="o">==</span> <span class="n">charge</span><span class="p">:</span>
+                        <span class="k">break</span>
+
+                <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;is_compatible&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+                    <span class="k">continue</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># consider if transition level is within</span>
+                    <span class="c1"># tolerance of band edges</span>
+                    <span class="n">suggest_bigger_supercell</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">for</span> <span class="n">tl</span><span class="p">,</span> <span class="n">chgset</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transition_level_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="n">sorted_chgset</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">chgset</span><span class="p">)</span>
+                        <span class="n">sorted_chgset</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">charge</span> <span class="o">==</span> <span class="n">sorted_chgset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">tl</span> <span class="o">&lt;</span> <span class="n">tolerance</span><span class="p">:</span>
+                            <span class="n">suggest_bigger_supercell</span> <span class="o">=</span> <span class="kc">False</span>
+                        <span class="k">elif</span> <span class="n">charge</span> <span class="o">==</span> <span class="n">sorted_chgset</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">and</span> <span class="n">tl</span> <span class="o">&gt;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">band_gap</span> <span class="o">-</span> <span class="n">tolerance</span><span class="p">):</span>
+                            <span class="n">suggest_bigger_supercell</span> <span class="o">=</span> <span class="kc">False</span>
+
+                <span class="k">if</span> <span class="n">suggest_bigger_supercell</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">def_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">recommendations</span><span class="p">:</span>
+                        <span class="n">recommendations</span><span class="p">[</span><span class="n">def_type</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">recommendations</span><span class="p">[</span><span class="n">def_type</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">charge</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">recommendations</span></div>
+
 <div class="viewcode-block" id="DefectPhaseDiagram.solve_for_fermi_energy"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.thermodynamics.html#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.solve_for_fermi_energy">[docs]</a>    <span class="k">def</span> <span class="nf">solve_for_fermi_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">chemical_potentials</span><span class="p">,</span> <span class="n">bulk_dos</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Solve for the Fermi energy self-consistently as a function of T</span>
-<span class="sd">        and p_O2</span>
 <span class="sd">        Observations are Defect concentrations, electron and hole conc</span>
 <span class="sd">        Args:</span>
+<span class="sd">            temperature: Temperature to equilibrate fermi energies for</span>
+<span class="sd">            chemical_potentials: dict of chemical potentials to use for calculation fermi level</span>
 <span class="sd">            bulk_dos: bulk system dos (pymatgen Dos object)</span>
-<span class="sd">            gap: Can be used to specify experimental gap.</span>
-<span class="sd">                Will be useful if the self consistent Fermi level</span>
-<span class="sd">                is &gt; DFT gap</span>
 <span class="sd">        Returns:</span>
-<span class="sd">            Fermi energy</span>
+<span class="sd">            Fermi energy dictated by charge neutrality</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">fdos</span> <span class="o">=</span> <span class="n">FermiDos</span><span class="p">(</span><span class="n">bulk_dos</span><span class="p">,</span> <span class="n">bandgap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">band_gap</span><span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span><span class="n">fdos_vbm</span> <span class="o">=</span> <span class="n">fdos</span><span class="o">.</span><span class="n">get_cbm_vbm</span><span class="p">()</span>
 
         <span class="k">def</span> <span class="nf">_get_total_q</span><span class="p">(</span><span class="n">ef</span><span class="p">):</span>
 
@@ -301,10 +463,261 @@
                 <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">defect_concentrations</span><span class="p">(</span>
                     <span class="n">chemical_potentials</span><span class="o">=</span><span class="n">chemical_potentials</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span> <span class="n">fermi_level</span><span class="o">=</span><span class="n">ef</span><span class="p">)</span>
             <span class="p">])</span>
-            <span class="n">qd_tot</span> <span class="o">+=</span> <span class="n">fdos</span><span class="o">.</span><span class="n">get_doping</span><span class="p">(</span><span class="n">fermi</span><span class="o">=</span><span class="n">ef</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">vbm</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="n">temperature</span><span class="p">)</span>
+            <span class="n">qd_tot</span> <span class="o">+=</span> <span class="n">fdos</span><span class="o">.</span><span class="n">get_doping</span><span class="p">(</span><span class="n">fermi_level</span><span class="o">=</span><span class="n">ef</span> <span class="o">+</span> <span class="n">fdos_vbm</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="n">temperature</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">qd_tot</span>
 
-        <span class="k">return</span> <span class="n">bisect</span><span class="p">(</span><span class="n">_get_total_q</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">band_gap</span> <span class="o">+</span> <span class="mf">1.</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">bisect</span><span class="p">(</span><span class="n">_get_total_q</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">band_gap</span> <span class="o">+</span> <span class="mf">1.</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DefectPhaseDiagram.solve_for_non_equilibrium_fermi_energy"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.thermodynamics.html#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.solve_for_non_equilibrium_fermi_energy">[docs]</a>    <span class="k">def</span> <span class="nf">solve_for_non_equilibrium_fermi_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">quench_temperature</span><span class="p">,</span>
+                                               <span class="n">chemical_potentials</span><span class="p">,</span> <span class="n">bulk_dos</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Solve for the Fermi energy after quenching in the defect concentrations at a higher</span>
+<span class="sd">        temperature (the quench temperature),</span>
+<span class="sd">        as outlined in P. Canepa et al (2017) Chemistry of Materials (doi: 10.1021/acs.chemmater.7b02909)</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            temperature: Temperature to equilibrate fermi energy at after quenching in defects</span>
+<span class="sd">            quench_temperature: Temperature to equilibrate defect concentrations at (higher temperature)</span>
+<span class="sd">            chemical_potentials: dict of chemical potentials to use for calculation fermi level</span>
+<span class="sd">            bulk_dos: bulk system dos (pymatgen Dos object)</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Fermi energy dictated by charge neutrality with respect to frozen in defect concentrations</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">high_temp_fermi_level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solve_for_fermi_energy</span><span class="p">(</span> <span class="n">quench_temperature</span><span class="p">,</span> <span class="n">chemical_potentials</span><span class="p">,</span>
+                                                             <span class="n">bulk_dos</span><span class="p">)</span>
+        <span class="n">fixed_defect_charge</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;charge&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;conc&#39;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">defect_concentrations</span><span class="p">(</span>
+                <span class="n">chemical_potentials</span><span class="o">=</span><span class="n">chemical_potentials</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="n">quench_temperature</span><span class="p">,</span>
+                <span class="n">fermi_level</span><span class="o">=</span><span class="n">high_temp_fermi_level</span><span class="p">)</span>
+            <span class="p">])</span>
+
+        <span class="n">fdos</span> <span class="o">=</span> <span class="n">FermiDos</span><span class="p">(</span><span class="n">bulk_dos</span><span class="p">,</span> <span class="n">bandgap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">band_gap</span><span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span><span class="n">fdos_vbm</span> <span class="o">=</span> <span class="n">fdos</span><span class="o">.</span><span class="n">get_cbm_vbm</span><span class="p">()</span>
+
+        <span class="k">def</span> <span class="nf">_get_total_q</span><span class="p">(</span><span class="n">ef</span><span class="p">):</span>
+
+            <span class="n">qd_tot</span> <span class="o">=</span> <span class="n">fixed_defect_charge</span>
+            <span class="n">qd_tot</span> <span class="o">+=</span> <span class="n">fdos</span><span class="o">.</span><span class="n">get_doping</span><span class="p">(</span><span class="n">fermi_level</span><span class="o">=</span><span class="n">ef</span> <span class="o">+</span> <span class="n">fdos_vbm</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="n">temperature</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">qd_tot</span>
+
+        <span class="k">return</span> <span class="n">bisect</span><span class="p">(</span><span class="n">_get_total_q</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">band_gap</span> <span class="o">+</span> <span class="mf">1.</span><span class="p">)</span>
+
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="DefectPhaseDiagram.get_dopability_limits"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.thermodynamics.html#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.get_dopability_limits">[docs]</a>    <span class="k">def</span> <span class="nf">get_dopability_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chemical_potentials</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find Dopability limits for a given chemical potential.</span>
+<span class="sd">        This is defined by the defect formation energies which first cross zero</span>
+<span class="sd">        in formation energies.</span>
+<span class="sd">        This determine bounds on the fermi level.</span>
+
+<span class="sd">        Does this by computing formation energy for every stable defect with non-zero charge.</span>
+<span class="sd">        If the formation energy value changes sign on either side of the band gap, then</span>
+<span class="sd">        compute the fermi level value where the formation energy is zero</span>
+<span class="sd">        (formation energies are lines and basic algebra shows: x_crossing = x1 - (y1 / q)</span>
+<span class="sd">        for fermi level, x1, producing formation energy y1)</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            chemical_potentials: dict of chemical potentials to use for calculation fermi level</span>
+<span class="sd">        Returns:</span>
+<span class="sd">             lower dopability limit, upper dopability limit</span>
+<span class="sd">            (returns None if no limit exists for upper or lower i.e. no negative defect</span>
+<span class="sd">            crossing before +/- 20 of band edges OR defect formation energies are entirely zero)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">min_fl_range</span> <span class="o">=</span> <span class="o">-</span><span class="mf">20.</span>
+        <span class="n">max_fl_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">band_gap</span> <span class="o">+</span> <span class="mf">20.</span>
+
+        <span class="n">lower_lim</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">upper_lim</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">def_entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_stable_entries</span><span class="p">:</span>
+            <span class="n">min_fl_formen</span> <span class="o">=</span> <span class="n">def_entry</span><span class="o">.</span><span class="n">formation_energy</span><span class="p">(</span><span class="n">chemical_potentials</span> <span class="o">=</span> <span class="n">chemical_potentials</span><span class="p">,</span>
+                                                    <span class="n">fermi_level</span><span class="o">=</span><span class="n">min_fl_range</span><span class="p">)</span>
+            <span class="n">max_fl_formen</span> <span class="o">=</span> <span class="n">def_entry</span><span class="o">.</span><span class="n">formation_energy</span><span class="p">(</span><span class="n">chemical_potentials</span> <span class="o">=</span> <span class="n">chemical_potentials</span><span class="p">,</span>
+                                                    <span class="n">fermi_level</span><span class="o">=</span><span class="n">max_fl_range</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">min_fl_formen</span> <span class="o">&lt;</span> <span class="mf">0.</span> <span class="ow">and</span> <span class="n">max_fl_formen</span> <span class="o">&lt;</span> <span class="mf">0.</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Formation energy is negative through entire gap for entry </span><span class="si">{}</span><span class="s2"> q=</span><span class="si">{}</span><span class="s2">.&quot;</span> \
+                             <span class="s2">&quot; Cannot return dopability limits.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">def_entry</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">def_entry</span><span class="o">.</span><span class="n">charge</span><span class="p">))</span>
+                <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+            <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span> <span class="n">min_fl_formen</span><span class="p">)</span> <span class="o">!=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span> <span class="n">max_fl_formen</span><span class="p">):</span>
+                <span class="n">x_crossing</span> <span class="o">=</span> <span class="n">min_fl_range</span> <span class="o">-</span> <span class="p">(</span><span class="n">min_fl_formen</span> <span class="o">/</span> <span class="n">def_entry</span><span class="o">.</span><span class="n">charge</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">min_fl_formen</span> <span class="o">&lt;</span> <span class="mf">0.</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">lower_lim</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">lower_lim</span> <span class="o">&lt;</span> <span class="n">x_crossing</span><span class="p">:</span>
+                        <span class="n">lower_lim</span> <span class="o">=</span> <span class="n">x_crossing</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">upper_lim</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">upper_lim</span> <span class="o">&gt;</span> <span class="n">x_crossing</span><span class="p">:</span>
+                        <span class="n">upper_lim</span> <span class="o">=</span> <span class="n">x_crossing</span>
+
+        <span class="k">return</span> <span class="n">lower_lim</span><span class="p">,</span> <span class="n">upper_lim</span></div>
+
+<div class="viewcode-block" id="DefectPhaseDiagram.plot"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.thermodynamics.html#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mu_elts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax_fontsize</span><span class="o">=</span><span class="mf">1.3</span><span class="p">,</span> <span class="n">lg_fontsize</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
+             <span class="n">lg_position</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fermi_level</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">saved</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Produce defect Formation energy vs Fermi energy plot</span>
+<span class="sd">        Args:</span>
+<span class="sd">            mu_elts:</span>
+<span class="sd">                a dictionnary of {Element:value} giving the chemical</span>
+<span class="sd">                potential of each element</span>
+<span class="sd">            xlim:</span>
+<span class="sd">                Tuple (min,max) giving the range of the x (fermi energy) axis</span>
+<span class="sd">            ylim:</span>
+<span class="sd">                Tuple (min,max) giving the range for the formation energy axis</span>
+<span class="sd">            ax_fontsize:</span>
+<span class="sd">                float  multiplier to change axis label fontsize</span>
+<span class="sd">            lg_fontsize:</span>
+<span class="sd">                float  multiplier to change legend label fontsize</span>
+<span class="sd">            lg_position:</span>
+<span class="sd">                Tuple (horizontal-position, vertical-position) giving the position</span>
+<span class="sd">                to place the legend.</span>
+<span class="sd">                Example: (0.5,-0.75) will likely put it below the x-axis.</span>
+<span class="sd">            saved:</span>
+
+
+<span class="sd">        Returns:</span>
+<span class="sd">            a matplotlib object</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">xlim</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">xlim</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">band_gap</span><span class="o">+</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">xy</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">lower_cap</span> <span class="o">=</span> <span class="o">-</span><span class="mf">100.</span>
+        <span class="n">upper_cap</span> <span class="o">=</span> <span class="mf">100.</span>
+        <span class="n">y_range_vals</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># for finding max/min values on y-axis based on x-limits</span>
+        <span class="k">for</span> <span class="n">defnom</span><span class="p">,</span> <span class="n">def_tl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transition_level_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">xy</span><span class="p">[</span><span class="n">defnom</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[],[]]</span>
+            <span class="k">if</span> <span class="n">def_tl</span><span class="p">:</span>
+                <span class="n">org_x</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">def_tl</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>  <span class="c1"># list of transition levels</span>
+                <span class="n">org_x</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>  <span class="c1"># sorted with lowest first</span>
+
+                <span class="c1">#establish lower x-bound</span>
+                <span class="n">first_charge</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">def_tl</span><span class="p">[</span><span class="n">org_x</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+                <span class="k">for</span> <span class="n">chg_ent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stable_entries</span><span class="p">[</span><span class="n">defnom</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">chg_ent</span><span class="o">.</span><span class="n">charge</span> <span class="o">==</span> <span class="n">first_charge</span><span class="p">:</span>
+                        <span class="n">form_en</span> <span class="o">=</span> <span class="n">chg_ent</span><span class="o">.</span><span class="n">formation_energy</span><span class="p">(</span><span class="n">chemical_potentials</span><span class="o">=</span><span class="n">mu_elts</span><span class="p">,</span>
+                                                           <span class="n">fermi_level</span><span class="o">=</span><span class="n">lower_cap</span><span class="p">)</span>
+                        <span class="n">fe_left</span> <span class="o">=</span> <span class="n">chg_ent</span><span class="o">.</span><span class="n">formation_energy</span><span class="p">(</span><span class="n">chemical_potentials</span><span class="o">=</span><span class="n">mu_elts</span><span class="p">,</span>
+                                                           <span class="n">fermi_level</span><span class="o">=</span><span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+                <span class="n">xy</span><span class="p">[</span><span class="n">defnom</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lower_cap</span><span class="p">)</span>
+                <span class="n">xy</span><span class="p">[</span><span class="n">defnom</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">form_en</span><span class="p">)</span>
+                <span class="n">y_range_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">fe_left</span><span class="p">)</span>
+
+                <span class="c1">#iterate over stable charge state transitions</span>
+                <span class="k">for</span> <span class="n">fl</span> <span class="ow">in</span> <span class="n">org_x</span><span class="p">:</span>
+                    <span class="n">charge</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">def_tl</span><span class="p">[</span><span class="n">fl</span><span class="p">])</span>
+                    <span class="k">for</span> <span class="n">chg_ent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stable_entries</span><span class="p">[</span><span class="n">defnom</span><span class="p">]:</span>
+                        <span class="k">if</span> <span class="n">chg_ent</span><span class="o">.</span><span class="n">charge</span> <span class="o">==</span> <span class="n">charge</span><span class="p">:</span>
+                            <span class="n">form_en</span> <span class="o">=</span> <span class="n">chg_ent</span><span class="o">.</span><span class="n">formation_energy</span><span class="p">(</span><span class="n">chemical_potentials</span><span class="o">=</span><span class="n">mu_elts</span><span class="p">,</span>
+                                                               <span class="n">fermi_level</span><span class="o">=</span><span class="n">fl</span><span class="p">)</span>
+                    <span class="n">xy</span><span class="p">[</span><span class="n">defnom</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fl</span><span class="p">)</span>
+                    <span class="n">xy</span><span class="p">[</span><span class="n">defnom</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">form_en</span><span class="p">)</span>
+                    <span class="n">y_range_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">form_en</span><span class="p">)</span>
+
+                <span class="c1">#establish upper x-bound</span>
+                <span class="n">last_charge</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">def_tl</span><span class="p">[</span><span class="n">org_x</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+                <span class="k">for</span> <span class="n">chg_ent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stable_entries</span><span class="p">[</span><span class="n">defnom</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">chg_ent</span><span class="o">.</span><span class="n">charge</span> <span class="o">==</span> <span class="n">last_charge</span><span class="p">:</span>
+                        <span class="n">form_en</span> <span class="o">=</span> <span class="n">chg_ent</span><span class="o">.</span><span class="n">formation_energy</span><span class="p">(</span><span class="n">chemical_potentials</span><span class="o">=</span><span class="n">mu_elts</span><span class="p">,</span>
+                                                           <span class="n">fermi_level</span><span class="o">=</span><span class="n">upper_cap</span><span class="p">)</span>
+                        <span class="n">fe_right</span> <span class="o">=</span> <span class="n">chg_ent</span><span class="o">.</span><span class="n">formation_energy</span><span class="p">(</span><span class="n">chemical_potentials</span><span class="o">=</span><span class="n">mu_elts</span><span class="p">,</span>
+                                                            <span class="n">fermi_level</span><span class="o">=</span><span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">xy</span><span class="p">[</span><span class="n">defnom</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">upper_cap</span><span class="p">)</span>
+                <span class="n">xy</span><span class="p">[</span><span class="n">defnom</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">form_en</span><span class="p">)</span>
+                <span class="n">y_range_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">fe_right</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1">#no transition - just one stable charge</span>
+                <span class="n">chg_ent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stable_entries</span><span class="p">[</span><span class="n">defnom</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">x_extrem</span> <span class="ow">in</span> <span class="p">[</span><span class="n">lower_cap</span><span class="p">,</span> <span class="n">upper_cap</span><span class="p">]:</span>
+                    <span class="n">xy</span><span class="p">[</span><span class="n">defnom</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">x_extrem</span><span class="p">)</span>
+                    <span class="n">xy</span><span class="p">[</span><span class="n">defnom</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">chg_ent</span><span class="o">.</span><span class="n">formation_energy</span><span class="p">(</span><span class="n">chemical_potentials</span><span class="o">=</span><span class="n">mu_elts</span><span class="p">,</span>
+                                                                   <span class="n">fermi_level</span><span class="o">=</span><span class="n">x_extrem</span><span class="p">)</span>
+                                          <span class="p">)</span>
+                <span class="k">for</span> <span class="n">x_window</span> <span class="ow">in</span> <span class="n">xlim</span><span class="p">:</span>
+                    <span class="n">y_range_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">chg_ent</span><span class="o">.</span><span class="n">formation_energy</span><span class="p">(</span><span class="n">chemical_potentials</span><span class="o">=</span><span class="n">mu_elts</span><span class="p">,</span>
+                                                                   <span class="n">fermi_level</span><span class="o">=</span><span class="n">x_window</span><span class="p">)</span>
+                                          <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">ylim</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">window</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">y_range_vals</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">y_range_vals</span><span class="p">)</span>
+            <span class="n">spacer</span> <span class="o">=</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">window</span>
+            <span class="n">ylim</span> <span class="o">=</span> <span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">y_range_vals</span><span class="p">)</span> <span class="o">-</span> <span class="n">spacer</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">y_range_vals</span><span class="p">)</span> <span class="o">+</span> <span class="n">spacer</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">xy</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">8</span><span class="p">:</span>
+            <span class="n">colors</span><span class="o">=</span><span class="n">cm</span><span class="o">.</span><span class="n">Dark2</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">xy</span><span class="p">)))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">colors</span><span class="o">=</span><span class="n">cm</span><span class="o">.</span><span class="n">gist_rainbow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">xy</span><span class="p">)))</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+        <span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">8</span>
+        <span class="c1">#plot formation energy lines</span>
+        <span class="n">for_legend</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">cnt</span><span class="p">,</span> <span class="n">defnom</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">xy</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xy</span><span class="p">[</span><span class="n">defnom</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">xy</span><span class="p">[</span><span class="n">defnom</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">cnt</span><span class="p">])</span>
+            <span class="n">for_legend</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">stable_entries</span><span class="p">[</span><span class="n">defnom</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+
+        <span class="c1">#plot transtition levels</span>
+        <span class="k">for</span> <span class="n">cnt</span><span class="p">,</span> <span class="n">defnom</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">xy</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="n">x_trans</span><span class="p">,</span> <span class="n">y_trans</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">x_val</span><span class="p">,</span> <span class="n">chargeset</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transition_level_map</span><span class="p">[</span><span class="n">defnom</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">x_trans</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">x_val</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">chg_ent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stable_entries</span><span class="p">[</span><span class="n">defnom</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">chg_ent</span><span class="o">.</span><span class="n">charge</span> <span class="o">==</span> <span class="n">chargeset</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                        <span class="n">form_en</span> <span class="o">=</span> <span class="n">chg_ent</span><span class="o">.</span><span class="n">formation_energy</span><span class="p">(</span><span class="n">chemical_potentials</span><span class="o">=</span><span class="n">mu_elts</span><span class="p">,</span>
+                                                           <span class="n">fermi_level</span><span class="o">=</span><span class="n">x_val</span><span class="p">)</span>
+                <span class="n">y_trans</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">form_en</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_trans</span><span class="p">):</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_trans</span><span class="p">,</span> <span class="n">y_trans</span><span class="p">,</span>  <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">cnt</span><span class="p">],</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">fillstyle</span><span class="o">=</span><span class="s1">&#39;full&#39;</span><span class="p">)</span>
+
+        <span class="c1">#get latex-like legend titles</span>
+        <span class="n">legends_txt</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">dfct</span> <span class="ow">in</span> <span class="n">for_legend</span><span class="p">:</span>
+            <span class="n">flds</span> <span class="o">=</span> <span class="n">dfct</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s1">&#39;Vac&#39;</span> <span class="o">==</span> <span class="n">flds</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="n">base</span> <span class="o">=</span> <span class="s1">&#39;$Vac&#39;</span>
+                <span class="n">sub_str</span> <span class="o">=</span> <span class="s1">&#39;_{&#39;</span><span class="o">+</span><span class="n">flds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;}$&#39;</span>
+            <span class="k">elif</span> <span class="s1">&#39;Sub&#39;</span> <span class="o">==</span> <span class="n">flds</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="n">flds</span> <span class="o">=</span> <span class="n">dfct</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+                <span class="n">base</span> <span class="o">=</span> <span class="s1">&#39;$&#39;</span><span class="o">+</span><span class="n">flds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">sub_str</span> <span class="o">=</span> <span class="s1">&#39;_{&#39;</span><span class="o">+</span><span class="n">flds</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;}$&#39;</span>
+            <span class="k">elif</span> <span class="s1">&#39;Int&#39;</span> <span class="o">==</span> <span class="n">flds</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="n">base</span> <span class="o">=</span> <span class="s1">&#39;$&#39;</span><span class="o">+</span><span class="n">flds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">sub_str</span> <span class="o">=</span> <span class="s1">&#39;_</span><span class="si">{inter}</span><span class="s1">$&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">base</span> <span class="o">=</span> <span class="n">dfct</span><span class="o">.</span><span class="n">name</span>
+                <span class="n">sub_str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+            <span class="n">legends_txt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">base</span> <span class="o">+</span> <span class="n">sub_str</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">lg_position</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">legends_txt</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">lg_fontsize</span><span class="o">*</span><span class="n">width</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">legends_txt</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">lg_fontsize</span><span class="o">*</span><span class="n">width</span><span class="p">,</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                       <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;lower center&#39;</span><span class="p">,</span> <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="n">lg_position</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">xlim</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;k-&#39;</span><span class="p">)</span>  <span class="c1"># black dashed line for Eformation = 0</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span> <span class="c1"># black dashed lines for gap edges</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">band_gap</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span>
+                    <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">fermi_level</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">fermi_level</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-.&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># smaller dashed lines for gap edges</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Fermi energy (eV)&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">ax_fontsize</span><span class="o">*</span><span class="n">width</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Defect Formation</span><span class="se">\n</span><span class="s2">Energy (eV)&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">ax_fontsize</span><span class="o">*</span><span class="n">width</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">title</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">title</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="n">ax_fontsize</span><span class="o">*</span><span class="n">width</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">saved</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">title</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;FreyplnravgPlot.pdf&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">plt</span></div></div>
 </pre></div>
 
           </div>
@@ -313,10 +726,10 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -335,7 +748,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.5.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -343,7 +756,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

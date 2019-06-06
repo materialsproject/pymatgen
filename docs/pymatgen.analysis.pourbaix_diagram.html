@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.pourbaix_diagram module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.analysis.pourbaix_diagram module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -46,7 +46,7 @@
 <span id="pymatgen-analysis-pourbaix-diagram-module"></span><h1>pymatgen.analysis.pourbaix_diagram module<a class="headerlink" href="#module-pymatgen.analysis.pourbaix_diagram" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.analysis.pourbaix_diagram.IonEntry">
-<em class="property">class </em><code class="descname">IonEntry</code><span class="sig-paren">(</span><em>ion</em>, <em>energy</em>, <em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#IonEntry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.IonEntry" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">IonEntry</code><span class="sig-paren">(</span><em class="sig-param">ion</em>, <em class="sig-param">energy</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#IonEntry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.IonEntry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PDEntry" title="pymatgen.analysis.phase_diagram.PDEntry"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.phase_diagram.PDEntry</span></code></a></p>
 <p>Object similar to PDEntry, but contains an Ion object instead of a
 Composition object.</p>
@@ -62,7 +62,7 @@ chemical formula.</p></li>
 </dl>
 <dl class="attribute">
 <dt id="pymatgen.analysis.pourbaix_diagram.IonEntry.name">
-<code class="descname">name</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.IonEntry.name" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">name</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.IonEntry.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>A name for the entry. This is the string shown in the phase diagrams.
 By default, this is the reduced formula for the composition, but can be
 set to some other string for display purposes.</p>
@@ -70,21 +70,26 @@ set to some other string for display purposes.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.IonEntry.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#IonEntry.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.IonEntry.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#IonEntry.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.IonEntry.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a dict of composition, energy, and ion name</p>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.IonEntry.from_dict">
-<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#IonEntry.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.IonEntry.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#IonEntry.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.IonEntry.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an IonEntry object from a dict.</p>
 </dd></dl>
 
 </dd></dl>
 
+<dl class="data">
+<dt id="pymatgen.analysis.pourbaix_diagram.MU_H2O">
+<code class="sig-name descname">MU_H2O</code><em class="property"> = -2.4583</em><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.MU_H2O" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="class">
 <dt id="pymatgen.analysis.pourbaix_diagram.MultiEntry">
-<em class="property">class </em><code class="descname">MultiEntry</code><span class="sig-paren">(</span><em>entry_list</em>, <em>weights=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#MultiEntry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.MultiEntry" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">MultiEntry</code><span class="sig-paren">(</span><em class="sig-param">entry_list</em>, <em class="sig-param">weights=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#MultiEntry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.MultiEntry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry" title="pymatgen.analysis.pourbaix_diagram.PourbaixEntry"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.pourbaix_diagram.PourbaixEntry</span></code></a></p>
 <p>PourbaixEntry-like object for constructing multi-elemental Pourbaix
 diagrams.</p>
@@ -99,29 +104,34 @@ diagrams.</p>
 </dl>
 <dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.MultiEntry.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#MultiEntry.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.MultiEntry.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#MultiEntry.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.MultiEntry.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns dict which contains Pourbaix Entry data.
 Note that the pH, voltage, H2O factors are always calculated when
 constructing a PourbaixEntry object.</p>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.MultiEntry.from_dict">
-<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#MultiEntry.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.MultiEntry.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#MultiEntry.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.MultiEntry.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Invokes</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.MultiEntry.name">
-<code class="descname">name</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.MultiEntry.name" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.MultiEntry.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Multientry name, i. e. the name of each entry joined by ‘ + ‘</p>
 </dd></dl>
 
 </dd></dl>
 
+<dl class="data">
+<dt id="pymatgen.analysis.pourbaix_diagram.PREFAC">
+<code class="sig-name descname">PREFAC</code><em class="property"> = 0.0591</em><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PREFAC" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="class">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixDiagram">
-<em class="property">class </em><code class="descname">PourbaixDiagram</code><span class="sig-paren">(</span><em>entries</em>, <em>comp_dict=None</em>, <em>conc_dict=None</em>, <em>filter_solids=False</em>, <em>nproc=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixDiagram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">PourbaixDiagram</code><span class="sig-paren">(</span><em class="sig-param">entries</em>, <em class="sig-param">comp_dict=None</em>, <em class="sig-param">conc_dict=None</em>, <em class="sig-param">filter_solids=False</em>, <em class="sig-param">nproc=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixDiagram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Class to create a Pourbaix diagram from entries</p>
 <dl class="field-list simple">
@@ -143,21 +153,21 @@ in parallel.  Defaults to None (serial processing)</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.all_entries">
-<code class="descname">all_entries</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.all_entries" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">all_entries</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.all_entries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return all entries used to generate the pourbaix diagram</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><em>include_unprocessed_entries=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixDiagram.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><em class="sig-param">include_unprocessed_entries=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixDiagram.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>A JSON serializable dict representation of an object.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.find_stable_entry">
-<code class="descname">find_stable_entry</code><span class="sig-paren">(</span><em>pH</em>, <em>V</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixDiagram.find_stable_entry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.find_stable_entry" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">find_stable_entry</code><span class="sig-paren">(</span><em class="sig-param">pH</em>, <em class="sig-param">V</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixDiagram.find_stable_entry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.find_stable_entry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds stable entry at a pH,V condition
 :param pH: pH to find stable entry
 :type pH: float
@@ -166,14 +176,14 @@ in parallel.  Defaults to None (serial processing)</p></li>
 <p>Returns:</p>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.from_dict">
-<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixDiagram.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixDiagram.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.get_decomposition_energy">
-<code class="descname">get_decomposition_energy</code><span class="sig-paren">(</span><em>entry</em>, <em>pH</em>, <em>V</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixDiagram.get_decomposition_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.get_decomposition_energy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_decomposition_energy</code><span class="sig-paren">(</span><em class="sig-param">entry</em>, <em class="sig-param">pH</em>, <em class="sig-param">V</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixDiagram.get_decomposition_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.get_decomposition_energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds decomposition to most stable entry</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -192,12 +202,12 @@ compound to find the decomposition for</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.get_hull_energy">
-<code class="descname">get_hull_energy</code><span class="sig-paren">(</span><em>pH</em>, <em>V</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixDiagram.get_hull_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.get_hull_energy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_hull_energy</code><span class="sig-paren">(</span><em class="sig-param">pH</em>, <em class="sig-param">V</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixDiagram.get_hull_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.get_hull_energy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.get_pourbaix_domains">
-<em class="property">static </em><code class="descname">get_pourbaix_domains</code><span class="sig-paren">(</span><em>pourbaix_entries</em>, <em>limits=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixDiagram.get_pourbaix_domains"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.get_pourbaix_domains" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">get_pourbaix_domains</code><span class="sig-paren">(</span><em class="sig-param">pourbaix_entries</em>, <em class="sig-param">limits=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixDiagram.get_pourbaix_domains"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.get_pourbaix_domains" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a set of pourbaix stable domains (i. e. polygons) in
 pH-V space from a list of pourbaix_entries</p>
 <p>This function works by using scipy’s HalfspaceIntersection
@@ -228,9 +238,9 @@ dim polytope bounding the allowable ph-V range of each entry.</p>
 </dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.process_multientry">
-<em class="property">static </em><code class="descname">process_multientry</code><span class="sig-paren">(</span><em>entry_list</em>, <em>prod_comp</em>, <em>coeff_threshold=0.0001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixDiagram.process_multientry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.process_multientry" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">process_multientry</code><span class="sig-paren">(</span><em class="sig-param">entry_list</em>, <em class="sig-param">prod_comp</em>, <em class="sig-param">coeff_threshold=0.0001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixDiagram.process_multientry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.process_multientry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Static method for finding a multientry based on
 a list of entries and a product composition.
 Essentially checks to see if a valid aqueous
@@ -240,7 +250,7 @@ with weights according to the coefficients if so.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>entry_list</strong> (<em>[</em><em>Entry</em><em>]</em>) – list of entries from which to
+<li><p><strong>entry_list</strong> (<em>[</em><a class="reference internal" href="pymatgen.io.cif.html#pymatgen.io.cif.Entry" title="pymatgen.io.cif.Entry"><em>Entry</em></a><em>]</em>) – list of entries from which to
 create a MultiEntry</p></li>
 <li><p><strong>prod_comp</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – composition constraint for setting
 weights of MultiEntry</p></li>
@@ -252,21 +262,21 @@ this value, the entry is not returned</p></li>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.stable_entries">
-<code class="descname">stable_entries</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.stable_entries" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">stable_entries</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.stable_entries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the stable entries in the Pourbaix diagram.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.unprocessed_entries">
-<code class="descname">unprocessed_entries</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.unprocessed_entries" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">unprocessed_entries</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.unprocessed_entries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return unprocessed entries</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.unstable_entries">
-<code class="descname">unstable_entries</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.unstable_entries" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">unstable_entries</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.unstable_entries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns all unstable entries in the Pourbaix diagram</p>
 </dd></dl>
 
@@ -274,7 +284,7 @@ this value, the entry is not returned</p></li>
 
 <dl class="class">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixEntry">
-<em class="property">class </em><code class="descname">PourbaixEntry</code><span class="sig-paren">(</span><em>entry</em>, <em>entry_id=None</em>, <em>concentration=1e-06</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixEntry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">PourbaixEntry</code><span class="sig-paren">(</span><em class="sig-param">entry</em>, <em class="sig-param">entry_id=None</em>, <em class="sig-param">concentration=1e-06</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixEntry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>An object encompassing all data relevant to a solid or ion
 in a pourbaix diagram.  Each bulk solid/ion has an energy
@@ -292,28 +302,28 @@ entry object</p>
 </dl>
 <dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixEntry.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixEntry.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixEntry.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns dict which contains Pourbaix Entry data.
 Note that the pH, voltage, H2O factors are always calculated when
 constructing a PourbaixEntry object.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixEntry.composition">
-<code class="descname">composition</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.composition" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">composition</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.composition" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns composition</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixEntry.conc_term">
-<code class="descname">conc_term</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.conc_term" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">conc_term</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.conc_term" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the concentration contribution to the free energy,
 and should only be present when there are ions in the entry</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixEntry.energy">
-<code class="descname">energy</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.energy" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">energy</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns energy</p>
 <dl class="simple">
 <dt>Returns (float): total energy of the pourbaix</dt><dd><p>entry (at pH, V = 0 vs. SHE)</p>
@@ -323,7 +333,7 @@ and should only be present when there are ions in the entry</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixEntry.energy_at_conditions">
-<code class="descname">energy_at_conditions</code><span class="sig-paren">(</span><em>pH</em>, <em>V</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixEntry.energy_at_conditions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.energy_at_conditions" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">energy_at_conditions</code><span class="sig-paren">(</span><em class="sig-param">pH</em>, <em class="sig-param">V</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixEntry.energy_at_conditions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.energy_at_conditions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get free energy for a given pH and V</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -338,51 +348,54 @@ and should only be present when there are ions in the entry</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixEntry.energy_per_atom">
-<code class="descname">energy_per_atom</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.energy_per_atom" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">energy_per_atom</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.energy_per_atom" title="Permalink to this definition">¶</a></dt>
 <dd><p>energy per atom of the pourbaix entry</p>
 <p>Returns (float): energy per atom</p>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixEntry.from_dict">
-<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixEntry.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixEntry.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Invokes</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixEntry.nH2O">
-<code class="descname">nH2O</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.nH2O" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">nH2O</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.nH2O" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixEntry.nPhi">
-<code class="descname">nPhi</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.nPhi" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">nPhi</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.nPhi" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixEntry.name">
-<code class="descname">name</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.name" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixEntry.normalization_factor">
-<code class="descname">normalization_factor</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.normalization_factor" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">normalization_factor</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.normalization_factor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sum of number of atoms minus the number of H and O in composition</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixEntry.normalized_energy">
-<code class="descname">normalized_energy</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.normalized_energy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns:
-energy normalized by number of non H or O atoms, e. g.
+<em class="property">property </em><code class="sig-name descname">normalized_energy</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.normalized_energy" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>energy normalized by number of non H or O atoms, e. g.
 for Zn2O6, energy / 2 or for AgTe3(OH)3, energy / 4</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixEntry.normalized_energy_at_conditions">
-<code class="descname">normalized_energy_at_conditions</code><span class="sig-paren">(</span><em>pH</em>, <em>V</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixEntry.normalized_energy_at_conditions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.normalized_energy_at_conditions" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">normalized_energy_at_conditions</code><span class="sig-paren">(</span><em class="sig-param">pH</em>, <em class="sig-param">V</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixEntry.normalized_energy_at_conditions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.normalized_energy_at_conditions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Energy at an electrochemical condition, compatible with
 numpy arrays for pH/V input</p>
 <dl class="field-list simple">
@@ -398,14 +411,14 @@ numpy arrays for pH/V input</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixEntry.npH">
-<code class="descname">npH</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.npH" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">npH</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.npH" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixEntry.num_atoms">
-<code class="descname">num_atoms</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.num_atoms" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">num_atoms</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry.num_atoms" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return number of atoms in current formula. Useful for normalization</p>
 </dd></dl>
 
@@ -413,7 +426,7 @@ numpy arrays for pH/V input</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixPlotter">
-<em class="property">class </em><code class="descname">PourbaixPlotter</code><span class="sig-paren">(</span><em>pourbaix_diagram</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixPlotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixPlotter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">PourbaixPlotter</code><span class="sig-paren">(</span><em class="sig-param">pourbaix_diagram</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixPlotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixPlotter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A plotter class for phase diagrams.</p>
 <dl class="field-list simple">
@@ -427,7 +440,7 @@ red crosses. Defaults to False.</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixPlotter.domain_vertices">
-<code class="descname">domain_vertices</code><span class="sig-paren">(</span><em>entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixPlotter.domain_vertices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixPlotter.domain_vertices" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">domain_vertices</code><span class="sig-paren">(</span><em class="sig-param">entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixPlotter.domain_vertices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixPlotter.domain_vertices" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the vertices of the Pourbaix domain.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -441,7 +454,7 @@ red crosses. Defaults to False.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixPlotter.get_pourbaix_plot">
-<code class="descname">get_pourbaix_plot</code><span class="sig-paren">(</span><em>limits=None</em>, <em>title=''</em>, <em>label_domains=True</em>, <em>plt=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixPlotter.get_pourbaix_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixPlotter.get_pourbaix_plot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_pourbaix_plot</code><span class="sig-paren">(</span><em class="sig-param">limits=None</em>, <em class="sig-param">title=''</em>, <em class="sig-param">label_domains=True</em>, <em class="sig-param">plt=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixPlotter.get_pourbaix_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixPlotter.get_pourbaix_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot Pourbaix diagram.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -461,12 +474,12 @@ of the form [[xlo, xhi], [ylo, yhi]]</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixPlotter.plot_entry_stability">
-<code class="descname">plot_entry_stability</code><span class="sig-paren">(</span><em>entry</em>, <em>pH_range=None</em>, <em>pH_resolution=100</em>, <em>V_range=None</em>, <em>V_resolution=100</em>, <em>e_hull_max=1</em>, <em>cmap='RdYlBu_r'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixPlotter.plot_entry_stability"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixPlotter.plot_entry_stability" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_entry_stability</code><span class="sig-paren">(</span><em class="sig-param">entry</em>, <em class="sig-param">pH_range=None</em>, <em class="sig-param">pH_resolution=100</em>, <em class="sig-param">V_range=None</em>, <em class="sig-param">V_resolution=100</em>, <em class="sig-param">e_hull_max=1</em>, <em class="sig-param">cmap='RdYlBu_r'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixPlotter.plot_entry_stability"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixPlotter.plot_entry_stability" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixPlotter.show">
-<code class="descname">show</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixPlotter.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixPlotter.show" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">show</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixPlotter.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixPlotter.show" title="Permalink to this definition">¶</a></dt>
 <dd><p>Shows the pourbaix plot</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -483,9 +496,14 @@ of the form [[xlo, xhi], [ylo, yhi]]</p></li>
 
 </dd></dl>
 
+<dl class="data">
+<dt id="pymatgen.analysis.pourbaix_diagram.elements_HO">
+<code class="sig-name descname">elements_HO</code><em class="property"> = {Element H, Element O}</em><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.elements_HO" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="function">
 <dt id="pymatgen.analysis.pourbaix_diagram.generate_entry_label">
-<code class="descname">generate_entry_label</code><span class="sig-paren">(</span><em>entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#generate_entry_label"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.generate_entry_label" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">generate_entry_label</code><span class="sig-paren">(</span><em class="sig-param">entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#generate_entry_label"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.generate_entry_label" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a label for the pourbaix plotter</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -496,7 +514,7 @@ of the form [[xlo, xhi], [ylo, yhi]]</p></li>
 
 <dl class="function">
 <dt id="pymatgen.analysis.pourbaix_diagram.ion_or_solid_comp_object">
-<code class="descname">ion_or_solid_comp_object</code><span class="sig-paren">(</span><em>formula</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#ion_or_solid_comp_object"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.ion_or_solid_comp_object" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ion_or_solid_comp_object</code><span class="sig-paren">(</span><em class="sig-param">formula</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#ion_or_solid_comp_object"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.ion_or_solid_comp_object" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns either an ion object or composition object given
 a formula.</p>
 <dl class="field-list simple">
@@ -512,8 +530,452 @@ Eg. of solid: Fe2O3(s), Fe(s), Na2O</p>
 
 <dl class="function">
 <dt id="pymatgen.analysis.pourbaix_diagram.latexify_ion">
-<code class="descname">latexify_ion</code><span class="sig-paren">(</span><em>formula</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#latexify_ion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.latexify_ion" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">latexify_ion</code><span class="sig-paren">(</span><em class="sig-param">formula</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#latexify_ion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.latexify_ion" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="data">
+<dt id="pymatgen.analysis.pourbaix_diagram.logger">
+<code class="sig-name descname">logger</code><em class="property"> = &lt;Logger pymatgen.analysis.pourbaix_diagram (WARNING)&gt;</em><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.logger" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.pourbaix_diagram.tqdm">
+<em class="property">class </em><code class="sig-name descname">tqdm</code><span class="sig-paren">(</span><em class="sig-param">iterable=None</em>, <em class="sig-param">desc=None</em>, <em class="sig-param">total=None</em>, <em class="sig-param">leave=True</em>, <em class="sig-param">file=None</em>, <em class="sig-param">ncols=None</em>, <em class="sig-param">mininterval=0.1</em>, <em class="sig-param">maxinterval=10.0</em>, <em class="sig-param">miniters=None</em>, <em class="sig-param">ascii=None</em>, <em class="sig-param">disable=False</em>, <em class="sig-param">unit='it'</em>, <em class="sig-param">unit_scale=False</em>, <em class="sig-param">dynamic_ncols=False</em>, <em class="sig-param">smoothing=0.3</em>, <em class="sig-param">bar_format=None</em>, <em class="sig-param">initial=0</em>, <em class="sig-param">position=None</em>, <em class="sig-param">postfix=None</em>, <em class="sig-param">unit_divisor=1000</em>, <em class="sig-param">write_bytes=None</em>, <em class="sig-param">gui=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tqdm/_tqdm.html#tqdm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.tqdm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tqdm._utils.Comparable</span></code></p>
+<p>Decorate an iterable object, returning an iterator which acts exactly
+like the original iterable, but prints a dynamically updating
+progressbar every time a value is requested.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>iterable</strong> (<em>iterable</em><em>, </em><em>optional</em>) – Iterable to decorate with a progressbar.
+Leave blank to manually manage the updates.</p></li>
+<li><p><strong>desc</strong> (<em>str</em><em>, </em><em>optional</em>) – Prefix for the progressbar.</p></li>
+<li><p><strong>total</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of expected iterations. If unspecified,
+len(iterable) is used if possible. If float(“inf”) or as a last
+resort, only basic progress statistics are displayed
+(no ETA, no progressbar).
+If <cite>gui</cite> is True and this parameter needs subsequent updating,
+specify an initial arbitrary large positive integer,
+e.g. int(9e9).</p></li>
+<li><p><strong>leave</strong> (<em>bool</em><em>, </em><em>optional</em>) – If [default: True], keeps all traces of the progressbar
+upon termination of iteration.</p></li>
+<li><p><strong>file</strong> (<cite>io.TextIOWrapper</cite> or <cite>io.StringIO</cite>, optional) – Specifies where to output the progress messages
+(default: sys.stderr). Uses <cite>file.write(str)</cite> and <cite>file.flush()</cite>
+methods.  For encoding, see <cite>write_bytes</cite>.</p></li>
+<li><p><strong>ncols</strong> (<em>int</em><em>, </em><em>optional</em>) – The width of the entire output message. If specified,
+dynamically resizes the progressbar to stay within this bound.
+If unspecified, attempts to use environment width. The
+fallback is a meter width of 10 and no limit for the counter and
+statistics. If 0, will not print any meter (only stats).</p></li>
+<li><p><strong>mininterval</strong> (<em>float</em><em>, </em><em>optional</em>) – Minimum progress display update interval [default: 0.1] seconds.</p></li>
+<li><p><strong>maxinterval</strong> (<em>float</em><em>, </em><em>optional</em>) – Maximum progress display update interval [default: 10] seconds.
+Automatically adjusts <cite>miniters</cite> to correspond to <cite>mininterval</cite>
+after long display update lag. Only works if <cite>dynamic_miniters</cite>
+or monitor thread is enabled.</p></li>
+<li><p><strong>miniters</strong> (<em>int</em><em>, </em><em>optional</em>) – Minimum progress display update interval, in iterations.
+If 0 and <cite>dynamic_miniters</cite>, will automatically adjust to equal
+<cite>mininterval</cite> (more CPU efficient, good for tight loops).
+If &gt; 0, will skip display of specified number of iterations.
+Tweak this and <cite>mininterval</cite> to get very efficient loops.
+If your progress is erratic with both fast and slow iterations
+(network, skipping items, etc) you should set miniters=1.</p></li>
+<li><p><strong>ascii</strong> (<em>bool</em><em> or </em><em>str</em><em>, </em><em>optional</em>) – If unspecified or False, use unicode (smooth blocks) to fill
+the meter. The fallback is to use ASCII characters ” 123456789#”.</p></li>
+<li><p><strong>disable</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to disable the entire progressbar wrapper
+[default: False]. If set to None, disable on non-TTY.</p></li>
+<li><p><strong>unit</strong> (<em>str</em><em>, </em><em>optional</em>) – String that will be used to define the unit of each iteration
+[default: it].</p></li>
+<li><p><strong>unit_scale</strong> (<em>bool</em><em> or </em><em>int</em><em> or </em><em>float</em><em>, </em><em>optional</em>) – If 1 or True, the number of iterations will be reduced/scaled
+automatically and a metric prefix following the
+International System of Units standard will be added
+(kilo, mega, etc.) [default: False]. If any other non-zero
+number, will scale <cite>total</cite> and <cite>n</cite>.</p></li>
+<li><p><strong>dynamic_ncols</strong> (<em>bool</em><em>, </em><em>optional</em>) – If set, constantly alters <cite>ncols</cite> to the environment (allowing
+for window resizes) [default: False].</p></li>
+<li><p><strong>smoothing</strong> (<em>float</em><em>, </em><em>optional</em>) – Exponential moving average smoothing factor for speed estimates
+(ignored in GUI mode). Ranges from 0 (average speed) to 1
+(current/instantaneous speed) [default: 0.3].</p></li>
+<li><p><strong>bar_format</strong> (<em>str</em><em>, </em><em>optional</em>) – <p>Specify a custom bar string formatting. May impact performance.
+[default: ‘{l_bar}{bar}{r_bar}’], where
+l_bar=’{desc}: {percentage:3.0f}%|’ and
+r_bar=’| {n_fmt}/{total_fmt} [{elapsed}&lt;{remaining}, ‘</p>
+<blockquote>
+<div><p>’{rate_fmt}{postfix}]’</p>
+</div></blockquote>
+<dl class="simple">
+<dt>Possible vars: l_bar, bar, r_bar, n, n_fmt, total, total_fmt,</dt><dd><p>percentage, rate, rate_fmt, rate_noinv, rate_noinv_fmt,
+rate_inv, rate_inv_fmt, elapsed, elapsed_s, remaining,
+remaining_s, desc, postfix, unit.</p>
+</dd>
+</dl>
+<p>Note that a trailing “: ” is automatically removed after {desc}
+if the latter is empty.</p>
+</p></li>
+<li><p><strong>initial</strong> (<em>int</em><em>, </em><em>optional</em>) – The initial counter value. Useful when restarting a progress
+bar [default: 0].</p></li>
+<li><p><strong>position</strong> (<em>int</em><em>, </em><em>optional</em>) – Specify the line offset to print this bar (starting from 0)
+Automatic if unspecified.
+Useful to manage multiple bars at once (eg, from threads).</p></li>
+<li><p><strong>postfix</strong> (dict or <a href="#id1"><span class="problematic" id="id2">*</span></a>, optional) – Specify additional stats to display at the end of the bar.
+Calls <cite>set_postfix(**postfix)</cite> if possible (dict).</p></li>
+<li><p><strong>unit_divisor</strong> (<em>float</em><em>, </em><em>optional</em>) – [default: 1000], ignored unless <cite>unit_scale</cite> is True.</p></li>
+<li><p><strong>write_bytes</strong> (<em>bool</em><em>, </em><em>optional</em>) – If (default: None) and <cite>file</cite> is unspecified,
+bytes will be written in Python 2. If <cite>True</cite> will also write
+bytes. In all other cases will default to unicode.</p></li>
+<li><p><strong>gui</strong> (<em>bool</em><em>, </em><em>optional</em>) – WARNING: internal parameter - do not use.
+Use tqdm_gui(…) instead. If set, will attempt to use
+matplotlib animations for a graphical output [default: False].</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>out</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>decorated iterator.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.analysis.pourbaix_diagram.tqdm.clear">
+<code class="sig-name descname">clear</code><span class="sig-paren">(</span><em class="sig-param">nolock=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tqdm/_tqdm.html#tqdm.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.tqdm.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear current bar display.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.pourbaix_diagram.tqdm.close">
+<code class="sig-name descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tqdm/_tqdm.html#tqdm.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.tqdm.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cleanup and (if leave=False) close the progressbar.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.pourbaix_diagram.tqdm.display">
+<code class="sig-name descname">display</code><span class="sig-paren">(</span><em class="sig-param">msg=None</em>, <em class="sig-param">pos=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tqdm/_tqdm.html#tqdm.display"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.tqdm.display" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use <cite>self.sp</cite> to display <cite>msg</cite> in the specified <cite>pos</cite>.</p>
+<p>Consider overloading this function when inheriting to use e.g.:
+<cite>self.some_frontend(**self.format_dict)</cite> instead of <cite>self.sp</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>msg</strong> (str, optional. What to display (default: <cite>repr(self)</cite>).) – </p></li>
+<li><p><strong>pos</strong> (int, optional. Position to <cite>moveto</cite>) – (default: <cite>abs(self.pos)</cite>).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.pourbaix_diagram.tqdm.ema">
+<em class="property">static </em><code class="sig-name descname">ema</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">mu=None</em>, <em class="sig-param">alpha=0.3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tqdm/_tqdm.html#tqdm.ema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.tqdm.ema" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exponential moving average: smoothing to give progressively lower
+weights to older values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – New value to include in EMA.</p></li>
+<li><p><strong>mu</strong> (<em>float</em><em>, </em><em>optional</em>) – Previous EMA value.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em><em>, </em><em>optional</em>) – Smoothing factor in range [0, 1], [default: 0.3].
+Increase to give more weight to recent values.
+Ranges from 0 (yields mu) to 1 (yields x).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.pourbaix_diagram.tqdm.external_write_mode">
+<em class="property">classmethod </em><code class="sig-name descname">external_write_mode</code><span class="sig-paren">(</span><em class="sig-param">file=None</em>, <em class="sig-param">nolock=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tqdm/_tqdm.html#tqdm.external_write_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.tqdm.external_write_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disable tqdm within context and refresh tqdm when exits.
+Useful when writing to standard output stream</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.pourbaix_diagram.tqdm.format_dict">
+<em class="property">property </em><code class="sig-name descname">format_dict</code><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.tqdm.format_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Public API for read-only member access.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.pourbaix_diagram.tqdm.format_interval">
+<em class="property">static </em><code class="sig-name descname">format_interval</code><span class="sig-paren">(</span><em class="sig-param">t</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tqdm/_tqdm.html#tqdm.format_interval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.tqdm.format_interval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Formats a number of seconds as a clock time, [H:]MM:SS</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>t</strong> (<em>int</em>) – Number of seconds.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>out</strong> – [H:]MM:SS</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.pourbaix_diagram.tqdm.format_meter">
+<em class="property">static </em><code class="sig-name descname">format_meter</code><span class="sig-paren">(</span><em class="sig-param">n</em>, <em class="sig-param">total</em>, <em class="sig-param">elapsed</em>, <em class="sig-param">ncols=None</em>, <em class="sig-param">prefix=''</em>, <em class="sig-param">ascii=False</em>, <em class="sig-param">unit='it'</em>, <em class="sig-param">unit_scale=False</em>, <em class="sig-param">rate=None</em>, <em class="sig-param">bar_format=None</em>, <em class="sig-param">postfix=None</em>, <em class="sig-param">unit_divisor=1000</em>, <em class="sig-param">**extra_kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tqdm/_tqdm.html#tqdm.format_meter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.tqdm.format_meter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a string-based progress bar given some parameters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> (<em>int</em>) – Number of finished iterations.</p></li>
+<li><p><strong>total</strong> (<em>int</em>) – The expected total number of iterations. If meaningless (), only
+basic progress statistics are displayed (no ETA).</p></li>
+<li><p><strong>elapsed</strong> (<em>float</em>) – Number of seconds passed since start.</p></li>
+<li><p><strong>ncols</strong> (<em>int</em><em>, </em><em>optional</em>) – The width of the entire output message. If specified,
+dynamically resizes the progress meter to stay within this bound
+[default: None]. The fallback meter width is 10 for the progress
+bar + no limit for the iterations counter and statistics. If 0,
+will not print any meter (only stats).</p></li>
+<li><p><strong>prefix</strong> (<em>str</em><em>, </em><em>optional</em>) – Prefix message (included in total width) [default: ‘’].
+Use as {desc} in bar_format string.</p></li>
+<li><p><strong>ascii</strong> (<em>bool</em><em>, </em><em>optional</em><em> or </em><em>str</em><em>, </em><em>optional</em>) – If not set, use unicode (smooth blocks) to fill the meter
+[default: False]. The fallback is to use ASCII characters
+” 123456789#”.</p></li>
+<li><p><strong>unit</strong> (<em>str</em><em>, </em><em>optional</em>) – The iteration unit [default: ‘it’].</p></li>
+<li><p><strong>unit_scale</strong> (<em>bool</em><em> or </em><em>int</em><em> or </em><em>float</em><em>, </em><em>optional</em>) – If 1 or True, the number of iterations will be printed with an
+appropriate SI metric prefix (k = 10^3, M = 10^6, etc.)
+[default: False]. If any other non-zero number, will scale
+<cite>total</cite> and <cite>n</cite>.</p></li>
+<li><p><strong>rate</strong> (<em>float</em><em>, </em><em>optional</em>) – Manual override for iteration rate.
+If [default: None], uses n/elapsed.</p></li>
+<li><p><strong>bar_format</strong> (<em>str</em><em>, </em><em>optional</em>) – <p>Specify a custom bar string formatting. May impact performance.
+[default: ‘{l_bar}{bar}{r_bar}’], where
+l_bar=’{desc}: {percentage:3.0f}%|’ and
+r_bar=’| {n_fmt}/{total_fmt} [{elapsed}&lt;{remaining}, ‘</p>
+<blockquote>
+<div><p>’{rate_fmt}{postfix}]’</p>
+</div></blockquote>
+<dl class="simple">
+<dt>Possible vars: l_bar, bar, r_bar, n, n_fmt, total, total_fmt,</dt><dd><p>percentage, rate, rate_fmt, rate_noinv, rate_noinv_fmt,
+rate_inv, rate_inv_fmt, elapsed, elapsed_s,
+remaining, remaining_s, desc, postfix, unit.</p>
+</dd>
+</dl>
+<p>Note that a trailing “: ” is automatically removed after {desc}
+if the latter is empty.</p>
+</p></li>
+<li><p><strong>postfix</strong> (<a href="#id3"><span class="problematic" id="id4">*</span></a>, optional) – Similar to <cite>prefix</cite>, but placed at the end
+(e.g. for additional stats).
+Note: postfix is usually a string (not a dict) for this method,
+and will if possible be set to postfix = ‘, ‘ + postfix.
+However other types are supported (#382).</p></li>
+<li><p><strong>unit_divisor</strong> (<em>float</em><em>, </em><em>optional</em>) – [default: 1000], ignored unless <cite>unit_scale</cite> is True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>out</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Formatted meter and stats, ready to display.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.pourbaix_diagram.tqdm.format_num">
+<em class="property">static </em><code class="sig-name descname">format_num</code><span class="sig-paren">(</span><em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tqdm/_tqdm.html#tqdm.format_num"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.tqdm.format_num" title="Permalink to this definition">¶</a></dt>
+<dd><p>Intelligent scientific notation (.3g).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>n</strong> (<em>int</em><em> or </em><em>float</em><em> or </em><em>Numeric</em>) – A Number.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>out</strong> – Formatted number.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.pourbaix_diagram.tqdm.format_sizeof">
+<em class="property">static </em><code class="sig-name descname">format_sizeof</code><span class="sig-paren">(</span><em class="sig-param">num</em>, <em class="sig-param">suffix=''</em>, <em class="sig-param">divisor=1000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tqdm/_tqdm.html#tqdm.format_sizeof"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.tqdm.format_sizeof" title="Permalink to this definition">¶</a></dt>
+<dd><p>Formats a number (greater than unity) with SI Order of Magnitude
+prefixes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num</strong> (<em>float</em>) – Number ( &gt;= 1) to format.</p></li>
+<li><p><strong>suffix</strong> (<em>str</em><em>, </em><em>optional</em>) – Post-postfix [default: ‘’].</p></li>
+<li><p><strong>divisor</strong> (<em>float</em><em>, </em><em>optionl</em>) – Divisor between prefixes [default: 1000].</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>out</strong> – Number with Order of Magnitude SI unit postfix.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.pourbaix_diagram.tqdm.get_lock">
+<em class="property">classmethod </em><code class="sig-name descname">get_lock</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tqdm/_tqdm.html#tqdm.get_lock"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.tqdm.get_lock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the global lock. Construct it if it does not exist.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.pourbaix_diagram.tqdm.monitor">
+<code class="sig-name descname">monitor</code><em class="property"> = None</em><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.tqdm.monitor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.pourbaix_diagram.tqdm.monitor_interval">
+<code class="sig-name descname">monitor_interval</code><em class="property"> = 10</em><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.tqdm.monitor_interval" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.pourbaix_diagram.tqdm.moveto">
+<code class="sig-name descname">moveto</code><span class="sig-paren">(</span><em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tqdm/_tqdm.html#tqdm.moveto"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.tqdm.moveto" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.pourbaix_diagram.tqdm.pandas">
+<em class="property">classmethod </em><code class="sig-name descname">pandas</code><span class="sig-paren">(</span><em class="sig-param">*targs</em>, <em class="sig-param">**tkwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tqdm/_tqdm.html#tqdm.pandas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.tqdm.pandas" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Registers the given <cite>tqdm</cite> class with</dt><dd><p>pandas.core.
+( frame.DataFrame
+| series.Series
+| groupby.DataFrameGroupBy
+| groupby.SeriesGroupBy
+).progress_apply</p>
+</dd>
+</dl>
+<p>A new instance will be create every time <cite>progress_apply</cite> is called,
+and each instance will automatically close() upon completion.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tkwargs</strong> (<em>targs</em><em>,</em>) – </p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tqdm</span> <span class="k">import</span> <span class="n">tqdm</span><span class="p">,</span> <span class="n">tqdm_gui</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="p">(</span><span class="mi">100000</span><span class="p">,</span> <span class="mi">6</span><span class="p">)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tqdm</span><span class="o">.</span><span class="n">pandas</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>  <span class="c1"># can use tqdm_gui, optional kwargs, etc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Now you can use `progress_apply` instead of `apply`</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">progress_apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="rubric">References</p>
+<p><a class="reference external" href="https://stackoverflow.com/questions/18603270/">https://stackoverflow.com/questions/18603270/</a>
+progress-indicator-during-pandas-operations-python</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.pourbaix_diagram.tqdm.refresh">
+<code class="sig-name descname">refresh</code><span class="sig-paren">(</span><em class="sig-param">nolock=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tqdm/_tqdm.html#tqdm.refresh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.tqdm.refresh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Force refresh the display of this bar.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.pourbaix_diagram.tqdm.reset">
+<code class="sig-name descname">reset</code><span class="sig-paren">(</span><em class="sig-param">total=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tqdm/_tqdm.html#tqdm.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.tqdm.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets to 0 iterations for repeated use.</p>
+<p>Consider combining with <cite>leave=True</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>total</strong> (<em>int</em><em>, </em><em>optional. Total to use for the new bar.</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.pourbaix_diagram.tqdm.set_description">
+<code class="sig-name descname">set_description</code><span class="sig-paren">(</span><em class="sig-param">desc=None</em>, <em class="sig-param">refresh=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tqdm/_tqdm.html#tqdm.set_description"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.tqdm.set_description" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set/modify description of the progress bar.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>desc</strong> (<em>str</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>refresh</strong> (<em>bool</em><em>, </em><em>optional</em>) – Forces refresh [default: True].</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.pourbaix_diagram.tqdm.set_description_str">
+<code class="sig-name descname">set_description_str</code><span class="sig-paren">(</span><em class="sig-param">desc=None</em>, <em class="sig-param">refresh=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tqdm/_tqdm.html#tqdm.set_description_str"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.tqdm.set_description_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set/modify description without ‘: ‘ appended.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.pourbaix_diagram.tqdm.set_lock">
+<em class="property">classmethod </em><code class="sig-name descname">set_lock</code><span class="sig-paren">(</span><em class="sig-param">lock</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tqdm/_tqdm.html#tqdm.set_lock"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.tqdm.set_lock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the global lock.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.pourbaix_diagram.tqdm.set_postfix">
+<code class="sig-name descname">set_postfix</code><span class="sig-paren">(</span><em class="sig-param">ordered_dict=None</em>, <em class="sig-param">refresh=True</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tqdm/_tqdm.html#tqdm.set_postfix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.tqdm.set_postfix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set/modify postfix (additional stats)
+with automatic formatting based on datatype.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ordered_dict</strong> (<em>dict</em><em> or </em><em>OrderedDict</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>refresh</strong> (<em>bool</em><em>, </em><em>optional</em>) – Forces refresh [default: True].</p></li>
+<li><p><strong>kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.pourbaix_diagram.tqdm.set_postfix_str">
+<code class="sig-name descname">set_postfix_str</code><span class="sig-paren">(</span><em class="sig-param">s=''</em>, <em class="sig-param">refresh=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tqdm/_tqdm.html#tqdm.set_postfix_str"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.tqdm.set_postfix_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>Postfix without dictionary expansion, similar to prefix handling.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.pourbaix_diagram.tqdm.status_printer">
+<em class="property">static </em><code class="sig-name descname">status_printer</code><span class="sig-paren">(</span><em class="sig-param">file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tqdm/_tqdm.html#tqdm.status_printer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.tqdm.status_printer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Manage the printing and in-place updating of a line of characters.
+Note that if the string is longer than a line, then in-place
+updating may not work (it will print a new line at each refresh).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.pourbaix_diagram.tqdm.unpause">
+<code class="sig-name descname">unpause</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tqdm/_tqdm.html#tqdm.unpause"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.tqdm.unpause" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restart tqdm timer from last print time.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.pourbaix_diagram.tqdm.update">
+<code class="sig-name descname">update</code><span class="sig-paren">(</span><em class="sig-param">n=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tqdm/_tqdm.html#tqdm.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.tqdm.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Manually update the progress bar, useful for streams
+such as reading files.
+E.g.:
+&gt;&gt;&gt; t = tqdm(total=filesize) # Initialise
+&gt;&gt;&gt; for current_buffer in stream:
+…    …
+…    t.update(len(current_buffer))
+&gt;&gt;&gt; t.close()
+The last line is highly recommended, but possibly not necessary if
+<cite>t.update()</cite> will be called in such a way that <cite>filesize</cite> will be
+exactly reached and printed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>n</strong> (<em>int</em><em>, </em><em>optional</em>) – Increment to add to the internal counter of iterations
+[default: 1].</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.pourbaix_diagram.tqdm.write">
+<em class="property">classmethod </em><code class="sig-name descname">write</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">file=None</em>, <em class="sig-param">end='\n'</em>, <em class="sig-param">nolock=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tqdm/_tqdm.html#tqdm.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.tqdm.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print a message via tqdm (without overlap with bars).</p>
+</dd></dl>
+
+</dd></dl>
 
 </div>
 
@@ -531,10 +993,10 @@ Eg. of solid: Fe2O3(s), Fe(s), Na2O</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -553,13 +1015,13 @@ Eg. of solid: Fe2O3(s), Fe(s), Na2O</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

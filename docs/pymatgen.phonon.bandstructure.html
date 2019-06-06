@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.phonon.bandstructure module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.phonon.bandstructure module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -46,7 +46,7 @@
 <span id="pymatgen-phonon-bandstructure-module"></span><h1>pymatgen.phonon.bandstructure module<a class="headerlink" href="#module-pymatgen.phonon.bandstructure" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.phonon.bandstructure.PhononBandStructure">
-<em class="property">class </em><code class="descname">PhononBandStructure</code><span class="sig-paren">(</span><em>qpoints</em>, <em>frequencies</em>, <em>lattice</em>, <em>nac_frequencies=None</em>, <em>eigendisplacements=None</em>, <em>nac_eigendisplacements=None</em>, <em>labels_dict=None</em>, <em>coords_are_cartesian=False</em>, <em>structure=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">PhononBandStructure</code><span class="sig-paren">(</span><em class="sig-param">qpoints</em>, <em class="sig-param">frequencies</em>, <em class="sig-param">lattice</em>, <em class="sig-param">nac_frequencies=None</em>, <em class="sig-param">eigendisplacements=None</em>, <em class="sig-param">nac_eigendisplacements=None</em>, <em class="sig-param">labels_dict=None</em>, <em class="sig-param">coords_are_cartesian=False</em>, <em class="sig-param">structure=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>This is the most generic phonon band structure data possible
 it’s defined by a list of qpoints + frequencies for each of them.
@@ -90,13 +90,13 @@ provide projections to the band structure</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.phonon.bandstructure.PhononBandStructure.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructure.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructure.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>A JSON serializable dict representation of an object.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.phonon.bandstructure.PhononBandStructure.asr_breaking">
-<code class="descname">asr_breaking</code><span class="sig-paren">(</span><em>tol_eigendisplacements=1e-05</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructure.asr_breaking"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.asr_breaking" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">asr_breaking</code><span class="sig-paren">(</span><em class="sig-param">tol_eigendisplacements=1e-05</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructure.asr_breaking"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.asr_breaking" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the breaking of the acoustic sum rule for the three acoustic modes,
 if Gamma is present. None otherwise.
 If eigendisplacements are available they are used to determine the acoustic
@@ -106,14 +106,14 @@ identified or eigendisplacements are missing the first 3 modes will be used
 (indices [0:3]).</p>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.phonon.bandstructure.PhononBandStructure.from_dict">
-<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructure.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructure.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.phonon.bandstructure.PhononBandStructure.get_nac_eigendisplacements_along_dir">
-<code class="descname">get_nac_eigendisplacements_along_dir</code><span class="sig-paren">(</span><em>direction</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructure.get_nac_eigendisplacements_along_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.get_nac_eigendisplacements_along_dir" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_nac_eigendisplacements_along_dir</code><span class="sig-paren">(</span><em class="sig-param">direction</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructure.get_nac_eigendisplacements_along_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.get_nac_eigendisplacements_along_dir" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the nac_eigendisplacements for the given direction (not necessarily a versor).
 None if the direction is not present or nac_eigendisplacements has not been calculated.</p>
 <dl class="field-list simple">
@@ -129,7 +129,7 @@ None if the direction is not present or nac_eigendisplacements has not been calc
 
 <dl class="method">
 <dt id="pymatgen.phonon.bandstructure.PhononBandStructure.get_nac_frequencies_along_dir">
-<code class="descname">get_nac_frequencies_along_dir</code><span class="sig-paren">(</span><em>direction</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructure.get_nac_frequencies_along_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.get_nac_frequencies_along_dir" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_nac_frequencies_along_dir</code><span class="sig-paren">(</span><em class="sig-param">direction</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructure.get_nac_frequencies_along_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.get_nac_frequencies_along_dir" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the nac_frequencies for the given direction (not necessarily a versor).
 None if the direction is not present or nac_frequencies has not been calculated.</p>
 <dl class="field-list simple">
@@ -143,27 +143,27 @@ None if not found.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.phonon.bandstructure.PhononBandStructure.has_eigendisplacements">
-<code class="descname">has_eigendisplacements</code><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.has_eigendisplacements" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">has_eigendisplacements</code><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.has_eigendisplacements" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if eigendisplacements are present.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.phonon.bandstructure.PhononBandStructure.has_imaginary_freq">
-<code class="descname">has_imaginary_freq</code><span class="sig-paren">(</span><em>tol=1e-05</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructure.has_imaginary_freq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.has_imaginary_freq" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">has_imaginary_freq</code><span class="sig-paren">(</span><em class="sig-param">tol=1e-05</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructure.has_imaginary_freq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.has_imaginary_freq" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if imaginary frequencies are present in the BS.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.phonon.bandstructure.PhononBandStructure.has_nac">
-<code class="descname">has_nac</code><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.has_nac" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">has_nac</code><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.has_nac" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if nac_frequencies are present.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.phonon.bandstructure.PhononBandStructure.min_freq">
-<code class="descname">min_freq</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructure.min_freq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.min_freq" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">min_freq</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructure.min_freq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.min_freq" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the point where the minimum frequency is reached and its value</p>
 </dd></dl>
 
@@ -171,7 +171,7 @@ None if not found.</p>
 
 <dl class="class">
 <dt id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine">
-<em class="property">class </em><code class="descname">PhononBandStructureSymmLine</code><span class="sig-paren">(</span><em>qpoints</em>, <em>frequencies</em>, <em>lattice</em>, <em>has_nac=False</em>, <em>eigendisplacements=None</em>, <em>labels_dict=None</em>, <em>coords_are_cartesian=False</em>, <em>structure=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructureSymmLine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">PhononBandStructureSymmLine</code><span class="sig-paren">(</span><em class="sig-param">qpoints</em>, <em class="sig-param">frequencies</em>, <em class="sig-param">lattice</em>, <em class="sig-param">has_nac=False</em>, <em class="sig-param">eigendisplacements=None</em>, <em class="sig-param">labels_dict=None</em>, <em class="sig-param">coords_are_cartesian=False</em>, <em class="sig-param">structure=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructureSymmLine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.phonon.bandstructure.PhononBandStructure" title="pymatgen.phonon.bandstructure.PhononBandStructure"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.phonon.bandstructure.PhononBandStructure</span></code></a></p>
 <p>This object stores phonon band structures along selected (symmetry) lines in the
 Brillouin zone. We call the different symmetry lines (ex: Gamma to Z)
@@ -206,31 +206,31 @@ provide projections to the band structure</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructureSymmLine.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructureSymmLine.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>A JSON serializable dict representation of an object.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.as_phononwebsite">
-<code class="descname">as_phononwebsite</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructureSymmLine.as_phononwebsite"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.as_phononwebsite" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_phononwebsite</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructureSymmLine.as_phononwebsite"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.as_phononwebsite" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a dictionary with the phononwebsite format:
 <a class="reference external" href="http://henriquemiranda.github.io/phononwebsite">http://henriquemiranda.github.io/phononwebsite</a></p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.band_reorder">
-<code class="descname">band_reorder</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructureSymmLine.band_reorder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.band_reorder" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">band_reorder</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructureSymmLine.band_reorder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.band_reorder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Re-order the eigenvalues according to the similarity of the eigenvectors</p>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.from_dict">
-<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructureSymmLine.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructureSymmLine.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.get_branch">
-<code class="descname">get_branch</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructureSymmLine.get_branch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.get_branch" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_branch</code><span class="sig-paren">(</span><em class="sig-param">index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructureSymmLine.get_branch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.get_branch" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns in what branch(es) is the qpoint. There can be several
 branches.</p>
 <dl class="field-list simple">
@@ -248,7 +248,7 @@ branches</p>
 
 <dl class="method">
 <dt id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.get_equivalent_qpoints">
-<code class="descname">get_equivalent_qpoints</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructureSymmLine.get_equivalent_qpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.get_equivalent_qpoints" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_equivalent_qpoints</code><span class="sig-paren">(</span><em class="sig-param">index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructureSymmLine.get_equivalent_qpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.get_equivalent_qpoints" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the list of qpoint indices equivalent (meaning they are the
 same frac coords) to the given one.</p>
 <dl class="field-list simple">
@@ -265,7 +265,7 @@ same frac coords) to the given one.</p>
 
 <dl class="method">
 <dt id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.write_phononwebsite">
-<code class="descname">write_phononwebsite</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructureSymmLine.write_phononwebsite"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.write_phononwebsite" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_phononwebsite</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructureSymmLine.write_phononwebsite"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.write_phononwebsite" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write a json file for the phononwebsite:
 <a class="reference external" href="http://henriquemiranda.github.io/phononwebsite">http://henriquemiranda.github.io/phononwebsite</a></p>
 </dd></dl>
@@ -274,19 +274,19 @@ same frac coords) to the given one.</p>
 
 <dl class="function">
 <dt id="pymatgen.phonon.bandstructure.eigenvectors_from_displacements">
-<code class="descname">eigenvectors_from_displacements</code><span class="sig-paren">(</span><em>disp</em>, <em>masses</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#eigenvectors_from_displacements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.eigenvectors_from_displacements" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">eigenvectors_from_displacements</code><span class="sig-paren">(</span><em class="sig-param">disp</em>, <em class="sig-param">masses</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#eigenvectors_from_displacements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.eigenvectors_from_displacements" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the eigenvectors from the atomic displacements</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.phonon.bandstructure.estimate_band_connection">
-<code class="descname">estimate_band_connection</code><span class="sig-paren">(</span><em>prev_eigvecs</em>, <em>eigvecs</em>, <em>prev_band_order</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#estimate_band_connection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.estimate_band_connection" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">estimate_band_connection</code><span class="sig-paren">(</span><em class="sig-param">prev_eigvecs</em>, <em class="sig-param">eigvecs</em>, <em class="sig-param">prev_band_order</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#estimate_band_connection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.estimate_band_connection" title="Permalink to this definition">¶</a></dt>
 <dd><p>A function to order the phonon eigenvectors taken from phonopy</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.phonon.bandstructure.get_reasonable_repetitions">
-<code class="descname">get_reasonable_repetitions</code><span class="sig-paren">(</span><em>natoms</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#get_reasonable_repetitions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.get_reasonable_repetitions" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_reasonable_repetitions</code><span class="sig-paren">(</span><em class="sig-param">natoms</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#get_reasonable_repetitions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.get_reasonable_repetitions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Choose the number of repetitions
 according to the number of atoms in the system</p>
 </dd></dl>
@@ -307,10 +307,10 @@ according to the number of atoms in the system</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -329,13 +329,13 @@ according to the number of atoms in the system</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

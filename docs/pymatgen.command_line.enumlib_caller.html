@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.command_line.enumlib_caller module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.command_line.enumlib_caller module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -46,21 +46,36 @@
 <span id="pymatgen-command-line-enumlib-caller-module"></span><h1>pymatgen.command_line.enumlib_caller module<a class="headerlink" href="#module-pymatgen.command_line.enumlib_caller" title="Permalink to this headline">¶</a></h1>
 <dl class="exception">
 <dt id="pymatgen.command_line.enumlib_caller.EnumError">
-<em class="property">exception </em><code class="descname">EnumError</code><a class="reference internal" href="_modules/pymatgen/command_line/enumlib_caller.html#EnumError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.enumlib_caller.EnumError" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="sig-name descname">EnumError</code><a class="reference internal" href="_modules/pymatgen/command_line/enumlib_caller.html#EnumError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.enumlib_caller.EnumError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseException</span></code></p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.command_line.enumlib_caller.EnumlibAdaptor">
-<code class="descname">EnumlibAdaptor</code><span class="sig-paren">(</span><em>structure</em>, <em>min_cell_size=1</em>, <em>max_cell_size=1</em>, <em>symm_prec=0.1</em>, <em>enum_precision_parameter=0.001</em>, <em>refine_structure=False</em>, <em>check_ordered_symmetry=True</em>, <em>timeout=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/command_line/enumlib_caller.html#EnumlibAdaptor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.enumlib_caller.EnumlibAdaptor" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">EnumlibAdaptor</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">min_cell_size=1</em>, <em class="sig-param">max_cell_size=1</em>, <em class="sig-param">symm_prec=0.1</em>, <em class="sig-param">enum_precision_parameter=0.001</em>, <em class="sig-param">refine_structure=False</em>, <em class="sig-param">check_ordered_symmetry=True</em>, <em class="sig-param">timeout=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/command_line/enumlib_caller.html#EnumlibAdaptor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.enumlib_caller.EnumlibAdaptor" title="Permalink to this definition">¶</a></dt>
 <dd><p>An adaptor for enumlib.</p>
 <dl class="attribute">
 <dt id="pymatgen.command_line.enumlib_caller.structures">
-<code class="descname">structures</code><a class="headerlink" href="#pymatgen.command_line.enumlib_caller.structures" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">structures</code><a class="headerlink" href="#pymatgen.command_line.enumlib_caller.structures" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of all enumerated structures.</p>
 </dd></dl>
 
 </dd></dl>
+
+<dl class="data">
+<dt id="pymatgen.command_line.enumlib_caller.enum_cmd">
+<code class="sig-name descname">enum_cmd</code><em class="property"> = '/Users/shyuepingong/Dropbox/scripts/enum.x'</em><a class="headerlink" href="#pymatgen.command_line.enumlib_caller.enum_cmd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="data">
+<dt id="pymatgen.command_line.enumlib_caller.logger">
+<code class="sig-name descname">logger</code><em class="property"> = &lt;Logger pymatgen.command_line.enumlib_caller (INFO)&gt;</em><a class="headerlink" href="#pymatgen.command_line.enumlib_caller.logger" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="data">
+<dt id="pymatgen.command_line.enumlib_caller.makestr_cmd">
+<code class="sig-name descname">makestr_cmd</code><em class="property"> = '/Users/shyuepingong/Dropbox/scripts/makestr.x'</em><a class="headerlink" href="#pymatgen.command_line.enumlib_caller.makestr_cmd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </div>
 
@@ -78,10 +93,10 @@
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -100,13 +115,13 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.defects.defect_compatibility module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.analysis.defects.defect_compatibility module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -42,8 +42,174 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="pymatgen-analysis-defects-defect-compatibility-module">
-<h1>pymatgen.analysis.defects.defect_compatibility module<a class="headerlink" href="#pymatgen-analysis-defects-defect-compatibility-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-pymatgen.analysis.defects.defect_compatibility">
+<span id="pymatgen-analysis-defects-defect-compatibility-module"></span><h1>pymatgen.analysis.defects.defect_compatibility module<a class="headerlink" href="#module-pymatgen.analysis.defects.defect_compatibility" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility">
+<em class="property">class </em><code class="sig-name descname">DefectCompatibility</code><span class="sig-paren">(</span><em class="sig-param">plnr_avg_var_tol=0.0001</em>, <em class="sig-param">plnr_avg_minmax_tol=0.1</em>, <em class="sig-param">atomic_site_var_tol=0.005</em>, <em class="sig-param">atomic_site_minmax_tol=0.1</em>, <em class="sig-param">tot_relax_tol=1.0</em>, <em class="sig-param">perc_relax_tol=50.0</em>, <em class="sig-param">defect_tot_relax_tol=2.0</em>, <em class="sig-param">preferred_cc='freysoldt'</em>, <em class="sig-param">free_chg_cutoff=2.1</em>, <em class="sig-param">use_bandfilling=True</em>, <em class="sig-param">use_bandedgeshift=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/defect_compatibility.html#DefectCompatibility"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>The DefectCompatibility class evaluates corrections and delocalization
+metrics on a DefectEntry. It can only parse based on the available
+parameters that already exist in the parameters dict of the DefectEntry.</p>
+<dl>
+<dt>required settings in defect_entry.parameters for various types of analysis/correction:</dt><dd><dl class="simple">
+<dt>freysoldt: [ “dielectric”, “axis_grid”, “bulk_planar_averages”, “defect_planar_averages”,</dt><dd><p>“initial_defect_structure”, “defect_frac_sc_coords”]</p>
+</dd>
+<dt>kumagai: [ “dielectric”, “bulk_atomic_site_averages”, “defect_atomic_site_averages”,</dt><dd><p>“site_matching_indices”, “initial_defect_structure”, “defect_frac_sc_coords”]</p>
+</dd>
+</dl>
+<p>bandfilling: [“eigenvalues”, “kpoint_weights”, “potalign”, “vbm”, “cbm”]
+bandshifting: [“hybrid_cbm”, “hybrid_vbm”, “vbm”, “cbm”]
+defect relaxation/structure analysis: [“final_defect_structure”, “initial_defect_structure”,</p>
+<blockquote>
+<div><p>“sampling_radius”, “defect_frac_sc_coords”]</p>
+</div></blockquote>
+</dd>
+</dl>
+<p>Initializes the DefectCompatibility class</p>
+<p>Each argument helps decide whether a DefectEntry is flagged as compatible or not
+:param plnr_avg_var_tol: compatibility tolerance for variance of the sampling region</p>
+<blockquote>
+<div><p>in the planar averaged electrostatic potential (FreysoldtCorrection)</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>plnr_avg_minmax_tol</strong> (<em>float</em>) – compatibility tolerance for max/min difference of the
+sampling region in the planar averaged electrostatic potential (FreysoldtCorrection)</p></li>
+<li><p><strong>atomic_site_var_tol</strong> (<em>float</em>) – compatibility tolerance for variance of the sampling
+region in the atomic site averaged electrostatic potential (KumagaiCorrection)</p></li>
+<li><p><strong>atomic_site_minmax_tol</strong> (<em>float</em>) – compatibility tolerance for max/min difference
+of the sampling region in the atomic site averaged electrostatic
+potential (KumagaiCorrection)</p></li>
+<li><p><strong>tot_relax_tol</strong> (<em>float</em>) – compatibility tolerance for total integrated relaxation
+amount outside of a given radius from the defect (in Angstrom).
+Radius is supplied as ‘sampling_radius’ within parameters of DefectEntry.</p></li>
+<li><p><strong>perc_relax_tol</strong> (<em>float</em>) – compatibility tolerance for percentage of total relaxation
+outside of a given radius from the defect (percentage amount),
+assuming a total integration relaxation greater than 1 Angstrom.
+Radius is supplied as ‘sampling_radius’ within parameters of DefectEntry.</p></li>
+<li><p><strong>defect_tot_relax_tol</strong> (<em>float</em>) – compatibility tolerance for displacement of defect site
+itself (in Angstrom).</p></li>
+<li><p><strong>preferred_cc</strong> (<em>str</em>) – Charge correction that is preferred to be used.
+If only one is available based on metadata, then that charge correction will be used.
+Options are: ‘freysoldt’ and ‘kumagai’</p></li>
+<li><p><strong>free_chg_cutoff</strong> (<em>float</em>) – compatibility tolerance for total amount of host band occupation
+outside of band edges, given by eigenvalue data. Extra occupation in the CB would be
+free electrons, while lost occupation in VB would be free holes.</p></li>
+<li><p><strong>use_bandfilling</strong> (<em>bool</em>) – Whether to include BandFillingCorrection or not (assuming
+sufficient metadata is supplied to perform BandFillingCorrection).</p></li>
+<li><p><strong>use_bandedgeshift</strong> (<em>bool</em>) – Whether to perform a BandEdgeShiftingCorrection or not (assuming
+sufficient metadata is supplied to perform BandEdgeShiftingCorrection).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.check_final_relaxed_structure_delocalized">
+<code class="sig-name descname">check_final_relaxed_structure_delocalized</code><span class="sig-paren">(</span><em class="sig-param">defect_entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/defect_compatibility.html#DefectCompatibility.check_final_relaxed_structure_delocalized"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.check_final_relaxed_structure_delocalized" title="Permalink to this definition">¶</a></dt>
+<dd><p>NOTE this assumes initial and final structures have sites indexed in same way</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>defect_entry</strong> – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.check_freysoldt_delocalized">
+<code class="sig-name descname">check_freysoldt_delocalized</code><span class="sig-paren">(</span><em class="sig-param">defect_entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/defect_compatibility.html#DefectCompatibility.check_freysoldt_delocalized"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.check_freysoldt_delocalized" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.check_kumagai_delocalized">
+<code class="sig-name descname">check_kumagai_delocalized</code><span class="sig-paren">(</span><em class="sig-param">defect_entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/defect_compatibility.html#DefectCompatibility.check_kumagai_delocalized"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.check_kumagai_delocalized" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.delocalization_analysis">
+<code class="sig-name descname">delocalization_analysis</code><span class="sig-paren">(</span><em class="sig-param">defect_entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/defect_compatibility.html#DefectCompatibility.delocalization_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.delocalization_analysis" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Do delocalization analysis. To do this, one considers:</dt><dd><ol class="lowerroman simple">
+<li><p>sampling region of planar averaged electrostatic potential (freysoldt approach)</p></li>
+<li><p>sampling region of atomic site averaged potentials (kumagai approach)</p></li>
+<li><p>structural relaxation amount outside of radius considered in kumagai approach (default is wigner seitz radius)</p></li>
+<li><p>if defect is not a vacancy type -&gt; track to see how much the defect has moved</p></li>
+</ol>
+</dd>
+</dl>
+<p>calculations that fail delocalization get “is_compatibile” set to False in parameters
+also parameters recieves a “delocalization_meta” with following dict:</p>
+<blockquote>
+<div><p>plnr_avg = {‘is_compatible’: True/False, ‘metadata’: metadata used for determining this}
+atomic_site = {‘is_compatible’: True/False, ‘metadata’: metadata used for determining this}
+structure_relax = {‘is_compatible’: True/False, ‘metadata’: metadata used for determining this}
+defectsite_relax = {‘is_compatible’: True/False, ‘metadata’: metadata used for determing this}</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_all_corrections">
+<code class="sig-name descname">perform_all_corrections</code><span class="sig-paren">(</span><em class="sig-param">defect_entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/defect_compatibility.html#DefectCompatibility.perform_all_corrections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_all_corrections" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_band_edge_shifting">
+<code class="sig-name descname">perform_band_edge_shifting</code><span class="sig-paren">(</span><em class="sig-param">defect_entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/defect_compatibility.html#DefectCompatibility.perform_band_edge_shifting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_band_edge_shifting" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_bandfilling">
+<code class="sig-name descname">perform_bandfilling</code><span class="sig-paren">(</span><em class="sig-param">defect_entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/defect_compatibility.html#DefectCompatibility.perform_bandfilling"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_bandfilling" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_freysoldt">
+<code class="sig-name descname">perform_freysoldt</code><span class="sig-paren">(</span><em class="sig-param">defect_entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/defect_compatibility.html#DefectCompatibility.perform_freysoldt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_freysoldt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_kumagai">
+<code class="sig-name descname">perform_kumagai</code><span class="sig-paren">(</span><em class="sig-param">defect_entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/defect_compatibility.html#DefectCompatibility.perform_kumagai"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_kumagai" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.process_entry">
+<code class="sig-name descname">process_entry</code><span class="sig-paren">(</span><em class="sig-param">defect_entry</em>, <em class="sig-param">perform_corrections=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/defect_compatibility.html#DefectCompatibility.process_entry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.process_entry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process a given DefectEntry with qualifiers given from initialization of class.
+Order of processing is:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>perform all possible defect corrections with information given</p></li>
+</ol>
+<p>2) consider delocalization analyses based on qualifier metrics
+given initialization of class. If delocalized, flag entry as delocalized
+3) update corrections to defect entry and flag as delocalized</p>
+</div></blockquote>
+<dl class="simple">
+<dt>Corrections are applied based on:</dt><dd><ol class="lowerroman simple">
+<li><dl class="simple">
+<dt>if free charges are more than free_chg_cutoff then will not apply charge correction,</dt><dd><p>because it no longer is applicable</p>
+</dd>
+</dl>
+</li>
+<li><p>use charge correction set by preferred_cc</p></li>
+<li><p>only use BandFilling correction if use_bandfilling is set to True</p></li>
+<li><p>only use BandEdgeShift correction if use_bandedgeshift is set to True</p></li>
+</ol>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="data">
+<dt id="pymatgen.analysis.defects.defect_compatibility.logger">
+<code class="sig-name descname">logger</code><em class="property"> = &lt;Logger pymatgen.analysis.defects.defect_compatibility (WARNING)&gt;</em><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.logger" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
 
 
@@ -60,10 +226,10 @@
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -82,13 +248,13 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

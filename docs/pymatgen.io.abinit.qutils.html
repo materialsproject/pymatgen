@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.abinit.qutils module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.io.abinit.qutils module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -51,13 +51,18 @@
 </div></blockquote>
 <dl class="function">
 <dt id="pymatgen.io.abinit.qutils.any2mb">
-<code class="descname">any2mb</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/qutils.html#any2mb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.qutils.any2mb" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">any2mb</code><span class="sig-paren">(</span><em class="sig-param">s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/qutils.html#any2mb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.qutils.any2mb" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert string or number to memory in megabytes.</p>
 </dd></dl>
 
+<dl class="data">
+<dt id="pymatgen.io.abinit.qutils.logger">
+<code class="sig-name descname">logger</code><em class="property"> = &lt;Logger pymatgen.io.abinit.qutils (INFO)&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.qutils.logger" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="function">
 <dt id="pymatgen.io.abinit.qutils.slurm_parse_timestr">
-<code class="descname">slurm_parse_timestr</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/qutils.html#slurm_parse_timestr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.qutils.slurm_parse_timestr" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">slurm_parse_timestr</code><span class="sig-paren">(</span><em class="sig-param">s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/qutils.html#slurm_parse_timestr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.qutils.slurm_parse_timestr" title="Permalink to this definition">¶</a></dt>
 <dd><p>A slurm time parser. Accepts a string in one the following forms:</p>
 <blockquote>
 <div><p># “days-hours”,
@@ -79,7 +84,7 @@
 
 <dl class="function">
 <dt id="pymatgen.io.abinit.qutils.time2loadlever">
-<code class="descname">time2loadlever</code><span class="sig-paren">(</span><em>timeval</em>, <em>unit='s'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/qutils.html#time2loadlever"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.qutils.time2loadlever" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">time2loadlever</code><span class="sig-paren">(</span><em class="sig-param">timeval</em>, <em class="sig-param">unit='s'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/qutils.html#time2loadlever"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.qutils.time2loadlever" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a number representing a time value in the given unit (Default: seconds)
 to a string following the LoadLever convention. format hh:mm:ss (hours:minutes:seconds)</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">time2loadlever</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;d&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;48:00:00&#39;</span>
@@ -89,7 +94,7 @@ to a string following the LoadLever convention. format hh:mm:ss (hours:minutes:s
 
 <dl class="function">
 <dt id="pymatgen.io.abinit.qutils.time2pbspro">
-<code class="descname">time2pbspro</code><span class="sig-paren">(</span><em>timeval</em>, <em>unit='s'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/qutils.html#time2pbspro"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.qutils.time2pbspro" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">time2pbspro</code><span class="sig-paren">(</span><em class="sig-param">timeval</em>, <em class="sig-param">unit='s'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/qutils.html#time2pbspro"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.qutils.time2pbspro" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a number representing a time value in the given unit (Default: seconds)
 to a string following the PbsPro convention: “hours:minutes:seconds”.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">time2pbspro</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;d&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;48:0:0&#39;</span>
@@ -99,7 +104,7 @@ to a string following the PbsPro convention: “hours:minutes:seconds”.</p>
 
 <dl class="function">
 <dt id="pymatgen.io.abinit.qutils.time2slurm">
-<code class="descname">time2slurm</code><span class="sig-paren">(</span><em>timeval</em>, <em>unit='s'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/qutils.html#time2slurm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.qutils.time2slurm" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">time2slurm</code><span class="sig-paren">(</span><em class="sig-param">timeval</em>, <em class="sig-param">unit='s'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/qutils.html#time2slurm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.qutils.time2slurm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a number representing a time value in the given unit (Default: seconds)
 to a string following the slurm convention: “days-hours:minutes:seconds”.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">time2slurm</span><span class="p">(</span><span class="mi">61</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;0-0:1:1&#39;</span> <span class="ow">and</span> <span class="n">time2slurm</span><span class="p">(</span><span class="mi">60</span><span class="o">*</span><span class="mi">60</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;0-1:0:1&#39;</span>
@@ -110,7 +115,7 @@ to a string following the slurm convention: “days-hours:minutes:seconds”.</p
 
 <dl class="function">
 <dt id="pymatgen.io.abinit.qutils.timelimit_parser">
-<code class="descname">timelimit_parser</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/qutils.html#timelimit_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.qutils.timelimit_parser" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">timelimit_parser</code><span class="sig-paren">(</span><em class="sig-param">s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/qutils.html#timelimit_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.qutils.timelimit_parser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a float or a string into time in seconds.</p>
 </dd></dl>
 
@@ -130,10 +135,10 @@ to a string following the slurm convention: “days-hours:minutes:seconds”.</p
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -152,13 +157,13 @@ to a string following the slurm convention: “days-hours:minutes:seconds”.</p
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

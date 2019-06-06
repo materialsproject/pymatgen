@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Introduction &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>Introduction &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
         <li class="right" >
           <a href="installation.html" title="Requirements"
              accesskey="N">next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -166,12 +166,10 @@ other research groups.</p></li>
 <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
-<li><p>Small speeds to Structure.get_all_neighbors.</p></li>
-<li><p>Big fixes for gulp_caller. (&#64;kmu)</p></li>
-<li><p>Plot fatbands from Lobster. (&#64;jageo)</p></li>
-<li><p>Speed up get_ir_mesh (&#64;utf)</p></li>
-<li><p>Parsing of plasma frequencies from Outcar.</p></li>
-<li><p>Miscellaneous bug fixes.</p></li>
+<li><p>Linear scaling get_all_neighbors. Tested to be faster for &gt; 100 atoms (&#64;chc273).</p></li>
+<li><p>Lobsterin class to handle input for Lobster (&#64;JaGeo).</p></li>
+<li><p>Strict options for composition parsing (&#64;mkhorton).</p></li>
+<li><p>Bug fix for CovalentBondNN.get_bonded_structure (&#64;lan496).</p></li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </div>
@@ -706,10 +704,10 @@ to indicate the copyright and license terms:</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -731,13 +729,13 @@ to indicate the copyright and license terms:</p>
         <li class="right" >
           <a href="installation.html" title="Requirements"
              >next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

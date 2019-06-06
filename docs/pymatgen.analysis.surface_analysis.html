@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.surface_analysis module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.analysis.surface_analysis module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,9 +44,14 @@
             
   <div class="section" id="module-pymatgen.analysis.surface_analysis">
 <span id="pymatgen-analysis-surface-analysis-module"></span><h1>pymatgen.analysis.surface_analysis module<a class="headerlink" href="#module-pymatgen.analysis.surface_analysis" title="Permalink to this headline">¶</a></h1>
+<dl class="data">
+<dt id="pymatgen.analysis.surface_analysis.EV_PER_ANG2_TO_JOULES_PER_M2">
+<code class="sig-name descname">EV_PER_ANG2_TO_JOULES_PER_M2</code><em class="property"> = 16.0217656</em><a class="headerlink" href="#pymatgen.analysis.surface_analysis.EV_PER_ANG2_TO_JOULES_PER_M2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="class">
 <dt id="pymatgen.analysis.surface_analysis.NanoscaleStability">
-<em class="property">class </em><code class="descname">NanoscaleStability</code><span class="sig-paren">(</span><em>se_analyzers</em>, <em>symprec=1e-05</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#NanoscaleStability"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.NanoscaleStability" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">NanoscaleStability</code><span class="sig-paren">(</span><em class="sig-param">se_analyzers</em>, <em class="sig-param">symprec=1e-05</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#NanoscaleStability"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.NanoscaleStability" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl>
 <dt>A class for analyzing the stability of nanoparticles of different</dt><dd><p>polymorphs with respect to size. The Wulff shape will be the
@@ -66,7 +71,7 @@ batteries. Nano Letters, 14(2), 1016–1020.
 </dl>
 <dl class="attribute">
 <dt id="pymatgen.analysis.surface_analysis.NanoscaleStability.se_analyzers">
-<code class="descname">se_analyzers</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.NanoscaleStability.se_analyzers" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">se_analyzers</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.NanoscaleStability.se_analyzers" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>List of SurfaceEnergyPlotter objects. Each item corresponds to a</dt><dd><p>different polymorph.</p>
 </dd>
@@ -75,14 +80,14 @@ batteries. Nano Letters, 14(2), 1016–1020.
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.surface_analysis.NanoscaleStability.symprec">
-<code class="descname">symprec</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.NanoscaleStability.symprec" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">symprec</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.NanoscaleStability.symprec" title="Permalink to this definition">¶</a></dt>
 <dd><p>See WulffShape.</p>
 </dd></dl>
 
 <p>Analyzes the nanoscale stability of different polymorphs.</p>
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.NanoscaleStability.bulk_gform">
-<code class="descname">bulk_gform</code><span class="sig-paren">(</span><em>bulk_entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#NanoscaleStability.bulk_gform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.NanoscaleStability.bulk_gform" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">bulk_gform</code><span class="sig-paren">(</span><em class="sig-param">bulk_entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#NanoscaleStability.bulk_gform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.NanoscaleStability.bulk_gform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the formation energy of the bulk
 :param bulk_entry: Entry of the corresponding bulk.
 :type bulk_entry: ComputedStructureEntry</p>
@@ -90,7 +95,7 @@ batteries. Nano Letters, 14(2), 1016–1020.
 
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.NanoscaleStability.plot_all_stability_map">
-<code class="descname">plot_all_stability_map</code><span class="sig-paren">(</span><em>max_r</em>, <em>increments=50</em>, <em>delu_dict=None</em>, <em>delu_default=0</em>, <em>plt=None</em>, <em>labels=None</em>, <em>from_sphere_area=False</em>, <em>e_units='keV'</em>, <em>r_units='nanometers'</em>, <em>normalize=False</em>, <em>scale_per_atom=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#NanoscaleStability.plot_all_stability_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.NanoscaleStability.plot_all_stability_map" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_all_stability_map</code><span class="sig-paren">(</span><em class="sig-param">max_r</em>, <em class="sig-param">increments=50</em>, <em class="sig-param">delu_dict=None</em>, <em class="sig-param">delu_default=0</em>, <em class="sig-param">plt=None</em>, <em class="sig-param">labels=None</em>, <em class="sig-param">from_sphere_area=False</em>, <em class="sig-param">e_units='keV'</em>, <em class="sig-param">r_units='nanometers'</em>, <em class="sig-param">normalize=False</em>, <em class="sig-param">scale_per_atom=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#NanoscaleStability.plot_all_stability_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.NanoscaleStability.plot_all_stability_map" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Returns the plot of the formation energy of a particles</dt><dd><p>of different polymorphs against its effect radius</p>
 </dd>
@@ -117,7 +122,7 @@ area of the particle as a perfect sphere, or as a Wulff shape.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.NanoscaleStability.plot_one_stability_map">
-<code class="descname">plot_one_stability_map</code><span class="sig-paren">(</span><em>analyzer</em>, <em>max_r</em>, <em>delu_dict=None</em>, <em>label=''</em>, <em>increments=50</em>, <em>delu_default=0</em>, <em>plt=None</em>, <em>from_sphere_area=False</em>, <em>e_units='keV'</em>, <em>r_units='nanometers'</em>, <em>normalize=False</em>, <em>scale_per_atom=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#NanoscaleStability.plot_one_stability_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.NanoscaleStability.plot_one_stability_map" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_one_stability_map</code><span class="sig-paren">(</span><em class="sig-param">analyzer</em>, <em class="sig-param">max_r</em>, <em class="sig-param">delu_dict=None</em>, <em class="sig-param">label=''</em>, <em class="sig-param">increments=50</em>, <em class="sig-param">delu_default=0</em>, <em class="sig-param">plt=None</em>, <em class="sig-param">from_sphere_area=False</em>, <em class="sig-param">e_units='keV'</em>, <em class="sig-param">r_units='nanometers'</em>, <em class="sig-param">normalize=False</em>, <em class="sig-param">scale_per_atom=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#NanoscaleStability.plot_one_stability_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.NanoscaleStability.plot_one_stability_map" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Returns the plot of the formation energy of a particle against its</dt><dd><p>effect radius</p>
 </dd>
@@ -148,7 +153,7 @@ area of the particle as a perfect sphere, or as a Wulff shape.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.NanoscaleStability.scaled_wulff">
-<code class="descname">scaled_wulff</code><span class="sig-paren">(</span><em>wulffshape</em>, <em>r</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#NanoscaleStability.scaled_wulff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.NanoscaleStability.scaled_wulff" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">scaled_wulff</code><span class="sig-paren">(</span><em class="sig-param">wulffshape</em>, <em class="sig-param">r</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#NanoscaleStability.scaled_wulff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.NanoscaleStability.scaled_wulff" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Scales the Wulff shape with an effective radius r. Note that the resulting</dt><dd><p>Wulff does not neccesarily have the same effective radius as the one
 provided. The Wulff shape is scaled by its surface energies where first
@@ -171,7 +176,7 @@ multiplied by the given effective radius.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.NanoscaleStability.solve_equilibrium_point">
-<code class="descname">solve_equilibrium_point</code><span class="sig-paren">(</span><em>analyzer1</em>, <em>analyzer2</em>, <em>delu_dict={}</em>, <em>delu_default=0</em>, <em>units='nanometers'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#NanoscaleStability.solve_equilibrium_point"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.NanoscaleStability.solve_equilibrium_point" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">solve_equilibrium_point</code><span class="sig-paren">(</span><em class="sig-param">analyzer1</em>, <em class="sig-param">analyzer2</em>, <em class="sig-param">delu_dict={}</em>, <em class="sig-param">delu_default=0</em>, <em class="sig-param">units='nanometers'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#NanoscaleStability.solve_equilibrium_point"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.NanoscaleStability.solve_equilibrium_point" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Gives the radial size of two particles where equilibrium is reached</dt><dd><p>between both particles. NOTE: the solution here is not the same
 as the solution visualized in the plot because solving for r
@@ -201,7 +206,7 @@ format: Symbol(“delu_el”) where el is the name of the element.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.NanoscaleStability.wulff_gform_and_r">
-<code class="descname">wulff_gform_and_r</code><span class="sig-paren">(</span><em>wulffshape</em>, <em>bulk_entry</em>, <em>r</em>, <em>from_sphere_area=False</em>, <em>r_units='nanometers'</em>, <em>e_units='keV'</em>, <em>normalize=False</em>, <em>scale_per_atom=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#NanoscaleStability.wulff_gform_and_r"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.NanoscaleStability.wulff_gform_and_r" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">wulff_gform_and_r</code><span class="sig-paren">(</span><em class="sig-param">wulffshape</em>, <em class="sig-param">bulk_entry</em>, <em class="sig-param">r</em>, <em class="sig-param">from_sphere_area=False</em>, <em class="sig-param">r_units='nanometers'</em>, <em class="sig-param">e_units='keV'</em>, <em class="sig-param">normalize=False</em>, <em class="sig-param">scale_per_atom=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#NanoscaleStability.wulff_gform_and_r"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.NanoscaleStability.wulff_gform_and_r" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the formation energy of the particle with arbitrary radius r.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -229,7 +234,7 @@ atoms in the particle</p></li>
 
 <dl class="class">
 <dt id="pymatgen.analysis.surface_analysis.SlabEntry">
-<em class="property">class </em><code class="descname">SlabEntry</code><span class="sig-paren">(</span><em>structure</em>, <em>energy</em>, <em>miller_index</em>, <em>correction=0.0</em>, <em>parameters=None</em>, <em>data=None</em>, <em>entry_id=None</em>, <em>label=None</em>, <em>adsorbates=None</em>, <em>clean_entry=None</em>, <em>marker=None</em>, <em>color=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SlabEntry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">SlabEntry</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">energy</em>, <em class="sig-param">miller_index</em>, <em class="sig-param">correction=0.0</em>, <em class="sig-param">parameters=None</em>, <em class="sig-param">data=None</em>, <em class="sig-param">entry_id=None</em>, <em class="sig-param">label=None</em>, <em class="sig-param">adsorbates=None</em>, <em class="sig-param">clean_entry=None</em>, <em class="sig-param">marker=None</em>, <em class="sig-param">color=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SlabEntry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedStructureEntry" title="pymatgen.entries.computed_entries.ComputedStructureEntry"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.entries.computed_entries.ComputedStructureEntry</span></code></a></p>
 <dl class="simple">
 <dt>A ComputedStructureEntry object encompassing all data relevant to a</dt><dd><p>slab for analyzing surface thermodynamics.</p>
@@ -237,19 +242,19 @@ atoms in the particle</p></li>
 </dl>
 <dl class="attribute">
 <dt id="pymatgen.analysis.surface_analysis.SlabEntry.miller_index">
-<code class="descname">miller_index</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry.miller_index" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">miller_index</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry.miller_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Miller index of plane parallel to surface.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.surface_analysis.SlabEntry.label">
-<code class="descname">label</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry.label" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">label</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry.label" title="Permalink to this definition">¶</a></dt>
 <dd><p>Brief description for this slab.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.surface_analysis.SlabEntry.adsorbates">
-<code class="descname">adsorbates</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry.adsorbates" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">adsorbates</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry.adsorbates" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of ComputedStructureEntry for the types of adsorbates</p>
 </dd></dl>
 
@@ -292,66 +297,70 @@ clean slab</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.SlabEntry.Nads_in_slab">
-<code class="descname">Nads_in_slab</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry.Nads_in_slab" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">Nads_in_slab</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry.Nads_in_slab" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the TOTAL number of adsorbates in the slab on BOTH sides</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.SlabEntry.Nsurfs_ads_in_slab">
-<code class="descname">Nsurfs_ads_in_slab</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry.Nsurfs_ads_in_slab" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">Nsurfs_ads_in_slab</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry.Nsurfs_ads_in_slab" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the TOTAL number of adsorbed surfaces in the slab</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.SlabEntry.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SlabEntry.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SlabEntry.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns dict which contains Slab Entry data.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.SlabEntry.cleaned_up_slab">
-<code class="descname">cleaned_up_slab</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry.cleaned_up_slab" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">cleaned_up_slab</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry.cleaned_up_slab" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a slab with the adsorbates removed</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.SlabEntry.create_slab_label">
-<code class="descname">create_slab_label</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry.create_slab_label" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a label (str) for this particular slab based
-on composition, coverage and Miller index.</p>
+<em class="property">property </em><code class="sig-name descname">create_slab_label</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry.create_slab_label" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Returns a label (str) for this particular slab based</dt><dd><p>on composition, coverage and Miller index.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.SlabEntry.from_computed_structure_entry">
-<em class="property">static </em><code class="descname">from_computed_structure_entry</code><span class="sig-paren">(</span><em>entry</em>, <em>miller_index</em>, <em>label=None</em>, <em>adsorbates=None</em>, <em>clean_entry=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SlabEntry.from_computed_structure_entry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry.from_computed_structure_entry" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_computed_structure_entry</code><span class="sig-paren">(</span><em class="sig-param">entry</em>, <em class="sig-param">miller_index</em>, <em class="sig-param">label=None</em>, <em class="sig-param">adsorbates=None</em>, <em class="sig-param">clean_entry=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SlabEntry.from_computed_structure_entry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry.from_computed_structure_entry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns SlabEntry from a ComputedStructureEntry</p>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.SlabEntry.from_dict">
-<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SlabEntry.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SlabEntry.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a SlabEntry by reading in an dictionary</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.SlabEntry.get_monolayer">
-<code class="descname">get_monolayer</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry.get_monolayer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the primitive unit surface area density of the
-adsorbate.</p>
+<em class="property">property </em><code class="sig-name descname">get_monolayer</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry.get_monolayer" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Returns the primitive unit surface area density of the</dt><dd><p>adsorbate.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.SlabEntry.get_unit_primitive_area">
-<code class="descname">get_unit_primitive_area</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry.get_unit_primitive_area" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">get_unit_primitive_area</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry.get_unit_primitive_area" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the surface area of the adsorbed system per
 unit area of the primitive slab system.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.SlabEntry.gibbs_binding_energy">
-<code class="descname">gibbs_binding_energy</code><span class="sig-paren">(</span><em>eads=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SlabEntry.gibbs_binding_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry.gibbs_binding_energy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">gibbs_binding_energy</code><span class="sig-paren">(</span><em class="sig-param">eads=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SlabEntry.gibbs_binding_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry.gibbs_binding_energy" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Returns the adsorption energy or Gibb’s binding energy</dt><dd><p>of an adsorbate on a surface</p>
 </dd>
@@ -365,15 +374,15 @@ adsorption energy normalized by number of adsorbates.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.SlabEntry.surface_area">
-<code class="descname">surface_area</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry.surface_area" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">surface_area</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry.surface_area" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the surface area of the slab</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.SlabEntry.surface_energy">
-<code class="descname">surface_energy</code><span class="sig-paren">(</span><em>ucell_entry</em>, <em>ref_entries=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SlabEntry.surface_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry.surface_energy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">surface_energy</code><span class="sig-paren">(</span><em class="sig-param">ucell_entry</em>, <em class="sig-param">ref_entries=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SlabEntry.surface_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry.surface_energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the surface energy of this SlabEntry.
 :param ucell_entry: An entry object for the bulk
 :type ucell_entry: entry
@@ -392,7 +401,7 @@ treated as a variable.</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter">
-<em class="property">class </em><code class="descname">SurfaceEnergyPlotter</code><span class="sig-paren">(</span><em>all_slab_entries</em>, <em>ucell_entry</em>, <em>ref_entries=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">SurfaceEnergyPlotter</code><span class="sig-paren">(</span><em class="sig-param">all_slab_entries</em>, <em class="sig-param">ucell_entry</em>, <em class="sig-param">ref_entries=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="simple">
 <dt>A class used for generating plots to analyze the thermodynamics of surfaces</dt><dd><p>of a material. Produces stability maps of different slab configurations,
@@ -402,7 +411,7 @@ phases diagrams of two parameters to determine stability of configurations
 </dl>
 <dl class="attribute">
 <dt id="pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.all_slab_entries">
-<code class="descname">all_slab_entries</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.all_slab_entries" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">all_slab_entries</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.all_slab_entries" title="Permalink to this definition">¶</a></dt>
 <dd><dl>
 <dt>Either a list of SlabEntry objects (note for a list, the SlabEntry must</dt><dd><p>have the adsorbates and clean_entry parameter pulgged in) or a Nested
 dictionary containing a list of entries for slab calculations as
@@ -440,19 +449,19 @@ color while the corresponding adsorbed surface will be transparent.</p>
 </div></blockquote>
 <dl class="attribute">
 <dt id="pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.ucell_entry">
-<code class="descname">ucell_entry</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.ucell_entry" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ucell_entry</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.ucell_entry" title="Permalink to this definition">¶</a></dt>
 <dd><p>ComputedStructureEntry of the bulk reference for this particular material.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.ref_entries">
-<code class="descname">ref_entries</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.ref_entries" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ref_entries</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.ref_entries" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of ComputedStructureEntries to be used for calculating chemical potential.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.color_dict">
-<code class="descname">color_dict</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.color_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">color_dict</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.color_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Randomly generated dictionary of colors associated with each facet.</p>
 </dd></dl>
 
@@ -484,7 +493,7 @@ and P if you want to use the chempot of O as the variable.</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.BE_vs_clean_SE">
-<code class="descname">BE_vs_clean_SE</code><span class="sig-paren">(</span><em>delu_dict</em>, <em>delu_default=0</em>, <em>plot_eads=False</em>, <em>annotate_monolayer=True</em>, <em>JPERM2=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.BE_vs_clean_SE"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.BE_vs_clean_SE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">BE_vs_clean_SE</code><span class="sig-paren">(</span><em class="sig-param">delu_dict</em>, <em class="sig-param">delu_default=0</em>, <em class="sig-param">plot_eads=False</em>, <em class="sig-param">annotate_monolayer=True</em>, <em class="sig-param">JPERM2=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.BE_vs_clean_SE"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.BE_vs_clean_SE" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>For each facet, plot the clean surface energy against the most</dt><dd><p>stable binding energy.</p>
 </dd>
@@ -519,7 +528,7 @@ eV/A^2 (False)</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.area_frac_vs_chempot_plot">
-<code class="descname">area_frac_vs_chempot_plot</code><span class="sig-paren">(</span><em>ref_delu</em>, <em>chempot_range</em>, <em>delu_dict=None</em>, <em>delu_default=0</em>, <em>increments=10</em>, <em>no_clean=False</em>, <em>no_doped=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.area_frac_vs_chempot_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.area_frac_vs_chempot_plot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">area_frac_vs_chempot_plot</code><span class="sig-paren">(</span><em class="sig-param">ref_delu</em>, <em class="sig-param">chempot_range</em>, <em class="sig-param">delu_dict=None</em>, <em class="sig-param">delu_default=0</em>, <em class="sig-param">increments=10</em>, <em class="sig-param">no_clean=False</em>, <em class="sig-param">no_doped=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.area_frac_vs_chempot_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.area_frac_vs_chempot_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>1D plot. Plots the change in the area contribution
 of each facet as a function of chemical potential.</p>
 <dl class="field-list simple">
@@ -551,7 +560,7 @@ of intersection. Defaults to 10 points.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.chempot_plot_addons">
-<code class="descname">chempot_plot_addons</code><span class="sig-paren">(</span><em>plt, xrange, ref_el, axes, pad=2.4, rect=[-0.047, 0, 0.84, 1], ylim=[]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.chempot_plot_addons"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.chempot_plot_addons" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">chempot_plot_addons</code><span class="sig-paren">(</span><em class="sig-param">plt, xrange, ref_el, axes, pad=2.4, rect=[-0.047, 0, 0.84, 1], ylim=[]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.chempot_plot_addons"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.chempot_plot_addons" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function to a chempot plot look nicer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -572,7 +581,7 @@ return (Plot): Modified plot with addons.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.chempot_vs_gamma">
-<code class="descname">chempot_vs_gamma</code><span class="sig-paren">(</span><em>ref_delu</em>, <em>chempot_range</em>, <em>miller_index=()</em>, <em>delu_dict={}</em>, <em>delu_default=0</em>, <em>JPERM2=False</em>, <em>show_unstable=False</em>, <em>ylim=[]</em>, <em>plt=None</em>, <em>no_clean=False</em>, <em>no_doped=False</em>, <em>use_entry_labels=False</em>, <em>no_label=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.chempot_vs_gamma"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.chempot_vs_gamma" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">chempot_vs_gamma</code><span class="sig-paren">(</span><em class="sig-param">ref_delu</em>, <em class="sig-param">chempot_range</em>, <em class="sig-param">miller_index=()</em>, <em class="sig-param">delu_dict={}</em>, <em class="sig-param">delu_default=0</em>, <em class="sig-param">JPERM2=False</em>, <em class="sig-param">show_unstable=False</em>, <em class="sig-param">ylim=[]</em>, <em class="sig-param">plt=None</em>, <em class="sig-param">no_clean=False</em>, <em class="sig-param">no_doped=False</em>, <em class="sig-param">use_entry_labels=False</em>, <em class="sig-param">no_label=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.chempot_vs_gamma"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.chempot_vs_gamma" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Plots the surface energy as a function of chemical potential.</dt><dd><p>Each facet will be associated with its own distinct colors.
 Dashed lines will represent stoichiometries different from that
@@ -617,7 +626,7 @@ according to their given label in the SlabEntry object.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.chempot_vs_gamma_plot_one">
-<code class="descname">chempot_vs_gamma_plot_one</code><span class="sig-paren">(</span><em>plt</em>, <em>entry</em>, <em>ref_delu</em>, <em>chempot_range</em>, <em>delu_dict={}</em>, <em>delu_default=0</em>, <em>label=''</em>, <em>JPERM2=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.chempot_vs_gamma_plot_one"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.chempot_vs_gamma_plot_one" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">chempot_vs_gamma_plot_one</code><span class="sig-paren">(</span><em class="sig-param">plt</em>, <em class="sig-param">entry</em>, <em class="sig-param">ref_delu</em>, <em class="sig-param">chempot_range</em>, <em class="sig-param">delu_dict={}</em>, <em class="sig-param">delu_default=0</em>, <em class="sig-param">label=''</em>, <em class="sig-param">JPERM2=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.chempot_vs_gamma_plot_one"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.chempot_vs_gamma_plot_one" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function to  help plot the surface energy of a
 single SlabEntry as a function of chemical potential.</p>
 <dl class="field-list simple">
@@ -652,7 +661,7 @@ eV/A^2 (False)</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.color_palette_dict">
-<code class="descname">color_palette_dict</code><span class="sig-paren">(</span><em>alpha=0.35</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.color_palette_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.color_palette_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">color_palette_dict</code><span class="sig-paren">(</span><em class="sig-param">alpha=0.35</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.color_palette_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.color_palette_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function to assign each facet a unique color using a dictionary.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -669,7 +678,7 @@ surface will be transparent.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.get_stable_entry_at_u">
-<code class="descname">get_stable_entry_at_u</code><span class="sig-paren">(</span><em>miller_index</em>, <em>delu_dict=None</em>, <em>delu_default=0</em>, <em>no_doped=False</em>, <em>no_clean=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.get_stable_entry_at_u"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.get_stable_entry_at_u" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_stable_entry_at_u</code><span class="sig-paren">(</span><em class="sig-param">miller_index</em>, <em class="sig-param">delu_dict=None</em>, <em class="sig-param">delu_default=0</em>, <em class="sig-param">no_doped=False</em>, <em class="sig-param">no_clean=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.get_stable_entry_at_u"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.get_stable_entry_at_u" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Returns the entry corresponding to the most stable slab for a particular</dt><dd><p>facet at a specific chempot. We assume that surface energy is constant
 so all free variables must be set with delu_dict, otherwise they are
@@ -696,7 +705,7 @@ format: Symbol(“delu_el”) where el is the name of the element.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.get_surface_equilibrium">
-<code class="descname">get_surface_equilibrium</code><span class="sig-paren">(</span><em>slab_entries</em>, <em>delu_dict=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.get_surface_equilibrium"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.get_surface_equilibrium" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_surface_equilibrium</code><span class="sig-paren">(</span><em class="sig-param">slab_entries</em>, <em class="sig-param">delu_dict=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.get_surface_equilibrium"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.get_surface_equilibrium" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Takes in a list of SlabEntries and calculates the chemical potentials</dt><dd><p>at which all slabs in the list coexists simultaneously. Useful for
 building surface phase diagrams. Note that to solve for x equations
@@ -728,7 +737,7 @@ format: Symbol(“delu_el”) where el is the name of the element.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.monolayer_vs_BE">
-<code class="descname">monolayer_vs_BE</code><span class="sig-paren">(</span><em>plot_eads=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.monolayer_vs_BE"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.monolayer_vs_BE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">monolayer_vs_BE</code><span class="sig-paren">(</span><em class="sig-param">plot_eads=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.monolayer_vs_BE"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.monolayer_vs_BE" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Plots the binding energy energy as a function of monolayers (ML), i.e.</dt><dd><p>the fractional area adsorbate density for all facets. For each
 facet at a specific monlayer, only plot the lowest binding energy.</p>
@@ -750,7 +759,7 @@ energy multiplied by number of adsorbates) instead.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.set_all_variables">
-<code class="descname">set_all_variables</code><span class="sig-paren">(</span><em>delu_dict</em>, <em>delu_default</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.set_all_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.set_all_variables" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_all_variables</code><span class="sig-paren">(</span><em class="sig-param">delu_dict</em>, <em class="sig-param">delu_default</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.set_all_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.set_all_variables" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Sets all chemical potential values and returns a dictionary where</dt><dd><p>the key is a sympy Symbol and the value is a float (chempot).</p>
 </dd>
@@ -773,7 +782,7 @@ format: Symbol(“delu_el”) where el is the name of the element.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.stable_u_range_dict">
-<code class="descname">stable_u_range_dict</code><span class="sig-paren">(</span><em>chempot_range</em>, <em>ref_delu</em>, <em>no_doped=True</em>, <em>no_clean=False</em>, <em>delu_dict={}</em>, <em>miller_index=()</em>, <em>dmu_at_0=False</em>, <em>return_se_dict=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.stable_u_range_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.stable_u_range_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">stable_u_range_dict</code><span class="sig-paren">(</span><em class="sig-param">chempot_range</em>, <em class="sig-param">ref_delu</em>, <em class="sig-param">no_doped=True</em>, <em class="sig-param">no_clean=False</em>, <em class="sig-param">delu_dict={}</em>, <em class="sig-param">miller_index=()</em>, <em class="sig-param">dmu_at_0=False</em>, <em class="sig-param">return_se_dict=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.stable_u_range_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.stable_u_range_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a dictionary where each entry is a key pointing to a
 chemical potential range where the surface of that entry is stable.
 Does so by enumerating through all possible solutions (intersect)
@@ -809,7 +818,7 @@ dictionary of surface energies</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.surface_chempot_range_map">
-<code class="descname">surface_chempot_range_map</code><span class="sig-paren">(</span><em>elements</em>, <em>miller_index</em>, <em>ranges</em>, <em>incr=50</em>, <em>no_doped=False</em>, <em>no_clean=False</em>, <em>delu_dict=None</em>, <em>plt=None</em>, <em>annotate=True</em>, <em>show_unphyiscal_only=False</em>, <em>fontsize=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.surface_chempot_range_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.surface_chempot_range_map" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">surface_chempot_range_map</code><span class="sig-paren">(</span><em class="sig-param">elements</em>, <em class="sig-param">miller_index</em>, <em class="sig-param">ranges</em>, <em class="sig-param">incr=50</em>, <em class="sig-param">no_doped=False</em>, <em class="sig-param">no_clean=False</em>, <em class="sig-param">delu_dict=None</em>, <em class="sig-param">plt=None</em>, <em class="sig-param">annotate=True</em>, <em class="sig-param">show_unphyiscal_only=False</em>, <em class="sig-param">fontsize=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.surface_chempot_range_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.surface_chempot_range_map" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Adapted from the get_chempot_range_map() method in the PhaseDiagram</dt><dd><p>class. Plot the chemical potential range map based on surface
 energy stability. Currently works only for 2-component PDs. At
@@ -847,7 +856,7 @@ surface energy is negative. Useful for drawing other chempot range maps.</p></li
 
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.wulff_from_chempot">
-<code class="descname">wulff_from_chempot</code><span class="sig-paren">(</span><em>delu_dict=None</em>, <em>delu_default=0</em>, <em>symprec=1e-05</em>, <em>no_clean=False</em>, <em>no_doped=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.wulff_from_chempot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.wulff_from_chempot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">wulff_from_chempot</code><span class="sig-paren">(</span><em class="sig-param">delu_dict=None</em>, <em class="sig-param">delu_default=0</em>, <em class="sig-param">symprec=1e-05</em>, <em class="sig-param">no_clean=False</em>, <em class="sig-param">no_doped=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.wulff_from_chempot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.wulff_from_chempot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method to get the Wulff shape at a specific chemical potential.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -874,7 +883,7 @@ format: Symbol(“delu_el”) where el is the name of the element.</p></li>
 
 <dl class="class">
 <dt id="pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer">
-<em class="property">class </em><code class="descname">WorkFunctionAnalyzer</code><span class="sig-paren">(</span><em>structure</em>, <em>locpot_along_c</em>, <em>efermi</em>, <em>shift=0</em>, <em>blength=3.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#WorkFunctionAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">WorkFunctionAnalyzer</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">locpot_along_c</em>, <em class="sig-param">efermi</em>, <em class="sig-param">shift=0</em>, <em class="sig-param">blength=3.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#WorkFunctionAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="simple">
 <dt>A class used for calculating the work function</dt><dd><p>from a slab model and visualizing the behavior
@@ -883,19 +892,19 @@ of the local potential along the slab.</p>
 </dl>
 <dl class="attribute">
 <dt id="pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.efermi">
-<code class="descname">efermi</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.efermi" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">efermi</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.efermi" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Fermi energy</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.locpot_along_c">
-<code class="descname">locpot_along_c</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.locpot_along_c" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">locpot_along_c</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.locpot_along_c" title="Permalink to this definition">¶</a></dt>
 <dd><p>Local potential in eV along points along the  axis</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.vacuum_locpot">
-<code class="descname">vacuum_locpot</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.vacuum_locpot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">vacuum_locpot</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.vacuum_locpot" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>The maximum local potential along the c direction for</dt><dd><p>the slab model, ie the potential at the vacuum</p>
 </dd>
@@ -904,7 +913,7 @@ of the local potential along the slab.</p>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.work_function">
-<code class="descname">work_function</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.work_function" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">work_function</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.work_function" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>The minimum energy needed to move an electron from the</dt><dd><p>surface to infinity. Defined as the difference between
 the potential at the vacuum and the Fermi energy.</p>
@@ -914,13 +923,13 @@ the potential at the vacuum and the Fermi energy.</p>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.slab">
-<code class="descname">slab</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.slab" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">slab</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.slab" title="Permalink to this definition">¶</a></dt>
 <dd><p>The slab structure model</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.along_c">
-<code class="descname">along_c</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.along_c" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">along_c</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.along_c" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Points along the c direction with same</dt><dd><p>increments as the locpot in the c axis</p>
 </dd>
@@ -929,19 +938,19 @@ the potential at the vacuum and the Fermi energy.</p>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.ave_locpot">
-<code class="descname">ave_locpot</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.ave_locpot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ave_locpot</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.ave_locpot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Mean of the minimum and maximmum (vacuum) locpot along c</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.sorted_sites">
-<code class="descname">sorted_sites</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.sorted_sites" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sorted_sites</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.sorted_sites" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of sites from the slab sorted along the c direction</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.ave_bulk_p">
-<code class="descname">ave_bulk_p</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.ave_bulk_p" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ave_bulk_p</code><a class="headerlink" href="#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.ave_bulk_p" title="Permalink to this definition">¶</a></dt>
 <dd><p>The average locpot of the slab region along the c direction</p>
 </dd></dl>
 
@@ -960,14 +969,14 @@ Used to handle pbc for noncontiguous slab layers</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.from_files">
-<em class="property">static </em><code class="descname">from_files</code><span class="sig-paren">(</span><em>poscar_filename</em>, <em>locpot_filename</em>, <em>outcar_filename</em>, <em>shift=0</em>, <em>blength=3.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#WorkFunctionAnalyzer.from_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.from_files" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_files</code><span class="sig-paren">(</span><em class="sig-param">poscar_filename</em>, <em class="sig-param">locpot_filename</em>, <em class="sig-param">outcar_filename</em>, <em class="sig-param">shift=0</em>, <em class="sig-param">blength=3.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#WorkFunctionAnalyzer.from_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.from_files" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.get_labels">
-<code class="descname">get_labels</code><span class="sig-paren">(</span><em>plt</em>, <em>label_fontsize=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#WorkFunctionAnalyzer.get_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.get_labels" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_labels</code><span class="sig-paren">(</span><em class="sig-param">plt</em>, <em class="sig-param">label_fontsize=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#WorkFunctionAnalyzer.get_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.get_labels" title="Permalink to this definition">¶</a></dt>
 <dd><p>Handles the optional labelling of the plot with relevant quantities
 :param plt: Plot of the locpot vs c axis
 :type plt: plt
@@ -978,7 +987,7 @@ Used to handle pbc for noncontiguous slab layers</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.get_locpot_along_slab_plot">
-<code class="descname">get_locpot_along_slab_plot</code><span class="sig-paren">(</span><em>label_energies=True</em>, <em>plt=None</em>, <em>label_fontsize=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#WorkFunctionAnalyzer.get_locpot_along_slab_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.get_locpot_along_slab_plot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_locpot_along_slab_plot</code><span class="sig-paren">(</span><em class="sig-param">label_energies=True</em>, <em class="sig-param">plt=None</em>, <em class="sig-param">label_fontsize=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#WorkFunctionAnalyzer.get_locpot_along_slab_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.get_locpot_along_slab_plot" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Returns a plot of the local potential (eV) vs the</dt><dd><p>position along the c axis of the slab model (Ang)</p>
 </dd>
@@ -999,7 +1008,7 @@ vacuum locpot, bulk-like locpot</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.is_converged">
-<code class="descname">is_converged</code><span class="sig-paren">(</span><em>min_points_frac=0.015</em>, <em>tol=0.0025</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#WorkFunctionAnalyzer.is_converged"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.is_converged" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">is_converged</code><span class="sig-paren">(</span><em class="sig-param">min_points_frac=0.015</em>, <em class="sig-param">tol=0.0025</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#WorkFunctionAnalyzer.is_converged"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.is_converged" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>A well converged work function should have a flat electrostatic</dt><dd><p>potential within some distance (min_point) about where the peak
 electrostatic potential is found along the c direction of the
@@ -1024,7 +1033,7 @@ within this tolerance, within the min_points, it is converged.</p></li>
 
 <dl class="function">
 <dt id="pymatgen.analysis.surface_analysis.entry_dict_from_list">
-<code class="descname">entry_dict_from_list</code><span class="sig-paren">(</span><em>all_slab_entries</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#entry_dict_from_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.entry_dict_from_list" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">entry_dict_from_list</code><span class="sig-paren">(</span><em class="sig-param">all_slab_entries</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#entry_dict_from_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.entry_dict_from_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts a list of SlabEntry to an appropriate dictionary. It is
 assumed that if there is no adsorbate, then it is a clean SlabEntry
 and that adsorbed SlabEntry has the clean_entry parameter set.</p>
@@ -1048,7 +1057,7 @@ list of adsorbed SlabEntry.</p>
 
 <dl class="function">
 <dt id="pymatgen.analysis.surface_analysis.sub_chempots">
-<code class="descname">sub_chempots</code><span class="sig-paren">(</span><em>gamma_dict</em>, <em>chempots</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#sub_chempots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.sub_chempots" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sub_chempots</code><span class="sig-paren">(</span><em class="sig-param">gamma_dict</em>, <em class="sig-param">chempots</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#sub_chempots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.sub_chempots" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Uses dot product of numpy array to sub chemical potentials</dt><dd><p>into the surface grand potential. This is much faster
 than using the subs function in sympy.</p>
@@ -1085,10 +1094,10 @@ potential (key) in gamma a value</p></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -1107,13 +1116,13 @@ potential (key) in gamma a value</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

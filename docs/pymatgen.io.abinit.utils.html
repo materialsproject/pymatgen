@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.abinit.utils module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.io.abinit.utils module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -47,7 +47,7 @@
 <p>Tools and helper functions for abinit calculations</p>
 <dl class="class">
 <dt id="pymatgen.io.abinit.utils.Condition">
-<em class="property">class </em><code class="descname">Condition</code><span class="sig-paren">(</span><em>cmap=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Condition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Condition" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Condition</code><span class="sig-paren">(</span><em class="sig-param">cmap=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Condition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Condition" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This object receives a dictionary that defines a boolean condition whose syntax is similar
 to the one used in mongodb (albeit not all the operators available in mongodb are supported here).</p>
@@ -63,9 +63,9 @@ This query will select all documents in the inventory collection where the qty f
 Consider the following example:</p>
 <p>db.inventory.find( { qty: { $gt: 20 } } )
 db.inventory.find({ $and: [ { price: 1.99 }, { qty: { $lt: 20 } }, { sale: true } ] } )</p>
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.io.abinit.utils.Condition.as_condition">
-<em class="property">classmethod </em><code class="descname">as_condition</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Condition.as_condition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Condition.as_condition" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">as_condition</code><span class="sig-paren">(</span><em class="sig-param">obj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Condition.as_condition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Condition.as_condition" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert obj into <a class="reference internal" href="#pymatgen.io.abinit.utils.Condition" title="pymatgen.io.abinit.utils.Condition"><code class="xref py py-class docutils literal notranslate"><span class="pre">Condition</span></code></a></p>
 </dd></dl>
 
@@ -73,43 +73,43 @@ db.inventory.find({ $and: [ { price: 1.99 }, { qty: { $lt: 20 } }, { sale: true 
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.utils.Directory">
-<em class="property">class </em><code class="descname">Directory</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Directory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Directory</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Directory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Very simple class that provides helper functions
 wrapping the most commonly used functions defined in os.path.</p>
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.utils.Directory.basename">
-<code class="descname">basename</code><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.basename" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">basename</code><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.basename" title="Permalink to this definition">¶</a></dt>
 <dd><p>Directory basename.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.utils.Directory.clean">
-<code class="descname">clean</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Directory.clean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.clean" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">clean</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Directory.clean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.clean" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove all files in the directory tree while preserving the directory</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.utils.Directory.copy_abiext">
-<code class="descname">copy_abiext</code><span class="sig-paren">(</span><em>inext</em>, <em>outext</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Directory.copy_abiext"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.copy_abiext" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">copy_abiext</code><span class="sig-paren">(</span><em class="sig-param">inext</em>, <em class="sig-param">outext</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Directory.copy_abiext"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.copy_abiext" title="Permalink to this definition">¶</a></dt>
 <dd><p>Copy the Abinit file with extension inext to a new file withw extension outext</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.utils.Directory.copy_r">
-<code class="descname">copy_r</code><span class="sig-paren">(</span><em>dst</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Directory.copy_r"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.copy_r" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">copy_r</code><span class="sig-paren">(</span><em class="sig-param">dst</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Directory.copy_r"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.copy_r" title="Permalink to this definition">¶</a></dt>
 <dd><p>Implements a recursive copy function similar to Unix’s “cp -r” command.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.utils.Directory.exists">
-<code class="descname">exists</code><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.exists" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">exists</code><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.exists" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if file exists.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.utils.Directory.find_1den_files">
-<code class="descname">find_1den_files</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Directory.find_1den_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.find_1den_files" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">find_1den_files</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Directory.find_1den_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.find_1den_files" title="Permalink to this definition">¶</a></dt>
 <dd><p>Abinit adds the idir-ipert index at the end of the 1DEN file and this breaks the extension
 e.g. out_DEN1. This method scans the files in the directories and returns a list of namedtuple
 Each named tuple gives the <cite>path</cite> of the 1DEN file and the <cite>pertcase</cite> index.</p>
@@ -117,7 +117,7 @@ Each named tuple gives the <cite>path</cite> of the 1DEN file and the <cite>pert
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.utils.Directory.find_1wf_files">
-<code class="descname">find_1wf_files</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Directory.find_1wf_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.find_1wf_files" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">find_1wf_files</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Directory.find_1wf_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.find_1wf_files" title="Permalink to this definition">¶</a></dt>
 <dd><p>Abinit adds the idir-ipert index at the end of the 1WF file and this breaks the extension
 e.g. out_1WF4. This method scans the files in the directories and returns a list of namedtuple
 Each named tuple gives the <cite>path</cite> of the 1FK file and the <cite>pertcase</cite> index.</p>
@@ -125,7 +125,7 @@ Each named tuple gives the <cite>path</cite> of the 1FK file and the <cite>pertc
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.utils.Directory.find_last_timden_file">
-<code class="descname">find_last_timden_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Directory.find_last_timden_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.find_last_timden_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">find_last_timden_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Directory.find_last_timden_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.find_last_timden_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>ABINIT produces lots of out_TIM1_DEN files for each step and we need to find the lat
 one in order to prepare the restart or to connect other tasks to the structural relaxation.</p>
 <p>This function finds all the TIM?_DEN files in self and return a namedtuple (path, step)
@@ -135,7 +135,7 @@ Returns None if the directory does not contain TIM?_DEN files.</p>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.utils.Directory.has_abiext">
-<code class="descname">has_abiext</code><span class="sig-paren">(</span><em>ext</em>, <em>single_file=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Directory.has_abiext"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.has_abiext" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">has_abiext</code><span class="sig-paren">(</span><em class="sig-param">ext</em>, <em class="sig-param">single_file=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Directory.has_abiext"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.has_abiext" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the absolute path of the ABINIT file with extension ext.
 Support both Fortran files and netcdf files. In the later case,
 we check whether a file with extension ext + “.nc” is present
@@ -152,7 +152,7 @@ in the directory. Returns empty string is file is not present.</p>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.utils.Directory.list_filepaths">
-<code class="descname">list_filepaths</code><span class="sig-paren">(</span><em>wildcard=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Directory.list_filepaths"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.list_filepaths" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">list_filepaths</code><span class="sig-paren">(</span><em class="sig-param">wildcard=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Directory.list_filepaths"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.list_filepaths" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the list of absolute filepaths in the directory.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -167,59 +167,59 @@ If wildcard is not None, we return only those files that match the given shell p
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.utils.Directory.makedirs">
-<code class="descname">makedirs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Directory.makedirs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.makedirs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">makedirs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Directory.makedirs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.makedirs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Super-mkdir; create a leaf directory and all intermediate ones.
 Works like mkdir, except that any intermediate path segment (not
 just the rightmost) will be created if it does not exist.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.utils.Directory.path">
-<code class="descname">path</code><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.path" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">path</code><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Absolute path of the directory.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.utils.Directory.path_in">
-<code class="descname">path_in</code><span class="sig-paren">(</span><em>file_basename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Directory.path_in"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.path_in" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">path_in</code><span class="sig-paren">(</span><em class="sig-param">file_basename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Directory.path_in"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.path_in" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the absolute path of filename in the directory.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.utils.Directory.path_join">
-<code class="descname">path_join</code><span class="sig-paren">(</span><em>*p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Directory.path_join"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.path_join" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">path_join</code><span class="sig-paren">(</span><em class="sig-param">*p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Directory.path_join"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.path_join" title="Permalink to this definition">¶</a></dt>
 <dd><p>Join two or more pathname components, inserting ‘/’ as needed.
 If any component is an absolute path, all previous path components will be discarded.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.utils.Directory.relpath">
-<code class="descname">relpath</code><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.relpath" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">relpath</code><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.relpath" title="Permalink to this definition">¶</a></dt>
 <dd><p>Relative path.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.utils.Directory.remove_exts">
-<code class="descname">remove_exts</code><span class="sig-paren">(</span><em>exts</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Directory.remove_exts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.remove_exts" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">remove_exts</code><span class="sig-paren">(</span><em class="sig-param">exts</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Directory.remove_exts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.remove_exts" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove the files with the given extensions. Unlike rmtree, this function preserves the directory path.
 Return list with the absolute paths of the files that have been removed.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.utils.Directory.rename_abiext">
-<code class="descname">rename_abiext</code><span class="sig-paren">(</span><em>inext</em>, <em>outext</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Directory.rename_abiext"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.rename_abiext" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">rename_abiext</code><span class="sig-paren">(</span><em class="sig-param">inext</em>, <em class="sig-param">outext</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Directory.rename_abiext"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.rename_abiext" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rename the Abinit file with extension inext with the new extension outext</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.utils.Directory.rmtree">
-<code class="descname">rmtree</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Directory.rmtree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.rmtree" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">rmtree</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Directory.rmtree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.rmtree" title="Permalink to this definition">¶</a></dt>
 <dd><p>Recursively delete the directory tree</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.utils.Directory.symlink_abiext">
-<code class="descname">symlink_abiext</code><span class="sig-paren">(</span><em>inext</em>, <em>outext</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Directory.symlink_abiext"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.symlink_abiext" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">symlink_abiext</code><span class="sig-paren">(</span><em class="sig-param">inext</em>, <em class="sig-param">outext</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Directory.symlink_abiext"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Directory.symlink_abiext" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a simbolic link (outext –&gt; inext). The file names are implicitly
 given by the ABINIT file extension.</p>
 <p class="rubric">Example</p>
@@ -233,11 +233,11 @@ given by the ABINIT file extension.</p>
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.utils.Dirviz">
-<em class="property">class </em><code class="descname">Dirviz</code><span class="sig-paren">(</span><em>top</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Dirviz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Dirviz" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Dirviz</code><span class="sig-paren">(</span><em class="sig-param">top</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Dirviz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Dirviz" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="method">
 <dt id="pymatgen.io.abinit.utils.Dirviz.get_cluster_graph">
-<code class="descname">get_cluster_graph</code><span class="sig-paren">(</span><em>engine='fdp'</em>, <em>graph_attr=None</em>, <em>node_attr=None</em>, <em>edge_attr=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Dirviz.get_cluster_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Dirviz.get_cluster_graph" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_cluster_graph</code><span class="sig-paren">(</span><em class="sig-param">engine='fdp'</em>, <em class="sig-param">graph_attr=None</em>, <em class="sig-param">node_attr=None</em>, <em class="sig-param">edge_attr=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Dirviz.get_cluster_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Dirviz.get_cluster_graph" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate directory graph in the DOT language. Directories are shown as clusters</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -261,24 +261,24 @@ graph can be really big.</p>
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.utils.Editor">
-<em class="property">class </em><code class="descname">Editor</code><span class="sig-paren">(</span><em>editor=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Editor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Editor" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Editor</code><span class="sig-paren">(</span><em class="sig-param">editor=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Editor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Editor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Wrapper class that calls the editor specified by the user
 or the one specified in the $EDITOR env variable.</p>
 <p>If editor is None, $EDITOR is used.</p>
 <dl class="method">
 <dt id="pymatgen.io.abinit.utils.Editor.edit_file">
-<code class="descname">edit_file</code><span class="sig-paren">(</span><em>fname</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Editor.edit_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Editor.edit_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">edit_file</code><span class="sig-paren">(</span><em class="sig-param">fname</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Editor.edit_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Editor.edit_file" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.utils.Editor.edit_files">
-<code class="descname">edit_files</code><span class="sig-paren">(</span><em>fnames</em>, <em>ask_for_exit=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Editor.edit_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Editor.edit_files" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">edit_files</code><span class="sig-paren">(</span><em class="sig-param">fnames</em>, <em class="sig-param">ask_for_exit=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Editor.edit_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Editor.edit_files" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.io.abinit.utils.Editor.user_wants_to_exit">
-<em class="property">static </em><code class="descname">user_wants_to_exit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Editor.user_wants_to_exit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Editor.user_wants_to_exit" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">user_wants_to_exit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#Editor.user_wants_to_exit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.Editor.user_wants_to_exit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Show an interactive prompt asking if exit is wanted.</p>
 </dd></dl>
 
@@ -286,105 +286,105 @@ or the one specified in the $EDITOR env variable.</p>
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.utils.File">
-<em class="property">class </em><code class="descname">File</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#File"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.File" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">File</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#File"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.File" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Very simple class used to store file basenames, absolute paths and directory names.
 Provides wrappers for the most commonly used functions defined in os.path.</p>
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.utils.File.basename">
-<code class="descname">basename</code><a class="headerlink" href="#pymatgen.io.abinit.utils.File.basename" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">basename</code><a class="headerlink" href="#pymatgen.io.abinit.utils.File.basename" title="Permalink to this definition">¶</a></dt>
 <dd><p>File basename.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.utils.File.chmod">
-<code class="descname">chmod</code><span class="sig-paren">(</span><em>mode</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#File.chmod"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.File.chmod" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">chmod</code><span class="sig-paren">(</span><em class="sig-param">mode</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#File.chmod"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.File.chmod" title="Permalink to this definition">¶</a></dt>
 <dd><p>Change the access permissions of a file.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.utils.File.dirname">
-<code class="descname">dirname</code><a class="headerlink" href="#pymatgen.io.abinit.utils.File.dirname" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">dirname</code><a class="headerlink" href="#pymatgen.io.abinit.utils.File.dirname" title="Permalink to this definition">¶</a></dt>
 <dd><p>Absolute path of the directory where the file is located.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.utils.File.exists">
-<code class="descname">exists</code><a class="headerlink" href="#pymatgen.io.abinit.utils.File.exists" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">exists</code><a class="headerlink" href="#pymatgen.io.abinit.utils.File.exists" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if file exists.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.utils.File.get_stat">
-<code class="descname">get_stat</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#File.get_stat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.File.get_stat" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_stat</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#File.get_stat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.File.get_stat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Results from os.stat</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.utils.File.getsize">
-<code class="descname">getsize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#File.getsize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.File.getsize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">getsize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#File.getsize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.File.getsize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the size, in bytes, of path.
 Return 0 if the file is empty or it does not exist.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.utils.File.isncfile">
-<code class="descname">isncfile</code><a class="headerlink" href="#pymatgen.io.abinit.utils.File.isncfile" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">isncfile</code><a class="headerlink" href="#pymatgen.io.abinit.utils.File.isncfile" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if self is a NetCDF file</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.utils.File.make_dir">
-<code class="descname">make_dir</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#File.make_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.File.make_dir" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">make_dir</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#File.make_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.File.make_dir" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make the directory where the file is located.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.utils.File.move">
-<code class="descname">move</code><span class="sig-paren">(</span><em>dst</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#File.move"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.File.move" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">move</code><span class="sig-paren">(</span><em class="sig-param">dst</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#File.move"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.File.move" title="Permalink to this definition">¶</a></dt>
 <dd><p>Recursively move a file or directory to another location. This is
 similar to the Unix “mv” command.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.utils.File.path">
-<code class="descname">path</code><a class="headerlink" href="#pymatgen.io.abinit.utils.File.path" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">path</code><a class="headerlink" href="#pymatgen.io.abinit.utils.File.path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Absolute path of the file.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.utils.File.read">
-<code class="descname">read</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#File.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.File.read" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">read</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#File.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.File.read" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read data from file.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.utils.File.readlines">
-<code class="descname">readlines</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#File.readlines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.File.readlines" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">readlines</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#File.readlines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.File.readlines" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read lines from files.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.abinit.utils.File.relpath">
-<code class="descname">relpath</code><a class="headerlink" href="#pymatgen.io.abinit.utils.File.relpath" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">relpath</code><a class="headerlink" href="#pymatgen.io.abinit.utils.File.relpath" title="Permalink to this definition">¶</a></dt>
 <dd><p>Relative path.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.utils.File.remove">
-<code class="descname">remove</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#File.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.File.remove" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">remove</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#File.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.File.remove" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove the file.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.utils.File.write">
-<code class="descname">write</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#File.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.File.write" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write</code><span class="sig-paren">(</span><em class="sig-param">string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#File.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.File.write" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write string to file.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.utils.File.writelines">
-<code class="descname">writelines</code><span class="sig-paren">(</span><em>lines</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#File.writelines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.File.writelines" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">writelines</code><span class="sig-paren">(</span><em class="sig-param">lines</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#File.writelines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.File.writelines" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write a list of strings to file.</p>
 </dd></dl>
 
@@ -392,7 +392,7 @@ similar to the Unix “mv” command.</p>
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.utils.FilepathFixer">
-<em class="property">class </em><code class="descname">FilepathFixer</code><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#FilepathFixer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.FilepathFixer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">FilepathFixer</code><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#FilepathFixer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.FilepathFixer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This object modifies the names of particular output files
 produced by ABINIT so that the file extension is preserved.
@@ -417,7 +417,7 @@ to the initial extension and therefore we have to call
 </div>
 <dl class="method">
 <dt id="pymatgen.io.abinit.utils.FilepathFixer.fix_paths">
-<code class="descname">fix_paths</code><span class="sig-paren">(</span><em>paths</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#FilepathFixer.fix_paths"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.FilepathFixer.fix_paths" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">fix_paths</code><span class="sig-paren">(</span><em class="sig-param">paths</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#FilepathFixer.fix_paths"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.FilepathFixer.fix_paths" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fix the filenames in the iterable paths</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -433,14 +433,14 @@ to the initial extension and therefore we have to call
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.utils.SparseHistogram">
-<em class="property">class </em><code class="descname">SparseHistogram</code><span class="sig-paren">(</span><em>items</em>, <em>key=None</em>, <em>num=None</em>, <em>step=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#SparseHistogram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.SparseHistogram" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">SparseHistogram</code><span class="sig-paren">(</span><em class="sig-param">items</em>, <em class="sig-param">key=None</em>, <em class="sig-param">num=None</em>, <em class="sig-param">step=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#SparseHistogram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.SparseHistogram" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="method">
 <dt id="pymatgen.io.abinit.utils.SparseHistogram.plot">
-<code class="descname">plot</code><span class="sig-paren">(</span><em>ax=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#SparseHistogram.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.SparseHistogram.plot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param">ax=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#SparseHistogram.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.SparseHistogram.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the histogram with matplotlib, returns <cite>matplotlib</cite> figure.</p>
 <p>Keyword arguments controlling the display of the figure:</p>
-<table class="docutils align-center">
+<table class="docutils align-default">
 <colgroup>
 <col style="width: 23%" />
 <col style="width: 77%" />
@@ -483,13 +483,13 @@ Default: False</p></td>
 
 <dl class="function">
 <dt id="pymatgen.io.abinit.utils.abi_extensions">
-<code class="descname">abi_extensions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#abi_extensions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.abi_extensions" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">abi_extensions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#abi_extensions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.abi_extensions" title="Permalink to this definition">¶</a></dt>
 <dd><p>List with all the ABINIT extensions that are registered.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.io.abinit.utils.abi_splitext">
-<code class="descname">abi_splitext</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#abi_splitext"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.abi_splitext" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">abi_splitext</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#abi_splitext"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.abi_splitext" title="Permalink to this definition">¶</a></dt>
 <dd><p>Split the ABINIT extension from a filename.
 “Extension” are found by searching in an internal database.</p>
 <p>Returns “(root, ext)” where ext is the registered ABINIT extension
@@ -502,7 +502,7 @@ The final “.nc” is included (if any)</p>
 
 <dl class="function">
 <dt id="pymatgen.io.abinit.utils.as_bool">
-<code class="descname">as_bool</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#as_bool"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.as_bool" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_bool</code><span class="sig-paren">(</span><em class="sig-param">s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#as_bool"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.as_bool" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a string into a boolean.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">as_bool</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span> <span class="ow">and</span> <span class="n">as_bool</span><span class="p">(</span><span class="s2">&quot;Yes&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span> <span class="ow">and</span> <span class="n">as_bool</span><span class="p">(</span><span class="s2">&quot;false&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span>
 </pre></div>
@@ -511,7 +511,7 @@ The final “.nc” is included (if any)</p>
 
 <dl class="function">
 <dt id="pymatgen.io.abinit.utils.evaluate_rpn">
-<code class="descname">evaluate_rpn</code><span class="sig-paren">(</span><em>rpn</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#evaluate_rpn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.evaluate_rpn" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">evaluate_rpn</code><span class="sig-paren">(</span><em class="sig-param">rpn</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#evaluate_rpn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.evaluate_rpn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluates the RPN form produced my map2rpn.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -522,14 +522,19 @@ The final “.nc” is included (if any)</p>
 
 <dl class="function">
 <dt id="pymatgen.io.abinit.utils.irdvars_for_ext">
-<code class="descname">irdvars_for_ext</code><span class="sig-paren">(</span><em>ext</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#irdvars_for_ext"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.irdvars_for_ext" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">irdvars_for_ext</code><span class="sig-paren">(</span><em class="sig-param">ext</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#irdvars_for_ext"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.irdvars_for_ext" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a dictionary with the ABINIT variables
 that must be used to read the file with extension ext.</p>
 </dd></dl>
 
+<dl class="data">
+<dt id="pymatgen.io.abinit.utils.logger">
+<code class="sig-name descname">logger</code><em class="property"> = &lt;Logger pymatgen.io.abinit.utils (INFO)&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.utils.logger" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="function">
 <dt id="pymatgen.io.abinit.utils.map2rpn">
-<code class="descname">map2rpn</code><span class="sig-paren">(</span><em>map</em>, <em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#map2rpn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.map2rpn" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">map2rpn</code><span class="sig-paren">(</span><em class="sig-param">map</em>, <em class="sig-param">obj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/utils.html#map2rpn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.utils.map2rpn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a Mongodb-like dictionary to a RPN list of operands and operators.</p>
 <p>Reverse Polish notation (RPN) is a mathematical notation in which every
 operator follows all of its operands, e.g.</p>
@@ -556,10 +561,10 @@ operator follows all of its operands, e.g.</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -578,13 +583,13 @@ operator follows all of its operands, e.g.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

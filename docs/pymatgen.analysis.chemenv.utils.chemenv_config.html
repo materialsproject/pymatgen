@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.chemenv.utils.chemenv_config module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.analysis.chemenv.utils.chemenv_config module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -46,7 +46,7 @@
 <span id="pymatgen-analysis-chemenv-utils-chemenv-config-module"></span><h1>pymatgen.analysis.chemenv.utils.chemenv_config module<a class="headerlink" href="#module-pymatgen.analysis.chemenv.utils.chemenv_config" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig">
-<em class="property">class </em><code class="descname">ChemEnvConfig</code><span class="sig-paren">(</span><em>package_options=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/utils/chemenv_config.html#ChemEnvConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">ChemEnvConfig</code><span class="sig-paren">(</span><em class="sig-param">package_options=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/utils/chemenv_config.html#ChemEnvConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="simple">
 <dt>Class used to store the configuration of the chemenv package :</dt><dd><ul class="simple">
@@ -58,37 +58,37 @@
 </dl>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.DEFAULT_PACKAGE_OPTIONS">
-<code class="descname">DEFAULT_PACKAGE_OPTIONS</code><em class="property"> = {'default_max_distance_factor': 1.5, 'default_strategy': {'strategy': 'SimplestChemenvStrategy', 'strategy_options': {'additional_condition': 1, 'angle_cutoff': 0.3, 'continuous_symmetry_measure_cutoff': 10.0, 'distance_cutoff': 1.4}}}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.DEFAULT_PACKAGE_OPTIONS" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">DEFAULT_PACKAGE_OPTIONS</code><em class="property"> = {'default_max_distance_factor': 1.5, 'default_strategy': {'strategy': 'SimplestChemenvStrategy', 'strategy_options': {'additional_condition': 1, 'angle_cutoff': 0.3, 'continuous_symmetry_measure_cutoff': 10.0, 'distance_cutoff': 1.4}}}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.DEFAULT_PACKAGE_OPTIONS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.auto_load">
-<em class="property">classmethod </em><code class="descname">auto_load</code><span class="sig-paren">(</span><em>root_dir=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/utils/chemenv_config.html#ChemEnvConfig.auto_load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.auto_load" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">auto_load</code><span class="sig-paren">(</span><em class="sig-param">root_dir=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/utils/chemenv_config.html#ChemEnvConfig.auto_load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.auto_load" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.has_materials_project_access">
-<code class="descname">has_materials_project_access</code><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.has_materials_project_access" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">has_materials_project_access</code><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.has_materials_project_access" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.package_options_description">
-<code class="descname">package_options_description</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/utils/chemenv_config.html#ChemEnvConfig.package_options_description"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.package_options_description" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">package_options_description</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/utils/chemenv_config.html#ChemEnvConfig.package_options_description"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.package_options_description" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.save">
-<code class="descname">save</code><span class="sig-paren">(</span><em>root_dir=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/utils/chemenv_config.html#ChemEnvConfig.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.save" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param">root_dir=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/utils/chemenv_config.html#ChemEnvConfig.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.save" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.setup">
-<code class="descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/utils/chemenv_config.html#ChemEnvConfig.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.setup" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/utils/chemenv_config.html#ChemEnvConfig.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.setup" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.setup_package_options">
-<code class="descname">setup_package_options</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/utils/chemenv_config.html#ChemEnvConfig.setup_package_options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.setup_package_options" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">setup_package_options</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/utils/chemenv_config.html#ChemEnvConfig.setup_package_options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.setup_package_options" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -109,10 +109,10 @@
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -131,13 +131,13 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
