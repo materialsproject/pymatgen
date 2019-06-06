@@ -7,6 +7,7 @@ import numpy as np
 import warnings
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer as sga
 
+import phonopy
 from phonopy import Phonopy
 from phonopy.structure.atoms import PhonopyAtoms
 from phonopy.harmonic import dynmat_to_fc as dyntofc
