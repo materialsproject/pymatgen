@@ -56,7 +56,7 @@ class CostEntry(PDEntry):
             reference:
                 Reference data as BiBTeX string
         """
-        super(CostEntry, self).__init__(composition, cost, name)
+        super().__init__(composition, cost, name)
         if reference and not is_valid_bibtex(reference):
             raise ValueError(
                 "Invalid format for cost reference! Should be BibTeX string.")

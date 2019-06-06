@@ -434,8 +434,7 @@ class ComputedReaction(Reaction):
         product_comp = set([e.composition
                             .get_reduced_composition_and_factor()[0]
                             for e in product_entries])
-        super(ComputedReaction, self).__init__(list(reactant_comp),
-                                               list(product_comp))
+        super().__init__(list(reactant_comp), list(product_comp))
 
     @property
     def all_entries(self):

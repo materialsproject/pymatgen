@@ -91,7 +91,7 @@ batch_adapter: *batch
 """
     def setUp(self):
         """Initialization phase."""
-        super(FlowUnitTest, self).setUp()
+        super().setUp()
 
         # Temporary directory for the flow.
         self.workdir = tempfile.mkdtemp()

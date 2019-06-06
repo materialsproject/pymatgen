@@ -47,7 +47,7 @@ def from_bson_voronoi_list(bson_nb_voro_list, structure):
         for psd, dd in voro:
             struct_site = structure[dd['index']]
             periodic_site = PeriodicSite(struct_site._species, struct_site.frac_coords + psd[1],
-                                         struct_site._lattice, properties=struct_site._properties)
+                                         struct_site._lattice, properties=struct_site.properties)
             voronoi_list[isite].append((periodic_site, dd))
     return voronoi_list
 
@@ -68,7 +68,7 @@ def from_bson_voronoi_list2(bson_nb_voro_list2, structure):
         for psd, dd in voro:
             struct_site = structure[dd['index']]
             periodic_site = PeriodicSite(struct_site._species, struct_site.frac_coords + psd[1],
-                                         struct_site._lattice, properties=struct_site._properties)
+                                         struct_site._lattice, properties=struct_site.properties)
             dd['site'] = periodic_site
             voronoi_list[isite].append(dd)
     return voronoi_list
@@ -721,8 +721,8 @@ class DetailedVoronoiContainer(MSONable):
             for nb_dict in voro:
                 site = nb_dict['site']
                 site_dict = {key: val for key, val in nb_dict.items() if key not in ['site']}
-                #site_voro.append([ps.as_dict(), dd]) [float(c) for c in self._fcoords]
-                diff = site._fcoords - self.structure[nb_dict['index']]._fcoords
+                #site_voro.append([ps.as_dict(), dd]) [float(c) for c in self.frac_coords]
+                diff = site.frac_coords - self.structure[nb_dict['index']].frac_coords
                 site_voro.append([[nb_dict['index'], [float(c) for c in diff]],
                                   site_dict])
             bson_nb_voro_list2[ivoro] = site_voro

@@ -6,7 +6,7 @@ import os
 from itertools import product
 from fractions import Fraction
 from abc import ABCMeta, abstractmethod
-from collections import Sequence
+from collections.abc import Sequence
 import numpy as np
 import warnings
 import re

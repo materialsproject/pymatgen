@@ -31,7 +31,7 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 # Loads element data from json file
-with open(Path(__file__).absolute().parent / "periodic_table.json", "rt") as f:
+with open(str(Path(__file__).absolute().parent / "periodic_table.json"), "rt") as f:
     _pt_data = json.load(f)
 
 _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
@@ -903,6 +903,12 @@ class Element(Enum):
         True if element is a rare earth metal.
         """
         return self.is_lanthanoid or self.is_actinoid
+
+    @property
+    def is_metal(self):
+        return (self.is_alkali or self.is_alkaline or
+                self.is_post_transition_metal or self.is_transition_metal or
+                self.is_lanthanoid or self.is_actinoid)
 
     @property
     def is_metalloid(self):

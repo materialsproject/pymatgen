@@ -302,7 +302,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
                 provide projections to the band structure
         """
 
-        super(PhononBandStructureSymmLine, self).__init__(
+        super().__init__(
             qpoints, frequencies, lattice, None, eigendisplacements,
             None, labels_dict, coords_are_cartesian, structure)
 
@@ -535,7 +535,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
     
  
     def as_dict(self):
-        d = super(PhononBandStructureSymmLine, self).as_dict()
+        d = super().as_dict()
         # remove nac_frequencies and nac_eigendisplacements as they are reconstructed
         # in the __init__ when the dict is deserialized
         nac_frequencies = d.pop('nac_frequencies')

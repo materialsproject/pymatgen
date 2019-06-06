@@ -1126,7 +1126,7 @@ class ChemicalPotential(dict, MSONable):
             *args, **kwargs: any valid dict init arguments
         """
         d = dict(*args, **kwargs)
-        super(ChemicalPotential, self).__init__((get_el_sp(k), v)
+        super().__init__((get_el_sp(k), v)
                                                 for k, v in d.items())
         if len(d) != len(self):
             raise ValueError("Duplicate potential specified")
@@ -1177,7 +1177,7 @@ class ChemicalPotential(dict, MSONable):
         return sum(self.get(k, 0) * v for k, v in composition.items())
 
     def __repr__(self):
-        return "ChemPots: " + super(ChemicalPotential, self).__repr__()
+        return "ChemPots: " + super().__repr__()
 
 
 if __name__ == "__main__":

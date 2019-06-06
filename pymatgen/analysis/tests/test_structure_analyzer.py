@@ -244,6 +244,10 @@ class MiscFunctionTest(PymatgenTest):
                   [0.50000, 0.30300, 0.61140]]
         struct = Structure.from_spacegroup(36, latt, species, coords)
         self.assertEqual(sulfide_type(struct), "sulfide")
+        
+        # test for unphysical cells
+        struct.scale_lattice(struct.volume*10)
+        self.assertEqual(sulfide_type(struct), "sulfide")
 
 
 if __name__ == '__main__':

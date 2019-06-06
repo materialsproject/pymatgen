@@ -368,6 +368,8 @@ class MiniDistNNTest(PymatgenTest):
             [1.595, 0.92, 2.155]], coords_are_cartesian=True)
 
     def test_all_nn_classes(self):
+        self.assertAlmostEqual(MinimumDistanceNN(cutoff=5, get_all_sites=True).get_cn(
+            self.cscl, 0), 14)
         self.assertAlmostEqual(MinimumDistanceNN().get_cn(
             self.diamond, 0), 4)
         self.assertAlmostEqual(MinimumDistanceNN().get_cn(

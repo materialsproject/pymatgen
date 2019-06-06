@@ -1,13 +1,13 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
-
+import platform
+import re
 import unittest
-import os
 import warnings
 import random
-from pymatgen import SETTINGS
+import sys
+from pymatgen import SETTINGS, __version__ as pmg_version
 from pymatgen.ext.matproj import MPRester, MPRestError
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure, Composition
@@ -23,6 +23,7 @@ from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.io.cif import CifParser
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
+from pymatgen.util.testing import PymatgenTest
 
 """
 Created on Jun 9, 2012
@@ -37,12 +38,9 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Jun 9, 2012"
 
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files')
-
-
-@unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY"), "PMG_MAPI_KEY environment variable not set.")
-class MPResterTest(unittest.TestCase):
+@unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY"),
+                 "PMG_MAPI_KEY environment variable not set.")
+class MPResterTest(PymatgenTest):
     _multiprocess_shared_ = True
 
     def setUp(self):
@@ -133,8 +131,8 @@ class MPResterTest(unittest.TestCase):
     def test_find_structure(self):
         # nosetests pymatgen/matproj/tests/test_matproj.py:MPResterTest.test_find_structure
         m = MPRester()
-        ciffile = os.path.join(test_dir, 'Fe3O4.cif')
-        data = m.find_structure(ciffile)
+        ciffile = self.TEST_FILES_DIR / 'Fe3O4.cif'
+        data = m.find_structure(str(ciffile))
         self.assertTrue(len(data) > 1)
         s = CifParser(ciffile).get_structures()[0]
         data = m.find_structure(s)
@@ -365,7 +363,7 @@ class MPResterTest(unittest.TestCase):
         self.assertTrue(len(kinks) > 0)
         kink = kinks[0]
         self.assertIn("energy", kink)
-        self.assertIn("ratio", kink)
+        self.assertIn("ratio_atomic", kink)
         self.assertIn("rxn", kink)
         self.assertTrue(isinstance(kink['rxn'], Reaction))
         kinks_open_O = self.rester.get_interface_reactions(
@@ -406,6 +404,21 @@ class MPResterTest(unittest.TestCase):
 
         crit = MPRester.parse_criteria("POPO2")
         self.assertIn("P2O3", crit["pretty_formula"]["$in"])
+
+    def test_include_user_agent(self):
+        headers = self.rester.session.headers
+        self.assertIn("user-agent", headers, msg="Include user-agent header by default")
+        m = re.match(
+            r"pymatgen/(\d+)\.(\d+)\.(\d+) \(Python/(\d+)\.(\d)+\.(\d+) ([^\/]*)/([^\)]*)\)",
+            headers['user-agent'])
+        self.assertIsNotNone(m, msg="Unexpected user-agent value {}".format(headers['user-agent']))
+        self.assertEqual(m.groups()[:3], tuple(pmg_version.split(".")))
+        self.assertEqual(
+            m.groups()[3:6],
+            tuple(str(n) for n in (sys.version_info.major, sys.version_info.minor, sys.version_info.micro))
+        )
+        self.rester = MPRester(include_user_agent=False)
+        self.assertNotIn("user-agent", self.rester.session.headers, msg="user-agent header unwanted")
 
 
 if __name__ == "__main__":

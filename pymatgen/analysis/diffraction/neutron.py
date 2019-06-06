@@ -113,7 +113,7 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
         dwfactors = []
 
         for site in structure:
-            for sp, occu in site.species_and_occu.items():
+            for sp, occu in site.species.items():
                 try:
                     c = ATOMIC_SCATTERING_LEN[sp.symbol]
                 except KeyError:

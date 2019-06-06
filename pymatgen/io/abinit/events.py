@@ -256,7 +256,7 @@ _BASE_CLASSES = [
 ]
 
 
-class EventReport(collections.Iterable, MSONable):
+class EventReport(collections.abc.Iterable, MSONable):
     """
     Iterable storing the events raised by an ABINIT calculation.
 
@@ -518,7 +518,7 @@ class EventHandler(MSONable, metaclass=abc.ABCMeta):
 
     def __init__(self):
         """Simple init for compatibility with introspection in as_dict/from_dict"""
-        return super(EventHandler,self).__init__()
+        return super().__init__()
 
     @classmethod
     def cls2str(cls):
