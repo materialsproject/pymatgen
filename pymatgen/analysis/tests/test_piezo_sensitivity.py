@@ -35,14 +35,14 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
 
 class PiezoSensitivityTest(PymatgenTest):
 	def setUp(self):
-		self.piezo_struc = self.get_structure(os.path.join('Pb2TiZrO6'))
-		self.IST = np.load(os.path.join(test_dir, "pztist.npy"))
-		self.BEC = np.load(os.path.join(test_dir, "pztborn.npy"))
-		self.FCM = np.load(os.path.join(test_dir, "pztfcm.npy"))
-		self.pointops = np.load(os.path.join(test_dir, "pointops.npy"))
-		self.sharedops = np.load(os.path.join(test_dir, "sharedops.npy"))
-		self.BEC_IST_operations= np.load(os.path.join(test_dir, "becistops.npy"))
-		self.FCM_operations= np.load(os.path.join(test_dir, "fcmops.npy"))
+		self.piezo_struc = self.get_structure(os.path.join('Pb2TiZrO6'), allow_pickle=True)
+		self.IST = np.load(os.path.join(test_dir, "pztist.npy"), allow_pickle=True)
+		self.BEC = np.load(os.path.join(test_dir, "pztborn.npy"), allow_pickle=True)
+		self.FCM = np.load(os.path.join(test_dir, "pztfcm.npy"), allow_pickle=True)
+		self.pointops = np.load(os.path.join(test_dir, "pointops.npy"), allow_pickle=True)
+		self.sharedops = np.load(os.path.join(test_dir, "sharedops.npy"), allow_pickle=True)
+		self.BEC_IST_operations= np.load(os.path.join(test_dir, "becistops.npy"), allow_pickle=True)
+		self.FCM_operations= np.load(os.path.join(test_dir, "fcmops.npy"), allow_pickle=True)
 		self.piezo = np.array([[[  5.32649351e-03,  -1.33404642e-14,  -6.87580224e+02],
 					        [ -1.33404642e-14,   4.95526253e-03,  -5.60353712e-13],
 					        [ -6.87580224e+02,  -5.60353712e-13,   1.33209787e-02]],

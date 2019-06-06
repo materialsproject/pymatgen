@@ -3,10 +3,6 @@
 # Distributed under the terms of the MIT License.
 
 
-"""
-Test for the piezo tensor class
-"""
-
 __author__ = "Handong Ling"
 __version__ = "0.1"
 __maintainer__ = "Handong Ling"
@@ -21,19 +17,14 @@ import pymatgen
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.symmetry import site_symmetries as ss
 
-# try:
-from phonopy import Phonopy
-
-# except ImportError:
-    # Phonopy = None
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files', 'site_symmetries')
 
 class SiteSymmetriesTest(PymatgenTest):
 	def setUp(self):
-		self.pointops = np.load(os.path.join(test_dir, "pointops.npy"))
-		self.sharedops = np.load(os.path.join(test_dir, "sharedops.npy"))
-		self.piezo_struc = self.get_structure(os.path.join('Pb2TiZrO6'))
+		self.pointops = np.load(os.path.join(test_dir, "pointops.npy"), allow_pickle=True)
+		self.sharedops = np.load(os.path.join(test_dir, "sharedops.npy"), allow_pickle=True)
+		self.piezo_struc = self.get_structure(os.path.join('Pb2TiZrO6'), allow_pickle=True)
 	def test_get_site_symmetries(self):
 		pointops = ss.get_site_symmetries(self.piezo_struc)
 		self.assertTrue(np.all(pointops == self.pointops))
