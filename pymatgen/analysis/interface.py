@@ -100,6 +100,10 @@ class Interface(Structure):
         self.film_plane = film_plane
         self.sub_init_cell = sub_init_cell
         self.film_init_cell = film_init_cell
+
+        ind, coord = -1, np.array([np.Inf, np.Inf, np.Inf])
+        for i, site in enumerate(self.oriented_sub_cell):
+            if 
         
         self._shift_vector = shift_vector or np.zeros(3)
         
@@ -166,13 +170,6 @@ class Interface(Structure):
     def vacuum_thickness(self, thickness):
         delta = thickness - self.vacuum_thickness
         self.shift_vacuum_thickness(delta)
-
-    @property
-    def sigma(self):
-        """
-        Returns the sigma value of the interface.
-        """
-        return int(round(self.oriented_unit_cell.volume / self.init_cell.volume))
         
     @property
     def substrate_sites(self):
@@ -669,6 +666,7 @@ class InterfaceBuilder:
         if not orthogonal_structure.is_valid(tol=1):
             warnings.warn("Check generated structure, it may contain atoms too closely placed")
                                
+        shift_vector = (offset[1], offset[2], offset[0])
         interface = Interface(orthogonal_structure.lattice.copy(), orthogonal_structure.species,
                               orthogonal_structure.frac_coords,
                               slab_substrate.miller_index, slab_film.miller_index,
@@ -676,7 +674,7 @@ class InterfaceBuilder:
                               orthogonal_structure.site_properties,
                               unstrained_slab_substrate, unstrained_slab_film,
                               self.strained_substrate, self.strained_film,
-                              shift_vector=offset)
+                              shift_vector=shift_vector)
 
         return interface
                                

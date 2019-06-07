@@ -34,6 +34,8 @@ class InterfaceTest(PymatgenTest):
 
     def test_shift_vector(self):
         interface = self.ib.interfaces[0]
+        init_film = interface.film
+        init_sub = interface.substrate
         tst = Structure.from_sites(interface.sites)
         interface.vacuum_thickness += 1
         tdm, idm = tst.distance_matrix, interface.distance_matrix
@@ -45,7 +47,29 @@ class InterfaceTest(PymatgenTest):
         assert (np.abs(tdm - idm) < 1e-10).all()
         interface.ab_shift += np.array([0.2,0.2])
         idm = interface.distance_matrix
-        assert (np.abs(tdm - idm) > 0.5).any()
+        assert (np.abs(tdm - idm) > 0.9).any()
+
+        self.assertArrayAlmostEqual(init_film.distance_matrix, interface.film.distance_matrix)
+        self.assertArrayAlmostEqual(init_sub.distance_matrix, interface.substrate.distance_matrix)
+
+    def test_labels(self):
+        interface = self.ib.interfaces[0]
+        film = interface.film
+        substrate = interface.substrate
+        film_sites = [site for i, site in enumerate(interface)\
+                        if 'film' in interface.site_properties['interface_label'][i]]
+        substrate_sites = [site for i, site in enumerate(interface)\
+                        if 'substrate' in interface.site_properties['interface_label'][i]]
+        assert film.sites == film_sites
+        assert substrate.sites == substrate_sites
+        assert len(film) == len(interface.oriented_film_cell)
+        assert len(substrate) == len(interface.oriented_sub_cell)
+
+    def test_vertical_spacing(self):
+        pass
+
+    def test_horizontal_spacing(self):
+        pass
 
 class InterfaceBuilderTest(PymatgenTest):
 
