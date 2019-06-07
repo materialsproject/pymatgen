@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.chemenv.utils.defs_utils module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.analysis.chemenv.utils.defs_utils module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -47,83 +47,88 @@
 <p>This module contains the definition of some objects used in the chemenv package.</p>
 <dl class="class">
 <dt id="pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions">
-<em class="property">class </em><code class="descname">AdditionalConditions</code><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/utils/defs_utils.html#AdditionalConditions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">AdditionalConditions</code><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/utils/defs_utils.html#AdditionalConditions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ALL">
-<code class="descname">ALL</code><em class="property"> = [0, 1, 2, 3, 4]</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ALL" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ALL</code><em class="property"> = [0, 1, 2, 3, 4]</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ALL" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.CONDITION_DESCRIPTION">
-<code class="descname">CONDITION_DESCRIPTION</code><em class="property"> = {0: 'No additional condition', 1: 'Only anion-cation bonds', 2: 'No element-element bonds (same elements)', 3: 'Only anion-cation bonds and no element-element bonds (same elements)', 4: 'Only element-oxygen bonds'}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.CONDITION_DESCRIPTION" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">CONDITION_DESCRIPTION</code><em class="property"> = {0: 'No additional condition', 1: 'Only anion-cation bonds', 2: 'No element-element bonds (same elements)', 3: 'Only anion-cation bonds and no element-element bonds (same elements)', 4: 'Only element-oxygen bonds'}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.CONDITION_DESCRIPTION" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.NONE">
-<code class="descname">NONE</code><em class="property"> = 0</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.NONE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">NONE</code><em class="property"> = 0</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.NONE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.NO_AC">
-<code class="descname">NO_AC</code><em class="property"> = 0</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.NO_AC" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">NO_AC</code><em class="property"> = 0</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.NO_AC" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.NO_ADDITIONAL_CONDITION">
-<code class="descname">NO_ADDITIONAL_CONDITION</code><em class="property"> = 0</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.NO_ADDITIONAL_CONDITION" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">NO_ADDITIONAL_CONDITION</code><em class="property"> = 0</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.NO_ADDITIONAL_CONDITION" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.NO_E2SEB">
-<code class="descname">NO_E2SEB</code><em class="property"> = 2</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.NO_E2SEB" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">NO_E2SEB</code><em class="property"> = 2</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.NO_E2SEB" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.NO_ELEMENT_TO_SAME_ELEMENT_BONDS">
-<code class="descname">NO_ELEMENT_TO_SAME_ELEMENT_BONDS</code><em class="property"> = 2</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.NO_ELEMENT_TO_SAME_ELEMENT_BONDS" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">NO_ELEMENT_TO_SAME_ELEMENT_BONDS</code><em class="property"> = 2</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.NO_ELEMENT_TO_SAME_ELEMENT_BONDS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ONLY_ACB">
-<code class="descname">ONLY_ACB</code><em class="property"> = 1</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ONLY_ACB" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ONLY_ACB</code><em class="property"> = 1</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ONLY_ACB" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ONLY_ACB_AND_NO_E2SEB">
-<code class="descname">ONLY_ACB_AND_NO_E2SEB</code><em class="property"> = 3</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ONLY_ACB_AND_NO_E2SEB" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ONLY_ACB_AND_NO_E2SEB</code><em class="property"> = 3</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ONLY_ACB_AND_NO_E2SEB" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ONLY_ANION_CATION_BONDS">
-<code class="descname">ONLY_ANION_CATION_BONDS</code><em class="property"> = 1</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ONLY_ANION_CATION_BONDS" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ONLY_ANION_CATION_BONDS</code><em class="property"> = 1</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ONLY_ANION_CATION_BONDS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS">
-<code class="descname">ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS</code><em class="property"> = 3</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS</code><em class="property"> = 3</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ONLY_E2OB">
-<code class="descname">ONLY_E2OB</code><em class="property"> = 4</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ONLY_E2OB" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ONLY_E2OB</code><em class="property"> = 4</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ONLY_E2OB" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ONLY_ELEMENT_TO_OXYGEN_BONDS">
-<code class="descname">ONLY_ELEMENT_TO_OXYGEN_BONDS</code><em class="property"> = 4</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ONLY_ELEMENT_TO_OXYGEN_BONDS" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ONLY_ELEMENT_TO_OXYGEN_BONDS</code><em class="property"> = 4</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ONLY_ELEMENT_TO_OXYGEN_BONDS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.check_condition">
-<code class="descname">check_condition</code><span class="sig-paren">(</span><em>condition</em>, <em>structure</em>, <em>parameters</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/utils/defs_utils.html#AdditionalConditions.check_condition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.check_condition" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">check_condition</code><span class="sig-paren">(</span><em class="sig-param">condition</em>, <em class="sig-param">structure</em>, <em class="sig-param">parameters</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/utils/defs_utils.html#AdditionalConditions.check_condition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.check_condition" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
+<dl class="data">
+<dt id="pymatgen.analysis.chemenv.utils.defs_utils.STATS_ENV_PAPER">
+<code class="sig-name descname">STATS_ENV_PAPER</code><em class="property"> = 'David Waroquiers, Xavier Gonze, Gian-Marco Rignanese, Cathrin Welker-Nieuwoudt, Frank Rosowski,\nMichael Goebel, Stephan Schenk, Peter Degelmann, Rute Andre, Robert Glaum, and Geoffroy Hautier,\n&quot;Statistical analysis of coordination environments in oxides&quot;,\nChem. Mater., 2017, 29 (19), pp 8346-8360,\nDOI: 10.1021/acs.chemmater.7b02766\n'</em><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.defs_utils.STATS_ENV_PAPER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="function">
 <dt id="pymatgen.analysis.chemenv.utils.defs_utils.chemenv_citations">
-<code class="descname">chemenv_citations</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/utils/defs_utils.html#chemenv_citations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.defs_utils.chemenv_citations" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">chemenv_citations</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/utils/defs_utils.html#chemenv_citations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.defs_utils.chemenv_citations" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -142,10 +147,10 @@
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -164,13 +169,13 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

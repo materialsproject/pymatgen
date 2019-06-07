@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.util.string module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.util.string module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -47,18 +47,18 @@
 <p>This module provides utility classes for string operations.</p>
 <dl class="class">
 <dt id="pymatgen.util.string.StringColorizer">
-<em class="property">class </em><code class="descname">StringColorizer</code><span class="sig-paren">(</span><em>stream</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#StringColorizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.StringColorizer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">StringColorizer</code><span class="sig-paren">(</span><em class="sig-param">stream</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#StringColorizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.StringColorizer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="attribute">
 <dt id="pymatgen.util.string.StringColorizer.colours">
-<code class="descname">colours</code><em class="property"> = {'blue': '\x1b[01;34m', 'cyan': '\x1b[01;36m', 'default': '', 'green': '\x1b[01;32m', 'red': '\x1b[01;31m'}</em><a class="headerlink" href="#pymatgen.util.string.StringColorizer.colours" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">colours</code><em class="property"> = {'blue': '\x1b[01;34m', 'cyan': '\x1b[01;36m', 'default': '', 'green': '\x1b[01;32m', 'red': '\x1b[01;31m'}</em><a class="headerlink" href="#pymatgen.util.string.StringColorizer.colours" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.string.disordered_formula">
-<code class="descname">disordered_formula</code><span class="sig-paren">(</span><em>disordered_struct</em>, <em>symbols=('x'</em>, <em>'y'</em>, <em>'z')</em>, <em>fmt='plain'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#disordered_formula"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.disordered_formula" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">disordered_formula</code><span class="sig-paren">(</span><em class="sig-param">disordered_struct</em>, <em class="sig-param">symbols=('x'</em>, <em class="sig-param">'y'</em>, <em class="sig-param">'z')</em>, <em class="sig-param">fmt='plain'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#disordered_formula"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.disordered_formula" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a formula of a form like AxB1-x (x=0.5)
 for disordered structures. Will only return a
 formula for disordered structures with one
@@ -80,7 +80,7 @@ kind of disordered site at present.</p>
 
 <dl class="function">
 <dt id="pymatgen.util.string.formula_double_format">
-<code class="descname">formula_double_format</code><span class="sig-paren">(</span><em>afloat</em>, <em>ignore_ones=True</em>, <em>tol=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#formula_double_format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.formula_double_format" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">formula_double_format</code><span class="sig-paren">(</span><em class="sig-param">afloat</em>, <em class="sig-param">ignore_ones=True</em>, <em class="sig-param">tol=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#formula_double_format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.formula_double_format" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function is used to make pretty formulas by formatting the amounts.
 Instead of Li1.0 Fe1.0 P1.0 O4.0, you get LiFePO4.</p>
 <dl class="field-list simple">
@@ -99,7 +99,7 @@ Instead of Li1.0 Fe1.0 P1.0 O4.0, you get LiFePO4.</p>
 
 <dl class="function">
 <dt id="pymatgen.util.string.htmlify">
-<code class="descname">htmlify</code><span class="sig-paren">(</span><em>formula</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#htmlify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.htmlify" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">htmlify</code><span class="sig-paren">(</span><em class="sig-param">formula</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#htmlify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.htmlify" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a HTML formatted formula, e.g. Fe2O3 is transformed to
 Fe&lt;sub&gt;2&lt;/sub&gt;O&lt;/sub&gt;3&lt;/sub&gt;</p>
 <dl class="field-list simple">
@@ -114,7 +114,7 @@ Fe&lt;sub&gt;2&lt;/sub&gt;O&lt;/sub&gt;3&lt;/sub&gt;</p>
 
 <dl class="function">
 <dt id="pymatgen.util.string.latexify">
-<code class="descname">latexify</code><span class="sig-paren">(</span><em>formula</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#latexify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.latexify" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">latexify</code><span class="sig-paren">(</span><em class="sig-param">formula</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#latexify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.latexify" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a LaTeX formatted formula. E.g., Fe2O3 is transformed to
 Fe$_{2}$O$_{3}$.</p>
 <dl class="field-list simple">
@@ -129,7 +129,7 @@ Fe$_{2}$O$_{3}$.</p>
 
 <dl class="function">
 <dt id="pymatgen.util.string.latexify_spacegroup">
-<code class="descname">latexify_spacegroup</code><span class="sig-paren">(</span><em>spacegroup_symbol</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#latexify_spacegroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.latexify_spacegroup" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">latexify_spacegroup</code><span class="sig-paren">(</span><em class="sig-param">spacegroup_symbol</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#latexify_spacegroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.latexify_spacegroup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a latex formatted spacegroup. E.g., P2_1/c is converted to
 P2$_{1}$/c and P-1 is converted to P$overline{1}$.</p>
 <dl class="field-list simple">
@@ -144,7 +144,7 @@ P2$_{1}$/c and P-1 is converted to P$overline{1}$.</p>
 
 <dl class="function">
 <dt id="pymatgen.util.string.str_delimited">
-<code class="descname">str_delimited</code><span class="sig-paren">(</span><em>results</em>, <em>header=None</em>, <em>delimiter='\t'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#str_delimited"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.str_delimited" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">str_delimited</code><span class="sig-paren">(</span><em class="sig-param">results</em>, <em class="sig-param">header=None</em>, <em class="sig-param">delimiter='\t'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#str_delimited"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.str_delimited" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a tuple of tuples, generate a delimited string form.
 &gt;&gt;&gt; results = [[“a”,”b”,”c”],[“d”,”e”,”f”],[1,2,3]]
 &gt;&gt;&gt; print(str_delimited(results,delimiter=”,”))
@@ -166,13 +166,13 @@ d,e,f
 
 <dl class="function">
 <dt id="pymatgen.util.string.stream_has_colours">
-<code class="descname">stream_has_colours</code><span class="sig-paren">(</span><em>stream</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#stream_has_colours"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.stream_has_colours" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">stream_has_colours</code><span class="sig-paren">(</span><em class="sig-param">stream</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#stream_has_colours"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.stream_has_colours" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if stream supports colours. Python cookbook, #475186</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.string.transformation_to_string">
-<code class="descname">transformation_to_string</code><span class="sig-paren">(</span><em>matrix</em>, <em>translation_vec=(0</em>, <em>0</em>, <em>0)</em>, <em>components=('x'</em>, <em>'y'</em>, <em>'z')</em>, <em>c=''</em>, <em>delim='</em>, <em>'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#transformation_to_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.transformation_to_string" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">transformation_to_string</code><span class="sig-paren">(</span><em class="sig-param">matrix</em>, <em class="sig-param">translation_vec=(0</em>, <em class="sig-param">0</em>, <em class="sig-param">0)</em>, <em class="sig-param">components=('x'</em>, <em class="sig-param">'y'</em>, <em class="sig-param">'z')</em>, <em class="sig-param">c=''</em>, <em class="sig-param">delim='</em>, <em class="sig-param">'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#transformation_to_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.transformation_to_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience method. Given matrix returns string, e.g. x+2y+1/4
 :param matrix
 :param translation_vec
@@ -184,7 +184,7 @@ d,e,f
 
 <dl class="function">
 <dt id="pymatgen.util.string.unicodeify">
-<code class="descname">unicodeify</code><span class="sig-paren">(</span><em>formula</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#unicodeify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.unicodeify" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">unicodeify</code><span class="sig-paren">(</span><em class="sig-param">formula</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/string.html#unicodeify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.unicodeify" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a formula with unicode subscripts, e.g. Fe2O3 is transformed
 to Fe₂O₃. Does not support formulae with decimal points.</p>
 <dl class="field-list simple">
@@ -213,10 +213,10 @@ to Fe₂O₃. Does not support formulae with decimal points.</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -235,13 +235,13 @@ to Fe₂O₃. Does not support formulae with decimal points.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

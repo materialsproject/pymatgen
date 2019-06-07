@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.magnetism.jahnteller module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.analysis.magnetism.jahnteller module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -46,7 +46,7 @@
 <span id="pymatgen-analysis-magnetism-jahnteller-module"></span><h1>pymatgen.analysis.magnetism.jahnteller module<a class="headerlink" href="#module-pymatgen.analysis.magnetism.jahnteller" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer">
-<em class="property">class </em><code class="descname">JahnTellerAnalyzer</code><a class="reference internal" href="_modules/pymatgen/analysis/magnetism/jahnteller.html#JahnTellerAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">JahnTellerAnalyzer</code><a class="reference internal" href="_modules/pymatgen/analysis/magnetism/jahnteller.html#JahnTellerAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Will attempt to classify if structure <em>may</em> be Jahn-Teller active.</p>
 <p>Class currently uses datafile of hard-coded common Jahn-Teller
@@ -56,12 +56,12 @@ if structure may be high-spin or low-spin.</p>
 <p>Class aims for more false-positives than false-negatives.</p>
 <dl class="method">
 <dt id="pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_analysis">
-<code class="descname">get_analysis</code><span class="sig-paren">(</span><em>structure</em>, <em>calculate_valences=True</em>, <em>guesstimate_spin=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/magnetism/jahnteller.html#JahnTellerAnalyzer.get_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_analysis" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_analysis</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">calculate_valences=True</em>, <em class="sig-param">guesstimate_spin=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/magnetism/jahnteller.html#JahnTellerAnalyzer.get_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_analysis" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_analysis_and_structure">
-<code class="descname">get_analysis_and_structure</code><span class="sig-paren">(</span><em>structure</em>, <em>calculate_valences=True</em>, <em>guesstimate_spin=False</em>, <em>op_threshold=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/magnetism/jahnteller.html#JahnTellerAnalyzer.get_analysis_and_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_analysis_and_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_analysis_and_structure</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">calculate_valences=True</em>, <em class="sig-param">guesstimate_spin=False</em>, <em class="sig-param">op_threshold=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/magnetism/jahnteller.html#JahnTellerAnalyzer.get_analysis_and_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_analysis_and_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Obtain an analysis of a given structure and if it may be Jahn-Teller
 active or not. This is a heuristic, and may give false positives and
 false negatives (false positives are preferred).</p>
@@ -85,7 +85,7 @@ quite distorted, this threshold is smaller than one might expect
 
 <dl class="method">
 <dt id="pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_magnitude_of_effect_from_species">
-<code class="descname">get_magnitude_of_effect_from_species</code><span class="sig-paren">(</span><em>species</em>, <em>spin_state</em>, <em>motif</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/magnetism/jahnteller.html#JahnTellerAnalyzer.get_magnitude_of_effect_from_species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_magnitude_of_effect_from_species" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_magnitude_of_effect_from_species</code><span class="sig-paren">(</span><em class="sig-param">species</em>, <em class="sig-param">spin_state</em>, <em class="sig-param">motif</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/magnetism/jahnteller.html#JahnTellerAnalyzer.get_magnitude_of_effect_from_species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_magnitude_of_effect_from_species" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get magnitude of Jahn-Teller effect from provided species, spin state and motife.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -100,9 +100,9 @@ quite distorted, this threshold is smaller than one might expect
 </dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_magnitude_of_effect_from_spin_config">
-<em class="property">static </em><code class="descname">get_magnitude_of_effect_from_spin_config</code><span class="sig-paren">(</span><em>motif</em>, <em>spin_config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/magnetism/jahnteller.html#JahnTellerAnalyzer.get_magnitude_of_effect_from_spin_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_magnitude_of_effect_from_spin_config" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">get_magnitude_of_effect_from_spin_config</code><span class="sig-paren">(</span><em class="sig-param">motif</em>, <em class="sig-param">spin_config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/magnetism/jahnteller.html#JahnTellerAnalyzer.get_magnitude_of_effect_from_spin_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_magnitude_of_effect_from_spin_config" title="Permalink to this definition">¶</a></dt>
 <dd><p>Roughly, the magnitude of Jahn-Teller distortion will be:
 * in octahedral environments, strong if e_g orbitals
 unevenly occupied but weak if t_2g orbitals unevenly
@@ -115,12 +115,12 @@ with number of electrons in each state</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.is_jahn_teller_active">
-<code class="descname">is_jahn_teller_active</code><span class="sig-paren">(</span><em>structure</em>, <em>calculate_valences=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/magnetism/jahnteller.html#JahnTellerAnalyzer.is_jahn_teller_active"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.is_jahn_teller_active" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">is_jahn_teller_active</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">calculate_valences=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/magnetism/jahnteller.html#JahnTellerAnalyzer.is_jahn_teller_active"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.is_jahn_teller_active" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.mu_so">
-<em class="property">static </em><code class="descname">mu_so</code><span class="sig-paren">(</span><em>species</em>, <em>motif</em>, <em>spin_state</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/magnetism/jahnteller.html#JahnTellerAnalyzer.mu_so"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.mu_so" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">mu_so</code><span class="sig-paren">(</span><em class="sig-param">species</em>, <em class="sig-param">motif</em>, <em class="sig-param">spin_state</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/magnetism/jahnteller.html#JahnTellerAnalyzer.mu_so"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.mu_so" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the spin-only magnetic moment for a
 given species. Only supports transition metals.</p>
 <dl class="field-list simple">
@@ -139,10 +139,15 @@ given species. Only supports transition metals.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.tag_structure">
-<code class="descname">tag_structure</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/magnetism/jahnteller.html#JahnTellerAnalyzer.tag_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.tag_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">tag_structure</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/magnetism/jahnteller.html#JahnTellerAnalyzer.tag_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.tag_structure" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
+
+<dl class="data">
+<dt id="pymatgen.analysis.magnetism.jahnteller.MODULE_DIR">
+<code class="sig-name descname">MODULE_DIR</code><em class="property"> = '/Users/shyuepingong/repos/pymatgen/pymatgen/analysis/magnetism'</em><a class="headerlink" href="#pymatgen.analysis.magnetism.jahnteller.MODULE_DIR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </div>
 
@@ -160,10 +165,10 @@ given species. Only supports transition metals.</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -182,13 +187,13 @@ given species. Only supports transition metals.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

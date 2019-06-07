@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.qchem.inputs module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.io.qchem.inputs module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -46,7 +46,7 @@
 <span id="pymatgen-io-qchem-inputs-module"></span><h1>pymatgen.io.qchem.inputs module<a class="headerlink" href="#module-pymatgen.io.qchem.inputs" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.io.qchem.inputs.QCInput">
-<em class="property">class </em><code class="descname">QCInput</code><span class="sig-paren">(</span><em>molecule</em>, <em>rem</em>, <em>opt=None</em>, <em>pcm=None</em>, <em>solvent=None</em>, <em>smx=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">QCInput</code><span class="sig-paren">(</span><em class="sig-param">molecule</em>, <em class="sig-param">rem</em>, <em class="sig-param">opt=None</em>, <em class="sig-param">pcm=None</em>, <em class="sig-param">solvent=None</em>, <em class="sig-param">smx=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>An object representing a QChem input file. QCInput attributes represent different sections of a QChem input file.
 To add a new section one needs to modify __init__, __str__, from_sting and add staticmethods
@@ -68,102 +68,107 @@ Ex. opt = {“CONSTRAINT”: [“tors 2 3 4 5 25.0”, “tors 2 5 7 9 80.0”],
 </ul>
 </dd>
 </dl>
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.io.qchem.inputs.QCInput.find_sections">
-<em class="property">static </em><code class="descname">find_sections</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.find_sections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.find_sections" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">find_sections</code><span class="sig-paren">(</span><em class="sig-param">string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.find_sections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.find_sections" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.io.qchem.inputs.QCInput.from_file">
-<em class="property">static </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.from_file" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.io.qchem.inputs.QCInput.from_multi_jobs_file">
-<em class="property">classmethod </em><code class="descname">from_multi_jobs_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.from_multi_jobs_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.from_multi_jobs_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_multi_jobs_file</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.from_multi_jobs_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.from_multi_jobs_file" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.io.qchem.inputs.QCInput.from_string">
-<em class="property">classmethod </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.from_string" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param">string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.from_string" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.io.qchem.inputs.QCInput.molecule_template">
-<em class="property">static </em><code class="descname">molecule_template</code><span class="sig-paren">(</span><em>molecule</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.molecule_template"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.molecule_template" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">molecule_template</code><span class="sig-paren">(</span><em class="sig-param">molecule</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.molecule_template"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.molecule_template" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.io.qchem.inputs.QCInput.multi_job_string">
-<em class="property">static </em><code class="descname">multi_job_string</code><span class="sig-paren">(</span><em>job_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.multi_job_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.multi_job_string" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">multi_job_string</code><span class="sig-paren">(</span><em class="sig-param">job_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.multi_job_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.multi_job_string" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.io.qchem.inputs.QCInput.opt_template">
-<em class="property">static </em><code class="descname">opt_template</code><span class="sig-paren">(</span><em>opt</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.opt_template"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.opt_template" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">opt_template</code><span class="sig-paren">(</span><em class="sig-param">opt</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.opt_template"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.opt_template" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.io.qchem.inputs.QCInput.pcm_template">
-<em class="property">static </em><code class="descname">pcm_template</code><span class="sig-paren">(</span><em>pcm</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.pcm_template"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.pcm_template" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">pcm_template</code><span class="sig-paren">(</span><em class="sig-param">pcm</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.pcm_template"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.pcm_template" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.io.qchem.inputs.QCInput.read_molecule">
-<em class="property">static </em><code class="descname">read_molecule</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.read_molecule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.read_molecule" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">read_molecule</code><span class="sig-paren">(</span><em class="sig-param">string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.read_molecule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.read_molecule" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.io.qchem.inputs.QCInput.read_opt">
-<em class="property">static </em><code class="descname">read_opt</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.read_opt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.read_opt" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">read_opt</code><span class="sig-paren">(</span><em class="sig-param">string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.read_opt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.read_opt" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.io.qchem.inputs.QCInput.read_pcm">
-<em class="property">static </em><code class="descname">read_pcm</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.read_pcm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.read_pcm" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">read_pcm</code><span class="sig-paren">(</span><em class="sig-param">string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.read_pcm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.read_pcm" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.io.qchem.inputs.QCInput.read_rem">
-<em class="property">static </em><code class="descname">read_rem</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.read_rem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.read_rem" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">read_rem</code><span class="sig-paren">(</span><em class="sig-param">string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.read_rem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.read_rem" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.io.qchem.inputs.QCInput.read_smx">
-<em class="property">static </em><code class="descname">read_smx</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.read_smx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.read_smx" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">read_smx</code><span class="sig-paren">(</span><em class="sig-param">string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.read_smx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.read_smx" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.io.qchem.inputs.QCInput.read_solvent">
-<em class="property">static </em><code class="descname">read_solvent</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.read_solvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.read_solvent" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">read_solvent</code><span class="sig-paren">(</span><em class="sig-param">string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.read_solvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.read_solvent" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.io.qchem.inputs.QCInput.rem_template">
-<em class="property">static </em><code class="descname">rem_template</code><span class="sig-paren">(</span><em>rem</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.rem_template"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.rem_template" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">rem_template</code><span class="sig-paren">(</span><em class="sig-param">rem</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.rem_template"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.rem_template" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.io.qchem.inputs.QCInput.smx_template">
-<em class="property">static </em><code class="descname">smx_template</code><span class="sig-paren">(</span><em>smx</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.smx_template"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.smx_template" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">smx_template</code><span class="sig-paren">(</span><em class="sig-param">smx</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.smx_template"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.smx_template" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.io.qchem.inputs.QCInput.solvent_template">
-<em class="property">static </em><code class="descname">solvent_template</code><span class="sig-paren">(</span><em>solvent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.solvent_template"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.solvent_template" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">solvent_template</code><span class="sig-paren">(</span><em class="sig-param">solvent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.solvent_template"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.solvent_template" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.qchem.inputs.QCInput.write_file">
-<code class="descname">write_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.write_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.write_file" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.io.qchem.inputs.QCInput.write_multi_job_file">
-<em class="property">static </em><code class="descname">write_multi_job_file</code><span class="sig-paren">(</span><em>job_list</em>, <em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.write_multi_job_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.write_multi_job_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">write_multi_job_file</code><span class="sig-paren">(</span><em class="sig-param">job_list</em>, <em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.write_multi_job_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.write_multi_job_file" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
+
+<dl class="data">
+<dt id="pymatgen.io.qchem.inputs.logger">
+<code class="sig-name descname">logger</code><em class="property"> = &lt;Logger pymatgen.io.qchem.inputs (INFO)&gt;</em><a class="headerlink" href="#pymatgen.io.qchem.inputs.logger" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </div>
 
@@ -181,10 +186,10 @@ Ex. opt = {“CONSTRAINT”: [“tors 2 3 4 5 25.0”, “tors 2 5 7 9 80.0”],
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -203,13 +208,13 @@ Ex. opt = {“CONSTRAINT”: [“tors 2 3 4 5 25.0”, “tors 2 5 7 9 80.0”],
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -7,11 +7,13 @@ import os
 import json
 import warnings
 import numpy as np
+import tempfile
 from pymatgen import Structure
-from pymatgen.io.lobster import Cohpcar, Icohplist, Doscar, Charge, Lobsterout, Fatband
+from pymatgen.io.lobster import Cohpcar, Icohplist, Doscar, Charge, Lobsterout, Fatband, Lobsterin
 from pymatgen.io.vasp import Vasprun
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.util.testing import PymatgenTest
+from pymatgen.io.vasp.inputs import Incar, Kpoints
 
 __author__ = "Marco Esters, Janine George"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -523,6 +525,7 @@ class ChargeTest(PymatgenTest):
 
 class LobsteroutTest(PymatgenTest):
     def setUp(self):
+        warnings.simplefilter("ignore")
         self.lobsterout_normal = Lobsterout(filename=os.path.join(test_dir, "lobsterout.normal"))
         self.lobsterout_fatband_grosspop_densityofenergies = Lobsterout(
             filename=os.path.join(test_dir, "lobsterout.fatband_grosspop_densityofenergy"))
@@ -531,6 +534,9 @@ class LobsteroutTest(PymatgenTest):
         self.lobsterout_twospins = Lobsterout(filename=os.path.join(test_dir, "lobsterout.twospins"))
         self.lobsterout_GaAs = Lobsterout(filename=os.path.join(test_dir, "lobsterout.GaAs"))
         self.lobsterout_from_projection = Lobsterout(filename=os.path.join(test_dir, "lobsterout_from_projection"))
+
+    def tearDown(self):
+        warnings.simplefilter("default")
 
     def testattributes(self):
         self.assertListEqual(self.lobsterout_normal.basis_functions,
@@ -1037,6 +1043,268 @@ class FatbandTest(PymatgenTest):
         self.assertAlmostEqual(dict_here["O"]["2p"], 0.015)
         bs_p_x = self.fatband_SiO2_p_x.get_bandstructure()
         self.assertAlmostEqual(bs_p_x.get_projection_on_elements()[Spin.up][0][0]["Si"], 3 * (0.001 + 0.064), 2)
+
+
+class LobsterinTest(unittest.TestCase):
+    def setUp(self):
+        warnings.simplefilter("ignore")
+        self.Lobsterinfromfile = Lobsterin.from_file(os.path.join(test_dir, "lobsterin.1"))
+        self.Lobsterinfromfile2 = Lobsterin.from_file(os.path.join(test_dir, "lobsterin.2"))
+        self.Lobsterinfromfile3 = Lobsterin.from_file(os.path.join(test_dir, "lobsterin.3"))
+
+    def test_from_file(self):
+        # test read from file
+        self.assertAlmostEqual(self.Lobsterinfromfile["cohpstartenergy"], -15.0)
+        self.assertAlmostEqual(self.Lobsterinfromfile["cohpendenergy"], 5.0)
+        self.assertAlmostEqual(self.Lobsterinfromfile["basisset"], 'pbeVaspFit2015')
+        self.assertAlmostEqual(self.Lobsterinfromfile["gaussiansmearingwidth"], 0.1)
+        self.assertEqual(self.Lobsterinfromfile["basisfunctions"][0], 'Fe 3d 4p 4s')
+        self.assertEqual(self.Lobsterinfromfile["basisfunctions"][1], 'Co 3d 4p 4s')
+        self.assertEqual(self.Lobsterinfromfile["skipdos"], True)
+        self.assertEqual(self.Lobsterinfromfile["skipcohp"], True)
+        self.assertEqual(self.Lobsterinfromfile["skipcoop"], True)
+        self.assertEqual(self.Lobsterinfromfile["skippopulationanalysis"], True)
+        self.assertEqual(self.Lobsterinfromfile["skipgrosspopulation"], True)
+
+        # test if comments are correctly removed
+        self.assertDictEqual(self.Lobsterinfromfile, self.Lobsterinfromfile2)
+
+    def test_getitem(self):
+        # tests implementation of getitem, should be case independent
+        self.assertAlmostEqual(self.Lobsterinfromfile["COHPSTARTENERGY"], -15.0)
+
+    def test_setitem(self):
+        # test implementation of setitem
+        self.Lobsterinfromfile["skipCOHP"] = False
+        self.assertEqual(self.Lobsterinfromfile["skipcohp"], False)
+
+    def test_initialize_from_dict(self):
+        # initialize from dict
+        lobsterin1 = Lobsterin(
+            {'cohpstartenergy': -15.0, 'cohpendenergy': 5.0, 'basisset': 'pbeVaspFit2015', 'gaussiansmearingwidth': 0.1,
+             'basisfunctions': ['Fe 3d 4p 4s', 'Co 3d 4p 4s'], 'skipdos': True, 'skipcohp': True, 'skipcoop': True,
+             'skippopulationanalysis': True, 'skipgrosspopulation': True})
+        self.assertAlmostEqual(lobsterin1["cohpstartenergy"], -15.0)
+        self.assertAlmostEqual(lobsterin1["cohpendenergy"], 5.0)
+        self.assertAlmostEqual(lobsterin1["basisset"], 'pbeVaspFit2015')
+        self.assertAlmostEqual(lobsterin1["gaussiansmearingwidth"], 0.1)
+        self.assertEqual(lobsterin1["basisfunctions"][0], 'Fe 3d 4p 4s')
+        self.assertEqual(lobsterin1["basisfunctions"][1], 'Co 3d 4p 4s')
+        self.assertEqual(lobsterin1["skipdos"], True)
+        self.assertEqual(lobsterin1["skipcohp"], True)
+        self.assertEqual(lobsterin1["skipcoop"], True)
+        self.assertEqual(lobsterin1["skippopulationanalysis"], True)
+        self.assertEqual(lobsterin1["skipgrosspopulation"], True)
+        with self.assertRaises(IOError):
+            lobsterin2 = Lobsterin({'cohpstartenergy': -15.0, 'cohpstartEnergy': -20.0})
+        lobsterin2 = Lobsterin({'cohpstartenergy': -15.0})
+        # can only calculate nbands if basis functions are provided
+        with self.assertRaises(IOError):
+            lobsterin2._get_nbands()
+
+    def test_standard_settings(self):
+        # test standard settings
+        for option in ['standard', 'standard_from_projection', 'standard_with_fatband', 'onlyprojection', 'onlydos',
+                       'onlycohp', 'onlycoop', 'onlycohpcoop']:
+
+            lobsterin1 = Lobsterin.standard_calculations_from_vasp_files(os.path.join(test_dir_doscar, "POSCAR.Fe3O4"),
+                                                                         os.path.join(test_dir_doscar, "INCAR.lobster"),
+                                                                         os.path.join(test_dir_doscar, "POTCAR.Fe3O4"),
+                                                                         option=option)
+            self.assertAlmostEqual(lobsterin1["cohpstartenergy"], -15.0)
+            self.assertAlmostEqual(lobsterin1["cohpendenergy"], 5.0)
+            self.assertAlmostEqual(lobsterin1["basisset"], 'pbeVaspFit2015')
+            self.assertAlmostEqual(lobsterin1["gaussiansmearingwidth"], 0.1)
+            self.assertEqual(lobsterin1["basisfunctions"][0], 'Fe 3d 4p 4s ')
+            self.assertEqual(lobsterin1["basisfunctions"][1], 'O 2p 2s ')
+
+            if option in ['standard', 'standard_with_fatband', 'onlyprojection', 'onlycohp', 'onlycoop',
+                          'onlycohpcoop']:
+                self.assertEqual(lobsterin1["saveProjectiontoFile"], True)
+            if option in ['standard', 'standard_with_fatband', 'onlycohp', 'onlycoop',
+                          'onlycohpcoop']:
+                self.assertEqual(lobsterin1["cohpGenerator"], 'from 0.1 to 6.0 orbitalwise')
+            if option in ['standard']:
+                self.assertEqual('skipdos' not in lobsterin1, True)
+                self.assertEqual('skipcohp' not in lobsterin1, True)
+                self.assertEqual('skipcoop' not in lobsterin1, True)
+            if option in ['standard_with_fatband']:
+                self.assertListEqual(lobsterin1["createFatband"], ['Fe 3d 4p 4s ', 'O 2p 2s '])
+                self.assertEqual('skipdos' not in lobsterin1, True)
+                self.assertEqual('skipcohp' not in lobsterin1, True)
+                self.assertEqual('skipcoop' not in lobsterin1, True)
+            if option in ['standard_from_projection']:
+                self.assertTrue(lobsterin1['loadProjectionFromFile'], True)
+            if option in ['onlyprojection', 'onlycohp', 'onlycoop', 'onlycohpcoop']:
+                self.assertTrue(lobsterin1['skipdos'], True)
+                self.assertTrue(lobsterin1['skipPopulationAnalysis'], True)
+                self.assertTrue(lobsterin1['skipGrossPopulation'], True)
+            if option in ['onlydos']:
+                self.assertTrue(lobsterin1['skipPopulationAnalysis'], True)
+                self.assertTrue(lobsterin1['skipGrossPopulation'], True)
+                self.assertTrue(lobsterin1['skipcohp'], True)
+                self.assertTrue(lobsterin1['skipcoop'], True)
+            if option in ['onlycohp']:
+                self.assertTrue(lobsterin1['skipcoop'], True)
+            if option in ['onlycoop']:
+                self.assertTrue(lobsterin1['skipcohp'], True)
+            if option in ['onlyprojection']:
+                self.assertTrue(lobsterin1['skipdos'], True)
+
+        # test basis functions by dict
+        lobsterin_new = Lobsterin.standard_calculations_from_vasp_files(os.path.join(test_dir_doscar, "POSCAR.Fe3O4"),
+                                                                        os.path.join(test_dir_doscar, "INCAR.lobster"),
+                                                                        dict_for_basis={"Fe": '3d 4p 4s', "O": '2s 2p'},
+                                                                        option='standard')
+        self.assertListEqual(lobsterin_new['basisfunctions'], ['Fe 3d 4p 4s', 'O 2s 2p'])
+
+        # test gaussian smearing
+        lobsterin_new = Lobsterin.standard_calculations_from_vasp_files(os.path.join(test_dir_doscar, "POSCAR.Fe3O4"),
+                                                                        os.path.join(test_dir_doscar, "INCAR.lobster2"),
+                                                                        dict_for_basis={"Fe": '3d 4p 4s', "O": '2s 2p'},
+                                                                        option='standard')
+        self.assertTrue('gaussiansmearingwidth' not in lobsterin_new)
+
+        # fatband and ISMEAR=-5 does not work together
+        with self.assertRaises(ValueError):
+            lobsterin_new = Lobsterin.standard_calculations_from_vasp_files(
+                os.path.join(test_dir_doscar, "POSCAR.Fe3O4"),
+                os.path.join(test_dir_doscar, "INCAR.lobster2"),
+                dict_for_basis={"Fe": '3d 4p 4s', "O": '2s 2p'},
+                option='standard_with_fatband')
+
+    def test_diff(self):
+        # test diff
+        self.assertDictEqual(self.Lobsterinfromfile.diff(self.Lobsterinfromfile2)["Different"], {})
+        self.assertAlmostEqual(self.Lobsterinfromfile.diff(self.Lobsterinfromfile2)["Same"]["COHPSTARTENERGY"], -15.0)
+
+        # test diff in both directions
+        for entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Same"].keys():
+            self.assertTrue(entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Same"].keys())
+        for entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Same"].keys():
+            self.assertTrue(entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Same"].keys())
+        for entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"].keys():
+            self.assertTrue(entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"].keys())
+        for entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"].keys():
+            self.assertTrue(entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"].keys())
+
+        self.assertEqual(self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"]["SKIPCOHP"]["lobsterin1"],
+                         self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"]["SKIPCOHP"]["lobsterin2"])
+
+    def test_get_basis(self):
+        # get basis functions
+        lobsterin1 = Lobsterin({})
+        self.assertListEqual(lobsterin1._get_basis(Structure.from_file(os.path.join(test_dir_doscar, "Fe3O4.cif")),
+                                                   POTCAR=os.path.join(test_dir_doscar, "POTCAR.Fe3O4")),
+                             ['Fe 3d 4p 4s ', 'O 2p 2s '])
+        self.assertListEqual(lobsterin1._get_basis(Structure.from_file(os.path.join(test_dir, "POSCAR.GaAs")),
+                                                   POTCAR=os.path.join(test_dir, "POTCAR.GaAs")),
+                             ['Ga 3d 4p 4s ', 'As 4p 4s '])
+
+    def test_write_lobsterin(self):
+        # write lobsterin, read it and compare it
+        outfile_path = tempfile.mkstemp()[1]
+        lobsterin1 = Lobsterin.standard_calculations_from_vasp_files(os.path.join(test_dir_doscar, "POSCAR.Fe3O4"),
+                                                                     os.path.join(test_dir_doscar, "INCAR.lobster"),
+                                                                     os.path.join(test_dir_doscar, "POTCAR.Fe3O4"),
+                                                                     option='standard')
+        lobsterin1.write_lobsterin(outfile_path)
+        lobsterin2 = Lobsterin.from_file(outfile_path)
+        self.assertDictEqual(lobsterin1.diff(lobsterin2)["Different"], {})
+
+    def test_write_INCAR(self):
+        # write INCAR and compare
+        outfile_path = tempfile.mkstemp()[1]
+        lobsterin1 = Lobsterin.standard_calculations_from_vasp_files(os.path.join(test_dir_doscar, "POSCAR.Fe3O4"),
+                                                                     os.path.join(test_dir_doscar, "INCAR.lobster"),
+                                                                     os.path.join(test_dir_doscar, "POTCAR.Fe3O4"),
+                                                                     option='standard')
+        lobsterin1.write_INCAR(os.path.join(test_dir_doscar, "INCAR.lobster3"), outfile_path)
+
+        incar1 = Incar.from_file(os.path.join(test_dir_doscar, "INCAR.lobster3"))
+        incar2 = Incar.from_file(outfile_path)
+
+        self.assertDictEqual(incar1.diff(incar2)["Different"],
+                             {'ISYM': {'INCAR1': 2, 'INCAR2': -1}, 'NBANDS': {'INCAR1': None, 'INCAR2': 13},
+                              'NSW': {'INCAR1': 500, 'INCAR2': 0}})
+
+    def test_write_KPOINTS(self):
+
+        # line mode
+        outfile_path = tempfile.mkstemp()[1]
+        outfile_path2 = tempfile.mkstemp(prefix='POSCAR')[1]
+        lobsterin1 = Lobsterin({})
+        # test writing primitive cell
+        lobsterin1.write_POSCAR_with_standard_primitive(POSCAR_input=os.path.join(test_dir_doscar, "POSCAR.Fe3O4"),
+                                                        POSCAR_output=outfile_path2)
+
+        lobsterin1.write_KPOINTS(POSCAR_input=outfile_path2, KPOINTS_output=outfile_path, kpoints_line_density=58)
+        kpoint = Kpoints.from_file(outfile_path)
+        self.assertEqual(kpoint.num_kpts, 562)
+        self.assertAlmostEqual(kpoint.kpts[-1][0], -0.5)
+        self.assertAlmostEqual(kpoint.kpts[-1][1], 0.5)
+        self.assertAlmostEqual(kpoint.kpts[-1][2], 0.5)
+        self.assertEqual(kpoint.labels[-1], 'T')
+        kpoint2 = Kpoints.from_file(os.path.join(test_dir_doscar, "KPOINTS_band.lobster"))
+
+        labels = []
+        number = 0
+        for label in kpoint.labels:
+            if label is not None:
+                if number != 0:
+                    if label != labels[number - 1]:
+                        labels.append(label)
+                        number += 1
+                else:
+                    labels.append(label)
+                    number += 1
+
+        labels2 = []
+        number2 = 0
+        for label in kpoint2.labels:
+            if label is not None:
+                if number2 != 0:
+                    if label != labels2[number2 - 1]:
+                        labels2.append(label)
+                        number2 += 1
+                else:
+                    labels2.append(label)
+                    number2 += 1
+        self.assertListEqual(labels, labels2)
+
+        # without line mode
+        lobsterin1.write_KPOINTS(POSCAR_input=outfile_path2, KPOINTS_output=outfile_path, line_mode=False)
+        kpoint = Kpoints.from_file(outfile_path)
+        kpoint2 = Kpoints.from_file(os.path.join(test_dir_doscar, "IBZKPT.lobster"))
+
+        for num_kpt, list_kpoint in enumerate(kpoint.kpts):
+            self.assertAlmostEqual(list_kpoint[0], kpoint2.kpts[num_kpt][0])
+            self.assertAlmostEqual(list_kpoint[1], kpoint2.kpts[num_kpt][1])
+            self.assertAlmostEqual(list_kpoint[2], kpoint2.kpts[num_kpt][2])
+
+        self.assertEqual(kpoint.num_kpts, 108)
+
+        # without line mode, use grid instead of reciprocal density
+        lobsterin1.write_KPOINTS(POSCAR_input=outfile_path2, KPOINTS_output=outfile_path, line_mode=False,
+                                 from_grid=True, input_grid=[6, 6, 3])
+        kpoint = Kpoints.from_file(outfile_path)
+        kpoint2 = Kpoints.from_file(os.path.join(test_dir_doscar, "IBZKPT.lobster"))
+
+        for num_kpt, list_kpoint in enumerate(kpoint.kpts):
+            self.assertAlmostEqual(list_kpoint[0], kpoint2.kpts[num_kpt][0])
+            self.assertAlmostEqual(list_kpoint[1], kpoint2.kpts[num_kpt][1])
+            self.assertAlmostEqual(list_kpoint[2], kpoint2.kpts[num_kpt][2])
+
+        self.assertEqual(kpoint.num_kpts, 108)
+
+    def test_MSONable_implementation(self):
+        # tests as dict and from dict methods
+        newLobsterin = Lobsterin.from_dict(self.Lobsterinfromfile.as_dict())
+        self.assertDictEqual(newLobsterin, self.Lobsterinfromfile)
+        newLobsterin.to_json()
+
+    def tearDown(self):
+        warnings.simplefilter("default")
 
 
 if __name__ == "__main__":

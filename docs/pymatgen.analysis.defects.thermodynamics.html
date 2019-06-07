@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.defects.thermodynamics module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.analysis.defects.thermodynamics module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -46,40 +46,66 @@
 <span id="pymatgen-analysis-defects-thermodynamics-module"></span><h1>pymatgen.analysis.defects.thermodynamics module<a class="headerlink" href="#module-pymatgen.analysis.defects.thermodynamics" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram">
-<em class="property">class </em><code class="descname">DefectPhaseDiagram</code><span class="sig-paren">(</span><em>entries</em>, <em>vbm</em>, <em>band_gap</em>, <em>filter_compatible=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/thermodynamics.html#DefectPhaseDiagram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">DefectPhaseDiagram</code><span class="sig-paren">(</span><em class="sig-param">entries</em>, <em class="sig-param">vbm</em>, <em class="sig-param">band_gap</em>, <em class="sig-param">filter_compatible=True</em>, <em class="sig-param">metadata={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/thermodynamics.html#DefectPhaseDiagram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
-<p>This is similar to a PhaseDiagram object in pymatgen, but has ability to do quick analysis of defect formation energies
-when fed DefectEntry objects</p>
+<p>This is similar to a PhaseDiagram object in pymatgen,
+but has ability to do quick analysis of defect formation energies
+when fed DefectEntry objects.</p>
 <p>uses many of the capabilities from PyCDT’s DefectsAnalyzer class…</p>
-<dl>
+<dl class="simple">
 <dt>This class is able to get:</dt><dd><ol class="loweralpha simple">
 <li><p>stability of charge states for a given defect,</p></li>
 <li><p>list of all formation ens</p></li>
+<li><p>transition levels in the gap</p></li>
 </ol>
-<p>c) transition levels in the gap
-d)</p>
 </dd>
 </dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dentries</strong> (<em>[</em><a class="reference internal" href="pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.DefectEntry" title="pymatgen.analysis.defects.core.DefectEntry"><em>DefectEntry</em></a><em>]</em>) – A list of DefectEntry objects</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dentries</strong> (<em>[</em><a class="reference internal" href="pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.DefectEntry" title="pymatgen.analysis.defects.core.DefectEntry"><em>DefectEntry</em></a><em>]</em>) – A list of DefectEntry objects</p></li>
+<li><p><strong>vbm</strong> (<em>float</em>) – Valence Band energy to use for all defect entries.
+NOTE if using band shifting-type correction then this VBM
+should still be that of the GGA calculation
+(the bandedgeshifting_correction accounts for shift’s
+contribution to formation energy).</p></li>
+<li><p><strong>band_gap</strong> (<em>float</em>) – Band gap to use for all defect entries.
+NOTE if using band shifting-type correction then this gap
+should still be that of the Hybrid calculation you are shifting to.</p></li>
+<li><p><strong>filter_compatible</strong> (<em>bool</em>) – <p>Whether to consider entries which were ruled
+incompatible by the DefectComaptibility class. Note this must be set to False
+if you desire a suggestion for larger supercell sizes.
+Default is True (to omit calculations which have “is_compatible”=False in</p>
+<blockquote>
+<div><p>DefectEntry’sparameters)</p>
+</div></blockquote>
+</p></li>
+<li><p><strong>metadata</strong> (<em>dict</em>) – Dictionary of metadata to store with the PhaseDiagram. Has
+no impact on calculations.</p></li>
+</ul>
 </dd>
 </dl>
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.all_stable_entries">
-<code class="descname">all_stable_entries</code><a class="headerlink" href="#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.all_stable_entries" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">all_stable_entries</code><a class="headerlink" href="#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.all_stable_entries" title="Permalink to this definition">¶</a></dt>
 <dd><p>List all stable entries (defect+charge) in the DefectPhaseDiagram</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.all_unstable_entries">
-<code class="descname">all_unstable_entries</code><a class="headerlink" href="#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.all_unstable_entries" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">all_unstable_entries</code><a class="headerlink" href="#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.all_unstable_entries" title="Permalink to this definition">¶</a></dt>
 <dd><p>List all unstable entries (defect+charge) in the DefectPhaseDiagram</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.as_dict">
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/thermodynamics.html#DefectPhaseDiagram.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Json-serializable dict representation of DefectPhaseDiagram</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.defect_concentrations">
-<code class="descname">defect_concentrations</code><span class="sig-paren">(</span><em>chemical_potentials</em>, <em>temperature=300</em>, <em>fermi_level=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/thermodynamics.html#DefectPhaseDiagram.defect_concentrations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.defect_concentrations" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">defect_concentrations</code><span class="sig-paren">(</span><em class="sig-param">chemical_potentials</em>, <em class="sig-param">temperature=300</em>, <em class="sig-param">fermi_level=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/thermodynamics.html#DefectPhaseDiagram.defect_concentrations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.defect_concentrations" title="Permalink to this definition">¶</a></dt>
 <dd><p>Give list of all concentrations at specified efermi in the DefectPhaseDiagram
 :param chemical_potentials = {Element: number} is dictionary of chemical potentials to provide formation energies for
 :param temperature = temperature to produce concentrations from:
@@ -94,15 +120,15 @@ d)</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.defect_types">
-<code class="descname">defect_types</code><a class="headerlink" href="#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.defect_types" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">defect_types</code><a class="headerlink" href="#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.defect_types" title="Permalink to this definition">¶</a></dt>
 <dd><p>List types of defects existing in the DefectPhaseDiagram</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.find_stable_charges">
-<code class="descname">find_stable_charges</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/thermodynamics.html#DefectPhaseDiagram.find_stable_charges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.find_stable_charges" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">find_stable_charges</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/thermodynamics.html#DefectPhaseDiagram.find_stable_charges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.find_stable_charges" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the stable charges and transition states for a series of
 defect entries. This function uses scipy’s HalfspaceInterection
 to oncstruct the polygons corresponding to defect stability as
@@ -120,28 +146,112 @@ the Pourbaix Diagram</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.solve_for_fermi_energy">
-<code class="descname">solve_for_fermi_energy</code><span class="sig-paren">(</span><em>temperature</em>, <em>chemical_potentials</em>, <em>bulk_dos</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/thermodynamics.html#DefectPhaseDiagram.solve_for_fermi_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.solve_for_fermi_energy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Solve for the Fermi energy self-consistently as a function of T
-and p_O2
-Observations are Defect concentrations, electron and hole conc
-:param bulk_dos: bulk system dos (pymatgen Dos object)
-:param gap: Can be used to specify experimental gap.</p>
+<dt id="pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.from_dict">
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/thermodynamics.html#DefectPhaseDiagram.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reconstitute a DefectPhaseDiagram object from a dict representation created using
+as_dict().</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – dict representation of DefectPhaseDiagram.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>DefectPhaseDiagram object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.get_dopability_limits">
+<code class="sig-name descname">get_dopability_limits</code><span class="sig-paren">(</span><em class="sig-param">chemical_potentials</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/thermodynamics.html#DefectPhaseDiagram.get_dopability_limits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.get_dopability_limits" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find Dopability limits for a given chemical potential.
+This is defined by the defect formation energies which first cross zero
+in formation energies.
+This determine bounds on the fermi level.</p>
+<p>Does this by computing formation energy for every stable defect with non-zero charge.
+If the formation energy value changes sign on either side of the band gap, then
+compute the fermi level value where the formation energy is zero
+(formation energies are lines and basic algebra shows: x_crossing = x1 - (y1 / q)
+for fermi level, x1, producing formation energy y1)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>chemical_potentials</strong> – dict of chemical potentials to use for calculation fermi level</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>lower dopability limit, upper dopability limit</p>
+<p>(returns None if no limit exists for upper or lower i.e. no negative defect
+crossing before +/- 20 of band edges OR defect formation energies are entirely zero)</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.plot">
+<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param">mu_elts=None</em>, <em class="sig-param">xlim=None</em>, <em class="sig-param">ylim=None</em>, <em class="sig-param">ax_fontsize=1.3</em>, <em class="sig-param">lg_fontsize=1.0</em>, <em class="sig-param">lg_position=None</em>, <em class="sig-param">fermi_level=None</em>, <em class="sig-param">title=None</em>, <em class="sig-param">saved=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/thermodynamics.html#DefectPhaseDiagram.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Produce defect Formation energy vs Fermi energy plot
+:param mu_elts: a dictionnary of {Element:value} giving the chemical</p>
 <blockquote>
-<div><p>Will be useful if the self consistent Fermi level
-is &gt; DFT gap</p>
+<div><p>potential of each element</p>
 </div></blockquote>
 <dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xlim</strong> – Tuple (min,max) giving the range of the x (fermi energy) axis</p></li>
+<li><p><strong>ylim</strong> – Tuple (min,max) giving the range for the formation energy axis</p></li>
+<li><p><strong>ax_fontsize</strong> – float  multiplier to change axis label fontsize</p></li>
+<li><p><strong>lg_fontsize</strong> – float  multiplier to change legend label fontsize</p></li>
+<li><p><strong>lg_position</strong> – Tuple (horizontal-position, vertical-position) giving the position
+to place the legend.
+Example: (0.5,-0.75) will likely put it below the x-axis.</p></li>
+<li><p><strong>saved</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a matplotlib object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.solve_for_fermi_energy">
+<code class="sig-name descname">solve_for_fermi_energy</code><span class="sig-paren">(</span><em class="sig-param">temperature</em>, <em class="sig-param">chemical_potentials</em>, <em class="sig-param">bulk_dos</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/thermodynamics.html#DefectPhaseDiagram.solve_for_fermi_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.solve_for_fermi_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solve for the Fermi energy self-consistently as a function of T
+Observations are Defect concentrations, electron and hole conc
+:param temperature: Temperature to equilibrate fermi energies for
+:param chemical_potentials: dict of chemical potentials to use for calculation fermi level
+:param bulk_dos: bulk system dos (pymatgen Dos object)</p>
+<dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Fermi energy</p>
+<dd class="field-odd"><p>Fermi energy dictated by charge neutrality</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.solve_for_non_equilibrium_fermi_energy">
+<code class="sig-name descname">solve_for_non_equilibrium_fermi_energy</code><span class="sig-paren">(</span><em class="sig-param">temperature</em>, <em class="sig-param">quench_temperature</em>, <em class="sig-param">chemical_potentials</em>, <em class="sig-param">bulk_dos</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/thermodynamics.html#DefectPhaseDiagram.solve_for_non_equilibrium_fermi_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.solve_for_non_equilibrium_fermi_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solve for the Fermi energy after quenching in the defect concentrations at a higher
+temperature (the quench temperature),
+as outlined in P. Canepa et al (2017) Chemistry of Materials (doi: 10.1021/acs.chemmater.7b02909)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>temperature</strong> – Temperature to equilibrate fermi energy at after quenching in defects</p></li>
+<li><p><strong>quench_temperature</strong> – Temperature to equilibrate defect concentrations at (higher temperature)</p></li>
+<li><p><strong>chemical_potentials</strong> – dict of chemical potentials to use for calculation fermi level</p></li>
+<li><p><strong>bulk_dos</strong> – bulk system dos (pymatgen Dos object)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Fermi energy dictated by charge neutrality with respect to frozen in defect concentrations</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.suggest_charges">
-<code class="descname">suggest_charges</code><span class="sig-paren">(</span><em>tolerance=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/thermodynamics.html#DefectPhaseDiagram.suggest_charges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.suggest_charges" title="Permalink to this definition">¶</a></dt>
-<dd><p>Suggest possible charges for defects to computee based on proximity
+<code class="sig-name descname">suggest_charges</code><span class="sig-paren">(</span><em class="sig-param">tolerance=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/thermodynamics.html#DefectPhaseDiagram.suggest_charges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.suggest_charges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Suggest possible charges for defects to compute based on proximity
 of known transitions from entires to VBM and CBM</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -151,7 +261,27 @@ of known transitions from entires to VBM and CBM</p>
 </dl>
 </dd></dl>
 
+<dl class="method">
+<dt id="pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.suggest_larger_supercells">
+<code class="sig-name descname">suggest_larger_supercells</code><span class="sig-paren">(</span><em class="sig-param">tolerance=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/thermodynamics.html#DefectPhaseDiagram.suggest_larger_supercells"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.suggest_larger_supercells" title="Permalink to this definition">¶</a></dt>
+<dd><p>Suggest larger supercells for different defect+chg combinations based on use of
+compatibility analysis. Does this for any charged defects which have is_compatible = False,
+and the defect+chg formation energy is stable at fermi levels within the band gap.</p>
+<p>NOTE: Requires self.filter_compatible = False
+:param tolerance: tolerance with respect to the VBM and CBM for considering</p>
+<blockquote>
+<div><p>larger supercells for a given charge</p>
+</div></blockquote>
+<dl class="field-list simple">
+</dl>
 </dd></dl>
+
+</dd></dl>
+
+<dl class="data">
+<dt id="pymatgen.analysis.defects.thermodynamics.logger">
+<code class="sig-name descname">logger</code><em class="property"> = &lt;Logger pymatgen.analysis.defects.thermodynamics (WARNING)&gt;</em><a class="headerlink" href="#pymatgen.analysis.defects.thermodynamics.logger" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </div>
 
@@ -169,10 +299,10 @@ of known transitions from entires to VBM and CBM</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -191,13 +321,13 @@ of known transitions from entires to VBM and CBM</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

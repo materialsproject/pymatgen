@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.electronic_structure.dos module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.electronic_structure.dos module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -46,7 +46,7 @@
 <span id="pymatgen-electronic-structure-dos-module"></span><h1>pymatgen.electronic_structure.dos module<a class="headerlink" href="#module-pymatgen.electronic_structure.dos" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.electronic_structure.dos.CompleteDos">
-<em class="property">class </em><code class="descname">CompleteDos</code><span class="sig-paren">(</span><em>structure</em>, <em>total_dos</em>, <em>pdoss</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">CompleteDos</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">total_dos</em>, <em class="sig-param">pdoss</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.electronic_structure.dos.Dos" title="pymatgen.electronic_structure.dos.Dos"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.electronic_structure.dos.Dos</span></code></a></p>
 <p>This wrapper class defines a total dos, and also provides a list of PDos.
 Mainly used by pymatgen.io.vasp.Vasprun to create a complete Dos from
@@ -64,31 +64,31 @@ Spin:Densities}}}</p></li>
 </dl>
 <dl class="attribute">
 <dt id="pymatgen.electronic_structure.dos.CompleteDos.structure">
-<code class="descname">structure</code><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">structure</code><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Structure associated with the CompleteDos.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.electronic_structure.dos.CompleteDos.pdos">
-<code class="descname">pdos</code><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.pdos" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">pdos</code><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.pdos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dict of partial densities of the form {Site:{Orbital:{Spin:Densities}}}</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.dos.CompleteDos.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Json-serializable dict representation of CompleteDos.</p>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.electronic_structure.dos.CompleteDos.from_dict">
-<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns CompleteDos object from dict representation.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.dos.CompleteDos.get_element_dos">
-<code class="descname">get_element_dos</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.get_element_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.get_element_dos" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_element_dos</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.get_element_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.get_element_dos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get element projected Dos.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -102,7 +102,7 @@ Spin:Densities}}}</p></li>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.dos.CompleteDos.get_element_spd_dos">
-<code class="descname">get_element_spd_dos</code><span class="sig-paren">(</span><em>el</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.get_element_spd_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.get_element_spd_dos" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_element_spd_dos</code><span class="sig-paren">(</span><em class="sig-param">el</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.get_element_spd_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.get_element_spd_dos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get element and spd projected Dos</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -119,7 +119,7 @@ Spin:Densities}}}</p></li>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.dos.CompleteDos.get_site_dos">
-<code class="descname">get_site_dos</code><span class="sig-paren">(</span><em>site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.get_site_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.get_site_dos" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_site_dos</code><span class="sig-paren">(</span><em class="sig-param">site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.get_site_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.get_site_dos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the total Dos for a site (all orbitals).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -133,7 +133,7 @@ Spin:Densities}}}</p></li>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.dos.CompleteDos.get_site_orbital_dos">
-<code class="descname">get_site_orbital_dos</code><span class="sig-paren">(</span><em>site</em>, <em>orbital</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.get_site_orbital_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.get_site_orbital_dos" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_site_orbital_dos</code><span class="sig-paren">(</span><em class="sig-param">site</em>, <em class="sig-param">orbital</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.get_site_orbital_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.get_site_orbital_dos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the Dos for a particular orbital of a particular site.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -150,7 +150,7 @@ Spin:Densities}}}</p></li>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.dos.CompleteDos.get_site_spd_dos">
-<code class="descname">get_site_spd_dos</code><span class="sig-paren">(</span><em>site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.get_site_spd_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.get_site_spd_dos" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_site_spd_dos</code><span class="sig-paren">(</span><em class="sig-param">site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.get_site_spd_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.get_site_spd_dos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get orbital projected Dos of a particular site</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -167,7 +167,7 @@ Spin:Densities}}}</p></li>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.dos.CompleteDos.get_site_t2g_eg_resolved_dos">
-<code class="descname">get_site_t2g_eg_resolved_dos</code><span class="sig-paren">(</span><em>site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.get_site_t2g_eg_resolved_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.get_site_t2g_eg_resolved_dos" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_site_t2g_eg_resolved_dos</code><span class="sig-paren">(</span><em class="sig-param">site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.get_site_t2g_eg_resolved_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.get_site_t2g_eg_resolved_dos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the t2g, eg projected DOS for a particular site.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -185,7 +185,7 @@ for the site.</p>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.dos.CompleteDos.get_spd_dos">
-<code class="descname">get_spd_dos</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.get_spd_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.get_spd_dos" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_spd_dos</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.get_spd_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.get_spd_dos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get orbital projected Dos.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -197,9 +197,9 @@ for the site.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.electronic_structure.dos.CompleteDos.spin_polarization">
-<code class="descname">spin_polarization</code><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.spin_polarization" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">spin_polarization</code><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.spin_polarization" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates spin polarization at Fermi level.</p>
 <p>See Sanvito et al., doi: 10.1126/sciadv.1602241 for
 an example usage.</p>
@@ -216,7 +216,7 @@ an example usage.</p>
 
 <dl class="class">
 <dt id="pymatgen.electronic_structure.dos.DOS">
-<em class="property">class </em><code class="descname">DOS</code><span class="sig-paren">(</span><em>energies</em>, <em>densities</em>, <em>efermi</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#DOS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.DOS" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">DOS</code><span class="sig-paren">(</span><em class="sig-param">energies</em>, <em class="sig-param">densities</em>, <em class="sig-param">efermi</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#DOS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.DOS" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.core.spectrum.html#pymatgen.core.spectrum.Spectrum" title="pymatgen.core.spectrum.Spectrum"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.spectrum.Spectrum</span></code></a></p>
 <p>Replacement basic DOS object. All other DOS objects are extended versions
 of this object. Work in progress.</p>
@@ -233,17 +233,17 @@ is interpreted as Spin.up and the other is Spin.down.</p></li>
 </dl>
 <dl class="attribute">
 <dt id="pymatgen.electronic_structure.dos.DOS.XLABEL">
-<code class="descname">XLABEL</code><em class="property"> = 'Energy'</em><a class="headerlink" href="#pymatgen.electronic_structure.dos.DOS.XLABEL" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">XLABEL</code><em class="property"> = 'Energy'</em><a class="headerlink" href="#pymatgen.electronic_structure.dos.DOS.XLABEL" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.electronic_structure.dos.DOS.YLABEL">
-<code class="descname">YLABEL</code><em class="property"> = 'Density'</em><a class="headerlink" href="#pymatgen.electronic_structure.dos.DOS.YLABEL" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">YLABEL</code><em class="property"> = 'Density'</em><a class="headerlink" href="#pymatgen.electronic_structure.dos.DOS.YLABEL" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.dos.DOS.get_cbm_vbm">
-<code class="descname">get_cbm_vbm</code><span class="sig-paren">(</span><em>tol=0.001</em>, <em>abs_tol=False</em>, <em>spin=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#DOS.get_cbm_vbm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.DOS.get_cbm_vbm" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_cbm_vbm</code><span class="sig-paren">(</span><em class="sig-param">tol=0.001</em>, <em class="sig-param">abs_tol=False</em>, <em class="sig-param">spin=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#DOS.get_cbm_vbm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.DOS.get_cbm_vbm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Expects a DOS object and finds the cbm and vbm.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -266,7 +266,7 @@ Down - finds the gap in the down spin channel.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.dos.DOS.get_gap">
-<code class="descname">get_gap</code><span class="sig-paren">(</span><em>tol=0.001</em>, <em>abs_tol=False</em>, <em>spin=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#DOS.get_gap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.DOS.get_gap" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_gap</code><span class="sig-paren">(</span><em class="sig-param">tol=0.001</em>, <em class="sig-param">abs_tol=False</em>, <em class="sig-param">spin=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#DOS.get_gap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.DOS.get_gap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Expects a DOS object and finds the gap.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -286,7 +286,7 @@ Down - finds the gap in the down spin channel.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.dos.DOS.get_interpolated_gap">
-<code class="descname">get_interpolated_gap</code><span class="sig-paren">(</span><em>tol=0.001</em>, <em>abs_tol=False</em>, <em>spin=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#DOS.get_interpolated_gap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.DOS.get_interpolated_gap" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_interpolated_gap</code><span class="sig-paren">(</span><em class="sig-param">tol=0.001</em>, <em class="sig-param">abs_tol=False</em>, <em class="sig-param">spin=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#DOS.get_interpolated_gap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.DOS.get_interpolated_gap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Expects a DOS object and finds the gap</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -312,7 +312,7 @@ Down - finds the gap in the down spin channel.</p></li>
 
 <dl class="class">
 <dt id="pymatgen.electronic_structure.dos.Dos">
-<em class="property">class </em><code class="descname">Dos</code><span class="sig-paren">(</span><em>efermi</em>, <em>energies</em>, <em>densities</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Dos</code><span class="sig-paren">(</span><em class="sig-param">efermi</em>, <em class="sig-param">energies</em>, <em class="sig-param">densities</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Basic DOS object. All other DOS objects are extended versions of this
 object.</p>
@@ -328,19 +328,19 @@ for each Spin.</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.electronic_structure.dos.Dos.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Json-serializable dict representation of Dos.</p>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.electronic_structure.dos.Dos.from_dict">
-<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns Dos object from dict representation of Dos.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.dos.Dos.get_cbm_vbm">
-<code class="descname">get_cbm_vbm</code><span class="sig-paren">(</span><em>tol=0.001</em>, <em>abs_tol=False</em>, <em>spin=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos.get_cbm_vbm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos.get_cbm_vbm" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_cbm_vbm</code><span class="sig-paren">(</span><em class="sig-param">tol=0.001</em>, <em class="sig-param">abs_tol=False</em>, <em class="sig-param">spin=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos.get_cbm_vbm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos.get_cbm_vbm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Expects a DOS object and finds the cbm and vbm.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -363,7 +363,7 @@ Down - finds the gap in the down spin channel.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.dos.Dos.get_densities">
-<code class="descname">get_densities</code><span class="sig-paren">(</span><em>spin=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos.get_densities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos.get_densities" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_densities</code><span class="sig-paren">(</span><em class="sig-param">spin=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos.get_densities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos.get_densities" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the density of states for a particular spin.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -378,7 +378,7 @@ None, the sum of all spins is returned.</p>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.dos.Dos.get_gap">
-<code class="descname">get_gap</code><span class="sig-paren">(</span><em>tol=0.001</em>, <em>abs_tol=False</em>, <em>spin=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos.get_gap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos.get_gap" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_gap</code><span class="sig-paren">(</span><em class="sig-param">tol=0.001</em>, <em class="sig-param">abs_tol=False</em>, <em class="sig-param">spin=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos.get_gap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos.get_gap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Expects a DOS object and finds the gap.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -398,7 +398,7 @@ Down - finds the gap in the down spin channel.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.dos.Dos.get_interpolated_gap">
-<code class="descname">get_interpolated_gap</code><span class="sig-paren">(</span><em>tol=0.001</em>, <em>abs_tol=False</em>, <em>spin=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos.get_interpolated_gap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos.get_interpolated_gap" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_interpolated_gap</code><span class="sig-paren">(</span><em class="sig-param">tol=0.001</em>, <em class="sig-param">abs_tol=False</em>, <em class="sig-param">spin=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos.get_interpolated_gap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos.get_interpolated_gap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Expects a DOS object and finds the gap</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -422,7 +422,7 @@ Down - finds the gap in the down spin channel.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.dos.Dos.get_interpolated_value">
-<code class="descname">get_interpolated_value</code><span class="sig-paren">(</span><em>energy</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos.get_interpolated_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos.get_interpolated_value" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_interpolated_value</code><span class="sig-paren">(</span><em class="sig-param">energy</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos.get_interpolated_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos.get_interpolated_value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns interpolated density for a particular energy.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -433,7 +433,7 @@ Down - finds the gap in the down spin channel.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.dos.Dos.get_smeared_densities">
-<code class="descname">get_smeared_densities</code><span class="sig-paren">(</span><em>sigma</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos.get_smeared_densities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos.get_smeared_densities" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_smeared_densities</code><span class="sig-paren">(</span><em class="sig-param">sigma</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos.get_smeared_densities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos.get_smeared_densities" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the Dict representation of the densities, {Spin: densities},
 but with a Gaussian smearing of std dev sigma applied about the fermi
 level.</p>
@@ -451,94 +451,113 @@ level.</p>
 
 <dl class="class">
 <dt id="pymatgen.electronic_structure.dos.FermiDos">
-<em class="property">class </em><code class="descname">FermiDos</code><span class="sig-paren">(</span><em>dos</em>, <em>structure=None</em>, <em>nelecs=None</em>, <em>bandgap=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#FermiDos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.FermiDos" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.electronic_structure.dos.Dos" title="pymatgen.electronic_structure.dos.Dos"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.electronic_structure.dos.Dos</span></code></a></p>
-<p>This wrapper class helps relates the density of states, doping levels
+<em class="property">class </em><code class="sig-name descname">FermiDos</code><span class="sig-paren">(</span><em class="sig-param">dos: pymatgen.electronic_structure.dos.Dos</em>, <em class="sig-param">structure: pymatgen.core.structure.Structure = None</em>, <em class="sig-param">nelecs: float = None</em>, <em class="sig-param">bandgap: float = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#FermiDos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.FermiDos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.electronic_structure.dos.Dos" title="pymatgen.electronic_structure.dos.Dos"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.electronic_structure.dos.Dos</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>This wrapper class helps relate the density of states, doping levels
 (i.e. carrier concentrations) and corresponding fermi levels. A negative
-doping concentration (c) means that the majority carriers are electrons
-(n-type doping) and positive c represents holes or p-type doping.</p>
+doping concentration indicates the majority carriers are electrons
+(n-type doping); a positive doping concentration indicates holes are the
+majority carriers (p-type doping).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dos</strong> (<em>pymatgen Dos class</em>) – density of states at corresponding energy levels</p></li>
-<li><p><strong>structure</strong> (<em>pymatgen Structure class</em>) – provided either as input or
-inside Dos (e.g. if CompleteDos used)</p></li>
-<li><p><strong>nelecs</strong> (<em>float</em>) – the number of electrons included in the energy range of
+<li><p><strong>dos</strong> – Pymatgen Dos object.</p></li>
+<li><p><strong>structure</strong> – A structure. If not provided, the structure
+of the dos object will be used. If the dos does not have an
+associated structure object, an error will be thrown.</p></li>
+<li><p><strong>nelecs</strong> – The number of electrons included in the energy range of
 dos. It is used for normalizing the densities. Default is the total
 number of electrons in the structure.</p></li>
-<li><p><strong>bandgap</strong> (<em>float</em>) – if set, the energy values are scissored so that the
-electronic band gap matches this value.</p></li>
+<li><p><strong>bandgap</strong> – If set, the energy values are scissored so that the electronic
+band gap matches this value.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="method">
+<dt id="pymatgen.electronic_structure.dos.FermiDos.as_dict">
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#FermiDos.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.FermiDos.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Json-serializable dict representation of Dos.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.FermiDos.from_dict">
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#FermiDos.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.FermiDos.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Dos object from dict representation of Dos.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.electronic_structure.dos.FermiDos.get_doping">
-<code class="descname">get_doping</code><span class="sig-paren">(</span><em>fermi</em>, <em>T</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#FermiDos.get_doping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.FermiDos.get_doping" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the doping (majority carrier concentration) at a given fermi
-level and temperature. A simple Left Riemann sum is used for integrating
-the density of states over energy &amp; equilibrium Fermi-Dirac distribution</p>
+<code class="sig-name descname">get_doping</code><span class="sig-paren">(</span><em class="sig-param">fermi_level: float</em>, <em class="sig-param">temperature: float</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#FermiDos.get_doping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.FermiDos.get_doping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the doping (majority carrier concentration) at a given
+fermi level  and temperature. A simple Left Riemann sum is used for
+integrating the density of states over energy &amp; equilibrium Fermi-Dirac
+distribution.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>fermi</strong> (<em>float</em>) – the fermi level in eV</p></li>
-<li><p><strong>T</strong> (<em>float</em>) – the temperature in Kelvin</p></li>
+<li><p><strong>fermi_level</strong> – The fermi_level level in eV.</p></li>
+<li><p><strong>temperature</strong> – The temperature in Kelvin.</p></li>
 </ul>
 </dd>
-</dl>
-<dl class="simple">
-<dt>Returns (float): in units 1/cm3. If negative it means that the majority</dt><dd><p>carriers are electrons (n-type doping) and if positive holes/p-type</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The doping concentration in units of 1/cm^3. Negative values
+indicate that the majority carriers are electrons (n-type doping)
+whereas positivie values indicates the majority carriers are holes
+(p-type doping).</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.dos.FermiDos.get_fermi">
-<code class="descname">get_fermi</code><span class="sig-paren">(</span><em>c</em>, <em>T</em>, <em>rtol=0.01</em>, <em>nstep=50</em>, <em>step=0.1</em>, <em>precision=8</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#FermiDos.get_fermi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.FermiDos.get_fermi" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_fermi</code><span class="sig-paren">(</span><em class="sig-param">concentration: float</em>, <em class="sig-param">temperature: float</em>, <em class="sig-param">rtol: float = 0.01</em>, <em class="sig-param">nstep: int = 50</em>, <em class="sig-param">step: float = 0.1</em>, <em class="sig-param">precision: int = 8</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#FermiDos.get_fermi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.FermiDos.get_fermi" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds the fermi level at which the doping concentration at the given
-temperature (T) is equal to c. A greedy algorithm is used where the
-relative error is minimized by calculating the doping at a grid which
-is continuously become finer.</p>
+temperature (T) is equal to concentration. A greedy algorithm is used
+where the relative error is minimized by calculating the doping at a
+grid which continually becomes finer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>c</strong> (<em>float</em>) – doping concentration. c&lt;0 represents n-type doping and
-c&gt;0 represents p-type doping (i.e. majority carriers are holes)</p></li>
-<li><p><strong>T</strong> (<em>float</em>) – absolute temperature in Kelvin</p></li>
-<li><p><strong>rtol</strong> (<em>float</em>) – maximum acceptable relative error</p></li>
-<li><p><strong>nstep</strong> (<em>int</em>) – number of steps checked around a given fermi level</p></li>
-<li><p><strong>step</strong> (<em>float</em>) – initial step in fermi level when searching</p></li>
-<li><p><strong>precision</strong> (<em>int</em>) – essentially the decimal places of calculated fermi</p></li>
+<li><p><strong>concentration</strong> – The doping concentration in 1/cm^3. Negative values
+represent n-type doping and positive values represent p-type
+doping.</p></li>
+<li><p><strong>temperature</strong> – The temperature in Kelvin.</p></li>
+<li><p><strong>rtol</strong> – The maximum acceptable relative error.</p></li>
+<li><p><strong>nstep</strong> – THe number of steps checked around a given fermi level.</p></li>
+<li><p><strong>step</strong> – Initial step in energy when searching for the Fermi level.</p></li>
+<li><p><strong>precision</strong> – Essentially the decimal places of calculated Fermi level.</p></li>
 </ul>
 </dd>
-</dl>
-<dl class="simple">
-<dt>Returns (float): the fermi level. Note that this is different from the</dt><dd><p>default dos.efermi.</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The fermi level in eV.. Note that this is different from the default
+dos.efermi.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.dos.FermiDos.get_fermi_interextrapolated">
-<code class="descname">get_fermi_interextrapolated</code><span class="sig-paren">(</span><em>c</em>, <em>T</em>, <em>warn=True</em>, <em>c_ref=10000000000.0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#FermiDos.get_fermi_interextrapolated"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.FermiDos.get_fermi_interextrapolated" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_fermi_interextrapolated</code><span class="sig-paren">(</span><em class="sig-param">concentration: float</em>, <em class="sig-param">temperature: float</em>, <em class="sig-param">warn: bool = True</em>, <em class="sig-param">c_ref: float = 10000000000.0</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#FermiDos.get_fermi_interextrapolated"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.FermiDos.get_fermi_interextrapolated" title="Permalink to this definition">¶</a></dt>
 <dd><p>Similar to get_fermi except that when get_fermi fails to converge,
-an interpolated or extrapolated fermi (depending on c) is returned with
-the assumption that the fermi level changes linearly with log(abs(c)).</p>
+an interpolated or extrapolated fermi is returned with the assumption
+that the fermi level changes linearly with log(abs(concentration)).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>c</strong> (<em>float</em>) – doping concentration in 1/cm3. c&lt;0 represents n-type
-doping and c&gt;0 p-type doping (i.e. majority carriers are holes)</p></li>
-<li><p><strong>T</strong> (<em>float</em>) – absolute temperature in Kelvin</p></li>
-<li><p><strong>warn</strong> (<em>bool</em>) – whether to warn for the first time when no fermi can
-be found.</p></li>
-<li><p><strong>c_ref</strong> (<em>float</em>) – a doping concentration where get_fermi returns a
-value without error for both c_ref and -c_ref</p></li>
-<li><p><strong>**kwargs</strong> – see keyword arguments of the get_fermi function</p></li>
+<li><p><strong>concentration</strong> – The doping concentration in 1/cm^3. Negative values
+represent n-type doping and positive values represent p-type
+doping.</p></li>
+<li><p><strong>temperature</strong> – The temperature in Kelvin.</p></li>
+<li><p><strong>warn</strong> – Whether to give a warning the first time the fermi cannot be
+found.</p></li>
+<li><p><strong>c_ref</strong> – A doping concentration where get_fermi returns a
+value without error for both c_ref and -c_ref.</p></li>
+<li><p><strong>**kwargs</strong> – Keyword arguments passed to the get_fermi function.</p></li>
 </ul>
 </dd>
-</dl>
-<dl class="simple">
-<dt>Returns (float): the fermi level that is possibly interapolated or</dt><dd><p>extrapolated and must be used with caution.</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The Fermi level. Note, the value is possibly interpolated or
+extrapolated and must be used with caution.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -547,18 +566,18 @@ value without error for both c_ref and -c_ref</p></li>
 
 <dl class="class">
 <dt id="pymatgen.electronic_structure.dos.LobsterCompleteDos">
-<em class="property">class </em><code class="descname">LobsterCompleteDos</code><span class="sig-paren">(</span><em>structure</em>, <em>total_dos</em>, <em>pdoss</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#LobsterCompleteDos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.LobsterCompleteDos" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">LobsterCompleteDos</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">total_dos</em>, <em class="sig-param">pdoss</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#LobsterCompleteDos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.LobsterCompleteDos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.electronic_structure.dos.CompleteDos" title="pymatgen.electronic_structure.dos.CompleteDos"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.electronic_structure.dos.CompleteDos</span></code></a></p>
 <p>Extended CompleteDOS for Lobster</p>
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.electronic_structure.dos.LobsterCompleteDos.from_dict">
-<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#LobsterCompleteDos.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.LobsterCompleteDos.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#LobsterCompleteDos.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.LobsterCompleteDos.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns: CompleteDos object from dict representation.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.dos.LobsterCompleteDos.get_element_spd_dos">
-<code class="descname">get_element_spd_dos</code><span class="sig-paren">(</span><em>el</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#LobsterCompleteDos.get_element_spd_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.LobsterCompleteDos.get_element_spd_dos" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_element_spd_dos</code><span class="sig-paren">(</span><em class="sig-param">el</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#LobsterCompleteDos.get_element_spd_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.LobsterCompleteDos.get_element_spd_dos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get element and spd projected Dos</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -575,7 +594,7 @@ value without error for both c_ref and -c_ref</p></li>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.dos.LobsterCompleteDos.get_site_orbital_dos">
-<code class="descname">get_site_orbital_dos</code><span class="sig-paren">(</span><em>site</em>, <em>orbital</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#LobsterCompleteDos.get_site_orbital_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.LobsterCompleteDos.get_site_orbital_dos" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_site_orbital_dos</code><span class="sig-paren">(</span><em class="sig-param">site</em>, <em class="sig-param">orbital</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#LobsterCompleteDos.get_site_orbital_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.LobsterCompleteDos.get_site_orbital_dos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the Dos for a particular orbital of a particular site.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -596,7 +615,7 @@ In contrast to the Cohpcar and the Cohplist objects, the strings from the Lobste
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.dos.LobsterCompleteDos.get_site_t2g_eg_resolved_dos">
-<code class="descname">get_site_t2g_eg_resolved_dos</code><span class="sig-paren">(</span><em>site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#LobsterCompleteDos.get_site_t2g_eg_resolved_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.LobsterCompleteDos.get_site_t2g_eg_resolved_dos" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_site_t2g_eg_resolved_dos</code><span class="sig-paren">(</span><em class="sig-param">site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#LobsterCompleteDos.get_site_t2g_eg_resolved_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.LobsterCompleteDos.get_site_t2g_eg_resolved_dos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the t2g, eg projected DOS for a particular site.
 :param site: Site in Structure associated with CompleteDos.</p>
 <dl class="field-list simple">
@@ -612,7 +631,7 @@ for the site.</p>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.dos.LobsterCompleteDos.get_spd_dos">
-<code class="descname">get_spd_dos</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#LobsterCompleteDos.get_spd_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.LobsterCompleteDos.get_spd_dos" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_spd_dos</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#LobsterCompleteDos.get_spd_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.LobsterCompleteDos.get_spd_dos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get orbital projected Dos.
 For example, if 3s and 4s are included in the basis of some element, they will be both summed in the orbital projected DOS</p>
 <dl class="field-list simple">
@@ -629,7 +648,7 @@ For example, if 3s and 4s are included in the basis of some element, they will b
 
 <dl class="function">
 <dt id="pymatgen.electronic_structure.dos.add_densities">
-<code class="descname">add_densities</code><span class="sig-paren">(</span><em>density1</em>, <em>density2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#add_densities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.add_densities" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_densities</code><span class="sig-paren">(</span><em class="sig-param">density1</em>, <em class="sig-param">density2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#add_densities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.add_densities" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method to sum two densities.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -649,7 +668,7 @@ For example, if 3s and 4s are included in the basis of some element, they will b
 
 <dl class="function">
 <dt id="pymatgen.electronic_structure.dos.f0">
-<code class="descname">f0</code><span class="sig-paren">(</span><em>E</em>, <em>fermi</em>, <em>T</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#f0"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.f0" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">f0</code><span class="sig-paren">(</span><em class="sig-param">E</em>, <em class="sig-param">fermi</em>, <em class="sig-param">T</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#f0"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.f0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the equilibrium fermi-dirac.
 :param E: energy in eV
 :type E: float
@@ -675,10 +694,10 @@ For example, if 3s and 4s are included in the basis of some element, they will b
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -697,13 +716,13 @@ For example, if 3s and 4s are included in the basis of some element, they will b
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

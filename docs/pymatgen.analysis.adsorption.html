@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.adsorption module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.analysis.adsorption module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -48,7 +48,7 @@
 and to find adsorption sites on slabs</p>
 <dl class="class">
 <dt id="pymatgen.analysis.adsorption.AdsorbateSiteFinder">
-<em class="property">class </em><code class="descname">AdsorbateSiteFinder</code><span class="sig-paren">(</span><em>slab</em>, <em>selective_dynamics=False</em>, <em>height=0.9</em>, <em>mi_vec=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">AdsorbateSiteFinder</code><span class="sig-paren">(</span><em class="sig-param">slab</em>, <em class="sig-param">selective_dynamics=False</em>, <em class="sig-param">height=0.9</em>, <em class="sig-param">mi_vec=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This class finds adsorbate sites on slabs and generates
 adsorbate structures according to user-defined criteria.
@@ -99,7 +99,7 @@ center of mass</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.add_adsorbate">
-<code class="descname">add_adsorbate</code><span class="sig-paren">(</span><em>molecule</em>, <em>ads_coord</em>, <em>repeat=None</em>, <em>reorient=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.add_adsorbate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.add_adsorbate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_adsorbate</code><span class="sig-paren">(</span><em class="sig-param">molecule</em>, <em class="sig-param">ads_coord</em>, <em class="sig-param">repeat=None</em>, <em class="sig-param">reorient=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.add_adsorbate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.add_adsorbate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds an adsorbate at a particular coordinate.  Adsorbate
 represented by a Molecule object, and is positioned relative
 to the input adsorbate coordinate.</p>
@@ -119,7 +119,7 @@ have its z-axis concurrent with miller index</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.adsorb_both_surfaces">
-<code class="descname">adsorb_both_surfaces</code><span class="sig-paren">(</span><em>molecule</em>, <em>repeat=None</em>, <em>min_lw=5.0</em>, <em>reorient=True</em>, <em>find_args={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.adsorb_both_surfaces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.adsorb_both_surfaces" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">adsorb_both_surfaces</code><span class="sig-paren">(</span><em class="sig-param">molecule</em>, <em class="sig-param">repeat=None</em>, <em class="sig-param">min_lw=5.0</em>, <em class="sig-param">reorient=True</em>, <em class="sig-param">find_args={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.adsorb_both_surfaces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.adsorb_both_surfaces" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function that generates all adsorption structures for a given
 molecular adsorbate on both surfaces of a slab. This is useful
 for calculating surface energy where both surfaces need to be
@@ -142,7 +142,7 @@ call to self.find_adsorption_sites, e.g. {“distance”:2.0}</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.assign_selective_dynamics">
-<code class="descname">assign_selective_dynamics</code><span class="sig-paren">(</span><em>slab</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.assign_selective_dynamics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.assign_selective_dynamics" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">assign_selective_dynamics</code><span class="sig-paren">(</span><em class="sig-param">slab</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.assign_selective_dynamics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.assign_selective_dynamics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function to assign selective dynamics site_properties
 based on surface, subsurface site properties</p>
 <dl class="field-list simple">
@@ -154,13 +154,13 @@ based on surface, subsurface site properties</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.assign_site_properties">
-<code class="descname">assign_site_properties</code><span class="sig-paren">(</span><em>slab</em>, <em>height=0.9</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.assign_site_properties"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.assign_site_properties" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">assign_site_properties</code><span class="sig-paren">(</span><em class="sig-param">slab</em>, <em class="sig-param">height=0.9</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.assign_site_properties"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.assign_site_properties" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assigns site properties.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.ensemble_center">
-<code class="descname">ensemble_center</code><span class="sig-paren">(</span><em>site_list</em>, <em>indices</em>, <em>cartesian=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.ensemble_center"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.ensemble_center" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ensemble_center</code><span class="sig-paren">(</span><em class="sig-param">site_list</em>, <em class="sig-param">indices</em>, <em class="sig-param">cartesian=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.ensemble_center"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.ensemble_center" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds the center of an ensemble of sites selected from
 a list of sites.  Helper method for the find_adsorption_sites
 algorithm.</p>
@@ -179,7 +179,7 @@ cartesian coordinate</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.find_adsorption_sites">
-<code class="descname">find_adsorption_sites</code><span class="sig-paren">(</span><em>distance=2.0, put_inside=True, symm_reduce=0.01, near_reduce=0.01, positions=['ontop', 'bridge', 'hollow'], no_obtuse_hollow=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.find_adsorption_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.find_adsorption_sites" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">find_adsorption_sites</code><span class="sig-paren">(</span><em class="sig-param">distance=2.0, put_inside=True, symm_reduce=0.01, near_reduce=0.01, positions=['ontop', 'bridge', 'hollow'], no_obtuse_hollow=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.find_adsorption_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.find_adsorption_sites" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds surface sites according to the above algorithm.  Returns
 a list of corresponding cartesian coordinates.</p>
 <dl class="field-list simple">
@@ -209,7 +209,7 @@ obtuse triangular ensembles in hollow sites</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.find_surface_sites_by_height">
-<code class="descname">find_surface_sites_by_height</code><span class="sig-paren">(</span><em>slab</em>, <em>height=0.9</em>, <em>xy_tol=0.05</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.find_surface_sites_by_height"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.find_surface_sites_by_height" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">find_surface_sites_by_height</code><span class="sig-paren">(</span><em class="sig-param">slab</em>, <em class="sig-param">height=0.9</em>, <em class="sig-param">xy_tol=0.05</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.find_surface_sites_by_height"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.find_surface_sites_by_height" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method finds surface sites by determining which sites are within
 a threshold value in height from the topmost site in a list of sites</p>
 <dl class="field-list simple">
@@ -229,9 +229,9 @@ within a certain distance in the miller plane.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.from_bulk_and_miller">
-<em class="property">classmethod </em><code class="descname">from_bulk_and_miller</code><span class="sig-paren">(</span><em>structure</em>, <em>miller_index</em>, <em>min_slab_size=8.0</em>, <em>min_vacuum_size=10.0</em>, <em>max_normal_search=None</em>, <em>center_slab=True</em>, <em>selective_dynamics=False</em>, <em>undercoord_threshold=0.09</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.from_bulk_and_miller"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.from_bulk_and_miller" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_bulk_and_miller</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">miller_index</em>, <em class="sig-param">min_slab_size=8.0</em>, <em class="sig-param">min_vacuum_size=10.0</em>, <em class="sig-param">max_normal_search=None</em>, <em class="sig-param">center_slab=True</em>, <em class="sig-param">selective_dynamics=False</em>, <em class="sig-param">undercoord_threshold=0.09</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.from_bulk_and_miller"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.from_bulk_and_miller" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method constructs the adsorbate site finder from a bulk
 structure and a miller index, which allows the surface sites
 to be determined from the difference in bulk and slab coordination,
@@ -259,7 +259,7 @@ are 10% less coordinated than their bulk counterpart</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.generate_adsorption_structures">
-<code class="descname">generate_adsorption_structures</code><span class="sig-paren">(</span><em>molecule</em>, <em>repeat=None</em>, <em>min_lw=5.0</em>, <em>reorient=True</em>, <em>find_args={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.generate_adsorption_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.generate_adsorption_structures" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">generate_adsorption_structures</code><span class="sig-paren">(</span><em class="sig-param">molecule</em>, <em class="sig-param">repeat=None</em>, <em class="sig-param">min_lw=5.0</em>, <em class="sig-param">reorient=True</em>, <em class="sig-param">find_args={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.generate_adsorption_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.generate_adsorption_structures" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function that generates all adsorption structures for a given
 molecular adsorbate.  Can take repeat argument or minimum
 length/width of precursor slab as an input</p>
@@ -281,7 +281,7 @@ call to self.find_adsorption_sites, e.g. {“distance”:2.0}</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.generate_substitution_structures">
-<code class="descname">generate_substitution_structures</code><span class="sig-paren">(</span><em>atom</em>, <em>target_species=[]</em>, <em>sub_both_sides=False</em>, <em>range_tol=0.01</em>, <em>dist_from_surf=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.generate_substitution_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.generate_substitution_structures" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">generate_substitution_structures</code><span class="sig-paren">(</span><em class="sig-param">atom</em>, <em class="sig-param">target_species=[]</em>, <em class="sig-param">sub_both_sides=False</em>, <em class="sig-param">range_tol=0.01</em>, <em class="sig-param">dist_from_surf=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.generate_substitution_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.generate_substitution_structures" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Function that performs substitution-type doping on the surface and</dt><dd><p>returns all possible configurations where one dopant is substituted
 per surface. Can substitute one surface or both.</p>
@@ -305,7 +305,7 @@ substitution sites, defaults to 0 to substitute at the surface</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.get_extended_surface_mesh">
-<code class="descname">get_extended_surface_mesh</code><span class="sig-paren">(</span><em>repeat=(5</em>, <em>5</em>, <em>1)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.get_extended_surface_mesh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.get_extended_surface_mesh" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_extended_surface_mesh</code><span class="sig-paren">(</span><em class="sig-param">repeat=(5</em>, <em class="sig-param">5</em>, <em class="sig-param">1)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.get_extended_surface_mesh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.get_extended_surface_mesh" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets an extended surface mesh for to use for adsorption
 site finding by constructing supercell of surface sites</p>
 <dl class="field-list simple">
@@ -317,7 +317,7 @@ site finding by constructing supercell of surface sites</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.near_reduce">
-<code class="descname">near_reduce</code><span class="sig-paren">(</span><em>coords_set</em>, <em>threshold=0.0001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.near_reduce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.near_reduce" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">near_reduce</code><span class="sig-paren">(</span><em class="sig-param">coords_set</em>, <em class="sig-param">threshold=0.0001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.near_reduce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.near_reduce" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prunes coordinate set for coordinates that are within
 threshold</p>
 <dl class="field-list simple">
@@ -332,19 +332,19 @@ threshold</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.subsurface_sites">
-<code class="descname">subsurface_sites</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.subsurface_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.subsurface_sites" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">subsurface_sites</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.subsurface_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.subsurface_sites" title="Permalink to this definition">¶</a></dt>
 <dd><p>convenience method to return list of subsurface sites</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.surface_sites">
-<code class="descname">surface_sites</code><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.surface_sites" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">surface_sites</code><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.surface_sites" title="Permalink to this definition">¶</a></dt>
 <dd><p>convenience method to return a list of surface sites</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.symm_reduce">
-<code class="descname">symm_reduce</code><span class="sig-paren">(</span><em>coords_set</em>, <em>threshold=1e-06</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.symm_reduce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.symm_reduce" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">symm_reduce</code><span class="sig-paren">(</span><em class="sig-param">coords_set</em>, <em class="sig-param">threshold=1e-06</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.symm_reduce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.symm_reduce" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reduces the set of adsorbate sites by finding removing
 symmetrically equivalent duplicates</p>
 <dl class="field-list simple">
@@ -360,22 +360,32 @@ as input to in_coord_list_pbc for dupl. checking</p></li>
 
 </dd></dl>
 
+<dl class="data">
+<dt id="pymatgen.analysis.adsorption.color_dict">
+<code class="sig-name descname">color_dict</code><em class="property"> = {'Ac': [0.43749829102230076, 0.6679661407572627, 0.9765586853176356], 'Ag': [0.7499970703239441, 0.7499970703239441, 0.7499970703239441], 'Al': [0.7460908355826735, 0.64843496705091, 0.64843496705091], 'Am': [0.32812371826672554, 0.3593735961968899, 0.9453088073874713], 'Ar': [0.4999980468826294, 0.8164030609255434, 0.8867152862684131], 'As': [0.7382783661001325, 0.4999980468826294, 0.8867152862684131], 'At': [0.45702946472865347, 0.30859254456037283, 0.2695301971476674], 'Au': [0.9960898590239883, 0.8164030609255434, 0.13671821594446898], 'B': [0.9960898590239883, 0.7070284881699681, 0.7070284881699681], 'Ba': [0.0, 0.785153182995379, 0.0], 'Be': [0.7578095398064852, 0.9960898590239883, 0.0], 'Bh': [0.8749965820446015, 0.0, 0.21874914551115038], 'Bi': [0.6171850891207457, 0.30859254456037283, 0.7070284881699681], 'Bk': [0.5390603942953348, 0.30859254456037283, 0.8867152862684131], 'Br': [0.64843496705091, 0.16015562439209224, 0.16015562439209224], 'C': [0.5624978027429581, 0.5624978027429581, 0.5624978027429581], 'Ca': [0.2382803192175031, 0.9960898590239883, 0.0], 'Cd': [0.9960898590239883, 0.8476529388557077, 0.5585915680016875], 'Ce': [0.9960898590239883, 0.9960898590239883, 0.777340713512838], 'Cf': [0.6289037933445573, 0.21093667602860927, 0.828121765149355], 'Cl': [0.12109327697938681, 0.9374963379049301, 0.12109327697938681], 'Cm': [0.46874816895246507, 0.3593735961968899, 0.8867152862684131], 'Co': [0.9374963379049301, 0.5624978027429581, 0.6249975586032868], 'Cr': [0.5390603942953348, 0.5976539154143929, 0.777340713512838], 'Cs': [0.3398424224905372, 0.08984339904922248, 0.5585915680016875], 'Cu': [0.7812469482541085, 0.4999980468826294, 0.19921797180479767], 'Db': [0.8164030609255434, 0.0, 0.30859254456037283], 'Dy': [0.12109327697938681, 0.9960898590239883, 0.777340713512838], 'Er': [0.0, 0.8984339904922247, 0.45702946472865347], 'Es': [0.6992160186874271, 0.12109327697938681, 0.828121765149355], 'Eu': [0.3789047699032426, 0.9960898590239883, 0.777340713512838], 'F': [0.5624978027429581, 0.8749965820446015, 0.3124987793016434], 'Fe': [0.8749965820446015, 0.39843594360959533, 0.19921797180479767], 'Fm': [0.6992160186874271, 0.12109327697938681, 0.7265596618763208], 'Fr': [0.2578114929238558, 0.0, 0.39843594360959533], 'Ga': [0.7578095398064852, 0.5585915680016875, 0.5585915680016875], 'Gd': [0.2695301971476674, 0.9960898590239883, 0.777340713512838], 'Ge': [0.39843594360959533, 0.5585915680016875, 0.5585915680016875], 'H': [0.9960898590239883, 0.9960898590239883, 0.9960898590239883], 'He': [0.8476529388557077, 0.9960898590239883, 0.9960898590239883], 'Hf': [0.3007800750778318, 0.7578095398064852, 0.9960898590239883], 'Hg': [0.7187471923937798, 0.7187471923937798, 0.8124968261842728], 'Ho': [0.0, 0.9960898590239883, 0.6093726196382045], 'Hs': [0.8984339904922247, 0.0, 0.17968679809844496], 'I': [0.5781227417080402, 0.0, 0.5781227417080402], 'In': [0.64843496705091, 0.45702946472865347, 0.44921699524611236], 'Ir': [0.08984339904922248, 0.32812371826672554, 0.5273416900715232], 'K': [0.5585915680016875, 0.2499990234413147, 0.828121765149355], 'Kr': [0.3593735961968899, 0.7187471923937798, 0.8164030609255434], 'La': [0.43749829102230076, 0.828121765149355, 0.9960898590239883], 'Li': [0.7968718872191907, 0.4999980468826294, 0.9960898590239883], 'Lr': [0.777340713512838, 0.0, 0.39843594360959533], 'Lu': [0.0, 0.6679661407572627, 0.14062445068573953], 'Md': [0.6992160186874271, 0.05078105163651705, 0.64843496705091], 'Mg': [0.5390603942953348, 0.9960898590239883, 0.0], 'Mn': [0.6093726196382045, 0.4765606384350062, 0.777340713512838], 'Mo': [0.32812371826672554, 0.7070284881699681, 0.7070284881699681], 'Mt': [0.9179651641985774, 0.0, 0.1484369201682806], 'N': [0.18749926758098603, 0.3124987793016434, 0.9687462158350945], 'Na': [0.6679661407572627, 0.3593735961968899, 0.9453088073874713], 'Nb': [0.44921699524611236, 0.7578095398064852, 0.785153182995379], 'Nd': [0.777340713512838, 0.9960898590239883, 0.777340713512838], 'Ne': [0.6992160186874271, 0.8867152862684131, 0.9570275116112829], 'Ni': [0.3124987793016434, 0.8124968261842728, 0.3124987793016434], 'No': [0.7382783661001325, 0.05078105163651705, 0.5273416900715232], 'Np': [0.0, 0.4999980468826294, 0.9960898590239883], 'O': [0.9960898590239883, 0.05078105163651705, 0.05078105163651705], 'Os': [0.1484369201682806, 0.39843594360959533, 0.5859352111905813], 'P': [0.9960898590239883, 0.4999980468826294, 0.0], 'Pa': [0.0, 0.6289037933445573, 0.9960898590239883], 'Pb': [0.3398424224905372, 0.34765489197307825, 0.3789047699032426], 'Pd': [0.0, 0.41015464783340694, 0.5195292205889821], 'Pm': [0.6367162628270984, 0.9960898590239883, 0.777340713512838], 'Po': [0.6679661407572627, 0.3593735961968899, 0.0], 'Pr': [0.8476529388557077, 0.9960898590239883, 0.777340713512838], 'Pt': [0.8124968261842728, 0.8124968261842728, 0.8749965820446015], 'Pu': [0.0, 0.41796711731594804, 0.9960898590239883], 'Ra': [0.0, 0.4882793426588178, 0.0], 'Rb': [0.43749829102230076, 0.17968679809844496, 0.6874973144636154], 'Re': [0.1484369201682806, 0.4882793426588178, 0.6679661407572627], 'Rf': [0.7968718872191907, 0.0, 0.34765489197307825], 'Rh': [0.03906234741270542, 0.4882793426588178, 0.5468728637778759], 'Rn': [0.2578114929238558, 0.5078105163651705, 0.5859352111905813], 'Ru': [0.14062445068573953, 0.5585915680016875, 0.5585915680016875], 'S': [0.9960898590239883, 0.9960898590239883, 0.18749926758098603], 'Sb': [0.6171850891207457, 0.3867172393857837, 0.7070284881699681], 'Sc': [0.8984339904922247, 0.8984339904922247, 0.8984339904922247], 'Se': [0.9960898590239883, 0.6289037933445573, 0.0], 'Sg': [0.8476529388557077, 0.0, 0.2695301971476674], 'Si': [0.9374963379049301, 0.7812469482541085, 0.6249975586032868], 'Sm': [0.5585915680016875, 0.9960898590239883, 0.777340713512838], 'Sn': [0.39843594360959533, 0.4999980468826294, 0.4999980468826294], 'Sr': [0.0, 0.9960898590239883, 0.0], 'Ta': [0.3007800750778318, 0.64843496705091, 0.9960898590239883], 'Tb': [0.18749926758098603, 0.9960898590239883, 0.777340713512838], 'Tc': [0.23046784973496198, 0.6171850891207457, 0.6171850891207457], 'Te': [0.828121765149355, 0.4765606384350062, 0.0], 'Th': [0.0, 0.7265596618763208, 0.9960898590239883], 'Ti': [0.7460908355826735, 0.7578095398064852, 0.777340713512838], 'Tl': [0.64843496705091, 0.32812371826672554, 0.3007800750778318], 'Tm': [0.0, 0.828121765149355, 0.3203112487841845], 'U': [0.0, 0.5585915680016875, 0.9960898590239883], 'V': [0.64843496705091, 0.64843496705091, 0.6679661407572627], 'W': [0.1289057464619279, 0.5781227417080402, 0.8359342346318961], 'Xe': [0.2578114929238558, 0.6171850891207457, 0.6874973144636154], 'Y': [0.5781227417080402, 0.9960898590239883, 0.9960898590239883], 'Yb': [0.0, 0.7460908355826735, 0.21874914551115038], 'Zn': [0.4882793426588178, 0.4999980468826294, 0.6874973144636154], 'Zr': [0.5781227417080402, 0.8749965820446015, 0.8749965820446015]}</em><a class="headerlink" href="#pymatgen.analysis.adsorption.color_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="data">
+<dt id="pymatgen.analysis.adsorption.colors">
+<code class="sig-name descname">colors</code><em class="property"> = {'Jmol': {'Ac': [112, 171, 250], 'Ag': [192, 192, 192], 'Al': [191, 166, 166], 'Am': [84, 92, 242], 'Ar': [128, 209, 227], 'As': [189, 128, 227], 'At': [117, 79, 69], 'Au': [255, 209, 35], 'B': [255, 181, 181], 'Ba': [0, 201, 0], 'Be': [194, 255, 0], 'Bh': [224, 0, 56], 'Bi': [158, 79, 181], 'Bk': [138, 79, 227], 'Br': [166, 41, 41], 'C': [144, 144, 144], 'Ca': [61, 255, 0], 'Cd': [255, 217, 143], 'Ce': [255, 255, 199], 'Cf': [161, 54, 212], 'Cl': [31, 240, 31], 'Cm': [120, 92, 227], 'Co': [240, 144, 160], 'Cr': [138, 153, 199], 'Cs': [87, 23, 143], 'Cu': [200, 128, 51], 'Db': [209, 0, 79], 'Dy': [31, 255, 199], 'Er': [0, 230, 117], 'Es': [179, 31, 212], 'Eu': [97, 255, 199], 'F': [144, 224, 80], 'Fe': [224, 102, 51], 'Fm': [179, 31, 186], 'Fr': [66, 0, 102], 'Ga': [194, 143, 143], 'Gd': [69, 255, 199], 'Ge': [102, 143, 143], 'H': [255, 255, 255], 'He': [217, 255, 255], 'Hf': [77, 194, 255], 'Hg': [184, 184, 208], 'Ho': [0, 255, 156], 'Hs': [230, 0, 46], 'I': [148, 0, 148], 'In': [166, 117, 115], 'Ir': [23, 84, 135], 'K': [143, 64, 212], 'Kr': [92, 184, 209], 'La': [112, 212, 255], 'Li': [204, 128, 255], 'Lr': [199, 0, 102], 'Lu': [0, 171, 36], 'Md': [179, 13, 166], 'Mg': [138, 255, 0], 'Mn': [156, 122, 199], 'Mo': [84, 181, 181], 'Mt': [235, 0, 38], 'N': [48, 80, 248], 'Na': [171, 92, 242], 'Nb': [115, 194, 201], 'Nd': [199, 255, 199], 'Ne': [179, 227, 245], 'Ni': [80, 208, 80], 'No': [189, 13, 135], 'Np': [0, 128, 255], 'O': [255, 13, 13], 'Os': [38, 102, 150], 'P': [255, 128, 0], 'Pa': [0, 161, 255], 'Pb': [87, 89, 97], 'Pd': [0, 105, 133], 'Pm': [163, 255, 199], 'Po': [171, 92, 0], 'Pr': [217, 255, 199], 'Pt': [208, 208, 224], 'Pu': [0, 107, 255], 'Ra': [0, 125, 0], 'Rb': [112, 46, 176], 'Re': [38, 125, 171], 'Rf': [204, 0, 89], 'Rh': [10, 125, 140], 'Rn': [66, 130, 150], 'Ru': [36, 143, 143], 'S': [255, 255, 48], 'Sb': [158, 99, 181], 'Sc': [230, 230, 230], 'Se': [255, 161, 0], 'Sg': [217, 0, 69], 'Si': [240, 200, 160], 'Sm': [143, 255, 199], 'Sn': [102, 128, 128], 'Sr': [0, 255, 0], 'Ta': [77, 166, 255], 'Tb': [48, 255, 199], 'Tc': [59, 158, 158], 'Te': [212, 122, 0], 'Th': [0, 186, 255], 'Ti': [191, 194, 199], 'Tl': [166, 84, 77], 'Tm': [0, 212, 82], 'U': [0, 143, 255], 'V': [166, 166, 171], 'W': [33, 148, 214], 'Xe': [66, 158, 176], 'Y': [148, 255, 255], 'Yb': [0, 191, 56], 'Zn': [125, 128, 176], 'Zr': [148, 224, 224]}, 'VESTA': {'Ac': [112, 171, 250], 'Ag': [192, 192, 192], 'Al': [129, 178, 214], 'Am': [84, 92, 242], 'Ar': [207, 254, 196], 'As': [116, 208, 87], 'At': [117, 79, 69], 'Au': [255, 209, 35], 'B': [31, 162, 15], 'Ba': [0, 201, 0], 'Be': [94, 215, 123], 'Bh': [224, 0, 56], 'Bi': [158, 79, 181], 'Bk': [138, 79, 227], 'Br': [126, 49, 2], 'C': [76, 76, 76], 'Ca': [90, 150, 189], 'Cd': [255, 217, 143], 'Ce': [255, 255, 199], 'Cf': [161, 54, 212], 'Cl': [49, 252, 2], 'Cm': [120, 92, 227], 'Co': [0, 0, 175], 'Cr': [0, 0, 158], 'Cs': [87, 23, 143], 'Cu': [34, 71, 220], 'Db': [209, 0, 79], 'Dy': [31, 255, 199], 'Er': [0, 230, 117], 'Es': [179, 31, 212], 'Eu': [97, 255, 199], 'F': [176, 185, 230], 'Fe': [181, 113, 0], 'Fm': [179, 31, 186], 'Fr': [66, 0, 102], 'Ga': [158, 227, 115], 'Gd': [69, 255, 199], 'Ge': [126, 110, 166], 'H': [255, 204, 204], 'He': [252, 232, 206], 'Hf': [77, 194, 255], 'Hg': [184, 184, 208], 'Ho': [0, 255, 156], 'Hs': [230, 0, 46], 'I': [148, 0, 148], 'In': [166, 117, 115], 'Ir': [23, 84, 135], 'K': [161, 33, 246], 'Kr': [250, 193, 243], 'La': [90, 196, 73], 'Li': [134, 223, 115], 'Lr': [199, 0, 102], 'Lu': [0, 171, 36], 'Md': [179, 13, 166], 'Mg': [251, 123, 21], 'Mn': [167, 8, 157], 'Mo': [84, 181, 181], 'Mt': [235, 0, 38], 'N': [176, 185, 230], 'Na': [249, 220, 60], 'Nb': [115, 194, 201], 'Nd': [199, 255, 199], 'Ne': [254, 55, 181], 'Ni': [183, 187, 189], 'No': [189, 13, 135], 'Np': [0, 128, 255], 'O': [254, 3, 0], 'Os': [38, 102, 150], 'P': [192, 156, 194], 'Pa': [0, 161, 255], 'Pb': [87, 89, 97], 'Pd': [0, 105, 133], 'Pm': [163, 255, 199], 'Po': [171, 92, 0], 'Pr': [217, 255, 199], 'Pt': [208, 208, 224], 'Pu': [0, 107, 255], 'Ra': [0, 125, 0], 'Rb': [112, 46, 176], 'Re': [38, 125, 171], 'Rf': [204, 0, 89], 'Rh': [10, 125, 140], 'Rn': [66, 130, 150], 'Ru': [36, 143, 143], 'S': [255, 250, 0], 'Sb': [158, 99, 181], 'Sc': [181, 99, 171], 'Se': [154, 239, 15], 'Sg': [217, 0, 69], 'Si': [27, 59, 250], 'Sm': [143, 255, 199], 'Sn': [154, 142, 185], 'Sr': [0, 255, 0], 'Ta': [77, 166, 255], 'Tb': [48, 255, 199], 'Tc': [59, 158, 158], 'Te': [212, 122, 0], 'Th': [0, 186, 255], 'Ti': [120, 202, 255], 'Tl': [166, 84, 77], 'Tm': [0, 212, 82], 'U': [0, 143, 255], 'V': [229, 25, 0], 'W': [33, 148, 214], 'Xe': [66, 158, 176], 'Y': [148, 255, 255], 'Yb': [0, 191, 56], 'Zn': [143, 143, 129], 'Zr': [0, 255, 0]}}</em><a class="headerlink" href="#pymatgen.analysis.adsorption.colors" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="function">
 <dt id="pymatgen.analysis.adsorption.get_mi_vec">
-<code class="descname">get_mi_vec</code><span class="sig-paren">(</span><em>slab</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#get_mi_vec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.get_mi_vec" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_mi_vec</code><span class="sig-paren">(</span><em class="sig-param">slab</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#get_mi_vec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.get_mi_vec" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience function which returns the unit vector aligned
 with the miller index.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.analysis.adsorption.get_rot">
-<code class="descname">get_rot</code><span class="sig-paren">(</span><em>slab</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#get_rot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.get_rot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_rot</code><span class="sig-paren">(</span><em class="sig-param">slab</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#get_rot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.get_rot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the transformation to rotate the z axis into the miller index</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.analysis.adsorption.plot_slab">
-<code class="descname">plot_slab</code><span class="sig-paren">(</span><em>slab</em>, <em>ax</em>, <em>scale=0.8</em>, <em>repeat=5</em>, <em>window=1.5</em>, <em>draw_unit_cell=True</em>, <em>decay=0.2</em>, <em>adsorption_sites=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#plot_slab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.plot_slab" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_slab</code><span class="sig-paren">(</span><em class="sig-param">slab</em>, <em class="sig-param">ax</em>, <em class="sig-param">scale=0.8</em>, <em class="sig-param">repeat=5</em>, <em class="sig-param">window=1.5</em>, <em class="sig-param">draw_unit_cell=True</em>, <em class="sig-param">decay=0.2</em>, <em class="sig-param">adsorption_sites=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#plot_slab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.plot_slab" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function that helps visualize the slab in a 2-D plot, for
 convenient viewing of output of AdsorbateSiteFinder.</p>
 <dl class="field-list simple">
@@ -396,13 +406,13 @@ a fraction of the unit cell limits</p></li>
 
 <dl class="function">
 <dt id="pymatgen.analysis.adsorption.put_coord_inside">
-<code class="descname">put_coord_inside</code><span class="sig-paren">(</span><em>lattice</em>, <em>cart_coordinate</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#put_coord_inside"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.put_coord_inside" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">put_coord_inside</code><span class="sig-paren">(</span><em class="sig-param">lattice</em>, <em class="sig-param">cart_coordinate</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#put_coord_inside"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.put_coord_inside" title="Permalink to this definition">¶</a></dt>
 <dd><p>converts a cartesian coordinate such that it is inside the unit cell.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.analysis.adsorption.reorient_z">
-<code class="descname">reorient_z</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#reorient_z"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.reorient_z" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reorient_z</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#reorient_z"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.reorient_z" title="Permalink to this definition">¶</a></dt>
 <dd><p>reorients a structure such that the z axis is concurrent with the
 normal to the A-B plane</p>
 </dd></dl>
@@ -423,10 +433,10 @@ normal to the A-B plane</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -445,13 +455,13 @@ normal to the A-B plane</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

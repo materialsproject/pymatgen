@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.phonon.plotter module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.phonon.plotter module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -46,18 +46,18 @@
 <span id="pymatgen-phonon-plotter-module"></span><h1>pymatgen.phonon.plotter module<a class="headerlink" href="#module-pymatgen.phonon.plotter" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.phonon.plotter.FreqUnits">
-<em class="property">class </em><code class="descname">FreqUnits</code><span class="sig-paren">(</span><em>factor</em>, <em>label</em><span class="sig-paren">)</span><a class="headerlink" href="#pymatgen.phonon.plotter.FreqUnits" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">FreqUnits</code><span class="sig-paren">(</span><em class="sig-param">factor</em>, <em class="sig-param">label</em><span class="sig-paren">)</span><a class="headerlink" href="#pymatgen.phonon.plotter.FreqUnits" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
 <p>Create new instance of FreqUnits(factor, label)</p>
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.phonon.plotter.FreqUnits.factor">
-<code class="descname">factor</code><a class="headerlink" href="#pymatgen.phonon.plotter.FreqUnits.factor" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">factor</code><a class="headerlink" href="#pymatgen.phonon.plotter.FreqUnits.factor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 0</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.phonon.plotter.FreqUnits.label">
-<code class="descname">label</code><a class="headerlink" href="#pymatgen.phonon.plotter.FreqUnits.label" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">label</code><a class="headerlink" href="#pymatgen.phonon.plotter.FreqUnits.label" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 1</p>
 </dd></dl>
 
@@ -65,7 +65,7 @@
 
 <dl class="class">
 <dt id="pymatgen.phonon.plotter.PhononBSPlotter">
-<em class="property">class </em><code class="descname">PhononBSPlotter</code><span class="sig-paren">(</span><em>bs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononBSPlotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">PhononBSPlotter</code><span class="sig-paren">(</span><em class="sig-param">bs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononBSPlotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to plot or get data to facilitate the plot of band structure objects.</p>
 <dl class="field-list simple">
@@ -75,7 +75,7 @@
 </dl>
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.PhononBSPlotter.bs_plot_data">
-<code class="descname">bs_plot_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononBSPlotter.bs_plot_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.bs_plot_data" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">bs_plot_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononBSPlotter.bs_plot_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.bs_plot_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the data nicely formatted for a plot</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -94,7 +94,7 @@ lattice: The reciprocal lattice.</p>
 
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.PhononBSPlotter.get_plot">
-<code class="descname">get_plot</code><span class="sig-paren">(</span><em>ylim=None</em>, <em>units='thz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononBSPlotter.get_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.get_plot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_plot</code><span class="sig-paren">(</span><em class="sig-param">ylim=None</em>, <em class="sig-param">units='thz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononBSPlotter.get_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.get_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a matplotlib object for the bandstructure plot.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -109,7 +109,7 @@ the code choose.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.PhononBSPlotter.get_ticks">
-<code class="descname">get_ticks</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononBSPlotter.get_ticks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.get_ticks" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_ticks</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononBSPlotter.get_ticks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.get_ticks" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all ticks and labels for a band structure plot.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -124,13 +124,13 @@ be set and ‘label’: a list of label for each of those ticks.</p>
 
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.PhononBSPlotter.plot_brillouin">
-<code class="descname">plot_brillouin</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononBSPlotter.plot_brillouin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.plot_brillouin" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_brillouin</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononBSPlotter.plot_brillouin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.plot_brillouin" title="Permalink to this definition">¶</a></dt>
 <dd><p>plot the Brillouin zone</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.PhononBSPlotter.plot_compare">
-<code class="descname">plot_compare</code><span class="sig-paren">(</span><em>other_plotter</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononBSPlotter.plot_compare"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.plot_compare" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_compare</code><span class="sig-paren">(</span><em class="sig-param">other_plotter</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononBSPlotter.plot_compare"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.plot_compare" title="Permalink to this definition">¶</a></dt>
 <dd><p>plot two band structure for comparison. One is in red the other in blue.
 The two band structures need to be defined on the same symmetry lines!
 and the distance between symmetry lines is
@@ -147,7 +147,7 @@ the one of the band structure used to build the PhononBSPlotter</p>
 
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.PhononBSPlotter.save_plot">
-<code class="descname">save_plot</code><span class="sig-paren">(</span><em>filename</em>, <em>img_format='eps'</em>, <em>ylim=None</em>, <em>units='thz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononBSPlotter.save_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.save_plot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">save_plot</code><span class="sig-paren">(</span><em class="sig-param">filename</em>, <em class="sig-param">img_format='eps'</em>, <em class="sig-param">ylim=None</em>, <em class="sig-param">units='thz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononBSPlotter.save_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.save_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save matplotlib plot to a file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -163,7 +163,7 @@ the one of the band structure used to build the PhononBSPlotter</p>
 
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.PhononBSPlotter.show">
-<code class="descname">show</code><span class="sig-paren">(</span><em>ylim=None</em>, <em>units='thz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononBSPlotter.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.show" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">show</code><span class="sig-paren">(</span><em class="sig-param">ylim=None</em>, <em class="sig-param">units='thz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononBSPlotter.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.show" title="Permalink to this definition">¶</a></dt>
 <dd><p>Show the plot using matplotlib.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -180,7 +180,7 @@ the code choose.</p></li>
 
 <dl class="class">
 <dt id="pymatgen.phonon.plotter.PhononDosPlotter">
-<em class="property">class </em><code class="descname">PhononDosPlotter</code><span class="sig-paren">(</span><em>stack=False</em>, <em>sigma=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononDosPlotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononDosPlotter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">PhononDosPlotter</code><span class="sig-paren">(</span><em class="sig-param">stack=False</em>, <em class="sig-param">sigma=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononDosPlotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononDosPlotter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class for plotting phonon DOSs. Note that the interface is extremely flexible
 given that there are many different ways in which people want to view
@@ -209,7 +209,7 @@ smearing.</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.PhononDosPlotter.add_dos">
-<code class="descname">add_dos</code><span class="sig-paren">(</span><em>label</em>, <em>dos</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononDosPlotter.add_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononDosPlotter.add_dos" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_dos</code><span class="sig-paren">(</span><em class="sig-param">label</em>, <em class="sig-param">dos</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononDosPlotter.add_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononDosPlotter.add_dos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a dos for plotting.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -223,7 +223,7 @@ smearing.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.PhononDosPlotter.add_dos_dict">
-<code class="descname">add_dos_dict</code><span class="sig-paren">(</span><em>dos_dict</em>, <em>key_sort_func=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononDosPlotter.add_dos_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononDosPlotter.add_dos_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_dos_dict</code><span class="sig-paren">(</span><em class="sig-param">dos_dict</em>, <em class="sig-param">key_sort_func=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononDosPlotter.add_dos_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononDosPlotter.add_dos_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a dictionary of doses, with an optional sorting function for the
 keys.</p>
 <dl class="field-list simple">
@@ -238,7 +238,7 @@ keys.</p>
 
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.PhononDosPlotter.get_dos_dict">
-<code class="descname">get_dos_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononDosPlotter.get_dos_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononDosPlotter.get_dos_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dos_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononDosPlotter.get_dos_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononDosPlotter.get_dos_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the added doses as a json-serializable dict. Note that if you
 have specified smearing for the DOS plot, the densities returned will
 be the smeared densities, not the original densities.</p>
@@ -255,7 +255,7 @@ be the smeared densities, not the original densities.</p>
 
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.PhononDosPlotter.get_plot">
-<code class="descname">get_plot</code><span class="sig-paren">(</span><em>xlim=None</em>, <em>ylim=None</em>, <em>units='thz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononDosPlotter.get_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononDosPlotter.get_plot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_plot</code><span class="sig-paren">(</span><em class="sig-param">xlim=None</em>, <em class="sig-param">ylim=None</em>, <em class="sig-param">units='thz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononDosPlotter.get_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononDosPlotter.get_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a matplotlib plot showing the DOS.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -271,7 +271,7 @@ determination.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.PhononDosPlotter.save_plot">
-<code class="descname">save_plot</code><span class="sig-paren">(</span><em>filename</em>, <em>img_format='eps'</em>, <em>xlim=None</em>, <em>ylim=None</em>, <em>units='thz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononDosPlotter.save_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononDosPlotter.save_plot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">save_plot</code><span class="sig-paren">(</span><em class="sig-param">filename</em>, <em class="sig-param">img_format='eps'</em>, <em class="sig-param">xlim=None</em>, <em class="sig-param">ylim=None</em>, <em class="sig-param">units='thz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononDosPlotter.save_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononDosPlotter.save_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save matplotlib plot to a file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -289,7 +289,7 @@ determination.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.PhononDosPlotter.show">
-<code class="descname">show</code><span class="sig-paren">(</span><em>xlim=None</em>, <em>ylim=None</em>, <em>units='thz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononDosPlotter.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononDosPlotter.show" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">show</code><span class="sig-paren">(</span><em class="sig-param">xlim=None</em>, <em class="sig-param">ylim=None</em>, <em class="sig-param">units='thz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononDosPlotter.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononDosPlotter.show" title="Permalink to this definition">¶</a></dt>
 <dd><p>Show the plot using matplotlib.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -307,7 +307,7 @@ determination.</p></li>
 
 <dl class="class">
 <dt id="pymatgen.phonon.plotter.ThermoPlotter">
-<em class="property">class </em><code class="descname">ThermoPlotter</code><span class="sig-paren">(</span><em>dos</em>, <em>structure=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#ThermoPlotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">ThermoPlotter</code><span class="sig-paren">(</span><em class="sig-param">dos</em>, <em class="sig-param">structure=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#ThermoPlotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Plotter for thermodynamic properties obtained from phonon DOS.
 If the structure corresponding to the DOS, it will be used to extract the forumla unit and provide
@@ -322,7 +322,7 @@ the plots in units of mol instead of mole-cell</p>
 </dl>
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.ThermoPlotter.plot_cv">
-<code class="descname">plot_cv</code><span class="sig-paren">(</span><em>tmin</em>, <em>tmax</em>, <em>ntemp</em>, <em>ylim=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#ThermoPlotter.plot_cv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_cv" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_cv</code><span class="sig-paren">(</span><em class="sig-param">tmin</em>, <em class="sig-param">tmax</em>, <em class="sig-param">ntemp</em>, <em class="sig-param">ylim=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#ThermoPlotter.plot_cv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_cv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plots the constant volume specific heat C_v in a temperature range.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -339,7 +339,7 @@ the plots in units of mol instead of mole-cell</p>
 </dd>
 </dl>
 <p>Keyword arguments controlling the display of the figure:</p>
-<table class="docutils align-center">
+<table class="docutils align-default">
 <colgroup>
 <col style="width: 23%" />
 <col style="width: 77%" />
@@ -380,7 +380,7 @@ Default: False</p></td>
 
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.ThermoPlotter.plot_entropy">
-<code class="descname">plot_entropy</code><span class="sig-paren">(</span><em>tmin</em>, <em>tmax</em>, <em>ntemp</em>, <em>ylim=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#ThermoPlotter.plot_entropy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_entropy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_entropy</code><span class="sig-paren">(</span><em class="sig-param">tmin</em>, <em class="sig-param">tmax</em>, <em class="sig-param">ntemp</em>, <em class="sig-param">ylim=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#ThermoPlotter.plot_entropy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_entropy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plots the vibrational entrpy in a temperature range.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -397,7 +397,7 @@ Default: False</p></td>
 </dd>
 </dl>
 <p>Keyword arguments controlling the display of the figure:</p>
-<table class="docutils align-center">
+<table class="docutils align-default">
 <colgroup>
 <col style="width: 23%" />
 <col style="width: 77%" />
@@ -438,7 +438,7 @@ Default: False</p></td>
 
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.ThermoPlotter.plot_helmholtz_free_energy">
-<code class="descname">plot_helmholtz_free_energy</code><span class="sig-paren">(</span><em>tmin</em>, <em>tmax</em>, <em>ntemp</em>, <em>ylim=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#ThermoPlotter.plot_helmholtz_free_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_helmholtz_free_energy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_helmholtz_free_energy</code><span class="sig-paren">(</span><em class="sig-param">tmin</em>, <em class="sig-param">tmax</em>, <em class="sig-param">ntemp</em>, <em class="sig-param">ylim=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#ThermoPlotter.plot_helmholtz_free_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_helmholtz_free_energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plots the vibrational contribution to the Helmoltz free energy in a temperature range.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -455,7 +455,7 @@ Default: False</p></td>
 </dd>
 </dl>
 <p>Keyword arguments controlling the display of the figure:</p>
-<table class="docutils align-center">
+<table class="docutils align-default">
 <colgroup>
 <col style="width: 23%" />
 <col style="width: 77%" />
@@ -496,7 +496,7 @@ Default: False</p></td>
 
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.ThermoPlotter.plot_internal_energy">
-<code class="descname">plot_internal_energy</code><span class="sig-paren">(</span><em>tmin</em>, <em>tmax</em>, <em>ntemp</em>, <em>ylim=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#ThermoPlotter.plot_internal_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_internal_energy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_internal_energy</code><span class="sig-paren">(</span><em class="sig-param">tmin</em>, <em class="sig-param">tmax</em>, <em class="sig-param">ntemp</em>, <em class="sig-param">ylim=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#ThermoPlotter.plot_internal_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_internal_energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plots the vibrational internal energy in a temperature range.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -513,7 +513,7 @@ Default: False</p></td>
 </dd>
 </dl>
 <p>Keyword arguments controlling the display of the figure:</p>
-<table class="docutils align-center">
+<table class="docutils align-default">
 <colgroup>
 <col style="width: 23%" />
 <col style="width: 77%" />
@@ -554,7 +554,7 @@ Default: False</p></td>
 
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.ThermoPlotter.plot_thermodynamic_properties">
-<code class="descname">plot_thermodynamic_properties</code><span class="sig-paren">(</span><em>tmin</em>, <em>tmax</em>, <em>ntemp</em>, <em>ylim=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#ThermoPlotter.plot_thermodynamic_properties"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_thermodynamic_properties" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_thermodynamic_properties</code><span class="sig-paren">(</span><em class="sig-param">tmin</em>, <em class="sig-param">tmax</em>, <em class="sig-param">ntemp</em>, <em class="sig-param">ylim=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#ThermoPlotter.plot_thermodynamic_properties"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_thermodynamic_properties" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plots all the thermodynamic properties in a temperature range.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -571,7 +571,7 @@ Default: False</p></td>
 </dd>
 </dl>
 <p>Keyword arguments controlling the display of the figure:</p>
-<table class="docutils align-center">
+<table class="docutils align-default">
 <colgroup>
 <col style="width: 23%" />
 <col style="width: 77%" />
@@ -614,10 +614,15 @@ Default: False</p></td>
 
 <dl class="function">
 <dt id="pymatgen.phonon.plotter.freq_units">
-<code class="descname">freq_units</code><span class="sig-paren">(</span><em>units</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#freq_units"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.freq_units" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">freq_units</code><span class="sig-paren">(</span><em class="sig-param">units</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#freq_units"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.freq_units" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns conversion factor from THz to the requred units and the label in the form of a namedtuple
 Accepted values: thz, ev, mev, ha, cm-1, cm^-1</p>
 </dd></dl>
+
+<dl class="data">
+<dt id="pymatgen.phonon.plotter.logger">
+<code class="sig-name descname">logger</code><em class="property"> = &lt;Logger pymatgen.phonon.plotter (INFO)&gt;</em><a class="headerlink" href="#pymatgen.phonon.plotter.logger" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </div>
 
@@ -635,10 +640,10 @@ Accepted values: thz, ev, mev, ha, cm-1, cm^-1</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -657,13 +662,13 @@ Accepted values: thz, ev, mev, ha, cm-1, cm^-1</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

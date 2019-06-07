@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.electronic_structure.dos &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.electronic_structure.dos &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.5.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -460,148 +460,218 @@
                               <span class="k">for</span> <span class="n">spin</span><span class="p">,</span> <span class="n">dens</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">densities</span><span class="o">.</span><span class="n">items</span><span class="p">()}}</span></div></div>
 
 
-<div class="viewcode-block" id="FermiDos"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.dos.html#pymatgen.electronic_structure.dos.FermiDos">[docs]</a><span class="k">class</span> <span class="nc">FermiDos</span><span class="p">(</span><span class="n">Dos</span><span class="p">):</span>
+<div class="viewcode-block" id="FermiDos"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.dos.html#pymatgen.electronic_structure.dos.FermiDos">[docs]</a><span class="k">class</span> <span class="nc">FermiDos</span><span class="p">(</span><span class="n">Dos</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This wrapper class helps relates the density of states, doping levels</span>
+<span class="sd">    This wrapper class helps relate the density of states, doping levels</span>
 <span class="sd">    (i.e. carrier concentrations) and corresponding fermi levels. A negative</span>
-<span class="sd">    doping concentration (c) means that the majority carriers are electrons</span>
-<span class="sd">    (n-type doping) and positive c represents holes or p-type doping.</span>
+<span class="sd">    doping concentration indicates the majority carriers are electrons</span>
+<span class="sd">    (n-type doping); a positive doping concentration indicates holes are the</span>
+<span class="sd">    majority carriers (p-type doping).</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        dos (pymatgen Dos class): density of states at corresponding energy levels</span>
-<span class="sd">        structure (pymatgen Structure class): provided either as input or</span>
-<span class="sd">            inside Dos (e.g. if CompleteDos used)</span>
-<span class="sd">        nelecs (float): the number of electrons included in the energy range of</span>
+<span class="sd">        dos: Pymatgen Dos object.</span>
+<span class="sd">        structure: A structure. If not provided, the structure</span>
+<span class="sd">            of the dos object will be used. If the dos does not have an</span>
+<span class="sd">            associated structure object, an error will be thrown.</span>
+<span class="sd">        nelecs: The number of electrons included in the energy range of</span>
 <span class="sd">            dos. It is used for normalizing the densities. Default is the total</span>
 <span class="sd">            number of electrons in the structure.</span>
-<span class="sd">        bandgap (float): if set, the energy values are scissored so that the</span>
-<span class="sd">            electronic band gap matches this value.</span>
+<span class="sd">        bandgap: If set, the energy values are scissored so that the electronic</span>
+<span class="sd">            band gap matches this value.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dos</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nelecs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bandgap</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">dos</span><span class="o">.</span><span class="n">efermi</span><span class="p">,</span> <span class="n">energies</span><span class="o">=</span><span class="n">dos</span><span class="o">.</span><span class="n">energies</span><span class="p">,</span>
-            <span class="n">densities</span><span class="o">=</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dos</span><span class="o">.</span><span class="n">densities</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dos</span><span class="p">:</span> <span class="n">Dos</span><span class="p">,</span> <span class="n">structure</span><span class="p">:</span> <span class="n">Structure</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">nelecs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">bandgap</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dos</span><span class="o">.</span><span class="n">efermi</span><span class="p">,</span> <span class="n">energies</span><span class="o">=</span><span class="n">dos</span><span class="o">.</span><span class="n">energies</span><span class="p">,</span>
+                         <span class="n">densities</span><span class="o">=</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span>
+                                    <span class="n">dos</span><span class="o">.</span><span class="n">densities</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
+
         <span class="k">if</span> <span class="n">structure</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">dos</span><span class="o">.</span><span class="n">structure</span>
-            <span class="k">except</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;&quot;structure&quot; not provided!&#39;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">dos</span><span class="p">,</span> <span class="s2">&quot;structure&quot;</span><span class="p">):</span>
+                <span class="n">structure</span> <span class="o">=</span> <span class="n">dos</span><span class="o">.</span><span class="n">structure</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Structure object is not provided and not &quot;</span>
+                                 <span class="s2">&quot;present in dos&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nelecs</span> <span class="o">=</span> <span class="n">nelecs</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">total_electrons</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">volume</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">volume</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">energies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dos</span><span class="o">.</span><span class="n">energies</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">de</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">energies</span>
-        <span class="n">tdos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_densities</span><span class="p">())</span>
-        <span class="n">nelecs</span> <span class="o">=</span> <span class="n">nelecs</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">total_electrons</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">de</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">energies</span>
+
         <span class="c1"># normalize total density of states based on integral at 0K</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">tdos</span> <span class="o">=</span> <span class="n">tdos</span> <span class="o">*</span> <span class="n">nelecs</span> <span class="o">/</span> <span class="p">(</span><span class="n">tdos</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">de</span><span class="p">)[</span><span class="bp">self</span><span class="o">.</span><span class="n">energies</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">tdos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_densities</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tdos</span> <span class="o">=</span> <span class="n">tdos</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">nelecs</span> <span class="o">/</span> <span class="p">(</span><span class="n">tdos</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">de</span><span class="p">)[</span><span class="bp">self</span><span class="o">.</span><span class="n">energies</span> <span class="o">&lt;=</span>
+                                                          <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
         <span class="n">ecbm</span><span class="p">,</span> <span class="n">evbm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cbm_vbm</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">idx_vbm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energies</span> <span class="o">-</span> <span class="n">evbm</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">idx_cbm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energies</span> <span class="o">-</span> <span class="n">ecbm</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">A_to_cm</span> <span class="o">=</span> <span class="mf">1e-8</span>
+
         <span class="k">if</span> <span class="n">bandgap</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span> <span class="o">&lt;</span> <span class="n">ecbm</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span> <span class="o">&gt;</span> <span class="n">evbm</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">evbm</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span> <span class="o">&lt;</span> <span class="n">ecbm</span><span class="p">:</span>
                 <span class="n">eref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">eref</span> <span class="o">=</span> <span class="p">(</span><span class="n">evbm</span> <span class="o">+</span> <span class="n">ecbm</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
+
             <span class="n">idx_fermi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energies</span> <span class="o">-</span> <span class="n">eref</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">idx_fermi</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx_vbm</span><span class="p">:</span>
+                <span class="c1"># Fermi level and vbm should be different indices</span>
+                <span class="n">idx_fermi</span> <span class="o">+=</span> <span class="mi">1</span>
+
             <span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">[:</span><span class="n">idx_fermi</span><span class="p">]</span> <span class="o">-=</span> <span class="p">(</span><span class="n">bandgap</span> <span class="o">-</span> <span class="p">(</span><span class="n">ecbm</span> <span class="o">-</span> <span class="n">evbm</span><span class="p">))</span> <span class="o">/</span> <span class="mf">2.0</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">[</span><span class="n">idx_fermi</span><span class="p">:]</span> <span class="o">+=</span> <span class="p">(</span><span class="n">bandgap</span> <span class="o">-</span> <span class="p">(</span><span class="n">ecbm</span> <span class="o">-</span> <span class="n">evbm</span><span class="p">))</span> <span class="o">/</span> <span class="mf">2.0</span>
 
-<div class="viewcode-block" id="FermiDos.get_doping"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.dos.html#pymatgen.electronic_structure.dos.FermiDos.get_doping">[docs]</a>    <span class="k">def</span> <span class="nf">get_doping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fermi</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
+<div class="viewcode-block" id="FermiDos.get_doping"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.dos.html#pymatgen.electronic_structure.dos.FermiDos.get_doping">[docs]</a>    <span class="k">def</span> <span class="nf">get_doping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fermi_level</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">temperature</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculate the doping (majority carrier concentration) at a given fermi</span>
-<span class="sd">        level and temperature. A simple Left Riemann sum is used for integrating</span>
-<span class="sd">        the density of states over energy &amp; equilibrium Fermi-Dirac distribution</span>
+<span class="sd">        Calculate the doping (majority carrier concentration) at a given</span>
+<span class="sd">        fermi level  and temperature. A simple Left Riemann sum is used for</span>
+<span class="sd">        integrating the density of states over energy &amp; equilibrium Fermi-Dirac</span>
+<span class="sd">        distribution.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            fermi (float): the fermi level in eV</span>
-<span class="sd">            T (float): the temperature in Kelvin</span>
+<span class="sd">            fermi_level: The fermi_level level in eV.</span>
+<span class="sd">            temperature: The temperature in Kelvin.</span>
 
-<span class="sd">        Returns (float): in units 1/cm3. If negative it means that the majority</span>
-<span class="sd">            carriers are electrons (n-type doping) and if positive holes/p-type</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            The doping concentration in units of 1/cm^3. Negative values</span>
+<span class="sd">            indicate that the majority carriers are electrons (n-type doping)</span>
+<span class="sd">            whereas positivie values indicates the majority carriers are holes</span>
+<span class="sd">            (p-type doping).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">cb_integral</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tdos</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_cbm</span><span class="p">:]</span>
-                             <span class="o">*</span> <span class="n">f0</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_cbm</span><span class="p">:],</span> <span class="n">fermi</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span>
-                             <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">de</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_cbm</span><span class="p">:],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="n">vb_integral</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tdos</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_vbm</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
-                             <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">f0</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_vbm</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">fermi</span><span class="p">,</span> <span class="n">T</span><span class="p">))</span>
-                             <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">de</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_vbm</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">cb_integral</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tdos</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_cbm</span><span class="p">:]</span>
+            <span class="o">*</span> <span class="n">f0</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_cbm</span><span class="p">:],</span> <span class="n">fermi_level</span><span class="p">,</span> <span class="n">temperature</span><span class="p">)</span>
+            <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">de</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_cbm</span><span class="p">:],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">vb_integral</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tdos</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_vbm</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span>
+            <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">f0</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_vbm</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">fermi_level</span><span class="p">,</span> <span class="n">temperature</span><span class="p">))</span>
+            <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">de</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_vbm</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">vb_integral</span> <span class="o">-</span> <span class="n">cb_integral</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">volume</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">A_to_cm</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="FermiDos.get_fermi_interextrapolated"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.dos.html#pymatgen.electronic_structure.dos.FermiDos.get_fermi_interextrapolated">[docs]</a>    <span class="k">def</span> <span class="nf">get_fermi_interextrapolated</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">warn</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">c_ref</span><span class="o">=</span><span class="mf">1e10</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="FermiDos.get_fermi_interextrapolated"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.dos.html#pymatgen.electronic_structure.dos.FermiDos.get_fermi_interextrapolated">[docs]</a>    <span class="k">def</span> <span class="nf">get_fermi_interextrapolated</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">concentration</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                                    <span class="n">temperature</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">warn</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                                    <span class="n">c_ref</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e10</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Similar to get_fermi except that when get_fermi fails to converge,</span>
-<span class="sd">        an interpolated or extrapolated fermi (depending on c) is returned with</span>
-<span class="sd">        the assumption that the fermi level changes linearly with log(abs(c)).</span>
+<span class="sd">        an interpolated or extrapolated fermi is returned with the assumption</span>
+<span class="sd">        that the fermi level changes linearly with log(abs(concentration)).</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            c (float): doping concentration in 1/cm3. c&lt;0 represents n-type</span>
-<span class="sd">                doping and c&gt;0 p-type doping (i.e. majority carriers are holes)</span>
-<span class="sd">            T (float): absolute temperature in Kelvin</span>
-<span class="sd">            warn (bool): whether to warn for the first time when no fermi can</span>
-<span class="sd">                be found.</span>
-<span class="sd">            c_ref (float): a doping concentration where get_fermi returns a</span>
-<span class="sd">                value without error for both c_ref and -c_ref</span>
-<span class="sd">            **kwargs: see keyword arguments of the get_fermi function</span>
+<span class="sd">            concentration: The doping concentration in 1/cm^3. Negative values</span>
+<span class="sd">                represent n-type doping and positive values represent p-type</span>
+<span class="sd">                doping.</span>
+<span class="sd">            temperature: The temperature in Kelvin.</span>
+<span class="sd">            warn: Whether to give a warning the first time the fermi cannot be</span>
+<span class="sd">                found.</span>
+<span class="sd">            c_ref: A doping concentration where get_fermi returns a</span>
+<span class="sd">                value without error for both c_ref and -c_ref.</span>
+<span class="sd">            **kwargs: Keyword arguments passed to the get_fermi function.</span>
 
-<span class="sd">        Returns (float): the fermi level that is possibly interapolated or</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            The Fermi level. Note, the value is possibly interpolated or</span>
 <span class="sd">            extrapolated and must be used with caution.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_fermi</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_fermi</span><span class="p">(</span><span class="n">concentration</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">warn</span><span class="p">:</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
-            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">c_ref</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-10</span><span class="p">:</span>
-                    <span class="n">c</span> <span class="o">=</span> <span class="mf">1e-10</span>
-                <span class="c1"># max(10, ) is to avoid log(0&lt;x&lt;1) and log(1+x) both of which are slow</span>
-                <span class="n">f2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_fermi_interextrapolated</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="nb">abs</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">*</span> <span class="mf">10.</span><span class="p">),</span> <span class="n">T</span><span class="p">,</span> <span class="n">warn</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-                <span class="n">f1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_fermi_interextrapolated</span><span class="p">(</span><span class="o">-</span><span class="nb">max</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="nb">abs</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">*</span> <span class="mf">10.</span><span class="p">),</span> <span class="n">T</span><span class="p">,</span> <span class="n">warn</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-                <span class="n">c2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_doping</span><span class="p">(</span><span class="n">f2</span><span class="p">,</span> <span class="n">T</span><span class="p">)))</span>
-                <span class="n">c1</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_doping</span><span class="p">(</span><span class="n">f1</span><span class="p">,</span> <span class="n">T</span><span class="p">)))</span>
+
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">concentration</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">c_ref</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">concentration</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-10</span><span class="p">:</span>
+                    <span class="n">concentration</span> <span class="o">=</span> <span class="mf">1e-10</span>
+
+                <span class="c1"># max(10, ) is to avoid log(0&lt;x&lt;1) and log(1+x) both of which</span>
+                <span class="c1"># are slow</span>
+                <span class="n">f2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_fermi_interextrapolated</span><span class="p">(</span>
+                    <span class="nb">max</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="nb">abs</span><span class="p">(</span><span class="n">concentration</span><span class="p">)</span> <span class="o">*</span> <span class="mf">10.</span><span class="p">),</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">warn</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="n">f1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_fermi_interextrapolated</span><span class="p">(</span>
+                    <span class="o">-</span><span class="nb">max</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="nb">abs</span><span class="p">(</span><span class="n">concentration</span><span class="p">)</span> <span class="o">*</span> <span class="mf">10.</span><span class="p">),</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">warn</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="n">c2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_doping</span><span class="p">(</span><span class="n">f2</span><span class="p">,</span> <span class="n">temperature</span><span class="p">)))</span>
+                <span class="n">c1</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_doping</span><span class="p">(</span><span class="n">f1</span><span class="p">,</span> <span class="n">temperature</span><span class="p">)))</span>
                 <span class="n">slope</span> <span class="o">=</span> <span class="p">(</span><span class="n">f2</span> <span class="o">-</span> <span class="n">f1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">c2</span> <span class="o">-</span> <span class="n">c1</span><span class="p">)</span>
-                <span class="k">return</span> <span class="n">f2</span> <span class="o">+</span> <span class="n">slope</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">c</span><span class="p">))</span> <span class="o">-</span> <span class="n">c2</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">f2</span> <span class="o">+</span> <span class="n">slope</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">concentration</span><span class="p">)</span> <span class="o">*</span>
+                                     <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">concentration</span><span class="p">))</span> <span class="o">-</span> <span class="n">c2</span><span class="p">)</span>
+
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">f_ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_fermi_interextrapolated</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">*</span> <span class="n">c_ref</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">warn</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-                <span class="n">f_new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_fermi_interextrapolated</span><span class="p">(</span><span class="n">c</span> <span class="o">/</span> <span class="mf">10.</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">warn</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-                <span class="n">clog</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">c</span><span class="p">))</span>
-                <span class="n">c_newlog</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_doping</span><span class="p">(</span><span class="n">f_new</span><span class="p">,</span> <span class="n">T</span><span class="p">)))</span>
-                <span class="n">slope</span> <span class="o">=</span> <span class="p">(</span><span class="n">f_new</span> <span class="o">-</span> <span class="n">f_ref</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">c_newlog</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">*</span> <span class="mf">10.</span><span class="p">)</span>
+                <span class="n">f_ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_fermi_interextrapolated</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">concentration</span><span class="p">)</span> <span class="o">*</span> <span class="n">c_ref</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">warn</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="n">f_new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_fermi_interextrapolated</span><span class="p">(</span>
+                    <span class="n">concentration</span> <span class="o">/</span> <span class="mf">10.</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">warn</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="n">clog</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">concentration</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">concentration</span><span class="p">))</span>
+                <span class="n">c_newlog</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">concentration</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+                    <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_doping</span><span class="p">(</span><span class="n">f_new</span><span class="p">,</span> <span class="n">temperature</span><span class="p">)))</span>
+                <span class="n">slope</span> <span class="o">=</span> <span class="p">(</span><span class="n">f_new</span> <span class="o">-</span> <span class="n">f_ref</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">c_newlog</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">concentration</span><span class="p">)</span>
+                                           <span class="o">*</span> <span class="mf">10.</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">f_new</span> <span class="o">+</span> <span class="n">slope</span> <span class="o">*</span> <span class="p">(</span><span class="n">clog</span> <span class="o">-</span> <span class="n">c_newlog</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="FermiDos.get_fermi"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.dos.html#pymatgen.electronic_structure.dos.FermiDos.get_fermi">[docs]</a>    <span class="k">def</span> <span class="nf">get_fermi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">nstep</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
+<div class="viewcode-block" id="FermiDos.get_fermi"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.dos.html#pymatgen.electronic_structure.dos.FermiDos.get_fermi">[docs]</a>    <span class="k">def</span> <span class="nf">get_fermi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">concentration</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">temperature</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                  <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span> <span class="n">nstep</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
+                  <span class="n">precision</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Finds the fermi level at which the doping concentration at the given</span>
-<span class="sd">        temperature (T) is equal to c. A greedy algorithm is used where the</span>
-<span class="sd">        relative error is minimized by calculating the doping at a grid which</span>
-<span class="sd">        is continuously become finer.</span>
+<span class="sd">        temperature (T) is equal to concentration. A greedy algorithm is used</span>
+<span class="sd">        where the relative error is minimized by calculating the doping at a</span>
+<span class="sd">        grid which continually becomes finer.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            c (float): doping concentration. c&lt;0 represents n-type doping and</span>
-<span class="sd">                c&gt;0 represents p-type doping (i.e. majority carriers are holes)</span>
-<span class="sd">            T (float): absolute temperature in Kelvin</span>
-<span class="sd">            rtol (float): maximum acceptable relative error</span>
-<span class="sd">            nstep (int): number of steps checked around a given fermi level</span>
-<span class="sd">            step (float): initial step in fermi level when searching</span>
-<span class="sd">            precision (int): essentially the decimal places of calculated fermi</span>
+<span class="sd">            concentration: The doping concentration in 1/cm^3. Negative values</span>
+<span class="sd">                represent n-type doping and positive values represent p-type</span>
+<span class="sd">                doping.</span>
+<span class="sd">            temperature: The temperature in Kelvin.</span>
+<span class="sd">            rtol: The maximum acceptable relative error.</span>
+<span class="sd">            nstep: THe number of steps checked around a given fermi level.</span>
+<span class="sd">            step: Initial step in energy when searching for the Fermi level.</span>
+<span class="sd">            precision: Essentially the decimal places of calculated Fermi level.</span>
 
-<span class="sd">        Returns (float): the fermi level. Note that this is different from the</span>
-<span class="sd">            default dos.efermi.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            The fermi level in eV.. Note that this is different from the default</span>
+<span class="sd">            dos.efermi.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">fermi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span>  <span class="c1"># initialize target fermi</span>
+        <span class="n">relative_error</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">precision</span><span class="p">):</span>
             <span class="n">frange</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">nstep</span><span class="p">,</span> <span class="n">nstep</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">step</span> <span class="o">+</span> <span class="n">fermi</span>
-            <span class="n">calc_doping</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">get_doping</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">frange</span><span class="p">])</span>
-            <span class="n">relative_error</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">calc_doping</span> <span class="o">/</span> <span class="n">c</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span>
+            <span class="n">calc_doping</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">get_doping</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">temperature</span><span class="p">)</span>
+                                    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">frange</span><span class="p">])</span>
+            <span class="n">relative_error</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">calc_doping</span> <span class="o">/</span> <span class="n">concentration</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span>
             <span class="n">fermi</span> <span class="o">=</span> <span class="n">frange</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">relative_error</span><span class="p">)]</span>
             <span class="n">step</span> <span class="o">/=</span> <span class="mf">10.0</span>
+
         <span class="k">if</span> <span class="nb">min</span><span class="p">(</span><span class="n">relative_error</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">rtol</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Could not find fermi within </span><span class="si">{}% o</span><span class="s1">f c=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="n">rtol</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="n">c</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">fermi</span></div></div>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Could not find fermi within </span><span class="si">{}% o</span><span class="s2">f concentration=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">rtol</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="n">concentration</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">fermi</span></div>
+
+<div class="viewcode-block" id="FermiDos.from_dict"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.dos.html#pymatgen.electronic_structure.dos.FermiDos.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns Dos object from dict representation of Dos.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dos</span> <span class="o">=</span> <span class="n">Dos</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;efermi&quot;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;energies&quot;</span><span class="p">],</span>
+                  <span class="p">{</span><span class="n">Spin</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">)):</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;densities&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
+        <span class="k">return</span> <span class="n">FermiDos</span><span class="p">(</span><span class="n">dos</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;structure&quot;</span><span class="p">]),</span>
+                        <span class="n">nelecs</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;nelecs&quot;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="FermiDos.as_dict"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.dos.html#pymatgen.electronic_structure.dos.FermiDos.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Json-serializable dict representation of Dos.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+                <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="s2">&quot;efermi&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span><span class="p">,</span>
+                <span class="s2">&quot;energies&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">),</span>
+                <span class="s2">&quot;densities&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">spin</span><span class="p">):</span> <span class="nb">list</span><span class="p">(</span><span class="n">dens</span><span class="p">)</span>
+                              <span class="k">for</span> <span class="n">spin</span><span class="p">,</span> <span class="n">dens</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">densities</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span>
+                <span class="s2">&quot;structure&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="s2">&quot;nelecs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nelecs</span><span class="p">}</span></div></div>
 
 
 <div class="viewcode-block" id="CompleteDos"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.dos.html#pymatgen.electronic_structure.dos.CompleteDos">[docs]</a><span class="k">class</span> <span class="nc">CompleteDos</span><span class="p">(</span><span class="n">Dos</span><span class="p">):</span>
@@ -1035,10 +1105,10 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -1057,7 +1127,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.5.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1065,7 +1135,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

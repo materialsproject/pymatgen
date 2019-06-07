@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.chemenv.coordination_environments.voronoi module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.analysis.chemenv.coordination_environments.voronoi module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -46,7 +46,7 @@
 <span id="pymatgen-analysis-chemenv-coordination-environments-voronoi-module"></span><h1>pymatgen.analysis.chemenv.coordination_environments.voronoi module<a class="headerlink" href="#module-pymatgen.analysis.chemenv.coordination_environments.voronoi" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer">
-<em class="property">class </em><code class="descname">DetailedVoronoiContainer</code><span class="sig-paren">(</span><em>structure=None</em>, <em>voronoi_list=None</em>, <em>voronoi_list2=None</em>, <em>voronoi_cutoff=10.0</em>, <em>isites=None</em>, <em>normalized_distance_tolerance=1e-05</em>, <em>normalized_angle_tolerance=0.001</em>, <em>additional_conditions=None</em>, <em>valences=None</em>, <em>maximum_distance_factor=None</em>, <em>minimum_angle_factor=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#DetailedVoronoiContainer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">DetailedVoronoiContainer</code><span class="sig-paren">(</span><em class="sig-param">structure=None</em>, <em class="sig-param">voronoi_list=None</em>, <em class="sig-param">voronoi_list2=None</em>, <em class="sig-param">voronoi_cutoff=10.0</em>, <em class="sig-param">isites=None</em>, <em class="sig-param">normalized_distance_tolerance=1e-05</em>, <em class="sig-param">normalized_angle_tolerance=0.001</em>, <em class="sig-param">additional_conditions=None</em>, <em class="sig-param">valences=None</em>, <em class="sig-param">maximum_distance_factor=None</em>, <em class="sig-param">minimum_angle_factor=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#DetailedVoronoiContainer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Class used to store the full Voronoi of a given structure.</p>
 <p>Constructor for the VoronoiContainer object. Either a structure is given, in which case the Voronoi is
@@ -58,34 +58,34 @@ computed, or the different components of the VoronoiContainer are given (used in
 :raise: RuntimeError if the Voronoi cannot be constructed</p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.AC">
-<code class="descname">AC</code><em class="property"> = &lt;pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions object&gt;</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.AC" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">AC</code><em class="property"> = &lt;pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions object&gt;</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.AC" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#DetailedVoronoiContainer.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#DetailedVoronoiContainer.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bson-serializable dict representation of the VoronoiContainer.
 :return: dictionary that is BSON-encodable</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.default_normalized_angle_tolerance">
-<code class="descname">default_normalized_angle_tolerance</code><em class="property"> = 0.001</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.default_normalized_angle_tolerance" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">default_normalized_angle_tolerance</code><em class="property"> = 0.001</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.default_normalized_angle_tolerance" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.default_normalized_distance_tolerance">
-<code class="descname">default_normalized_distance_tolerance</code><em class="property"> = 1e-05</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.default_normalized_distance_tolerance" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">default_normalized_distance_tolerance</code><em class="property"> = 1e-05</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.default_normalized_distance_tolerance" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.default_voronoi_cutoff">
-<code class="descname">default_voronoi_cutoff</code><em class="property"> = 10.0</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.default_voronoi_cutoff" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">default_voronoi_cutoff</code><em class="property"> = 10.0</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.default_voronoi_cutoff" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.from_dict">
-<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#DetailedVoronoiContainer.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#DetailedVoronoiContainer.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reconstructs the VoronoiContainer object from a dict representation of the VoronoiContainer created using
 the as_dict method.
 :param d: dict representation of the VoronoiContainer object
@@ -94,59 +94,59 @@ the as_dict method.
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.get_rdf_figure">
-<code class="descname">get_rdf_figure</code><span class="sig-paren">(</span><em>isite</em>, <em>normalized=True</em>, <em>figsize=None</em>, <em>step_function=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#DetailedVoronoiContainer.get_rdf_figure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.get_rdf_figure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_rdf_figure</code><span class="sig-paren">(</span><em class="sig-param">isite</em>, <em class="sig-param">normalized=True</em>, <em class="sig-param">figsize=None</em>, <em class="sig-param">step_function=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#DetailedVoronoiContainer.get_rdf_figure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.get_rdf_figure" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.get_sadf_figure">
-<code class="descname">get_sadf_figure</code><span class="sig-paren">(</span><em>isite</em>, <em>normalized=True</em>, <em>figsize=None</em>, <em>step_function=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#DetailedVoronoiContainer.get_sadf_figure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.get_sadf_figure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_sadf_figure</code><span class="sig-paren">(</span><em class="sig-param">isite</em>, <em class="sig-param">normalized=True</em>, <em class="sig-param">figsize=None</em>, <em class="sig-param">step_function=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#DetailedVoronoiContainer.get_sadf_figure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.get_sadf_figure" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.is_close_to">
-<code class="descname">is_close_to</code><span class="sig-paren">(</span><em>other</em>, <em>rtol=0.0</em>, <em>atol=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#DetailedVoronoiContainer.is_close_to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.is_close_to" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">is_close_to</code><span class="sig-paren">(</span><em class="sig-param">other</em>, <em class="sig-param">rtol=0.0</em>, <em class="sig-param">atol=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#DetailedVoronoiContainer.is_close_to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.is_close_to" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.maps_and_surfaces">
-<code class="descname">maps_and_surfaces</code><span class="sig-paren">(</span><em>isite</em>, <em>surface_calculation_type=None</em>, <em>max_dist=2.0</em>, <em>additional_conditions=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#DetailedVoronoiContainer.maps_and_surfaces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.maps_and_surfaces" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">maps_and_surfaces</code><span class="sig-paren">(</span><em class="sig-param">isite</em>, <em class="sig-param">surface_calculation_type=None</em>, <em class="sig-param">max_dist=2.0</em>, <em class="sig-param">additional_conditions=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#DetailedVoronoiContainer.maps_and_surfaces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.maps_and_surfaces" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.maps_and_surfaces_bounded">
-<code class="descname">maps_and_surfaces_bounded</code><span class="sig-paren">(</span><em>isite</em>, <em>surface_calculation_options=None</em>, <em>additional_conditions=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#DetailedVoronoiContainer.maps_and_surfaces_bounded"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.maps_and_surfaces_bounded" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">maps_and_surfaces_bounded</code><span class="sig-paren">(</span><em class="sig-param">isite</em>, <em class="sig-param">surface_calculation_options=None</em>, <em class="sig-param">additional_conditions=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#DetailedVoronoiContainer.maps_and_surfaces_bounded"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.maps_and_surfaces_bounded" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.neighbors">
-<code class="descname">neighbors</code><span class="sig-paren">(</span><em>isite</em>, <em>distfactor</em>, <em>angfactor</em>, <em>additional_condition=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#DetailedVoronoiContainer.neighbors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.neighbors" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">neighbors</code><span class="sig-paren">(</span><em class="sig-param">isite</em>, <em class="sig-param">distfactor</em>, <em class="sig-param">angfactor</em>, <em class="sig-param">additional_condition=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#DetailedVoronoiContainer.neighbors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.neighbors" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.neighbors_map">
-<code class="descname">neighbors_map</code><span class="sig-paren">(</span><em>isite</em>, <em>distfactor</em>, <em>angfactor</em>, <em>additional_condition</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#DetailedVoronoiContainer.neighbors_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.neighbors_map" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">neighbors_map</code><span class="sig-paren">(</span><em class="sig-param">isite</em>, <em class="sig-param">distfactor</em>, <em class="sig-param">angfactor</em>, <em class="sig-param">additional_condition</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#DetailedVoronoiContainer.neighbors_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.neighbors_map" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.neighbors_surfaces">
-<code class="descname">neighbors_surfaces</code><span class="sig-paren">(</span><em>isite</em>, <em>surface_calculation_type=None</em>, <em>max_dist=2.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#DetailedVoronoiContainer.neighbors_surfaces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.neighbors_surfaces" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">neighbors_surfaces</code><span class="sig-paren">(</span><em class="sig-param">isite</em>, <em class="sig-param">surface_calculation_type=None</em>, <em class="sig-param">max_dist=2.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#DetailedVoronoiContainer.neighbors_surfaces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.neighbors_surfaces" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.neighbors_surfaces_bounded">
-<code class="descname">neighbors_surfaces_bounded</code><span class="sig-paren">(</span><em>isite</em>, <em>surface_calculation_options=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#DetailedVoronoiContainer.neighbors_surfaces_bounded"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.neighbors_surfaces_bounded" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">neighbors_surfaces_bounded</code><span class="sig-paren">(</span><em class="sig-param">isite</em>, <em class="sig-param">surface_calculation_options=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#DetailedVoronoiContainer.neighbors_surfaces_bounded"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.neighbors_surfaces_bounded" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.setup_neighbors_distances_and_angles">
-<code class="descname">setup_neighbors_distances_and_angles</code><span class="sig-paren">(</span><em>indices</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#DetailedVoronoiContainer.setup_neighbors_distances_and_angles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.setup_neighbors_distances_and_angles" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">setup_neighbors_distances_and_angles</code><span class="sig-paren">(</span><em class="sig-param">indices</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#DetailedVoronoiContainer.setup_neighbors_distances_and_angles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.setup_neighbors_distances_and_angles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the angle and distance separations
 :param indices: indices of the sites for which the Voronoi is needed</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.setup_voronoi_list">
-<code class="descname">setup_voronoi_list</code><span class="sig-paren">(</span><em>indices</em>, <em>voronoi_cutoff</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#DetailedVoronoiContainer.setup_voronoi_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.setup_voronoi_list" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">setup_voronoi_list</code><span class="sig-paren">(</span><em class="sig-param">indices</em>, <em class="sig-param">voronoi_cutoff</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#DetailedVoronoiContainer.setup_voronoi_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.setup_voronoi_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set up of the voronoi list of neighbours by calling qhull
 :param indices: indices of the sites for which the Voronoi is needed
 :param voronoi_cutoff: Voronoi cutoff for the search of neighbours
@@ -155,21 +155,21 @@ the as_dict method.
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.to_bson_voronoi_list2">
-<code class="descname">to_bson_voronoi_list2</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#DetailedVoronoiContainer.to_bson_voronoi_list2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.to_bson_voronoi_list2" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to_bson_voronoi_list2</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#DetailedVoronoiContainer.to_bson_voronoi_list2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.to_bson_voronoi_list2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transforms the voronoi_list into a vlist + bson_nb_voro_list, that are BSON-encodable.
 :return: [vlist, bson_nb_voro_list], to be used in the as_dict method</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.voronoi_parameters_bounds_and_limits">
-<code class="descname">voronoi_parameters_bounds_and_limits</code><span class="sig-paren">(</span><em>isite</em>, <em>plot_type</em>, <em>max_dist</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#DetailedVoronoiContainer.voronoi_parameters_bounds_and_limits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.voronoi_parameters_bounds_and_limits" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">voronoi_parameters_bounds_and_limits</code><span class="sig-paren">(</span><em class="sig-param">isite</em>, <em class="sig-param">plot_type</em>, <em class="sig-param">max_dist</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#DetailedVoronoiContainer.voronoi_parameters_bounds_and_limits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.voronoi_parameters_bounds_and_limits" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.from_bson_voronoi_list">
-<code class="descname">from_bson_voronoi_list</code><span class="sig-paren">(</span><em>bson_nb_voro_list</em>, <em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#from_bson_voronoi_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.from_bson_voronoi_list" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">from_bson_voronoi_list</code><span class="sig-paren">(</span><em class="sig-param">bson_nb_voro_list</em>, <em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#from_bson_voronoi_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.from_bson_voronoi_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the voronoi_list needed for the VoronoiContainer object from a bson-encoded voronoi_list (composed of
 vlist and bson_nb_voro_list).
 :param vlist: List of voronoi objects
@@ -180,7 +180,7 @@ allowed in the BSON format)</p>
 
 <dl class="function">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.from_bson_voronoi_list2">
-<code class="descname">from_bson_voronoi_list2</code><span class="sig-paren">(</span><em>bson_nb_voro_list2</em>, <em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#from_bson_voronoi_list2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.from_bson_voronoi_list2" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">from_bson_voronoi_list2</code><span class="sig-paren">(</span><em class="sig-param">bson_nb_voro_list2</em>, <em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/voronoi.html#from_bson_voronoi_list2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.from_bson_voronoi_list2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the voronoi_list needed for the VoronoiContainer object from a bson-encoded voronoi_list (composed of
 vlist and bson_nb_voro_list).
 :param vlist: List of voronoi objects
@@ -205,10 +205,10 @@ allowed in the BSON format)</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -227,13 +227,13 @@ allowed in the BSON format)</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

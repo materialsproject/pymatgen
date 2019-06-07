@@ -38,6 +38,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.io.abinit
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

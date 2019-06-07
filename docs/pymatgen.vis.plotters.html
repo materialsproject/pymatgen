@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.vis.plotters module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.vis.plotters module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -46,7 +46,7 @@
 <span id="pymatgen-vis-plotters-module"></span><h1>pymatgen.vis.plotters module<a class="headerlink" href="#module-pymatgen.vis.plotters" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.vis.plotters.SpectrumPlotter">
-<em class="property">class </em><code class="descname">SpectrumPlotter</code><span class="sig-paren">(</span><em>xshift=0.0</em>, <em>yshift=0.0</em>, <em>stack=False</em>, <em>color_cycle=('qualitative'</em>, <em>'Set1_9')</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/plotters.html#SpectrumPlotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.plotters.SpectrumPlotter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">SpectrumPlotter</code><span class="sig-paren">(</span><em class="sig-param">xshift=0.0</em>, <em class="sig-param">yshift=0.0</em>, <em class="sig-param">stack=False</em>, <em class="sig-param">color_cycle=('qualitative'</em>, <em class="sig-param">'Set1_9')</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/plotters.html#SpectrumPlotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.plotters.SpectrumPlotter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class for plotting Spectrum objects and subclasses. Note that the interface
 is extremely flexible given that there are many different ways in which
@@ -83,7 +83,7 @@ overridden</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.vis.plotters.SpectrumPlotter.add_spectra">
-<code class="descname">add_spectra</code><span class="sig-paren">(</span><em>spectra_dict</em>, <em>key_sort_func=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/plotters.html#SpectrumPlotter.add_spectra"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.plotters.SpectrumPlotter.add_spectra" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_spectra</code><span class="sig-paren">(</span><em class="sig-param">spectra_dict</em>, <em class="sig-param">key_sort_func=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/plotters.html#SpectrumPlotter.add_spectra"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.plotters.SpectrumPlotter.add_spectra" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a dictionary of doses, with an optional sorting function for the
 keys.</p>
 <dl class="field-list simple">
@@ -98,7 +98,7 @@ keys.</p>
 
 <dl class="method">
 <dt id="pymatgen.vis.plotters.SpectrumPlotter.add_spectrum">
-<code class="descname">add_spectrum</code><span class="sig-paren">(</span><em>label</em>, <em>spectrum</em>, <em>color=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/plotters.html#SpectrumPlotter.add_spectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.plotters.SpectrumPlotter.add_spectrum" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_spectrum</code><span class="sig-paren">(</span><em class="sig-param">label</em>, <em class="sig-param">spectrum</em>, <em class="sig-param">color=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/plotters.html#SpectrumPlotter.add_spectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.plotters.SpectrumPlotter.add_spectrum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a Spectrum for plotting.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -115,7 +115,7 @@ the default color cycle.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.vis.plotters.SpectrumPlotter.get_plot">
-<code class="descname">get_plot</code><span class="sig-paren">(</span><em>xlim=None</em>, <em>ylim=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/plotters.html#SpectrumPlotter.get_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.plotters.SpectrumPlotter.get_plot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_plot</code><span class="sig-paren">(</span><em class="sig-param">xlim=None</em>, <em class="sig-param">ylim=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/plotters.html#SpectrumPlotter.get_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.plotters.SpectrumPlotter.get_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a matplotlib plot showing the DOS.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -130,7 +130,7 @@ determination.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.vis.plotters.SpectrumPlotter.save_plot">
-<code class="descname">save_plot</code><span class="sig-paren">(</span><em>filename</em>, <em>img_format='eps'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/plotters.html#SpectrumPlotter.save_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.plotters.SpectrumPlotter.save_plot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">save_plot</code><span class="sig-paren">(</span><em class="sig-param">filename</em>, <em class="sig-param">img_format='eps'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/plotters.html#SpectrumPlotter.save_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.plotters.SpectrumPlotter.save_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save matplotlib plot to a file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -144,7 +144,7 @@ determination.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.vis.plotters.SpectrumPlotter.show">
-<code class="descname">show</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/plotters.html#SpectrumPlotter.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.plotters.SpectrumPlotter.show" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">show</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/plotters.html#SpectrumPlotter.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.plotters.SpectrumPlotter.show" title="Permalink to this definition">¶</a></dt>
 <dd><p>Show the plot using matplotlib.</p>
 </dd></dl>
 
@@ -166,10 +166,10 @@ determination.</p></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -188,13 +188,13 @@ determination.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

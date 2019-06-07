@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.lammps.inputs module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.io.lammps.inputs module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -46,7 +46,7 @@
 <span id="pymatgen-io-lammps-inputs-module"></span><h1>pymatgen.io.lammps.inputs module<a class="headerlink" href="#module-pymatgen.io.lammps.inputs" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.io.lammps.inputs.LammpsRun">
-<em class="property">class </em><code class="descname">LammpsRun</code><span class="sig-paren">(</span><em>script_template</em>, <em>settings</em>, <em>data</em>, <em>script_filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/inputs.html#LammpsRun"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsRun" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">LammpsRun</code><span class="sig-paren">(</span><em class="sig-param">script_template</em>, <em class="sig-param">settings</em>, <em class="sig-param">data</em>, <em class="sig-param">script_filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/inputs.html#LammpsRun"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsRun" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Examples for various simple LAMMPS runs with given simulation box,
 force field and a few more settings. Experience LAMMPS users should
@@ -69,9 +69,9 @@ read_data cmd is in the script.</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.io.lammps.inputs.LammpsRun.md">
-<em class="property">classmethod </em><code class="descname">md</code><span class="sig-paren">(</span><em>data</em>, <em>force_field</em>, <em>temperature</em>, <em>nsteps</em>, <em>other_settings=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/inputs.html#LammpsRun.md"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsRun.md" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">md</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">force_field</em>, <em class="sig-param">temperature</em>, <em class="sig-param">nsteps</em>, <em class="sig-param">other_settings=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/inputs.html#LammpsRun.md"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsRun.md" title="Permalink to this definition">¶</a></dt>
 <dd><blockquote>
 <div><p>Example for a simple MD run based on template md.txt.</p>
 <dl class="simple">
@@ -97,12 +97,12 @@ other_settings (dict): other settings to be filled into</p>
 
 <dl class="attribute">
 <dt id="pymatgen.io.lammps.inputs.LammpsRun.template_dir">
-<code class="descname">template_dir</code><em class="property"> = '/Users/shyue/repos/pymatgen/pymatgen/io/lammps/templates'</em><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsRun.template_dir" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">template_dir</code><em class="property"> = '/Users/shyuepingong/repos/pymatgen/pymatgen/io/lammps/templates'</em><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsRun.template_dir" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.lammps.inputs.LammpsRun.write_inputs">
-<code class="descname">write_inputs</code><span class="sig-paren">(</span><em>output_dir</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/inputs.html#LammpsRun.write_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsRun.write_inputs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_inputs</code><span class="sig-paren">(</span><em class="sig-param">output_dir</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/inputs.html#LammpsRun.write_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsRun.write_inputs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes all input files (input script, and data if needed).
 Other supporting files are not handled at this moment.</p>
 <dl class="field-list simple">
@@ -119,7 +119,7 @@ Other supporting files are not handled at this moment.</p>
 
 <dl class="function">
 <dt id="pymatgen.io.lammps.inputs.write_lammps_inputs">
-<code class="descname">write_lammps_inputs</code><span class="sig-paren">(</span><em>output_dir</em>, <em>script_template</em>, <em>settings=None</em>, <em>data=None</em>, <em>script_filename='in.lammps'</em>, <em>make_dir_if_not_present=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/inputs.html#write_lammps_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.write_lammps_inputs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_lammps_inputs</code><span class="sig-paren">(</span><em class="sig-param">output_dir</em>, <em class="sig-param">script_template</em>, <em class="sig-param">settings=None</em>, <em class="sig-param">data=None</em>, <em class="sig-param">script_filename='in.lammps'</em>, <em class="sig-param">make_dir_if_not_present=True</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/inputs.html#write_lammps_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.write_lammps_inputs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes input files for a LAMMPS run. Input script is constructed
 from a str template with placeholders to be filled by custom
 settings. Data file is either written from a LammpsData
@@ -208,10 +208,10 @@ neigh_modify    delay 5 every 1</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -230,13 +230,13 @@ neigh_modify    delay 5 every 1</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

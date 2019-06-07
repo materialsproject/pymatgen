@@ -19,7 +19,7 @@ from monty.serialization import loadfn
 from functools import total_ordering
 
 from monty.fractions import gcd, gcd_float
-from pymatgen.core.periodic_table import get_el_sp, Element, Specie
+from pymatgen.core.periodic_table import get_el_sp, Element, Specie, DummySpecie
 from pymatgen.util.string import formula_double_format
 from monty.json import MSONable
 from pymatgen.core.units import unitized
@@ -40,7 +40,7 @@ __date__ = "Nov 10, 2012"
 
 
 @total_ordering
-class Composition(collections.Hashable, collections.Mapping, MSONable):
+class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
     """
     Represents a Composition, which is essentially a {element:amount} mapping
     type. Composition is written to be immutable and hashable,
@@ -97,7 +97,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
 
     oxi_prob = None  # prior probability of oxidation used by oxi_state_guesses
 
-    def __init__(self, *args, **kwargs):  # allow_negative=False
+    def __init__(self, *args, strict=False, **kwargs):  # allow_negative=False
         """
         Very flexible Composition construction, similar to the built-in Python
         dict(). Also extended to allow simple string init.
@@ -116,6 +116,8 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
 
             In addition, the Composition constructor also allows a single
             string as an input formula. E.g., Composition("Li2O").
+
+            strict: Only allow valid Elements and Species in the Composition.
 
             allow_negative: Whether to allow negative compositions. This
                 argument must be popped from the \\*\\*kwargs due to \\*args
@@ -140,6 +142,9 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 elamt[get_el_sp(k)] = v
                 self._natoms += abs(v)
         self._data = elamt
+        if strict and not self.valid:
+            raise ValueError("Composition is not valid, contains: {}"
+                             .format(", ".join(map(str, self.elements))))
 
     def __getitem__(self, item):
         try:
@@ -602,6 +607,15 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         in database keys.
         """
         return "-".join(sorted([str(el) for el in self.elements]))
+
+    @property
+    def valid(self):
+        """
+        Returns True if Composition contains valid elements or species and
+        False if the Composition contains any dummy species.
+        """
+        return not any([isinstance(el, DummySpecie) for el in self.elements])
+
 
     def __repr__(self):
         return "Comp: " + self.formula

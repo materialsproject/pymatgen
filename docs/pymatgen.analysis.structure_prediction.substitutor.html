@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.structure_prediction.substitutor module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.analysis.structure_prediction.substitutor module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -46,7 +46,7 @@
 <span id="pymatgen-analysis-structure-prediction-substitutor-module"></span><h1>pymatgen.analysis.structure_prediction.substitutor module<a class="headerlink" href="#module-pymatgen.analysis.structure_prediction.substitutor" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.analysis.structure_prediction.substitutor.Substitutor">
-<em class="property">class </em><code class="descname">Substitutor</code><span class="sig-paren">(</span><em>threshold=0.001</em>, <em>symprec=0.1</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/substitutor.html#Substitutor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Substitutor</code><span class="sig-paren">(</span><em class="sig-param">threshold=0.001</em>, <em class="sig-param">symprec=0.1</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/substitutor.html#Substitutor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>This object uses a data mined ionic substitution approach to propose
 compounds likely to be stable. It relies on an algorithm presented in
@@ -68,32 +68,32 @@ lambda_table, alpha</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.analysis.structure_prediction.substitutor.Substitutor.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/substitutor.html#Substitutor.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/substitutor.html#Substitutor.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>A JSON serializable dict representation of an object.</p>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.structure_prediction.substitutor.Substitutor.from_dict">
-<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/substitutor.html#Substitutor.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/substitutor.html#Substitutor.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.structure_prediction.substitutor.Substitutor.get_allowed_species">
-<code class="descname">get_allowed_species</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/substitutor.html#Substitutor.get_allowed_species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.get_allowed_species" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_allowed_species</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/substitutor.html#Substitutor.get_allowed_species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.get_allowed_species" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns the species in the domain of the probability function
 any other specie will not work</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.structure_prediction.substitutor.Substitutor.pred_from_comp">
-<code class="descname">pred_from_comp</code><span class="sig-paren">(</span><em>composition</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/substitutor.html#Substitutor.pred_from_comp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.pred_from_comp" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">pred_from_comp</code><span class="sig-paren">(</span><em class="sig-param">composition</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/substitutor.html#Substitutor.pred_from_comp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.pred_from_comp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Similar to pred_from_list except this method returns a list after
 checking that compositions are charge balanced.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.structure_prediction.substitutor.Substitutor.pred_from_list">
-<code class="descname">pred_from_list</code><span class="sig-paren">(</span><em>species_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/substitutor.html#Substitutor.pred_from_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.pred_from_list" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">pred_from_list</code><span class="sig-paren">(</span><em class="sig-param">species_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/substitutor.html#Substitutor.pred_from_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.pred_from_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>There are an exceptionally large number of substitutions to
 look at (260^n), where n is the number of species in the
 list. We need a more efficient than brute force way of going
@@ -121,7 +121,7 @@ dictionary, and a probability value</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.structure_prediction.substitutor.Substitutor.pred_from_structures">
-<code class="descname">pred_from_structures</code><span class="sig-paren">(</span><em>target_species</em>, <em>structures_list</em>, <em>remove_duplicates=True</em>, <em>remove_existing=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/substitutor.html#Substitutor.pred_from_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.pred_from_structures" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">pred_from_structures</code><span class="sig-paren">(</span><em class="sig-param">target_species</em>, <em class="sig-param">structures_list</em>, <em class="sig-param">remove_duplicates=True</em>, <em class="sig-param">remove_existing=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/substitutor.html#Substitutor.pred_from_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.pred_from_structures" title="Permalink to this definition">¶</a></dt>
 <dd><p>performs a structure prediction targeting compounds containing all of
 the target_species, based on a list of structure (those structures
 can for instance come from a database like the ICSD). It will return
@@ -171,10 +171,10 @@ structures_list will be removed</p></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -193,13 +193,13 @@ structures_list will be removed</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
