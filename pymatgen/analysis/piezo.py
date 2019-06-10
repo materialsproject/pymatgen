@@ -41,3 +41,18 @@ class PiezoTensor(Tensor):
             warnings.warn("Input piezo tensor does "
                           "not satisfy standard symmetries")
         return obj.view(cls)
+
+    @classmethod
+    def from_vasp_voigt(input_vasp_array):
+        voigt_map = [(0, 0), (1, 1), (2, 2), (0, 1), (1, 2), (0, 2)]
+
+        voigt_input = np.array(input_vasp_array)
+        rank = sum(voigt_input.shape) // 3
+        t = cls(np.zeros([3] * rank))
+        if voigt_input.shape != t._vscale.shape:
+            raise ValueError("Invalid shape for voigt matrix")
+        voigt_input = voigt_input / t._vscale
+        this_voigt_map = t.get_voigt_dict(rank)
+        for ind in this_voigt_map:
+            t[ind] = voigt_input[this_voigt_map[ind]]
+        return cls(t)
