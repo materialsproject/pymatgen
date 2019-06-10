@@ -6,15 +6,13 @@ import pymatgen.io.phonopy
 import numpy as np
 import warnings
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer as sga
-from monty.dev import requires
 
 try:
-    import phonopy
     from phonopy import Phonopy
     from phonopy.structure.atoms import PhonopyAtoms
     from phonopy.harmonic import dynmat_to_fc as dyntofc
 except ImportError:
-    phonopy = None
+    Phonopy = None
 
 __author__ = "Handong Ling"
 __copyright__ = "Copyright 2019, The Materials Project"
