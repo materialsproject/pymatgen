@@ -238,7 +238,8 @@ class PiezoSensitivityTest(PymatgenTest):
 	def test_get_piezo(self):
 		piezo = get_piezo(self.BEC, self.IST, self.FCM)
 		self.assertTrue(np.allclose(piezo, self.piezo, atol = 1e-05))
-
+		
+	@requires(Phonopy, "phonopy not installed!")
 	def test_rand_piezo(self):
 		rand_BEC, rand_IST, rand_FCM, piezo = rand_piezo(self.piezo_struc, self.pointops, self.sharedops, self.BEC, self.IST, self.FCM)
 
