@@ -32,22 +32,28 @@ class InterfaceTest(PymatgenTest):
         cls.ib = InterfaceBuilder(si_conventional, sio2_conventional)
         cls.ib.generate_interfaces(substrate_millers=[[1, 0, 0]], film_layers=3, substrate_layers=3)
 
-    def test_shift_vector(self):
+    def test_offset_vector(self):
         interface = self.ib.interfaces[0]
+        init_lattice = interface.lattice.matrix.copy()
+        self.assertArrayAlmostEqual(interface.offset_vector, np.array([0,0,2.5]))
         init_film = interface.film
         init_sub = interface.substrate
         tst = Structure.from_sites(interface.sites)
-        interface.vacuum_thickness += 1
+        interface.z_shift += 1
+        self.assertArrayAlmostEqual(interface.offset_vector, np.array([0,0,3.5]))
         tdm, idm = tst.distance_matrix, interface.distance_matrix
         diff = tdm - idm
         assert (tdm <= idm + 1e-10).all()
         assert (tdm + 0.5 < idm).any()
-        interface.vacuum_thickness -= 1
+        interface.z_shift -= 1
+        self.assertArrayAlmostEqual(interface.offset_vector, np.array([0,0,2.5]))
         idm = interface.distance_matrix
         assert (np.abs(tdm - idm) < 1e-10).all()
         interface.ab_shift += np.array([0.2,0.2])
+        self.assertArrayAlmostEqual(interface.ab_shift, np.array([0.2,0.2]))
         idm = interface.distance_matrix
         assert (np.abs(tdm - idm) > 0.9).any()
+        self.assertArrayAlmostEqual(init_lattice, interface.lattice.matrix)
 
         self.assertArrayAlmostEqual(init_film.distance_matrix, interface.film.distance_matrix)
         self.assertArrayAlmostEqual(init_sub.distance_matrix, interface.substrate.distance_matrix)
@@ -62,13 +68,20 @@ class InterfaceTest(PymatgenTest):
                         if 'substrate' in interface.site_properties['interface_label'][i]]
         assert film.sites == film_sites
         assert substrate.sites == substrate_sites
-        assert len(film) == len(interface.oriented_film_cell)
-        assert len(substrate) == len(interface.oriented_sub_cell)
+        assert len(film) == len(interface.modified_film_structure)
+        assert len(substrate) == len(interface.modified_sub_structure)
 
     def test_vertical_spacing(self):
-        pass
+        interface = self.ib.interfaces[0]
+        self.assertAlmostEqual(interface.z_shift,
+            np.min(interface.film.cart_coords[:,2]) - np.max(interface.substrate.cart_coords[:,2]))
+        self.assertAlmostEqual(interface.lattice.c, interface.vacuum_thickness + interface.z_shift\
+                                + np.max(interface.film.cart_coords[:,2])
+                                - np.min(interface.film.cart_coords[:,2])\
+                                + np.max(interface.substrate.cart_coords[:,2])\
+                                - np.min(interface.substrate.cart_coords[:,2]))
 
-    def test_horizontal_spacing(self):
+    def test_inplane_spacing(self):
         pass
 
 class InterfaceBuilderTest(PymatgenTest):
@@ -101,15 +114,15 @@ class InterfaceBuilderTest(PymatgenTest):
     def test_film_and_substrate_sites(self):
         for ib in self.ibs:
             interface = ib.interfaces[0]
-            assert len(interface.film) == len(interface.oriented_film_cell)
-            assert len(interface.substrate) == len(interface.oriented_sub_cell)
+            assert len(interface.film) == len(interface.modified_film_structure)
+            assert len(interface.substrate) == len(interface.modified_sub_structure)
 
     def test_lattice(self):
         zsl = ZSLGenerator()
         for ib in self.ibs:
             interface = ib.interfaces[0]
-            assert zsl.is_same_vectors(interface.oriented_sub_cell.lattice.matrix[:2],
-                                        interface.oriented_film_cell.lattice.matrix[:2])
+            assert zsl.is_same_vectors(interface.modified_sub_structure.lattice.matrix[:2],
+                                        interface.modified_film_structure.lattice.matrix[:2])
 
     def test_structure_preservation(self):
         for ib in self.ibs:
