@@ -48,7 +48,7 @@ class BornEffectiveCharge:
             warnings.warn("Input born effective charge tensor does "
                           "not satisfy charge neutrality")
 
-    def get_BEC_IST_operations(self, eigtol = 1e-05, opstol = 1e-03):
+    def get_BEC_operations(self, eigtol = 1e-05, opstol = 1e-03):
         bec = self.bec
         struc = self.structure
         ops = sga(struc).get_symmetry_operations(cartesian = True)
@@ -189,8 +189,7 @@ class InternalStrainTensor:
         if not (obj - np.transpose(obj, (0, 1, 3, 2)) < tol).all():
             warnings.warn("Input internal strain tensor does "
                           "not satisfy standard symmetries")
-
-    def get_BEC_IST_operations(self, bec, eigtol = 1e-05, opstol = 1e-03):
+    def get_IST_operations(self,opstol = 1e-03):
         struc = self.structure
         ops = sga(struc).get_symmetry_operations(cartesian = True)
         uniquepointops = [] 
@@ -201,40 +200,22 @@ class InternalStrainTensor:
             for j in range(len(self.pointops[i])):
                 if self.pointops[i][j] not in uniquepointops:
                     uniquepointops.append(self.pointops[i][j])
-                
-         
-        passed = []
-        relations = []
-        for i in range(len(bec)):
-            unique = 1
-            eig1, vecs1 = np.linalg.eig(bec[i])
-            index = np.argsort(eig1)
-            neweig = np.real([eig1[index[0]],eig1[index[1]],eig1[index[2]]])
-            for k in range(len(passed)):
-
-                if np.allclose(neweig, passed[k][1], atol = eigtol):
-                    relations.append([i,k])
-                    unique = 0 
-                    passed.append([i,passed[k][0], neweig])
-                    break
-            if unique == 1:
-                relations.append([i, i])
-                passed.append([i, neweig])
-        BEC_IST_operations = []
-        for i in range(len(relations)):
-            good = 0
-            BEC_IST_operations.append(relations[i])
-            BEC_IST_operations[i].append([])
-            good = 0
-            for j in range(len(uniquepointops)):
-                new = uniquepointops[j].transform_tensor(bec[relations[i][1]])
-                
-                ## Check the matrix it references
-                if np.allclose(new, bec[relations[i][0]], atol = opstol):
-                    BEC_IST_operations[i][2].append(uniquepointops[j])
+        ops = sga(struc).get_symmetry_operations(cartesian = True)
 
 
-        self.IST_operations = BEC_IST_operations    
+        IST_operations = []
+        for i in range(len(self.ist)):
+            IST_operations.append([])
+            for j in range(0,i):
+                for k in range(len(uniquepointops)):
+                    new = uniquepointops[k].transform_tensor(self.ist[j])
+
+                    ## Check the matrix it references
+                    if np.allclose(new, self.ist[i], atol = opstol):
+                        IST_operations[i].append([j, uniquepointops[k]])
+
+        self.IST_operations = IST_operations  
+
 
     def get_rand_IST(self, max_force=1):
         """
@@ -251,33 +232,25 @@ class InternalStrainTensor:
             InternalStrainTensor object
         """
 
-        struc = self.structure
-        symstruc = sga(struc)
-        symstruc = symstruc.get_symmetrized_structure()
-        
-        
-        l = len(struc)
+        l = len(self.structure)
         IST = np.zeros((l,3,3,3))
         primsites = []
-
         for i in range(len(self.IST_operations)):
-            if self.IST_operations[i][0] == self.IST_operations[i][1]:
+            temp_tensor = np.zeros([3,3,3])
+            for j in range(len(self.IST_operations[i])):
+                temp_tensor += self.IST_operations[i][j][1].transform_tensor(IST[self.IST_operations[i][j][0]])
+                
+            if len(self.IST_operations[i]) == 0:
                 temp_tensor = Tensor(np.random.rand(3,3,3)-0.5) 
                 for dim in range(3):
                     temp_tensor[dim] = (temp_tensor[dim]+temp_tensor[dim].T)/2
                 temp_tensor = sum([temp_tensor.transform(symm_op) for symm_op in self.pointops[i]]) \
                     /len(self.pointops[i])
-                IST[self.IST_operations[i][0]] = temp_tensor
-            else: 
-                temp_tensor = np.zeros([3,3,3])
-                for j in range(len(self.IST_operations[i][2])):
+            IST[i] = temp_tensor
+            if len(self.IST_operations[i]) != 0:
+                IST[i] = IST[i]/len(self.IST_operations[i])
+        return IST*max_force
 
-                    temp_tensor += self.IST_operations[i][2][j].transform_tensor(IST[self.IST_operations[i][1]])
-                
-                IST[self.IST_operations[i][0]] = temp_tensor
-                if len(self.IST_operations[i][2]) != 0:
-                    IST[self.IST_operations[i][0]] = IST[self.IST_operations[i][0]]/len(self.IST_operations[i][2])
-        
         return IST*max_force
 
 
@@ -367,6 +340,15 @@ class ForceConstantMatrix:
                     
 
     def get_unstable_FCM(self, max_force = 1):
+        """
+        Generate an unsymmeterized force constant matrix 
+
+        Args:
+            max_charge (float): maximum born effective charge value
+
+        Return:
+            numpy array representing the force constant matrix
+        """
 
         struc = self.structure
         operations = self.FCM_operations
@@ -423,17 +405,12 @@ class ForceConstantMatrix:
         Generate a symmeterized force constant matrix from an unsymmeterized matrix
 
         Args:
-            fcm (numpy array): unsymmeterized force constant matrix 
-            operations: list of operation mappings for indexed sites in the force
-                constant matrix
-            sharedops: symmetry operations share by a pair of atomic sites
+            unsymmetrized_fcm (numpy array): unsymmeterized force constant matrix 
             max_charge (float): maximum born effective charge value
 
         Return:
             numpy array representing the force constant matrix
         """
-
-        # set max force in reciprocal space
 
         operations = self.FCM_operations
         numsites = len(self.structure)
@@ -501,9 +478,7 @@ class ForceConstantMatrix:
             fcm (numpy array): unsymmeterized force constant matrix 
             operations: list of operation mappings for indexed sites in the force
                 constant matrix
-            sharedops: 
-            max_charge (float): maximum born effective charge value
-            asum (int): number of iterations to attempt to obey the acoustic sum
+            fcmasum (int): number of iterations to attempt to obey the acoustic sum
                 rule
 
         Return:
@@ -628,6 +603,7 @@ class ForceConstantMatrix:
         
         return(fcm)
 
+    @requires(Phonopy, "phonopy not installed!")
     def get_rand_FCM(self, asum = 15, force = 10):    
         """
         Generate a symmeterized force constant matrix from an unsymmeterized matrix
@@ -636,9 +612,6 @@ class ForceConstantMatrix:
 
         Args:
             fcm (numpy array): unsymmeterized force constant matrix 
-            operations: list of operation mappings for indexed sites in the force
-                constant matrix
-            sharedops: list of point operations shared by a pair of atomic sites
             force (float): maximum force constant
             asum (int): number of iterations to attempt to obey the acoustic sum
                 rule
@@ -721,11 +694,11 @@ def rand_piezo(struc, pointops, sharedops, BEC, IST, FCM, anumiter = 10):
     """
     numsites = len(struc.sites)
     bec = BornEffectiveCharge(struc, BEC, pointops)
-    bec.get_BEC_IST_operations() 
+    bec.get_BEC_operations() 
     rand_BEC = bec.get_rand_BEC()
 
     ist = InternalStrainTensor(struc, IST, pointops)
-    ist.get_BEC_IST_operations(BEC) 
+    ist.get_IST_operations() 
     rand_IST = ist.get_rand_IST()
 
     fcm = ForceConstantMatrix(struc, FCM, pointops, sharedops)

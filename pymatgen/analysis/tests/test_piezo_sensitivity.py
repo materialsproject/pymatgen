@@ -41,19 +41,20 @@ class PiezoSensitivityTest(PymatgenTest):
 		self.FCM = np.load(os.path.join(test_dir, "pztfcm.npy"), allow_pickle=True)
 		self.pointops = np.load(os.path.join(test_dir, "pointops.npy"), allow_pickle=True)
 		self.sharedops = np.load(os.path.join(test_dir, "sharedops.npy"), allow_pickle=True)
-		self.BEC_IST_operations= np.load(os.path.join(test_dir, "becistops.npy"), allow_pickle=True)
+		self.BEC_operations= np.load(os.path.join(test_dir, "becops.npy"), allow_pickle=True)
+		self.IST_operations = np.load(os.path.join(test_dir, "istops.npy"), allow_pickle=True)
 		self.FCM_operations= np.load(os.path.join(test_dir, "fcmops.npy"), allow_pickle=True)
-		self.piezo = np.array([[[  5.32649351e-03,  -1.33404642e-14,  -6.87580224e+02],
-					        [ -1.33404642e-14,   4.95526253e-03,  -5.60353712e-13],
-					        [ -6.87580224e+02,  -5.60353712e-13,   1.33209787e-02]],
+		self.piezo = np.array([[[  5.32649351e-03,  -1.33404642e-14,  -6.86958142e+02],
+						        [ -1.33404642e-14,   4.95526253e-03,  -5.60353712e-13],
+						        [ -6.86958142e+02,  -5.60353712e-13,   1.33209787e-02]],
 
-					       [[  4.86622567e-03,   3.14840965e-13,  -7.41719319e-13],
-					        [  3.14840965e-13,   5.23745666e-03,  -6.68536818e+02],
-					        [ -7.41719319e-13,  -6.68536818e+02,   1.35025755e-02]],
+						       [[  4.86622567e-03,   3.14840965e-13,  -7.41608150e-13],
+						        [  3.14840965e-13,   5.23745666e-03,  -6.68536818e+02],
+						        [ -7.41608150e-13,  -6.68536818e+02,   1.35025755e-02]],
 
-					       [[ -1.01086427e+02,   3.20177004e-14,  -4.34079030e-14],
-					        [  3.20177004e-14,  -1.01086427e+02,   1.22012318e-14],
-					        [ -4.34079030e-14,   1.22012318e-14,  -5.32241086e+02]]])
+						       [[ -1.01086427e+02,   3.20177004e-14,  -3.68487214e-14],
+						        [  3.20177004e-14,  -1.01086427e+02,   1.22012318e-14],
+						        [ -3.68487214e-14,   1.22012318e-14,  -5.32241086e+02]]])
 
 	def test_BornEffectiveChargeTensor(self):
 		bec = BornEffectiveCharge(self.piezo_struc, self.BEC, self.pointops)
@@ -68,32 +69,30 @@ class PiezoSensitivityTest(PymatgenTest):
 		self.assertArrayAlmostEqual(fcmt.fcm, self.FCM)
 
 
-	def test_get_BEC_IST_operations(self):
+	def test_get_BEC_operations(self):
 		bec = BornEffectiveCharge(self.piezo_struc, self.BEC, self.pointops)
-		bec.get_BEC_IST_operations() 
-		self.assertTrue(np.all(self.BEC_IST_operations == bec.BEC_operations))
+		bec.get_BEC_operations() 
+		self.assertTrue(np.all(self.BEC_operations == bec.BEC_operations))
 
-		ist = InternalStrainTensor(self.piezo_struc, self.IST, self.pointops)
-		ist.get_BEC_IST_operations(self.BEC) 
-		self.assertTrue(np.all(self.BEC_IST_operations == ist.IST_operations))
 
 	def test_get_rand_BEC(self):
 		bec = BornEffectiveCharge(self.piezo_struc, self.BEC, self.pointops)
-		bec.get_BEC_IST_operations() 
+		bec.get_BEC_operations() 
 		rand_BEC = bec.get_rand_BEC()
-		for i in range(len(self.BEC_IST_operations)):
-			for j in range(len(self.BEC_IST_operations[i][2])):
-				self.assertTrue(np.allclose(rand_BEC[self.BEC_IST_operations[i][0]],
-					self.BEC_IST_operations[i][2][j].transform_tensor(rand_BEC[self.BEC_IST_operations[i][1]]), atol = 1e-03))
+		for i in range(len(self.BEC_operations)):
+			for j in range(len(self.BEC_operations[i][2])):
+				self.assertTrue(np.allclose(rand_BEC[self.BEC_operations[i][0]],
+					self.BEC_operations[i][2][j].transform_tensor(rand_BEC[self.BEC_operations[i][1]]), atol = 1e-03))
 
 	def test_get_rand_IST(self):
 		ist = InternalStrainTensor(self.piezo_struc, self.IST, self.pointops)
-		ist.get_BEC_IST_operations(self.BEC) 
+		ist.get_IST_operations() 
 		rand_IST = ist.get_rand_IST()
-		for i in range(len(self.BEC_IST_operations)):
-			for j in range(len(self.BEC_IST_operations[i][2])):
-				self.assertTrue(np.allclose(rand_IST[self.BEC_IST_operations[i][0]],
-					self.BEC_IST_operations[i][2][j].transform_tensor(rand_IST[self.BEC_IST_operations[i][1]]), atol = 1e-03))
+		for i in range(len(self.IST_operations)):
+			for j in range(len(self.IST_operations[i])):
+				self.assertTrue(np.allclose(rand_IST[i],
+					self.IST_operations[i][j][1].transform_tensor(rand_IST[self.IST_operations[i][j][0]]), atol = 1e-03))
+
 	def test_get_FCM_operations(self):
 		fcm = ForceConstantMatrix(self.piezo_struc, self.FCM, self.pointops, self.sharedops)
 		fcm.get_FCM_operations() 
@@ -237,20 +236,20 @@ class PiezoSensitivityTest(PymatgenTest):
 
 	def test_get_piezo(self):
 		piezo = get_piezo(self.BEC, self.IST, self.FCM)
-		self.assertTrue(np.allclose(piezo, self.piezo))
+		self.assertTrue(np.allclose(piezo, self.piezo, atol = 1e-05))
 
 	def test_rand_piezo(self):
 		rand_BEC, rand_IST, rand_FCM, piezo = rand_piezo(self.piezo_struc, self.pointops, self.sharedops, self.BEC, self.IST, self.FCM)
 
-		for i in range(len(self.BEC_IST_operations)):
-			for j in range(len(self.BEC_IST_operations[i][2])):
-				self.assertTrue(np.allclose(rand_BEC[self.BEC_IST_operations[i][0]],
-					self.BEC_IST_operations[i][2][j].transform_tensor(rand_BEC[self.BEC_IST_operations[i][1]]), atol = 1e-03))
+		for i in range(len(self.BEC_operations)):
+			for j in range(len(self.BEC_operations[i][2])):
+				self.assertTrue(np.allclose(rand_BEC[self.BEC_operations[i][0]],
+					self.BEC_operations[i][2][j].transform_tensor(rand_BEC[self.BEC_operations[i][1]]), atol = 1e-03))
 
-		for i in range(len(self.BEC_IST_operations)):
-			for j in range(len(self.BEC_IST_operations[i][2])):
-				self.assertTrue(np.allclose(rand_IST[self.BEC_IST_operations[i][0]],
-					self.BEC_IST_operations[i][2][j].transform_tensor(rand_IST[self.BEC_IST_operations[i][1]]), atol = 1e-03))
+		for i in range(len(self.IST_operations)):
+			for j in range(len(self.IST_operations[i])):
+				self.assertTrue(np.allclose(rand_IST[i],
+					self.IST_operations[i][j][1].transform_tensor(rand_IST[self.IST_operations[i][j][0]]), atol = 1e-03))
 
 		structure = pymatgen.io.phonopy.get_phonopy_structure(self.piezo_struc)
 		pnstruc = Phonopy(structure, np.eye(3), np.eye(3))
