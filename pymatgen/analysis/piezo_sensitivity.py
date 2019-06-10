@@ -6,6 +6,7 @@ import pymatgen.io.phonopy
 import numpy as np
 import warnings
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer as sga
+from monty.dev import requires
 
 try:
     import phonopy
@@ -223,10 +224,7 @@ class InternalStrainTensor:
         symmetry and the acoustic sum rule
 
         Args:
-            struc (pymatgen structure): 
-            symops: point symmetry operations of each atomic site
-            IST_operations: list of operations which map atomic sites onto each other
-            max_charge (float): maximum born effective charge value
+            max_force(float): maximum born effective charge value
 
         Return:
             InternalStrainTensor object
@@ -476,8 +474,6 @@ class ForceConstantMatrix:
 
         Args:
             fcm (numpy array): unsymmeterized force constant matrix 
-            operations: list of operation mappings for indexed sites in the force
-                constant matrix
             fcmasum (int): number of iterations to attempt to obey the acoustic sum
                 rule
 
@@ -675,6 +671,7 @@ def get_piezo(BEC, IST, FCM, rcondy = 0.0001):
     K = np.reshape(K, (numsites,3,numsites,3)).swapaxes(1,2)
     return np.einsum("ikl,ijlm,jmno->kno",BEC,K,IST)*16.0216559424
 
+@requires(Phonopy, "phonopy not installed!")
 def rand_piezo(struc, pointops, sharedops, BEC, IST, FCM, anumiter = 10):
     """
     Generate a random piezoelectric tensor based on a structure and corresponding
