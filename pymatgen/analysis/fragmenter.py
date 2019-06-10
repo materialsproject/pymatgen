@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 class Fragmenter(MSONable):
 
-    def __init__(self, molecule, edges=None, depth=1, open_rings=True, opt_steps=10000, use_igraph=True, prev_unique_frag_dict=None):
+    def __init__(self, molecule, edges=None, depth=1, open_rings=True, metal_edge_extender=False, opt_steps=10000, use_igraph=True, prev_unique_frag_dict=None):
         """
         Standard constructor for molecule fragmentation
 
@@ -60,7 +60,7 @@ class Fragmenter(MSONable):
             edges = {(e[0], e[1]): None for e in edges}
             self.mol_graph = MoleculeGraph.with_edges(molecule, edges)
 
-        if "Li" in molecule.composition or "Mg" in molecule.composition:
+        if ("Li" in molecule.composition or "Mg" in molecule.composition) and metal_edge_extender:
             print("Extending lithium and magnesium edges to ensure that we capture coordination to nearby oxygens or nitrogens.")
             if self.open_rings:
                 print("WARNING: Metal edge extension while opening rings can yeild unphysical fragments!")

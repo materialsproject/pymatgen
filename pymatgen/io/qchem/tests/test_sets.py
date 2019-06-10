@@ -34,10 +34,14 @@ class QChemDictSetTest(PymatgenTest):
                 'gen_scfman': 'true',
                 'basis': '6-31g*',
                 'max_scf_cycles': 200,
-                'method': 'wb97xd',
+                'method': 'wb97xv',
                 'scf_algorithm': 'diis',
                 'xc_grid': '3',
-                'geom_opt_max_cycles': 200
+                'geom_opt_max_cycles': 200,
+                'symmetry': 'false',
+                'sym_ignore': 'true',
+                'resp_charges': 'true'
+
             })
         self.assertEqual(test_DictSet.pcm, {})
         self.assertEqual(test_DictSet.solvent, {})
@@ -62,11 +66,14 @@ class QChemDictSetTest(PymatgenTest):
                 'gen_scfman': 'true',
                 'basis': '6-31g*',
                 'max_scf_cycles': 35,
-                'exchange': 'b3lyp',
+                'method': 'b3lyp',
                 'geom_opt_max_cycles': 200,
                 'scf_algorithm': 'diis',
                 'xc_grid': '3',
-                'solvent_method': 'pcm'
+                'solvent_method': 'pcm',
+                'symmetry': 'false',
+                'sym_ignore': 'true',
+                'resp_charges': 'true'
             })
         self.assertEqual(
             test_DictSet.pcm, {
@@ -93,12 +100,15 @@ class QChemDictSetTest(PymatgenTest):
                 'gen_scfman': 'true',
                 'basis': '6-31g*',
                 'max_scf_cycles': 35,
-                'exchange': 'b3lyp',
+                'method': 'b3lyp',
                 'geom_opt_max_cycles': 200,
                 'scf_algorithm': 'diis',
                 'xc_grid': '3',
                 'solvent_method': 'smd',
-                'ideriv': '1'
+                'ideriv': '1',
+                'symmetry': 'false',
+                'sym_ignore': 'true',
+                'resp_charges': 'true'
             })
         self.assertEqual(test_DictSet.smx, {'solvent': 'water'})
 
@@ -121,10 +131,13 @@ class QChemDictSetTest(PymatgenTest):
             'basis': '6-31g*',
             'max_scf_cycles': 200,
             'method': 'b3lyp',
-            'scf_algorithm': 'diis_gdm',
+            'scf_algorithm': 'diis',
             'xc_grid': '000150000302',
             'geom_opt_max_cycles': 200,
-            'thresh': 10
+            'thresh': 10,
+            'symmetry': 'false',
+            'sym_ignore': 'true',
+            'resp_charges': 'true'
         }
         self.assertDictEqual(act_rem, test_OptSet.rem)
 
@@ -164,12 +177,15 @@ class QChemDictSetTest(PymatgenTest):
             "job_type": "opt",
             "basis": "6-31G*",
             "max_scf_cycles": '35',
-            "method": "wb97m-v",
+            "method": "wb97mv",
             "geom_opt_max_cycles": '200',
             "gen_scfman": 'true',
             "scf_algorithm": "diis",
             "xc_grid": '3',
-            "solvent_method": "pcm"
+            "solvent_method": "pcm",
+            'symmetry': 'false',
+            'sym_ignore': 'true',
+            'resp_charges': 'true'
         }
         pcm = {
             "heavypoints": "194",
@@ -199,13 +215,16 @@ class QChemDictSetTest(PymatgenTest):
             "job_type": "opt",
             "basis": "6-31G*",
             "max_scf_cycles": '35',
-            "method": "wb97m-v",
+            "method": "wb97mv",
             "geom_opt_max_cycles": '200',
             "gen_scfman": 'true',
             "scf_algorithm": "diis",
             "xc_grid": '3',
             "solvent_method": "smd",
-            "ideriv": "1"
+            "ideriv": "1",
+            'symmetry': 'false',
+            'sym_ignore': 'true',
+            'resp_charges': 'true'
         }
         qc_input = QCInput(molecule=test_molecule, rem=rem, smx={"solvent":"water"})
         for k, v in qc_input.as_dict().items():
@@ -229,13 +248,16 @@ class QChemDictSetTest(PymatgenTest):
             "job_type": "opt",
             "basis": "6-31G*",
             "max_scf_cycles": '35',
-            "method": "wb97m-v",
+            "method": "wb97mv",
             "geom_opt_max_cycles": '200',
             "gen_scfman": 'true',
             "scf_algorithm": "diis",
             "xc_grid": '3',
             "solvent_method": "smd",
-            "ideriv": "1"
+            "ideriv": "1",
+            'symmetry': 'false',
+            'sym_ignore': 'true',
+            'resp_charges': 'true'
         }
         qc_input = QCInput(molecule=test_molecule, rem=rem, smx={"solvent":"other"})
         for k, v in qc_input.as_dict().items():
@@ -255,12 +277,15 @@ class OptSetTest(PymatgenTest):
             test_OptSet.rem, {
                 'job_type': 'opt',
                 'gen_scfman': 'true',
-                'basis': '6-311++g*',
+                'basis': 'def2-tzvppd',
                 'max_scf_cycles': 200,
                 'method': 'wb97xd',
-                'scf_algorithm': 'diis_gdm',
+                'scf_algorithm': 'diis',
                 'xc_grid': '3',
-                'geom_opt_max_cycles': 200
+                'geom_opt_max_cycles': 200,
+                'symmetry': 'false',
+                'sym_ignore': 'true',
+                'resp_charges': 'true'
             })
         self.assertEqual(test_OptSet.pcm, {})
         self.assertEqual(test_OptSet.solvent, {})
@@ -275,13 +300,16 @@ class OptSetTest(PymatgenTest):
             test_OptSet.rem, {
                 'job_type': 'opt',
                 'gen_scfman': 'true',
-                'basis': '6-311++g*',
+                'basis': 'def2-tzvppd',
                 'max_scf_cycles': 200,
                 'method': 'wb97xd',
                 'geom_opt_max_cycles': 200,
-                'scf_algorithm': 'diis_gdm',
+                'scf_algorithm': 'diis',
                 'xc_grid': '3',
-                'solvent_method': 'pcm'
+                'solvent_method': 'pcm',
+                'symmetry': 'false',
+                'sym_ignore': 'true',
+                'resp_charges': 'true'
             })
         self.assertEqual(
             test_OptSet.pcm, {
@@ -302,14 +330,17 @@ class OptSetTest(PymatgenTest):
             test_OptSet.rem, {
                 'job_type': 'opt',
                 'gen_scfman': 'true',
-                'basis': '6-311++g*',
+                'basis': 'def2-tzvppd',
                 'max_scf_cycles': 200,
                 'method': 'wb97xd',
                 'geom_opt_max_cycles': 200,
-                'scf_algorithm': 'diis_gdm',
+                'scf_algorithm': 'diis',
                 'xc_grid': '3',
                 'solvent_method': 'smd',
-                'ideriv': '1'
+                'ideriv': '1',
+                'symmetry': 'false',
+                'sym_ignore': 'true',
+                'resp_charges': 'true'
             })
         self.assertEqual(test_OptSet.smx, {'solvent': 'water'})
         self.assertEqual(test_OptSet.molecule, test_molecule)
@@ -323,11 +354,14 @@ class SinglePointSetTest(PymatgenTest):
             test_SPSet.rem, {
                 'job_type': 'sp',
                 'gen_scfman': 'true',
-                'basis': '6-311++g*',
+                'basis': 'def2-tzvppd',
                 'max_scf_cycles': 200,
                 'method': 'wb97xd',
-                'scf_algorithm': 'diis_gdm',
-                'xc_grid': '3'
+                'scf_algorithm': 'diis',
+                'xc_grid': '3',
+                'symmetry': 'false',
+                'sym_ignore': 'true',
+                'resp_charges': 'true'
             })
         self.assertEqual(test_SPSet.pcm, {})
         self.assertEqual(test_SPSet.solvent, {})
@@ -342,12 +376,15 @@ class SinglePointSetTest(PymatgenTest):
             test_SPSet.rem, {
                 'job_type': 'sp',
                 'gen_scfman': 'true',
-                'basis': '6-311++g*',
+                'basis': 'def2-tzvppd',
                 'max_scf_cycles': 200,
                 'method': 'wb97xd',
-                'scf_algorithm': 'diis_gdm',
+                'scf_algorithm': 'diis',
                 'xc_grid': '3',
-                'solvent_method': 'pcm'
+                'solvent_method': 'pcm',
+                'symmetry': 'false',
+                'sym_ignore': 'true',
+                'resp_charges': 'true'
             })
         self.assertEqual(
             test_SPSet.pcm, {
@@ -368,13 +405,16 @@ class SinglePointSetTest(PymatgenTest):
             test_SPSet.rem, {
                 'job_type': 'sp',
                 'gen_scfman': 'true',
-                'basis': '6-311++g*',
+                'basis': 'def2-tzvppd',
                 'max_scf_cycles': 200,
                 'method': 'wb97xd',
-                'scf_algorithm': 'diis_gdm',
+                'scf_algorithm': 'diis',
                 'xc_grid': '3',
                 'solvent_method': 'smd',
-                'ideriv': '1'
+                'ideriv': '1',
+                'symmetry': 'false',
+                'sym_ignore': 'true',
+                'resp_charges': 'true'
             })
         self.assertEqual(test_SPSet.smx, {'solvent': 'water'})
         self.assertEqual(test_SPSet.molecule, test_molecule)
@@ -389,11 +429,14 @@ class FreqSetTest(PymatgenTest):
             test_FreqSet.rem, {
                 'job_type': 'freq',
                 'gen_scfman': 'true',
-                'basis': '6-311++g*',
+                'basis': 'def2-tzvppd',
                 'max_scf_cycles': 200,
                 'method': 'wb97xd',
-                'scf_algorithm': 'diis_gdm',
-                'xc_grid': '3'
+                'scf_algorithm': 'diis',
+                'xc_grid': '3',
+                'symmetry': 'false',
+                'sym_ignore': 'true',
+                'resp_charges': 'true'
             })
         self.assertEqual(test_FreqSet.pcm, {})
         self.assertEqual(test_FreqSet.solvent, {})
@@ -407,12 +450,15 @@ class FreqSetTest(PymatgenTest):
             test_FreqSet.rem, {
                 'job_type': 'freq',
                 'gen_scfman': 'true',
-                'basis': '6-311++g*',
+                'basis': 'def2-tzvppd',
                 'max_scf_cycles': 200,
                 'method': 'wb97xd',
-                'scf_algorithm': 'diis_gdm',
+                'scf_algorithm': 'diis',
                 'xc_grid': '3',
-                'solvent_method': 'pcm'
+                'solvent_method': 'pcm',
+                'symmetry': 'false',
+                'sym_ignore': 'true',
+                'resp_charges': 'true'
             })
         self.assertEqual(
             test_FreqSet.pcm, {
@@ -433,13 +479,16 @@ class FreqSetTest(PymatgenTest):
             test_FreqSet.rem, {
                 'job_type': 'freq',
                 'gen_scfman': 'true',
-                'basis': '6-311++g*',
+                'basis': 'def2-tzvppd',
                 'max_scf_cycles': 200,
                 'method': 'wb97xd',
-                'scf_algorithm': 'diis_gdm',
+                'scf_algorithm': 'diis',
                 'xc_grid': '3',
                 'solvent_method': 'smd',
-                'ideriv': '1'
+                'ideriv': '1',
+                'symmetry': 'false',
+                'sym_ignore': 'true',
+                'resp_charges': 'true'
             })
         self.assertEqual(test_FreqSet.smx, {'solvent': 'water'})
         self.assertEqual(test_FreqSet.molecule, test_molecule)
