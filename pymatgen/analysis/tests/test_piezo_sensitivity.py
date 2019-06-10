@@ -192,6 +192,7 @@ class PiezoSensitivityTest(PymatgenTest):
 			self.assertTrue(np.allclose(asum1, np.zeros([3,3]), atol = 1e-05))
 			self.assertTrue(np.allclose(asum2, np.zeros([3,3]), atol = 1e-05))
 
+	@requires(Phonopy, "phonopy not installed!")
 	def test_rand_FCM(self):
 		fcm = ForceConstantMatrix(self.piezo_struc, self.FCM, self.pointops, self.sharedops)
 		fcm.get_FCM_operations()

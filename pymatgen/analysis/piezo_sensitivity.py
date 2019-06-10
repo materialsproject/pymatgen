@@ -6,6 +6,7 @@ import pymatgen.io.phonopy
 import numpy as np
 import warnings
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer as sga
+from monty.dev import requires
 
 try:
     from phonopy import Phonopy
