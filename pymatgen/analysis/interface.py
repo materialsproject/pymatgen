@@ -134,6 +134,7 @@ class Interface(Structure):
         if self.offset_vector[2] + delta[2] < 0 or delta[2] > self.vacuum_thickness:
             raise ValueError("The shift {} will collide the film and substrate.".format(delta))
         self._offset_vector += np.array(delta)
+        print("SHIFT", delta)
         self.translate_sites(self.get_film_indices(),
                              delta, frac_coords=False, to_unit_cell=True)
 
@@ -143,7 +144,7 @@ class Interface(Structure):
         Displacement of the origin of the film structure relative to that
         of the substrate structure in Cartesian coordinates.
         """
-        return self._offset_vector
+        return self._offset_vector.copy()
 
     @offset_vector.setter
     def offset_vector(self, offset_vector):

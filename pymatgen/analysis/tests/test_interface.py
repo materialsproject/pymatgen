@@ -39,21 +39,33 @@ class InterfaceTest(PymatgenTest):
         init_film = interface.film
         init_sub = interface.substrate
         tst = Structure.from_sites(interface.sites)
+
         interface.z_shift += 1
         self.assertArrayAlmostEqual(interface.offset_vector, np.array([0,0,3.5]))
         tdm, idm = tst.distance_matrix, interface.distance_matrix
         diff = tdm - idm
         assert (tdm <= idm + 1e-10).all()
         assert (tdm + 0.5 < idm).any()
+        self.assertArrayAlmostEqual(init_film.distance_matrix, interface.film.distance_matrix)
+        self.assertArrayAlmostEqual(init_sub.distance_matrix, interface.substrate.distance_matrix)
+
         interface.z_shift -= 1
         self.assertArrayAlmostEqual(interface.offset_vector, np.array([0,0,2.5]))
         idm = interface.distance_matrix
         assert (np.abs(tdm - idm) < 1e-10).all()
+
         interface.ab_shift += np.array([0.2,0.2])
         self.assertArrayAlmostEqual(interface.ab_shift, np.array([0.2,0.2]))
         idm = interface.distance_matrix
         assert (np.abs(tdm - idm) > 0.9).any()
         self.assertArrayAlmostEqual(init_lattice, interface.lattice.matrix)
+        self.assertArrayAlmostEqual(init_film.distance_matrix, interface.film.distance_matrix)
+        self.assertArrayAlmostEqual(init_sub.distance_matrix, interface.substrate.distance_matrix)
+
+        interface.ab_shift -= np.array([0.2,0.2])
+        self.assertArrayAlmostEqual(interface.offset_vector, np.array([0,0,2.5]))
+        idm = interface.distance_matrix
+        assert (np.abs(tdm - idm) < 1e-10).all()
 
         self.assertArrayAlmostEqual(init_film.distance_matrix, interface.film.distance_matrix)
         self.assertArrayAlmostEqual(init_sub.distance_matrix, interface.substrate.distance_matrix)
@@ -76,13 +88,25 @@ class InterfaceTest(PymatgenTest):
         self.assertAlmostEqual(interface.z_shift,
             np.min(interface.film.cart_coords[:,2]) - np.max(interface.substrate.cart_coords[:,2]))
         self.assertAlmostEqual(interface.lattice.c, interface.vacuum_thickness + interface.z_shift\
-                                + np.max(interface.film.cart_coords[:,2])
+                                + np.max(interface.film.cart_coords[:,2])\
                                 - np.min(interface.film.cart_coords[:,2])\
                                 + np.max(interface.substrate.cart_coords[:,2])\
                                 - np.min(interface.substrate.cart_coords[:,2]))
 
     def test_inplane_spacing(self):
-        pass
+        delta = np.array([0, 1.5, 0])
+        interface = self.ib.interfaces[0]
+        old_coords = interface.film.frac_coords.copy()
+        interface.offset_vector += delta
+        self.assertArrayAlmostEqual(interface.offset_vector, [0, 1.5, 2.5])
+        new_coords = interface.film.frac_coords.copy()
+        for i in range(new_coords.shape[0]):
+            self.assertAlmostEqual(interface.lattice.get_distance_and_image(old_coords[i], new_coords[i])[0], 1.5)
+        interface.offset_vector -= delta
+        self.assertArrayAlmostEqual(interface.offset_vector, [0, 0, 2.5])
+        new_coords = interface.film.frac_coords.copy()
+        for i in range(new_coords.shape[0]):
+            self.assertAlmostEqual(interface.lattice.get_distance_and_image(old_coords[i], new_coords[i])[0], 0.0)
 
 class InterfaceBuilderTest(PymatgenTest):
 
