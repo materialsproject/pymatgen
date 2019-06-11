@@ -25,16 +25,10 @@ from pymatgen.util.testing import PymatgenTest
 from pymatgen.symmetry import site_symmetries as ss
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer as sga
 
-if sys.version_info >= (3, 0):
-    try:
-        from phonopy import Phonopy
-        from phonopy.structure.atoms import PhonopyAtoms
-        from phonopy.file_IO import write_disp_yaml
-    except ImportError:
-        Phonopy = None
-else:
+try:
+	from phonopy import Phonopy
+except ImportError:
     Phonopy = None
-
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files', 'piezo_sensitivity')
