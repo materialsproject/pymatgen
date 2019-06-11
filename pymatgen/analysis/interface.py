@@ -40,6 +40,7 @@ __status__ = "Prototype"
 class Interface(Structure):
     """
     This class stores data for defining an interface between two structures.
+    It is a subclass of pymatgen.core.structure.Structure.
     """
     
     def __init__(self, lattice, species, coords,
@@ -52,7 +53,7 @@ class Interface(Structure):
                  init_inplane_shift=None,
                  charge=None):
         """
-        Makes an interface structure, a structure object with additional
+        Makes an interface structure, a Structure object with additional
         information and methods pertaining to interfaces.
         
         Args:
@@ -90,8 +91,10 @@ class Interface(Structure):
                 that are less than 0.01 Ang apart. Defaults to False.
             coords_are_cartesian (bool): Set to True if you are providing
                 coordinates in cartesian coordinates. Defaults to False.
-            ab_shift (length-3 list of float, in Cartesian units and
-                fractional directions): The relative shift along a, b, c vectors.
+            init_inplane_shift (length-2 list of float, in Cartesian coordinates):
+                The initial shift of the film relative to the substrate
+                in the plane of the interface.
+            charge (float, optional): overal charge of the structure
         """
         
         super().__init__(
@@ -110,7 +113,7 @@ class Interface(Structure):
 
         z_shift = np.min(self.film.cart_coords[:,2]) - np.max(self.substrate.cart_coords[:,2])
 
-        if init_inplane_shift == None:
+        if init_inplane_shift is None:
             init_inplane_shift = np.array([0.0, 0.0])
 
         self._offset_vector = np.append(init_inplane_shift, [z_shift])
@@ -121,16 +124,31 @@ class Interface(Structure):
         by da * (first lattice vector) + db * (second lattice vector).
         This shift is in the plane of the interface.
         I.e. da and db are fractional coordinates.
+
+        Args:
+            da (float): shift in the first lattice vector
+            db (float): shift in the second lattice vector
         """
         self.shift_film(da * self.lattice.matrix[0] + db * self.lattice.matrix[1])
 
     def change_z_shift(self, dz):
         """
         Adjust the spacing between the substrate and film layers by dz Angstroms
+
+        Args:
+            dz (float): shift perpendicular to the plane (in Angstroms)
         """
         self.shift_film(np.array([0.0, 0.0, dz]))
 
     def shift_film(self, delta):
+        """
+        Shift the film's position relative to the substrate.
+
+        Args:
+            delta (length-3 list of float or numpy array): Cartesian coordinate
+                vector by which to shift the film. After this operation
+                self.offset_vector -> self.offset_vector + delta.
+        """
         if self.offset_vector[2] + delta[2] < 0 or delta[2] > self.vacuum_thickness:
             raise ValueError("The shift {} will collide the film and substrate.".format(delta))
         self._offset_vector += np.array(delta)
@@ -173,7 +191,6 @@ class Interface(Structure):
         in fractional coordinates. I.e. if z_shift = z, the distance
         between the substrate and film planes is z.
         """
-        #return np.min(self.film_sites.cart_coords[:,2]) - np.max(self.substrate_sites.cart_coords[:,2])
         return self.offset_vector[2]
 
     @z_shift.setter
@@ -184,8 +201,7 @@ class Interface(Structure):
     @property
     def vacuum_thickness(self):
         """
-        Distance between the surfaces in Angstroms
-        (in the c direction orthogonal to the interface plane).
+        Vacuum buffer above the film.
         """
         return np.min(self.substrate.cart_coords[:,2]) + self.lattice.c - np.max(self.film.cart_coords[:,2])
         
@@ -241,15 +257,15 @@ class Interface(Structure):
         site properties.
 
         Returns:
-            A copy of the Structure, with optionally new site_properties and
-            optionally sanitized.
+            A copy of the Interface.
         """
         return Interface(self.lattice, self.species_and_occu, self.frac_coords,
                          self.sub_plane, self.film_plane,
                          self.sub_init_cell, self.film_init_cell, self.site_properties,
                          self.modified_sub_structure, self.modified_film_structure,
                          self.strained_sub_structure, self.strained_film_structure,
-                         self.charge)
+                         validate_proximity=False, coords_are_cartesian=False,
+                         init_inplane_shift=self.offset_vector[:2], charge=self.charge)
 
 
 class InterfaceBuilder:
@@ -707,7 +723,7 @@ class InterfaceBuilder:
                               self.original_substrate_structure, self.original_film_structure,
                               orthogonal_structure.site_properties,
                               unstrained_slab_substrate, unstrained_slab_film,
-                              slab_substrate, slab_film)
+                              slab_substrate, slab_film, init_inplane_shift=offset[1:])
 
         return interface
                                
@@ -730,8 +746,8 @@ def visualize_interface(interface, show_atoms=False, n_uc=2):
     """
     #sub_struct = interface.sub_init_cell
     #film_struct = interface.film_init_cell
-    modified_sub_struct = interface.oriented_sub_cell
-    modified_film_struct = interface.oriented_film_cell
+    modified_sub_struct = interface.modified_sub_structure
+    modified_film_struct = interface.modified_film_structure
     rotated_modified_film_structure = align_x(modified_film_struct.copy(),
                                               get_ortho_axes(modified_sub_struct))
 

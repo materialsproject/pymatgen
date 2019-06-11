@@ -108,6 +108,20 @@ class InterfaceTest(PymatgenTest):
         for i in range(new_coords.shape[0]):
             self.assertAlmostEqual(interface.lattice.get_distance_and_image(old_coords[i], new_coords[i])[0], 0.0)
 
+    def test_copy(self):
+        interface = self.ib.interfaces[0]
+        copy = interface.copy()
+        for attr in ['lattice', 'cart_coords', 'sub_plane', 'film_plane',\
+                    'modified_film_structure', 'modified_sub_structure',\
+                    'strained_film_structure', 'strained_sub_structure',\
+                    'sub_init_cell', 'film_init_cell', 'site_properties',\
+                    'offset_vector', 'ab_shift', 'z_shift', 'vacuum_thickness']:
+            if type(copy.__getattribute__(attr)) == np.ndarray:
+                self.assertArrayAlmostEqual(copy.__getattribute__(attr), interface.__getattribute__(attr))
+            else:
+                assert copy.__getattribute__(attr) == interface.__getattribute__(attr)
+
+
 class InterfaceBuilderTest(PymatgenTest):
 
     @classmethod
