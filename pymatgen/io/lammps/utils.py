@@ -21,6 +21,7 @@ except ImportError:
 
 from pymatgen import Molecule
 from pymatgen.core.operations import SymmOp
+from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.util.coord import get_angle
 from pymatgen.io.babel import BabelMolAdaptor
 from pymatgen.io.xyz import XYZ
@@ -461,8 +462,80 @@ class LammpsRunner:
         """
         Write the input/data files and run LAMMPS.
         """
+
+        lammps_cmd = self.lammps_cmd + ['-in', self.input_filename]
+        logger.info("Running LAMMPS using exe: {}".format(lammps_cmd))
+        return_code = subprocess.call(lammps_cmd, shell=True)
+        logger.info("LAMMPS finished running with returncode: {}".format(return_code))
+
         lammps_cmd = self.lammps_cmd + ['-in', self.input_filename]
         print("Running: {}".format(" ".join(lammps_cmd)))
         p = Popen(lammps_cmd, stdout=PIPE, stderr=PIPE)
         (stdout, stderr) = p.communicate()
         return stdout, stderr
+
+
+class Pair:
+
+    def __init__(self, specie1, specie2):
+        if isinstance(specie1, str):
+            specie1 = Specie(specie1)
+        if isinstance(specie2, str):
+            specie2 = Specie(specie2)
+        self.specie1 = specie1
+        self.specie2 = specie2
+
+    @property
+    def _specie1(self):
+        return self.specie1
+
+    @property
+    def _specie2(self):
+        return self.specie2
+
+    def __eq__(self, other):
+        if other.specie1 == self.specie1():
+            if other.specie2 == self.specie2():
+                return True
+        elif other.specie1 == self.specie2():
+            if other.specie2 == self.specie1():
+                return True
+        else:
+            return False
+
+    def __hash__(self):
+        k1 = self.specie1.Z
+        k2 = self.specie2.Z
+        return int(.5 * ((k1 + k2) * (k1 + k2 + 1)) + k2)  # Cantor Pair function
+
+    def get_id(self):
+        return self.__hash__()
+
+    @staticmethod
+    def from_id(z):
+        w = np.floor((np.sqrt(8 * z + 1) - 1) / 2)
+        t = (w ** 2 + w) / 2
+
+        y = z - t
+        x = w - y
+
+        el1 = Element.from_Z(x)
+        el2 = Element.from_Z(y)
+        specie1 = Specie(el1.symbol)
+        specie2 = Specie(el2.symbol)
+
+        return Pair.__init__(specie1, specie2)
+
+    def get_string(self):
+        return "{},{}".format(self.specie1, self.specie2)
+
+    def from_string(self, s):
+        l = s.split(",")
+        return Pair.__init__(*l)
+
+    def as_dict(self):
+        return {'specie1': self.specie1, 'specie2': self.specie2}
+
+    @staticmethod
+    def from_dict(dic):
+        return Pair.__init__(specie1=dic['specie1'], specie2=dic['specie2'])
