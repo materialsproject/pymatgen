@@ -210,9 +210,11 @@ class LammpsInputSet(MSONable):
                 charge = self.kwargs.get('charge', 3)
                 self.lammps_data.write_file(os.path.join(output_dir, data_filename),
                                             distance=distance, velocity=velocity, charge=charge)
-            elif isinstance(self.lammps_data, str) and os.path.exists(os.path.join(output_dir, self.lammps)):
+            elif isinstance(self.lammps_data, str) and os.path.exists(os.path.join(output_dir, self.lammps_data)):
                 print("Located LAMMPS Data File...")
-                shutil.copyfile(self.lammps_data, os.path.join(output_dir, data_filename))
+                self.lammps_data = LammpsData.from_file(os.path.join(output_dir, self.lammps_data),
+                                                        atom_style=self.config_dict.get('atom_style', 'full'))
+                #shutil.copyfile(self.lammps_data, os.path.join(output_dir, data_filename))
             else:
                 warnings.warn("No data file supplied. Skip writing.")
 
