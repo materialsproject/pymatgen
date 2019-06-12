@@ -240,20 +240,24 @@ class LammpsInputSet(MSONable):
 
     def _get_pair_coeffs(self, pairs):
 
-        masses = self.lammps_data.masses.copy()
-        unique_indices = np.unique(masses['mass'], return_index=True)[1]
-        unique_masses  = [masses['mass'].values[index] for index in sorted(unique_indices)]
+        try:
+            masses = self.lammps_data.masses.copy()
+            unique_indices = np.unique(masses['mass'], return_index=True)[1]
+            unique_masses  = [masses['mass'].values[index] for index in sorted(unique_indices)]
 
-        ref_masses = [el.atomic_mass.real for el in Element]
-        diff = [np.abs(np.array(ref_masses) - mass) for mass in unique_masses]
-        atomic_numbers = [np.argmin(d) + 1 for d in diff]
-        symbols = [Element.from_Z(an).symbol for an in atomic_numbers]
+            ref_masses = [el.atomic_mass.real for el in Element]
+            diff = [np.abs(np.array(ref_masses) - mass) for mass in unique_masses]
+            atomic_numbers = [np.argmin(d) + 1 for d in diff]
+            symbols = [Element.from_Z(an).symbol for an in atomic_numbers]
 
-        key = {}
-        numbers = []
-        for i, s in enumerate(symbols):
-            key[i+1] = s
-            numbers.append(i+1)
+            key = {}
+            numbers = []
+            for i, s in enumerate(symbols):
+                key[i+1] = s
+                numbers.append(i+1)
+        except:
+            key = self.config_dict.get(key)
+            numbers = [v for k,v in key.items()]
 
         pair_numbers = (list(combinations(numbers, 2)) + [(i,i) for i in numbers])
         pair_numbers.sort(key=lambda x: x[0])
