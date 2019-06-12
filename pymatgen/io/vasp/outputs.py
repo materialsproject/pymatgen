@@ -4457,34 +4457,41 @@ class Waveder:
             ispin = int(val[3])
             nodes_in_dielectric_function = (f.read_reals(dtype=np.float))
             wplasmon = (f.read_reals(dtype=np.float))
-            cder = np.array((f.read_reals(dtype=np.float)))
-            cder_data = cder.reshape((nbands, nelect, nk, ispin, 3))
-            self.cder_data = cder_data
-            self.nkpoints = nk
-            self.ispin = ispin
-            self.nelect = nelect
-            self.nbands = nbands
+            cder = np.array((f.read_reals(dtype=np.complex64)))
+            cder_data = cder.reshape((3, ispin, nk, nelect, nbands)).T
+            self._cder_data = cder_data
+            self._nkpoints = nk
+            self._ispin = ispin
+            self._nelect = nelect
+            self._nbands = nbands
 
+    @property
+    def cder_data(self):
+        """
+        Returns the orbital derivative between states
+        """
+        return self._cder_data
+            
     @property
     def nbands(self):
         """
         Returns the number of bands in the calculation
         """
-        return self.nbands
+        return self._nbands
 
     @property
     def nkpoints(self):
         """
         Returns the number of k-points in the calculation
         """
-        return self.nkpoints
+        return self._nkpoints
 
     @property
     def nelect(self):
         """
         Returns the number of electrons in the calculation
         """
-        return self.nelect
+        return self._nelect
 
     def get_orbital_derivative_between_states(self, band_i, band_j, kpoint, spin, cart_dir):
         """
