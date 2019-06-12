@@ -268,4 +268,3 @@ class LammpsInputSet(MSONable):
             string += '\n'
 
         return string
-set = LammpsInputSet.from_file('/Users/nwinner/calculations/sandbox/packingwf/in.lammps', config_dict={}, lammps_data=None)
