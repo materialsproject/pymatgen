@@ -197,10 +197,9 @@ class LammpsInputSet(MSONable):
         input_script = script_template
 
         read_data = re.search(r"read_data\s+(.*)\n", input_script)
-        print("READING DATA")
         if read_data:
-            print("READING DATA")
             if isinstance(self.lammps_data, LammpsData):
+                print("FOUND LAMMPS DATA OBJECT")
                 distance = self.kwargs.get('distance', 6)
                 velocity = self.kwargs.get('velocity', 8)
                 charge = self.kwargs.get('charge', 3)
