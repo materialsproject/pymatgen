@@ -195,6 +195,20 @@ class LammpsInputSet(MSONable):
         variables       = {} if self.config_dict is None else self.config_dict
 
         input_script = script_template
+
+        read_data = re.search(r"read_data\s+(.*)\n", input_script)
+        if read_data:
+            if isinstance(self.lammps_data, LammpsData):
+                distance = self.kwargs.get('distance', 6)
+                velocity = self.kwargs.get('velocity', 8)
+                charge = self.kwargs.get('charge', 3)
+                self.lammps_data.write_file(os.path.join(output_dir, data_filename),
+                                            distance=distance, velocity=velocity, charge=charge)
+            elif isinstance(self.lammps_data, str) and os.path.exists(self.lammps_data):
+                shutil.copyfile(self.lammps_data, os.path.join(output_dir, data_filename))
+            else:
+                warnings.warn("No data file supplied. Skip writing.")
+
         for key, value in variables.items():
             if key == 'pair_coeffs':
                 sub = self._get_pair_coeffs(value)
@@ -209,19 +223,6 @@ class LammpsInputSet(MSONable):
 
         with open(os.path.join(output_dir, input_filename), "w") as f:
             f.write(input_script)
-
-        read_data = re.search(r"read_data\s+(.*)\n", input_script)
-        if read_data:
-            if isinstance(self.lammps_data, LammpsData):
-                distance = self.kwargs.get('distance', 6)
-                velocity = self.kwargs.get('velocity', 8)
-                charge   = self.kwargs.get('charge', 3)
-                self.lammps_data.write_file(os.path.join(output_dir, data_filename),
-                                            distance=distance, velocity=velocity, charge=charge)
-            elif isinstance(self.lammps_data, str) and os.path.exists(self.lammps_data):
-                shutil.copyfile(self.lammps_data, os.path.join(output_dir, data_filename))
-            else:
-                warnings.warn("No data file supplied. Skip writing.")
 
     @classmethod
     def from_file(cls, filename, config_dict, lammps_data):
