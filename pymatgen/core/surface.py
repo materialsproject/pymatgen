@@ -460,7 +460,7 @@ class Slab(Structure):
             site_properties=s.site_properties, energy=d["energy"]
         )
 
-    def get_surface_sites(self, tag=False):
+    def get_surface_sites(self, tag=False, tol=0.1):
         """
         Returns the surface sites and their indices in a dictionary. The
         oriented unit cell of the slab will determine the coordination number
@@ -790,7 +790,8 @@ class SlabGenerator:
         sg = SpacegroupAnalyzer(initial_structure)
         initial_structure.add_site_property("bulk_wyckoff",
                                             sg.get_symmetry_dataset()['wyckoffs'])
-        
+        initial_structure.add_site_property("bulk_equivalent",
+                                            sg.get_symmetry_dataset()['equivalent_atoms'])
         latt = initial_structure.lattice
         miller_index = reduce_vector(miller_index)
         # Calculate the surface normal using the reciprocal lattice vector.
