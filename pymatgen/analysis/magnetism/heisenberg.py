@@ -28,11 +28,14 @@ __date__ = "6/12/19"
 
 class HeisenbergMapper:
 
-    def __init__(self, ordered_structures, energies, strategy=MinimumDistanceNN(), cutoff=10):
+    def __init__(self, ordered_structures, energies,
+                 strategy=MinimumDistanceNN(), cutoff=10):
         """Compute exchange parameters from low energy magnetic orderings.
 
         Exchange parameters are computed by mapping to a classical Heisenberg
-        model. n+1 unique orderings are required to compute n exchange
+        model. Strategy is the scheme for generating neighbors. Currently only
+        MinimumDistanceNN is implemented.
+        n+1 unique orderings are required to compute n exchange
         parameters. The default cutoff is to consider 10 structures.
 
         Args:
@@ -41,11 +44,19 @@ class HeisenbergMapper:
             strategy (object): Class from pymatgen.analysis.local_env
             cutoff (int): Number of structures to consider.
 
+        Parameters:
+            sgraphs (list): StructureGraph objects.
+            unique_site_ids (dict): Maps each site to its unique identifier
+            nn_interacations (dict): {i: j} pairs of NN interactions
+                between unique sites.
+            ex_mat (DataFrame): Invertible Heisenberg Hamiltonian for each
+                graph.
+
         """
 
         # Sort by energy if not already sorted
         ordered_structures = [s for _, s in
-        sorted(zip(energies, ordered_structures), reverse=True)]
+                              sorted(zip(energies, ordered_structures), reverse=True)]
 
         energies = sorted(energies, reverse=True)
 
@@ -55,30 +66,31 @@ class HeisenbergMapper:
 
         # Get only magnetic ions
         ordered_structures = [CollinearMagneticStructureAnalyzer(s).get_structure_with_only_magnetic_atoms()
-        for s in ordered_structures]
+                              for s in ordered_structures]
 
         self.ordered_structures = ordered_structures
         self.energies = energies
 
-        # These attributes are set when get_graphs and get_exchange methods
-        # are called
+        # These attributes are set by _get_graphs and _get_exchange
         self.sgraphs = None
         self.unique_site_ids = None
         self.nn_interactions = None
         self.ex_mat = None
         self.ex_params = None
 
-    def get_graphs(self, strategy=MinimumDistanceNN()):
+        # Set attributes
+        self._get_graphs()
+        self._get_unique_sites()
+        self._get_nn_dict()
+        self._get_exchange_df()
+
+    def _get_graphs(self):
         """
         Generate graph representations of magnetic structures with nearest
         neighbor bonds. Right now this only works for MinimumDistanceNN.
 
-        Args:
-                strategy (object): Class from pymatgen.analysis.local_env
-
         Returns:
-                sgraphs (list): StructureGraph objects.
-
+            None (sets self.sgraphs instance variable)
 
         Todo:
             * When supersizing everything, make site labels based on one
@@ -86,6 +98,8 @@ class HeisenbergMapper:
             that labeling scheme.
             * Implement other strategies that capture NNN bonds, etc.
         """
+
+        strategy = self.strategy
 
         # Find a maximally sized supercell to reference site labels to
         imax = np.argmax([len(s) for s in self.ordered_structures])
@@ -112,7 +126,6 @@ class HeisenbergMapper:
                    for s in self.ordered_structures]
 
         self.sgraphs = sgraphs
-        return sgraphs
 
     def _get_unique_sites(self):
         """
@@ -120,11 +133,13 @@ class HeisenbergMapper:
         one unique site, get the exchange <J> by averaging.
 
         Returns:
-                unique_site_ids (dict): Maps each site to its unique identifier
+            None: (sets self.unique_site_ids instance variable)
+
         """
 
+        sgraphs = self.sgraphs
         # Find the unique sites in a structure graph
-        s = self.sgraphs[0].structure
+        s = sgraphs[0].structures
         symm_struct = SpacegroupAnalyzer(s).get_symmetrized_structure()
         unique_sites = []
         unique_site_ids = {}
@@ -139,19 +154,17 @@ class HeisenbergMapper:
                 i += 1
 
         self.unique_site_ids = unique_site_ids
-        return unique_site_ids
 
-    def _get_nn_dict(self, sgraphs, unique_site_ids):
+    def _get_nn_dict(self):
         """Get dict of unique nearest neighbor interactions.
 
-        Args:
-                sgraphs (list): StructureGraph objects.
-                unique_site_ids (dict): Site to unique id map.
-
         Returns:
-                nn_interacations (dict): {i: j} pairs of NN interactions
-                between unique sites.
+            None: (sets self.nn_interactions instance variable)
+
         """
+
+        sgraphs = self.sgraphs
+        unique_site_ids = self.unique_site_ids
 
         nn_interactions = {}
         sgraph = sgraphs[0]
@@ -167,26 +180,22 @@ class HeisenbergMapper:
                     j_key = unique_site_ids[key]
             nn_interactions[i_key] = j_key
 
-        return nn_interactions
+        self.nn_interactions = nn_interactions
 
-    def _get_exchange_df(self, sgraphs, energies, unique_site_ids,
-                         nn_interactions):
+    def _get_exchange_df(self):
         """
         Loop over all sites in a graph and count the number and types of
         nearest neighbor interactions, computing +-|S_i . S_j| to construct
         a Heisenberg Hamiltonian for each graph.
 
-        Args:
-                sgraphs (list): StructureGraph objects.
-                energies (list): Energies of StructureGraph.structure
-                unique_site_ids (dict): Maps each site to its unique identifier
-                nn_interactions (dict): Pairs of NN interactions between.
-                unique sites.
-
         Returns:
-                ex_mat (DataFrame): Invertible Heisenberg Hamiltonian for each
-                graph.
+            None: (sets self.ex_mat instance variable)
+
         """
+
+        sgraphs = self.sgraphs
+        unique_site_ids = self.unique_site_ids
+        nn_interactions = self.nn_interactions
 
         # Total energy and nonmagnetic energy contribution
         columns = ['E', 'E0']
@@ -209,8 +218,8 @@ class HeisenbergMapper:
         # for n+1 unique graphs to compute n exchange params
         while sgraph_index < len(num_nn_j):
             sgraph = sgraphs_copy.pop(0)
-            ex_row = pd.DataFrame(np.zeros((1, num_nn_j)), 
-                index=[sgraph_index], columns=columns)
+            ex_row = pd.DataFrame(np.zeros((1, num_nn_j)),
+                                  index=[sgraph_index], columns=columns)
 
             for i in range(len(sgraph)):
                 try:
@@ -251,24 +260,22 @@ class HeisenbergMapper:
 
         j_columns = [name for name in columns if name not in ['E', 'E0']]
         ex_mat[[j_columns]].div(2)  # 1/2 factor in Heisenberg Hamiltonian
+
         ex_mat[['E0']] = 1  # Nonmagnetic contribution
 
-        return ex_mat
+        self.ex_mat = ex_mat
 
-    def get_exchange(self, ex_mat):
+    def get_exchange(self):
         """
         Take Heisenberg Hamiltonian and corresponding energy for each row and
         solve for the exchange parameters.
-
-        Args:
-            ex_mat (DataFrame): Invertible Heisenberg Hamiltonian for each 
-            graph.
 
         Returns:
             ex_params (dict): Exchange parameter values (meV/atom).
 
         """
 
+        ex_mat = self.ex_mat
         # Solve the matrix equation for J_ij values
         E = ex_mat[['E']]
         j_names = [j for j in ex_mat.columns if j not in ['E']]
