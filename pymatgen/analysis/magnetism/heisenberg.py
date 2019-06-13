@@ -23,7 +23,7 @@ __version__ = "0.1"
 __maintainer__ = "Nathan C. Frey"
 __email__ = "ncfrey@lbl.gov"
 __status__ = "Development"
-__date__ = "6/12/19"
+__date__ = "June 2019"
 
 
 class HeisenbergMapper:
@@ -71,12 +71,11 @@ class HeisenbergMapper:
         self.ordered_structures = ordered_structures
         self.energies = energies
 
-        # These attributes are set by _get_graphs and _get_exchange
+        # These attributes are set by internal methods
         self.sgraphs = None
         self.unique_site_ids = None
         self.nn_interactions = None
         self.ex_mat = None
-        self.ex_params = None
 
         # Set attributes
         self._get_graphs()
@@ -287,3 +286,45 @@ class HeisenbergMapper:
         ex_params = {j_name: j for j_name, j in zip(j_names, j_ij)}
 
         return ex_params
+
+    def estimate_exchange(self, fm_struct, afm_struct, fm_e, afm_e):
+        """
+        Estimate <J> for a structure based on low energy FM and AFM orderings.
+
+        Args:
+            fm_struct (Structure): fm structure with 'magmom' site property
+            afm_struct (Structure): afm structure with 'magmom' site property
+            fm_e (float): fm energy
+            afm_e (float): afm energy
+        
+        Returns:
+            j_avg (float): Average exchange parameter (meV/atom)
+
+        """
+
+        n = len(fm_struct)
+        magmoms = fm_struct.site_properties['magmom']
+        m_avg = np.mean([np.sqrt(m**2) for m in magmoms])
+        delta_e = afm_e - fm_e  # J > 0 -> FM
+        j_avg = delta_e / (n*m_avg**2)
+        j_avg *= 1000  # meV
+
+        return j_avg
+
+    def get_mft_temperature(self, j_avg):
+        """Crude mean field estimate of critical temperature based on <J>.
+
+        Args:
+            j_avg (float): j_avg (float): Average exchange parameter (meV/atom)
+
+        Returns:
+            mft_t (float): Critical temperature (K)
+
+        """
+
+        k_boltzmann = 0.0861733  # meV/K
+        mft_t = 2 * j_avg / 3 / k_boltzmann
+
+        return mft_t  
+
+
