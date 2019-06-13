@@ -223,7 +223,8 @@ class HeisenbergMapper:
         			ex_mat.append(ex_row)
 
         j_columns = [name for name in columns if name not in ['E', 'E0']]
-        ex_mat[[j_columns]].div
+        ex_mat[[j_columns]].div(2)  # 1/2 factor in Heisenberg Hamiltonian
+        ex_mat[['E0']] = 
 
 
 
