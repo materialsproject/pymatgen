@@ -51,6 +51,7 @@ class HeisenbergMapper:
                 between unique sites.
             ex_mat (DataFrame): Invertible Heisenberg Hamiltonian for each
                 graph.
+            ex_params (dict): Exchange parameter values (meV/atom) 
 
         """
 
@@ -76,6 +77,7 @@ class HeisenbergMapper:
         self.unique_site_ids = None
         self.nn_interactions = None
         self.ex_mat = None
+        self.ex_params = None
 
         # Set attributes
         self._get_graphs()
@@ -284,6 +286,8 @@ class HeisenbergMapper:
         j_ij *= 1000  # meV
         j_ij /= len(self.ordered_structures[0])  # / atom
         ex_params = {j_name: j for j_name, j in zip(j_names, j_ij)}
+
+        self.ex_params = ex_params
 
         return ex_params
 
