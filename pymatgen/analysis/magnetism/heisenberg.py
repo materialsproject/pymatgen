@@ -222,8 +222,8 @@ class HeisenbergMapper:
         			sgraph_index += 1
         			ex_mat.append(ex_row)
 
-        j_columns = columns.remove
-        ex_mat[[]]
+        j_columns = [name for name in columns if name not in ['E', 'E0']]
+        ex_mat[[j_columns]].div
 
 
 
