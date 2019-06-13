@@ -4515,7 +4515,7 @@ class Waveder:
         if cart_dir > 2 or cart_dir < 0:
             raise ValueError("cart_dir index out of bounds")
 
-        return self.cder_data[band_i, band_j, kpoint, spin, cart_dir]
+        return self._cder_data[band_i, band_j, kpoint, spin, cart_dir]
 
 
 class UnconvergedVASPWarning(Warning):
