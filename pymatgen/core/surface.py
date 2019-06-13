@@ -784,6 +784,13 @@ class SlabGenerator:
                 the c direction is the third vector of the lattice matrix
 
         """
+
+        # Add Wyckoff symbols of the bulk, will help with
+        # identfying types of sites in the slab system
+        sg = SpacegroupAnalyzer(initial_structure)
+        initial_structure.add_site_property("bulk_wyckoff",
+                                            sg.get_symmetry_dataset()['wyckoffs'])
+        
         latt = initial_structure.lattice
         miller_index = reduce_vector(miller_index)
         # Calculate the surface normal using the reciprocal lattice vector.
