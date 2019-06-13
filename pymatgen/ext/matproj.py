@@ -1081,7 +1081,7 @@ class MPRester:
         for el in comp_dict.keys():
             e = self._make_request("/element/%s/tasks/isolated_atom" % (el),
                                   mp_decode=False)[0]
-            isolated_atom_e_sum += e['output']["final_energy"] * comp_dict[el]
+            isolated_atom_e_sum += e['output']["final_energy_per_atom"] * comp_dict[el]
             n += comp_dict[el]
         ecoh_per_formula = isolated_atom_e_sum - ebulk
         return ecoh_per_formula/n if per_atom else ecoh_per_formula
