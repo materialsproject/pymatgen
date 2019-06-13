@@ -4448,7 +4448,7 @@ class Waveder:
         filename: Name of file containing WAVEDER.
     """
 
-    def __init__(self, filename):
+    def __init__(self, filename, gamma_only = False):
         with FortranFile(filename, "r") as f:
             val = (f.read_reals(dtype=np.int32))
             nbands = int(val[0])
@@ -4457,7 +4457,8 @@ class Waveder:
             ispin = int(val[3])
             nodes_in_dielectric_function = (f.read_reals(dtype=np.float))
             wplasmon = (f.read_reals(dtype=np.float))
-            cder = np.array((f.read_reals(dtype=np.complex64)))
+            cder_dtype = np.float if gamma_only else np.complex64
+            cder = np.array((f.read_reals(dtype=cder_dtype)))
             cder_data = cder.reshape((3, ispin, nk, nelect, nbands)).T
             self._cder_data = cder_data
             self._nkpoints = nk
