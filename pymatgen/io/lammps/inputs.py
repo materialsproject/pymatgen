@@ -252,18 +252,18 @@ class LammpsInputSet(MSONable):
             atomic_numbers = [np.argmin(d) + 1 for d in diff]
             symbols = [Element.from_Z(an).symbol for an in atomic_numbers]
 
-            key = {}
+            key = []
             numbers = []
             for i, s in enumerate(symbols):
-                key[i+1] = s
+                key.append(s)
                 numbers.append(i+1)
         except:
             key = self.config_dict.get('key')
-            numbers = [int(k) for k,v in key.items()]
+            numbers = [v-1 for k, v in key.items()]
+            key = [k for k,v in key.items()]
 
         pair_numbers = (list(combinations(numbers, 2)) + [(i,i) for i in numbers])
         pair_numbers.sort(key=lambda x: x[0])
-
         string = ''
         for p in pair_numbers:
             string += 'pair_coeff '+str(p[0])+' '+str(p[1])+' '
