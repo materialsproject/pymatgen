@@ -266,7 +266,7 @@ class LammpsInputSet(MSONable):
         pair_numbers.sort(key=lambda x: x[0])
         string = ''
         for p in pair_numbers:
-            string += 'pair_coeff '+str(p[0])+' '+str(p[1])+' '
+            string += 'pair_coeff '+str(p[0]+1)+' '+str(p[1]+1)+' '
 
             try:
                 pair = Pair(key[p[0]], key[p[1]])
