@@ -259,7 +259,7 @@ class LammpsInputSet(MSONable):
                 numbers.append(i+1)
         except:
             key = self.config_dict.get('key')
-            numbers = [k for k,v in key.items()]
+            numbers = [int(k) for k,v in key.items()]
 
         pair_numbers = (list(combinations(numbers, 2)) + [(i,i) for i in numbers])
         pair_numbers.sort(key=lambda x: x[0])
