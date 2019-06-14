@@ -903,7 +903,7 @@ class SlabGenerator:
         """
 
         h = self._proj_height
-        p = h/self.parent.lattice.d_hkl(self.miller_index)
+        p = round(h/self.parent.lattice.d_hkl(self.miller_index), 8)
         if self.in_unit_planes:
             nlayers_slab = int(math.ceil(self.min_slab_size / p))
             nlayers_vac = int(math.ceil(self.min_vac_size / p))
