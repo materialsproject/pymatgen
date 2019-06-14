@@ -1766,6 +1766,9 @@ class Outcar:
             table_contents = []
             for line in table_body_text.split("\n"):
                 ml = rp.search(line)
+                # skip empty lines
+                if not ml:
+                    continue
                 d = ml.groupdict()
                 if len(d) > 0:
                     processed_line = {k: postprocess(v) for k, v in d.items()}
@@ -2044,6 +2047,44 @@ class Outcar:
         pt_table = self.read_table_pattern(header_pattern, row_pattern,
                                            footer_pattern, postprocess=float)
         self.data["piezo_tensor"] = pt_table
+
+    def read_onsite_density_matrices(self):
+        """
+        Parse the onsite density matrices, returns list with index corresponding
+        to atom index in Structure.
+        """
+
+        # matrix size will vary depending on if d or f orbitals are present
+        # therefore regex assumes f, but filter out None values if d
+
+        header_pattern = r"spin component  1\n"
+        row_pattern = r'[^\S\r\n]*(?:([\d.-]+)[^\S\r\n]*)' + r'(?:([\d.-]+)[^\S\r\n]*)?'*6 + r'.*?'
+        footer_pattern = r"\nspin component  2"
+        spin1_component = self.read_table_pattern(header_pattern, row_pattern,
+                                                  footer_pattern, postprocess=lambda x: float(x) if x else None,
+                                                  last_one_only=False)
+
+        # filter out None values
+        spin1_component = [[[e for e in row if e is not None] for row in matrix] for matrix in spin1_component]
+
+        # and repeat for Spin.down
+
+        header_pattern = r"spin component  2\n"
+        row_pattern = r"^[^\S\r\n]*([\d.-]+[^\S\r\n]*)+$"
+        footer_pattern = r"\n occupancies and eigenvectors"
+        spin2_component = self.read_table_pattern(header_pattern, row_pattern,
+                                                  footer_pattern, postprocess=lambda x: float(x) if x else None,
+                                                  last_one_only=False)
+
+        spin2_component = [[[e for e in row if e is not None] for row in matrix] for matrix in spin2_component]
+
+        self.data["onsite_density_matrices"] = [
+            {
+                Spin.up: spin1_component[idx],
+                Spin.down: spin2_component[idx]
+            }
+            for idx in range(len(spin1_component))
+        ]
 
     def read_corrections(self, reverse=True, terminate_on_match=True):
         patterns = {
@@ -4448,7 +4489,7 @@ class Waveder:
         filename: Name of file containing WAVEDER.
     """
 
-    def __init__(self, filename):
+    def __init__(self, filename, gamma_only = False):
         with FortranFile(filename, "r") as f:
             val = (f.read_reals(dtype=np.int32))
             nbands = int(val[0])
@@ -4457,34 +4498,42 @@ class Waveder:
             ispin = int(val[3])
             nodes_in_dielectric_function = (f.read_reals(dtype=np.float))
             wplasmon = (f.read_reals(dtype=np.float))
-            cder = np.array((f.read_reals(dtype=np.float)))
-            cder_data = cder.reshape((nbands, nelect, nk, ispin, 3))
-            self.cder_data = cder_data
-            self.nkpoints = nk
-            self.ispin = ispin
-            self.nelect = nelect
-            self.nbands = nbands
+            cder_dtype = np.float if gamma_only else np.complex64
+            cder = np.array((f.read_reals(dtype=cder_dtype)))
+            cder_data = cder.reshape((3, ispin, nk, nelect, nbands)).T
+            self._cder_data = cder_data
+            self._nkpoints = nk
+            self._ispin = ispin
+            self._nelect = nelect
+            self._nbands = nbands
 
+    @property
+    def cder_data(self):
+        """
+        Returns the orbital derivative between states
+        """
+        return self._cder_data
+            
     @property
     def nbands(self):
         """
         Returns the number of bands in the calculation
         """
-        return self.nbands
+        return self._nbands
 
     @property
     def nkpoints(self):
         """
         Returns the number of k-points in the calculation
         """
-        return self.nkpoints
+        return self._nkpoints
 
     @property
     def nelect(self):
         """
         Returns the number of electrons in the calculation
         """
-        return self.nelect
+        return self._nelect
 
     def get_orbital_derivative_between_states(self, band_i, band_j, kpoint, spin, cart_dir):
         """
@@ -4507,7 +4556,7 @@ class Waveder:
         if cart_dir > 2 or cart_dir < 0:
             raise ValueError("cart_dir index out of bounds")
 
-        return self.cder_data[band_i, band_j, kpoint, spin, cart_dir]
+        return self._cder_data[band_i, band_j, kpoint, spin, cart_dir]
 
 
 class UnconvergedVASPWarning(Warning):

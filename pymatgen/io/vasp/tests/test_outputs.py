@@ -921,6 +921,14 @@ class OutcarTest(PymatgenTest):
                           -67.5565, -69.0845, -67.4289, -66.6864, -67.6484, -67.9783, -67.7661, -66.9797, -67.8007,
                           -68.3194, -69.3671, -67.2708])
 
+    def test_onsite_density_matrix(self):
+        outcar = Outcar(self.TEST_FILES_DIR / "OUTCAR.LinearResponseU.gz")
+        outcar.read_onsite_density_matrices()
+        matrices = outcar.data["onsite_density_matrices"]
+        self.assertEqual(matrices[0][Spin.up][0][0], 1.0227)
+        self.assertEqual(len(matrices[0][Spin.up]), 5)
+        self.assertEqual(len(matrices[0][Spin.up][0]), 5)
+
 
 class BSVasprunTest(PymatgenTest):
     _multiprocess_shared_ = True
@@ -1334,18 +1342,37 @@ class WavederTest(PymatgenTest):
     _multiprocess_shared_ = True
 
     def setUp(self):
-        wder = Waveder(self.TEST_FILES_DIR / 'WAVEDER')
-        self.assertEqual(wder.nband, 36)
-        self.assertEqual(wder.nkpoint, 56)
+        wder = Waveder(self.TEST_FILES_DIR / 'WAVEDER', gamma_only = True)
+        self.assertEqual(wder.nbands, 36)
+        self.assertEqual(wder.nkpoints, 56)
         self.assertEqual(wder.nelect, 8)
         band_i = 0
         band_j = 0
         kp_index = 0
         spin_index = 0
         cart_dir_index = 0
-        cder = wder.get_orbital_derivative_between_states
-        (band_i, band_j, kp_index, spin_index, cart_dir_index)
-        self.assertEqual(cder, -1.33639226092e-103)
+        cder = wder.get_orbital_derivative_between_states(band_i, band_j, kp_index, spin_index, cart_dir_index)
+        self.assertAlmostEqual(cder, -1.33639226092e-103, places=114)
+
+    def test_consistency(self):
+        wder = Waveder(self.TEST_FILES_DIR / 'WAVEDER.Si')
+        wderf = np.loadtxt(self.TEST_FILES_DIR / 'WAVEDERF.Si', skiprows = 1)
+        with open(self.TEST_FILES_DIR / 'WAVEDERF.Si', 'r') as f:
+            first_line = [int(a) for a in f.readline().split()]
+        self.assertEqual(wder.nkpoints, first_line[1])
+        self.assertEqual(wder.nbands, first_line[2])
+        for i in range(10):
+            self.assertAlmostEqual(
+                first = wder.get_orbital_derivative_between_states(0,i,0,0,0).real,
+                second = wderf[i,6],
+                places = 10
+            )
+            self.assertAlmostEqual(wder.cder_data[0,i,0,0,0].real, wderf[i,6], places = 10)
+            self.assertAlmostEqual(wder.cder_data[0,i,0,0,0].imag, wderf[i,7], places = 10)
+            self.assertAlmostEqual(wder.cder_data[0,i,0,0,1].real, wderf[i,8], places = 10)
+            self.assertAlmostEqual(wder.cder_data[0,i,0,0,1].imag, wderf[i,9], places = 10)
+            self.assertAlmostEqual(wder.cder_data[0,i,0,0,2].real, wderf[i,10], places = 10)
+            self.assertAlmostEqual(wder.cder_data[0,i,0,0,2].imag, wderf[i,11], places = 10)            
 
 
 if __name__ == "__main__":
