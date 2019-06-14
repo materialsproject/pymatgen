@@ -165,5 +165,17 @@ class InterfaceBuilderTest(PymatgenTest):
     def test_structure_preservation(self):
         for ib in self.ibs:
             for interface in ib.interfaces[:2]:
-                assert interface.film.is_valid(tol=1.6)
-                assert interface.substrate.is_valid(tol=1.6)
+                # assumes test structures are SiO2 and Si
+                substrate, film = interface.substrate, interface.film
+                if substrate.ntypesp == 1:
+                    si = substrate
+                    sio2 = film
+                else:
+                    si = film
+                    sio2 = substrate
+                sidm = si.distance_matrix
+                sidm = sidm[sidm > 0]
+                sio2dm = sio2.distance_matrix
+                sio2dm = sio2dm[sio2dm > 0]
+                assert si.is_valid(tol=2.32)
+                assert sio2.is_valid(tol=1.6)
