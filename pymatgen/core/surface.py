@@ -1649,7 +1649,7 @@ def hkl_transformation(transf, miller_index):
 
 
 def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
-                       bonds=None, tol=1e-3, ftol=1e-3, max_broken_bonds=0,
+                       bonds=None, tol=0.1, ftol=0.1, max_broken_bonds=0,
                        lll_reduce=False, center_slab=False, primitive=True,
                        max_normal_search=None, symmetrize=False, repair=False,
                        include_reconstructions=False, in_unit_planes=False):
