@@ -460,7 +460,7 @@ class Slab(Structure):
             site_properties=s.site_properties, energy=d["energy"]
         )
 
-    def get_surface_sites(self, tag=False, tol=0.1):
+    def get_surface_sites(self, tag=False):
         """
         Returns the surface sites and their indices in a dictionary. The
         oriented unit cell of the slab will determine the coordination number
