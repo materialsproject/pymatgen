@@ -921,6 +921,14 @@ class OutcarTest(PymatgenTest):
                           -67.5565, -69.0845, -67.4289, -66.6864, -67.6484, -67.9783, -67.7661, -66.9797, -67.8007,
                           -68.3194, -69.3671, -67.2708])
 
+    def test_onsite_density_matrix(self):
+        outcar = Outcar(self.TEST_FILES_DIR / "OUTCAR.LinearResponseU.gz")
+        outcar.read_onsite_density_matrices()
+        matrices = outcar.data["onsite_density_matrices"]
+        self.assertEqual(matrices[0][Spin.up][0][0], 1.0227)
+        self.assertEqual(len(matrices[0][Spin.up]), 5)
+        self.assertEqual(len(matrices[0][Spin.up][0]), 5)
+
 
 class BSVasprunTest(PymatgenTest):
     _multiprocess_shared_ = True
