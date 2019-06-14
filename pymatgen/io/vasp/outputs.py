@@ -1766,6 +1766,9 @@ class Outcar:
             table_contents = []
             for line in table_body_text.split("\n"):
                 ml = rp.search(line)
+                # skip empty lines
+                if not ml:
+                    continue
                 d = ml.groupdict()
                 if len(d) > 0:
                     processed_line = {k: postprocess(v) for k, v in d.items()}
@@ -2044,6 +2047,44 @@ class Outcar:
         pt_table = self.read_table_pattern(header_pattern, row_pattern,
                                            footer_pattern, postprocess=float)
         self.data["piezo_tensor"] = pt_table
+
+    def read_onsite_density_matrices(self):
+        """
+        Parse the onsite density matrices, returns list with index corresponding
+        to atom index in Structure.
+        """
+
+        # matrix size will vary depending on if d or f orbitals are present
+        # therefore regex assumes f, but filter out None values if d
+
+        header_pattern = r"spin component  1\n"
+        row_pattern = r'[^\S\r\n]*(?:([\d.-]+)[^\S\r\n]*)' + r'(?:([\d.-]+)[^\S\r\n]*)?'*6 + r'.*?'
+        footer_pattern = r"\nspin component  2"
+        spin1_component = self.read_table_pattern(header_pattern, row_pattern,
+                                                  footer_pattern, postprocess=lambda x: float(x) if x else None,
+                                                  last_one_only=False)
+
+        # filter out None values
+        spin1_component = [[[e for e in row if e is not None] for row in matrix] for matrix in spin1_component]
+
+        # and repeat for Spin.down
+
+        header_pattern = r"spin component  2\n"
+        row_pattern = r"^[^\S\r\n]*([\d.-]+[^\S\r\n]*)+$"
+        footer_pattern = r"\n occupancies and eigenvectors"
+        spin2_component = self.read_table_pattern(header_pattern, row_pattern,
+                                                  footer_pattern, postprocess=lambda x: float(x) if x else None,
+                                                  last_one_only=False)
+
+        spin2_component = [[[e for e in row if e is not None] for row in matrix] for matrix in spin2_component]
+
+        self.data["onsite_density_matrices"] = [
+            {
+                Spin.up: spin1_component[idx],
+                Spin.down: spin2_component[idx]
+            }
+            for idx in range(len(spin1_component))
+        ]
 
     def read_corrections(self, reverse=True, terminate_on_match=True):
         patterns = {
