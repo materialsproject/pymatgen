@@ -259,14 +259,14 @@ class LammpsInputSet(MSONable):
                 numbers.append(i+1)
         except:
             key = self.config_dict.get('key')
-            numbers = [v for k,v in key.items()]
+            numbers = [k for k,v in key.items()]
 
         pair_numbers = (list(combinations(numbers, 2)) + [(i,i) for i in numbers])
         pair_numbers.sort(key=lambda x: x[0])
 
         string = ''
         for p in pair_numbers:
-            string += 'pair_coeff '+str(p[0])+' '+str(+p[1])+' '
+            string += 'pair_coeff '+str(p[0])+' '+str(p[1])+' '
 
             try:
                 pair = Pair(key[p[0]], key[p[1]])
