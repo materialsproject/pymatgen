@@ -1100,7 +1100,7 @@ class LobsterinTest(unittest.TestCase):
         lobsterin2 = Lobsterin({'cohpstartenergy': -15.0})
         # can only calculate nbands if basis functions are provided
         with self.assertRaises(IOError):
-            lobsterin2._get_nbands()
+            lobsterin2._get_nbands(structure=Structure.from_file(os.path.join(test_dir_doscar, "POSCAR.Fe3O4")))
 
     def test_standard_settings(self):
         # test standard settings
@@ -1219,13 +1219,13 @@ class LobsterinTest(unittest.TestCase):
                                                                      os.path.join(test_dir_doscar, "INCAR.lobster"),
                                                                      os.path.join(test_dir_doscar, "POTCAR.Fe3O4"),
                                                                      option='standard')
-        lobsterin1.write_INCAR(os.path.join(test_dir_doscar, "INCAR.lobster3"), outfile_path)
+        lobsterin1.write_INCAR(os.path.join(test_dir_doscar, "INCAR.lobster3"), outfile_path,os.path.join(test_dir_doscar, "POSCAR.Fe3O4"))
 
         incar1 = Incar.from_file(os.path.join(test_dir_doscar, "INCAR.lobster3"))
         incar2 = Incar.from_file(outfile_path)
 
         self.assertDictEqual(incar1.diff(incar2)["Different"],
-                             {'ISYM': {'INCAR1': 2, 'INCAR2': -1}, 'NBANDS': {'INCAR1': None, 'INCAR2': 13},
+                             {'ISYM': {'INCAR1': 2, 'INCAR2': -1}, 'NBANDS': {'INCAR1': None, 'INCAR2': 86},
                               'NSW': {'INCAR1': 500, 'INCAR2': 0}})
 
     def test_write_KPOINTS(self):

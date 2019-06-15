@@ -1264,9 +1264,9 @@ class Lobsterin(dict, MSONable):
                     different_param[k2.upper()] = {"lobsterin1": None, "lobsterin2": v2}
         return {"Same": similar_param, "Different": different_param}
 
-    def _get_nbands(self):
+    def _get_nbands(self,structure:Structure):
         """
-        get basis functions from a file
+        get number of nbands
         """
         if self.get("basisfunctions") is None:
             raise IOError("No basis functions are provided. The program cannot calculate nbands.")
@@ -1277,7 +1277,8 @@ class Lobsterin(dict, MSONable):
                 string_basis_raw = string_basis.strip().split(" ")
                 while "" in string_basis_raw:
                     string_basis_raw.remove("")
-                basis_functions.extend(string_basis_raw[1:])
+                for i in range(0,int(structure.composition.element_composition[string_basis_raw[0]])):
+                    basis_functions.extend(string_basis_raw[1:])
 
         no_basis_functions = 0
         for basis in basis_functions:
@@ -1348,13 +1349,14 @@ class Lobsterin(dict, MSONable):
         return Lobsterin({k: v for k, v in d.items() if k not in ["@module",
                                                                   "@class"]})
 
-    def write_INCAR(self, incar_input="INCAR", incar_output="INCAR.lobster", further_settings=None):
+    def write_INCAR(self, incar_input="INCAR", incar_output="INCAR.lobster", poscar_input="POSCAR",further_settings=None):
         """
         Will only make the run static, insert nbands, make ISYM=-1, and write a new INCAR.
         You have to check for the rest.
         Args:
             incar_input (str): path to input INCAR
             incar_output (str): path to output INCAR
+            poscar_input (str) path to input POSCAR
             further_settings (dict): A dict can be used to include further settings, e.g. {"ISMEAR":-5}
         """
         # reads old incar from file, this one will be modified
@@ -1363,7 +1365,7 @@ class Lobsterin(dict, MSONable):
         incar["ISYM"] = -1
         incar["NSW"] = 0
         # get nbands from _get_nbands (use basis set that is inserted)
-        incar["NBANDS"] = self._get_nbands()
+        incar["NBANDS"] = self._get_nbands(Structure.from_file(poscar_input))
         if further_settings is not None:
             for key, item in further_settings.items():
                 incar[key] = further_settings[key]
