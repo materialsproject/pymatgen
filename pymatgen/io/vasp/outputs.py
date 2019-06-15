@@ -2070,7 +2070,7 @@ class Outcar:
         # and repeat for Spin.down
 
         header_pattern = r"spin component  2\n"
-        row_pattern = r"^[^\S\r\n]*([\d.-]+[^\S\r\n]*)+$"
+        row_pattern = r'[^\S\r\n]*(?:([\d.-]+)[^\S\r\n]*)' + r'(?:([\d.-]+)[^\S\r\n]*)?'*6 + r'.*?'
         footer_pattern = r"\n occupancies and eigenvectors"
         spin2_component = self.read_table_pattern(header_pattern, row_pattern,
                                                   footer_pattern, postprocess=lambda x: float(x) if x else None,
