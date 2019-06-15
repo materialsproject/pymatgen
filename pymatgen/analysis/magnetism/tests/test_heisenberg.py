@@ -9,6 +9,8 @@ import unittest
 
 from monty.serialization import loadfn
 
+import pymatgen.analysis.magnetism.heisenberg as h
+
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
 

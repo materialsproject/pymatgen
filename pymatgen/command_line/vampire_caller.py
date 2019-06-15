@@ -42,7 +42,8 @@ class VampireCaller:
     @requires(VAMPEXE, "VampireCaller requires vampire-serial to be in the path."
     "Please follow the instructions at https://vampire.york.ac.uk/download/.")
     
-    def __init__(self, ordered_structures, energies):
+    def __init__(self, ordered_structures, energies, mc_box_size=4.0, 
+        equil_timesteps=10000, mc_timesteps=10000):
         
         """
         Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical temperature with classical Monte Carlo.
@@ -50,6 +51,9 @@ class VampireCaller:
         Args:
             ordered_structures (list): Structure objects with magmoms.
             energies (list): Energies of each relaxed magnetic structure.
+            mc_box_size (float): x=y=z dimensions (nm) of MC simulation box
+            equil_timesteps (int): number of MC steps for equilibrating
+            mc_timesteps (int): number of MC steps for averaging
 
         Parameters:
             sgraph (StructureGraph): Ground state graph.
@@ -64,13 +68,13 @@ class VampireCaller:
     
         # Sort by energy if not already sorted
         ordered_structures = [s for _, s in
-                              sorted(zip(energies, ordered_structures), reverse=True)]
+                              sorted(zip(energies, ordered_structures), reverse=False)]
 
-        energies = sorted(energies, reverse=True)
+        energies = sorted(energies, reverse=False)
 
         # Get exchange parameters and set instance variables
         hm = HeisenbergMapper(ordered_structures, energies)
-        self.sgraph = hm.sgraphs[0]
+        self.sgraph = hm.sgraphs[0]  # ground state graph
         self.unique_site_ids = hm.unique_site_ids
         self.nn_interacations = hm.nn_interacations
         self.ex_params = hm.get_exchange()
@@ -145,7 +149,11 @@ class VampireCaller:
         
     def _create_input(self):
         
+        mcbs = self.mc_box_size
+        equil_timesteps = self.equil_timesteps
+        mc_timesteps = self.mc_timesteps
         mat_name = self.mat_name
+
         input_script = ['material:unit-cell-file=%s.ucf' % (mat_name)]
         
         # Specify periodic boundary conditions
@@ -155,17 +163,17 @@ class VampireCaller:
         
         # xx - define unit cell size and system size to get total # of atoms
         # System size in nm
-        input_script += ['dimensions:system-size-x = 4.0',
-                         'dimensions:system-size-y = 4.0',
-                         'dimensions:system-size-z = 4.0']
+        input_script += ['dimensions:system-size-x = %.1f' % (mcbs),
+                         'dimensions:system-size-y = %.1f' % (mcbs),
+                         'dimensions:system-size-z = %.1f' % (mcbs)]
         
         # Critical temperature Monte Carlo calculation
         input_script += ['sim:integrator = monte-carlo',
                          'sim:program = curie-temperature']
         
         # Default Monte Carlo params
-        input_script += ['sim:equilibration-time-steps = 1000',
-                         'sim:loop-time-steps = 1000',
+        input_script += ['sim:equilibration-time-steps = %d' % (equil_timesteps),
+                         'sim:loop-time-steps = %d' % (mc_timesteps),
                          'sim:time-steps-increment = 1']
         
         # Do Monte Carlo between +- 400 K from MFT estimate
@@ -251,7 +259,7 @@ class VampireCaller:
                     j_value = self.ex_params[j_ji]
                 else:
                     j_value = 0
-                ucf += ['%d %d %d %d %d %d %.6f' % (i i j dx dy dz j_value)]
+                ucf += ['%d %d %d %d %d %d %.6f' % (i, i, j, dx, dy, dz, j_value)]
             
         ucf = '\n'.join(ucf)
         ucf_file_name = mat_name + '.ucf'

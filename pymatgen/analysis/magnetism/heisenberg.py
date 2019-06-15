@@ -80,7 +80,7 @@ class HeisenbergMapper:
         # Set attributes
         self._get_unique_sites()
         self._get_nn_dict()
-        # self._get_exchange_df()
+        self._get_exchange_df()
 
     def _get_graphs(self):
         """
@@ -215,16 +215,17 @@ class HeisenbergMapper:
 
         # Loop over all sites in each graph and compute |S_i . S_j|
         # for n+1 unique graphs to compute n exchange params
-        while sgraph_index < num_nn_j:
+        #while sgraph_index < num_nn_j:
+        while sgraphs_copy:
             sgraph = sgraphs_copy.pop(0)
             ex_row = pd.DataFrame(np.zeros((1, num_nn_j + 1)),
                                   index=[sgraph_index], columns=columns)
 
             for i in range(len(sgraph)):
-                try:
-                    s_i = sgraph.site_properties['magmom'][i]
-                except:  # no spin/magmom property
-                    s_i = 0
+                # try:
+                s_i = sgraph.structure.site_properties['magmom'][i]
+                # except:  # no spin/magmom property
+                #     s_i = 0
                 for k in unique_site_ids.keys():
                     if i in k:
                         i_index = unique_site_ids[k]
@@ -234,10 +235,10 @@ class HeisenbergMapper:
                 connections = sgraph.get_connected_sites(i)
                 for j in range(len(connections)):
                     j_site = connections[j][2]
-                    try:
-                        s_j = sgraph.site_properties['magmom'][j]
-                    except:  # no spin/magmom
-                        s_j = 0
+                    # try:
+                    s_j = sgraph.structure.site_properties['magmom'][j]
+                    # except:  # no spin/magmom
+                    #     s_j = 0
                     for k in unique_site_ids.keys():
                         if j in k:
                             j_index = unique_site_ids[k]
@@ -251,15 +252,26 @@ class HeisenbergMapper:
                         ex_row.at[sgraph_index, j_ji] -= s_i * s_j
 
             # Ignore the row if it is a duplicate to avoid singular matrix
-            if ex_mat.append(ex_row)[j_columns].equals(ex_mat.append(ex_row)[j_columns].drop_duplicates(keep='first')):
+            if ex_mat.append(ex_row)[j_columns].equals(ex_mat.append(ex_row)[j_columns].drop_duplicates(keep='first')):          
                 e_index = self.ordered_structures.index(sgraph.structure)
                 ex_row.at[sgraph_index, 'E'] = self.energies[e_index]
                 sgraph_index += 1
                 ex_mat = ex_mat.append(ex_row)
-
+                if sgraph_index == num_nn_j:  # check for zero columns
+                    zeros = [b for b in (ex_mat[j_columns] == 0).all(axis=0)]
+                    if True in zeros:
+                        sgraph_index -= 1  # keep looking
         
         ex_mat[j_columns] = ex_mat[j_columns].div(2.)  # 1/2 factor in Heisenberg Hamiltonian
         ex_mat[['E0']] = 1  # Nonmagnetic contribution
+
+        # Check for singularities and delete columns with all zeros
+        zeros = [b for b in (ex_mat == 0).all(axis=0)]
+        if True in zeros:
+            c = ex_mat.columns[zeros.index(True)]
+            len_zeros = len(c)
+            ex_mat = ex_mat.drop(columns=[c], axis=1)
+            ex_mat = ex_mat.drop(ex_mat.tail(len_zeros).index)
 
         self.ex_mat = ex_mat
 
@@ -278,10 +290,12 @@ class HeisenbergMapper:
         E = ex_mat[['E']]
         j_names = [j for j in ex_mat.columns if j not in ['E']]
         H = ex_mat.loc[:, ex_mat.columns != 'E'].values
+
         H_inv = np.linalg.inv(H)
         j_ij = np.dot(H_inv, E)
-        j_ij *= 1000  # meV
-        j_ij /= len(self.ordered_structures[0])  # / atom
+        j_ij[1:] *= 1000  # meV
+        j_ij[1:] /= len(self.ordered_structures[0])  # / atom
+        j_ij = j_ij.tolist()
         ex_params = {j_name: j for j_name, j in zip(j_names, j_ij)}
 
         self.ex_params = ex_params
@@ -303,9 +317,15 @@ class HeisenbergMapper:
 
         """
 
+        # Convert to magnetic structures with 'magmom' site property
+        fm_struct = CollinearMagneticStructureAnalyzer(fm_struct).get_structure_with_only_magnetic_atoms()
+        afm_struct = CollinearMagneticStructureAnalyzer(afm_struct).get_structure_with_only_magnetic_atoms()
+
         n = len(fm_struct)
         magmoms = fm_struct.site_properties['magmom']
+        afm_magmoms = afm_struct.site_properties['magmom']
         m_avg = np.mean([np.sqrt(m**2) for m in magmoms])
+        afm_m_avg = np.mean([np.sqrt(m**2) for m in magmoms])
         delta_e = afm_e - fm_e  # J > 0 -> FM
         j_avg = delta_e / (n*m_avg**2)
         j_avg *= 1000  # meV
