@@ -256,7 +256,7 @@ class LammpsInputSet(MSONable):
             numbers = []
             for i, s in enumerate(symbols):
                 key.append(s)
-                numbers.append(i+1)
+                numbers.append(i)
         except:
             key = self.config_dict.get('key')
             numbers = [v-1 for k, v in key.items()]
@@ -267,7 +267,6 @@ class LammpsInputSet(MSONable):
         string = ''
         for p in pair_numbers:
             string += 'pair_coeff '+str(p[0]+1)+' '+str(p[1]+1)+' '
-
             try:
                 pair = Pair(key[p[0]], key[p[1]])
                 params = _forcefields[str(pair.get_id())]['params']
