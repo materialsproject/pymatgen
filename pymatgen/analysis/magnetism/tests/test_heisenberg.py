@@ -56,19 +56,31 @@ class HeisenbergMapperTest(unittest.TestCase):
     def test_graphs(self):
         for hm in self.hms:
             sgraphs = hm.sgraphs
+            print('Num of graphs: %d' % (len(sgraphs)))
         pass
 
     def test_sites(self):
-        pass
+        for hm in self.hms:
+            unique_site_ids = hm.unique_site_ids
+            print('Unique sites: ' + str(unique_site_ids))
 
     def test_nn_interactions(self):
-        pass
+        for hm in self.hms:
+            nn_interactions = hm.nn_interactions
+            print('NN interactions: ' + str(nn_interactions))
 
     def test_exchange_matrix(self):
-        pass
+        for hm in self.hms:
+            ex_mat = hm.ex_mat
+            print('Ex mat: ' + str(ex_mat.columns))
 
     def test_exchange_params(self):
-        pass
+        for hm in self.hms:
+            ex_params = hm.get_exchange()
+            print('Ex params: ' + str(ex_params))
+
+            mft_t = hm.get_mft_temperature(ex_params['0-0'])
+            print('MFT T: ' + str(mft_t))
 
     def test_mean_field(self):
         pass

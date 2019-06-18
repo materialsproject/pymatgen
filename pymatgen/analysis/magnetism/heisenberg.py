@@ -11,6 +11,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 import numpy as np
 import pandas as pd
 
+import warnings
 
 """
 This module implements a simple algorithm for extracting nearest neighbor
@@ -66,10 +67,10 @@ class HeisenbergMapper:
         self._get_graphs()
 
         # Sort by energy if not already sorted
-        ordered_structures = [s for _, s in
-                              sorted(zip(energies, ordered_structures), reverse=False)]
+        self.ordered_structures = [s for _, s in
+                              sorted(zip(self.energies, self.ordered_structures), reverse=False)]
 
-        energies = sorted(energies, reverse=False)
+        self.energies = sorted(self.energies, reverse=False)
 
         # These attributes are set by internal methods
         self.unique_site_ids = None
@@ -78,9 +79,10 @@ class HeisenbergMapper:
         self.ex_params = None
 
         # Set attributes
-        self._get_unique_sites()
+        self._get_unique_sites()  # xx - change to static method
         self._get_nn_dict()
         self._get_exchange_df()
+
 
     def _get_graphs(self):
         """
@@ -210,70 +212,75 @@ class HeisenbergMapper:
         ex_mat_empty = pd.DataFrame(columns=columns)
 
         ex_mat = ex_mat_empty.copy()
-        sgraphs_copy = sgraphs[:]  # deep copy of sgraphs
-        sgraph_index = 0
 
-        # Loop over all sites in each graph and compute |S_i . S_j|
-        # for n+1 unique graphs to compute n exchange params
-        #while sgraph_index < num_nn_j:
-        while sgraphs_copy:
-            sgraph = sgraphs_copy.pop(0)
-            ex_row = pd.DataFrame(np.zeros((1, num_nn_j + 1)),
-                                  index=[sgraph_index], columns=columns)
+        # Only 1 unique NN interaction
+        if len(j_columns) < 2:
+            self.ex_mat = ex_mat  # Just use the J_ij column labels
+        else:
+            sgraphs_copy = sgraphs[:]  # deep copy of sgraphs
+            sgraph_index = 0
 
-            for i in range(len(sgraph)):
-                # try:
-                s_i = sgraph.structure.site_properties['magmom'][i]
-                # except:  # no spin/magmom property
-                #     s_i = 0
-                for k in unique_site_ids.keys():
-                    if i in k:
-                        i_index = unique_site_ids[k]
-                        break
+            # Loop over all sites in each graph and compute |S_i . S_j|
+            # for n+1 unique graphs to compute n exchange params
+            #while sgraph_index < num_nn_j:
+            while sgraphs_copy:
+                sgraph = sgraphs_copy.pop(0)
+                ex_row = pd.DataFrame(np.zeros((1, num_nn_j + 1)),
+                                      index=[sgraph_index], columns=columns)
 
-                # Get all connections for ith site and compute |S_i . S_j|
-                connections = sgraph.get_connected_sites(i)
-                for j in range(len(connections)):
-                    j_site = connections[j][2]
+                for i in range(len(sgraph)):
                     # try:
-                    s_j = sgraph.structure.site_properties['magmom'][j]
-                    # except:  # no spin/magmom
-                    #     s_j = 0
+                    s_i = sgraph.structure.site_properties['magmom'][i]
+                    # except:  # no spin/magmom property
+                    #     s_i = 0
                     for k in unique_site_ids.keys():
-                        if j in k:
-                            j_index = unique_site_ids[k]
+                        if i in k:
+                            i_index = unique_site_ids[k]
                             break
 
-                    j_ij = str(i_index) + '-' + str(j_index)
-                    j_ji = str(j_index) + '-' + str(i_index)
-                    if j_ij in ex_mat.columns:
-                        ex_row.at[sgraph_index, j_ij] -= s_i * s_j
-                    elif j_ji in ex_mat.columns:
-                        ex_row.at[sgraph_index, j_ji] -= s_i * s_j
+                    # Get all connections for ith site and compute |S_i . S_j|
+                    connections = sgraph.get_connected_sites(i)
+                    for j in range(len(connections)):
+                        j_site = connections[j][2]
+                        # try:
+                        s_j = sgraph.structure.site_properties['magmom'][j]
+                        # except:  # no spin/magmom
+                        #     s_j = 0
+                        for k in unique_site_ids.keys():
+                            if j in k:
+                                j_index = unique_site_ids[k]
+                                break
 
-            # Ignore the row if it is a duplicate to avoid singular matrix
-            if ex_mat.append(ex_row)[j_columns].equals(ex_mat.append(ex_row)[j_columns].drop_duplicates(keep='first')):          
-                e_index = self.ordered_structures.index(sgraph.structure)
-                ex_row.at[sgraph_index, 'E'] = self.energies[e_index]
-                sgraph_index += 1
-                ex_mat = ex_mat.append(ex_row)
-                if sgraph_index == num_nn_j:  # check for zero columns
-                    zeros = [b for b in (ex_mat[j_columns] == 0).all(axis=0)]
-                    if True in zeros:
-                        sgraph_index -= 1  # keep looking
+                        j_ij = str(i_index) + '-' + str(j_index)
+                        j_ji = str(j_index) + '-' + str(i_index)
+                        if j_ij in ex_mat.columns:
+                            ex_row.at[sgraph_index, j_ij] -= s_i * s_j
+                        elif j_ji in ex_mat.columns:
+                            ex_row.at[sgraph_index, j_ji] -= s_i * s_j
+
+                # Ignore the row if it is a duplicate to avoid singular matrix
+                if ex_mat.append(ex_row)[j_columns].equals(ex_mat.append(ex_row)[j_columns].drop_duplicates(keep='first')):          
+                    e_index = self.ordered_structures.index(sgraph.structure)
+                    ex_row.at[sgraph_index, 'E'] = self.energies[e_index]
+                    sgraph_index += 1
+                    ex_mat = ex_mat.append(ex_row)
+                    if sgraph_index == num_nn_j:  # check for zero columns
+                        zeros = [b for b in (ex_mat[j_columns] == 0).all(axis=0)]
+                        if True in zeros:
+                            sgraph_index -= 1  # keep looking
         
-        ex_mat[j_columns] = ex_mat[j_columns].div(2.)  # 1/2 factor in Heisenberg Hamiltonian
-        ex_mat[['E0']] = 1  # Nonmagnetic contribution
+            ex_mat[j_columns] = ex_mat[j_columns].div(2.)  # 1/2 factor in Heisenberg Hamiltonian
+            ex_mat[['E0']] = 1  # Nonmagnetic contribution
 
-        # Check for singularities and delete columns with all zeros
-        zeros = [b for b in (ex_mat == 0).all(axis=0)]
-        if True in zeros:
-            c = ex_mat.columns[zeros.index(True)]
-            len_zeros = len(c)
-            ex_mat = ex_mat.drop(columns=[c], axis=1)
-            ex_mat = ex_mat.drop(ex_mat.tail(len_zeros).index)
+            # Check for singularities and delete columns with all zeros
+            zeros = [b for b in (ex_mat == 0).all(axis=0)]
+            if True in zeros:
+                c = ex_mat.columns[zeros.index(True)]
+                len_zeros = len(c)
+                ex_mat = ex_mat.drop(columns=[c], axis=1)
+                ex_mat = ex_mat.drop(ex_mat.tail(len_zeros).index)
 
-        self.ex_mat = ex_mat
+            self.ex_mat = ex_mat
 
     def get_exchange(self):
         """
@@ -289,6 +296,32 @@ class HeisenbergMapper:
         # Solve the matrix equation for J_ij values
         E = ex_mat[['E']]
         j_names = [j for j in ex_mat.columns if j not in ['E']]
+
+        # Only 1 NN interaction
+        if len(j_names) < 3:
+            mag_min = np.inf
+            mag_max = -np.inf
+
+            # Find lowest energy FM and AFM configs
+            for s, e in zip(self.ordered_structures, self.energies):
+                magmoms = s.site_properties['magmom']
+                if abs(sum(magmoms)) > mag_max:
+                    fm_struct = s  # FM config
+                    fm_e = e
+                    mag_max = abs(sum(magmoms))
+                if abs(sum(magmoms)) < mag_min:
+                    afm_struct = s
+                    afm_e = e
+                    mag_min = abs(sum(magmoms))
+
+            # Estimate exchange by J ~ E_AFM - E_FM
+            j_avg = self.estimate_exchange(fm_struct, afm_struct, fm_e, afm_e)
+            j_name = [j for j in self.ex_mat.columns if j not in ['E', 'E0']][0]
+            ex_params = {j_name: j_avg}
+            self.ex_params = ex_params
+
+            return ex_params
+
         H = ex_mat.loc[:, ex_mat.columns != 'E'].values
 
         H_inv = np.linalg.inv(H)
