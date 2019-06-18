@@ -16,3 +16,7 @@ class VampireCallerTest(unittest.TestCase):
         sites, sublattices, FM, FiM, and AFM ground state, etc.
         * Compare Tc calcs to known Tc
     """
+    pass
+
+if __name__ == '__main__':
+    unittest.main()
