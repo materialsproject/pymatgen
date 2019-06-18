@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.structure_matcher &#8212; pymatgen 2019.4.11 documentation</title>
+    <title>pymatgen.analysis.structure_matcher &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.4.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -328,6 +328,7 @@
         <span class="c1"># Difficult to define sensible hash</span>
         <span class="k">return</span> <span class="mi">1</span></div></div>
 
+
 <div class="viewcode-block" id="StructureMatcher"><a class="viewcode-back" href="../../../pymatgen.analysis.structure_matcher.html#pymatgen.analysis.structure_matcher.StructureMatcher">[docs]</a><span class="k">class</span> <span class="nc">StructureMatcher</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class to match structures by similarity.</span>
@@ -447,7 +448,7 @@
                 <span class="n">el</span> <span class="o">=</span> <span class="n">get_el_sp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_supercell_size</span><span class="p">)</span>
                 <span class="n">fu</span> <span class="o">=</span> <span class="n">s2</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">/</span> <span class="n">s1</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">el</span><span class="p">]</span>
             <span class="k">except</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;invalid argument for supercell_size&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid argument for supercell_size.&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">fu</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="o">/</span><span class="mi">3</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">fu</span><span class="p">)),</span> <span class="kc">False</span>
@@ -1210,22 +1211,26 @@
         <span class="n">d1</span> <span class="o">=</span> <span class="n">d1</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">d2</span> <span class="o">=</span> <span class="n">d2</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_primitive_cell</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_lattice_scale</span><span class="p">:</span>
-            <span class="c1"># if allowing for base structure volume or supercell modifications, then need to</span>
-            <span class="c1"># preprocess defect objects to allow for matching</span>
-            <span class="n">d1_mod_bulk_structure</span><span class="p">,</span> <span class="n">d2_mod_bulk_structure</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span>  <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">_preprocess</span><span class="p">(</span> <span class="n">d1</span><span class="o">.</span><span class="n">bulk_structure</span><span class="p">,</span> <span class="n">d2</span><span class="o">.</span><span class="n">bulk_structure</span><span class="p">)</span>
-            <span class="n">d1_defect_site</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span> <span class="n">d1</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">d1</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
-                                           <span class="n">d1_mod_bulk_structure</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span>
-                                           <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="c1"># if allowing for base structure volume or supercell modifications,</span>
+            <span class="c1"># then need to preprocess defect objects to allow for matching</span>
+            <span class="n">d1_mod_bulk_structure</span><span class="p">,</span> <span class="n">d2_mod_bulk_structure</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">_preprocess</span><span class="p">(</span>
+                <span class="n">d1</span><span class="o">.</span><span class="n">bulk_structure</span><span class="p">,</span> <span class="n">d2</span><span class="o">.</span><span class="n">bulk_structure</span><span class="p">)</span>
+            <span class="n">d1_defect_site</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span><span class="n">d1</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">d1</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
+                                          <span class="n">d1_mod_bulk_structure</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span>
+                                          <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                          <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">d2_defect_site</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span> <span class="n">d2</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">d2</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
                                            <span class="n">d2_mod_bulk_structure</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span>
-                                           <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                                           <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                           <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
             <span class="n">d1</span><span class="o">.</span><span class="n">_structure</span> <span class="o">=</span> <span class="n">d1_mod_bulk_structure</span>
             <span class="n">d2</span><span class="o">.</span><span class="n">_structure</span> <span class="o">=</span> <span class="n">d2_mod_bulk_structure</span>
             <span class="n">d1</span><span class="o">.</span><span class="n">_defect_site</span> <span class="o">=</span> <span class="n">d1_defect_site</span>
             <span class="n">d2</span><span class="o">.</span><span class="n">_defect_site</span> <span class="o">=</span> <span class="n">d2_defect_site</span>
 
-        <span class="k">return</span> <span class="n">sm</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span> <span class="n">d1</span><span class="o">.</span><span class="n">generate_defect_structure</span><span class="p">(),</span> <span class="n">d2</span><span class="o">.</span><span class="n">generate_defect_structure</span><span class="p">())</span></div></div>
+        <span class="k">return</span> <span class="n">sm</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">d1</span><span class="o">.</span><span class="n">generate_defect_structure</span><span class="p">(),</span>
+                      <span class="n">d2</span><span class="o">.</span><span class="n">generate_defect_structure</span><span class="p">())</span></div></div>
 </pre></div>
 
           </div>
@@ -1234,10 +1239,10 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -1256,7 +1261,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.4.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1264,7 +1269,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

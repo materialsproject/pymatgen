@@ -22,6 +22,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.command_line
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

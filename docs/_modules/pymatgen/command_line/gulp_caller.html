@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.command_line.gulp_caller &#8212; pymatgen 2019.4.11 documentation</title>
+    <title>pymatgen.command_line.gulp_caller &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.4.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -175,9 +175,10 @@
         <span class="k">if</span> <span class="n">cell_flg</span><span class="p">:</span>
             <span class="n">gin</span> <span class="o">+=</span> <span class="s2">&quot;cell</span><span class="se">\n</span><span class="s2">&quot;</span>
             <span class="n">l</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span>
-            <span class="n">lat_str</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="n">l</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="n">l</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="n">l</span><span class="o">.</span><span class="n">c</span><span class="p">,</span> <span class="n">l</span><span class="o">.</span><span class="n">alpha</span><span class="p">,</span> <span class="n">l</span><span class="o">.</span><span class="n">beta</span><span class="p">,</span>
-                                        <span class="n">l</span><span class="o">.</span><span class="n">gamma</span><span class="p">]]</span>
-            <span class="n">gin</span> <span class="o">+=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lat_str</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="n">lat_str</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0:6f}</span><span class="s2"> </span><span class="si">{1:6f}</span><span class="s2"> </span><span class="si">{2:6f}</span><span class="s2"> </span><span class="si">{3:6f}</span><span class="s2"> </span><span class="si">{4:6f}</span><span class="s2"> </span><span class="si">{5:6f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">l</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="n">l</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="n">l</span><span class="o">.</span><span class="n">c</span><span class="p">,</span> <span class="n">l</span><span class="o">.</span><span class="n">alpha</span><span class="p">,</span> <span class="n">l</span><span class="o">.</span><span class="n">beta</span><span class="p">,</span> <span class="n">l</span><span class="o">.</span><span class="n">gamma</span>
+            <span class="p">)</span>
+            <span class="n">gin</span> <span class="o">+=</span> <span class="n">lat_str</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
 
         <span class="k">if</span> <span class="n">frac_flg</span><span class="p">:</span>
             <span class="n">gin</span> <span class="o">+=</span> <span class="s2">&quot;frac</span><span class="se">\n</span><span class="s2">&quot;</span>
@@ -790,10 +791,10 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -812,7 +813,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.4.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -820,7 +821,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -1280,7 +1280,7 @@ class CifWriter:
         atom_site_moment_crystalaxis_x = []
         atom_site_moment_crystalaxis_y = []
         atom_site_moment_crystalaxis_z = []
-        count = 1
+        count = 0
         if symprec is None:
             for site in struct:
                 for sp, occu in sorted(site.species.items()):

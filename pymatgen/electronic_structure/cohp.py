@@ -25,8 +25,8 @@ for crystal orbital overlap populations (COOP).
 __author__ = "Marco Esters, Janine George"
 __copyright__ = "Copyright 2017, The Materials Project"
 __version__ = "0.2"
-__maintainer__ = "Marco Esters"
-__email__ = "esters@uoregon.edu"
+__maintainer__ = "Marco Esters, Janine George"
+__email__ = "esters@uoregon.edu, janine.george@uclouvain.be"
 __date__ = "Dec 13, 2017"
 
 

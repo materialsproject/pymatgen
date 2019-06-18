@@ -335,8 +335,10 @@ class MagOrderingTransformationTest(PymatgenTest):
         p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.LiFePO4'),
                              check_for_POTCAR=False)
         s = p.structure
+        a = SpacegroupAnalyzer(s, 0.1)
+        s = a.get_refined_structure()
         alls = trans.apply_transformation(s, 10)
-        self.assertEqual(len(alls), 2)
+        self.assertEqual(len(alls), 1)
 
     def test_as_from_dict(self):
         trans = MagOrderingTransformation({"Fe": 5}, order_parameter=0.75)
@@ -499,6 +501,8 @@ class DopingTransformationTest(PymatgenTest):
 
     def test_apply_transformation(self):
         structure = PymatgenTest.get_structure("LiFePO4")
+        a = SpacegroupAnalyzer(structure, 0.1)
+        structure = a.get_refined_structure()
         t = DopingTransformation("Ca2+", min_length=10)
         ss = t.apply_transformation(structure, 100)
         self.assertEqual(len(ss), 1)
@@ -508,7 +512,7 @@ class DopingTransformationTest(PymatgenTest):
         self.assertEqual(len(ss), 0)
 
         # Aliovalent doping with vacancies
-        for dopant, nstructures in [("Al3+", 4), ("N3-", 420), ("Cl-", 16)]:
+        for dopant, nstructures in [("Al3+", 2), ("N3-", 235), ("Cl-", 8)]:
             t = DopingTransformation(dopant, min_length=4, alio_tol=1,
                                      max_structures_per_enum=1000)
             ss = t.apply_transformation(structure, 1000)
@@ -517,7 +521,7 @@ class DopingTransformationTest(PymatgenTest):
                 self.assertEqual(d["structure"].charge, 0)
 
         # Aliovalent doping with codopant
-        for dopant, nstructures in [("Al3+", 3), ("N3-", 60), ("Cl-", 60)]:
+        for dopant, nstructures in [("Al3+", 3), ("N3-", 37), ("Cl-", 37)]:
             t = DopingTransformation(dopant, min_length=4, alio_tol=1,
                                      codopant=True,
                                      max_structures_per_enum=1000)
