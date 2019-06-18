@@ -24,18 +24,16 @@ class HeisenbergMapperTest(unittest.TestCase):
     def setUpClass(cls):
         cls.df = pd.read_json(os.path.join(test_dir, 'mag_orderings_test_cases.json'))
 
-        df = cls.df
-
-        cls.CoS2 = df[df['formula_pretty']=='CoS2']
-        cls.MnNi2Sn = df[df['formula_pretty']=='MnNi2Sn']
-        cls.MnSi = df[df['formula_pretty']=='MnSi']
-        cls.LiMnPO4 = df[df['formula_pretty']=='LiMnPO4']
-        cls.Ta2CoO6 = df[df['formula_pretty']=='Ta2CoO6']
-        cls.Ni_SbO3_2 = df[df['formula_pretty']=='Ni(SbO3)2']
+        cls.CoS2 = cls.df[cls.df['formula_pretty']=='CoS2']
+        cls.MnNi2Sn = cls.df[cls.df['formula_pretty']=='MnNi2Sn']
+        cls.MnSi = cls.df[cls.df['formula_pretty']=='MnSi']
+        cls.LiMnPO4 = cls.df[cls.df['formula_pretty']=='LiMnPO4']
+        cls.Ta2CoO6 = cls.df[cls.df['formula_pretty']=='Ta2CoO6']
+        cls.Ni_SbO3_2 = cls.df[cls.df['formula_pretty']=='Ni(SbO3)2']
 
         # cls.compounds = [cls.CoS2, cls.MnNi2Sn, cls.MnSi,
         # cls.LiMnPO4, cls.Ta2CoO6, cls.Ni_SbO3_2]
-        cls.compounds = [cls.CoS2]
+        cls.compounds = [cls.MnSi]
 
         cls.hms = []
         for c in cls.compounds:
@@ -72,18 +70,20 @@ class HeisenbergMapperTest(unittest.TestCase):
     def test_exchange_matrix(self):
         for hm in self.hms:
             ex_mat = hm.ex_mat
-            print('Ex mat: ' + str(ex_mat.columns))
+            print('Ex mat: ')
+            print(ex_mat.values)
 
     def test_exchange_params(self):
         for hm in self.hms:
             ex_params = hm.get_exchange()
             print('Ex params: ' + str(ex_params))
 
-            mft_t = hm.get_mft_temperature(ex_params['0-0'])
-            print('MFT T: ' + str(mft_t))
-
     def test_mean_field(self):
-        pass
+        for hm in self.hms:
+            j_avg = hm.estimate_exchange()
+            print('<J> ' + str(j_avg))
+            mft_t = hm.get_mft_temperature(j_avg)
+            print('MFT T: ' + str(mft_t))
 
 if __name__ == '__main__':
     unittest.main()

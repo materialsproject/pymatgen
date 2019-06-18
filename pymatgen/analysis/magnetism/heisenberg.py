@@ -101,25 +101,31 @@ class HeisenbergMapper:
 
         strategy = self.strategy
 
-        # Find a maximally sized supercell to reference site labels to
-        imax = np.argmax([s.volume for s in self.ordered_structures])
-        s1 = self.ordered_structures[imax]
+        # Check if supercells are present
+        if any(len(s) != len(self.ordered_structures[0]) for s in 
+            self.ordered_structures):
 
-        # Match all structures to reference so site labels are consistent
-        sm = StructureMatcher(primitive_cell=False, attempt_supercell=True,
-                              comparator=ElementComparator())
-        matched_structures = []
-        matched_energies = []
+            print(self.ordered_structures[0])
+            print(self.ordered_structures[1])
+            # Find a maximally sized supercell to reference site labels to
+            imax = np.argmax([s.volume for s in self.ordered_structures])
+            s1 = self.ordered_structures[imax]
 
-        for i, s in enumerate(self.ordered_structures, 0):
-            s2 = sm.get_s2_like_s1(s1, s)
-            if s2 is not None:
-                matched_structures.append(s2)
-                scale = len(s2) / len(s)
-                matched_energies.append(self.energies[i] * scale)
+            # Match all structures to reference so site labels are consistent
+            sm = StructureMatcher(primitive_cell=False, attempt_supercell=True,
+                                  comparator=ElementComparator())
+            matched_structures = []
+            matched_energies = []
 
-        self.ordered_structures = matched_structures
-        self.energies = matched_energies
+            for i, s in enumerate(self.ordered_structures, 0):
+                s2 = sm.get_s2_like_s1(s1, s)
+                if s2 is not None:
+                    matched_structures.append(s2)
+                    scale = len(s2) / len(s)
+                    matched_energies.append(self.energies[i] * scale)
+
+            self.ordered_structures = matched_structures
+            self.energies = matched_energies
 
         # Generate structure graphs
         sgraphs = [StructureGraph.with_local_env_strategy(s, strategy=strategy)
@@ -299,20 +305,9 @@ class HeisenbergMapper:
 
         # Only 1 NN interaction
         if len(j_names) < 3:
-            mag_min = np.inf
-            mag_max = -np.inf
 
             # Find lowest energy FM and AFM configs
-            for s, e in zip(self.ordered_structures, self.energies):
-                magmoms = s.site_properties['magmom']
-                if abs(sum(magmoms)) > mag_max:
-                    fm_struct = s  # FM config
-                    fm_e = e
-                    mag_max = abs(sum(magmoms))
-                if abs(sum(magmoms)) < mag_min:
-                    afm_struct = s
-                    afm_e = e
-                    mag_min = abs(sum(magmoms))
+            fm_struct, afm_struct, fm_e, afm_e = self.get_low_energy_orderings()
 
             # Estimate exchange by J ~ E_AFM - E_FM
             j_avg = self.estimate_exchange(fm_struct, afm_struct, fm_e, afm_e)
@@ -322,6 +317,7 @@ class HeisenbergMapper:
 
             return ex_params
 
+        # Solve eigenvalue problem for more than 1 NN interaction
         H = ex_mat.loc[:, ex_mat.columns != 'E'].values
 
         H_inv = np.linalg.inv(H)
@@ -335,7 +331,39 @@ class HeisenbergMapper:
 
         return ex_params
 
-    def estimate_exchange(self, fm_struct, afm_struct, fm_e, afm_e):
+    def get_low_energy_orderings(self):
+        """
+        Find lowest energy FM and AFM orderings to compute E_AFM - E_FM.
+
+        Returns:
+            fm_struct (Structure): fm structure with 'magmom' site property
+            afm_struct (Structure): afm structure with 'magmom' site property
+            fm_e (float): fm energy
+            afm_e (float): afm energy
+
+        """
+
+        mag_min = np.inf
+        mag_max = -np.inf
+            
+        for s, e in zip(self.ordered_structures, self.energies):
+            magmoms = s.site_properties['magmom']
+            if abs(sum(magmoms)) > mag_max:
+                fm_struct = s  # FM config
+                fm_e = e
+                mag_max = abs(sum(magmoms))
+            if abs(sum(magmoms)) < mag_min:
+                afm_struct = s
+                afm_e = e
+                mag_min = abs(sum(magmoms))
+
+        # Convert to magnetic structures with 'magmom' site property
+        fm_struct = CollinearMagneticStructureAnalyzer(fm_struct).get_structure_with_only_magnetic_atoms()
+        afm_struct = CollinearMagneticStructureAnalyzer(afm_struct).get_structure_with_only_magnetic_atoms()
+
+        return fm_struct, afm_struct, fm_e, afm_e
+
+    def estimate_exchange(self, fm_struct=None, afm_struct=None, fm_e=None, afm_e=None):
         """
         Estimate <J> for a structure based on low energy FM and AFM orderings.
 
@@ -350,9 +378,9 @@ class HeisenbergMapper:
 
         """
 
-        # Convert to magnetic structures with 'magmom' site property
-        fm_struct = CollinearMagneticStructureAnalyzer(fm_struct).get_structure_with_only_magnetic_atoms()
-        afm_struct = CollinearMagneticStructureAnalyzer(afm_struct).get_structure_with_only_magnetic_atoms()
+        # Get low energy orderings if not supplied
+        if any(arg is None for arg in [fm_struct, afm_struct, fm_e, afm_e]):
+            fm_struct, afm_struct, fm_e, afm_e = self.get_low_energy_orderings()
 
         n = len(fm_struct)
         magmoms = fm_struct.site_properties['magmom']
