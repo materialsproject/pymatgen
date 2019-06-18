@@ -56,7 +56,10 @@ class HeisenbergMapper:
         """
 
         # Get only magnetic ions & give all structures site_properties['magmom']
-        ordered_structures = [CollinearMagneticStructureAnalyzer(s).get_structure_with_only_magnetic_atoms()
+        # threshold set to 0.01 uB so that magnetic ions with small moments
+        # are preserved
+        ordered_structures = [CollinearMagneticStructureAnalyzer(s, 
+            threshold=0.01).get_structure_with_only_magnetic_atoms()
                               for s in ordered_structures]
 
         # Normalize supercells and get graph representations
@@ -358,8 +361,10 @@ class HeisenbergMapper:
                 mag_min = abs(sum(magmoms))
 
         # Convert to magnetic structures with 'magmom' site property
-        fm_struct = CollinearMagneticStructureAnalyzer(fm_struct).get_structure_with_only_magnetic_atoms()
-        afm_struct = CollinearMagneticStructureAnalyzer(afm_struct).get_structure_with_only_magnetic_atoms()
+        fm_struct = CollinearMagneticStructureAnalyzer(fm_struct, 
+            threshold=0.01).get_structure_with_only_magnetic_atoms()
+        afm_struct = CollinearMagneticStructureAnalyzer(afm_struct, 
+            threshold=0.01).get_structure_with_only_magnetic_atoms()
 
         return fm_struct, afm_struct, fm_e, afm_e
 

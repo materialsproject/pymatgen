@@ -84,6 +84,7 @@ class CollinearMagneticStructureAnalyzer:
         default_magmoms: bool = None,
         set_net_positive: bool = True,
         threshold: float = 0.1,
+        threshold_nonmag: float = 0.5,
     ):
         """
         A class which provides a few helpful methods to analyze
@@ -130,6 +131,7 @@ class CollinearMagneticStructureAnalyzer:
         :param threshold (float): number (in Bohr magnetons) below which magmoms
         will be rounded to zero, default of 0.1 can probably be increased for many
         magnetic systems, depending on your application
+        :param threshold_nonmag (float): number (in Bohr magneton) below which nonmagnetic ions (with no magmom specified in default_magmoms) will be rounded to zero
         """
 
         if default_magmoms:
@@ -219,8 +221,9 @@ class CollinearMagneticStructureAnalyzer:
         self.total_magmoms = sum(magmoms)
         self.magnetization = sum(magmoms) / structure.volume
 
-        # round magmoms below threshold to zero
-        magmoms = [m if abs(m) > threshold else 0 for m in magmoms]
+        # round magmoms on magnetic ions below threshold to zero
+        # and on non magnetic ions below threshold_nonmag
+        magmoms = [m if abs(m) > threshold and a.species_string in self.default_magmoms else m if abs(m) > threshold_nonmag and a.species_string not in self.default_magmoms else 0 for (m, a) in zip(magmoms, structure.sites)]
 
         # overwrite existing magmoms with default_magmoms
         if overwrite_magmom_mode not in (
