@@ -1364,6 +1364,7 @@ class Lobsterin(dict, MSONable):
         warnings.warn("Please check your incar_input before using it. This method only changes three settings!")
         incar["ISYM"] = -1
         incar["NSW"] = 0
+        incar["LWAVE"] = True
         # get nbands from _get_nbands (use basis set that is inserted)
         incar["NBANDS"] = self._get_nbands(Structure.from_file(poscar_input))
         if further_settings is not None:
