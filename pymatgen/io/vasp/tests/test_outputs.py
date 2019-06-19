@@ -90,6 +90,18 @@ class VasprunTest(PymatgenTest):
             self.assertTrue(issubclass(w[-1].category,
                                        UserWarning))
 
+    def test_runtype(self):
+        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.HSE06")
+        self.assertIn(v.run_type, "HSE06")
+        v1 = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.SCAN")
+        self.assertIn(v1.run_type, "SCAN")
+        v2 = Vasprun(self.TEST_FILES_DIR / "vasprun.xml")
+        self.assertIn(v2.run_type, "None")
+        v3 = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.SCAN_rvv10")
+        self.assertIn(v3.run_type, "SCAN+rvv10")
+        v4 = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.PBESol_SCAN")
+        self.assertIn(v4.run_type, "PBESol+SCAN")
+
     def test_vdw(self):
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.vdw")
         self.assertAlmostEqual(v.final_energy, -9.78310677)
