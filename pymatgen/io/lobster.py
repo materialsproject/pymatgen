@@ -1264,7 +1264,7 @@ class Lobsterin(dict, MSONable):
                     different_param[k2.upper()] = {"lobsterin1": None, "lobsterin2": v2}
         return {"Same": similar_param, "Different": different_param}
 
-    def _get_nbands(self,structure:Structure):
+    def _get_nbands(self, structure: Structure):
         """
         get number of nbands
         """
@@ -1277,7 +1277,7 @@ class Lobsterin(dict, MSONable):
                 string_basis_raw = string_basis.strip().split(" ")
                 while "" in string_basis_raw:
                     string_basis_raw.remove("")
-                for i in range(0,int(structure.composition.element_composition[string_basis_raw[0]])):
+                for i in range(0, int(structure.composition.element_composition[string_basis_raw[0]])):
                     basis_functions.extend(string_basis_raw[1:])
 
         no_basis_functions = 0
@@ -1349,9 +1349,10 @@ class Lobsterin(dict, MSONable):
         return Lobsterin({k: v for k, v in d.items() if k not in ["@module",
                                                                   "@class"]})
 
-    def write_INCAR(self, incar_input="INCAR", incar_output="INCAR.lobster", poscar_input="POSCAR",further_settings=None):
+    def write_INCAR(self, incar_input="INCAR", incar_output="INCAR.lobster", poscar_input="POSCAR",
+                    further_settings=None):
         """
-        Will only make the run static, insert nbands, make ISYM=-1, and write a new INCAR.
+        Will only make the run static, insert nbands, make ISYM=-1, set LWAVE=True and write a new INCAR.
         You have to check for the rest.
         Args:
             incar_input (str): path to input INCAR
