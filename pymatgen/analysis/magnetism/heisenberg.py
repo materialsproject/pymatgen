@@ -8,8 +8,11 @@ from pymatgen.analysis.local_env import MinimumDistanceNN
 from pymatgen.analysis.structure_matcher import ElementComparator, StructureMatcher
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
+from monty.serialization import dumpfn
+
 import numpy as np
 import pandas as pd
+import copy
 
 import warnings
 
@@ -96,9 +99,10 @@ class HeisenbergMapper:
             None (sets self.sgraphs instance variable)
 
         Todo:
-            * When supersizing everything, make site labels based on one
-            convential structure and enforce that all other structs follow
-            that labeling scheme.
+            * Don't supersize / structure match; instead, find symmetrically
+            equiv sites and assign unique labels
+            * Structure matcher is throwing out structures with incommensurate
+            supercells...need to fix.
             * Implement other strategies that capture NNN bonds, etc.
         """
 
@@ -108,8 +112,6 @@ class HeisenbergMapper:
         if any(len(s) != len(self.ordered_structures[0]) for s in 
             self.ordered_structures):
 
-            print(self.ordered_structures[0])
-            print(self.ordered_structures[1])
             # Find a maximally sized supercell to reference site labels to
             imax = np.argmax([s.volume for s in self.ordered_structures])
             s1 = self.ordered_structures[imax]
@@ -170,6 +172,9 @@ class HeisenbergMapper:
         Returns:
             None: (sets self.nn_interactions instance variable)
 
+        Todo:
+            * Add NNN interactions, etc.
+
         """
 
         sgraphs = self.sgraphs
@@ -226,18 +231,17 @@ class HeisenbergMapper:
         if len(j_columns) < 2:
             self.ex_mat = ex_mat  # Just use the J_ij column labels
         else:
-            sgraphs_copy = sgraphs[:]  # deep copy of sgraphs
+            sgraphs_copy = copy.deepcopy(sgraphs)
             sgraph_index = 0
 
             # Loop over all sites in each graph and compute |S_i . S_j|
             # for n+1 unique graphs to compute n exchange params
-            #while sgraph_index < num_nn_j:
-            while sgraphs_copy:
+            for graph in sgraphs:
                 sgraph = sgraphs_copy.pop(0)
                 ex_row = pd.DataFrame(np.zeros((1, num_nn_j + 1)),
                                       index=[sgraph_index], columns=columns)
 
-                for i in range(len(sgraph)):
+                for i, node in enumerate(sgraph.graph.nodes):
                     # try:
                     s_i = sgraph.structure.site_properties['magmom'][i]
                     # except:  # no spin/magmom property
@@ -249,8 +253,8 @@ class HeisenbergMapper:
 
                     # Get all connections for ith site and compute |S_i . S_j|
                     connections = sgraph.get_connected_sites(i)
-                    for j in range(len(connections)):
-                        j_site = connections[j][2]
+                    for j, connection in enumerate(connections):
+                        j_site = connection[2]
                         # try:
                         s_j = sgraph.structure.site_properties['magmom'][j]
                         # except:  # no spin/magmom
@@ -347,18 +351,23 @@ class HeisenbergMapper:
         """
 
         mag_min = np.inf
-        mag_max = -np.inf
+        mag_max = 0.01
+        fm_e_min = 0
+        afm_e_min = 0
+        afm_threshold = 0.1  # total magnetization < threshold -> AFM, not FiM
             
         for s, e in zip(self.ordered_structures, self.energies):
             magmoms = s.site_properties['magmom']
-            if abs(sum(magmoms)) > mag_max:
+            if abs(sum(magmoms)) > mag_max and e < fm_e_min:
                 fm_struct = s  # FM config
                 fm_e = e
                 mag_max = abs(sum(magmoms))
-            if abs(sum(magmoms)) < mag_min:
+                fm_e_min = e
+            if abs(sum(magmoms)) < mag_min or abs(sum(magmoms)) < afm_threshold and e < afm_e_min:
                 afm_struct = s
                 afm_e = e
                 mag_min = abs(sum(magmoms))
+                afm_e_min = e
 
         # Convert to magnetic structures with 'magmom' site property
         fm_struct = CollinearMagneticStructureAnalyzer(fm_struct, 
@@ -399,7 +408,10 @@ class HeisenbergMapper:
         return j_avg
 
     def get_mft_temperature(self, j_avg):
-        """Crude mean field estimate of critical temperature based on <J>.
+        """
+        Crude mean field estimate of critical temperature based on <J> for
+        one sublattice, or solving the coupled equations for a multisublattice
+        material.
 
         Args:
             j_avg (float): j_avg (float): Average exchange parameter (meV/atom)
@@ -409,9 +421,79 @@ class HeisenbergMapper:
 
         """
 
+        num_sublattices = len(self.unique_site_ids)
         k_boltzmann = 0.0861733  # meV/K
-        mft_t = 2 * j_avg / 3 / k_boltzmann
 
-        return mft_t  
+        # Only 1 magnetic sublattice
+        if num_sublattices == 1:
+            
+            mft_t = 2 * abs(j_avg) / 3 / k_boltzmann
+
+            return mft_t
+
+        else:  # multiple magnetic sublattices
+            omega = np.zeros((num_sublattices, num_sublattices))
+            for k in self.ex_params:
+                # split into i, j unique site identifiers
+                sites = [int(num) for num in k.split('-')]
+                i, j = sites[0], sites[1]
+                omega[i, j] = self.ex_params[k]
+                omega[j, i] = self.ex_params[k]
+
+            omega = omega * 2 / 3 / k_boltzmann
+            eigenvals, eigenvecs = np.linalg.eig(omega)
+            mft_t = max(eigenvals)
+
+            return mft_t
+
+    def get_interaction_graph(self):
+        """
+        Get a StructureGraph with edges and weights that correspond to exchange
+        interactions and J_ij values, respectively.
+
+        Returns:
+            igraph (StructureGraph): Exchange interaction graph.
+        """
+
+        structure = self.ordered_structures[0]
+        sgraph = self.sgraphs[0]
+        unique_site_ids = self.unique_site_ids
+
+        igraph = StructureGraph.with_empty_graph(structure, edge_weight_name=
+            'exchange_constant', edge_weight_units='meV/atom')
+
+        # J_ij exchange interaction matrix
+        for i, node in enumerate(sgraph.graph.nodes):
+            connections = sgraph.get_connected_sites(i)
+            for c in connections:
+                jimage = c[1]  # relative integer coordinates of atom j
+                dx = jimage[0]
+                dy = jimage[1]
+                dz = jimage[2]
+                j = c[2]  # index of neighbor
+
+                # uniqe site identifiers
+                for key in unique_site_ids.keys():
+                    if i in key:
+                        i_site = unique_site_ids[key]
+                    if j in key:
+                        j_site = unique_site_ids[key]
+
+                j_ij = str(i_site) + '-' + str(j_site)
+                j_ji = str(j_site) + '-' + str(i_site)
+
+                if j_ij in self.ex_params:
+                    j_value = self.ex_params[j_ij]
+                elif j_ji in self.ex_params:
+                    j_value = self.ex_params[j_ji]
+                else:
+                    j_value = 0
+
+                igraph.add_edge(i, j, to_jimage=jimage, weight=j_value,
+                    warn_duplicates=False)
+
+        dumpfn(igraph, 'interaction_graph.json')
+
+        return igraph
 
 

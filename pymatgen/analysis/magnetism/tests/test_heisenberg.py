@@ -18,6 +18,11 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 
 formulas = ['CoS2', 'MnNi2Sn', 'MnSi', 'LiMnPO4', 'Ta2CoO6', 'Ni(SbO3)2']
 
+"""
+References for computed exchange constants and Curie temps
+CoS2: https://iopscience.iop.org/article/10.1088/0953-8984/17/10/013/meta
+"""
+
 class HeisenbergMapperTest(unittest.TestCase):
 
     @classmethod
@@ -33,7 +38,7 @@ class HeisenbergMapperTest(unittest.TestCase):
 
         # cls.compounds = [cls.CoS2, cls.MnNi2Sn, cls.MnSi,
         # cls.LiMnPO4, cls.Ta2CoO6, cls.Ni_SbO3_2]
-        cls.compounds = [cls.MnSi]
+        cls.compounds = [cls.CoS2]
 
         cls.hms = []
         for c in cls.compounds:
@@ -84,6 +89,12 @@ class HeisenbergMapperTest(unittest.TestCase):
             print('<J> ' + str(j_avg))
             mft_t = hm.get_mft_temperature(j_avg)
             print('MFT T: ' + str(mft_t))
+
+    def test_get_igraph(self):
+        for hm in self.hms:
+            igraph = hm.get_interaction_graph()
+            #print('Interaction graph: ')
+            #print(igraph)
 
 if __name__ == '__main__':
     unittest.main()
