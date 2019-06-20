@@ -665,7 +665,7 @@ class Vasprun(MSONable):
             rt = "B3LYP"
         elif self.parameters.get("LHFCALC", True):
             rt = "PBEO or other Hybrid Functional"
-        elif self.parameters.get("BPARAM", 15.70) == 15.70:
+        elif self.parameters.get("BPARAM", 15.70) == 15.70 and self.parameters.get("LUSE_VDW", True):
             if self.incar.get("METAGGA", "").strip().upper() in METAGGA_TYPES:
                 rt = GGA_TYPES[self.parameters.get("GGA", "").strip().upper()]+"+"+\
                      METAGGA_TYPES[self.incar.get("METAGGA", "").strip().upper()]+"+rVV10"
