@@ -259,11 +259,12 @@ class Interface(Structure):
             props.update(site_properties)
         return Interface(self.lattice, self.species_and_occu, self.frac_coords,
                          self.sub_plane, self.film_plane,
-                         self.sub_init_cell, self.film_init_cell, self.site_properties,
+                         self.sub_init_cell, self.film_init_cell,
                          self.modified_sub_structure, self.modified_film_structure,
                          self.strained_sub_structure, self.strained_film_structure,
                          validate_proximity=False, coords_are_cartesian=False,
-                         init_inplane_shift=self.offset_vector[:2], charge=self.charge)
+                         init_inplane_shift=self.offset_vector[:2], charge=self.charge,
+                         site_properties=self.site_properties)
 
     def get_sorted_structure(self, key=None, reverse=False):
         """
