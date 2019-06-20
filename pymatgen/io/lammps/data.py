@@ -261,7 +261,6 @@ class LammpsData(MSONable):
         self.force_field = force_field
         self.topology = topology
         self.atom_style = atom_style
-
     def __str__(self):
         return self.get_string()
 
@@ -793,6 +792,15 @@ class LammpsData(MSONable):
             count += 1
 
         return LammpsData(box=LammpsBox(box), masses=masses_df.drop(columns='element'), atoms=atoms_df, atom_style=atom_style)
+
+    def insert_atom(self, atom, coords=None, ghost=False):
+        d = self.masses.to_dict()
+        atom_type_id = [k for k,v in d.items()].sort()[-1]
+        d['mass'][atom_type_id] = Element(atom).atomic_mass
+        self.masses.from_dict(d, orient='index')
+        if not ghost:
+            self.atoms.append()
+
 
     @classmethod
     def from_structure(cls, structure, ff_elements=None, atom_style="charge"):
