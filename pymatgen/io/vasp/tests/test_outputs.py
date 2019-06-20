@@ -96,7 +96,7 @@ class VasprunTest(PymatgenTest):
         v1 = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.PBESol")
         self.assertIn(v1.run_type, "PBESol+rVV10")
         v2 = Vasprun(self.TEST_FILES_DIR / "vasprun.xml")
-        self.assertIn(v2.run_type, "PBE0 or other Hybrid Functional")
+        self.assertIn(v2.run_type, "PBEO or other Hybrid Functional")
         v3 = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.PBESol.SCAN")
         self.assertIn(v3.run_type, "PBESol+SCAN")
         v4 = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.PBESol.SCAN.rVV10")
