@@ -294,7 +294,7 @@ class Interface(Structure):
         d["modified_film_structure"] = self.modified_film_structure
         d["strained_sub_structure"] =self.strained_sub_structure
         d["strained_film_structure"] = self.strained_film_structure
-        d['init_inplane_shift'] = self.ab_shift
+        d['init_inplane_shift'] = self.offset_vector[0:2]
         return d
 
     @classmethod
