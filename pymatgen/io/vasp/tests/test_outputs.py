@@ -106,7 +106,7 @@ class VasprunTest(PymatgenTest):
         v6 = Vasprun(self.TEST_FILES_DIR / "run_type_method_tests" / "PBE_revTPSS" / "vasprun.xml.PBE.revTPSS")
         self.assertIn(v6.run_type, "PBESol+revTPSS+rVV10")
         v7 = Vasprun(self.TEST_FILES_DIR / "run_type_method_tests" / "optB88" / "vasprun.xml.optB88")
-        self.assertIn(v7.run_type, "optB88+rVV10")
+        self.assertIn(v7.run_type, "PBESol+rVV10")
 
     def test_vdw(self):
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.vdw")
