@@ -58,9 +58,10 @@ class MPResterTest(PymatgenTest):
 
     def test_get_xas_data(self):
         # Test getting XAS data
-        data = self.rester.get_xas_data("mp-24850", "Li")
-        self.assertNotEqual(data, [])
-        self.assertEqual(len(data['spectrum']['y']), 200)
+        data = self.rester.get_xas_data("mp-19017", "Li")
+        self.assertEqual("mp-19017,Li", data['mid_and_el'])
+        self.assertAlmostEqual(data['spectrum']['x'][0], 55.178, places=2)
+        self.assertAlmostEqual(data['spectrum']['y'][0], 0.0164634, places=2)
         
     def test_get_data(self):
         props = ["energy", "energy_per_atom", "formation_energy_per_atom",
