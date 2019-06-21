@@ -15,6 +15,7 @@ import pandas as pd
 import copy
 
 import warnings
+import sys
 
 """
 This module implements a simple algorithm for extracting nearest neighbor
@@ -33,7 +34,7 @@ __date__ = "June 2019"
 class HeisenbergMapper:
 
     def __init__(self, ordered_structures, energies,
-                 strategy=MinimumDistanceNN()):
+                 strategy=MinimumDistanceNN(), cutoff=5.0):
         """Compute exchange parameters from low energy magnetic orderings.
 
         Exchange parameters are computed by mapping to a classical Heisenberg
@@ -46,6 +47,7 @@ class HeisenbergMapper:
             ordered_structures (list): Structure objects with magmoms.
             energies (list): Energies of each relaxed magnetic structure.
             strategy (object): Class from pymatgen.analysis.local_env
+            cutoff (float): Cutoff in Angstrom for nearest neighbor search.
 
         Parameters:
             sgraphs (list): StructureGraph objects.
@@ -58,36 +60,49 @@ class HeisenbergMapper:
 
         """
 
+        # Save original copies of inputs
+        self.ordered_structures_ = ordered_structures
+        self.energies_ = energies
+
         # Get only magnetic ions & give all structures site_properties['magmom']
-        # threshold set to 0.01 uB so that magnetic ions with small moments
+        # zero threshold so that magnetic ions with small moments
         # are preserved
         ordered_structures = [CollinearMagneticStructureAnalyzer(s, 
-            threshold=0.01).get_structure_with_only_magnetic_atoms()
+            threshold=0.0).get_structure_with_only_magnetic_atoms()
                               for s in ordered_structures]
 
-        # Normalize supercells and get graph representations
-        self.sgraphs = None
+        # Normalize energies / magnetic ion
+        energies = [e / float(len(s)) for (e, s) in zip(energies, ordered_structures)]
+
+        # Sort by energy if not already sorted
+        ordered_structures = [s for _, s in
+                              sorted(zip(energies, ordered_structures), reverse=False)]
+        energies = sorted(energies, reverse=False)
+
+        # Find  and get graph representations      
         self.ordered_structures = ordered_structures
         self.energies = energies
         self.strategy = strategy
-        self._get_graphs()
-
-        # Sort by energy if not already sorted
-        self.ordered_structures = [s for _, s in
-                              sorted(zip(self.energies, self.ordered_structures), reverse=False)]
-
-        self.energies = sorted(self.energies, reverse=False)
+        self.cutoff = cutoff
 
         # These attributes are set by internal methods
+        self.sgraphs = None
         self.unique_site_ids = None
         self.nn_interactions = None
         self.ex_mat = None
         self.ex_params = None
 
         # Set attributes
-        self._get_unique_sites()  # xx - change to static method
-        self._get_nn_dict()
-        self._get_exchange_df()
+        self._get_graphs()
+
+        # Check how many commensurate graphs we found
+        if len(self.sgraphs) < 2:
+            print('Sorry, no graphs match the ground state.')
+            sys.exit(1)
+        else:
+            self._get_unique_sites(self.cutoff)
+            self._get_nn_dict()
+            self._get_exchange_df()
 
 
     def _get_graphs(self):
@@ -99,8 +114,6 @@ class HeisenbergMapper:
             None (sets self.sgraphs instance variable)
 
         Todo:
-            * Don't supersize / structure match; instead, find symmetrically
-            equiv sites and assign unique labels
             * Structure matcher is throwing out structures with incommensurate
             supercells...need to fix.
             * Implement other strategies that capture NNN bonds, etc.
@@ -108,29 +121,40 @@ class HeisenbergMapper:
 
         strategy = self.strategy
 
-        # Check if supercells are present
-        if any(len(s) != len(self.ordered_structures[0]) for s in 
-            self.ordered_structures):
+        # Find all subsets of matched supercells
+        structs = copy.deepcopy(self.ordered_structures)
+        matched = []
 
-            # Find a maximally sized supercell to reference site labels to
-            imax = np.argmax([s.volume for s in self.ordered_structures])
-            s1 = self.ordered_structures[imax]
+        while structs:
+            imax = np.argmax([s.volume for s in structs])
+            s1 = structs[imax]
+            sublist = [self.ordered_structures.index(s1)]
+            structs.pop(imax)
+            sm = StructureMatcher(primitive_cell=False, attempt_supercell=True, 
+                comparator=ElementComparator())
 
-            # Match all structures to reference so site labels are consistent
-            sm = StructureMatcher(primitive_cell=False, attempt_supercell=True,
-                                  comparator=ElementComparator())
-            matched_structures = []
-            matched_energies = []
-
-            for i, s in enumerate(self.ordered_structures, 0):
+            for i, s in enumerate(structs):
                 s2 = sm.get_s2_like_s1(s1, s)
                 if s2 is not None:
-                    matched_structures.append(s2)
-                    scale = len(s2) / len(s)
-                    matched_energies.append(self.energies[i] * scale)
+                    sublist.append(self.ordered_structures.index(s))
+                    structs.pop(i)
+            matched.append(sublist)
 
-            self.ordered_structures = matched_structures
-            self.energies = matched_energies
+        # Find sublist of matched supercells that contains the ground state
+        for sublist in matched:
+            if 0 in sublist:
+                matched = sublist
+
+        # matched = max(matched, key=len)  # Find largest subset
+
+        matched_structures = []
+        matched_energies = []
+        for i in matched:
+            matched_structures.append(self.ordered_structures[i])
+            matched_energies.append(self.energies[i])
+
+        self.ordered_structures = matched_structures
+        self.energies = matched_energies
 
         # Generate structure graphs
         sgraphs = [StructureGraph.with_local_env_strategy(s, strategy=strategy)
@@ -138,10 +162,13 @@ class HeisenbergMapper:
 
         self.sgraphs = sgraphs
 
-    def _get_unique_sites(self):
+    def _get_unique_sites(self, cutoff):
         """
         Get dict that maps site indices to unique identifiers. If there is only
         one unique site, get the exchange <J> by averaging.
+
+        Args:
+            cutoff (float): Cutoff in Angstrom for nearest neighbor search.
 
         Returns:
             None: (sets self.unique_site_ids instance variable)
@@ -149,7 +176,16 @@ class HeisenbergMapper:
         """
 
         sgraphs = self.sgraphs
-        # Find the unique sites in a structure graph
+        
+        # # Find the unique sites in the ground state structure
+        # s0 = self.ordered_structures[0]
+
+        # all_neighbors = s0.get_all_neighbors(r=cutoff, include_index=True,
+        #     include_image=True)
+
+        # for (site, nn_list) in zip(s0, all_neighbors):
+        #     dists = [neighbor[i][1] for neighbor in nn_list]
+
         s = sgraphs[0].structure
         symm_struct = SpacegroupAnalyzer(s).get_symmetrized_structure()
         unique_sites = []
@@ -330,7 +366,7 @@ class HeisenbergMapper:
         H_inv = np.linalg.inv(H)
         j_ij = np.dot(H_inv, E)
         j_ij[1:] *= 1000  # meV
-        j_ij[1:] /= len(self.ordered_structures[0])  # / atom
+        #j_ij[1:] /= len(self.ordered_structures[0])  # / atom
         j_ij = j_ij.tolist()
         ex_params = {j_name: j for j_name, j in zip(j_names, j_ij)}
 
@@ -358,11 +394,13 @@ class HeisenbergMapper:
             
         for s, e in zip(self.ordered_structures, self.energies):
             magmoms = s.site_properties['magmom']
-            if abs(sum(magmoms)) > mag_max and e < fm_e_min:
-                fm_struct = s  # FM config
+            if abs(sum(magmoms)) > mag_max and e < fm_e_min:  # FM ground state
+                fm_struct = s
                 fm_e = e
                 mag_max = abs(sum(magmoms))
                 fm_e_min = e
+
+            # AFM ground state
             if abs(sum(magmoms)) < mag_min or abs(sum(magmoms)) < afm_threshold and e < afm_e_min:
                 afm_struct = s
                 afm_e = e
@@ -371,9 +409,9 @@ class HeisenbergMapper:
 
         # Convert to magnetic structures with 'magmom' site property
         fm_struct = CollinearMagneticStructureAnalyzer(fm_struct, 
-            threshold=0.01).get_structure_with_only_magnetic_atoms()
+            threshold=0.0).get_structure_with_only_magnetic_atoms()
         afm_struct = CollinearMagneticStructureAnalyzer(afm_struct, 
-            threshold=0.01).get_structure_with_only_magnetic_atoms()
+            threshold=0.0).get_structure_with_only_magnetic_atoms()
 
         return fm_struct, afm_struct, fm_e, afm_e
 
@@ -396,14 +434,20 @@ class HeisenbergMapper:
         if any(arg is None for arg in [fm_struct, afm_struct, fm_e, afm_e]):
             fm_struct, afm_struct, fm_e, afm_e = self.get_low_energy_orderings()
 
-        n = len(fm_struct)
+        n = max(len(fm_struct), len(afm_struct))  # num of atoms
+        fm_e *= n  # eV/ion -> eV
+        afm_e *= n
+
         magmoms = fm_struct.site_properties['magmom']
         afm_magmoms = afm_struct.site_properties['magmom']
+
         m_avg = np.mean([np.sqrt(m**2) for m in magmoms])
-        afm_m_avg = np.mean([np.sqrt(m**2) for m in magmoms])
+        afm_m_avg = np.mean([np.sqrt(m**2) for m in afm_magmoms])
+
         delta_e = afm_e - fm_e  # J > 0 -> FM
-        j_avg = delta_e / (n*m_avg**2)
-        j_avg *= 1000  # meV
+        #j_avg = delta_e / (n*m_avg**2)
+        j_avg = delta_e / (n * m_avg**2)
+        j_avg *= 1000 # meV
 
         return j_avg
 
@@ -421,7 +465,8 @@ class HeisenbergMapper:
 
         """
 
-        num_sublattices = len(self.unique_site_ids)
+        #num_sublattices = len(self.unique_site_ids)
+        num_sublattices = 1
         k_boltzmann = 0.0861733  # meV/K
 
         # Only 1 magnetic sublattice
