@@ -7,7 +7,7 @@ import os
 import glob
 import shutil
 import warnings
-from itertools import combinations
+from itertools import combinations, product
 from copy import deepcopy
 import numpy as np
 from pathlib import Path
@@ -267,12 +267,17 @@ class LammpsInputSet(MSONable):
         string = ''
         for p in pair_numbers:
             string += 'pair_coeff '+str(p[0]+1)+' '+str(p[1]+1)+' '
-            try:
-                pair = Pair(key[p[0]], key[p[1]])
-                params = _forcefields[str(pair.get_id())]['params']
-            except:
-                pair = Pair(key[p[1]], key[p[0]])
-                params = _forcefields[str(pair.get_id())]['params']
+
+            lookup_options = [(key[p[0]], key[p[1]]), key[p[1]], key[p[0]], ('X', 'F'), ('F', 'X'), ('X', 'X')]
+
+            for lu in lookup_options:
+                try:
+                    pair = Pair(lu[0], lu[1])
+                    params = _forcefields[str(pair.get_id())]['params']
+                    break
+                except:
+                    continue
+
             for k, v in params.items():
                 string += str(v) + ' '
             string += '\n'

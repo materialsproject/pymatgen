@@ -478,34 +478,24 @@ class LammpsRunner:
 class Pair:
 
     def __init__(self, specie1, specie2):
-        if isinstance(specie1, str):
-            specie1 = Specie(specie1)
-        if isinstance(specie2, str):
-            specie2 = Specie(specie2)
-        self.specie1 = specie1
-        self.specie2 = specie2
-
-    @property
-    def _specie1(self):
-        return self.specie1
-
-    @property
-    def _specie2(self):
-        return self.specie2
-
-    def __eq__(self, other):
-        if other.specie1 == self.specie1():
-            if other.specie2 == self.specie2():
-                return True
-        elif other.specie1 == self.specie2():
-            if other.specie2 == self.specie1():
-                return True
-        else:
-            return False
+        try:
+            self.specie1 = Specie(specie1)
+        except:
+            self.specie1 = specie1
+        try:
+            self.specie2 = Specie(specie2)
+        except:
+            self.specie2 = specie2
 
     def __hash__(self):
-        k1 = self.specie1.Z
-        k2 = self.specie2.Z
+        try:
+            k1 = self.specie1.Z
+        except:
+            k1 = 120
+        try:
+            k2 = self.specie2.Z
+        except:
+            k2 = 120
         return int(.5 * ((k1 + k2) * (k1 + k2 + 1)) + k2)  # Cantor Pair function
 
     def get_id(self):
@@ -519,12 +509,18 @@ class Pair:
         y = z - t
         x = w - y
 
-        el1 = Element.from_Z(x)
-        el2 = Element.from_Z(y)
-        specie1 = Specie(el1.symbol)
-        specie2 = Specie(el2.symbol)
+        try:
+            el1 = Element.from_Z(x)
+            specie1 = Specie(el1.symbol)
+        except:
+            specie1 = 'X'
+        try:
+            el2 = Element.from_Z(y)
+            specie2 = Specie(el2.symbol)
+        except:
+            specie2 = 'X'
 
-        return Pair.__init__(specie1, specie2)
+        return Pair(specie1, specie2)
 
     def get_string(self):
         return "{},{}".format(self.specie1, self.specie2)
@@ -536,6 +532,5 @@ class Pair:
     def as_dict(self):
         return {'specie1': self.specie1, 'specie2': self.specie2}
 
-    @staticmethod
-    def from_dict(dic):
+    def from_dict(self, dic):
         return Pair.__init__(specie1=dic['specie1'], specie2=dic['specie2'])
