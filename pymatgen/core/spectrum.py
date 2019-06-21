@@ -10,7 +10,7 @@ from pymatgen.util.coord import get_linear_interpolated_value
 
 """
 This module defines classes to represent any type of spectrum, essentially any
-x y value pairs. 
+x y value pairs.
 """
 
 __author__ = "Chen Zheng"
@@ -43,7 +43,7 @@ class Spectrum(MSONable):
             y (ndarray): A ndarray of N x k values. The first dimension must be
                 the same as that of x. Each of the k values are interpreted as
             \\*args: All subclasses should provide args other than x and y
-                when calling super, e.g., super(Subclass, self).__init__(
+                when calling super, e.g., super().__init__(
                 x, y, arg1, arg2, kwarg1=val1, ..). This guarantees the +, -, *,
                 etc. operators work properly.
             \\*\\*kwargs: Same as that for \\*args.
@@ -62,7 +62,7 @@ class Spectrum(MSONable):
         elif item == self.YLABEL.lower():
             return self.y
         else:
-            raise AttributeError
+            raise AttributeError("Invalid attribute name %s" % str(item))
 
     def __len__(self):
         return self.ydim[0]

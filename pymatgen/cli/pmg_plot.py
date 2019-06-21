@@ -3,7 +3,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 from collections import OrderedDict
 from pymatgen import Structure
@@ -70,7 +69,7 @@ def get_chgint_plot(args):
 def get_xrd_plot(args):
     s = Structure.from_file(args.xrd_structure_file)
     c = XRDCalculator()
-    return c.get_xrd_plot(s)
+    return c.get_plot(s)
 
 
 def plot(args):

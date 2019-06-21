@@ -4,20 +4,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.lammps.output &#8212; pymatgen 2018.1.29 documentation</title>
+    <title>pymatgen.io.lammps.output &#8212; pymatgen 2018.7.23 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../../',
-        VERSION:     '2018.1.29',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
@@ -32,8 +24,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -43,7 +34,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.7.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -78,17 +69,19 @@
 
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">io</span> <span class="k">import</span> <span class="nb">open</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="k">import</span> <span class="nb">open</span><span class="p">,</span> <span class="n">StringIO</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">monty.io</span> <span class="k">import</span> <span class="n">zopen</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">_pt_data</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="k">import</span> <span class="n">Lattice</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion_analyzer</span> <span class="k">import</span> <span class="n">DiffusionAnalyzer</span>
-<span class="kn">from</span> <span class="nn">pymatgen.io.lammps.data</span> <span class="k">import</span> <span class="n">LammpsData</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.lammps.data</span> <span class="k">import</span> <span class="n">LammpsBox</span><span class="p">,</span> <span class="n">LammpsData</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Kiran Mathew&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;kmathew@lbl.gov&quot;</span>
@@ -188,56 +181,93 @@
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">log_file</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;log_file&quot;</span><span class="p">])</span></div></div>
 
 
-<span class="c1"># TODO: @wood-b parse binary dump files(*.dcd)</span>
 <div class="viewcode-block" id="LammpsDump"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.output.html#pymatgen.io.lammps.output.LammpsDump">[docs]</a><span class="k">class</span> <span class="nc">LammpsDump</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Parse lammps dump file.</span>
+<span class="sd">    Dump file parser.</span>
+
+<span class="sd">    .. attribute:: steps</span>
+
+<span class="sd">        All steps in the dump as a list of</span>
+<span class="sd">        {&quot;timestep&quot;: current timestep,</span>
+<span class="sd">         &quot;natoms&quot;: no. of atoms,</span>
+<span class="sd">         &quot;box&quot;: simulation box (optional),</span>
+<span class="sd">         &quot;atoms_data&quot;: dumped data for atoms as 2D np.array}</span>
+
+<span class="sd">    .. attribute:: timesteps</span>
+
+<span class="sd">        List of timesteps in sequence.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timesteps</span><span class="p">,</span> <span class="n">natoms</span><span class="p">,</span> <span class="n">box_bounds</span><span class="p">,</span> <span class="n">atoms_data</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">timesteps</span> <span class="o">=</span> <span class="n">timesteps</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">natoms</span> <span class="o">=</span> <span class="n">natoms</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">box_bounds</span> <span class="o">=</span> <span class="n">box_bounds</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">atoms_data</span> <span class="o">=</span> <span class="n">atoms_data</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">parse_box</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="LammpsDump.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.output.html#pymatgen.io.lammps.output.LammpsDump.from_file">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dump_file</span><span class="p">):</span>
-        <span class="n">timesteps</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">atoms_data</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">natoms</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">box_bounds</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">bb_flag</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">parse_timestep</span><span class="p">,</span> <span class="n">parse_natoms</span><span class="p">,</span> <span class="n">parse_bb</span><span class="p">,</span> <span class="n">parse_atoms</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">dump_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">tf</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">tf</span><span class="p">:</span>
-                <span class="k">if</span> <span class="s2">&quot;ITEM: TIMESTEP&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
-                    <span class="n">parse_timestep</span> <span class="o">=</span> <span class="kc">True</span>
-                    <span class="k">continue</span>
-                <span class="k">if</span> <span class="n">parse_timestep</span><span class="p">:</span>
-                    <span class="n">timesteps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
-                    <span class="n">parse_timestep</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="k">if</span> <span class="s2">&quot;ITEM: NUMBER OF ATOMS&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
-                    <span class="n">parse_natoms</span> <span class="o">=</span> <span class="kc">True</span>
-                    <span class="k">continue</span>
-                <span class="k">if</span> <span class="n">parse_natoms</span><span class="p">:</span>
-                    <span class="n">natoms</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-                    <span class="n">parse_natoms</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="k">if</span> <span class="s2">&quot;ITEM: BOX BOUNDS&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
-                    <span class="n">parse_bb</span> <span class="o">=</span> <span class="kc">True</span>
-                    <span class="k">continue</span>
-                <span class="k">if</span> <span class="n">parse_bb</span><span class="p">:</span>
-                    <span class="n">box_bounds</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()])</span>
-                    <span class="n">bb_flag</span> <span class="o">+=</span> <span class="mi">1</span>
-                    <span class="n">parse_bb</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">bb_flag</span> <span class="o">&gt;=</span> <span class="mi">3</span> <span class="k">else</span> <span class="kc">True</span>
-                <span class="k">if</span> <span class="s2">&quot;ITEM: ATOMS&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
-                    <span class="n">parse_atoms</span> <span class="o">=</span> <span class="kc">True</span>
-                    <span class="k">continue</span>
-                <span class="k">if</span> <span class="n">parse_atoms</span><span class="p">:</span>
-                    <span class="n">line_data</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
-                    <span class="n">atoms_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line_data</span><span class="p">)</span>
-                    <span class="n">parse_atoms</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">atoms_data</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">timesteps</span><span class="p">)</span><span class="o">*</span><span class="n">natoms</span> <span class="k">else</span> <span class="kc">True</span>
+<span class="sd">        Args:</span>
+<span class="sd">            filename (str): Filename to parse. The timestep wildcard</span>
+<span class="sd">                (&#39;*&#39;) is supported and the files are parsed in the</span>
+<span class="sd">                sequence of timestep.</span>
+<span class="sd">            parse_box (bool): Whether parse box info for each step.</span>
+<span class="sd">                Default to True.</span>
+<span class="sd">            dtype: np.dtype for atoms data array.</span>
 
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">timesteps</span><span class="p">,</span> <span class="n">natoms</span><span class="p">,</span> <span class="n">box_bounds</span><span class="p">,</span> <span class="n">atoms_data</span><span class="p">)</span></div></div>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parse_box</span> <span class="o">=</span> <span class="n">parse_box</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">dtype</span>
+
+        <span class="n">fnames</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fnames</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">filename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="s2">&quot;([0-9]+)&quot;</span><span class="p">)</span>
+            <span class="n">pattern</span> <span class="o">=</span> <span class="n">pattern</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\\\\</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">fnames</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">fnames</span><span class="p">,</span>
+                            <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">f</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
+        <span class="n">steps</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">fnames</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">run</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="n">dumps</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;ITEM: TIMESTEP&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="n">steps</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_parse_timestep</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dumps</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="o">=</span> <span class="n">steps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timesteps</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="s2">&quot;timestep&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timesteps</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ind</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_parse_timestep</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dump</span><span class="p">):</span>
+        <span class="n">step</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">dump</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">step</span><span class="p">[</span><span class="s2">&quot;timestep&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">step</span><span class="p">[</span><span class="s2">&quot;natoms&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+        <span class="n">step</span><span class="p">[</span><span class="s2">&quot;atoms_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">9</span><span class="p">:])),</span>
+                                        <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_box</span><span class="p">:</span>
+            <span class="n">box_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">5</span><span class="p">:</span><span class="mi">8</span><span class="p">])))</span>
+            <span class="n">bounds</span> <span class="o">=</span> <span class="n">box_arr</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">tilt</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="s2">&quot;xy xz yz&quot;</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="mi">4</span><span class="p">]:</span>
+                <span class="n">tilt</span> <span class="o">=</span> <span class="n">box_arr</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">tilt</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">tilt</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">tilt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">tilt</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">tilt</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                <span class="n">bounds</span> <span class="o">-=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="nb">min</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">x</span><span class="p">)],</span> <span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">y</span><span class="p">)],</span>
+                                    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
+            <span class="n">step</span><span class="p">[</span><span class="s2">&quot;box&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">LammpsBox</span><span class="p">(</span><span class="n">bounds</span><span class="p">,</span> <span class="n">tilt</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">step</span>
+
+<div class="viewcode-block" id="LammpsDump.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.output.html#pymatgen.io.lammps.output.LammpsDump.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">}</span>
+        <span class="n">json_steps</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
+            <span class="n">json_step</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;timestep&quot;</span><span class="p">:</span> <span class="n">step</span><span class="p">[</span><span class="s2">&quot;timestep&quot;</span><span class="p">],</span>
+                         <span class="s2">&quot;natoms&quot;</span><span class="p">:</span> <span class="n">step</span><span class="p">[</span><span class="s2">&quot;natoms&quot;</span><span class="p">]}</span>
+            <span class="n">json_step</span><span class="p">[</span><span class="s2">&quot;atoms_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span><span class="p">[</span><span class="s2">&quot;atoms_data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_box</span><span class="p">:</span>
+                <span class="n">json_step</span><span class="p">[</span><span class="s2">&quot;box&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span><span class="p">[</span><span class="s2">&quot;box&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+            <span class="n">json_steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">json_step</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;steps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">json_steps</span>
+        <span class="k">return</span> <span class="n">d</span></div></div>
 
 
 <span class="c1"># TODO: @wood-b simplify this, use LammpsDump to parse + use mdanalysis to process.</span>
@@ -382,8 +412,7 @@
         <span class="n">end</span> <span class="o">=</span> <span class="p">(</span><span class="n">step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">natoms</span>
         <span class="n">mol_vector_structured</span> <span class="o">=</span> \
             <span class="bp">self</span><span class="o">.</span><span class="n">trajectory</span><span class="p">[</span><span class="n">begin</span><span class="p">:</span><span class="n">end</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">mol_config</span><span class="p">[</span><span class="n">mol_id</span><span class="p">]][</span><span class="n">param</span><span class="p">]</span>
-        <span class="n">new_shape</span> <span class="o">=</span> <span class="n">mol_vector_structured</span><span class="o">.</span><span class="n">shape</span> <span class="o">+</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
-        <span class="n">mol_vector</span> <span class="o">=</span> <span class="n">mol_vector_structured</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">new_shape</span><span class="p">)</span>
+        <span class="n">mol_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mol_vector_structured</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">mol_vector</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
     <span class="c1"># TODO: remove this and use only get_displacements(an order of magnitude faster)</span>
@@ -401,15 +430,13 @@
         <span class="n">structures</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">mass_to_symbol</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="s2">&quot;Atomic mass&quot;</span><span class="p">],</span> <span class="mi">1</span><span class="p">),</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">_pt_data</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
-        <span class="n">unique_atomic_masses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;mass&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lammps_data</span><span class="o">.</span><span class="n">masses</span><span class="p">])</span>
+        <span class="n">unique_atomic_masses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lammps_data</span><span class="o">.</span><span class="n">masses</span><span class="p">[</span><span class="s2">&quot;mass&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
         <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timesteps</span><span class="o">.</span><span class="n">size</span><span class="p">):</span>
             <span class="n">begin</span> <span class="o">=</span> <span class="n">step</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">natoms</span>
             <span class="n">end</span> <span class="o">=</span> <span class="p">(</span><span class="n">step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">natoms</span>
             <span class="n">mol_vector_structured</span> <span class="o">=</span> \
                 <span class="bp">self</span><span class="o">.</span><span class="n">trajectory</span><span class="p">[</span><span class="n">begin</span><span class="p">:</span><span class="n">end</span><span class="p">][:][[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">]]</span>
-            <span class="n">new_shape</span> <span class="o">=</span> <span class="n">mol_vector_structured</span><span class="o">.</span><span class="n">shape</span> <span class="o">+</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
-            <span class="n">mol_vector</span> <span class="o">=</span> <span class="n">mol_vector_structured</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
-                <span class="n">new_shape</span><span class="p">)</span>
+            <span class="n">mol_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mol_vector_structured</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
             <span class="n">coords</span> <span class="o">=</span> <span class="n">mol_vector</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
             <span class="n">species</span> <span class="o">=</span> <span class="p">[</span><span class="n">mass_to_symbol</span><span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">unique_atomic_masses</span><span class="p">[</span><span class="n">atype</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">)]</span>
                        <span class="k">for</span> <span class="n">atype</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trajectory</span><span class="p">[</span><span class="n">begin</span><span class="p">:</span><span class="n">end</span><span class="p">][:][</span><span class="s2">&quot;atom_type&quot;</span><span class="p">]]</span>
@@ -436,16 +463,14 @@
                            <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">2</span><span class="p">]]])</span>
         <span class="n">mass_to_symbol</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="s2">&quot;Atomic mass&quot;</span><span class="p">],</span> <span class="mi">1</span><span class="p">),</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">_pt_data</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
-        <span class="n">unique_atomic_masses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;mass&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lammps_data</span><span class="o">.</span><span class="n">masses</span><span class="p">])</span>
+        <span class="n">unique_atomic_masses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lammps_data</span><span class="o">.</span><span class="n">masses</span><span class="p">[</span><span class="s2">&quot;mass&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
         <span class="n">frac_coords</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timesteps</span><span class="o">.</span><span class="n">size</span><span class="p">):</span>
             <span class="n">begin</span> <span class="o">=</span> <span class="n">step</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">natoms</span>
             <span class="n">end</span> <span class="o">=</span> <span class="p">(</span><span class="n">step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">natoms</span>
             <span class="n">mol_vector_structured</span> <span class="o">=</span> \
                 <span class="bp">self</span><span class="o">.</span><span class="n">trajectory</span><span class="p">[</span><span class="n">begin</span><span class="p">:</span><span class="n">end</span><span class="p">][:][[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">]]</span>
-            <span class="n">new_shape</span> <span class="o">=</span> <span class="n">mol_vector_structured</span><span class="o">.</span><span class="n">shape</span> <span class="o">+</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
-            <span class="n">mol_vector</span> <span class="o">=</span> <span class="n">mol_vector_structured</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
-                <span class="n">new_shape</span><span class="p">)</span>
+            <span class="n">mol_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mol_vector_structured</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
             <span class="n">coords</span> <span class="o">=</span> <span class="n">mol_vector</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">step</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">species</span> <span class="o">=</span> <span class="p">[</span>
@@ -493,7 +518,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">box_lengths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lammps_data</span><span class="o">.</span><span class="n">box_bounds</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lammps_data</span><span class="o">.</span><span class="n">box</span><span class="o">.</span><span class="n">bounds</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">traj_timesteps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -590,12 +615,14 @@
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../../../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -611,7 +638,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.7.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -619,7 +646,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

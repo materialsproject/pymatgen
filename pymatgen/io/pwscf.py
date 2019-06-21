@@ -2,10 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
-
 import re
-import six
 
 from monty.io import zopen
 
@@ -29,7 +26,7 @@ __email__ = "ongsp@ucsd.edu"
 __date__ = "3/27/15"
 
 
-class PWInput(object):
+class PWInput:
     """
     Base input file class. Right now, only supports no symmetry and is
     very basic.
@@ -108,7 +105,7 @@ class PWInput(object):
                     c += 1
 
         def to_str(v):
-            if isinstance(v, six.string_types):
+            if isinstance(v, str):
                 return "'%s'" % v
             elif isinstance(v, float):
                 return "%s" % str(v).replace("e", "d")
@@ -172,6 +169,44 @@ class PWInput(object):
         for vec in self.structure.lattice.matrix:
             out.append("  %f %f %f" % (vec[0], vec[1], vec[2]))
         return "\n".join(out)
+    
+    def as_dict(self):
+        """
+        Create a dictionary representation of a PWInput object
+        
+        Returns:
+            dict
+        """
+        pwinput_dict = {'structure': self.structure.as_dict(),
+                        'pseudo': self.pseudo,
+                        'sections': self.sections,
+                        'kpoints_mode': self.kpoints_mode,
+                        'kpoints_grid': self.kpoints_grid,
+                        'kpoints_shift': self.kpoints_shift}
+        return pwinput_dict
+    
+    @classmethod
+    def from_dict(cls, pwinput_dict):
+        """
+        Load a PWInput object from a dictionary.
+        
+        Args:
+            pwinput_dict (dict): dictionary with PWInput data
+            
+        Returns:
+            PWInput object
+        """
+        pwinput = cls(structure=Structure.from_dict(pwinput_dict['structure']),
+                          pseudo=pwinput_dict['pseudo'],
+                          control=pwinput_dict['sections']['control'],
+                          system=pwinput_dict['sections']['system'],
+                          electrons=pwinput_dict['sections']['electrons'],
+                          ions=pwinput_dict['sections']['ions'],
+                          cell=pwinput_dict['sections']['cell'],
+                          kpoints_mode=pwinput_dict['kpoints_mode'],
+                          kpoints_grid=pwinput_dict['kpoints_grid'],
+                          kpoints_shift=pwinput_dict['kpoints_shift'])
+        return pwinput
 
     def write_file(self, filename):
         """
@@ -368,7 +403,7 @@ class PWInputError(BaseException):
     pass
 
 
-class PWOutput(object):
+class PWOutput:
 
     patterns = {
         "energies": r'total energy\s+=\s+([\d\.\-]+)\sRy',

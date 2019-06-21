@@ -1,7 +1,7 @@
-pymatgen\.alchemy\.transmuters module
-=====================================
+pymatgen.alchemy.transmuters module
+===================================
 
 .. automodule:: pymatgen.alchemy.transmuters
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

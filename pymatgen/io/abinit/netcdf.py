@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """Wrapper for netCDF readers."""
-from __future__ import unicode_literals, division, print_function
 
 import os.path
 import warnings
@@ -76,11 +75,11 @@ class NetcdfReaderError(Exception):
     """Base error class for NetcdfReader"""
 
 
-class NO_DEFAULT(object):
+class NO_DEFAULT:
     """Signal that read_value should raise an Error"""
 
 
-class NetcdfReader(object):
+class NetcdfReader:
     """
     Wraps and extends netCDF4.Dataset. Read only mode. Supports with statements.
 
@@ -364,7 +363,7 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
 
     return structure
 
-class _H(object):
+class _H:
     __slots__ = ["name", "doc", "etsf_name"]
 
     def __init__(self, name, doc, etsf_name=None):
@@ -449,7 +448,7 @@ class AbinitHeader(AttrDict):
     """Stores the values reported in the Abinit header."""
 
     #def __init__(self, *args, **kwargs):
-    #    super(AbinitHeader, self).__init__(*args, **kwargs)
+    #    super().__init__(*args, **kwargs)
     #    for k, v in self.items():
     #        v.__doc__ = _HDR_VARIABLES[k].doc
 

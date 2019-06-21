@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals
 
 import json
 
@@ -108,8 +107,10 @@ class ComputedEntry(MSONable):
     def from_dict(cls, d):
         dec = MontyDecoder()
         return cls(d["composition"], d["energy"], d["correction"],
-                   dec.process_decoded(d.get("parameters", {})),
-                   dec.process_decoded(d.get("data", {})),
+                   parameters={k: dec.process_decoded(v)
+                               for k, v in d.get("parameters", {}).items()},
+                   data={k: dec.process_decoded(v)
+                         for k, v in d.get("data", {}).items()},
                    entry_id=d.get("entry_id", None),
                    attribute=d["attribute"] if "attribute" in d else None)
 
@@ -150,7 +151,7 @@ class ComputedStructureEntry(ComputedEntry):
                 with the entry. Defaults to None.
             entry_id (obj): An optional id to uniquely identify the entry.
         """
-        super(ComputedStructureEntry, self).__init__(
+        super().__init__(
             structure.composition, energy, correction=correction,
             parameters=parameters, data=data, entry_id=entry_id)
         self.structure = structure
@@ -171,7 +172,7 @@ class ComputedStructureEntry(ComputedEntry):
         return self.__repr__()
 
     def as_dict(self):
-        d = super(ComputedStructureEntry, self).as_dict()
+        d = super().as_dict()
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         d["structure"] = self.structure.as_dict()
@@ -182,6 +183,8 @@ class ComputedStructureEntry(ComputedEntry):
         dec = MontyDecoder()
         return cls(dec.process_decoded(d["structure"]),
                    d["energy"], d["correction"],
-                   dec.process_decoded(d.get("parameters", {})),
-                   dec.process_decoded(d.get("data", {})),
+                   parameters={k: dec.process_decoded(v)
+                               for k, v in d.get("parameters", {}).items()},
+                   data={k: dec.process_decoded(v)
+                         for k, v in d.get("data", {}).items()},
                    entry_id=d.get("entry_id", None))

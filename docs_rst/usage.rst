@@ -297,8 +297,7 @@ diagram from a list of entries generated from Fe-P-O vasp runs,
 he should use the following procedure::
 
    from pymatgen.entries.compatibility import MaterialsProjectCompatibility
-   from pymatgen.phasediagram.pdmaker import PhaseDiagram
-   from pymatgen.phasediagram.plotter import PDPlotter
+   from pymatgen.analysis.phase_diagram import PhaseDiagram, PDPlotter
 
    # Get unprocessed_entries using pymatgen.borg or other means.
 
@@ -340,8 +339,7 @@ following few lines of code::
 
    from pymatgen.borg.hive import VaspToComputedEntryDrone
    from pymatgen.borg.queen import BorgQueen
-   from pymatgen.phasediagram.pdmaker import PhaseDiagram
-   from pymatgen.phasediagram.plotter import PDPlotter
+   from pymatgen.analysis.phase_diagram import PhaseDiagram, PDPlotter
 
    # These three lines assimilate the data into ComputedEntries.
    drone = VaspToComputedEntryDrone()
@@ -400,7 +398,7 @@ transformations such as partially removing a fraction of a certain species
 from a structure using an electrostatic energy criterion. The Transformation
 classes follow a strict API. A typical usage is as follows::
 
-   from pymatgen.io.cifio import CifParser
+   from pymatgen.io.cif import CifParser
    from pymatgen.transformations.standard_transformations import RemoveSpecieTransformations
 
    # Read in a LiFePO4 structure from a cif.
@@ -448,7 +446,7 @@ users to programmatically query for materials data. This allows users to
 efficiently perform structure manipulation and analyses without going through
 the web interface.
 
-In parallel, we have coded in the :mod:`pymatgen.matproj.rest` module a
+In parallel, we have coded in the :mod:`pymatgen.ext.matproj` module a
 MPRester, a user-friendly high-level interface to the Materials API to obtain
 useful pymatgen objects for further analyses.  To use the Materials API,
 your need to first register with the Materials Project and generate your API
@@ -463,21 +461,21 @@ one can use the following::
 
     with MPRester("USER_API_KEY") as m:
 
-        #Structure for material id
+        # Structure for material id
         structure = m.get_structure_by_material_id("mp-1234")
 
-        #Dos for material id
+        # Dos for material id
         dos = m.get_dos_by_material_id("mp-1234")
 
-        #Bandstructure for material id
+        # Bandstructure for material id
         bandstructure = m.get_bandstructure_by_material_id("mp-1234")
 
 The Materials API also allows for query of data by formulas::
 
-    #To get a list of data for all entries having formula Fe2O3
+    # To get a list of data for all entries having formula Fe2O3
     data = m.get_data("Fe2O3")
 
-    #To get the energies of all entries having formula Fe2O3
+    # To get the energies of all entries having formula Fe2O3
     energies = m.get_data("Fe2O3", "energy")
 
 Finally, the MPRester provides methods to obtain all entries in a
@@ -486,12 +484,11 @@ particularly powerful way to combine one's own calculations with Materials
 Project data for analysis. The code below demonstrates the phase stability of
 a new calculated material can be determined::
 
-   from pymatgen.matproj.rest import MPRester
+   from pymatgen.ext.matproj import MPRester
    from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
    from pymatgen.apps.borg.queen import BorgQueen
    from pymatgen.entries.compatibility import MaterialsProjectCompatibility
-   from pymatgen.phasediagram.pdmaker import PhaseDiagram
-   from pymatgen.phasediagram.plotter import PDPlotter
+   from pymatgen.analysis.phase_diagram import PhaseDiagram, PDPlotter
 
    # Assimilate VASP calculations into ComputedEntry object. Let's assume that
    # the calculations are for a series of new LixFeyOz phases that we want to
@@ -524,7 +521,7 @@ This method allows any kind of mongo query to be performed on the Materials
 Project database. It also supports a simple string syntax with wild cards.
 Examples are given below::
 
-   from pymatgen.matproj.rest import MPRester
+   from pymatgen.ext.matproj import MPRester
 
    with MPRester("USER_API_KEY") as m:
 

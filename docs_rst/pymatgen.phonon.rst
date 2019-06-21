@@ -1,5 +1,11 @@
-pymatgen\.phonon package
-========================
+pymatgen.phonon package
+=======================
+
+Subpackages
+-----------
+
+.. toctree::
+
 
 Submodules
 ----------
@@ -14,6 +20,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.phonon
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

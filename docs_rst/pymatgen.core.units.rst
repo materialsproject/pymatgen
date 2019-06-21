@@ -1,7 +1,7 @@
-pymatgen\.core\.units module
-============================
+pymatgen.core.units module
+==========================
 
 .. automodule:: pymatgen.core.units
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

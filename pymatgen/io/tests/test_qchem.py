@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals
 
 import copy
 import glob
@@ -12,7 +11,7 @@ import unittest
 
 import sys
 from pymatgen import Molecule
-from pymatgen.io.qchem import QcTask, QcInput, QcOutput, QcNucVeloc
+from pymatgen.io.qchem_deprecated import QcTask, QcInput, QcOutput, QcNucVeloc
 from pymatgen.util.testing import PymatgenTest
 
 __author__ = 'xiaohuiqu'

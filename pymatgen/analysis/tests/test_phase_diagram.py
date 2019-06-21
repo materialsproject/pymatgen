@@ -2,21 +2,19 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals
 
 import unittest
 import os
 from numbers import Number
-import matplotlib
 import warnings
-
-matplotlib.use("pdf")
-
+from pathlib import Path
 from pymatgen.analysis.phase_diagram import *
+from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.core.periodic_table import Element, DummySpecie
 from pymatgen.core.composition import Composition
+from pymatgen.entries.entry_tools import EntrySet
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
+module_dir = Path(__file__).absolute().parent
 
 
 class PDEntryTest(unittest.TestCase):
@@ -77,10 +75,8 @@ class PDEntryTest(unittest.TestCase):
         self.assertIsNotNone(str(self.entry))
 
     def test_read_csv(self):
-        (elements, entries) = PDEntry.from_csv(os.path.join(module_dir,
-                                                            "pdentries_test.csv"))
-        self.assertEqual(elements,
-                         [Element('Li'), Element('Fe'), Element('O')],
+        entries = EntrySet.from_csv(str(module_dir / "pdentries_test.csv"))
+        self.assertEqual(entries.chemsys, {'Li', 'Fe', 'O'},
                          "Wrong elements!")
         self.assertEqual(len(entries), 492, "Wrong number of entries!")
 
@@ -128,14 +124,12 @@ class TransformedPDEntryTest(unittest.TestCase):
 
 class PhaseDiagramTest(unittest.TestCase):
     def setUp(self):
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        (self.elements, self.entries) = PDEntry.from_csv(
-            os.path.join(module_dir, "pdentries_test.csv"))
+        self.entries = EntrySet.from_csv(str(module_dir / "pdentries_test.csv"))
         self.pd = PhaseDiagram(self.entries)
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_init(self):
         # Ensure that a bad set of entries raises a PD error. Remove all Li
@@ -143,8 +137,7 @@ class PhaseDiagramTest(unittest.TestCase):
         entries = filter(lambda e: (not e.composition.is_element) or
                                    e.composition.elements[0] != Element("Li"),
                          self.entries)
-        self.assertRaises(PhaseDiagramError, PhaseDiagram, entries,
-                          self.elements)
+        self.assertRaises(PhaseDiagramError, PhaseDiagram, entries)
 
     def test_dim1(self):
         # Ensure that dim 1 PDs can eb generated.
@@ -379,14 +372,40 @@ class PhaseDiagramTest(unittest.TestCase):
         calc_e2 = e1 + sum(cp[k] * v for k, v in (c2 - c1).items())
         self.assertAlmostEqual(e2, calc_e2)
 
+    def test_get_all_chempots(self):
+        c1 = Composition('Fe3.1O4')
+        c2 = Composition('FeO')
+
+        cp1 = self.pd.get_all_chempots(c1)
+        cpresult = {Element("Li"): -4.077061954999998,
+                    Element("Fe"): -6.741593864999999,
+                    Element("O"): -6.969907375000003}
+
+        for elem, energy in cpresult.items():
+            self.assertAlmostEqual(cp1['FeO-LiFeO2-Fe3O4'][elem],energy)
+
+        cp2 = self.pd.get_all_chempots(c2)
+        cpresult = {Element("O"): -7.115354140000001,
+                    Element("Fe"): -6.5961471,
+                    Element("Li"): -3.9316151899999987}
+
+        for elem, energy in cpresult.items():
+            self.assertAlmostEqual(cp2['FeO-LiFeO2-Fe'][elem],energy)
+
+    def test_to_from_dict(self):
+
+        # test round-trip for other entry types such as ComputedEntry
+        entry = ComputedEntry('H', 0.0, 0.0, entry_id="test")
+        pd = PhaseDiagram([entry])
+        d = pd.as_dict()
+        pd_roundtrip = PhaseDiagram.from_dict(d)
+        self.assertEqual(pd.all_entries[0].entry_id,
+                         pd_roundtrip.all_entries[0].entry_id)
 
 class GrandPotentialPhaseDiagramTest(unittest.TestCase):
     def setUp(self):
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        (self.elements, self.entries) = PDEntry.from_csv(
-            os.path.join(module_dir, "pdentries_test.csv"))
-        self.pd = GrandPotentialPhaseDiagram(self.entries, {Element("O"): -5},
-                                             self.elements)
+        self.entries = EntrySet.from_csv(str(module_dir / "pdentries_test.csv"))
+        self.pd = GrandPotentialPhaseDiagram(self.entries, {Element("O"): -5})
         self.pd6 = GrandPotentialPhaseDiagram(self.entries, {Element("O"): -6})
 
     def test_stable_entries(self):
@@ -419,9 +438,7 @@ class GrandPotentialPhaseDiagramTest(unittest.TestCase):
 
 class CompoundPhaseDiagramTest(unittest.TestCase):
     def setUp(self):
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        (self.elements, self.entries) = PDEntry.from_csv(
-            os.path.join(module_dir, "pdentries_test.csv"))
+        self.entries = EntrySet.from_csv(str(module_dir / "pdentries_test.csv"))
         self.pd = CompoundPhaseDiagram(self.entries, [Composition("Li2O"),
                                                       Composition("Fe2O3")])
 
@@ -447,10 +464,44 @@ class CompoundPhaseDiagramTest(unittest.TestCase):
         self.assertIsNotNone(str(self.pd))
 
 
+class ReactionDiagramTest(unittest.TestCase):
+    def setUp(self):
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        self.entries = list(EntrySet.from_csv(
+            os.path.join(module_dir, "reaction_entries_test.csv")).entries)
+        for e in self.entries:
+            if e.composition.reduced_formula == "VPO5":
+                entry1 = e
+            elif e.composition.reduced_formula == "H4(CO)3":
+                entry2 = e
+        self.rd = ReactionDiagram(entry1=entry1,
+                                  entry2=entry2,
+                                  all_entries=self.entries[2:])
+
+    def test_get_compound_pd(self):
+        self.rd.get_compound_pd()
+
+    def test_formed_formula(self):
+        formed_formula = [e.composition.reduced_formula for e in
+                          self.rd.rxn_entries]
+        expected_formula = [
+            'V0.12707182P0.12707182H0.0441989C0.03314917O0.66850829',
+            'V0.125P0.125H0.05C0.0375O0.6625',
+            'V0.12230216P0.12230216H0.05755396C0.04316547O0.65467626',
+            'V0.11340206P0.11340206H0.08247423C0.06185567O0.62886598',
+            'V0.11267606P0.11267606H0.08450704C0.06338028O0.62676056',
+            'V0.11229947P0.11229947H0.0855615C0.06417112O0.62566845',
+            'V0.09677419P0.09677419H0.12903226C0.09677419O0.58064516',
+            'V0.05882353P0.05882353H0.23529412C0.17647059O0.47058824',
+            'V0.04225352P0.04225352H0.28169014C0.21126761O0.42253521']
+
+        for formula in expected_formula:
+            self.assertTrue(formula in formed_formula)
+
+
 class PDPlotterTest(unittest.TestCase):
     def setUp(self):
-        (elements, entries) = PDEntry.from_csv(os.path.join(
-            module_dir, "pdentries_test.csv"))
+        entries = list(EntrySet.from_csv(os.path.join(module_dir, "pdentries_test.csv")))
         self.pd = PhaseDiagram(entries)
         self.plotter = PDPlotter(self.pd, show_unstable=True)
         entrieslio = [e for e in entries

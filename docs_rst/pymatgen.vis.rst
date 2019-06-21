@@ -1,5 +1,5 @@
-pymatgen\.vis package
-=====================
+pymatgen.vis package
+====================
 
 Subpackages
 -----------
@@ -20,6 +20,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.vis
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

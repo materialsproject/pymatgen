@@ -1,7 +1,6 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-from __future__ import unicode_literals, division, print_function
 
 import os
 import tempfile
@@ -25,7 +24,7 @@ def ref_file(filename):
     return os.path.join(_test_dir, filename)
 
 
-class FakeAbinitInput(object):
+class FakeAbinitInput:
     """Emulate an Abinit input."""
     @lazy_property
     def pseudos(self):
@@ -92,7 +91,7 @@ batch_adapter: *batch
 """
     def setUp(self):
         """Initialization phase."""
-        super(FlowUnitTest, self).setUp()
+        super().setUp()
 
         # Temporary directory for the flow.
         self.workdir = tempfile.mkdtemp()
@@ -120,7 +119,9 @@ class FlowTest(FlowUnitTest):
 
         # Build a work with a task
         work = flow.register_task(self.fake_input)
-        assert work.is_work
+        atrue(work.is_work)
+        atrue(len(work.color_hex) == 7)
+        atrue(work.color_hex.startswith("#"))
         task0_w0 = work[0]
         atrue(task0_w0.is_task)
         print(task0_w0.status.colored)
@@ -211,6 +212,9 @@ class FlowTest(FlowUnitTest):
         flow.show_summary()
         flow.show_inputs()
         flow.show_inputs(varnames="znucl")
+
+        df_vars = flow.get_vars_dataframe("ecut", "acell")
+        atrue("ecut" in df_vars)
 
         # Test show_status
         flow.show_status()

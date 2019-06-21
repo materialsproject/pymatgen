@@ -1,5 +1,5 @@
-pymatgen\.analysis\.ferroelectricity package
-============================================
+pymatgen.analysis.ferroelectricity package
+==========================================
 
 Submodules
 ----------
@@ -12,6 +12,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.analysis.ferroelectricity
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

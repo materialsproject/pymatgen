@@ -1,5 +1,11 @@
-pymatgen\.apps\.borg package
-============================
+pymatgen.apps.borg package
+==========================
+
+Subpackages
+-----------
+
+.. toctree::
+
 
 Submodules
 ----------
@@ -13,6 +19,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.apps.borg
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

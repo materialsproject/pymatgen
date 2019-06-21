@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import re
 
 from pymatgen.core.structure import Molecule
@@ -20,7 +19,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Apr 17, 2012"
 
 
-class XYZ(object):
+class XYZ:
     """
     Basic class for importing and exporting Molecules or Structures in XYZ
     format.
@@ -66,14 +65,17 @@ class XYZ(object):
         coords = []
         sp = []
         coord_patt = re.compile(
-            r"(\w+)\s+([0-9\-\.e]+)\s+([0-9\-\.e]+)\s+([0-9\-\.e]+)"
+            r"(\w+)\s+([0-9\-\+\.eEdD]+)\s+([0-9\-\+\.eEdD]+)\s+([0-9\-\+\.eEdD]+)"
         )
         for i in range(2, 2 + num_sites):
             m = coord_patt.search(lines[i])
             if m:
                 sp.append(m.group(1))  # this is 1-indexed
                 # this is 0-indexed
-                coords.append([float(j) for j in m.groups()[1:4]])
+                # in case of 0.0D+00 or 0.00d+01 old double precision writing
+                # replace d or D by e for ten power exponent
+                xyz = [val.lower().replace("d", "e") for val in m.groups()[1:4]]
+                coords.append([float(val) for val in xyz])
         return Molecule(sp, coords)
 
     @staticmethod
@@ -92,7 +94,7 @@ class XYZ(object):
         white_space = r"[ \t\r\f\v]"
         natoms_line = white_space + r"*\d+" + white_space + r"*\n"
         comment_line = r"[^\n]*\n"
-        coord_lines = r"(\s*\w+\s+[0-9\-\.e]+\s+[0-9\-\.e]+\s+[0-9\-\.e]+\s*\n)+"
+        coord_lines = r"(\s*\w+\s+[0-9\-\+\.eEdD]+\s+[0-9\-\+\.eEdD]+\s+[0-9\-\+\.eEdD]+\s*\n)+"
         frame_pattern_text = natoms_line + comment_line + coord_lines
         pat = re.compile(frame_pattern_text, re.MULTILINE)
         mols = []

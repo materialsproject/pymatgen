@@ -1,7 +1,7 @@
-pymatgen\.analysis\.wulff module
-================================
+pymatgen.analysis.wulff module
+==============================
 
 .. automodule:: pymatgen.analysis.wulff
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

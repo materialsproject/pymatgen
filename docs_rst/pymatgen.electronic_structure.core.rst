@@ -1,7 +1,7 @@
-pymatgen\.electronic\_structure\.core module
-============================================
+pymatgen.electronic\_structure.core module
+==========================================
 
 .. automodule:: pymatgen.electronic_structure.core
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

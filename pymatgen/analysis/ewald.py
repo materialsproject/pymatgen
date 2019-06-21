@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 from math import pi, sqrt, log
 from datetime import datetime
@@ -28,7 +27,7 @@ __status__ = "Production"
 __date__ = "Aug 1 2012"
 
 
-class EwaldSummation(object):
+class EwaldSummation:
     """
     Calculates the electrostatic energy of a periodic array of charges using
     the Ewald technique.
@@ -284,7 +283,7 @@ class EwaldSummation(object):
         recip_nn = rcp_latt.get_points_in_sphere([[0, 0, 0]], [0, 0, 0],
                                                  self._gmax)
 
-        frac_coords = [fcoords for (fcoords, dist, i) in recip_nn if dist != 0]
+        frac_coords = [fcoords for (fcoords, dist, i, img) in recip_nn if dist != 0]
 
         gs = rcp_latt.get_cartesian_coords(frac_coords)
         g2s = np.sum(gs ** 2, 1)
@@ -338,7 +337,7 @@ class EwaldSummation(object):
         epoint = - qs ** 2 * sqrt(self._eta / pi)
 
         for i in range(numsites):
-            nfcoords, rij, js = self._s.lattice.get_points_in_sphere(fcoords,
+            nfcoords, rij, js, _ = self._s.lattice.get_points_in_sphere(fcoords,
                                     coords[i], self._rmax, zip_results=False)
 
             # remove the rii term
@@ -650,7 +649,7 @@ def compute_average_oxidation_state(site):
     """
     try:
         avg_oxi = sum([sp.oxi_state * occu
-                       for sp, occu in site.species_and_occu.items()
+                       for sp, occu in site.species.items()
                        if sp is not None])
         return avg_oxi
     except AttributeError:

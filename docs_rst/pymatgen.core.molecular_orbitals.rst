@@ -1,7 +1,7 @@
-pymatgen\.core\.molecular\_orbitals module
-==========================================
+pymatgen.core.molecular\_orbitals module
+========================================
 
 .. automodule:: pymatgen.core.molecular_orbitals
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

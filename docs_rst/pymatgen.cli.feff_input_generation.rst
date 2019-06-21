@@ -1,7 +1,7 @@
-pymatgen\.cli\.feff\_input\_generation module
-=============================================
+pymatgen.cli.feff\_input\_generation module
+===========================================
 
 .. automodule:: pymatgen.cli.feff_input_generation
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,27 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.utils &#8212; pymatgen 2018.1.29 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.io.abinit.utils &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../../',
-        VERSION:     '2018.1.29',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -32,8 +23,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -43,7 +33,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -59,10 +49,8 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 <span class="sd">&quot;&quot;&quot;Tools and helper functions for abinit calculations&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">six</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
@@ -70,7 +58,6 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">fnmatch</span> <span class="k">import</span> <span class="n">fnmatch</span>
-<span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">filter</span>
 <span class="kn">from</span> <span class="nn">monty.collections</span> <span class="k">import</span> <span class="n">dict2namedtuple</span>
 <span class="kn">from</span> <span class="nn">monty.string</span> <span class="k">import</span> <span class="n">list_strings</span>
 <span class="kn">from</span> <span class="nn">monty.fnmatch</span> <span class="k">import</span> <span class="n">WildCard</span>
@@ -98,7 +85,7 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Don&#39;t know how to convert type </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2"> into a boolean&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="n">s</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="File"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.File">[docs]</a><span class="k">class</span> <span class="nc">File</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="File"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.File">[docs]</a><span class="k">class</span> <span class="nc">File</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Very simple class used to store file basenames, absolute paths and directory names.</span>
 <span class="sd">    Provides wrappers for the most commonly used functions defined in os.path.</span>
@@ -213,7 +200,7 @@
         <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="Directory"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.Directory">[docs]</a><span class="k">class</span> <span class="nc">Directory</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Directory"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.Directory">[docs]</a><span class="k">class</span> <span class="nc">Directory</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Very simple class that provides helper functions</span>
 <span class="sd">    wrapping the most commonly used functions defined in os.path.</span>
@@ -311,7 +298,7 @@
 
         <span class="k">return</span> <span class="n">filepaths</span></div>
 
-<div class="viewcode-block" id="Directory.has_abiext"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.Directory.has_abiext">[docs]</a>    <span class="k">def</span> <span class="nf">has_abiext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ext</span><span class="p">):</span>
+<div class="viewcode-block" id="Directory.has_abiext"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.Directory.has_abiext">[docs]</a>    <span class="k">def</span> <span class="nf">has_abiext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ext</span><span class="p">,</span> <span class="n">single_file</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the absolute path of the ABINIT file with extension ext.</span>
 <span class="sd">        Support both Fortran files and netcdf files. In the later case,</span>
@@ -331,6 +318,11 @@
             <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;_DDB&quot;</span> <span class="ow">and</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.nc&quot;</span><span class="p">):</span> <span class="k">continue</span>
             <span class="c1"># Ignore BSE text files e.g. GW_NLF_MDF</span>
             <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;_MDF&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.nc&quot;</span><span class="p">):</span> <span class="k">continue</span>
+            <span class="c1"># Ignore DDK.nc files (temporary workaround for v8.8.2 in which</span>
+            <span class="c1"># the DFPT code produces a new file with DDK.nc extension that enters</span>
+            <span class="c1"># into conflict with AbiPy convention.</span>
+            <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;_DDK&quot;</span> <span class="ow">and</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.nc&quot;</span><span class="p">):</span> <span class="k">continue</span>
+
             <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span> <span class="ow">or</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">ext</span> <span class="o">+</span> <span class="s2">&quot;.nc&quot;</span><span class="p">):</span>
                 <span class="n">files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
@@ -341,12 +333,12 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">files</span><span class="p">:</span>
             <span class="k">return</span> <span class="s2">&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">single_file</span><span class="p">:</span>
             <span class="c1"># ABINIT users must learn that multiple datasets are bad!</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Found multiple files with the same extensions:</span><span class="se">\n</span><span class="s2"> </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">files</span> <span class="o">+</span>
-                             <span class="s2">&quot;Please avoid using mutiple datasets!&quot;</span><span class="p">)</span>
+                             <span class="s2">&quot;Please avoid using multiple datasets!&quot;</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">single_file</span> <span class="k">else</span> <span class="n">files</span></div>
 
 <div class="viewcode-block" id="Directory.symlink_abiext"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.Directory.symlink_abiext">[docs]</a>    <span class="k">def</span> <span class="nf">symlink_abiext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inext</span><span class="p">,</span> <span class="n">outext</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -583,7 +575,7 @@
     <span class="k">return</span> <span class="n">root</span><span class="p">,</span> <span class="n">ext</span></div>
 
 
-<div class="viewcode-block" id="FilepathFixer"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.FilepathFixer">[docs]</a><span class="k">class</span> <span class="nc">FilepathFixer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="FilepathFixer"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.FilepathFixer">[docs]</a><span class="k">class</span> <span class="nc">FilepathFixer</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This object modifies the names of particular output files</span>
 <span class="sd">    produced by ABINIT so that the file extension is preserved.</span>
@@ -727,7 +719,7 @@
     <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
 
         <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">_ALL_OPS</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Mapping</span><span class="p">):</span>
                 <span class="c1"># e.g &quot;$not&quot;: {&quot;$gt&quot;: &quot;one&quot;}</span>
                 <span class="c1"># print(&quot;in op_vmap&quot;,k, v)</span>
                 <span class="n">values</span> <span class="o">=</span> <span class="n">map2rpn</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
@@ -760,7 +752,7 @@
             <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
                 <span class="n">k</span> <span class="o">=</span> <span class="n">k</span>
 
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Mapping</span><span class="p">):</span>
                 <span class="c1"># &quot;one&quot;: {&quot;$eq&quot;: 1.0}}</span>
                 <span class="n">values</span> <span class="o">=</span> <span class="n">map2rpn</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
                 <span class="n">rpn</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
@@ -810,7 +802,7 @@
     <span class="k">return</span> <span class="n">vals_stack</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="Condition"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.Condition">[docs]</a><span class="k">class</span> <span class="nc">Condition</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Condition"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.Condition">[docs]</a><span class="k">class</span> <span class="nc">Condition</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This object receives a dictionary that defines a boolean condition whose syntax is similar</span>
 <span class="sd">    to the one used in mongodb (albeit not all the operators available in mongodb are supported here).</span>
@@ -863,7 +855,7 @@
             <span class="k">return</span> <span class="kc">False</span></div>
 
 
-<div class="viewcode-block" id="Editor"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.Editor">[docs]</a><span class="k">class</span> <span class="nc">Editor</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Editor"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.Editor">[docs]</a><span class="k">class</span> <span class="nc">Editor</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Wrapper class that calls the editor specified by the user</span>
 <span class="sd">    or the one specified in the $EDITOR env variable.</span>
@@ -894,20 +886,15 @@
     <span class="k">def</span> <span class="nf">user_wants_to_exit</span><span class="p">():</span>
         <span class="sd">&quot;&quot;&quot;Show an interactive prompt asking if exit is wanted.&quot;&quot;&quot;</span>
         <span class="c1"># Fix python 2.x.</span>
-        <span class="k">if</span> <span class="n">six</span><span class="o">.</span><span class="n">PY2</span><span class="p">:</span>
-            <span class="n">my_input</span> <span class="o">=</span> <span class="n">raw_input</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">my_input</span> <span class="o">=</span> <span class="nb">input</span>
-
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">answer</span> <span class="o">=</span> <span class="n">my_input</span><span class="p">(</span><span class="s2">&quot;Do you want to continue [Y/n]&quot;</span><span class="p">)</span>
+            <span class="n">answer</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Do you want to continue [Y/n]&quot;</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">EOFError</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">True</span>
 
         <span class="k">return</span> <span class="n">answer</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">,</span> <span class="s2">&quot;no&quot;</span><span class="p">]</span></div></div>
 
 
-<div class="viewcode-block" id="SparseHistogram"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.SparseHistogram">[docs]</a><span class="k">class</span> <span class="nc">SparseHistogram</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="SparseHistogram"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.SparseHistogram">[docs]</a><span class="k">class</span> <span class="nc">SparseHistogram</span><span class="p">:</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">items</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">num</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">step</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -947,6 +934,105 @@
         <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">binvals</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">fig</span></div></div>
+
+
+<div class="viewcode-block" id="Dirviz"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.Dirviz">[docs]</a><span class="k">class</span> <span class="nc">Dirviz</span><span class="p">:</span>
+
+    <span class="c1">#file_color = np.array((255, 0, 0)) / 255</span>
+    <span class="c1">#dir_color = np.array((0, 0, 255)) / 255</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top</span><span class="p">):</span>
+        <span class="c1">#if not os.path.isdir(top):</span>
+        <span class="c1">#    raise TypeError(&quot;%s should be a directory!&quot; % str(top))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">top</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">top</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Dirviz.get_cluster_graph"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.Dirviz.get_cluster_graph">[docs]</a>    <span class="k">def</span> <span class="nf">get_cluster_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;fdp&quot;</span><span class="p">,</span> <span class="n">graph_attr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">node_attr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">edge_attr</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate directory graph in the DOT language. Directories are shown as clusters</span>
+
+<span class="sd">        .. warning::</span>
+
+<span class="sd">            This function scans the entire directory tree starting from top so the resulting</span>
+<span class="sd">            graph can be really big.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            engine: Layout command used. [&#39;dot&#39;, &#39;neato&#39;, &#39;twopi&#39;, &#39;circo&#39;, &#39;fdp&#39;, &#39;sfdp&#39;, &#39;patchwork&#39;, &#39;osage&#39;]</span>
+<span class="sd">            graph_attr: Mapping of (attribute, value) pairs for the graph.</span>
+<span class="sd">            node_attr: Mapping of (attribute, value) pairs set for all nodes.</span>
+<span class="sd">            edge_attr: Mapping of (attribute, value) pairs set for all edges.</span>
+
+<span class="sd">        Returns: graphviz.Digraph &lt;https://graphviz.readthedocs.io/en/stable/api.html#digraph&gt;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># https://www.graphviz.org/doc/info/</span>
+        <span class="kn">from</span> <span class="nn">graphviz</span> <span class="k">import</span> <span class="n">Digraph</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">Digraph</span><span class="p">(</span><span class="s2">&quot;directory&quot;</span><span class="p">,</span> <span class="c1">#filename=&quot;flow_%s.gv&quot; % os.path.basename(self.relworkdir),</span>
+            <span class="n">engine</span><span class="o">=</span><span class="n">engine</span><span class="p">)</span> <span class="c1"># if engine == &quot;automatic&quot; else engine)</span>
+
+        <span class="c1"># Set graph attributes.</span>
+        <span class="c1">#g.attr(label=&quot;%s@%s&quot; % (self.__class__.__name__, self.relworkdir))</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">attr</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">top</span><span class="p">)</span>
+        <span class="c1">#g.attr(fontcolor=&quot;white&quot;, bgcolor=&#39;purple:pink&#39;)</span>
+        <span class="c1">#g.attr(rankdir=&quot;LR&quot;, pagedir=&quot;BL&quot;)</span>
+        <span class="c1">#g.attr(constraint=&quot;false&quot;, pack=&quot;true&quot;, packMode=&quot;clust&quot;)</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">node_attr</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;lightblue2&#39;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">&#39;filled&#39;</span><span class="p">)</span>
+        <span class="c1">#g.node_attr.update(ranksep=&#39;equally&#39;)</span>
+
+        <span class="c1"># Add input attributes.</span>
+        <span class="k">if</span> <span class="n">graph_attr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fg</span><span class="o">.</span><span class="n">graph_attr</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">graph_attr</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">node_attr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fg</span><span class="o">.</span><span class="n">node_attr</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">node_attr</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">edge_attr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fg</span><span class="o">.</span><span class="n">edge_attr</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">edge_attr</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">node_kwargs</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
+                <span class="c1">#shape=&quot;circle&quot;,</span>
+                <span class="c1">#shape=&quot;none&quot;,</span>
+                <span class="c1">#shape=&quot;plaintext&quot;,</span>
+                <span class="c1">#shape=&quot;point&quot;,</span>
+                <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;record&quot;</span><span class="p">,</span>
+                <span class="c1">#color=node.color_hex,</span>
+                <span class="n">fontsize</span><span class="o">=</span><span class="s2">&quot;8.0&quot;</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">),</span>
+            <span class="p">)</span>
+
+        <span class="n">edge_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">arrowType</span><span class="o">=</span><span class="s2">&quot;vee&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;solid&quot;</span><span class="p">,</span> <span class="n">minlen</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="p">)</span>
+        <span class="n">cluster_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">rankdir</span><span class="o">=</span><span class="s2">&quot;LR&quot;</span><span class="p">,</span> <span class="n">pagedir</span><span class="o">=</span><span class="s2">&quot;BL&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;rounded&quot;</span><span class="p">,</span> <span class="n">bgcolor</span><span class="o">=</span><span class="s2">&quot;azure2&quot;</span><span class="p">)</span>
+
+        <span class="c1"># TODO: Write other method without clusters if not walk.</span>
+        <span class="n">exclude_top_node</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">top</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">exclude_top_node</span> <span class="ow">and</span> <span class="n">root</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">top</span><span class="p">:</span> <span class="k">continue</span>
+            <span class="n">cluster_name</span> <span class="o">=</span> <span class="s2">&quot;cluster_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">root</span>
+            <span class="c1">#print(&quot;root&quot;, root, cluster_name, &quot;dirs&quot;, dirs, &quot;files&quot;, files, sep=&quot;\n&quot;)</span>
+
+            <span class="k">with</span> <span class="n">g</span><span class="o">.</span><span class="n">subgraph</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">cluster_name</span><span class="p">)</span> <span class="k">as</span> <span class="n">d</span><span class="p">:</span>
+                <span class="n">d</span><span class="o">.</span><span class="n">attr</span><span class="p">(</span><span class="o">**</span><span class="n">cluster_kwargs</span><span class="p">)</span>
+                <span class="n">d</span><span class="o">.</span><span class="n">attr</span><span class="p">(</span><span class="n">rank</span><span class="o">=</span><span class="s2">&quot;source&quot;</span> <span class="k">if</span> <span class="p">(</span><span class="n">files</span> <span class="ow">or</span> <span class="n">dirs</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;sink&quot;</span><span class="p">)</span>
+                <span class="n">d</span><span class="o">.</span><span class="n">attr</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">root</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                    <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+                    <span class="n">d</span><span class="o">.</span><span class="n">node</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="o">**</span><span class="n">node_kwargs</span><span class="p">(</span><span class="n">filepath</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">islink</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+                        <span class="c1"># Follow the link and use the relpath wrt link as label.</span>
+                        <span class="n">realp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+                        <span class="n">realp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">realp</span><span class="p">,</span> <span class="n">filepath</span><span class="p">)</span>
+                        <span class="c1">#realp = os.path.relpath(realp, self.top)</span>
+                        <span class="c1">#print(filepath, realp)</span>
+                        <span class="c1">#g.node(realp, **node_kwargs(realp))</span>
+                        <span class="n">g</span><span class="o">.</span><span class="n">edge</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">realp</span><span class="p">,</span> <span class="o">**</span><span class="n">edge_kwargs</span><span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">dirname</span> <span class="ow">in</span> <span class="n">dirs</span><span class="p">:</span>
+                    <span class="n">dirpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">dirname</span><span class="p">)</span>
+                    <span class="c1">#head, basename = os.path.split(dirpath)</span>
+                    <span class="n">new_cluster_name</span> <span class="o">=</span> <span class="s2">&quot;cluster_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">dirpath</span>
+                    <span class="c1">#rank = &quot;source&quot; if os.listdir(dirpath) else &quot;sink&quot;</span>
+                    <span class="c1">#g.node(dirpath, rank=rank, **node_kwargs(dirpath))</span>
+                    <span class="c1">#g.edge(dirpath, new_cluster_name, **edge_kwargs)</span>
+                    <span class="c1">#d.edge(cluster_name, new_cluster_name, minlen=&quot;2&quot;, **edge_kwargs)</span>
+                    <span class="n">d</span><span class="o">.</span><span class="n">edge</span><span class="p">(</span><span class="n">cluster_name</span><span class="p">,</span> <span class="n">new_cluster_name</span><span class="p">,</span> <span class="o">**</span><span class="n">edge_kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">g</span></div></div>
 </pre></div>
 
           </div>
@@ -955,13 +1041,13 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../../../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -977,7 +1063,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -985,7 +1071,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

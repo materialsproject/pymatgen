@@ -1,27 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.flows &#8212; pymatgen 2018.1.29 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.io.abinit.flows &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../../',
-        VERSION:     '2018.1.29',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -32,8 +23,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -43,7 +33,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -63,7 +53,6 @@
 <span class="sd">Flows are the final objects that can be dumped directly to a pickle file on disk</span>
 <span class="sd">Flows are executed using abirun (abipy).</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
@@ -76,7 +65,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">pprint</span> <span class="k">import</span> <span class="n">pprint</span>
-<span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">map</span><span class="p">,</span> <span class="n">StringIO</span>
+
 <span class="kn">from</span> <span class="nn">tabulate</span> <span class="k">import</span> <span class="n">tabulate</span>
 <span class="kn">from</span> <span class="nn">pydispatch</span> <span class="k">import</span> <span class="n">dispatcher</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
@@ -130,7 +119,7 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_node</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">flow</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialize an instance from a Work instance.&quot;&quot;&quot;</span>
-        <span class="n">new</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">FlowResults</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="n">from_node</span><span class="p">(</span><span class="n">flow</span><span class="p">)</span>
+        <span class="n">new</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">from_node</span><span class="p">(</span><span class="n">flow</span><span class="p">)</span>
 
         <span class="c1"># Will put all files found in outdir in GridFs</span>
         <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">f</span><span class="p">):</span> <span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">flow</span><span class="o">.</span><span class="n">outdir</span><span class="o">.</span><span class="n">list_filepaths</span><span class="p">()}</span>
@@ -232,7 +221,7 @@
 <span class="sd">                          -1 denotes the latest version supported by the python interpreter.</span>
 <span class="sd">            remove: attempt to remove working directory `workdir` if directory already exists.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">Flow</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">workdir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">remove</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">workdir</span><span class="p">):</span> <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">workdir</span><span class="p">)</span>
@@ -1395,7 +1384,7 @@
 
 <span class="sd">            Invalid ids are ignored</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nids</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">):</span> <span class="n">nids</span> <span class="o">=</span> <span class="p">[</span><span class="n">nids</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nids</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Iterable</span><span class="p">):</span> <span class="n">nids</span> <span class="o">=</span> <span class="p">[</span><span class="n">nids</span><span class="p">]</span>
 
         <span class="n">n2task</span> <span class="o">=</span> <span class="p">{</span><span class="n">task</span><span class="o">.</span><span class="n">node_id</span><span class="p">:</span> <span class="n">task</span> <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">iflat_tasks</span><span class="p">()}</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">n2task</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">nids</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">n2task</span><span class="p">]</span></div>
@@ -1672,7 +1661,7 @@
                        <span class="s2">&quot;This means that you are trying to build a new flow in a directory already used by another flow.</span><span class="se">\n</span><span class="s2">&quot;</span>
                        <span class="s2">&quot;Possible solutions:</span><span class="se">\n</span><span class="s2">&quot;</span>
                        <span class="s2">&quot;   1) Change the workdir of the new flow.</span><span class="se">\n</span><span class="s2">&quot;</span>
-                       <span class="s2">&quot;   2) remove the old directory either with `rm -rf` or by calling the method flow.rmtree()</span><span class="se">\n</span><span class="s2">&quot;</span>
+                       <span class="s2">&quot;   2) remove the old directory either with `rm -r` or by calling the method flow.rmtree()</span><span class="se">\n</span><span class="s2">&quot;</span>
                         <span class="o">%</span> <span class="p">(</span><span class="n">node_id</span><span class="p">,</span> <span class="n">nodeid_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_id</span><span class="p">))</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
@@ -1741,7 +1730,7 @@
                         <span class="k">else</span> <span class="n">protocol</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">strio</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Flow.register_task"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.flows.html#pymatgen.io.abinit.flows.Flow.register_task">[docs]</a>    <span class="k">def</span> <span class="nf">register_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">deps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">task_class</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Flow.register_task"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.flows.html#pymatgen.io.abinit.flows.Flow.register_task">[docs]</a>    <span class="k">def</span> <span class="nf">register_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">deps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">task_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">append</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Utility function that generates a `Work` made of a single task</span>
 
@@ -1752,13 +1741,24 @@
 <span class="sd">            manager: The :class:`TaskManager` responsible for the submission of the task.</span>
 <span class="sd">                     If manager is None, we use the :class:`TaskManager` specified during the creation of the work.</span>
 <span class="sd">            task_class: Task subclass to instantiate. Default: :class:`AbinitTask`</span>
+<span class="sd">            append: If true, the task is added to the last work (a new Work is created if flow is empty)</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The generated :class:`Work` for the task, work[0] is the actual task.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">work</span> <span class="o">=</span> <span class="n">Work</span><span class="p">(</span><span class="n">manager</span><span class="o">=</span><span class="n">manager</span><span class="p">)</span>
+        <span class="c1"># append True is much easier to use. In principle should be the default behaviour</span>
+        <span class="c1"># but this would break the previous API so ...</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">append</span><span class="p">:</span>
+            <span class="n">work</span> <span class="o">=</span> <span class="n">Work</span><span class="p">(</span><span class="n">manager</span><span class="o">=</span><span class="n">manager</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">works</span><span class="p">:</span>
+                <span class="n">work</span> <span class="o">=</span> <span class="n">Work</span><span class="p">(</span><span class="n">manager</span><span class="o">=</span><span class="n">manager</span><span class="p">)</span>
+                <span class="n">append</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">work</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">works</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
         <span class="n">task</span> <span class="o">=</span> <span class="n">work</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">deps</span><span class="o">=</span><span class="n">deps</span><span class="p">,</span> <span class="n">task_class</span><span class="o">=</span><span class="n">task_class</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">register_work</span><span class="p">(</span><span class="n">work</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">append</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_work</span><span class="p">(</span><span class="n">work</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">work</span></div>
 
@@ -2280,6 +2280,135 @@
     <span class="c1">#    if check_status: self.check_status()</span>
     <span class="c1">#    return abirobot(flow=self, ext=ext, nids=nids):</span>
 
+<div class="viewcode-block" id="Flow.get_graphviz"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.flows.html#pymatgen.io.abinit.flows.Flow.get_graphviz">[docs]</a>    <span class="k">def</span> <span class="nf">get_graphviz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;automatic&quot;</span><span class="p">,</span> <span class="n">graph_attr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">node_attr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">edge_attr</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate flow graph in the DOT language.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            engine: Layout command used. [&#39;dot&#39;, &#39;neato&#39;, &#39;twopi&#39;, &#39;circo&#39;, &#39;fdp&#39;, &#39;sfdp&#39;, &#39;patchwork&#39;, &#39;osage&#39;]</span>
+<span class="sd">            graph_attr: Mapping of (attribute, value) pairs for the graph.</span>
+<span class="sd">            node_attr: Mapping of (attribute, value) pairs set for all nodes.</span>
+<span class="sd">            edge_attr: Mapping of (attribute, value) pairs set for all edges.</span>
+
+<span class="sd">        Returns: graphviz.Digraph &lt;https://graphviz.readthedocs.io/en/stable/api.html#digraph&gt;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allocate</span><span class="p">()</span>
+
+        <span class="kn">from</span> <span class="nn">graphviz</span> <span class="k">import</span> <span class="n">Digraph</span>
+        <span class="n">fg</span> <span class="o">=</span> <span class="n">Digraph</span><span class="p">(</span><span class="s2">&quot;flow&quot;</span><span class="p">,</span> <span class="c1">#filename=&quot;flow_%s.gv&quot; % os.path.basename(self.relworkdir),</span>
+            <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;fdp&quot;</span> <span class="k">if</span> <span class="n">engine</span> <span class="o">==</span> <span class="s2">&quot;automatic&quot;</span> <span class="k">else</span> <span class="n">engine</span><span class="p">)</span>
+
+        <span class="c1"># Set graph attributes.</span>
+        <span class="c1"># https://www.graphviz.org/doc/info/</span>
+        <span class="c1">#fg.attr(label=&quot;%s@%s&quot; % (self.__class__.__name__, self.relworkdir))</span>
+        <span class="n">fg</span><span class="o">.</span><span class="n">attr</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+        <span class="c1">#fg.attr(fontcolor=&quot;white&quot;, bgcolor=&#39;purple:pink&#39;)</span>
+        <span class="n">fg</span><span class="o">.</span><span class="n">attr</span><span class="p">(</span><span class="n">rankdir</span><span class="o">=</span><span class="s2">&quot;LR&quot;</span><span class="p">,</span> <span class="n">pagedir</span><span class="o">=</span><span class="s2">&quot;BL&quot;</span><span class="p">)</span>
+        <span class="c1">#fg.attr(constraint=&quot;false&quot;, pack=&quot;true&quot;, packMode=&quot;clust&quot;)</span>
+        <span class="n">fg</span><span class="o">.</span><span class="n">node_attr</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;lightblue2&#39;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">&#39;filled&#39;</span><span class="p">)</span>
+        <span class="c1">#fg.node_attr.update(ranksep=&#39;equally&#39;)</span>
+
+        <span class="c1"># Add input attributes.</span>
+        <span class="k">if</span> <span class="n">graph_attr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fg</span><span class="o">.</span><span class="n">graph_attr</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">graph_attr</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">node_attr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fg</span><span class="o">.</span><span class="n">node_attr</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">node_attr</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">edge_attr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fg</span><span class="o">.</span><span class="n">edge_attr</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">edge_attr</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">node_kwargs</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
+                <span class="c1">#shape=&quot;circle&quot;,</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">node</span><span class="o">.</span><span class="n">color_hex</span><span class="p">,</span>
+                <span class="n">fontsize</span><span class="o">=</span><span class="s2">&quot;8.0&quot;</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">&quot;pos_str&quot;</span><span class="p">)</span> <span class="k">else</span>
+                    <span class="n">node</span><span class="o">.</span><span class="n">pos_str</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">node</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">),</span>
+            <span class="p">)</span>
+
+        <span class="n">edge_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">arrowType</span><span class="o">=</span><span class="s2">&quot;vee&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;solid&quot;</span><span class="p">)</span>
+        <span class="n">cluster_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">rankdir</span><span class="o">=</span><span class="s2">&quot;LR&quot;</span><span class="p">,</span> <span class="n">pagedir</span><span class="o">=</span><span class="s2">&quot;BL&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;rounded&quot;</span><span class="p">,</span> <span class="n">bgcolor</span><span class="o">=</span><span class="s2">&quot;azure2&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">work</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="c1"># Build cluster with tasks.</span>
+            <span class="n">cluster_name</span> <span class="o">=</span> <span class="s2">&quot;cluster</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">work</span><span class="o">.</span><span class="n">name</span>
+            <span class="k">with</span> <span class="n">fg</span><span class="o">.</span><span class="n">subgraph</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">cluster_name</span><span class="p">)</span> <span class="k">as</span> <span class="n">wg</span><span class="p">:</span>
+                <span class="n">wg</span><span class="o">.</span><span class="n">attr</span><span class="p">(</span><span class="o">**</span><span class="n">cluster_kwargs</span><span class="p">)</span>
+                <span class="n">wg</span><span class="o">.</span><span class="n">attr</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">work</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">work</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+                <span class="c1">#wg.attr(label=repr(work))</span>
+                <span class="c1">#wg.attr(label=&quot;%s (%s)\n%s (%s)&quot; % (</span>
+                <span class="c1">#    work.__class__.__name__, work.name, work.relworkdir, work.node_id))</span>
+                <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">work</span><span class="p">:</span>
+                    <span class="n">wg</span><span class="o">.</span><span class="n">node</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">node_kwargs</span><span class="p">(</span><span class="n">task</span><span class="p">))</span>
+                    <span class="c1"># Connect children to task.</span>
+                    <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">get_children</span><span class="p">():</span>
+                        <span class="c1"># Find file extensions required by this task</span>
+                        <span class="n">i</span> <span class="o">=</span> <span class="p">[</span><span class="n">dep</span><span class="o">.</span><span class="n">node</span> <span class="k">for</span> <span class="n">dep</span> <span class="ow">in</span> <span class="n">child</span><span class="o">.</span><span class="n">deps</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+                        <span class="n">edge_label</span> <span class="o">=</span> <span class="s2">&quot;+&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">deps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">exts</span><span class="p">)</span>
+                        <span class="n">fg</span><span class="o">.</span><span class="n">edge</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">child</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">edge_label</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">color_hex</span><span class="p">,</span>
+                                <span class="o">**</span><span class="n">edge_kwargs</span><span class="p">)</span>
+
+        <span class="c1"># Treat the case in which we have a work producing output for other tasks.</span>
+        <span class="k">for</span> <span class="n">work</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">children</span> <span class="o">=</span> <span class="n">work</span><span class="o">.</span><span class="n">get_children</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">children</span><span class="p">:</span> <span class="k">continue</span>
+            <span class="n">cluster_name</span> <span class="o">=</span> <span class="s2">&quot;cluster</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">work</span><span class="o">.</span><span class="n">name</span>
+            <span class="n">seen</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">children</span><span class="p">:</span>
+                <span class="c1"># This is not needed, too much confusing</span>
+                <span class="c1">#fg.edge(cluster_name, child.name, color=work.color_hex, **edge_kwargs)</span>
+                <span class="c1"># Find file extensions required by work</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="p">[</span><span class="n">dep</span><span class="o">.</span><span class="n">node</span> <span class="k">for</span> <span class="n">dep</span> <span class="ow">in</span> <span class="n">child</span><span class="o">.</span><span class="n">deps</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">work</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">child</span><span class="o">.</span><span class="n">deps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">exts</span><span class="p">:</span>
+                    <span class="n">out</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ext</span><span class="p">,</span> <span class="n">work</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                    <span class="n">fg</span><span class="o">.</span><span class="n">node</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+                    <span class="n">fg</span><span class="o">.</span><span class="n">edge</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">child</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">edge_kwargs</span><span class="p">)</span>
+                    <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">cluster_name</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+                        <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                        <span class="n">fg</span><span class="o">.</span><span class="n">edge</span><span class="p">(</span><span class="n">cluster_name</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">work</span><span class="o">.</span><span class="n">color_hex</span><span class="p">,</span> <span class="o">**</span><span class="n">edge_kwargs</span><span class="p">)</span>
+
+        <span class="c1"># Treat the case in which we have a task that depends on external files.</span>
+        <span class="n">seen</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">iflat_tasks</span><span class="p">():</span>
+            <span class="c1">#print(task.get_parents())</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="p">(</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">get_parents</span><span class="p">()</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">is_file</span><span class="p">):</span>
+                <span class="c1">#print(&quot;parent file node&quot;, node)</span>
+                <span class="c1">#infile = &quot;%s (%s)&quot; % (ext, work.name)</span>
+                <span class="n">infile</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">filepath</span>
+                <span class="k">if</span> <span class="n">infile</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+                    <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">infile</span><span class="p">)</span>
+                    <span class="n">fg</span><span class="o">.</span><span class="n">node</span><span class="p">(</span><span class="n">infile</span><span class="p">,</span> <span class="o">**</span><span class="n">node_kwargs</span><span class="p">(</span><span class="n">node</span><span class="p">))</span>
+
+                <span class="n">fg</span><span class="o">.</span><span class="n">edge</span><span class="p">(</span><span class="n">infile</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">node</span><span class="o">.</span><span class="n">color_hex</span><span class="p">,</span> <span class="o">**</span><span class="n">edge_kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fg</span></div>
+
+<div class="viewcode-block" id="Flow.graphviz_imshow"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.flows.html#pymatgen.io.abinit.flows.Flow.graphviz_imshow">[docs]</a>    <span class="nd">@add_fig_kwargs</span>
+    <span class="k">def</span> <span class="nf">graphviz_imshow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;png&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate flow graph in the DOT language and plot it with matplotlib.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ax: matplotlib :class:`Axes` or None if a new figure should be created.</span>
+<span class="sd">            figsize: matplotlib figure size (None to use default)</span>
+<span class="sd">            dpi: DPI value.</span>
+<span class="sd">            fmt: Select format for output image</span>
+
+<span class="sd">        Return: matplotlib Figure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_graphviz</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="n">fmt</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">attr</span><span class="p">(</span><span class="n">dpi</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">dpi</span><span class="p">))</span>
+        <span class="c1">#print(graph)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">tmpname</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkstemp</span><span class="p">()</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">tmpname</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cleanup</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">ax</span><span class="p">,</span> <span class="n">fig</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_ax_fig_plt</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="n">dpi</span><span class="p">)</span>
+        <span class="kn">import</span> <span class="nn">matplotlib.image</span> <span class="k">as</span> <span class="nn">mpimg</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">mpimg</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;png&quot;</span><span class="p">))</span> <span class="c1">#, interpolation=&quot;none&quot;)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fig</span></div>
+
 <div class="viewcode-block" id="Flow.plot_networkx"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.flows.html#pymatgen.io.abinit.flows.Flow.plot_networkx">[docs]</a>    <span class="nd">@add_fig_kwargs</span>
     <span class="k">def</span> <span class="nf">plot_networkx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;network&quot;</span><span class="p">,</span> <span class="n">with_edge_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">arrows</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                       <span class="n">node_size</span><span class="o">=</span><span class="s2">&quot;num_cores&quot;</span><span class="p">,</span> <span class="n">node_label</span><span class="o">=</span><span class="s2">&quot;name_class&quot;</span><span class="p">,</span> <span class="n">layout_type</span><span class="o">=</span><span class="s2">&quot;spring&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -2300,15 +2429,13 @@
 
 <span class="sd">            Requires networkx package.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">allocated</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">allocate</span><span class="p">()</span>
-
-        <span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allocate</span><span class="p">()</span>
 
         <span class="c1"># Build the graph</span>
+        <span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
         <span class="n">g</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">arrows</span> <span class="k">else</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">()</span>
         <span class="n">edge_labels</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">tasks</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iflat_tasks</span><span class="p">())</span>
-        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">iflat_tasks</span><span class="p">():</span>
             <span class="n">g</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">get_children</span><span class="p">():</span>
                 <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">child</span><span class="p">)</span>
@@ -2316,24 +2443,58 @@
                 <span class="n">i</span> <span class="o">=</span> <span class="p">[</span><span class="n">dep</span><span class="o">.</span><span class="n">node</span> <span class="k">for</span> <span class="n">dep</span> <span class="ow">in</span> <span class="n">child</span><span class="o">.</span><span class="n">deps</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
                 <span class="n">edge_labels</span><span class="p">[(</span><span class="n">task</span><span class="p">,</span> <span class="n">child</span><span class="p">)]</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">deps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">exts</span><span class="p">)</span>
 
+            <span class="n">filedeps</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">deps</span> <span class="k">if</span> <span class="n">d</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">is_file</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">filedeps</span><span class="p">:</span>
+                <span class="c1">#print(d.node, d.exts)</span>
+                <span class="n">g</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">node</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">basename</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">node_id</span><span class="p">))</span>
+                <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">node</span><span class="p">,</span> <span class="n">task</span><span class="p">)</span>
+                <span class="n">edge_labels</span><span class="p">[(</span><span class="n">d</span><span class="o">.</span><span class="n">node</span><span class="p">,</span> <span class="n">task</span><span class="p">)]</span> <span class="o">=</span> <span class="s2">&quot;+&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">exts</span><span class="p">)</span>
+
+        <span class="c1"># This part is needed if we have a work that produces output used by other nodes.</span>
+        <span class="k">for</span> <span class="n">work</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">children</span> <span class="o">=</span> <span class="n">work</span><span class="o">.</span><span class="n">get_children</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">children</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">g</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">work</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">work</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">work</span><span class="p">:</span>
+                <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">work</span><span class="p">)</span>
+                <span class="n">edge_labels</span><span class="p">[(</span><span class="n">task</span><span class="p">,</span> <span class="n">work</span><span class="p">)]</span> <span class="o">=</span> <span class="s2">&quot;all_ok &quot;</span>
+            <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">children</span><span class="p">:</span>
+                <span class="c1">#print(child)</span>
+                <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">work</span><span class="p">,</span> <span class="n">child</span><span class="p">)</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="p">[</span><span class="n">dep</span><span class="o">.</span><span class="n">node</span> <span class="k">for</span> <span class="n">dep</span> <span class="ow">in</span> <span class="n">child</span><span class="o">.</span><span class="n">deps</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">work</span><span class="p">)</span>
+                <span class="n">edge_labels</span><span class="p">[(</span><span class="n">work</span><span class="p">,</span> <span class="n">child</span><span class="p">)]</span> <span class="o">=</span> <span class="s2">&quot;+&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">deps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">exts</span><span class="p">)</span>
+
         <span class="c1"># Get positions for all nodes using layout_type.</span>
         <span class="c1"># e.g. pos = nx.spring_layout(g)</span>
         <span class="n">pos</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="n">layout_type</span> <span class="o">+</span> <span class="s2">&quot;_layout&quot;</span><span class="p">)(</span><span class="n">g</span><span class="p">)</span>
 
         <span class="c1"># Select function used to compute the size of the node</span>
-        <span class="n">make_node_size</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">num_cores</span><span class="o">=</span><span class="k">lambda</span> <span class="n">task</span><span class="p">:</span> <span class="mi">300</span> <span class="o">*</span> <span class="n">task</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">num_cores</span><span class="p">)[</span><span class="n">node_size</span><span class="p">]</span>
+        <span class="k">def</span> <span class="nf">make_node_size</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">is_task</span><span class="p">:</span>
+                <span class="k">return</span> <span class="mi">300</span> <span class="o">*</span> <span class="n">node</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">num_cores</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="mi">600</span>
 
-        <span class="c1"># Select function used to build the label</span>
-        <span class="n">make_node_label</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">name_class</span><span class="o">=</span><span class="k">lambda</span> <span class="n">task</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">pos_str</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">task</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,)[</span><span class="n">node_label</span><span class="p">]</span>
+        <span class="c1"># Function used to build the label</span>
+        <span class="k">def</span> <span class="nf">make_node_label</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">node_label</span> <span class="o">==</span> <span class="s2">&quot;name_class&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">is_file</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s2">(</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">basename</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">node_id</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">pos_str</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">node</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+                            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">&quot;pos_str&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">node</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;node_label: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">node_label</span><span class="p">))</span>
 
-        <span class="n">labels</span> <span class="o">=</span> <span class="p">{</span><span class="n">task</span><span class="p">:</span> <span class="n">make_node_label</span><span class="p">(</span><span class="n">task</span><span class="p">)</span> <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">()}</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="p">{</span><span class="n">node</span><span class="p">:</span> <span class="n">make_node_label</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">()}</span>
         <span class="n">ax</span><span class="p">,</span> <span class="n">fig</span><span class="p">,</span> <span class="n">plt</span> <span class="o">=</span> <span class="n">get_ax_fig_plt</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
 
         <span class="c1"># Select plot type.</span>
         <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;network&quot;</span><span class="p">:</span>
             <span class="n">nx</span><span class="o">.</span><span class="n">draw_networkx</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
-                             <span class="n">node_color</span><span class="o">=</span><span class="p">[</span><span class="n">task</span><span class="o">.</span><span class="n">color_rgb</span> <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">()],</span>
-                             <span class="n">node_size</span><span class="o">=</span><span class="p">[</span><span class="n">make_node_size</span><span class="p">(</span><span class="n">task</span><span class="p">)</span> <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">()],</span>
+                             <span class="n">node_color</span><span class="o">=</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">color_rgb</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">()],</span>
+                             <span class="n">node_size</span><span class="o">=</span><span class="p">[</span><span class="n">make_node_size</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">()],</span>
                              <span class="n">width</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;dotted&quot;</span><span class="p">,</span> <span class="n">with_labels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">arrows</span><span class="o">=</span><span class="n">arrows</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
 
             <span class="c1"># Draw edge labels</span>
@@ -2341,7 +2502,7 @@
                 <span class="n">nx</span><span class="o">.</span><span class="n">draw_networkx_edge_labels</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">edge_labels</span><span class="o">=</span><span class="n">edge_labels</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
 
         <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span>
-            <span class="c1"># Group tasks by status.</span>
+            <span class="c1"># Group tasks by status (only tasks are show here).</span>
             <span class="k">for</span> <span class="n">status</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ALL_STATUS</span><span class="p">:</span>
                 <span class="n">tasks</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iflat_tasks</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">))</span>
 
@@ -2357,7 +2518,6 @@
                                        <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span>
                                        <span class="c1">#label=str(status),</span>
                                        <span class="p">)</span>
-
             <span class="c1"># Draw edges.</span>
             <span class="n">nx</span><span class="o">.</span><span class="n">draw_networkx_edges</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">arrows</span><span class="o">=</span><span class="n">arrows</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span> <span class="c1"># edge_color=&#39;r&#39;)</span>
 
@@ -2393,7 +2553,7 @@
 <span class="sd">            manager: :class:`TaskManager` object used to submit the jobs</span>
 <span class="sd">                     Initialized from manager.yml if manager is None.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">G0W0WithQptdmFlow</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">workdir</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="n">manager</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">workdir</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="n">manager</span><span class="p">)</span>
 
         <span class="c1"># Register the first work (GS + NSCF calculation)</span>
         <span class="n">bands_work</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_work</span><span class="p">(</span><span class="n">BandStructureWork</span><span class="p">(</span><span class="n">scf_input</span><span class="p">,</span> <span class="n">nscf_input</span><span class="p">))</span>
@@ -2449,7 +2609,7 @@
     <span class="sd">&quot;&quot;&quot;Exceptions raised by FlowCallback.&quot;&quot;&quot;</span>
 
 
-<span class="k">class</span> <span class="nc">FlowCallback</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">FlowCallback</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This object implements the callbacks executed by the :class:`flow` when</span>
 <span class="sd">    particular conditions are fulfilled. See on_dep_ok method of :class:`Flow`.</span>
@@ -2583,11 +2743,20 @@
 
 <span class="k">class</span> <span class="nc">PhononFlow</span><span class="p">(</span><span class="n">Flow</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        1) One workflow for the GS run.</span>
+<span class="sd">    This Flow provides a high-level interface to compute phonons with DFPT</span>
+<span class="sd">    The flow consists of</span>
 
-<span class="sd">        2) nqpt works for phonon calculations. Each work contains</span>
-<span class="sd">           nirred tasks where nirred is the number of irreducible phonon perturbations</span>
-<span class="sd">           for that particular q-point.</span>
+<span class="sd">    1) One workflow for the GS run.</span>
+
+<span class="sd">    2) nqpt works for phonon calculations. Each work contains</span>
+<span class="sd">       nirred tasks where nirred is the number of irreducible phonon perturbations</span>
+<span class="sd">       for that particular q-point.</span>
+
+<span class="sd">    .. note:</span>
+
+<span class="sd">        For a much more flexible interface, use the DFPT works defined in works.py</span>
+<span class="sd">        For instance, EPH calculations are much easier to implement by connecting a single</span>
+<span class="sd">        work that computes all the q-points with the EPH tasks instead of using PhononFlow.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_scf_input</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">workdir</span><span class="p">,</span> <span class="n">scf_input</span><span class="p">,</span> <span class="n">ph_ngqpt</span><span class="p">,</span> <span class="n">with_becs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">allocate</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -2669,7 +2838,7 @@
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Final DDB file available at </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">out_ddb</span><span class="p">)</span>
 
         <span class="c1"># Call the method of the super class.</span>
-        <span class="n">retcode</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">PhononFlow</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
+        <span class="n">retcode</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">retcode</span>
 
 
@@ -2744,7 +2913,7 @@
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Final DDB file available at </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">out_ddb</span><span class="p">)</span>
 
         <span class="c1"># Call the method of the super class.</span>
-        <span class="n">retcode</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">NonLinearCoeffFlow</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
+        <span class="n">retcode</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;retcode&quot;</span><span class="p">,</span> <span class="n">retcode</span><span class="p">)</span>
         <span class="c1">#if retcode != 0: return retcode</span>
         <span class="k">return</span> <span class="n">retcode</span>
@@ -2930,13 +3099,13 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../../../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -2952,7 +3121,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -2960,7 +3129,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

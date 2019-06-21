@@ -1,7 +1,7 @@
-pymatgen\.optimization\.linear\_assignment module
-=================================================
+pymatgen.optimization.linear\_assignment module
+===============================================
 
 .. automodule:: pymatgen.optimization.linear_assignment
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

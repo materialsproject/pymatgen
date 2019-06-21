@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import unittest
 import os
 
@@ -305,6 +304,12 @@ class GaussianOutputTest(unittest.TestCase):
                                                         "2PZ", "3S", "3PX", "3PY",
                                                         "3PZ"])
         self.assertListEqual(gau.atom_basis_labels[2], ["1S", "2S"])
+
+        gau = GaussianOutput(os.path.join(test_dir, "H2O_gau_vib.out"))
+
+        self.assertEqual(gau.bond_orders[(0, 1)], 0.7582)
+        self.assertEqual(gau.bond_orders[(1, 2)], 0.0002)
+
 
     def test_scan(self):
         gau = GaussianOutput(os.path.join(test_dir, "so2_scan.log"))

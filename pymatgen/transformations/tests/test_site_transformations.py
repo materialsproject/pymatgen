@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 """
 Created on Mar 15, 2012
@@ -33,7 +32,7 @@ from monty.os.path import which
 enumlib_present = which('multienum.x') and which('makestr.x')
 
 
-class TranslateSitesTransformationTest(unittest.TestCase):
+class TranslateSitesTransformationTest(PymatgenTest):
 
     def setUp(self):
         coords = list()
@@ -59,9 +58,8 @@ class TranslateSitesTransformationTest(unittest.TestCase):
         self.assertTrue(np.allclose(s[1].frac_coords, [0.475, 0.575, 0.675]))
         inv_t = t.inverse
         s = inv_t.apply_transformation(s)
-        self.assertTrue(np.allclose(s[0].frac_coords, [0, 0, 0]))
+        self.assertAlmostEqual(s[0].distance_and_image_from_frac_coords([0, 0, 0])[0], 0)
         self.assertTrue(np.allclose(s[1].frac_coords, [0.375, 0.375, 0.375]))
-        str(t)
 
     def test_apply_transformation_site_by_site(self):
         t = TranslateSitesTransformation([0, 1], [[0.1, 0.2, 0.3],
@@ -71,9 +69,8 @@ class TranslateSitesTransformationTest(unittest.TestCase):
         self.assertTrue(np.allclose(s[1].frac_coords, [0.3, 0.3, 0.3]))
         inv_t = t.inverse
         s = inv_t.apply_transformation(s)
-        self.assertTrue(np.allclose(s[0].frac_coords, [0, 0, 0]))
-        self.assertTrue(np.allclose(s[1].frac_coords, [0.375, 0.375, 0.375]))
-        str(t)
+        self.assertAlmostEqual(s[0].distance_and_image_from_frac_coords([0, 0, 0])[0], 0)
+        self.assertArrayAlmostEqual(s[1].frac_coords, [0.375, 0.375, 0.375])
 
     def test_to_from_dict(self):
         d1 = TranslateSitesTransformation([0], [0.1, 0.2, 0.3]).as_dict()
@@ -113,7 +110,6 @@ class ReplaceSiteSpeciesTransformationTest(unittest.TestCase):
         t = ReplaceSiteSpeciesTransformation({0: "Na"})
         s = t.apply_transformation(self.struct)
         self.assertEqual(s.formula, "Na1 Li3 O4")
-        str(t)
 
     def test_to_from_dict(self):
         d = ReplaceSiteSpeciesTransformation({0: "Na"}).as_dict()
@@ -145,7 +141,6 @@ class RemoveSitesTransformationTest(unittest.TestCase):
         t = RemoveSitesTransformation(range(2))
         s = t.apply_transformation(self.struct)
         self.assertEqual(s.formula, "Li2 O4")
-        str(t)
 
     def test_to_from_dict(self):
         d = RemoveSitesTransformation(range(2)).as_dict()

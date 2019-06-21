@@ -1,7 +1,7 @@
-pymatgen\.transformations\.defect\_transformations module
-=========================================================
+pymatgen.transformations.defect\_transformations module
+=======================================================
 
 .. automodule:: pymatgen.transformations.defect_transformations
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 """
 This module contains the main object used to identify the coordination environments in a given structure.
@@ -66,7 +65,7 @@ debug = False
 DIST_TOLERANCES = [0.02, 0.05, 0.1, 0.2, 0.3]
 
 
-class AbstractGeometry(object):
+class AbstractGeometry:
     """
     Class used to describe a geometry (perfect or distorted)
     """
@@ -246,7 +245,7 @@ def symmetry_measure(points_distorted, points_perfect):
         return {'symmetry_measure': 0.0, 'scaling_factor': None, 'rotation_matrix': None}
     # Find the rotation matrix that aligns the distorted points to the perfect points in a least-square sense.
     rot = find_rotation(points_distorted=points_distorted,
-                           points_perfect=points_perfect)
+                        points_perfect=points_perfect)
     # Find the scaling factor between the distorted points and the perfect points in a least-square sense.
     scaling_factor, rotated_coords, points_perfect = find_scaling_factor(points_distorted=points_distorted,
                                                                          points_perfect=points_perfect,
@@ -290,7 +289,7 @@ def find_scaling_factor(points_distorted, points_perfect, rot):
     return num / denom, rotated_coords, points_perfect
 
 
-class LocalGeometryFinder(object):
+class LocalGeometryFinder:
     """
     Main class used to find the local environments in a structure
     """
@@ -554,7 +553,7 @@ class LocalGeometryFinder(object):
         if only_atoms is not None:
             sites_indices = [isite for isite in sites_indices
                              if any([at in [sp.symbol for sp in self.structure[
-                    isite].species_and_occu]
+                    isite].species]
                                      for at in only_atoms])]
 
         # Exclude atoms that are in the list of excluded atoms
@@ -562,7 +561,7 @@ class LocalGeometryFinder(object):
             sites_indices = [isite for isite in sites_indices
                              if not any([at in [sp.symbol for sp in
                                                 self.structure[
-                                                    isite].species_and_occu]
+                                                    isite].species]
                                          for at in excluded_atoms])]
 
         if only_indices is not None:
@@ -870,9 +869,9 @@ class LocalGeometryFinder(object):
             ux = uu[0]
             uy = uu[1]
             uz = uu[2]
-            RR = np.matrix([[ux*ux+(1.0-ux*ux)*cc, ux*uy*(1.0-cc)-uz*ss, ux*uz*(1.0-cc)+uy*ss],
-                            [ux*uy*(1.0-cc)+uz*ss, uy*uy+(1.0-uy*uy)*cc, uy*uz*(1.0-cc)-ux*ss],
-                            [ux*uz*(1.0-cc)-uy*ss, uy*uz*(1.0-cc)+ux*ss, uz*uz+(1.0-uz*uz)*cc]])
+            RR = [[ux*ux+(1.0-ux*ux)*cc, ux*uy*(1.0-cc)-uz*ss, ux*uz*(1.0-cc)+uy*ss],
+                  [ux*uy*(1.0-cc)+uz*ss, uy*uy+(1.0-uy*uy)*cc, uy*uz*(1.0-cc)-ux*ss],
+                  [ux*uz*(1.0-cc)-uy*ss, uy*uz*(1.0-cc)+ux*ss, uz*uz+(1.0-uz*uz)*cc]]
         elif random_rotation == 'NONE':
             RR = [[1.0, 0.0, 0.0],
                   [0.0, 1.0, 0.0],
@@ -881,13 +880,13 @@ class LocalGeometryFinder(object):
             RR = random_rotation
         newcoords = []
         for cc in coords:
-            newcc = RR * np.matrix(cc).T
-            newcoords.append(newcc.getA1())
+            newcc = np.dot(RR, cc).T
+            newcoords.append(newcc.ravel())
         coords = newcoords
         newcoords = []
         for cc in neighb_coords:
-            newcc = RR * np.matrix(cc).T
-            newcoords.append(newcc.getA1())
+            newcc = np.dot(RR, cc.T)
+            newcoords.append(newcc.ravel())
         neighb_coords = newcoords
 
         # Translating the test environment
@@ -1268,7 +1267,7 @@ class LocalGeometryFinder(object):
                     permutation=perm)
 
                 sm_info = symmetry_measure(points_distorted=points_distorted,
-                                              points_perfect=points_perfect)
+                                           points_perfect=points_perfect)
                 sm_info['translation_vector'] = self.local_geometry.centroid_with_centre
 
                 permutations_symmetry_measures[iperm] = sm_info
@@ -1687,7 +1686,7 @@ class LocalGeometryFinder(object):
                 permutation=pp)
 
             sm_info = symmetry_measure(points_distorted=points_distorted,
-                                          points_perfect=points_perfect)
+                                       points_perfect=points_perfect)
 
             sm_info['translation_vector'] = self.local_geometry.centroid_with_centre
 
@@ -1758,7 +1757,7 @@ class LocalGeometryFinder(object):
                 permutation=pp)
 
             sm_info = symmetry_measure(points_distorted=points_distorted,
-                                          points_perfect=points_perfect)
+                                       points_perfect=points_perfect)
 
             sm_info['translation_vector'] = self.local_geometry.centroid_with_centre
 

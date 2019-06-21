@@ -1,7 +1,7 @@
-pymatgen\.core\.bonds module
-============================
+pymatgen.core.bonds module
+==========================
 
 .. automodule:: pymatgen.core.bonds
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

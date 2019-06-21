@@ -1,7 +1,7 @@
-pymatgen\.util\.num module
-==========================
+pymatgen.util.num module
+========================
 
 .. automodule:: pymatgen.util.num
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

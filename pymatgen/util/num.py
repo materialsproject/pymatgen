@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals, division, print_function
 
 """
 This module provides utilities for basic math operations.
@@ -10,7 +9,6 @@ This module provides utilities for basic math operations.
 
 import collections
 
-from six.moves import zip
 import numpy as np
 
 
@@ -154,6 +152,21 @@ def round_to_sigfigs(num, sigfigs):
     else:
         prec = int(sigfigs - np.ceil(np.log10(np.absolute(num))))
         return round(num, prec)
+
+def make_symmetric_matrix_from_upper_tri(val):
+    """
+    Given a symmetric matrix in upper triangular matrix form as flat array indexes as:
+    [A_xx,A_yy,A_zz,A_xy,A_xz,A_yz]
+    This will generate the full matrix:
+    [[A_xx,A_xy,A_xz],[A_xy,A_yy,A_yz],[A_xz,A_yz,A_zz]
+    """
+    idx = [0,3,4,1,5,2]
+    val = np.array(val)[idx]
+    mask = ~np.tri(3,k=-1,dtype=bool)
+    out = np.zeros((3,3),dtype=val.dtype)
+    out[mask] = val
+    out.T[mask] = val
+    return out
 
 
 if __name__ == "__main__":

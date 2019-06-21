@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 """
 This module defines the BorgQueen class, which manages drones to assimilate
@@ -30,7 +29,7 @@ from multiprocessing import Manager, Pool
 logger = logging.getLogger("BorgQueen")
 
 
-class BorgQueen(object):
+class BorgQueen:
     """
     The Borg Queen controls the drones to assimilate data in an entire
     directory tree. Uses multiprocessing to speed up things considerably. It

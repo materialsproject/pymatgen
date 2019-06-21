@@ -1,7 +1,7 @@
-pymatgen\.io\.pwscf module
-==========================
+pymatgen.io.pwscf module
+========================
 
 .. automodule:: pymatgen.io.pwscf
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,6 +1,323 @@
 Change log
 ==========
 
+v2019.6.20
+----------
+* New interface class (@sivonxay, @kylebystrom, @shyamd)
+* Updates to SlabGenerator (@richardtran415)
+* Updates to PiezoTensor (@dongsenfo)
+* Add support for parsing on-site density matrix to Outcar (@mkhorton, @mhsiron, @clegaspi)
+* Fixes for magnetic space groups (@simonward86)
+* Fixes for Lobster class (@JaGeo)
+* Fix for FEFF (@stevetorr)
+* Fix for Waveder (@JRSuckert)
+
+v2019.6.5
+---------
+* Linear scaling get_all_neighbors. Tested to be faster for > 100 atoms (@chc273). 
+* Lobsterin class to handle input for Lobster (@JaGeo).
+* Strict options for composition parsing (@mkhorton).
+* Bug fix for CovalentBondNN.get_bonded_structure (@lan496).
+
+v2019.5.28
+----------
+* New VASP Input Set "from previous" interface (@utf)
+* ELFCAR support (@mkhorton)
+* Improvements to plotting of band structures and densities of states (@ShuaishuaiYuan)
+* Convenience functions added to Composition including chemical system convention (@mkhorton)
+* Various bug fixes (@mkhorton, @utf)
+* Improvements to MEGNET API (@shyuep)
+* Improvements to Structure interpolation (@mturiansky)
+
+v2019.5.8
+---------
+* Numerous updates and improvements to defect classes (@dbroberg)
+* New API for MEGNET models, see http://megnet.crystals.ai (@shyuep)
+* Update to NMR symmeterization (@dongsenfo)
+* Change CIF indexing (@kmu)
+* Add BoltzTraP mode to NonSCF input sets (@utf)
+
+v2019.5.1
+---------
+* Small speeds to Structure.get_all_neighbors.
+* Big fixes for gulp_caller. (@kmu)
+* Plot fatbands from Lobster. (@jageo)
+* Speed up get_ir_mesh (@utf)
+* Parsing of plasma frequencies from Outcar.
+* Miscellaneous bug fixes.
+
+v2019.4.11
+----------
+* Improvements to MimimumDistanceNN (@jmmshn)
+* Improvements to Lobster. (@JaGeo)
+* Implement a metal warning for ISMEAR < 1 and NSW > 0.
+* Misc bug fixes to input sets, including detection of metal systems and 
+  checking for standardization. 
+
+v2019.3.27
+----------
+* Bug fixes for OrderDisorderComparator (@utf), custom k-points
+in MPNonSCFSet (@dyllamt), battery app (@jmmshn), MPSOCSet (@mkhorton),
+more
+* Improvements to COHP (@JaGeo)
+* Support to read WAVEDER files (@knc6)
+* Addition of van Arkel-Ketelaar triangle plots (@richardtran415)
+* Addition of optional user agent to MPRester API calls, see documentation
+for more information (@dwinston)
+
+v2019.3.13
+----------
+* Streamlined Site, PeriodicSite, Molecule and Structure code by abandoning
+  immutability for Site and PeriodicSite.
+* VaspInput class now supports a run_vasp method, which can be used to code
+  runnable python scripts for running simple calculations (custodian still
+  recommended for more complex calculations.). For example, the following is a
+  kpoint convergence script that can be submitted in a queue
+
+.. code-block:: pycon
+
+    from pymatgen import MPRester
+    from pymatgen.io.vasp.sets import MPRelaxSet
+
+
+    VASP_CMD = ["mpirun", "-machinefile", "$PBS_NODEFILE", "-np", "16", "vasp"]
+
+
+    def main():
+        mpr = MPRester()
+        structure = mpr.get_structures("Li2O")[0]
+        for k_dens in [100, 200, 400, 800]:
+            vis = MPRelaxSet(structure, 
+                user_kpoints_settings={"reciprocal_density": k_dens})
+            vi = vis.get_vasp_input()
+            kpoints = vi["KPOINTS"].kpts[0][0]
+            d = "Li2O_kpoints_%d" % kpoints
+ 
+            # Directly run vasp.
+            vi.run_vasp(d, vasp_cmd=VASP_CMD)
+            # Use the final structure as the new initial structure to speed up calculations.
+            structure = Vasprun("%s/vasprun.xml" % d).final_structure
+
+
+    if __name__ == "__main__":
+        main()
+
+* Many pymatgen from_file methods now support pathlib.Path as well as strings.
+* Misc bug fixes.
+
+
+v2019.2.28
+----------
+* Type hints now available for core classes.
+* New pymatgen.util.typing module for useful types.
+* Misc bug fixes.
+
+v2019.2.24
+----------
+* New EntrySet class for easy manipulation of entries to grab subsets, 
+  remove non-ground-states, etc. Makes it easier to grab a large set of entries and work with sub chemical systems. Also MSONable for caching.
+* Performance improvements in core classes and Poscar (@ExpHP).
+* New/changed methods for IcohpCollection and Completecohp
+
+v2019.2.4
+---------
+* New Trajectory class for MD simulations (@sivonxay)
+* Lattice.get_vector_along_lattice_directions (@blondgeek)
+* Misc bug fixes.
+
+v2019.1.24
+----------
+* Python 3 only!
+* Improvements to local environment code including VESTA bond emulation (@utf)
+* Update Cohp analysis (@JaGEO)
+* Updates to Boltztrap2 (@fraricci)
+
+v2019.1.13
+----------
+* Pymatgen is now Py3 ONLY. If you need Py27 support, please use versions 
+  < 2019.1.1.
+* PARCHG parsing from WAVECAR (@mturiansky)
+* Improvements to defect generation algorithms (@dbroberg)
+* Simplifications to COHP plotting (@JaGeo)
+
+v2018.12.12
+-----------
+* Support for IUPAC ordering of elements in Composition formulae (@utf)
+* Various bug fixes including returning integer miller indices, catching negative values in Composition and fixes to graph analysis (@utf), fix to Composition serialization (@jmmshen), defect analysis (@HanmeiTang), removing sites in surfaces (@yiming-xu), and fix to support the new PROCAR format in VASP (@dkorotin)
+* `PMG_MAPI_ENDPOINT` environment variable added to support different endpoints for the Materials Project REST interface (@mkhorton)
+
+v2018.11.30
+-----------
+* MPRester.query now supports bulk queries for large scale requests. 
+  (@dwinston)
+* MVLRelax52Set which uses VASP 52 pseudopotentials. (@HanmeiTang)
+* EPH calculations in ABINIT (@gmatteo)
+* New ScaleToRelaxedTransformation (@richardtran415)
+* New dimensionality finder, and consolidation of existing algorithms (@utf)
+* New dopant predictor built on structure predictor (@utf)
+* Misc bug fixes (@HanmeiTang, @utf, @tamuhey, @mkhorton, @yiming-xu, @richardtran415)
+
+v2018.11.6
+----------
+* Ionic radius based CrystalNN (@computron)
+* InterfacialReactivity (@dbroberg)
+* Misc bug fixes
+
+v2018.10.18
+-----------
+
+* New bond fragmenter and bond dissociation analysis modules (@samblau)
+* Improvements to MoleculeGraph (@espottesmith)
+* Fix: bug in triclinic tensor conversion to IEEE standard (@montoyjh)
+* Fix: insertion battery summary dictionary format (@jmmshn)
+* Speed improvements to certain tests (@shyuep, @samblau)
+
+v2018.9.30
+----------
+
+* Fix: increased cut-off to VoronoiNN to avoid scipy crash (@utf)
+* Fix: Outcar parsing issues with certain values of electrostatic potential (@sivonxay)
+* Fix: bug in EnumlibAdaptor/EnumerateStructureTransformation involving incorrect
+  stoichiometries in some instances (#1286) (@shyuep)
+* Fix: fractional co-ordinate finite precision errors in CifParser, now
+  also includes additional warnings for implicit hydrogens (@mkhorton)
+* New features and improvements to GBGenerator (@ucsdlxg, @shyuep)
+* New analysis options in StructureGraph, speed up tests (@mkhorton)
+* New utility function to pretty print disordered formulae, along with a
+  ordered-to-disordered structure transformation (@mkhorton)
+* Ability to use pymatgen's StructureMatcher against AFLOW's library of
+  crystallographic prototypes (@mkhorton)
+* Make Chgcar serializable to/from dict for database insertion (@jmmshn)
+
+v2018.9.19
+----------
+* Fix to composition handling in `MolecularOrbitals` (@dyllamt)
+* Fix to allow mixed compressed/uncompressed loading of VASP band structures (@ajjackson)
+* New features and fixes to `chemenv` analysis module (@davidwaroquiers)
+* Fix to include structure predictor data with pip/conda-installed pymatgen (@shyamd)
+* Fixes to `Defect` objects, icluding allowing rotational supercell transformations (@dbroberg)
+* Fix to `BSDOSPlotter` to correctly fill in parts of DOS (@fraricci)
+* Added '@' notation parsing in `Composition` (@tamuhey)
+* BibTex reference extraction updated in `CifParser` to support ICSD CIFs (@shyamd)
+* Various updates to speed up and fix test suite (@shyuep, @fraricci)
+* Improvements to BoltzTraP 2 support (@shyuep, @fraricci)
+
+v2018.9.12
+----------
+* Use boltztrap2 (@fraricci)
+* Refactoring of tensor code to core (@montoyjh)
+* Support for new Lobster version (@JaGeo)
+* Misc bug fixes
+
+v2018.8.10
+----------
+* Bug fix for pymatgen.analysis.gb and pymatgen.io.lammps.
+
+v2018.8.7
+---------
+* Massive refactoring of LAMMPS support. (@adengz)
+* Allow kwargs passthrough for Structure.to.
+* Updates to ABINIT support (@gmatteo)
+* GrainBoundaryTransformation class. (@Tinaatucsd)
+
+v2018.7.15
+----------
+* Grain boundary generator (Xiangguo Li @ucsdlxg)
+* Massive updates to defect code and new DefectTransformation  
+  (@shyamd)
+* Bug fix for OUTCAR parsing with more than one space in 
+  electrostatic potential. 
+* get_fermi_interextrapolated to support wider range of 
+  input doping (@albalu)
+* Update to cython compile to support Py3.7.
+* Update VoronoiNN cutoff dynamically (@computron)
+
+v2018.6.27
+----------
+* Improved local_env and MoleculeGraph (@WardLT, @espottesmith) 
+* Improve BabelMolAdaptor with conformer search and other functions (@Qi-Max)
+* Improved surface analysis (@richardtran415)
+
+v2018.6.11
+----------
+* Updates to ABINIT support for 8.1.3
+* Updates to Interface analyzer.
+* Fix bug in deserialization of ComputedStructureEntry.
+* Misc bug fixes.
+
+v2018.5.22
+----------
+* Misc bug fixes.
+
+v2018.5.21
+----------
+* Bug-fix for missing HHI data file.
+* Misc bug fixes.
+
+v2018.5.14
+----------
+* Dash docs now avaiable for pymatgen. See pymatgen.org "Offline docs" section
+  for details.
+* Better CrystalNN. (Anubhav Jain)
+* Fixes for elastic module. (Joseph Montoya)
+
+v2018.5.3
+---------
+* Improvements to qchem (@samblau).
+* Improvements to nwchem to support tddft input and parsing (@shyuep).
+* Improvements to CrystalNN (@computron).
+* Add methods for getting phonon BS, DOS, and DDB output (@dwinston).
+
+v2018.4.20
+----------
+* Neutron diffraciton calculator (Yuta)
+* Non-existent electronegativity (e.g., He and Ne) are now returned as NaN
+  instead of infinity.
+* CifParser now handles Elements that are in all caps, which is found in some
+  databases. (Gpretto)
+* Improvements to local_env (Anubhav Jain)
+* Improvements to Qchem ()
+* Inputs sets for NMR (Shyam)
+* New ChargeDensityAnalyzer class to find interstitial sites from charge density (Hanmei)
+
+v2018.4.6
+---------
+* Updated debye temperature formulation (Joey Montoya)
+* Add bandgap option for FermiDos for scissoring (Alireza Faghaninia)
+* Improved Pourbaix code (Joey Montoya)
+* Local env code improvements (Nils)
+
+v2018.3.22
+----------
+* Bug fixes to structure, phase diagram module, enumlib adaptor, local env analysis.
+
+v2018.3.14
+----------
+* ReactionDiagram for calculating possible reactions between two compositions.
+* Misc bug fixes for EnumlibAdaptor and MagOrderingTransformation
+
+v2018.3.13
+----------
+* Support for VESTA lattice vector definitions.
+* GaussianOutput read now bond_orders of a NBO calculations (@gVallverdu)
+* Bug fixes to phonons, abinit support.
+
+v2018.3.2
+---------
+* Various algorithms for nearest neighbor analysis (Hillary Pan)
+* Cleanup of local_env modules (Nils)
+* Enhancements to surface packages (Richard)
+* Misc bud fixes
+
+v2018.2.13
+----------
+* Improved chemenv parameters and bug fixes (David Waroquiers).
+* Improved Qchem IO (Shyam).
+* Improved interfacial reactions.
+* local_env update (Nils).
+* Improved ABINIT support (@gmatteo).
+* Misc bug fixes.
+
 v2018.1.29
 ----------
 * Improvements to local_env (Nils)

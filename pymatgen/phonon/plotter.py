@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
 import logging
 from collections import OrderedDict, namedtuple
 
@@ -33,8 +32,8 @@ def freq_units(units):
          "ev": FreqUnits(const.value("hertz-electron volt relationship") * const.tera, "eV"),
          "mev": FreqUnits(const.value("hertz-electron volt relationship") * const.tera / const.milli, "meV"),
          "ha": FreqUnits(const.value("hertz-hartree relationship") * const.tera, "Ha"),
-         "cm-1": FreqUnits(const.value("hertz-inverse meter relationship") * const.tera * const.centi, "cm$^{-1}$"),
-         'cm^-1': FreqUnits(const.value("hertz-inverse meter relationship") * const.tera * const.centi, "cm$^{-1}$")
+         "cm-1": FreqUnits(const.value("hertz-inverse meter relationship") * const.tera * const.centi, "cm^{-1}"),
+         'cm^-1': FreqUnits(const.value("hertz-inverse meter relationship") * const.tera * const.centi, "cm^{-1}")
          }
     try:
         return d[units.lower().strip()]
@@ -42,7 +41,7 @@ def freq_units(units):
         raise KeyError('Value for units `{}` unknown\nPossible values are:\n {}'.format(units, list(d.keys())))
 
 
-class PhononDosPlotter(object):
+class PhononDosPlotter:
     """
     Class for plotting phonon DOSs. Note that the interface is extremely flexible
     given that there are many different ways in which people want to view
@@ -165,7 +164,7 @@ class PhononDosPlotter(object):
                 plt.fill(frequencies, densities, color=colors[i % ncolors],
                          label=str(key))
             else:
-                ppl.plot(frequencies, densities, color=colors[i % ncolors],
+                plt.plot(frequencies, densities, color=colors[i % ncolors],
                          label=str(key), linewidth=3)
 
         if xlim:
@@ -181,8 +180,8 @@ class PhononDosPlotter(object):
         ylim = plt.ylim()
         plt.plot([0, 0], ylim, 'k--', linewidth=2)
 
-        plt.xlabel('Frequencies ({})'.format(u.label))
-        plt.ylabel('Density of states')
+        plt.xlabel(r'$\mathrm{{Frequencies\ ({})}}$'.format(u.label))
+        plt.ylabel(r'$\mathrm{Density\ of\ states}$')
 
         plt.legend()
         leg = plt.gca().get_legend()
@@ -220,7 +219,7 @@ class PhononDosPlotter(object):
         plt.show()
 
 
-class PhononBSPlotter(object):
+class PhononBSPlotter:
     """
     Class to plot or get data to facilitate the plot of band structure objects.
 
@@ -350,7 +349,7 @@ class PhononBSPlotter(object):
 
         # Main X and Y Labels
         plt.xlabel(r'$\mathrm{Wave\ Vector}$', fontsize=30)
-        ylabel = r'Frequency ({})'.format(u.label)
+        ylabel = r'$\mathrm{{Frequencies\ ({})}}$'.format(u.label)
         plt.ylabel(ylabel, fontsize=30)
 
         # X range (K)
@@ -481,7 +480,7 @@ class PhononBSPlotter(object):
         plot_brillouin_zone(self._bs.lattice_rec, lines=lines, labels=labels)
 
 
-class ThermoPlotter(object):
+class ThermoPlotter:
     """
     Plotter for thermodynamic properties obtained from phonon DOS.
     If the structure corresponding to the DOS, it will be used to extract the forumla unit and provide
@@ -605,9 +604,9 @@ class ThermoPlotter(object):
         temperatures = np.linspace(tmin, tmax, ntemp)
 
         if self.structure:
-            ylabel = r"$\Delta E$ (kJ/K/mol)"
+            ylabel = r"$\Delta E$ (kJ/mol)"
         else:
-            ylabel = r"$\Delta E$ (kJ/K/mol-c)"
+            ylabel = r"$\Delta E$ (kJ/mol-c)"
 
         fig = self._plot_thermo(self.dos.internal_energy, temperatures, ylabel=ylabel, ylim=ylim,
                                 factor=1e-3, **kwargs)
@@ -631,9 +630,9 @@ class ThermoPlotter(object):
         temperatures = np.linspace(tmin, tmax, ntemp)
 
         if self.structure:
-            ylabel = r"$\Delta F$ (kJ/K/mol)"
+            ylabel = r"$\Delta F$ (kJ/mol)"
         else:
-            ylabel = r"$\Delta F$ (kJ/K/mol-c)"
+            ylabel = r"$\Delta F$ (kJ/mol-c)"
 
         fig = self._plot_thermo(self.dos.helmholtz_free_energy, temperatures, ylabel=ylabel, ylim=ylim,
                                 factor=1e-3, **kwargs)

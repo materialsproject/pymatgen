@@ -1,27 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.electronic_structure.plotter &#8212; pymatgen 2018.1.29 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.electronic_structure.plotter &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../',
-        VERSION:     '2018.1.29',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -32,8 +23,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -43,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -59,13 +49,11 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
-<span class="kn">import</span> <span class="nn">six</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
@@ -96,7 +84,7 @@
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="DosPlotter"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.DosPlotter">[docs]</a><span class="k">class</span> <span class="nc">DosPlotter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="DosPlotter"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.DosPlotter">[docs]</a><span class="k">class</span> <span class="nc">DosPlotter</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class for plotting DOSs. Note that the interface is extremely flexible</span>
 <span class="sd">    given that there are many different ways in which people want to view</span>
@@ -171,8 +159,8 @@
 <span class="sd">        be the smeared densities, not the original densities.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            Dict of dos data. Generally of the form, {label: {&#39;energies&#39;:..,</span>
-<span class="sd">            &#39;densities&#39;: {&#39;up&#39;:...}, &#39;efermi&#39;:efermi}}</span>
+<span class="sd">            dict: Dict of dos data. Generally of the form</span>
+<span class="sd">            {label: {&#39;energies&#39;:..., &#39;densities&#39;: {&#39;up&#39;:...}, &#39;efermi&#39;:efermi}}</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">jsanitize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_doses</span><span class="p">)</span></div>
 
@@ -299,7 +287,7 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div></div>
 
 
-<div class="viewcode-block" id="BSPlotter"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BSPlotter">[docs]</a><span class="k">class</span> <span class="nc">BSPlotter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="BSPlotter"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BSPlotter">[docs]</a><span class="k">class</span> <span class="nc">BSPlotter</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class to plot or get data to facilitate the plot of band structure objects.</span>
 
@@ -376,13 +364,13 @@
 <span class="sd">                eigenvalues and plot.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            A dict of the following format:</span>
+<span class="sd">            dict: A dictionary of the following format:</span>
 <span class="sd">            ticks: A dict with the &#39;distances&#39; at which there is a kpoint (the</span>
-<span class="sd">            x axis) and the labels (None if no label)</span>
+<span class="sd">            x axis) and the labels (None if no label).</span>
 <span class="sd">            energy: A dict storing bands for spin up and spin down data</span>
 <span class="sd">            [{Spin:[band_index][k_point_index]}] as a list (one element</span>
 <span class="sd">            for each branch) of energy for each kpoint. The data is</span>
-<span class="sd">            stored by branch to facilitate the plotting</span>
+<span class="sd">            stored by branch to facilitate the plotting.</span>
 <span class="sd">            vbm: A list of tuples (distance,energy) marking the vbms. The</span>
 <span class="sd">            energies are shifted with respect to the fermi level is the</span>
 <span class="sd">            option has been selected.</span>
@@ -602,6 +590,13 @@
                          <span class="n">data</span><span class="p">[</span><span class="s1">&#39;cbm&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">e_max</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">is_metal</span><span class="p">()</span> <span class="ow">and</span> <span class="n">vbm_cbm_marker</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">cbm</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;cbm&#39;</span><span class="p">]:</span>
+                        <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">cbm</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cbm</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span>
+                                    <span class="n">s</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">vbm</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;vbm&#39;</span><span class="p">]:</span>
+                        <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">vbm</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">vbm</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span>
+                                    <span class="n">s</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
 
         <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 
@@ -645,8 +640,9 @@
 <span class="sd">        Get all ticks and labels for a band structure plot.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            A dict with &#39;distance&#39;: a list of distance at which ticks should</span>
-<span class="sd">            be set and &#39;label&#39;: a list of label for each of those ticks.</span>
+<span class="sd">            dict: A dictionary with &#39;distance&#39;: a list of distance at which</span>
+<span class="sd">            ticks should be set and &#39;label&#39;: a list of label for each of those</span>
+<span class="sd">            ticks.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">tick_distance</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">tick_labels</span> <span class="o">=</span> <span class="p">[]</span>
@@ -756,7 +752,7 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bs</span><span class="o">.</span><span class="n">projections</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;try to plot projections&quot;</span>
                              <span class="s2">&quot; on a band structure without any&quot;</span><span class="p">)</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">BSPlotterProjected</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">bs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">bs</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_projections_by_branches</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dictio</span><span class="p">):</span>
         <span class="n">proj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">get_projections_on_elements_and_orbitals</span><span class="p">(</span><span class="n">dictio</span><span class="p">)</span>
@@ -797,6 +793,9 @@
 <span class="sd">                format is {Element:[Orbitals]} for instance</span>
 <span class="sd">                {&#39;Cu&#39;:[&#39;d&#39;,&#39;s&#39;],&#39;O&#39;:[&#39;p&#39;]} will give projections for Cu on</span>
 <span class="sd">                d and s orbitals and on oxygen p.</span>
+<span class="sd">                If you use this class to plot LobsterBandStructureSymmLine,</span>
+<span class="sd">                the orbitals are named as in the FATBAND filename, e.g.</span>
+<span class="sd">                &quot;2p&quot; or &quot;2p_x&quot;</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            a pylab object with different subfigures for each projection</span>
@@ -1604,7 +1603,7 @@
                             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                                 <span class="s2">&quot;The dictio[</span><span class="si">%s</span><span class="s2">] is empty. We cannot do anything&quot;</span> <span class="o">%</span> <span class="n">elt</span><span class="p">)</span>
                         <span class="k">for</span> <span class="n">orb</span> <span class="ow">in</span> <span class="n">dictio</span><span class="p">[</span><span class="n">elt</span><span class="p">]:</span>
-                            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">orb</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">orb</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                                     <span class="s2">&quot;The invalid format of orbitals is in &#39;dictio[</span><span class="si">%s</span><span class="s2">]&#39;: </span><span class="si">%s</span><span class="s2">. &quot;</span>
                                     <span class="s2">&quot;They should be string.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">elt</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">orb</span><span class="p">)))</span>
@@ -1641,7 +1640,7 @@
                 <span class="k">if</span> <span class="n">Element</span><span class="o">.</span><span class="n">is_valid_symbol</span><span class="p">(</span><span class="n">elt</span><span class="p">):</span>
                     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sum_morbs</span><span class="p">[</span><span class="n">elt</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
                         <span class="k">for</span> <span class="n">orb</span> <span class="ow">in</span> <span class="n">sum_morbs</span><span class="p">[</span><span class="n">elt</span><span class="p">]:</span>
-                            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">orb</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">orb</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
                                     <span class="s2">&quot;The invalid format of orbitals is in &#39;sum_morbs[</span><span class="si">%s</span><span class="s2">]&#39;: </span><span class="si">%s</span><span class="s2">. &quot;</span>
                                     <span class="s2">&quot;They should be string.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">elt</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">orb</span><span class="p">)))</span>
@@ -1966,7 +1965,7 @@
                     <span class="n">_sites</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">sites</span>
                     <span class="n">indices</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">_sites</span><span class="p">)):</span>
-                        <span class="k">if</span> <span class="n">_sites</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">_species</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">Element</span><span class="p">(</span><span class="n">elt</span><span class="p">)):</span>
+                        <span class="k">if</span> <span class="nb">list</span><span class="p">(</span><span class="n">_sites</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">_species</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">Element</span><span class="p">(</span><span class="n">elt</span><span class="p">)):</span>
                             <span class="n">indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
                     <span class="n">flag_1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">dictpa</span><span class="p">[</span><span class="n">elt</span><span class="p">])</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">indices</span><span class="p">))</span>
                     <span class="n">flag_2</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">sum_atoms</span><span class="p">[</span><span class="n">elt</span><span class="p">])</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">indices</span><span class="p">))</span>
@@ -2016,7 +2015,7 @@
                     <span class="n">_sites</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">sites</span>
                     <span class="n">indices</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">_sites</span><span class="p">)):</span>
-                        <span class="k">if</span> <span class="n">_sites</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">_species</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">Element</span><span class="p">(</span><span class="n">elt</span><span class="p">)):</span>
+                        <span class="k">if</span> <span class="nb">list</span><span class="p">(</span><span class="n">_sites</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">_species</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">Element</span><span class="p">(</span><span class="n">elt</span><span class="p">)):</span>
                             <span class="n">indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
                     <span class="n">flag_1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">dictpa</span><span class="p">[</span><span class="n">elt</span><span class="p">])</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">indices</span><span class="p">))</span>
                     <span class="n">flag_2</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">sum_atoms</span><span class="p">[</span><span class="n">elt</span><span class="p">])</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">indices</span><span class="p">))</span>
@@ -2143,7 +2142,9 @@
         <span class="k">return</span> <span class="n">plt</span><span class="p">,</span> <span class="n">shift</span></div>
 
 
-<div class="viewcode-block" id="BSDOSPlotter"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BSDOSPlotter">[docs]</a><span class="k">class</span> <span class="nc">BSDOSPlotter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+
+<div class="viewcode-block" id="BSDOSPlotter"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BSDOSPlotter">[docs]</a><span class="k">class</span> <span class="nc">BSDOSPlotter</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A joint, aligned band structure and density of states plot. Contributions </span>
 <span class="sd">    from Jan Pohls as well as the online example from Germain Salvato-Vallverdu:</span>
@@ -2238,10 +2239,13 @@
         <span class="c1"># initialize all the k-point labels and k-point x-distances for bs plot</span>
         <span class="n">xlabels</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># all symmetry point labels on x-axis</span>
         <span class="n">xlabel_distances</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># positions of symmetry point x-labels</span>
-        <span class="n">x_distances</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># x positions of kpoint data</span>
+
+        <span class="n">x_distances_list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">prev_right_klabel</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># used to determine which branches require a midline separator</span>
 
         <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">bs</span><span class="o">.</span><span class="n">branches</span><span class="p">):</span>
+            <span class="n">x_distances</span> <span class="o">=</span> <span class="p">[]</span>
+
             <span class="c1"># get left and right kpoint labels of this branch</span>
             <span class="n">left_k</span><span class="p">,</span> <span class="n">right_k</span> <span class="o">=</span> <span class="n">l</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
 
@@ -2274,6 +2278,7 @@
             <span class="n">x_distances</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xlabel_distances</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">npts</span><span class="p">):</span>
                 <span class="n">x_distances</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x_distances</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">distance_interval</span><span class="p">)</span>
+            <span class="n">x_distances_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x_distances</span><span class="p">)</span>
 
         <span class="c1"># set up bs and dos plot</span>
         <span class="n">gs</span> <span class="o">=</span> <span class="n">GridSpec</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">width_ratios</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="n">dos</span> <span class="k">else</span> <span class="n">GridSpec</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -2285,7 +2290,7 @@
             <span class="n">dos_ax</span> <span class="o">=</span> <span class="n">mplt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
         <span class="c1"># set basic axes limits for the plot</span>
-        <span class="n">bs_ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x_distances</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">bs_ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x_distances_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
         <span class="n">bs_ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">emin</span><span class="p">,</span> <span class="n">emax</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">dos</span><span class="p">:</span>
             <span class="n">dos_ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">emin</span><span class="p">,</span> <span class="n">emax</span><span class="p">)</span>
@@ -2299,7 +2304,7 @@
                          <span class="n">family</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">font</span><span class="p">)</span>
 
         <span class="c1"># add BS fermi level line at E=0 and gridlines</span>
-        <span class="n">bs_ax</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">xmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">xmax</span><span class="o">=</span><span class="n">x_distances</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">bs_ax</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">xmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">xmax</span><span class="o">=</span><span class="n">x_distances_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
         <span class="n">bs_ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">emin</span><span class="p">,</span> <span class="n">emax</span> <span class="o">+</span> <span class="mf">1E-5</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">egrid_interval</span><span class="p">))</span>
         <span class="n">bs_ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">emin</span><span class="p">,</span> <span class="n">emax</span> <span class="o">+</span> <span class="mf">1E-5</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">egrid_interval</span><span class="p">),</span>
                               <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tick_fontsize</span><span class="p">)</span>
@@ -2330,11 +2335,17 @@
             <span class="k">if</span> <span class="n">spin</span> <span class="ow">in</span> <span class="n">band_energies</span><span class="p">:</span>
                 <span class="n">linestyles</span> <span class="o">=</span> <span class="s2">&quot;solid&quot;</span> <span class="k">if</span> <span class="n">spin</span> <span class="o">==</span> <span class="n">Spin</span><span class="o">.</span><span class="n">up</span> <span class="k">else</span> <span class="s2">&quot;dotted&quot;</span>
                 <span class="k">for</span> <span class="n">band_idx</span><span class="p">,</span> <span class="n">band</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">band_energies</span><span class="p">[</span><span class="n">spin</span><span class="p">]):</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_rgbline</span><span class="p">(</span><span class="n">bs_ax</span><span class="p">,</span> <span class="n">x_distances</span><span class="p">,</span> <span class="n">band</span><span class="p">,</span>
-                                  <span class="n">colordata</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">band_idx</span><span class="p">,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">],</span>
-                                  <span class="n">colordata</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">band_idx</span><span class="p">,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">],</span>
-                                  <span class="n">colordata</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">band_idx</span><span class="p">,</span> <span class="p">:,</span> <span class="mi">2</span><span class="p">],</span>
-                                  <span class="n">linestyles</span><span class="o">=</span><span class="n">linestyles</span><span class="p">)</span>
+                    <span class="n">current_pos</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="k">for</span> <span class="n">x_distances</span> <span class="ow">in</span> <span class="n">x_distances_list</span><span class="p">:</span>
+                        <span class="n">sub_band</span> <span class="o">=</span> <span class="n">band</span><span class="p">[</span><span class="n">current_pos</span><span class="p">:</span> <span class="n">current_pos</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_distances</span><span class="p">)]</span>
+
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_rgbline</span><span class="p">(</span><span class="n">bs_ax</span><span class="p">,</span> <span class="n">x_distances</span><span class="p">,</span> <span class="n">sub_band</span><span class="p">,</span>
+                                      <span class="n">colordata</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">band_idx</span><span class="p">,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">][</span><span class="n">current_pos</span><span class="p">:</span> <span class="n">current_pos</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_distances</span><span class="p">)],</span>
+                                      <span class="n">colordata</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">band_idx</span><span class="p">,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">][</span><span class="n">current_pos</span><span class="p">:</span> <span class="n">current_pos</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_distances</span><span class="p">)],</span>
+                                      <span class="n">colordata</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">band_idx</span><span class="p">,</span> <span class="p">:,</span> <span class="mi">2</span><span class="p">][</span><span class="n">current_pos</span><span class="p">:</span> <span class="n">current_pos</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_distances</span><span class="p">)],</span>
+                                      <span class="n">linestyles</span><span class="o">=</span><span class="n">linestyles</span><span class="p">)</span>
+
+                        <span class="n">current_pos</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_distances</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">dos</span><span class="p">:</span>
             <span class="c1"># Plot the DOS and projected DOS</span>
@@ -2345,12 +2356,15 @@
                     <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;total&quot;</span> <span class="k">if</span> <span class="n">spin</span> <span class="o">==</span> <span class="n">Spin</span><span class="o">.</span><span class="n">up</span> <span class="k">else</span> <span class="kc">None</span>
                     <span class="n">dos_ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">dos_densities</span><span class="p">,</span> <span class="n">dos_energies</span><span class="p">,</span>
                                 <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
-                    <span class="n">dos_ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">dos_densities</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">dos_energies</span><span class="p">,</span>
+                    <span class="n">dos_ax</span><span class="o">.</span><span class="n">fill_betweenx</span><span class="p">(</span><span class="n">dos_energies</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span><span class="n">dos_densities</span><span class="p">,</span>
                                         <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">),</span>
                                         <span class="n">facecolor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">))</span>
 
-                    <span class="c1"># plot the atom-projected DOS</span>
-                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dos_projection</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;elements&quot;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dos_projection</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">pass</span>
+
+                    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">dos_projection</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;elements&quot;</span><span class="p">:</span>
+                        <span class="c1"># plot the atom-projected DOS</span>
                         <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">]</span>
                         <span class="n">el_dos</span> <span class="o">=</span> <span class="n">dos</span><span class="o">.</span><span class="n">get_element_dos</span><span class="p">()</span>
                         <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">el</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">elements</span><span class="p">):</span>
@@ -2522,7 +2536,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">loc</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">):</span>
             <span class="n">loc</span> <span class="o">=</span> <span class="mi">2</span>
 
-        <span class="kn">from</span> <span class="nn">mpl_toolkits.axes_grid.inset_locator</span> <span class="k">import</span> <span class="n">inset_axes</span>
+        <span class="kn">from</span> <span class="nn">mpl_toolkits.axes_grid1.inset_locator</span> <span class="k">import</span> <span class="n">inset_axes</span>
         <span class="n">inset_ax</span> <span class="o">=</span> <span class="n">inset_axes</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">loc</span><span class="p">)</span>
         <span class="n">mesh</span> <span class="o">=</span> <span class="mi">35</span>
         <span class="n">x</span> <span class="o">=</span> <span class="p">[]</span>
@@ -2569,7 +2583,7 @@
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">loc</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">):</span>
             <span class="n">loc</span> <span class="o">=</span> <span class="mi">2</span>
-        <span class="kn">from</span> <span class="nn">mpl_toolkits.axes_grid.inset_locator</span> <span class="k">import</span> <span class="n">inset_axes</span>
+        <span class="kn">from</span> <span class="nn">mpl_toolkits.axes_grid1.inset_locator</span> <span class="k">import</span> <span class="n">inset_axes</span>
         <span class="n">inset_ax</span> <span class="o">=</span> <span class="n">inset_axes</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">loc</span><span class="p">)</span>
 
         <span class="n">x</span> <span class="o">=</span> <span class="p">[]</span>
@@ -2582,7 +2596,7 @@
                           <span class="p">[</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">i</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">]])</span>
 
         <span class="c1"># plot the bar</span>
-        <span class="n">inset_ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mf">250.</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+        <span class="n">inset_ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mf">250.</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
         <span class="n">inset_ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.7</span><span class="p">])</span>
         <span class="n">inset_ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">1.35</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">b_label</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">13</span><span class="p">,</span>
                       <span class="n">family</span><span class="o">=</span><span class="s1">&#39;Times New Roman&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
@@ -2595,7 +2609,7 @@
         <span class="n">inset_ax</span><span class="o">.</span><span class="n">get_yaxis</span><span class="p">()</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="BoltztrapPlotter"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BoltztrapPlotter">[docs]</a><span class="k">class</span> <span class="nc">BoltztrapPlotter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="BoltztrapPlotter"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BoltztrapPlotter">[docs]</a><span class="k">class</span> <span class="nc">BoltztrapPlotter</span><span class="p">:</span>
     <span class="c1"># TODO: We need a unittest for this. Come on folks.</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    class containing methods to plot the data from Boltztrap.</span>
@@ -2929,7 +2943,7 @@
             <span class="n">sbk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">get_seebeck</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s1">&#39;eigs&#39;</span><span class="p">)</span>
 
         <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">22</span><span class="p">,</span> <span class="mi">14</span><span class="p">))</span>
-        <span class="n">tlist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">sbk</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">tlist</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">sbk</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="n">doping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">doping</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">doping</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span> <span class="k">else</span> <span class="n">doping</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">dt</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">]):</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">121</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span>
@@ -2986,7 +3000,7 @@
                                              <span class="n">output</span><span class="o">=</span><span class="s1">&#39;eigs&#39;</span><span class="p">)</span>
 
         <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">22</span><span class="p">,</span> <span class="mi">14</span><span class="p">))</span>
-        <span class="n">tlist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">cond</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">tlist</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cond</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="n">doping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">doping</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">doping</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span> <span class="k">else</span> <span class="n">doping</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">dt</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">]):</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">121</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span>
@@ -3044,7 +3058,7 @@
                                            <span class="n">output</span><span class="o">=</span><span class="s1">&#39;eigs&#39;</span><span class="p">)</span>
 
         <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">22</span><span class="p">,</span> <span class="mi">14</span><span class="p">))</span>
-        <span class="n">tlist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">pf</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">tlist</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">pf</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="n">doping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">doping</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">doping</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span> <span class="k">else</span> <span class="n">doping</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">dt</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">]):</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">121</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span>
@@ -3099,7 +3113,7 @@
             <span class="n">zt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">get_zt</span><span class="p">(</span><span class="n">relaxation_time</span><span class="o">=</span><span class="n">relaxation_time</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s1">&#39;eigs&#39;</span><span class="p">)</span>
 
         <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">22</span><span class="p">,</span> <span class="mi">14</span><span class="p">))</span>
-        <span class="n">tlist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">zt</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">tlist</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">zt</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="n">doping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">doping</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">doping</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span> <span class="k">else</span> <span class="n">doping</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">dt</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">]):</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">121</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span>
@@ -3151,7 +3165,7 @@
             <span class="n">em</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">get_average_eff_mass</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s1">&#39;eigs&#39;</span><span class="p">)</span>
 
         <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">22</span><span class="p">,</span> <span class="mi">14</span><span class="p">))</span>
-        <span class="n">tlist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">em</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">tlist</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">em</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="n">doping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">doping</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">doping</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span> <span class="k">else</span> <span class="n">doping</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">dt</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">]):</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">121</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span>
@@ -3201,7 +3215,7 @@
         <span class="k">elif</span> <span class="n">output</span> <span class="o">==</span> <span class="s1">&#39;eigs&#39;</span><span class="p">:</span>
             <span class="n">sbk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">get_seebeck</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s1">&#39;eigs&#39;</span><span class="p">)</span>
 
-        <span class="n">tlist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">sbk</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="k">if</span> <span class="n">temps</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span> <span class="k">else</span> <span class="n">temps</span>
+        <span class="n">tlist</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">sbk</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="k">if</span> <span class="n">temps</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span> <span class="k">else</span> <span class="n">temps</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">22</span><span class="p">,</span> <span class="mi">14</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">dt</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">]):</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">121</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span>
@@ -3254,7 +3268,7 @@
             <span class="n">cond</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">relaxation_time</span><span class="o">=</span><span class="n">relaxation_time</span><span class="p">,</span>
                                              <span class="n">output</span><span class="o">=</span><span class="s1">&#39;eigs&#39;</span><span class="p">)</span>
 
-        <span class="n">tlist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">cond</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="k">if</span> <span class="n">temps</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span> <span class="k">else</span> <span class="n">temps</span>
+        <span class="n">tlist</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cond</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="k">if</span> <span class="n">temps</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span> <span class="k">else</span> <span class="n">temps</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">22</span><span class="p">,</span> <span class="mi">14</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">dt</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">]):</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">121</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span>
@@ -3306,7 +3320,7 @@
             <span class="n">pf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">get_power_factor</span><span class="p">(</span><span class="n">relaxation_time</span><span class="o">=</span><span class="n">relaxation_time</span><span class="p">,</span>
                                            <span class="n">output</span><span class="o">=</span><span class="s1">&#39;eigs&#39;</span><span class="p">)</span>
 
-        <span class="n">tlist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">pf</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="k">if</span> <span class="n">temps</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span> <span class="k">else</span> <span class="n">temps</span>
+        <span class="n">tlist</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">pf</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="k">if</span> <span class="n">temps</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span> <span class="k">else</span> <span class="n">temps</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">22</span><span class="p">,</span> <span class="mi">14</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">dt</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">]):</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">121</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span>
@@ -3357,7 +3371,7 @@
         <span class="k">elif</span> <span class="n">output</span> <span class="o">==</span> <span class="s1">&#39;eigs&#39;</span><span class="p">:</span>
             <span class="n">zt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">get_zt</span><span class="p">(</span><span class="n">relaxation_time</span><span class="o">=</span><span class="n">relaxation_time</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s1">&#39;eigs&#39;</span><span class="p">)</span>
 
-        <span class="n">tlist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">zt</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="k">if</span> <span class="n">temps</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span> <span class="k">else</span> <span class="n">temps</span>
+        <span class="n">tlist</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">zt</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="k">if</span> <span class="n">temps</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span> <span class="k">else</span> <span class="n">temps</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">22</span><span class="p">,</span> <span class="mi">14</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">dt</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">]):</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">121</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span>
@@ -3408,7 +3422,7 @@
         <span class="k">elif</span> <span class="n">output</span> <span class="o">==</span> <span class="s1">&#39;eigs&#39;</span><span class="p">:</span>
             <span class="n">em</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">get_average_eff_mass</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s1">&#39;eigs&#39;</span><span class="p">)</span>
 
-        <span class="n">tlist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">em</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="k">if</span> <span class="n">temps</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span> <span class="k">else</span> <span class="n">temps</span>
+        <span class="n">tlist</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">em</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="k">if</span> <span class="n">temps</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span> <span class="k">else</span> <span class="n">temps</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">22</span><span class="p">,</span> <span class="mi">14</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">dt</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">]):</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">121</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span>
@@ -3463,7 +3477,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">mu_steps</span><span class="p">,</span>
-                     <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">carrier_conc</span><span class="p">[</span><span class="n">temp</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">vol</span> <span class="o">*</span> <span class="mf">1e-24</span><span class="p">)),</span>
+                     <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">_carrier_conc</span><span class="p">[</span><span class="n">temp</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">vol</span> <span class="o">*</span> <span class="mf">1e-24</span><span class="p">)),</span>
                      <span class="n">linewidth</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_plot_bg_limits</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_plot_doping</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
@@ -3502,7 +3516,7 @@
         <span class="k">return</span> <span class="n">plt</span></div></div>
 
 
-<div class="viewcode-block" id="CohpPlotter"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.CohpPlotter">[docs]</a><span class="k">class</span> <span class="nc">CohpPlotter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="CohpPlotter"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.CohpPlotter">[docs]</a><span class="k">class</span> <span class="nc">CohpPlotter</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class for plotting crystal orbital Hamilton populations (COHPs) or</span>
 <span class="sd">    crystal orbital overlap populations (COOPs). It is modeled after the</span>
@@ -3561,7 +3575,7 @@
 <span class="sd">        will be the smeared and not the original populations.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            Dict of COHP data of the form {label: {&quot;efermi&quot;: efermi,</span>
+<span class="sd">            dict: Dict of COHP data of the form {label: {&quot;efermi&quot;: efermi,</span>
 <span class="sd">            &quot;energies&quot;: ..., &quot;COHP&quot;: {Spin.up: ...}, &quot;ICOHP&quot;: ...}}.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">jsanitize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cohps</span><span class="p">)</span></div>
@@ -3588,7 +3602,8 @@
 <span class="sd">            invert_axes: Put the energies onto the y-axis, which is</span>
 <span class="sd">                common in chemistry.</span>
 
-<span class="sd">        Returns: a matplotlib object.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            A matplotlib object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">are_coops</span><span class="p">:</span>
             <span class="n">cohp_label</span> <span class="o">=</span> <span class="s2">&quot;COOP&quot;</span>
@@ -3803,7 +3818,7 @@
                                 <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">bz</span><span class="p">[</span><span class="n">jface</span><span class="p">]):</span>
                         <span class="n">mlab</span><span class="o">.</span><span class="n">plot3d</span><span class="p">(</span><span class="o">*</span><span class="nb">zip</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
                                     <span class="n">tube_radius</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">figure</span><span class="o">=</span><span class="n">fig</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">coords</span> <span class="ow">in</span> <span class="n">kpoints_dict</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">coords</span> <span class="ow">in</span> <span class="n">kpoints_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">label_coords</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">reciprocal_lattice</span> \
                 <span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
             <span class="n">mlab</span><span class="o">.</span><span class="n">points3d</span><span class="p">(</span><span class="o">*</span><span class="n">label_coords</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="n">points_scale_factor</span><span class="p">,</span>
@@ -3825,7 +3840,7 @@
                             <span class="n">mlab</span><span class="o">.</span><span class="n">plot3d</span><span class="p">(</span><span class="o">*</span><span class="nb">zip</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
                                         <span class="n">tube_radius</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">figure</span><span class="o">=</span><span class="n">fig</span><span class="p">)</span>
 
-            <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">coords</span> <span class="ow">in</span> <span class="n">kpoints_dict</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">coords</span> <span class="ow">in</span> <span class="n">kpoints_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="n">label_coords</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">reciprocal_lattice</span> \
                     <span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
                 <span class="n">mlab</span><span class="o">.</span><span class="n">points3d</span><span class="p">(</span><span class="o">*</span><span class="n">label_coords</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="n">points_scale_factor</span><span class="p">,</span>
@@ -3848,7 +3863,8 @@
 
         <span class="n">polydata</span><span class="o">.</span><span class="n">points</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">polydata</span><span class="o">.</span><span class="n">points</span><span class="p">)</span> <span class="o">-</span> <span class="p">[</span><span class="n">cx</span><span class="p">,</span> <span class="n">cy</span><span class="p">,</span> <span class="n">cz</span><span class="p">])</span> <span class="o">*</span> <span class="mi">2</span>
 
-        <span class="n">mlab</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">distance</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span>
+        <span class="c1">#mlab.view(distance=&#39;auto&#39;)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">isometric_view</span><span class="p">()</span> 
     <span class="k">if</span> <span class="n">interative</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
         <span class="n">mlab</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
@@ -4150,7 +4166,7 @@
     <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim3d</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_zlim3d</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
+    <span class="c1"># ax.set_aspect(&#39;equal&#39;)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">fig</span></div>
@@ -4229,6 +4245,8 @@
                         <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
 
     <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
+
+
 </pre></div>
 
           </div>
@@ -4237,13 +4255,13 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -4259,7 +4277,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -4267,7 +4285,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

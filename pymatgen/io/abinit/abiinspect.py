@@ -5,15 +5,13 @@
 This module provides objects to inspect the status of the Abinit tasks at run-time.
 by extracting information from the main output file (text format).
 """
-from __future__ import unicode_literals, division, print_function
 
 import os
-import collections
 import numpy as np
 import ruamel.yaml as yaml
-import six
 
-#from six.moves import map, zip
+from collections.abc import Mapping, Iterable, Iterator
+from collections import OrderedDict
 from tabulate import tabulate
 from monty.functools import lazy_property
 from monty.collections import AttrDict
@@ -51,7 +49,7 @@ def _magic_parser(stream, magic):
 
         if line.startswith(magic):
             keys = line.split()
-            fields = collections.OrderedDict((k, []) for k in keys)
+            fields = OrderedDict((k, []) for k in keys)
 
         if fields is not None:
             #print(line)
@@ -69,7 +67,7 @@ def _magic_parser(stream, magic):
 
     # Convert values to numpy arrays.
     if fields:
-        return collections.OrderedDict([(k, np.array(v)) for k, v in fields.items()])
+        return OrderedDict([(k, np.array(v)) for k, v in fields.items()])
     else:
         return None
 
@@ -109,7 +107,7 @@ _VARS_WITH_YRANGE = {
     "deltaE(Ha)": (-1e-3, +1e-3),
 }
 
-class ScfCycle(collections.Mapping):
+class ScfCycle(Mapping):
     """
     It essentially consists of a dictionary mapping string
     to list of floats containing the data at the different iterations.
@@ -255,7 +253,7 @@ class PhononScfCycle(D2DEScfCycle):
     """Iterations of the DFPT SCF cycle for phonons."""
 
 
-class CyclesPlotter(object):
+class CyclesPlotter:
     """Relies on the plot method of cycle objects to build multiple subfigures."""
 
     def __init__(self):
@@ -296,7 +294,7 @@ class CyclesPlotter(object):
             cycle.plot(title=label, tight_layout=True)
 
 
-class Relaxation(collections.Iterable):
+class Relaxation(Iterable):
     """
     A list of :class:`GroundStateScfCycle` objects.
 
@@ -363,7 +361,7 @@ class Relaxation(collections.Iterable):
         Ordered Dictionary of lists with the evolution of
         the data as function of the relaxation step.
         """
-        history = collections.OrderedDict()
+        history = OrderedDict()
         for cycle in self:
             d = cycle.last_iteration
             for k, v in d.items():
@@ -452,7 +450,7 @@ class Relaxation(collections.Iterable):
         return fig
 
 # TODO
-#class HaydockIterations(collections.Iterable):
+#class HaydockIterations(Iterable):
 #    """This object collects info on the different steps of the Haydock technique used in the Bethe-Salpeter code"""
 #    @classmethod
 #    def from_file(cls, filepath):
@@ -505,7 +503,7 @@ class YamlTokenizerError(Exception):
     """Exceptions raised by :class:`YamlTokenizer`."""
 
 
-class YamlTokenizer(collections.Iterator):
+class YamlTokenizer(Iterator):
     """
     Provides context-manager support so you can use it in a with statement.
     """
@@ -631,7 +629,7 @@ class YamlTokenizer(collections.Iterator):
         """
         while True:
             try:
-                doc = six.advance_iterator(self)
+                doc = next(self)
                 if doc.tag == doc_tag:
                     return doc
 
@@ -675,7 +673,7 @@ def yaml_read_irred_perts(filename, doc_tag="!IrredPerts"):
         #return d["irred_perts"]
 
 
-class YamlDoc(object):
+class YamlDoc:
     """
     Handy object that stores that YAML document, its main tag and the
     position inside the file.

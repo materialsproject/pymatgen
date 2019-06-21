@@ -1,7 +1,7 @@
-pymatgen\.vis\.plotters module
-==============================
+pymatgen.vis.plotters module
+============================
 
 .. automodule:: pymatgen.vis.plotters
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,7 +1,7 @@
-pymatgen\.analysis\.graphs module
-=================================
+pymatgen.analysis.graphs module
+===============================
 
 .. automodule:: pymatgen.analysis.graphs
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

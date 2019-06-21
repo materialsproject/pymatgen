@@ -1,7 +1,7 @@
-pymatgen\.apps\.borg\.hive module
-=================================
+pymatgen.apps.borg.hive module
+==============================
 
 .. automodule:: pymatgen.apps.borg.hive
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,7 +1,7 @@
-pymatgen\.io\.abinit\.helpers module
-====================================
+pymatgen.io.abinit.helpers module
+=================================
 
 .. automodule:: pymatgen.io.abinit.helpers
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

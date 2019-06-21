@@ -1,7 +1,7 @@
-pymatgen\.io\.atat module
-=========================
+pymatgen.io.atat module
+=======================
 
 .. automodule:: pymatgen.io.atat
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

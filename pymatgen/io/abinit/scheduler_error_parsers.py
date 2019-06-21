@@ -2,11 +2,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals, division, print_function
 import re
 import abc
-import six
-
 from abc import ABCMeta, abstractmethod
 
 """
@@ -24,8 +21,7 @@ __all_errors__ = ['SubmitError', 'FullQueueError', 'DiskError', 'TimeCancelError
                   'NodeFailureError']
 
 
-@six.add_metaclass(ABCMeta)
-class CorrectorProtocolScheduler(object):
+class CorrectorProtocolScheduler(metaclass=ABCMeta):
     """
     Abstract class to define the protocol / interface for correction operators. The client code quadapters / submission
     script generator method / ... should implement these methods.
@@ -75,8 +71,7 @@ class CorrectorProtocolScheduler(object):
         """
 
 
-@six.add_metaclass(ABCMeta)
-class CorrectorProtocolApplication(object):
+class CorrectorProtocolApplication(metaclass=ABCMeta):
     """
     Abstract class to define the protocol / interface for correction operators. The client code quadapters / submission
     script generator method / ... should implement these methods.
@@ -105,8 +100,7 @@ class CorrectorProtocolApplication(object):
         """
 
 
-@six.add_metaclass(ABCMeta)
-class AbstractError(object):
+class AbstractError(metaclass=ABCMeta):
     """
     Error base class
     """
@@ -234,8 +228,7 @@ class NodeFailureError(AbstractError):
         return [(CorrectorProtocolScheduler.exclude_nodes, [self.nodes])]
 
 
-@six.add_metaclass(ABCMeta)
-class AbstractErrorParser(object):
+class AbstractErrorParser(metaclass=ABCMeta):
     """
     Abstract class for parsing errors originating from the scheduler system and error that are not reported by the
     program itself, i.e. segmentation faults.

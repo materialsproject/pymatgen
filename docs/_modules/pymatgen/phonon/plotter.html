@@ -1,27 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.phonon.plotter &#8212; pymatgen 2018.1.29 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.phonon.plotter &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../',
-        VERSION:     '2018.1.29',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -32,8 +23,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -43,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -59,7 +49,6 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">namedtuple</span>
 
@@ -90,8 +79,8 @@
          <span class="s2">&quot;ev&quot;</span><span class="p">:</span> <span class="n">FreqUnits</span><span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s2">&quot;hertz-electron volt relationship&quot;</span><span class="p">)</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">tera</span><span class="p">,</span> <span class="s2">&quot;eV&quot;</span><span class="p">),</span>
          <span class="s2">&quot;mev&quot;</span><span class="p">:</span> <span class="n">FreqUnits</span><span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s2">&quot;hertz-electron volt relationship&quot;</span><span class="p">)</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">tera</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">milli</span><span class="p">,</span> <span class="s2">&quot;meV&quot;</span><span class="p">),</span>
          <span class="s2">&quot;ha&quot;</span><span class="p">:</span> <span class="n">FreqUnits</span><span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s2">&quot;hertz-hartree relationship&quot;</span><span class="p">)</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">tera</span><span class="p">,</span> <span class="s2">&quot;Ha&quot;</span><span class="p">),</span>
-         <span class="s2">&quot;cm-1&quot;</span><span class="p">:</span> <span class="n">FreqUnits</span><span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s2">&quot;hertz-inverse meter relationship&quot;</span><span class="p">)</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">tera</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">centi</span><span class="p">,</span> <span class="s2">&quot;cm$^{-1}$&quot;</span><span class="p">),</span>
-         <span class="s1">&#39;cm^-1&#39;</span><span class="p">:</span> <span class="n">FreqUnits</span><span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s2">&quot;hertz-inverse meter relationship&quot;</span><span class="p">)</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">tera</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">centi</span><span class="p">,</span> <span class="s2">&quot;cm$^{-1}$&quot;</span><span class="p">)</span>
+         <span class="s2">&quot;cm-1&quot;</span><span class="p">:</span> <span class="n">FreqUnits</span><span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s2">&quot;hertz-inverse meter relationship&quot;</span><span class="p">)</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">tera</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">centi</span><span class="p">,</span> <span class="s2">&quot;cm^{-1}&quot;</span><span class="p">),</span>
+         <span class="s1">&#39;cm^-1&#39;</span><span class="p">:</span> <span class="n">FreqUnits</span><span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s2">&quot;hertz-inverse meter relationship&quot;</span><span class="p">)</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">tera</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">centi</span><span class="p">,</span> <span class="s2">&quot;cm^{-1}&quot;</span><span class="p">)</span>
          <span class="p">}</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">d</span><span class="p">[</span><span class="n">units</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span>
@@ -99,7 +88,7 @@
         <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">&#39;Value for units `</span><span class="si">{}</span><span class="s1">` unknown</span><span class="se">\n</span><span class="s1">Possible values are:</span><span class="se">\n</span><span class="s1"> </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span></div>
 
 
-<div class="viewcode-block" id="PhononDosPlotter"><a class="viewcode-back" href="../../../pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononDosPlotter">[docs]</a><span class="k">class</span> <span class="nc">PhononDosPlotter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="PhononDosPlotter"><a class="viewcode-back" href="../../../pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononDosPlotter">[docs]</a><span class="k">class</span> <span class="nc">PhononDosPlotter</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class for plotting phonon DOSs. Note that the interface is extremely flexible</span>
 <span class="sd">    given that there are many different ways in which people want to view</span>
@@ -222,7 +211,7 @@
                 <span class="n">plt</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span> <span class="n">densities</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="n">ncolors</span><span class="p">],</span>
                          <span class="n">label</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">ppl</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span> <span class="n">densities</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="n">ncolors</span><span class="p">],</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span> <span class="n">densities</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="n">ncolors</span><span class="p">],</span>
                          <span class="n">label</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">xlim</span><span class="p">:</span>
@@ -238,8 +227,8 @@
         <span class="n">ylim</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">()</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">ylim</span><span class="p">,</span> <span class="s1">&#39;k--&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
-        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Frequencies (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">label</span><span class="p">))</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Density of states&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\mathrm{{Frequencies\ (</span><span class="si">{}</span><span class="s1">)}}$&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">label</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\mathrm{Density\ of\ states}$&#39;</span><span class="p">)</span>
 
         <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
         <span class="n">leg</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">get_legend</span><span class="p">()</span>
@@ -277,7 +266,7 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div></div>
 
 
-<div class="viewcode-block" id="PhononBSPlotter"><a class="viewcode-back" href="../../../pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononBSPlotter">[docs]</a><span class="k">class</span> <span class="nc">PhononBSPlotter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="PhononBSPlotter"><a class="viewcode-back" href="../../../pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononBSPlotter">[docs]</a><span class="k">class</span> <span class="nc">PhononBSPlotter</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class to plot or get data to facilitate the plot of band structure objects.</span>
 
@@ -407,7 +396,7 @@
 
         <span class="c1"># Main X and Y Labels</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\mathrm{Wave\ Vector}$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
-        <span class="n">ylabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;Frequency (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
+        <span class="n">ylabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$\mathrm{{Frequencies\ (</span><span class="si">{}</span><span class="s1">)}}$&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">ylabel</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
 
         <span class="c1"># X range (K)</span>
@@ -538,7 +527,7 @@
         <span class="n">plot_brillouin_zone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">lattice_rec</span><span class="p">,</span> <span class="n">lines</span><span class="o">=</span><span class="n">lines</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="ThermoPlotter"><a class="viewcode-back" href="../../../pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.ThermoPlotter">[docs]</a><span class="k">class</span> <span class="nc">ThermoPlotter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="ThermoPlotter"><a class="viewcode-back" href="../../../pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.ThermoPlotter">[docs]</a><span class="k">class</span> <span class="nc">ThermoPlotter</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plotter for thermodynamic properties obtained from phonon DOS.</span>
 <span class="sd">    If the structure corresponding to the DOS, it will be used to extract the forumla unit and provide</span>
@@ -662,9 +651,9 @@
         <span class="n">temperatures</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">tmin</span><span class="p">,</span> <span class="n">tmax</span><span class="p">,</span> <span class="n">ntemp</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">:</span>
-            <span class="n">ylabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\Delta E$ (kJ/K/mol)&quot;</span>
+            <span class="n">ylabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\Delta E$ (kJ/mol)&quot;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">ylabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\Delta E$ (kJ/K/mol-c)&quot;</span>
+            <span class="n">ylabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\Delta E$ (kJ/mol-c)&quot;</span>
 
         <span class="n">fig</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plot_thermo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dos</span><span class="o">.</span><span class="n">internal_energy</span><span class="p">,</span> <span class="n">temperatures</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="n">ylabel</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="n">ylim</span><span class="p">,</span>
                                 <span class="n">factor</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -688,9 +677,9 @@
         <span class="n">temperatures</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">tmin</span><span class="p">,</span> <span class="n">tmax</span><span class="p">,</span> <span class="n">ntemp</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">:</span>
-            <span class="n">ylabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\Delta F$ (kJ/K/mol)&quot;</span>
+            <span class="n">ylabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\Delta F$ (kJ/mol)&quot;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">ylabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\Delta F$ (kJ/K/mol-c)&quot;</span>
+            <span class="n">ylabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\Delta F$ (kJ/mol-c)&quot;</span>
 
         <span class="n">fig</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plot_thermo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dos</span><span class="o">.</span><span class="n">helmholtz_free_energy</span><span class="p">,</span> <span class="n">temperatures</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="n">ylabel</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="n">ylim</span><span class="p">,</span>
                                 <span class="n">factor</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -735,13 +724,13 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -757,7 +746,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -765,7 +754,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

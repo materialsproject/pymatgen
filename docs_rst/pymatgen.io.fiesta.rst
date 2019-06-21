@@ -1,7 +1,7 @@
-pymatgen\.io\.fiesta module
-===========================
+pymatgen.io.fiesta module
+=========================
 
 .. automodule:: pymatgen.io.fiesta
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,5 +1,5 @@
-pymatgen\.entries package
-=========================
+pymatgen.entries package
+========================
 
 Subpackages
 -----------
@@ -22,6 +22,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.entries
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

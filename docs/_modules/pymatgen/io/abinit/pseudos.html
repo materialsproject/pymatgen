@@ -1,27 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.pseudos &#8212; pymatgen 2018.1.29 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.io.abinit.pseudos &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../../',
-        VERSION:     '2018.1.29',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -32,8 +23,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -43,7 +33,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -62,7 +52,6 @@
 <span class="sd">This module provides objects describing the basic parameters of the</span>
 <span class="sd">pseudopotentials used in Abinit, and a parser to instantiate pseudopotential objects..</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span>
 
 <span class="kn">import</span> <span class="nn">abc</span>
 <span class="kn">import</span> <span class="nn">collections</span>
@@ -71,8 +60,6 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">six</span>
-
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">defaultdict</span><span class="p">,</span> <span class="n">namedtuple</span>
 <span class="kn">from</span> <span class="nn">monty.collections</span> <span class="k">import</span> <span class="n">AttrDict</span><span class="p">,</span> <span class="n">Namespace</span>
 <span class="kn">from</span> <span class="nn">tabulate</span> <span class="k">import</span> <span class="n">tabulate</span>
@@ -149,7 +136,7 @@
     <span class="k">return</span> <span class="n">_str2l</span><span class="p">[</span><span class="n">s</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="Pseudo"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo">[docs]</a><span class="k">class</span> <span class="nc">Pseudo</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">with_metaclass</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">,</span> <span class="nb">object</span><span class="p">)):</span>
+<div class="viewcode-block" id="Pseudo"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo">[docs]</a><span class="k">class</span> <span class="nc">Pseudo</span><span class="p">(</span><span class="n">MSONable</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Abstract base class defining the methods that must be</span>
 <span class="sd">    implemented by the concrete pseudopotential sub-classes.</span>
@@ -439,7 +426,7 @@
             <span class="k">return</span> <span class="kc">None</span></div></div>
 
 
-<span class="k">class</span> <span class="nc">NcPseudo</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">with_metaclass</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">,</span> <span class="nb">object</span><span class="p">)):</span>
+<span class="k">class</span> <span class="nc">NcPseudo</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Abstract class defining the methods that must be implemented</span>
 <span class="sd">    by the concrete classes representing norm-conserving pseudopotentials.</span>
@@ -467,7 +454,7 @@
             <span class="k">return</span> <span class="kc">None</span>
 
 
-<span class="k">class</span> <span class="nc">PawPseudo</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">with_metaclass</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">,</span> <span class="nb">object</span><span class="p">)):</span>
+<span class="k">class</span> <span class="nc">PawPseudo</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Abstract class that defines the methods that must be implemented</span>
 <span class="sd">    by the concrete classes representing PAW pseudopotentials.</span>
@@ -598,7 +585,7 @@
         <span class="k">return</span> <span class="kc">True</span>
 
 
-<span class="k">class</span> <span class="nc">Hint</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Hint</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Suggested value for the cutoff energy [Hartree units]</span>
 <span class="sd">    and the cutoff energy for the dense grid (only for PAW pseudos).</span>
@@ -641,7 +628,7 @@
     <span class="k">if</span> <span class="n">is_string</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
         <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">lines</span><span class="p">]</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key_nums</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key_nums</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Iterable</span><span class="p">):</span>
         <span class="n">key_nums</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">key_nums</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">key_nums</span><span class="p">):</span>
@@ -667,7 +654,7 @@
             <span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">):</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;line: </span><span class="si">%s</span><span class="se">\n</span><span class="s2"> len(keys) != len(value)</span><span class="se">\n</span><span class="s2">keys: </span><span class="si">%s</span><span class="se">\n</span><span class="s2"> values:  </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;line: </span><span class="si">%s</span><span class="se">\n</span><span class="s2"> len(keys) != len(value)</span><span class="se">\n</span><span class="s2">keys: </span><span class="si">%s</span><span class="se">\n</span><span class="s2"> values: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
         <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">values</span><span class="p">))</span>
@@ -680,7 +667,7 @@
     <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="c1"># Default behaviour</span>
-            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">AbinitHeader</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="c1"># Try in the dictionary.</span>
@@ -730,7 +717,7 @@
     <span class="k">del</span> <span class="n">_attr_desc</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">NcAbinitHeader</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
         <span class="c1"># pseudos generated by APE use llocal instead of lloc.</span>
         <span class="k">if</span> <span class="s2">&quot;llocal&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
@@ -928,7 +915,7 @@
     <span class="k">del</span> <span class="n">_attr_desc</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">PawAbinitHeader</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">summary</span> <span class="o">=</span> <span class="n">summary</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
 
@@ -1038,7 +1025,7 @@
     <span class="sd">&quot;&quot;&quot;Base Error class for the exceptions raised by :class:`PseudoParser`&quot;&quot;&quot;</span>
 
 
-<span class="k">class</span> <span class="nc">PseudoParser</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">PseudoParser</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Responsible for parsing pseudopotential files and returning pseudopotential objects.</span>
 
@@ -1268,7 +1255,7 @@
         <span class="c1"># In this way, we know that only the first two bound states (with f and n attributes)</span>
         <span class="c1"># should be used for constructing an initial guess for the wave functions.</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">valence_states</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">valence_states</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;valence_states&quot;</span><span class="p">):</span>
             <span class="n">attrib</span> <span class="o">=</span> <span class="n">AttrDict</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">attrib</span><span class="p">)</span>
             <span class="k">assert</span> <span class="n">attrib</span><span class="o">.</span><span class="n">id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">valence_states</span>
@@ -1292,15 +1279,11 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;_root&quot;</span><span class="p">]}</span>
 
-    <span class="nd">@property</span>
+    <span class="nd">@lazy_property</span>
     <span class="k">def</span> <span class="nf">root</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span>
-        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="kn">from</span> <span class="nn">xml.etree</span> <span class="k">import</span> <span class="n">cElementTree</span> <span class="k">as</span> <span class="n">Et</span>
-            <span class="n">tree</span> <span class="o">=</span> <span class="n">Et</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_root</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span>
+        <span class="kn">from</span> <span class="nn">xml.etree</span> <span class="k">import</span> <span class="n">cElementTree</span> <span class="k">as</span> <span class="n">Et</span>
+        <span class="n">tree</span> <span class="o">=</span> <span class="n">Et</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">Z</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1389,72 +1372,59 @@
 
             <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">rad_grids</span><span class="p">[</span><span class="n">grid</span><span class="p">],</span> <span class="n">values</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">attrib</span>
 
-    <span class="nd">@property</span>
+    <span class="nd">@lazy_property</span>
     <span class="k">def</span> <span class="nf">ae_core_density</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The all-electron radial density.&quot;&quot;&quot;</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ae_core_density</span>
+        <span class="n">mesh</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">attrib</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_radfunc</span><span class="p">(</span><span class="s2">&quot;ae_core_density&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">RadialFunction</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
 
-        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="n">mesh</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">attrib</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_radfunc</span><span class="p">(</span><span class="s2">&quot;ae_core_density&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_ae_core_density</span> <span class="o">=</span> <span class="n">RadialFunction</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ae_core_density</span>
-
-    <span class="nd">@property</span>
+    <span class="nd">@lazy_property</span>
     <span class="k">def</span> <span class="nf">pseudo_core_density</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The pseudized radial density.&quot;&quot;&quot;</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pseudo_core_density</span>
+        <span class="n">mesh</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">attrib</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_radfunc</span><span class="p">(</span><span class="s2">&quot;pseudo_core_density&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">RadialFunction</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
 
-        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="n">mesh</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">attrib</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_radfunc</span><span class="p">(</span><span class="s2">&quot;pseudo_core_density&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_pseudo_core_density</span> <span class="o">=</span> <span class="n">RadialFunction</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pseudo_core_density</span>
-
-    <span class="nd">@property</span>
+    <span class="nd">@lazy_property</span>
     <span class="k">def</span> <span class="nf">ae_partial_waves</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Dictionary with the AE partial waves indexed by state.&quot;&quot;&quot;</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ae_partial_waves</span>
+        <span class="n">ae_partial_waves</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">attrib</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_all_radfuncs</span><span class="p">(</span><span class="s2">&quot;ae_partial_wave&quot;</span><span class="p">):</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span>
+            <span class="c1">#val_state = self.valence_states[state]</span>
+            <span class="n">ae_partial_waves</span><span class="p">[</span><span class="n">state</span><span class="p">]</span> <span class="o">=</span> <span class="n">RadialFunction</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
 
-        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_ae_partial_waves</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="k">for</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">attrib</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_all_radfuncs</span><span class="p">(</span><span class="s2">&quot;ae_partial_wave&quot;</span><span class="p">):</span>
-                <span class="n">state</span> <span class="o">=</span> <span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span>
-                <span class="c1">#val_state = self.valence_states[state]</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_ae_partial_waves</span><span class="p">[</span><span class="n">state</span><span class="p">]</span> <span class="o">=</span> <span class="n">RadialFunction</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
-
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ae_partial_waves</span>
+        <span class="k">return</span> <span class="n">ae_partial_waves</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">pseudo_partial_waves</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Dictionary with the pseudo partial waves indexed by state.&quot;&quot;&quot;</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pseudo_partial_waves</span>
+        <span class="n">pseudo_partial_waves</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">attrib</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_all_radfuncs</span><span class="p">(</span><span class="s2">&quot;pseudo_partial_wave&quot;</span><span class="p">):</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span>
+            <span class="c1">#val_state = self.valence_states[state]</span>
+            <span class="n">pseudo_partial_waves</span><span class="p">[</span><span class="n">state</span><span class="p">]</span> <span class="o">=</span> <span class="n">RadialFunction</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
 
-        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_pseudo_partial_waves</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="k">for</span> <span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">attrib</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_all_radfuncs</span><span class="p">(</span><span class="s2">&quot;pseudo_partial_wave&quot;</span><span class="p">):</span>
-                <span class="n">state</span> <span class="o">=</span> <span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span>
-                <span class="c1">#val_state = self.valence_states[state]</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_pseudo_partial_waves</span><span class="p">[</span><span class="n">state</span><span class="p">]</span> <span class="o">=</span> <span class="n">RadialFunction</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pseudo_partial_waves</span>
 
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pseudo_partial_waves</span>
-
-    <span class="nd">@property</span>
+    <span class="nd">@lazy_property</span>
     <span class="k">def</span> <span class="nf">projector_functions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Dictionary with the PAW projectors indexed by state.&quot;&quot;&quot;</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_projector_functions</span>
+        <span class="n">projector_functions</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">attrib</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_all_radfuncs</span><span class="p">(</span><span class="s2">&quot;projector_function&quot;</span><span class="p">):</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span>
+            <span class="c1">#val_state = self.valence_states[state]</span>
+            <span class="n">projector_functions</span><span class="p">[</span><span class="n">state</span><span class="p">]</span> <span class="o">=</span> <span class="n">RadialFunction</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
 
-        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_projector_functions</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="k">for</span> <span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">attrib</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_all_radfuncs</span><span class="p">(</span><span class="s2">&quot;projector_function&quot;</span><span class="p">):</span>
-                <span class="n">state</span> <span class="o">=</span> <span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span>
-                <span class="c1">#val_state = self.valence_states[state]</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_projector_functions</span><span class="p">[</span><span class="n">state</span><span class="p">]</span> <span class="o">=</span> <span class="n">RadialFunction</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">projector_functions</span>
 
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_projector_functions</span>
+    <span class="k">def</span> <span class="nf">yield_figs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function *generates* a predefined list of matplotlib figures with minimal input from the user.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_densities</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;PAW densities&quot;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_waves</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;PAW waves&quot;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_projectors</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;PAW projectors&quot;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1">#yield self.plot_potentials(title=&quot;potentials&quot;, show=False)</span>
 
     <span class="nd">@add_fig_kwargs</span>
     <span class="k">def</span> <span class="nf">plot_densities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -1475,7 +1445,7 @@
 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">den_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="s2">&quot;ae_core_density&quot;</span><span class="p">,</span> <span class="s2">&quot;pseudo_core_density&quot;</span><span class="p">]):</span>
             <span class="n">rden</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">den_name</span><span class="p">)</span>
-            <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;$n_c$&quot;</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">tilde</span><span class="si">{n}</span><span class="s2">_c$&quot;</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;$n_c$&quot;</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="sa">r</span><span class="s2">&quot;$\tilde</span><span class="si">{n}</span><span class="s2">_c$&quot;</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rden</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="n">rden</span><span class="o">.</span><span class="n">mesh</span> <span class="o">*</span> <span class="n">rden</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
         <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;best&quot;</span><span class="p">)</span>
@@ -1483,23 +1453,23 @@
         <span class="k">return</span> <span class="n">fig</span>
 
     <span class="nd">@add_fig_kwargs</span>
-    <span class="k">def</span> <span class="nf">plot_waves</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">plot_waves</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot the AE and the pseudo partial waves.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            ax: matplotlib :class:`Axes` or None if a new figure should be created.</span>
+<span class="sd">            fontsize: fontsize for legends and titles</span>
 
-<span class="sd">        Returns:</span>
-<span class="sd">            `matplotlib` figure</span>
+<span class="sd">        Returns: `matplotlib` figure</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ax</span><span class="p">,</span> <span class="n">fig</span><span class="p">,</span> <span class="n">plt</span> <span class="o">=</span> <span class="n">get_ax_fig_plt</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
 
         <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;r [Bohr]&quot;</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;$r</span><span class="se">\\</span><span class="s2">phi,</span><span class="se">\\</span><span class="s2">, r</span><span class="se">\\</span><span class="s2">tilde</span><span class="se">\\</span><span class="s2">phi</span><span class="se">\\</span><span class="s2">, [Bohr]^{-</span><span class="se">\\</span><span class="s2">frac</span><span class="si">{1}{2}</span><span class="s2">}$&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$r\phi,\, r\tilde\phi\, [Bohr]^{-\frac</span><span class="si">{1}{2}</span><span class="s2">}$&quot;</span><span class="p">)</span>
 
-        <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">paw_radius</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+        <span class="c1">#ax.axvline(x=self.paw_radius, linewidth=2, color=&#39;k&#39;, linestyle=&quot;--&quot;)</span>
         <span class="c1">#ax.annotate(&quot;$r_c$&quot;, xy=(self.paw_radius + 0.1, 0.1))</span>
 
         <span class="k">for</span> <span class="n">state</span><span class="p">,</span> <span class="n">rfunc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pseudo_partial_waves</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -1508,33 +1478,33 @@
         <span class="k">for</span> <span class="n">state</span><span class="p">,</span> <span class="n">rfunc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae_partial_waves</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rfunc</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="n">rfunc</span><span class="o">.</span><span class="n">mesh</span> <span class="o">*</span> <span class="n">rfunc</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;AE-WAVE: &quot;</span> <span class="o">+</span> <span class="n">state</span><span class="p">)</span>
 
-        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;best&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;best&quot;</span><span class="p">,</span> <span class="n">shadow</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">fig</span>
 
     <span class="nd">@add_fig_kwargs</span>
-    <span class="k">def</span> <span class="nf">plot_projectors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">plot_projectors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot the PAW projectors.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            ax: matplotlib :class:`Axes` or None if a new figure should be created.</span>
 
-<span class="sd">        Returns:</span>
-<span class="sd">            `matplotlib` figure</span>
+<span class="sd">        Returns: `matplotlib` figure</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ax</span><span class="p">,</span> <span class="n">fig</span><span class="p">,</span> <span class="n">plt</span> <span class="o">=</span> <span class="n">get_ax_fig_plt</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
         <span class="n">title</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="s2">&quot;Projectors&quot;</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;r [Bohr]&#39;</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;$r</span><span class="se">\\</span><span class="s2">tilde p</span><span class="se">\\</span><span class="s2">, [Bohr]^{-</span><span class="se">\\</span><span class="s2">frac</span><span class="si">{1}{2}</span><span class="s2">}$&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$r\tilde p\, [Bohr]^{-\frac</span><span class="si">{1}{2}</span><span class="s2">}$&quot;</span><span class="p">)</span>
 
-        <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">paw_radius</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+        <span class="c1">#ax.axvline(x=self.paw_radius, linewidth=2, color=&#39;k&#39;, linestyle=&quot;--&quot;)</span>
         <span class="c1">#ax.annotate(&quot;$r_c$&quot;, xy=(self.paw_radius + 0.1, 0.1))</span>
 
         <span class="k">for</span> <span class="n">state</span><span class="p">,</span> <span class="n">rfunc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">projector_functions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rfunc</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="n">rfunc</span><span class="o">.</span><span class="n">mesh</span> <span class="o">*</span> <span class="n">rfunc</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;TPROJ: &quot;</span> <span class="o">+</span> <span class="n">state</span><span class="p">)</span>
 
-        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;best&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;best&quot;</span><span class="p">,</span> <span class="n">shadow</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">fig</span>
 
@@ -1578,7 +1548,7 @@
     <span class="c1">#    return fig</span>
 
 
-<div class="viewcode-block" id="PseudoTable"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable">[docs]</a><span class="k">class</span> <span class="nc">PseudoTable</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">with_metaclass</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">,</span> <span class="nb">object</span><span class="p">)):</span>
+<div class="viewcode-block" id="PseudoTable"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable">[docs]</a><span class="k">class</span> <span class="nc">PseudoTable</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Sequence</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Define the pseudopotentials from the element table.</span>
 <span class="sd">    Individidual elements are accessed by name, symbol or atomic number.</span>
@@ -1654,7 +1624,7 @@
         <span class="c1"># Store pseudos in a default dictionary with z as key.</span>
         <span class="c1"># Note that we can have more than one pseudo for given z.</span>
         <span class="c1"># hence the values are lists of pseudos.</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pseudos</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pseudos</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Iterable</span><span class="p">):</span>
             <span class="n">pseudos</span> <span class="o">=</span> <span class="p">[</span><span class="n">pseudos</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pseudos</span><span class="p">)</span> <span class="ow">and</span> <span class="n">is_string</span><span class="p">(</span><span class="n">pseudos</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
@@ -1938,13 +1908,13 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../../../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -1960,7 +1930,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1968,7 +1938,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

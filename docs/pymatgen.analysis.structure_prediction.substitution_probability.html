@@ -1,27 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.structure_prediction.substitution_probability module &#8212; pymatgen 2018.1.29 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.structure_prediction.substitution_probability module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '2018.1.29',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -32,8 +23,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -43,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -56,70 +46,62 @@
 <span id="pymatgen-analysis-structure-prediction-substitution-probability-module"></span><h1>pymatgen.analysis.structure_prediction.substitution_probability module<a class="headerlink" href="#module-pymatgen.analysis.structure_prediction.substitution_probability" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor">
-<em class="property">class </em><code class="descname">SubstitutionPredictor</code><span class="sig-paren">(</span><em>lambda_table=None</em>, <em>alpha=-5</em>, <em>threshold=0.001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/substitution_probability.html#SubstitutionPredictor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<em class="property">class </em><code class="sig-name descname">SubstitutionPredictor</code><span class="sig-paren">(</span><em class="sig-param">lambda_table=None</em>, <em class="sig-param">alpha=-5</em>, <em class="sig-param">threshold=0.001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/substitution_probability.html#SubstitutionPredictor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Predicts likely substitutions either to or from a given composition
 or species list using the SubstitutionProbability</p>
 <dl class="method">
 <dt id="pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor.composition_prediction">
-<code class="descname">composition_prediction</code><span class="sig-paren">(</span><em>composition</em>, <em>to_this_composition=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/substitution_probability.html#SubstitutionPredictor.composition_prediction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor.composition_prediction" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">composition_prediction</code><span class="sig-paren">(</span><em class="sig-param">composition</em>, <em class="sig-param">to_this_composition=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/substitution_probability.html#SubstitutionPredictor.composition_prediction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor.composition_prediction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns charged balanced substitutions from a starting or ending
 composition.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>composition</strong> – starting or ending composition</li>
-<li><strong>to_this_composition</strong> – If true, substitutions with this as a final composition
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>composition</strong> – starting or ending composition</p></li>
+<li><p><strong>to_this_composition</strong> – If true, substitutions with this as a final composition
 will be found. If false, substitutions with this as a
 starting composition will be found (these are slightly
-different)</li>
+different)</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">List of predictions in the form of dictionaries.
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of predictions in the form of dictionaries.
 If to_this_composition is true, the values of the dictionary
 will be from the list species. If false, the keys will be
 from that list.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor.list_prediction">
-<code class="descname">list_prediction</code><span class="sig-paren">(</span><em>species</em>, <em>to_this_composition=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/substitution_probability.html#SubstitutionPredictor.list_prediction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor.list_prediction" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>species</strong> – list of species</li>
-<li><strong>to_this_composition</strong> – If true, substitutions with this as a final composition
+<code class="sig-name descname">list_prediction</code><span class="sig-paren">(</span><em class="sig-param">species</em>, <em class="sig-param">to_this_composition=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/substitution_probability.html#SubstitutionPredictor.list_prediction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor.list_prediction" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>species</strong> – list of species</p></li>
+<li><p><strong>to_this_composition</strong> – If true, substitutions with this as a final composition
 will be found. If false, substitutions with this as a
 starting composition will be found (these are slightly
-different)</li>
+different)</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">List of predictions in the form of dictionaries.
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of predictions in the form of dictionaries.
 If to_this_composition is true, the values of the dictionary
 will be from the list species. If false, the keys will be
 from that list.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionProbability">
-<em class="property">class </em><code class="descname">SubstitutionProbability</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/substitution_probability.html#SubstitutionProbability"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionProbability" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionProbability" title="pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionProbability"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionProbability</span></code></a></p>
+<em class="property">class </em><code class="sig-name descname">SubstitutionProbability</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/substitution_probability.html#SubstitutionProbability"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionProbability" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionProbability" title="pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionProbability"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionProbability</span></code></a></p>
 <p>This class finds substitution probabilities given lists of atoms
 to substitute. The inputs make more sense if you look through the
 from_defaults static method.</p>
@@ -127,19 +109,15 @@ from_defaults static method.</p>
 Hautier, G., Fischer, C., Ehrlacher, V., Jain, A., and Ceder, G. (2011)
 Data Mined Ionic Substitutions for the Discovery of New Compounds.
 Inorganic Chemistry, 50(2), 656-663. doi:10.1021/ic102031h</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>lambda_table</strong> – json table of the weight functions lambda if None,
-will use the default lambda.json table</li>
-<li><strong>alpha</strong> – weight function for never observed substitutions</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lambda_table</strong> – json table of the weight functions lambda if None,
+will use the default lambda.json table</p></li>
+<li><p><strong>alpha</strong> – weight function for never observed substitutions</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -158,13 +136,13 @@ will use the default lambda.json table</li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -180,13 +158,13 @@ will use the default lambda.json table</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

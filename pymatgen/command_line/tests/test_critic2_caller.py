@@ -2,10 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import unittest
 
-from pymatgen import Structure
+from pymatgen.core.structure import Structure
 from pymatgen.command_line.critic2_caller import *
 from monty.os.path import which
 
@@ -42,6 +41,7 @@ class Critic2CallerTest(unittest.TestCase):
 
 
 class Critic2OutputTest(unittest.TestCase):
+    _multiprocess_shared_ = True
 
     def setUp(self):
         stdout_file = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -50,7 +50,7 @@ class Critic2OutputTest(unittest.TestCase):
             reference_stdout = f.read()
 
         structure = Structure.from_file(os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                                        'test_files/critic2/MoS2.cif'))
+                                                     'test_files/critic2/MoS2.cif'))
 
         self.c2o = Critic2Output(structure, reference_stdout)
 
@@ -82,9 +82,14 @@ class Critic2OutputTest(unittest.TestCase):
                                                  'to_idx': 0, 'to_lvec': (1, 0, 0)})
         # test as/from dict
         d = self.c2o.as_dict()
-        self.assertEqual(set(d.keys()), {'@module', '@class',
-                                         'structure', 'critic2_stdout'})
+        if "@version" in set(d.keys()):
+            self.assertEqual(set(d.keys()), {'@module', '@class', '@version',
+                                             'structure', 'critic2_stdout'})
+        else:
+            self.assertEqual(set(d.keys()), {'@module', '@class',
+                                             'structure', 'critic2_stdout'})
         self.c2o.from_dict(d)
+
 
 if __name__ == '__main__':
     unittest.main()

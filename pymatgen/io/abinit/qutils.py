@@ -6,7 +6,6 @@ The preferred way of importing this module is:
 
     import qutils as qu
 """
-from __future__ import print_function, division, unicode_literals
 
 from monty.string import is_string
 from pymatgen.core.units import Time, Memory

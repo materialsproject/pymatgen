@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, print_function, unicode_literals
 from itertools import chain, combinations
 
 from pymatgen.core.periodic_table import Element
@@ -14,7 +13,7 @@ solids. Usefull for predicting PDOS character from structural information.
 '''
 
 
-class MolecularOrbitals(object):
+class MolecularOrbitals:
     '''
     Represents the character of bands in a solid. The input is a chemical
     formula, since no structural characteristics are taken into account.
@@ -36,7 +35,7 @@ class MolecularOrbitals(object):
     def __init__(self, formula):
         '''
         Args:
-            A chemical formula as a string
+            chemical formula as a string. formula must have integer subscripts
             Ex: 'SrTiO3'
 
         Attributes:
@@ -53,6 +52,10 @@ class MolecularOrbitals(object):
         '''
         self.composition = Composition(formula).as_dict()
         self.elements = self.composition.keys()
+        for subscript in self.composition.values():
+            if not float(subscript).is_integer():
+                raise ValueError('composition subscripts must be integers')
+
         self.elec_neg = self.max_electronegativity()
         self.aos = {str(el): [[str(el), k, v]
                               for k, v in Element(el).atomic_orbitals.items()]

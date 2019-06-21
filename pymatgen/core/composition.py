@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import collections
 import numbers
@@ -10,18 +9,17 @@ import string
 from itertools import combinations_with_replacement, product
 
 import os
-import six
 import re
 
 from collections import defaultdict
 
 from monty.serialization import loadfn
-from six.moves import filter, map, zip
+
 
 from functools import total_ordering
 
 from monty.fractions import gcd, gcd_float
-from pymatgen.core.periodic_table import get_el_sp, Element, Specie
+from pymatgen.core.periodic_table import get_el_sp, Element, Specie, DummySpecie
 from pymatgen.util.string import formula_double_format
 from monty.json import MSONable
 from pymatgen.core.units import unitized
@@ -42,7 +40,7 @@ __date__ = "Nov 10, 2012"
 
 
 @total_ordering
-class Composition(collections.Hashable, collections.Mapping, MSONable):
+class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
     """
     Represents a Composition, which is essentially a {element:amount} mapping
     type. Composition is written to be immutable and hashable,
@@ -99,7 +97,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
 
     oxi_prob = None  # prior probability of oxidation used by oxi_state_guesses
 
-    def __init__(self, *args, **kwargs):  # allow_negative=False
+    def __init__(self, *args, strict=False, **kwargs):  # allow_negative=False
         """
         Very flexible Composition construction, similar to the built-in Python
         dict(). Also extended to allow simple string init.
@@ -119,6 +117,8 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
             In addition, the Composition constructor also allows a single
             string as an input formula. E.g., Composition("Li2O").
 
+            strict: Only allow valid Elements and Species in the Composition.
+
             allow_negative: Whether to allow negative compositions. This
                 argument must be popped from the \\*\\*kwargs due to \\*args
                 ambiguity.
@@ -128,7 +128,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         # to pass the composition to dict()
         if len(args) == 1 and isinstance(args[0], Composition):
             elmap = args[0]
-        elif len(args) == 1 and isinstance(args[0], six.string_types):
+        elif len(args) == 1 and isinstance(args[0], str):
             elmap = self._parse_formula(args[0])
         else:
             elmap = dict(*args, **kwargs)
@@ -142,6 +142,9 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 elamt[get_el_sp(k)] = v
                 self._natoms += abs(v)
         self._data = elamt
+        if strict and not self.valid:
+            raise ValueError("Composition is not valid, contains: {}"
+                             .format(", ".join(map(str, self.elements))))
 
     def __getitem__(self, item):
         try:
@@ -311,6 +314,23 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         return " ".join(formula)
 
     @property
+    def iupac_formula(self):
+        """
+        Returns a formula string, with elements sorted by the iupac
+        electronegativity ordering defined in Table VI of "Nomenclature of
+        Inorganic Chemistry (IUPAC Recommendations 2005)". This ordering
+        effectively follows the groups and rows of the periodic table, except
+        the Lanthanides, Actanides and hydrogen. Polyanions are still determined
+        based on the true electronegativity of the elements.
+        e.g. CH2(SO4)2
+        """
+        sym_amt = self.get_el_amt_dict()
+        syms = sorted(sym_amt.keys(),
+                      key=lambda s: get_el_sp(s).iupac_ordering)
+        formula = [s + formula_double_format(sym_amt[s], False) for s in syms]
+        return " ".join(formula)
+
+    @property
     def element_composition(self):
         """
         Returns the composition replacing any species by the corresponding
@@ -350,9 +370,19 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         factor = self.get_reduced_formula_and_factor()[1]
         return self / factor, factor
 
-    def get_reduced_formula_and_factor(self):
+    def get_reduced_formula_and_factor(self, iupac_ordering=False):
         """
         Calculates a reduced formula and factor.
+
+        Args:
+            iupac_ordering (bool, optional): Whether to order the
+                formula by the iupac "electronegativity" series, defined in
+                Table VI of "Nomenclature of Inorganic Chemistry (IUPAC
+                Recommendations 2005)". This ordering effectively follows
+                the groups and rows of the periodic table, except the
+                Lanthanides, Actanides and hydrogen. Note that polyanions
+                will still be determined based on the true electronegativity of
+                the elements.
 
         Returns:
             A pretty normalized formula and a multiplicative factor, i.e.,
@@ -363,7 +393,8 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         if not all_int:
             return self.formula.replace(" ", ""), 1
         d = {k: int(round(v)) for k, v in self.get_el_amt_dict().items()}
-        (formula, factor) = reduce_formula(d)
+        (formula, factor) = reduce_formula(
+            d, iupac_ordering=iupac_ordering)
 
         if formula in Composition.special_formulas:
             formula = Composition.special_formulas[formula]
@@ -371,13 +402,22 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
 
         return formula, factor
 
-    def get_integer_formula_and_factor(self, max_denominator=10000):
+    def get_integer_formula_and_factor(self, max_denominator=10000,
+                                       iupac_ordering=False):
         """
         Calculates an integer formula and factor.
 
         Args:
             max_denominator (int): all amounts in the el:amt dict are
                 first converted to a Fraction with this maximum denominator
+            iupac_ordering (bool, optional): Whether to order the
+                formula by the iupac "electronegativity" series, defined in
+                Table VI of "Nomenclature of Inorganic Chemistry (IUPAC
+                Recommendations 2005)". This ordering effectively follows
+                the groups and rows of the periodic table, except the
+                Lanthanides, Actanides and hydrogen. Note that polyanions
+                will still be determined based on the true electronegativity of
+                the elements.
 
         Returns:
             A pretty normalized formula and a multiplicative factor, i.e.,
@@ -387,7 +427,8 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         g = gcd_float(list(el_amt.values()), 1 / max_denominator)
 
         d = {k: round(v / g) for k, v in el_amt.items()}
-        (formula, factor) = reduce_formula(d)
+        (formula, factor) = reduce_formula(
+            d, iupac_ordering=iupac_ordering)
         if formula in Composition.special_formulas:
             formula = Composition.special_formulas[formula]
             factor /= 2
@@ -465,6 +506,35 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         """
         return get_el_sp(el).atomic_mass * abs(self[el]) / self.weight
 
+    def contains_element_type(self, category):
+        """
+        Check if Composition contains any elements matching a given category.
+
+        Args:
+            category (str): one of "noble_gas", "transition_metal",
+            "post_transition_metal", "rare_earth_metal", "metal", "metalloid",
+            "alkali", "alkaline", "halogen", "chalcogen", "lanthanoid",
+            "actinoid", "quadrupolar", "s-block", "p-block", "d-block", "f-block"
+
+
+        Returns:
+            True if any elements in Composition match category, otherwise False
+        """
+
+        allowed_categories = ("noble_gas", "transition_metal", "post_transition_metal",
+                              "rare_earth_metal", "metal", "metalloid", "alkali",
+                              "alkaline", "halogen", "chalcogen", "lanthanoid",
+                              "actinoid", "quadrupolar", "s-block", "p-block",
+                              "d-block", "f-block")
+
+        if category not in allowed_categories:
+            raise ValueError("Please pick a category from: {}".format(", ".join(allowed_categories)))
+
+        if "block" in category:
+            return any([category[0] in el.block for el in self.elements])
+        else:
+            return any([getattr(el, "is_{}".format(category)) for el in self.elements])
+
     def _parse_formula(self, formula):
         """
         Args:
@@ -472,7 +542,14 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
 
         Returns:
             Composition with that formula.
+
+        Notes:
+            In the case of Metallofullerene formula (e.g. Y3N@C80),
+            the @ mark will be dropped and passed to parser.
         """
+        # for Metallofullerene like "Y3N@C80"
+        formula = formula.replace("@", "")
+
         def get_sym_dict(f, factor):
             sym_dict = collections.defaultdict(float)
             for m in re.finditer(r"([A-Z][a-z]*)\s*([-*\.\d]*)", f):
@@ -520,6 +597,25 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 amt_str = str(amt)
             anon += ("{}{}".format(e, amt_str))
         return anon
+
+    @property
+    def chemical_system(self):
+        """
+        Get the chemical system of a Composition, for example "O-Si" for
+        SiO2. Chemical system is a string of a list of elements
+        sorted alphabetically and joined by dashes, by convention for use
+        in database keys.
+        """
+        return "-".join(sorted([str(el) for el in self.elements]))
+
+    @property
+    def valid(self):
+        """
+        Returns True if Composition contains valid elements or species and
+        False if the Composition contains any dummy species.
+        """
+        return not any([isinstance(el, DummySpecie) for el in self.elements])
+
 
     def __repr__(self):
         return "Comp: " + self.formula
@@ -581,7 +677,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         return {"reduced_cell_composition": self.to_reduced_dict,
                 "unit_cell_composition": self.as_dict(),
                 "reduced_cell_formula": self.reduced_formula,
-                "elements": self.as_dict().keys(),
+                "elements": list(self.as_dict().keys()),
                 "nelements": len(self.as_dict().keys())}
 
     def oxi_state_guesses(self, oxi_states_override=None, target_charge=0,
@@ -606,8 +702,12 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 that the full oxidation state list is *very* inclusive and
                 can produce nonsensical results.
             max_sites (int): if possible, will reduce Compositions to at most
-                this many many sites to speed up oxidation state guesses. Set
-                to -1 to just reduce fully.
+                this many sites to speed up oxidation state guesses. If the
+                composition cannot be reduced to this many sites a ValueError
+                will be raised. Set to -1 to just reduce fully. If set to a
+                number less than -1, the formula will be fully reduced but a
+                ValueError will be thrown if the number of atoms in the reduced
+                formula is greater than abs(max_sites).
 
         Returns:
             A list of dicts - each dict reports an element symbol and average
@@ -617,14 +717,18 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
 
         return self._get_oxid_state_guesses(all_oxi_states, max_sites, oxi_states_override, target_charge)[0]
 
-    def add_charges_from_oxi_state_guesses(self, oxi_states_override=None, target_charge=0,
-                          all_oxi_states=False, max_sites=None):
+    def add_charges_from_oxi_state_guesses(self,
+                                           oxi_states_override=None,
+                                           target_charge=0,
+                                           all_oxi_states=False,
+                                           max_sites=None):
         """
         Assign oxidation states basedon guessed oxidation states.
 
-        See `oxi_state_guesses` for an explanation of how oxidation states are guessed.
-        This operation uses the set of oxidation states for each site that were determined
-        to be most likley from the oxidation state guessing routine.
+        See `oxi_state_guesses` for an explanation of how oxidation states are
+        guessed. This operation uses the set of oxidation states for each site
+        that were determined to be most likley from the oxidation state guessing
+        routine.
 
         Args:
             oxi_states_override (dict): dict of str->list to override an
@@ -637,35 +741,41 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 that the full oxidation state list is *very* inclusive and
                 can produce nonsensical results.
             max_sites (int): if possible, will reduce Compositions to at most
-                this many many sites to speed up oxidation state guesses. Set
-                to -1 to just reduce fully.
+                this many sites to speed up oxidation state guesses. If the
+                composition cannot be reduced to this many sites a ValueError
+                will be raised. Set to -1 to just reduce fully. If set to a
+                number less than -1, the formula will be fully reduced but a
+                ValueError will be thrown if the number of atoms in the reduced
+                formula is greater than abs(max_sites).
 
         Returns:
-            Composition, where the elements are assigned oxidation states based on the
-                results form guessing oxidation states. If no oxidation state is possible,
-                returns a Composition where all oxidation states are 0
+            Composition, where the elements are assigned oxidation states based
+            on the results form guessing oxidation states. If no oxidation state
+            is possible, returns a Composition where all oxidation states are 0.
         """
 
-        _, oxidation_states = self._get_oxid_state_guesses(all_oxi_states, max_sites, oxi_states_override, target_charge)
+        _, oxidation_states = self._get_oxid_state_guesses(
+            all_oxi_states, max_sites, oxi_states_override, target_charge)
 
         # Special case: No charged compound is possible
         if len(oxidation_states) == 0:
-            return Composition(dict((Specie(e,0),f) for e,f in self.items()))
+            return Composition(dict((Specie(e, 0), f) for e, f in self.items()))
 
         # Generate the species
         species = []
         for el, charges in oxidation_states[0].items():
-            species.extend([Specie(el,c) for c in charges])
+            species.extend([Specie(el, c) for c in charges])
 
         # Return the new object
         return Composition(collections.Counter(species))
 
-    def _get_oxid_state_guesses(self, all_oxi_states, max_sites, oxi_states_override, target_charge):
+    def _get_oxid_state_guesses(self, all_oxi_states, max_sites,
+                                oxi_states_override, target_charge):
         """
         Utility operation for guessing oxidation states.
 
-        See `oxi_state_guesses` for full details. This operation does the calculation
-        of the most likely oxidation states
+        See `oxi_state_guesses` for full details. This operation does the
+        calculation of the most likely oxidation states
 
         Args:
             oxi_states_override (dict): dict of str->list to override an
@@ -678,8 +788,13 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 that the full oxidation state list is *very* inclusive and
                 can produce nonsensical results.
             max_sites (int): if possible, will reduce Compositions to at most
-                this many many sites to speed up oxidation state guesses. Set
-                to -1 to just reduce fully.
+                this many sites to speed up oxidation state guesses. If the
+                composition cannot be reduced to this many sites a ValueError
+                will be raised. Set to -1 to just reduce fully. If set to a
+                number less than -1, the formula will be fully reduced but a
+                ValueError will be thrown if the number of atoms in the reduced
+                formula is greater than abs(max_sites).
+
         Returns:
             A list of dicts - each dict reports an element symbol and average
                 oxidation state across all sites in that composition. If the
@@ -692,8 +807,13 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
             """
         comp = self.copy()
         # reduce Composition if necessary
-        if max_sites == -1:
+        if max_sites and max_sites < 0:
             comp = self.reduced_composition
+
+            if max_sites < -1 and comp.num_atoms > abs(max_sites):
+                raise ValueError(
+                    "Composition {} cannot accommodate max_sites "
+                    "setting!".format(comp))
 
         elif max_sites and comp.num_atoms > max_sites:
             reduced_comp, reduced_factor = self. \
@@ -985,51 +1105,58 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                         yield match
 
 
-def reduce_formula(sym_amt):
+def reduce_formula(sym_amt, iupac_ordering=False):
     """
     Helper method to reduce a sym_amt dict to a reduced formula and factor.
 
     Args:
         sym_amt (dict): {symbol: amount}.
+        iupac_ordering (bool, optional): Whether to order the
+            formula by the iupac "electronegativity" series, defined in
+            Table VI of "Nomenclature of Inorganic Chemistry (IUPAC
+            Recommendations 2005)". This ordering effectively follows
+            the groups and rows of the periodic table, except the
+            Lanthanides, Actanides and hydrogen. Note that polyanions
+            will still be determined based on the true electronegativity of
+            the elements.
 
     Returns:
         (reduced_formula, factor).
     """
-    syms = sorted(sym_amt.keys(),
-                  key=lambda s: [get_el_sp(s).X, s])
+    syms = sorted(sym_amt.keys(), key=lambda x: [get_el_sp(x).X, x])
 
-    syms = list(filter(lambda s: abs(sym_amt[s]) >
-                       Composition.amount_tolerance, syms))
-    num_el = len(syms)
-    contains_polyanion = (num_el >= 3 and
-                          get_el_sp(syms[num_el - 1]).X
-                          - get_el_sp(syms[num_el - 2]).X < 1.65)
+    syms = list(filter(
+        lambda x: abs(sym_amt[x]) > Composition.amount_tolerance, syms))
 
     factor = 1
     # Enforce integers for doing gcd.
     if all((int(i) == i for i in sym_amt.values())):
         factor = abs(gcd(*(int(i) for i in sym_amt.values())))
 
+    polyanion = []
+    # if the composition contains a poly anion
+    if len(syms) >= 3 and get_el_sp(syms[-1]).X - get_el_sp(syms[-2]).X < 1.65:
+        poly_sym_amt = {syms[i]: sym_amt[syms[i]] / factor
+                        for i in [-2, -1]}
+        (poly_form, poly_factor) = reduce_formula(
+            poly_sym_amt, iupac_ordering=iupac_ordering)
+
+        if poly_factor != 1:
+            polyanion.append("({}){}".format(poly_form, int(poly_factor)))
+
+    syms = syms[:len(syms) - 2 if polyanion else len(syms)]
+
+    if iupac_ordering:
+        syms = sorted(syms,
+                      key=lambda x: [get_el_sp(x).iupac_ordering, x])
+
     reduced_form = []
-    n = num_el - 2 if contains_polyanion else num_el
-    for i in range(0, n):
-        s = syms[i]
+    for s in syms:
         normamt = sym_amt[s] * 1.0 / factor
         reduced_form.append(s)
         reduced_form.append(formula_double_format(normamt))
 
-    if contains_polyanion:
-        poly_sym_amt = {syms[i]: sym_amt[syms[i]] / factor
-                        for i in range(n, num_el)}
-        (poly_form, poly_factor) = reduce_formula(poly_sym_amt)
-
-        if poly_factor != 1:
-            reduced_form.append("({}){}".format(poly_form, int(poly_factor)))
-        else:
-            reduced_form.append(poly_form)
-
-    reduced_form = "".join(reduced_form)
-
+    reduced_form = "".join(reduced_form + polyanion)
     return reduced_form, factor
 
 
@@ -1052,7 +1179,7 @@ class ChemicalPotential(dict, MSONable):
             *args, **kwargs: any valid dict init arguments
         """
         d = dict(*args, **kwargs)
-        super(ChemicalPotential, self).__init__((get_el_sp(k), v)
+        super().__init__((get_el_sp(k), v)
                                                 for k, v in d.items())
         if len(d) != len(self):
             raise ValueError("Duplicate potential specified")
@@ -1103,7 +1230,7 @@ class ChemicalPotential(dict, MSONable):
         return sum(self.get(k, 0) * v for k, v in composition.items())
 
     def __repr__(self):
-        return "ChemPots: " + super(ChemicalPotential, self).__repr__()
+        return "ChemPots: " + super().__repr__()
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
-pymatgen\.io\.cif module
-========================
+pymatgen.io.cif module
+======================
 
 .. automodule:: pymatgen.io.cif
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

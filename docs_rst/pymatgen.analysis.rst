@@ -1,20 +1,22 @@
-pymatgen\.analysis package
-==========================
+pymatgen.analysis package
+=========================
 
 Subpackages
 -----------
 
 .. toctree::
 
-    pymatgen.analysis.chemenv
-    pymatgen.analysis.cost
-    pymatgen.analysis.defects
-    pymatgen.analysis.diffraction
-    pymatgen.analysis.elasticity
-    pymatgen.analysis.hhi
-    pymatgen.analysis.magnetism
-    pymatgen.analysis.pourbaix
-    pymatgen.analysis.structure_prediction
+   pymatgen.analysis.chemenv
+   pymatgen.analysis.cost
+   pymatgen.analysis.defects
+   pymatgen.analysis.diffraction
+   pymatgen.analysis.elasticity
+   pymatgen.analysis.ferroelectricity
+   pymatgen.analysis.gb
+   pymatgen.analysis.hhi
+   pymatgen.analysis.magnetism
+   pymatgen.analysis.structure_prediction
+   pymatgen.analysis.xas
 
 Submodules
 ----------
@@ -22,11 +24,18 @@ Submodules
 .. toctree::
 
    pymatgen.analysis.adsorption
+   pymatgen.analysis.aflow_prototypes
+   pymatgen.analysis.bond_dissociation
    pymatgen.analysis.bond_valence
    pymatgen.analysis.diffusion_analyzer
+   pymatgen.analysis.dimensionality
    pymatgen.analysis.energy_models
    pymatgen.analysis.eos
    pymatgen.analysis.ewald
+   pymatgen.analysis.excitation
+   pymatgen.analysis.find_dimension
+   pymatgen.analysis.fragmenter
+   pymatgen.analysis.functional_groups
    pymatgen.analysis.graphs
    pymatgen.analysis.interface_reactions
    pymatgen.analysis.local_env
@@ -36,6 +45,7 @@ Submodules
    pymatgen.analysis.path_finder
    pymatgen.analysis.phase_diagram
    pymatgen.analysis.piezo
+   pymatgen.analysis.pourbaix_diagram
    pymatgen.analysis.quasiharmonic
    pymatgen.analysis.reaction_calculator
    pymatgen.analysis.structure_analyzer
@@ -50,6 +60,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.analysis
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

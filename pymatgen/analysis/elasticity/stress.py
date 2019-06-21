@@ -2,27 +2,25 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, print_function, unicode_literals
-from __future__ import absolute_import
 
 """
 This module provides the Stress class used to create, manipulate, and
 calculate relevant properties of the stress tensor.
 """
 
-from pymatgen.analysis.elasticity.tensors import SquareTensor
+from pymatgen.core.tensors import SquareTensor
 import math
 import numpy as np
 import warnings
 
-__author__ = "Maarten de Jong"
+__author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2012, The Materials Project"
-__credits__ = "Joseph Montoya, Mark Asta, Anubhav Jain"
+__credits__ = "Maarten de Jong, Mark Asta, Anubhav Jain"
 __version__ = "1.0"
 __maintainer__ = "Joseph Montoya"
 __email__ = "montoyjh@lbl.gov"
-__status__ = "Development"
-__date__ = "March 22, 2012"
+__status__ = "Production"
+__date__ = "July 24, 2018"
 
 
 class Stress(SquareTensor):
@@ -30,6 +28,8 @@ class Stress(SquareTensor):
     This class extends SquareTensor as a representation of the
     stress
     """
+    symbol = "s"
+
     def __new__(cls, stress_matrix):
         """
         Create a Stress object.  Note that the constructor uses __new__
@@ -40,7 +40,7 @@ class Stress(SquareTensor):
             stress_matrix (3x3 array-like): the 3x3 array-like
                 representing the stress
         """
-        obj = super(Stress, cls).__new__(cls, stress_matrix)
+        obj = super().__new__(cls, stress_matrix)
         return obj.view(cls)
 
     @property

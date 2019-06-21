@@ -2,14 +2,13 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import unittest
 import os
 import json
 import warnings
 import numpy as np
 
-from pymatgen import Lattice, Structure, Specie, Element
+from pymatgen import Lattice, Structure, Specie
 from pymatgen.transformations.standard_transformations import \
     OxidationStateDecorationTransformation, SubstitutionTransformation, \
     OrderDisorderedStructureTransformation, AutoOxiStateDecorationTransformation
@@ -18,15 +17,16 @@ from pymatgen.transformations.advanced_transformations import \
     MultipleSubstitutionTransformation, ChargeBalanceTransformation, \
     SubstitutionPredictorTransformation, MagOrderingTransformation, \
     DopingTransformation, _find_codopant, SlabTransformation, \
-    MagOrderParameterConstraint
+    MagOrderParameterConstraint, DisorderOrderedTransformation, \
+    GrainBoundaryTransformation
 from monty.os.path import which
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.cif import CifParser
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.energy_models import IsingModel
+from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.surface import SlabGenerator
-
 """
 Created on Jul 24, 2012
 """
@@ -69,7 +69,7 @@ class SuperTransformationTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_apply_transformation(self):
         tl = [SubstitutionTransformation({"Li+": "Na+"}),
@@ -99,11 +99,10 @@ class SuperTransformationTest(unittest.TestCase):
 
     @unittest.skipIf(not enumlib_present, "enum_lib not present.")
     def test_apply_transformation_mult(self):
-        #Test returning multiple structures from each transformation.
+        # Test returning multiple structures from each transformation.
         disord = Structure(np.eye(3) * 4.209, [{"Cs+": 0.5, "K+": 0.5}, "Cl-"],
                            [[0, 0, 0], [0.5, 0.5, 0.5]])
         disord.make_supercell([2, 2, 1])
-
 
         tl = [EnumerateStructureTransformation(),
               OrderDisorderedStructureTransformation()]
@@ -121,7 +120,7 @@ class MultipleSubstitutionTransformationTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_apply_transformation(self):
         sub_dict = {1: ["Na", "K"]}
@@ -171,7 +170,7 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_apply_transformation(self):
         enum_trans = EnumerateStructureTransformation(refine_structure=True)
@@ -210,11 +209,13 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
     def test_max_disordered_sites(self):
         l = Lattice.cubic(4)
         s_orig = Structure(l, [{"Li": 0.2, "Na": 0.2, "K": 0.6}, {"O": 1}],
-                      [[0, 0, 0], [0.5, 0.5, 0.5]])
+                           [[0, 0, 0], [0.5, 0.5, 0.5]])
         est = EnumerateStructureTransformation(max_cell_size=None,
                                                max_disordered_sites=5)
-        s = est.apply_transformation(s_orig)
-        self.assertEqual(len(s), 8)
+        dd = est.apply_transformation(s_orig, return_ranked_list=100)
+        self.assertEqual(len(dd), 9)
+        for d in dd:
+            self.assertEqual(len(d["structure"]), 10)
 
     def test_to_from_dict(self):
         trans = EnumerateStructureTransformation()
@@ -294,7 +295,7 @@ class MagOrderingTransformationTest(PymatgenTest):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_apply_transformation(self):
         trans = MagOrderingTransformation({"Fe": 5})
@@ -334,8 +335,10 @@ class MagOrderingTransformationTest(PymatgenTest):
         p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.LiFePO4'),
                              check_for_POTCAR=False)
         s = p.structure
+        a = SpacegroupAnalyzer(s, 0.1)
+        s = a.get_refined_structure()
         alls = trans.apply_transformation(s, 10)
-        self.assertEqual(len(alls), 2)
+        self.assertEqual(len(alls), 1)
 
     def test_as_from_dict(self):
         trans = MagOrderingTransformation({"Fe": 5}, order_parameter=0.75)
@@ -494,10 +497,12 @@ class DopingTransformationTest(PymatgenTest):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_apply_transformation(self):
         structure = PymatgenTest.get_structure("LiFePO4")
+        a = SpacegroupAnalyzer(structure, 0.1)
+        structure = a.get_refined_structure()
         t = DopingTransformation("Ca2+", min_length=10)
         ss = t.apply_transformation(structure, 100)
         self.assertEqual(len(ss), 1)
@@ -507,7 +512,7 @@ class DopingTransformationTest(PymatgenTest):
         self.assertEqual(len(ss), 0)
 
         # Aliovalent doping with vacancies
-        for dopant, nstructures in [("Al3+", 4), ("N3-", 420), ("Cl-", 16)]:
+        for dopant, nstructures in [("Al3+", 2), ("N3-", 235), ("Cl-", 8)]:
             t = DopingTransformation(dopant, min_length=4, alio_tol=1,
                                      max_structures_per_enum=1000)
             ss = t.apply_transformation(structure, 1000)
@@ -516,7 +521,7 @@ class DopingTransformationTest(PymatgenTest):
                 self.assertEqual(d["structure"].charge, 0)
 
         # Aliovalent doping with codopant
-        for dopant, nstructures in [("Al3+", 3), ("N3-", 60), ("Cl-", 60)]:
+        for dopant, nstructures in [("Al3+", 3), ("N3-", 37), ("Cl-", 37)]:
             t = DopingTransformation(dopant, min_length=4, alio_tol=1,
                                      codopant=True,
                                      max_structures_per_enum=1000)
@@ -575,7 +580,40 @@ class SlabTransformationTest(PymatgenTest):
                                     slab_from_trans.cart_coords)
 
 
+
+class GrainBoundaryTransformationTest(PymatgenTest):
+    def test_apply_transformation(self):
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            Li_bulk = Structure.from_spacegroup("Im-3m", Lattice.cubic(2.96771),
+                                                ["Li"], [[0, 0, 0]])
+            gb_gen_params_s3 = {"rotation_axis": [1, 1, 1], "rotation_angle": 60.0,
+                                "expand_times": 2, "vacuum_thickness": 0.0, "normal": True,
+                                "ratio": None, "plane": None}
+            gbg = GrainBoundaryGenerator(Li_bulk)
+            gb_from_generator = gbg.gb_from_parameters(**gb_gen_params_s3)
+            gbt_s3 = GrainBoundaryTransformation(**gb_gen_params_s3)
+            gb_from_trans = gbt_s3.apply_transformation(Li_bulk)
+            self.assertArrayAlmostEqual(gb_from_generator.lattice.matrix,
+                                        gb_from_trans.lattice.matrix)
+            self.assertArrayAlmostEqual(gb_from_generator.cart_coords,
+                                        gb_from_trans.cart_coords)
+
+
+class DisorderedOrderedTransformationTest(PymatgenTest):
+
+    def test_apply_transformation(self):
+
+        # non-sensical example just for testing purposes
+        struct = self.get_structure('BaNiO3')
+
+        trans = DisorderOrderedTransformation()
+        output = trans.apply_transformation(struct)
+
+        self.assertFalse(output.is_ordered)
+        self.assertDictEqual(output[-1].species.as_dict(),
+                             {'Ni': 0.5, 'Ba': 0.5})
+
+
 if __name__ == "__main__":
-    import logging
-    logging.basicConfig(level=logging.INFO)
     unittest.main()

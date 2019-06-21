@@ -1,5 +1,5 @@
-pymatgen\.analysis\.chemenv\.utils package
-==========================================
+pymatgen.analysis.chemenv.utils package
+=======================================
 
 Subpackages
 -----------
@@ -24,6 +24,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.analysis.chemenv.utils
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

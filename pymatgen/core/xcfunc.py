@@ -4,7 +4,6 @@
 """
 This module provides
 """
-from __future__ import unicode_literals, division, print_function
 
 from collections import namedtuple, OrderedDict
 from monty.string import is_string

@@ -1,5 +1,5 @@
-pymatgen\.analysis\.elasticity package
-======================================
+pymatgen.analysis.elasticity package
+====================================
 
 Submodules
 ----------
@@ -15,6 +15,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.analysis.elasticity
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

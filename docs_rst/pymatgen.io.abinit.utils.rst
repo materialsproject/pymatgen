@@ -1,7 +1,7 @@
-pymatgen\.io\.abinit\.utils module
-==================================
+pymatgen.io.abinit.utils module
+===============================
 
 .. automodule:: pymatgen.io.abinit.utils
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,27 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.gaussian &#8212; pymatgen 2018.1.29 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.io.gaussian &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../',
-        VERSION:     '2018.1.29',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -32,8 +23,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -43,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -59,7 +49,6 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
 <span class="kn">import</span> <span class="nn">re</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -102,7 +91,7 @@
 <span class="sd">        route (dict) : dictionary of parameters</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">scrf_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^([sS][cC][rR][fF])\s*=\s*(.+)&quot;</span><span class="p">)</span>
-    <span class="n">multi_params_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;^([A-z]+[0-9]*)[\s=]+\((.*)\)$&quot;</span><span class="p">)</span>
+    <span class="n">multi_params_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^([A-z]+[0-9]*)[\s=]+\((.*)\)$&quot;</span><span class="p">)</span>
     <span class="n">functional</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">basis_set</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">route_params</span> <span class="o">=</span> <span class="p">{}</span>
@@ -141,7 +130,7 @@
     <span class="k">return</span> <span class="n">functional</span><span class="p">,</span> <span class="n">basis_set</span><span class="p">,</span> <span class="n">route_params</span><span class="p">,</span> <span class="n">dieze_tag</span></div>
 
 
-<div class="viewcode-block" id="GaussianInput"><a class="viewcode-back" href="../../../pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianInput">[docs]</a><span class="k">class</span> <span class="nc">GaussianInput</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="GaussianInput"><a class="viewcode-back" href="../../../pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianInput">[docs]</a><span class="k">class</span> <span class="nc">GaussianInput</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An object representing a Gaussian input file.</span>
 
@@ -544,7 +533,7 @@
                              <span class="n">link0_parameters</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;link0_parameters&quot;</span><span class="p">])</span></div></div>
 
 
-<div class="viewcode-block" id="GaussianOutput"><a class="viewcode-back" href="../../../pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianOutput">[docs]</a><span class="k">class</span> <span class="nc">GaussianOutput</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="GaussianOutput"><a class="viewcode-back" href="../../../pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianOutput">[docs]</a><span class="k">class</span> <span class="nc">GaussianOutput</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parser for Gaussian output files.</span>
 
@@ -559,7 +548,14 @@
 
 <span class="sd">    .. attribute:: structures</span>
 
-<span class="sd">        All structures from the calculation.</span>
+<span class="sd">        All structures from the calculation in the standard orientation. If the</span>
+<span class="sd">        symmetry is not considered, the standard orientation is not printed out</span>
+<span class="sd">        and the input orientation is used instead. Check the `standard_orientation`</span>
+<span class="sd">        attribute.</span>
+
+<span class="sd">    .. attribute:: structures_input_orientation</span>
+
+<span class="sd">        All structures from the calculation in the input orientation.</span>
 
 <span class="sd">    .. attribute:: energies</span>
 
@@ -699,6 +695,19 @@
 
 <span class="sd">        Title of the gaussian run.</span>
 
+<span class="sd">    .. attribute:: standard_orientation</span>
+
+<span class="sd">        If True, the geometries stored in the structures are in the standard</span>
+<span class="sd">        orientation. Else, the geometries are in the input orientation.</span>
+
+<span class="sd">    .. attribute:: bond_orders</span>
+
+<span class="sd">        Dict of bond order values read in the output file such as:</span>
+<span class="sd">        {(0, 1): 0.8709, (1, 6): 1.234, ...}</span>
+
+<span class="sd">        The keys are the atom indexes and the values are the Wiberg bond indexes</span>
+<span class="sd">        that are printed using `pop=NBOREAD` and `$nbo bndidx $end`.</span>
+
 <span class="sd">    Methods:</span>
 
 <span class="sd">    .. method:: to_input()</span>
@@ -755,6 +764,7 @@
         <span class="n">end_mulliken_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
             <span class="sa">r</span><span class="s1">&#39;(Sum of Mulliken )(.*)(charges)\s*=\s*(\D)&#39;</span><span class="p">)</span>
         <span class="n">std_orientation_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Standard orientation&quot;</span><span class="p">)</span>
+        <span class="n">input_orientation_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Input orientation&quot;</span><span class="p">)</span>
         <span class="n">end_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;--+&quot;</span><span class="p">)</span>
         <span class="n">orbital_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(Alpha|Beta)\s*\S+\s*eigenvalues --(.*)&quot;</span><span class="p">)</span>
         <span class="n">thermo_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(Zero-point|Thermal) correction(.*)=&quot;</span>
@@ -779,10 +789,11 @@
         <span class="n">resume_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^\s1</span><span class="se">\\</span><span class="s2">1</span><span class="se">\\</span><span class="s2">GINC-\S*&quot;</span><span class="p">)</span>
         <span class="n">resume_end_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^\s.*</span><span class="se">\\\\</span><span class="s2">@&quot;</span><span class="p">)</span>
 
+        <span class="n">bond_order_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Wiberg bond index matrix in the NAO basis:&quot;</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">properly_terminated</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_pcm</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stationary_type</span> <span class="o">=</span> <span class="s2">&quot;Minimum&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">structures</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">corrections</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">energies</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pcm</span> <span class="o">=</span> <span class="kc">None</span>
@@ -796,6 +807,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">hessian</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">resumes</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bond_orders</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="n">coord_txt</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">read_coord</span> <span class="o">=</span> <span class="mi">0</span>
@@ -812,6 +824,10 @@
         <span class="n">read_mo</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">parse_hessian</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">routeline</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">standard_orientation</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">parse_bond_order</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">input_structures</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="n">std_structures</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
 
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
@@ -858,19 +874,21 @@
                             <span class="bp">self</span><span class="o">.</span><span class="n">corrections</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
 
                     <span class="k">if</span> <span class="n">read_coord</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="ow">not</span> <span class="n">end_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
-                            <span class="n">coord_txt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-                        <span class="k">else</span><span class="p">:</span>
-                            <span class="n">read_coord</span> <span class="o">=</span> <span class="p">(</span><span class="n">read_coord</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">4</span>
-                            <span class="k">if</span> <span class="ow">not</span> <span class="n">read_coord</span><span class="p">:</span>
-                                <span class="n">sp</span> <span class="o">=</span> <span class="p">[]</span>
-                                <span class="n">coords</span> <span class="o">=</span> <span class="p">[]</span>
-                                <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">coord_txt</span><span class="p">[</span><span class="mi">2</span><span class="p">:]:</span>
-                                    <span class="n">toks</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-                                    <span class="n">sp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Element</span><span class="o">.</span><span class="n">from_Z</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">toks</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span>
-                                    <span class="n">coords</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-                                                   <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">toks</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="mi">6</span><span class="p">]])</span>
-                                <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Molecule</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span> <span class="n">coords</span><span class="p">))</span>
+                        <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+                        <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+                        <span class="n">sp</span> <span class="o">=</span> <span class="p">[]</span>
+                        <span class="n">coords</span> <span class="o">=</span> <span class="p">[]</span>
+                        <span class="k">while</span> <span class="nb">set</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="o">!=</span> <span class="p">{</span><span class="s2">&quot;-&quot;</span><span class="p">}:</span>
+                            <span class="n">toks</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                            <span class="n">sp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Element</span><span class="o">.</span><span class="n">from_Z</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">toks</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span>
+                            <span class="n">coords</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">toks</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="mi">6</span><span class="p">]])</span>
+                            <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+
+                        <span class="n">read_coord</span> <span class="o">=</span> <span class="kc">False</span>
+                        <span class="k">if</span> <span class="n">geom_orientation</span> <span class="o">==</span> <span class="s2">&quot;input&quot;</span><span class="p">:</span>
+                            <span class="n">input_structures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Molecule</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span> <span class="n">coords</span><span class="p">))</span>
+                        <span class="k">elif</span> <span class="n">geom_orientation</span> <span class="o">==</span> <span class="s2">&quot;standard&quot;</span><span class="p">:</span>
+                            <span class="n">std_structures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Molecule</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span> <span class="n">coords</span><span class="p">))</span>
 
                     <span class="k">if</span> <span class="n">parse_forces</span><span class="p">:</span>
                         <span class="n">m</span> <span class="o">=</span> <span class="n">forces_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
@@ -1030,7 +1048,7 @@
                         <span class="c1">#  Hessian matrix is in the input  orientation framework</span>
                         <span class="c1"># WARNING : need #P in the route line</span>
                         <span class="n">parse_hessian</span> <span class="o">=</span> <span class="kc">False</span>
-                        <span class="n">ndf</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                        <span class="n">ndf</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_structures</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">hessian</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ndf</span><span class="p">,</span> <span class="n">ndf</span><span class="p">))</span>
                         <span class="n">j_indices</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
                         <span class="n">jndf</span> <span class="o">=</span> <span class="mi">0</span>
@@ -1047,6 +1065,22 @@
                             <span class="n">jndf</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
                             <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
                             <span class="n">j_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">5</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">j_indices</span><span class="p">]</span>
+
+                    <span class="k">elif</span> <span class="n">parse_bond_order</span><span class="p">:</span>
+                        <span class="c1"># parse Wiberg bond order</span>
+                        <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+                        <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+                        <span class="n">nat</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_structures</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                        <span class="n">matrix</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+                        <span class="k">for</span> <span class="n">iat</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nat</span><span class="p">):</span>
+                            <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+                            <span class="n">matrix</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">2</span><span class="p">:]])</span>
+
+                        <span class="bp">self</span><span class="o">.</span><span class="n">bond_orders</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+                        <span class="k">for</span> <span class="n">iat</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nat</span><span class="p">):</span>
+                            <span class="k">for</span> <span class="n">jat</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">iat</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nat</span><span class="p">):</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">bond_orders</span><span class="p">[(</span><span class="n">iat</span><span class="p">,</span> <span class="n">jat</span><span class="p">)]</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">[</span><span class="n">iat</span><span class="p">][</span><span class="n">jat</span><span class="p">]</span>
+                        <span class="n">parse_bond_order</span> <span class="o">=</span> <span class="kc">False</span>
 
                     <span class="k">elif</span> <span class="n">termination_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
                         <span class="n">m</span> <span class="o">=</span> <span class="n">termination_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
@@ -1082,7 +1116,13 @@
                         <span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
                     <span class="k">elif</span> <span class="n">std_orientation_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
                         <span class="n">coord_txt</span> <span class="o">=</span> <span class="p">[]</span>
-                        <span class="n">read_coord</span> <span class="o">=</span> <span class="mi">1</span>
+                        <span class="n">standard_orientation</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="n">geom_orientation</span> <span class="o">=</span> <span class="s2">&quot;standard&quot;</span>
+                        <span class="n">read_coord</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">elif</span> <span class="n">input_orientation_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+                        <span class="n">coord_txt</span> <span class="o">=</span> <span class="p">[]</span>
+                        <span class="n">geom_orientation</span> <span class="o">=</span> <span class="s2">&quot;input&quot;</span>
+                        <span class="n">read_coord</span> <span class="o">=</span> <span class="kc">True</span>
                     <span class="k">elif</span> <span class="ow">not</span> <span class="n">read_eigen</span> <span class="ow">and</span> <span class="n">orbital_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
                         <span class="n">eigen_txt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
                         <span class="n">read_eigen</span> <span class="o">=</span> <span class="kc">True</span>
@@ -1111,6 +1151,8 @@
                         <span class="n">resume</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
                         <span class="n">resume</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">r</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">resume</span><span class="p">])</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">resumes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">resume</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">bond_order_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+                        <span class="n">parse_bond_order</span> <span class="o">=</span> <span class="kc">True</span>
 
                     <span class="k">if</span> <span class="n">read_mulliken</span><span class="p">:</span>
                         <span class="k">if</span> <span class="ow">not</span> <span class="n">end_mulliken_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
@@ -1126,6 +1168,15 @@
                                     <span class="n">mulliken_charges</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dic</span><span class="p">)</span>
                             <span class="n">read_mulliken</span> <span class="o">=</span> <span class="kc">False</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">Mulliken_charges</span> <span class="o">=</span> <span class="n">mulliken_charges</span>
+
+        <span class="c1"># store the structures. If symmetry is considered, the standard orientation</span>
+        <span class="c1"># is used. Else the input orientation is used.</span>
+        <span class="k">if</span> <span class="n">standard_orientation</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">structures</span> <span class="o">=</span> <span class="n">std_structures</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">structures_input_orientation</span> <span class="o">=</span> <span class="n">input_structures</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">structures</span> <span class="o">=</span> <span class="n">input_structures</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">structures_input_orientation</span> <span class="o">=</span> <span class="n">input_structures</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">terminated</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">+</span>
@@ -1453,13 +1504,13 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -1475,7 +1526,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1483,7 +1534,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -1,9 +1,24 @@
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
 import collections
 import importlib
 from pymatgen.util.plotting import pretty_plot
 
+"""
+This module defines generic plotters.
+"""
 
-class SpectrumPlotter(object):
+__author__ = "Shyue Ping Ong"
+__copyright__ = "Copyright 2011, The Materials Project"
+__version__ = "1.0"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__date__ = "May 10 2018"
+
+
+class SpectrumPlotter:
     """
     Class for plotting Spectrum objects and subclasses. Note that the interface
     is extremely flexible given that there are many different ways in which

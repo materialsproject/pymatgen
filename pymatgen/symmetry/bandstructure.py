@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import numpy as np
 import warnings
@@ -20,7 +19,7 @@ Created on March 25, 2013
 @author: geoffroy
 """
 
-class HighSymmKpath(object):
+class HighSymmKpath:
     """
     This class looks for path along high symmetry lines in
     the Brillouin Zone.

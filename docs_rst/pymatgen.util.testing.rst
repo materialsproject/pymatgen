@@ -1,7 +1,7 @@
-pymatgen\.util\.testing module
-==============================
+pymatgen.util.testing module
+============================
 
 .. automodule:: pymatgen.util.testing
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

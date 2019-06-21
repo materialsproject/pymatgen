@@ -29,14 +29,29 @@ for materials analysis. These are some of the main features:
    Database.
 
 Pymatgen is free to use. However, we also welcome your help to improve this
-library by making your own contributions.  These contributions can be in the
+library by making your own contributions. These contributions can be in the
 form of additional tools or modules you develop, or feature requests and bug
-reports. Please report any bugs and issues at pymatgen's `Github Issues
-page <https://github.com/materialsproject/pymatgen/issues>`_. If you wish to
-be notified of pymatgen releases and need help with using pymatgen, please
-become a member of `pymatgen's Google Groups`_.
+reports. The following are resources for pymatgen:
+
+* Please report any bugs and issues at pymatgen's `Github Issues
+  page <https://github.com/materialsproject/pymatgen/issues>`_.
+* For help with any pymatgen issue, please use the pymatgen `Discourse page
+  <https://pymatgen.discourse.group>`_. Please note that the pymatgen Google
+  group has been deprecated in favor of Discourse.
+* `Twitter <http://twitter.com/pymatgen>`_. Follow to get news and tips.
+* `matgenb <http://matgenb.materialsvirtuallab.org>`_. For example notebooks.
 
     *The code is mightier than the pen.*
+
+Offline docs
+============
+
+If you would like to have an offline version of the docs for reference, there
+are two options:
+
+1. Clone the Github repo and the latest html docs are in the "docs" folder.
+2. In `Dash <http://kapeli.com/dash>`_ or `Zeal <http://zealdocs.org/>`_, go to 
+   "User Contributed Docsets", search for pymatgen and install.
 
 Development News
 ================
@@ -65,10 +80,11 @@ The `Materials Virtual Lab`_ has developed a
 `matgenie web app <http://matgenie.materialsvirtuallab.org>`_ which
 demonstrates some of the basic functionality of pymatgen, as well as a
 `matgenb repository <http://matgenb.materialsvirtuallab.org>`_ of
-Jupyter notebooks for common and advanced use cases.
+Jupyter notebooks for common and advanced use cases. We have deprecated the
+pymatgen examples page in favor of this more sustainable approach going forward.
+One of the ways you can contribute is to fork the matgenb repo and add your own
+examples.
 
-Another good way to explore the functionality of pymatgen is to look at the
-examples in a :doc:`series of ipython notebooks </examples>`.
 Below are a quick look at some of the graphical output possible.
 
 .. figure:: _static/examples.png
@@ -430,18 +446,18 @@ Here are a few examples of typical usages::
 
     # Plot the dos from the vasprun.xml file.
 
-    pmg plotdos vasprun.xml
+    pmg plot --dos vasprun.xml
 
     # Convert between file formats. The script attempts to intelligently
     # determine the file type. Input file types supported include CIF,
     # vasprun.xml, POSCAR, CSSR. You can force the script to assume certain file
     # types by specifying additional arguments. See pmg convert -h.
 
-    pmg convert input_filename output_filename.
+    pmg structure --convert --filenames input_filename output_filename.
 
-    # Obtain spacegroup information.
+    # Obtain spacegroup information using a tolerance of 0.1 angstroms.
 
-    pmg symm -s filename1 filename2
+    pmg structure --symmetry 0.1 --filenames filename1 filename2
 
     # Visualize a structure. Requires VTK to be installed.
 
@@ -449,11 +465,11 @@ Here are a few examples of typical usages::
 
     # Compare two structures for similarity
 
-    pmg compare filename1 filename2
+    pmg structure --group element --filenames filename1 filename2
 
     # Generate a POTCAR with symbols Li_sv O and the PBE functional
 
-    pmg generate --potcar Li_sv O --functional PBE
+    pmg potcar --symbols Li_sv O --functional PBE
 
 Add-ons
 ~~~~~~~
@@ -488,8 +504,11 @@ Reporting bugs
 --------------
 
 A simple way that anyone can contribute is simply to report bugs and issues
-to the developing team. You can either send an email to the `pymatgen's
-Google Groups page`_ or even better, submit an Issue in our `Github page`_.
+to the developing team. Please report any bugs and issues at pymatgen's
+`Github Issues page <https://github.com/materialsproject/pymatgen/issues>`_.
+For help with any pymatgen issue, consult `Stack Overflow
+<https://stackoverflow.com/questions/tagged/pymatgen>`_ and if
+you cannot find an answer, please post a question with the tag `pymatgen`.
 
 Developing new functionality
 ----------------------------
@@ -560,8 +579,6 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
-
-.. _`pymatgen's Google Groups`: https://groups.google.com/forum/?fromgroups#!forum/pymatgen/
 .. _`PyPI`: http://pypi.python.org/pypi/pymatgen
 .. _`Github page`: https://github.com/materialsproject/pymatgen/issues
 .. _`custodian`: https://pypi.python.org/pypi/custodian

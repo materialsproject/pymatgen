@@ -2,14 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import numpy as np
 from fractions import Fraction
-try:
-    from math import gcd
-except ImportError:
-    from fractions import gcd
+from math import gcd
 from itertools import groupby, product
 from string import ascii_lowercase
 from warnings import warn
@@ -36,6 +32,7 @@ from pymatgen.analysis.energy_models import SymmetryModel
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.electronic_structure.core import Spin
+from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
 
 """
 This module implements more advanced transformations.
@@ -47,7 +44,6 @@ __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Jul 24, 2012"
-
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +57,7 @@ class ChargeBalanceTransformation(AbstractTransformation):
         charge_balance_sp: specie to add or remove. Currently only removal
             is supported
     """
+
     def __init__(self, charge_balance_sp):
         self.charge_balance_sp = str(charge_balance_sp)
 
@@ -148,7 +145,7 @@ class SuperTransformation(AbstractTransformation):
         return True
 
 
-class MultipleSubstitutionTransformation(object):
+class MultipleSubstitutionTransformation:
     """
     Performs multiple substitutions on a structure. For example, can do a
     fractional replacement of Ge in LiGePS with a list of species, creating one
@@ -353,8 +350,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
                     "Too many disordered sites! ({} > {})".format(
                         ndisordered, self.max_disordered_sites))
             max_cell_sizes = range(self.min_cell_size, int(
-                    math.floor(self.max_disordered_sites / ndisordered)) + 1)
-
+                math.floor(self.max_disordered_sites / ndisordered)) + 1)
         else:
             max_cell_sizes = [self.max_cell_size]
 
@@ -369,7 +365,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
             try:
                 adaptor.run()
             except EnumError:
-                warn("Unable to enumerate for max_cell_size = %d".format(
+                warn("Unable to enumerate for max_cell_size = {}".format(
                     max_cell_size))
             structures = adaptor.structures
             if structures:
@@ -437,9 +433,10 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
         **kwargs: Args for SubstitutionProbability class lambda_table, alpha
     """
 
-    def __init__(self, threshold=1e-2, **kwargs):
+    def __init__(self, threshold=1e-2, scale_volumes=True, **kwargs):
         self.kwargs = kwargs
         self.threshold = threshold
+        self.scale_volumes = scale_volumes
         self._substitutor = SubstitutionPredictor(threshold=threshold,
                                                   **kwargs)
 
@@ -458,6 +455,7 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
             output = {'structure': st.apply_transformation(structure),
                       'probability': pred['probability'],
                       'threshold': self.threshold, 'substitutions': {}}
+
             # dictionary keys have to be converted to strings for JSON
             for key, value in pred['substitutions'].items():
                 output['substitutions'][str(key)] = str(value)
@@ -480,7 +478,6 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
 
 
 class MagOrderParameterConstraint(MSONable):
-
     def __init__(self, order_parameter,
                  species_constraints=None,
                  site_constraint_name=None,
@@ -506,7 +503,7 @@ class MagOrderParameterConstraint(MSONable):
         # validation
         if site_constraints and site_constraints != [None] \
                 and not site_constraint_name:
-                raise ValueError("Specify the name of the site constraint.")
+            raise ValueError("Specify the name of the site constraint.")
         elif not site_constraints and site_constraint_name:
             raise ValueError("Please specify some site constraints.")
         if not isinstance(species_constraints, list):
@@ -551,7 +548,6 @@ class MagOrderParameterConstraint(MSONable):
 
 
 class MagOrderingTransformation(AbstractTransformation):
-
     def __init__(self, mag_species_spin, order_parameter=0.5,
                  energy_model=SymmetryModel(), **kwargs):
         """
@@ -615,11 +611,11 @@ class MagOrderingTransformation(AbstractTransformation):
         mag_species_occurrences = {}
         for idx, site in enumerate(disordered_structure):
             if not site.is_ordered:
-                op = max(site.species_and_occu.values())
+                op = max(site.species.values())
                 # this very hacky bit of code only works because we know
                 # that on disordered sites in this class, all species are the same
                 # but have different spins, and this is comma-delimited
-                sp = str(list(site.species_and_occu.keys())[0]).split(",")[0]
+                sp = str(list(site.species.keys())[0]).split(",")[0]
                 if sp in mag_species_order_parameter:
                     mag_species_occurrences[sp] += 1
                 else:
@@ -662,16 +658,17 @@ class MagOrderingTransformation(AbstractTransformation):
             subscript_length = 1
             while True:
                 for subscript in product(ascii_lowercase, repeat=subscript_length):
-                    yield "Mm"+"".join(subscript)
+                    yield "Mm" + "".join(subscript)
                 subscript_length += 1
+
         dummy_species_gen = generate_dummy_specie()
 
         # one dummy species for each order parameter constraint
         dummy_species_symbols = [next(dummy_species_gen) for i in range(len(order_parameters))]
         dummy_species = [{
-            DummySpecie(symbol, properties={'spin': Spin.up}): constraint.order_parameter,
-            DummySpecie(symbol, properties={'spin': Spin.down}): 1-constraint.order_parameter
-        } for symbol, constraint in zip(dummy_species_symbols, order_parameters)]
+                             DummySpecie(symbol, properties={'spin': Spin.up}): constraint.order_parameter,
+                             DummySpecie(symbol, properties={'spin': Spin.down}): 1 - constraint.order_parameter
+                         } for symbol, constraint in zip(dummy_species_symbols, order_parameters)]
 
         sites_to_add = []
 
@@ -710,7 +707,7 @@ class MagOrderingTransformation(AbstractTransformation):
                 spin = site.specie._properties.get('spin', None)
                 neighbors = structure.get_neighbors(
                     site,
-                    0.05, # arbitrary threshold, needs to be << any bond length
+                    0.05,  # arbitrary threshold, needs to be << any bond length
                     # but >> floating point precision issues
                     include_index=True
                 )
@@ -747,7 +744,7 @@ class MagOrderingTransformation(AbstractTransformation):
                     # but have different spins, and this is comma-delimited
                     sp = str(site.specie).split(",")[0]
                     new_properties.update({
-                        'spin': sign*self.mag_species_spin.get(sp, 0)
+                        'spin': sign * self.mag_species_spin.get(sp, 0)
                     })
                     new_specie = Specie(site.specie.symbol,
                                         getattr(site.specie, 'oxi_state', None),
@@ -787,11 +784,14 @@ class MagOrderingTransformation(AbstractTransformation):
             enum_kwargs.get("min_cell_size", 1)
         )
 
-        max_cell = enum_kwargs.get('max_cell_size')
-        if max_cell:
-            if enum_kwargs["min_cell_size"] > max_cell:
-                raise ValueError('Specified max cell size is smaller'
-                                 ' than the minimum enumerable cell size')
+        if enum_kwargs.get("max_cell_size", None):
+            if enum_kwargs["min_cell_size"] > enum_kwargs["max_cell_size"]:
+                warnings.warn("Specified max cell size ({}) is smaller "
+                              "than the minimum enumerable cell size ({}), "
+                              "changing max cell size to {}".format(enum_kwargs["max_cell_size"],
+                                                                    enum_kwargs["min_cell_size"],
+                                                                    enum_kwargs["min_cell_size"]))
+                enum_kwargs["max_cell_size"] = enum_kwargs["min_cell_size"]
         else:
             enum_kwargs["max_cell_size"] = enum_kwargs["min_cell_size"]
 
@@ -879,7 +879,7 @@ def _find_codopant(target, oxidation_state, allowed_elements=None):
                     candidates.append((r, sp))
         except:
             pass
-    return min(candidates, key=lambda l: abs(l[0]/ref_radius - 1))[1]
+    return min(candidates, key=lambda l: abs(l[0] / ref_radius - 1))[1]
 
 
 class DopingTransformation(AbstractTransformation):
@@ -971,7 +971,7 @@ class DopingTransformation(AbstractTransformation):
         logger.info("Compatible species: %s" % compatible_species)
 
         lengths = structure.lattice.abc
-        scaling = [max(1, int(round(math.ceil(self.min_length/x))))
+        scaling = [max(1, int(round(math.ceil(self.min_length / x))))
                    for x in lengths]
         logger.info("Lengths are %s" % str(lengths))
         logger.info("Scaling = %s" % str(scaling))
@@ -983,8 +983,8 @@ class DopingTransformation(AbstractTransformation):
             supercell = structure * scaling
             nsp = supercell.composition[sp]
             if sp.oxi_state == ox:
-                supercell.replace_species({sp: {sp: (nsp - 1)/nsp,
-                                                self.dopant: 1/nsp}})
+                supercell.replace_species({sp: {sp: (nsp - 1) / nsp,
+                                                self.dopant: 1 / nsp}})
                 logger.info("Doping %s for %s at level %.3f" % (
                     sp, self.dopant, 1 / nsp))
             elif self.codopant:
@@ -1001,7 +1001,7 @@ class DopingTransformation(AbstractTransformation):
                 # vacancy compensation species as it is likely to be lower in
                 # energy
                 sp_to_remove = min([s for s in comp if s.oxi_state * ox > 0],
-                                    key=lambda ss: abs(ss.oxi_state))
+                                   key=lambda ss: abs(ss.oxi_state))
 
                 if sp_to_remove == sp:
                     common_charge = lcm(int(abs(sp.oxi_state)), int(abs(ox)))
@@ -1051,7 +1051,7 @@ class DopingTransformation(AbstractTransformation):
                 supercell.replace_species(
                     {sp: {sp: (nsp - ndopant) / nsp,
                           self.dopant: ndopant / nsp},
-                     sp_to_remove: {sp_to_remove: (nx - nx_to_remove)/nx}})
+                     sp_to_remove: {sp_to_remove: (nx - nx_to_remove) / nx}})
 
             ss = t.apply_transformation(
                 supercell, return_ranked_list=self.max_structures_per_enum)
@@ -1078,6 +1078,7 @@ class SlabTransformation(AbstractTransformation):
     A transformation that creates a slab from a structure.
 
     """
+
     def __init__(self, miller_index, min_slab_size, min_vacuum_size,
                  lll_reduce=False, center_slab=False,
                  in_unit_planes=False, primitive=True,
@@ -1122,3 +1123,231 @@ class SlabTransformation(AbstractTransformation):
     @property
     def is_one_to_many(self):
         return None
+
+
+class DisorderOrderedTransformation(AbstractTransformation):
+    """
+    Not to be confused with OrderDisorderedTransformation,
+    this transformation attempts to obtain a
+    *disordered* structure from an input ordered structure.
+    This may or may not be physically plausible, further
+    inspection of the returned structures is advised.
+    The main purpose for this transformation is for structure
+    matching to crystal prototypes for structures that have
+    been derived from a parent prototype structure by
+    substitutions or alloying additions.
+    """
+
+    def __init__(self, max_sites_to_merge=2):
+        """
+        Args:
+            max_sites_to_merge: only merge this number of sites together
+        """
+        self.max_sites_to_merge = max_sites_to_merge
+
+    def apply_transformation(self, structure, return_ranked_list=False):
+        """
+        Args:
+            structure: ordered structure
+            return_ranked_list: as in other pymatgen Transformations
+
+        Returns: transformed disordered structure(s)
+        """
+
+        if not structure.is_ordered:
+            raise ValueError("This transformation is for disordered structures only.")
+
+        partitions = self._partition_species(structure.composition,
+                                             max_components=self.max_sites_to_merge)
+        disorder_mappings = self._get_disorder_mappings(structure.composition, partitions)
+
+        disordered_structures = []
+        for mapping in disorder_mappings:
+            disordered_structure = structure.copy()
+            disordered_structure.replace_species(mapping)
+            disordered_structures.append({'structure': disordered_structure,
+                                          'mapping': mapping})
+
+        if len(disordered_structures) == 0:
+            return None
+        elif not return_ranked_list:
+            return disordered_structures[0]['structure']
+        else:
+            if len(disordered_structures) > return_ranked_list:
+                disordered_structures = disordered_structures[0:return_ranked_list]
+            return disordered_structures
+
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return True
+
+    @staticmethod
+    def _partition_species(composition, max_components=2):
+        """
+        Private method to split a list of species into
+        various partitions.
+        """
+
+        def _partition(collection):
+            # thanks https://stackoverflow.com/a/30134039
+
+            if len(collection) == 1:
+                yield [collection]
+                return
+
+            first = collection[0]
+            for smaller in _partition(collection[1:]):
+                # insert `first` in each of the subpartition's subsets
+                for n, subset in enumerate(smaller):
+                    yield smaller[:n] + [[first] + subset] + smaller[n + 1:]
+                # put `first` in its own subset
+                yield [[first]] + smaller
+
+        def _sort_partitions(partitions_to_sort):
+            """
+            Sort partitions by those we want to check first
+            (typically, merging two sites into one is the
+            one to try first).
+            """
+
+            partition_indices = [(idx, [len(p) for p in partition])
+                                 for idx, partition in enumerate(partitions_to_sort)]
+
+            # sort by maximum length of partition first (try smallest maximums first)
+            # and secondarily by number of partitions (most partitions first, i.e.
+            # create the 'least disordered' structures first)
+            partition_indices = sorted(partition_indices, key=lambda x: (max(x[1]), -len(x[1])))
+
+            # merge at most max_component sites,
+            # e.g. merge at most 2 species into 1 disordered site
+            partition_indices = [x for x in partition_indices if max(x[1]) <= max_components]
+
+            partition_indices.pop(0)  # this is just the input structure
+
+            sorted_partitions = [partitions_to_sort[x[0]] for x in partition_indices]
+
+            return sorted_partitions
+
+        collection = list(composition.keys())
+        partitions = list(_partition(collection))
+        partitions = _sort_partitions(partitions)
+
+        return partitions
+
+    @staticmethod
+    def _get_disorder_mappings(composition, partitions):
+        """
+        Private method to obtain the mapping to create
+        a disordered structure from a given partition.
+        """
+
+        def _get_replacement_dict_from_partition(partition):
+            d = {}  # to be passed to Structure.replace_species()
+            for sp_list in partition:
+                if len(sp_list) > 1:
+                    total_occ = sum([composition[sp] for sp in sp_list])
+                    merged_comp = {sp: composition[sp] / total_occ for sp in sp_list}
+                    for sp in sp_list:
+                        d[sp] = merged_comp
+            return d
+
+        disorder_mapping = [_get_replacement_dict_from_partition(p)
+                            for p in partitions]
+
+        return disorder_mapping
+
+class GrainBoundaryTransformation(AbstractTransformation):
+    """
+    A transformation that creates a gb from a bulk structure.
+    """
+
+    def __init__(self, rotation_axis, rotation_angle, expand_times=4, vacuum_thickness=0.0,
+                 ab_shift=[0, 0], normal=False, ratio=None, plane=None, max_search=50,
+                 tol_coi=1.e-3):
+        """
+        Args:
+            rotation_axis (list): Rotation axis of GB in the form of a list of integer
+                e.g.: [1, 1, 0]
+            rotation_angle (float, in unit of degree): rotation angle used to generate GB.
+                Make sure the angle is accurate enough. You can use the enum* functions
+                in this class to extract the accurate angle.
+                e.g.: The rotation angle of sigma 3 twist GB with the rotation axis
+                [1, 1, 1] and GB plane (1, 1, 1) can be 60.000000000 degree.
+                If you do not know the rotation angle, but know the sigma value, we have
+                provide the function get_rotation_angle_from_sigma which is able to return
+                all the rotation angles of sigma value you provided.
+            expand_times (int): The multiple times used to expand one unit grain to larger grain.
+                This is used to tune the grain length of GB to warrant that the two GBs in one
+                cell do not interact with each other. Default set to 4.
+            vacuum_thickness (float): The thickness of vacuum that you want to insert between
+                two grains of the GB. Default to 0.
+            ab_shift (list of float, in unit of a, b vectors of Gb): in plane shift of two grains
+            normal (logic):
+                determine if need to require the c axis of top grain (first transformation matrix)
+                perperdicular to the surface or not.
+                default to false.
+            ratio (list of integers):
+                    lattice axial ratio.
+                    For cubic system, ratio is not needed.
+                    For tetragonal system, ratio = [mu, mv], list of two integers,
+                    that is, mu/mv = c2/a2. If it is irrational, set it to none.
+                    For orthorhombic system, ratio = [mu, lam, mv], list of three integers,
+                    that is, mu:lam:mv = c2:b2:a2. If irrational for one axis, set it to None.
+                    e.g. mu:lam:mv = c2,None,a2, means b2 is irrational.
+                    For rhombohedral system, ratio = [mu, mv], list of two integers,
+                    that is, mu/mv is the ratio of (1+2*cos(alpha))/cos(alpha).
+                    If irrational, set it to None.
+                    For hexagonal system, ratio = [mu, mv], list of two integers,
+                    that is, mu/mv = c2/a2. If it is irrational, set it to none.
+            plane (list): Grain boundary plane in the form of a list of integers
+                e.g.: [1, 2, 3]. If none, we set it as twist GB. The plane will be perpendicular
+                to the rotation axis.
+            max_search (int): max search for the GB lattice vectors that give the smallest GB
+                lattice. If normal is true, also max search the GB c vector that perpendicular
+                to the plane. For complex GB, if you want to speed up, you can reduce this value.
+                But too small of this value may lead to error.
+            tol_coi (float): tolerance to find the coincidence sites. When making approximations to
+                the ratio needed to generate the GB, you probably need to increase this tolerance to
+                obtain the correct number of coincidence sites. To check the number of coincidence
+                sites are correct or not, you can compare the generated Gb object's sigma with enum*
+                sigma values (what user expected by input).
+        Returns:
+           Grain boundary structure (Gb (Structure) object).
+        """
+        self.rotation_axis = rotation_axis
+        self.rotation_angle = rotation_angle
+        self.expand_times = expand_times
+        self.vacuum_thickness = vacuum_thickness
+        self.ab_shift = ab_shift
+        self.normal = normal
+        self.ratio = ratio
+        self.plane = plane
+        self.max_search = max_search
+        self.tol_coi = tol_coi
+
+    def apply_transformation(self, structure):
+        gbg = GrainBoundaryGenerator(structure)
+        gb_struct = gbg.gb_from_parameters(
+            self.rotation_axis,
+            self.rotation_angle,
+            self.expand_times,
+            self.vacuum_thickness,
+            self.ab_shift,
+            self.normal,
+            self.ratio,
+            self.plane,
+            self.max_search,
+            self.tol_coi)
+        return gb_struct
+      
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return False

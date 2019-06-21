@@ -1,5 +1,5 @@
-pymatgen\.io\.exciting package
-==============================
+pymatgen.io.exciting package
+============================
 
 Submodules
 ----------
@@ -12,6 +12,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.io.exciting
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

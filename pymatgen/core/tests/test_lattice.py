@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import itertools
 from pymatgen.core.lattice import Lattice
@@ -69,6 +68,19 @@ class LatticeTestCase(PymatgenTest):
         coord = self.tetragonal.get_cartesian_coords(rand_coord)
         fcoord = self.tetragonal.get_fractional_coords(coord)
         self.assertArrayAlmostEqual(fcoord, rand_coord)
+
+    def test_get_vector_along_lattice_directions(self):
+       lattice_mat = np.array([[0.5, 0., 0.],
+                               [0.5, np.sqrt(3) / 2., 0.],
+                               [0., 0., 1.0]])
+       lattice = Lattice(lattice_mat)
+       cart_coord = np.array([0.5, np.sqrt(3)/4., 0.5])
+       latt_coord = np.array([0.25, 0.5, 0.5])
+       from_direct = lattice.get_fractional_coords(cart_coord) * lattice.lengths_and_angles[0]
+       self.assertArrayAlmostEqual(lattice.get_vector_along_lattice_directions(cart_coord), from_direct)
+       self.assertArrayAlmostEqual(lattice.get_vector_along_lattice_directions(cart_coord), latt_coord)
+       self.assertArrayEqual(lattice.get_vector_along_lattice_directions(cart_coord).shape, [3,])
+       self.assertArrayEqual(lattice.get_vector_along_lattice_directions(cart_coord.reshape([1,3])).shape, [1,3])
 
     def test_d_hkl(self):
         cubic_copy = self.cubic.copy()
@@ -140,6 +152,25 @@ class LatticeTestCase(PymatgenTest):
         for i in range(0, 3):
             for j in range(0, 3):
                 self.assertAlmostEqual(mat1[i][j], mat2[i][j], 5)
+
+    def test_lattice_matricies(self):
+        """
+        If alpha == 90 and beta == 90, two matricies are identical.
+        """
+
+        def _identical(a, b, c, alpha, beta, gamma):
+            mat1 = Lattice.from_parameters(a, b, c, alpha, beta, gamma, False).matrix
+            mat2 = Lattice.from_parameters(a, b, c, alpha, beta, gamma, True).matrix
+            # self.assertArrayAlmostEqual(mat1, mat2)
+            return ((mat1 - mat2)**2).sum() < 1e-6
+
+        self.assertTrue(_identical(2, 3, 4, 90, 90, 90))
+        self.assertTrue(_identical(2, 3, 4, 90, 90, 80))
+        self.assertTrue(_identical(2, 3, 4, 90, 90, 100))
+
+        self.assertFalse(_identical(2, 3, 4, 100, 90, 90))
+        self.assertFalse(_identical(2, 3, 4, 90, 100, 90))
+        self.assertFalse(_identical(2, 3, 4, 100, 100, 100))
 
     def test_get_lll_reduced_lattice(self):
         lattice = Lattice([1.0, 1, 1, -1.0, 0, 2, 3.0, 5, 6])
@@ -338,15 +369,24 @@ class LatticeTestCase(PymatgenTest):
 
     def test_get_points_in_sphere(self):
         # This is a non-niggli representation of a cubic lattice
-        latt = Lattice([[1,5,0],[0,1,0],[5,0,1]])
+        latt = Lattice([[1, 5, 0], [0, 1, 0], [5, 0, 1]])
         # evenly spaced points array between 0 and 1
         pts = np.array(list(itertools.product(range(5), repeat=3))) / 5
         pts = latt.get_fractional_coords(pts)
 
-        self.assertEqual(len(latt.get_points_in_sphere(
-            pts, [0, 0, 0], 0.20001)), 7)
-        self.assertEqual(len(latt.get_points_in_sphere(
-            pts, [0.5, 0.5, 0.5], 1.0001)), 552)
+        # Test getting neighbors within 1 neighbor distance of the origin
+        fcoords, dists, inds, images = latt.get_points_in_sphere(pts, [0, 0, 0], 0.20001,
+                                                                 zip_results=False)
+        self.assertEqual(len(fcoords), 7)  # There are 7 neighbors
+        self.assertEqual(np.isclose(dists, 0.2).sum(), 6)  # 6 are at 0.2
+        self.assertEqual(np.isclose(dists, 0).sum(), 1)  # 1 is at 0
+        self.assertEqual(len(set(inds)), 7)  # They have unique indices
+        self.assertArrayEqual(images[np.isclose(dists, 0)], [[0, 0, 0]])
+
+        # More complicated case, using the zip output
+        result = latt.get_points_in_sphere(pts, [0.5, 0.5, 0.5], 1.0001)
+        self.assertEqual(len(result), 552)
+        self.assertEqual(len(result[0]), 4)  # coords, dists, ind, supercell
 
     def test_get_all_distances(self):
         fcoords = np.array([[0.3, 0.3, 0.5],
@@ -441,6 +481,40 @@ class LatticeTestCase(PymatgenTest):
 
         self.assertArrayAlmostEqual(l2.get_frac_coords_from_lll(lll_fcoords),
                                     l2_fcoords)
+
+    def test_get_miller_index_from_sites(self):
+        # test on a cubic system
+        m = Lattice.cubic(1)
+        s1 = np.array([0.5, -1.5, 3])
+        s2 = np.array([0.5, 3., -1.5])
+        s3 = np.array([2.5, 1.5, -4.])
+        self.assertEqual(m.get_miller_index_from_coords([s1, s2, s3]),
+                         (2, 1, 1))
+
+        # test on a hexagonal system
+        m = Lattice([[2.319, -4.01662582, 0.],
+                     [2.319, 4.01662582, 0.],
+                     [0., 0., 7.252]])
+
+        s1 = np.array([2.319, 1.33887527, 6.3455])
+        s2 = np.array([1.1595, 0.66943764, 4.5325])
+        s3 = np.array([1.1595, 0.66943764, 0.9065])
+        hkl = m.get_miller_index_from_coords([s1, s2, s3])
+        self.assertEqual(hkl, (2, -1, 0))
+
+        # test for previous failing structure
+        m = Lattice([10, 0, 0, 0, 10, 0, 0, 0, 10])
+        sites = [[0.5, 0.8, 0.8], [0.5, 0.4, 0.2], [0.5, 0.3, 0.7]]
+
+        hkl = m.get_miller_index_from_coords(sites, coords_are_cartesian=False)
+        self.assertEqual(hkl, (1, 0, 0))
+
+        # test for more than 3 sites
+        sites = [[0.5, 0.8, 0.8], [0.5, 0.4, 0.2], [0.5, 0.3, 0.7],
+                 [0.5, 0.1, 0.2]]
+
+        hkl = m.get_miller_index_from_coords(sites, coords_are_cartesian=False)
+        self.assertEqual(hkl, (1, 0, 0))
 
 
 if __name__ == '__main__':

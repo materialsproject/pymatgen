@@ -1,5 +1,11 @@
-pymatgen\.analysis\.xas package
-===============================
+pymatgen.analysis.xas package
+=============================
+
+Subpackages
+-----------
+
+.. toctree::
+
 
 Submodules
 ----------
@@ -12,6 +18,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.analysis.xas
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

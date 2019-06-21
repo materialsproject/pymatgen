@@ -2,12 +2,11 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 from pymatgen.analysis.chemenv.utils.scripts_utils import strategies_class_lookup
 from os.path import expanduser, exists
 from os import makedirs
 import json
-from six.moves import input
+
 from pymatgen import SETTINGS
 
 """

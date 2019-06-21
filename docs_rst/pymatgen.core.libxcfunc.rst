@@ -1,7 +1,7 @@
-pymatgen\.core\.libxcfunc module
-================================
+pymatgen.core.libxcfunc module
+==============================
 
 .. automodule:: pymatgen.core.libxcfunc
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

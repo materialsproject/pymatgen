@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 """
 Created on Mar 18, 2012
@@ -35,7 +34,7 @@ class BorgQueenTest(unittest.TestCase):
             drone = VaspToComputedEntryDrone()
             self.queen = BorgQueen(drone, test_dir, 1)
             data = self.queen.get_data()
-            self.assertEqual(len(data), 7)
+            self.assertEqual(len(data), 11)
 
     def test_load_data(self):
         with warnings.catch_warnings():

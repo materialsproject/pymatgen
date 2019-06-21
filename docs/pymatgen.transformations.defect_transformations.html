@@ -1,27 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.transformations.defect_transformations module &#8212; pymatgen 2018.1.29 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.transformations.defect_transformations module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '2018.1.29',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -32,8 +23,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -43,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -55,206 +45,45 @@
   <div class="section" id="module-pymatgen.transformations.defect_transformations">
 <span id="pymatgen-transformations-defect-transformations-module"></span><h1>pymatgen.transformations.defect_transformations module<a class="headerlink" href="#module-pymatgen.transformations.defect_transformations" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
-<dt id="pymatgen.transformations.defect_transformations.AntisiteDefectTransformation">
-<em class="property">class </em><code class="descname">AntisiteDefectTransformation</code><span class="sig-paren">(</span><em>supercell_dim</em>, <em>valences=None</em>, <em>radii=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/defect_transformations.html#AntisiteDefectTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.defect_transformations.AntisiteDefectTransformation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
-<p>Generates antisite defect structures</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>supecell_dim</strong> – Supercell scaling matrix</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
+<dt id="pymatgen.transformations.defect_transformations.DefectTransformation">
+<em class="property">class </em><code class="sig-name descname">DefectTransformation</code><span class="sig-paren">(</span><em class="sig-param">scaling_matrix</em>, <em class="sig-param">defect</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/defect_transformations.html#DefectTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.defect_transformations.DefectTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
+<p>Generates Defect structures based on pymatgen Defect Core classes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scaling_matrix</strong> – Supercell scaling matrix</p></li>
+<li><p><strong>defect</strong> – Defect pymatgen object
+NOTE: defect.bulk_structure should be same as provided structure in the apply_transformation step</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
-<dt id="pymatgen.transformations.defect_transformations.AntisiteDefectTransformation.apply_transformation">
-<code class="descname">apply_transformation</code><span class="sig-paren">(</span><em>structure</em>, <em>return_ranked_list=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/defect_transformations.html#AntisiteDefectTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.defect_transformations.AntisiteDefectTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> – </li>
-<li><strong>(</strong><strong>Logical</strong><strong> or </strong><strong>integer</strong><strong>)</strong> (<em>return_ranked_list</em>) – Use big enough
-number to return all defect structures</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">scs: Supercells with one antisite defect in each structure.</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pymatgen.transformations.defect_transformations.AntisiteDefectTransformation.inverse">
-<code class="descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.defect_transformations.AntisiteDefectTransformation.inverse" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pymatgen.transformations.defect_transformations.AntisiteDefectTransformation.is_one_to_many">
-<code class="descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.defect_transformations.AntisiteDefectTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="pymatgen.transformations.defect_transformations.InterstitialTransformation">
-<em class="property">class </em><code class="descname">InterstitialTransformation</code><span class="sig-paren">(</span><em>interstitial_specie</em>, <em>supercell_dim</em>, <em>valences=None</em>, <em>radii=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/defect_transformations.html#InterstitialTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.defect_transformations.InterstitialTransformation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
-<p>Generates interstitial structures from the input structure</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>supercell_dim</strong> – </li>
-<li><strong>valences</strong> – </li>
-<li><strong>radii</strong> – </li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="pymatgen.transformations.defect_transformations.InterstitialTransformation.apply_transformation">
-<code class="descname">apply_transformation</code><span class="sig-paren">(</span><em>structure</em>, <em>return_ranked_list=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/defect_transformations.html#InterstitialTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.defect_transformations.InterstitialTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> – </li>
-<li><strong>(</strong><strong>Logical</strong><strong> or </strong><strong>integer</strong><strong>)</strong> (<em>return_ranked_list</em>) – Use big enough
-number to return all defect structures</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">scs: Supercells with one interstitial defect in each structure.</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pymatgen.transformations.defect_transformations.InterstitialTransformation.inverse">
-<code class="descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.defect_transformations.InterstitialTransformation.inverse" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pymatgen.transformations.defect_transformations.InterstitialTransformation.is_one_to_many">
-<code class="descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.defect_transformations.InterstitialTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="pymatgen.transformations.defect_transformations.SubstitutionDefectTransformation">
-<em class="property">class </em><code class="descname">SubstitutionDefectTransformation</code><span class="sig-paren">(</span><em>species_map</em>, <em>supercell_dim</em>, <em>valences=None</em>, <em>radii=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/defect_transformations.html#SubstitutionDefectTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.defect_transformations.SubstitutionDefectTransformation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
-<p>Generates substiutional defect structures.
-The first structure is the supercell of the original structure
-and is not a defect structure.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>supecell_dim</strong> – Supercell scaling matrix</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="pymatgen.transformations.defect_transformations.SubstitutionDefectTransformation.apply_transformation">
-<code class="descname">apply_transformation</code><span class="sig-paren">(</span><em>structure</em>, <em>return_ranked_list=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/defect_transformations.html#SubstitutionDefectTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.defect_transformations.SubstitutionDefectTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> – </li>
-<li><strong>(</strong><strong>Logical</strong><strong> or </strong><strong>integer</strong><strong>)</strong> (<em>return_ranked_list</em>) – Use big enough
-number to return all defect structures</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">scs: Supercells with one substitution defect in each structure.</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pymatgen.transformations.defect_transformations.SubstitutionDefectTransformation.inverse">
-<code class="descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.defect_transformations.SubstitutionDefectTransformation.inverse" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pymatgen.transformations.defect_transformations.SubstitutionDefectTransformation.is_one_to_many">
-<code class="descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.defect_transformations.SubstitutionDefectTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="pymatgen.transformations.defect_transformations.VacancyTransformation">
-<em class="property">class </em><code class="descname">VacancyTransformation</code><span class="sig-paren">(</span><em>supercell_dim</em>, <em>species=None</em>, <em>valences=None</em>, <em>radii=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/defect_transformations.html#VacancyTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.defect_transformations.VacancyTransformation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
-<p>Generates vacancy structures</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>supecell_dim</strong> – Supercell scaling matrix</li>
-<li><strong>species</strong> – Species in the structure for which vacancy</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<p>transformation is applied
+<dt id="pymatgen.transformations.defect_transformations.DefectTransformation.apply_transformation">
+<code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/defect_transformations.html#DefectTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.defect_transformations.DefectTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>:param structure (bulk structure to be scaled up - typically conventional unit cell)
 :return:</p>
-<dl class="method">
-<dt id="pymatgen.transformations.defect_transformations.VacancyTransformation.apply_transformation">
-<code class="descname">apply_transformation</code><span class="sig-paren">(</span><em>structure</em>, <em>return_ranked_list=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/defect_transformations.html#VacancyTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.defect_transformations.VacancyTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> – </li>
-<li><strong>(</strong><strong>Logical</strong><strong> or </strong><strong>integer</strong><strong>)</strong> (<em>return_ranked_list</em>) – Use big enough
-number to return all defect structures</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">scs: Supercells with one vacancy in each structure.</p>
-</td>
-</tr>
-</tbody>
-</table>
+<blockquote>
+<div><p>defect_structure, with charge applied</p>
+</div></blockquote>
 </dd></dl>
 
-<dl class="attribute">
-<dt id="pymatgen.transformations.defect_transformations.VacancyTransformation.inverse">
-<code class="descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.defect_transformations.VacancyTransformation.inverse" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dl class="method">
+<dt id="pymatgen.transformations.defect_transformations.DefectTransformation.inverse">
+<em class="property">property </em><code class="sig-name descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.defect_transformations.DefectTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the inverse transformation if available.
+Otherwise, should return None.</p>
+</dd></dl>
 
-<dl class="attribute">
-<dt id="pymatgen.transformations.defect_transformations.VacancyTransformation.is_one_to_many">
-<code class="descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.defect_transformations.VacancyTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dl class="method">
+<dt id="pymatgen.transformations.defect_transformations.DefectTransformation.is_one_to_many">
+<em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.defect_transformations.DefectTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines if a Transformation is a one-to-many transformation. If a
+Transformation is a one-to-many transformation, the
+apply_transformation method should have a keyword arg
+“return_ranked_list” which allows for the transformed structures to be
+returned as a ranked list.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -274,13 +103,13 @@ number to return all defect structures</li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -296,13 +125,13 @@ number to return all defect structures</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

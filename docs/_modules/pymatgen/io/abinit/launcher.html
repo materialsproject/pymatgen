@@ -1,27 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.launcher &#8212; pymatgen 2018.1.29 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.io.abinit.launcher &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../../',
-        VERSION:     '2018.1.29',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -32,8 +23,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -43,7 +33,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -59,7 +49,6 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 <span class="sd">&quot;&quot;&quot;Tools for the submission of Tasks.&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">time</span>
@@ -68,7 +57,7 @@
 
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">deque</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">timedelta</span>
-<span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="n">cStringIO</span>
+
 <span class="kn">from</span> <span class="nn">monty.io</span> <span class="k">import</span> <span class="n">get_open_fds</span>
 <span class="kn">from</span> <span class="nn">monty.string</span> <span class="k">import</span> <span class="n">boxed</span><span class="p">,</span> <span class="n">is_string</span>
 <span class="kn">from</span> <span class="nn">monty.os.path</span> <span class="k">import</span> <span class="n">which</span>
@@ -101,7 +90,7 @@
     <span class="k">return</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="ScriptEditor"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.ScriptEditor">[docs]</a><span class="k">class</span> <span class="nc">ScriptEditor</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="ScriptEditor"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.ScriptEditor">[docs]</a><span class="k">class</span> <span class="nc">ScriptEditor</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Simple editor that simplifies the writing of shell scripts&quot;&quot;&quot;</span>
     <span class="n">_shell</span> <span class="o">=</span> <span class="s1">&#39;/bin/bash&#39;</span>
 
@@ -187,7 +176,7 @@
     <span class="sd">&quot;&quot;&quot;Error class for PyLauncher.&quot;&quot;&quot;</span>
 
 
-<div class="viewcode-block" id="PyLauncher"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.PyLauncher">[docs]</a><span class="k">class</span> <span class="nc">PyLauncher</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="PyLauncher"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.PyLauncher">[docs]</a><span class="k">class</span> <span class="nc">PyLauncher</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;This object handle the submission of the tasks contained in a :class:`Flow`&quot;&quot;&quot;</span>
     <span class="n">Error</span> <span class="o">=</span> <span class="n">PyLauncherError</span>
 
@@ -304,7 +293,7 @@
     <span class="sd">&quot;&quot;&quot;Exceptions raised by `PyFlowScheduler`.&quot;&quot;&quot;</span>
 
 
-<div class="viewcode-block" id="PyFlowScheduler"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.PyFlowScheduler">[docs]</a><span class="k">class</span> <span class="nc">PyFlowScheduler</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="PyFlowScheduler"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.PyFlowScheduler">[docs]</a><span class="k">class</span> <span class="nc">PyFlowScheduler</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This object schedules the submission of the tasks in a :class:`Flow`.</span>
 <span class="sd">    There are two types of errors that might occur during the execution of the jobs:</span>
@@ -353,8 +342,9 @@
 <span class="sd">            use_dynamic_manager: &quot;yes&quot; if the :class:`TaskManager` must be re-initialized from</span>
 <span class="sd">                file before launching the jobs. (DEFAULT: &quot;no&quot;)</span>
 <span class="sd">            max_njobs_inqueue: Limit on the number of jobs that can be present in the queue. (DEFAULT: 200)</span>
-<span class="sd">            remindme_s: The scheduler will send an email to the user specified by `mailto` every `remindme_s` seconds.</span>
-<span class="sd">                (int, DEFAULT: 1 day).</span>
+<span class="sd">            max_ncores_used: Maximum number of cores that can be used by the scheduler.</span>
+<span class="sd">            remindme_s: The scheduler will send an email to the user specified</span>
+<span class="sd">                by `mailto` every `remindme_s` seconds. (int, DEFAULT: 1 day).</span>
 <span class="sd">            max_num_pyexcs: The scheduler will exit if the number of python exceptions is &gt; max_num_pyexcs</span>
 <span class="sd">                (int, DEFAULT: 0)</span>
 <span class="sd">            max_num_abierrs: The scheduler will exit if the number of errored tasks is &gt; max_num_abierrs</span>
@@ -364,7 +354,7 @@
 <span class="sd">            max_nlaunches: Maximum number of tasks launched in a single iteration of the scheduler.</span>
 <span class="sd">                (DEFAULT: -1 i.e. no limit)</span>
 <span class="sd">            debug: Debug level. Use 0 for production (int, DEFAULT: 0)</span>
-<span class="sd">            fix_qcritical: &quot;yes&quot; if the launcher should try to fix QCritical Errors (DEFAULT: &quot;yes&quot;)</span>
+<span class="sd">            fix_qcritical: &quot;yes&quot; if the launcher should try to fix QCritical Errors (DEFAULT: &quot;no&quot;)</span>
 <span class="sd">            rmflow: If &quot;yes&quot;, the scheduler will remove the flow directory if the calculation</span>
 <span class="sd">                completed successfully. (DEFAULT: &quot;no&quot;)</span>
 <span class="sd">            killjobs_if_errors: &quot;yes&quot; if the scheduler should try to kill all the runnnig jobs</span>
@@ -396,7 +386,7 @@
         <span class="c1">#self.max_etime_s = kwargs.pop(&quot;max_etime_s&quot;, )</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_nlaunches</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;max_nlaunches&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;debug&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fix_qcritical</span> <span class="o">=</span> <span class="n">as_bool</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;fix_qcritical&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix_qcritical</span> <span class="o">=</span> <span class="n">as_bool</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;fix_qcritical&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rmflow</span> <span class="o">=</span> <span class="n">as_bool</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;rmflow&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">killjobs_if_errors</span> <span class="o">=</span> <span class="n">as_bool</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;killjobs_if_errors&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
 
@@ -764,8 +754,9 @@
             <span class="k">if</span> <span class="n">retcode</span><span class="p">:</span>
                 <span class="c1"># Cannot send mail, shutdown now!</span>
                 <span class="n">msg</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">The scheduler tried to send an e-mail to remind the user</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span>
-                        <span class="s2">&quot; but send_email returned </span><span class="si">%d</span><span class="s2">. Aborting now&quot;</span> <span class="o">%</span> <span class="n">retcode</span><span class="p">)</span>
-                <span class="n">err_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                        <span class="s2">&quot; but send_email returned </span><span class="si">%d</span><span class="s2">. Error is not critical though!&quot;</span> <span class="o">%</span> <span class="n">retcode</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                <span class="c1">#err_lines.append(msg)</span>
 
         <span class="c1">#if delta_etime.total_seconds() &gt; self.max_etime_s:</span>
         <span class="c1">#    err_lines.append(&quot;\nExceeded max_etime_s %s. Will shutdown the scheduler and exit&quot; % self.max_etime_s)</span>
@@ -797,7 +788,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">check_status</span><span class="p">()</span>
 
             <span class="n">g</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">find_deadlocks</span><span class="p">()</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;deadlocked:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">deadlocked</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">runnables:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">runnables</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">running</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">running</span><span class="p">)</span>
+            <span class="c1">#print(&quot;deadlocked:\n&quot;, g.deadlocked, &quot;\nrunnables:\n&quot;, g.runnables, &quot;\nrunning\n&quot;, g.running)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;deadlocked:&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">deadlocked</span><span class="p">),</span> <span class="s2">&quot;, runnables:&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">runnables</span><span class="p">),</span> <span class="s2">&quot;, running:&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">running</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">deadlocked</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">g</span><span class="o">.</span><span class="n">runnables</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">g</span><span class="o">.</span><span class="n">running</span><span class="p">:</span>
                 <span class="n">err_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;No runnable job with deadlocked tasks:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">deadlocked</span><span class="p">))</span>
 
@@ -1003,7 +995,7 @@
     <span class="sd">&quot;&quot;&quot;Exceptions raised by :class:`BatchLauncher`.&quot;&quot;&quot;</span>
 
 
-<span class="k">class</span> <span class="nc">BatchLauncher</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">BatchLauncher</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This object automates the execution of multiple flow. It generates a job script</span>
 <span class="sd">    that uses abirun.py to run each flow stored in self with a scheduler.</span>
@@ -1380,13 +1372,13 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../../../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -1402,7 +1394,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1410,7 +1402,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

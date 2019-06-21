@@ -2,10 +2,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 """Tools and helper functions for abinit calculations"""
-from __future__ import unicode_literals, division, print_function
 
 import os
-import six
 import re
 import collections
 import shutil
@@ -13,7 +11,6 @@ import operator
 import numpy as np
 
 from fnmatch import fnmatch
-from six.moves import filter
 from monty.collections import dict2namedtuple
 from monty.string import list_strings
 from monty.fnmatch import WildCard
@@ -41,7 +38,7 @@ def as_bool(s):
         raise ValueError("Don't know how to convert type %s: %s into a boolean" % (type(s), s))
 
 
-class File(object):
+class File:
     """
     Very simple class used to store file basenames, absolute paths and directory names.
     Provides wrappers for the most commonly used functions defined in os.path.
@@ -156,7 +153,7 @@ class File(object):
         return os.path.getsize(self.path)
 
 
-class Directory(object):
+class Directory:
     """
     Very simple class that provides helper functions
     wrapping the most commonly used functions defined in os.path.
@@ -254,7 +251,7 @@ class Directory(object):
 
         return filepaths
 
-    def has_abiext(self, ext):
+    def has_abiext(self, ext, single_file=True):
         """
         Returns the absolute path of the ABINIT file with extension ext.
         Support both Fortran files and netcdf files. In the later case,
@@ -274,6 +271,11 @@ class Directory(object):
             if ext == "_DDB" and f.endswith(".nc"): continue
             # Ignore BSE text files e.g. GW_NLF_MDF
             if ext == "_MDF" and not f.endswith(".nc"): continue
+            # Ignore DDK.nc files (temporary workaround for v8.8.2 in which
+            # the DFPT code produces a new file with DDK.nc extension that enters
+            # into conflict with AbiPy convention.
+            if ext == "_DDK" and f.endswith(".nc"): continue
+
             if f.endswith(ext) or f.endswith(ext + ".nc"):
                 files.append(f)
 
@@ -284,12 +286,12 @@ class Directory(object):
         if not files:
             return ""
 
-        if len(files) > 1:
+        if len(files) > 1 and single_file:
             # ABINIT users must learn that multiple datasets are bad!
             raise ValueError("Found multiple files with the same extensions:\n %s\n" % files +
-                             "Please avoid using mutiple datasets!")
+                             "Please avoid using multiple datasets!")
 
-        return files[0]
+        return files[0] if single_file else files
 
     def symlink_abiext(self, inext, outext):
         """
@@ -526,7 +528,7 @@ def abi_splitext(filename):
     return root, ext
 
 
-class FilepathFixer(object):
+class FilepathFixer:
     """
     This object modifies the names of particular output files
     produced by ABINIT so that the file extension is preserved.
@@ -670,7 +672,7 @@ def map2rpn(map, obj):
     for k, v in map.items():
 
         if k in _ALL_OPS:
-            if isinstance(v, collections.Mapping):
+            if isinstance(v, collections.abc.Mapping):
                 # e.g "$not": {"$gt": "one"}
                 # print("in op_vmap",k, v)
                 values = map2rpn(v, obj)
@@ -703,7 +705,7 @@ def map2rpn(map, obj):
             except TypeError:
                 k = k
 
-            if isinstance(v, collections.Mapping):
+            if isinstance(v, collections.abc.Mapping):
                 # "one": {"$eq": 1.0}}
                 values = map2rpn(v, obj)
                 rpn.append(k)
@@ -753,7 +755,7 @@ def evaluate_rpn(rpn):
     return vals_stack[0]
 
 
-class Condition(object):
+class Condition:
     """
     This object receives a dictionary that defines a boolean condition whose syntax is similar
     to the one used in mongodb (albeit not all the operators available in mongodb are supported here).
@@ -806,7 +808,7 @@ class Condition(object):
             return False
 
 
-class Editor(object):
+class Editor:
     """
     Wrapper class that calls the editor specified by the user
     or the one specified in the $EDITOR env variable.
@@ -837,20 +839,15 @@ class Editor(object):
     def user_wants_to_exit():
         """Show an interactive prompt asking if exit is wanted."""
         # Fix python 2.x.
-        if six.PY2:
-            my_input = raw_input
-        else:
-            my_input = input
-
         try:
-            answer = my_input("Do you want to continue [Y/n]")
+            answer = input("Do you want to continue [Y/n]")
         except EOFError:
             return True
 
         return answer.lower().strip() in ["n", "no"]
 
 
-class SparseHistogram(object):
+class SparseHistogram:
 
     def __init__(self, items, key=None, num=None, step=None):
         if num is None and step is None:
@@ -890,3 +887,102 @@ class SparseHistogram(object):
         ax.plot(self.binvals, yy, **kwargs)
 
         return fig
+
+
+class Dirviz:
+
+    #file_color = np.array((255, 0, 0)) / 255
+    #dir_color = np.array((0, 0, 255)) / 255
+
+    def __init__(self, top):
+        #if not os.path.isdir(top):
+        #    raise TypeError("%s should be a directory!" % str(top))
+        self.top = os.path.abspath(top)
+
+    def get_cluster_graph(self, engine="fdp", graph_attr=None, node_attr=None, edge_attr=None):
+        """
+        Generate directory graph in the DOT language. Directories are shown as clusters
+
+        .. warning::
+
+            This function scans the entire directory tree starting from top so the resulting
+            graph can be really big.
+
+        Args:
+            engine: Layout command used. ['dot', 'neato', 'twopi', 'circo', 'fdp', 'sfdp', 'patchwork', 'osage']
+            graph_attr: Mapping of (attribute, value) pairs for the graph.
+            node_attr: Mapping of (attribute, value) pairs set for all nodes.
+            edge_attr: Mapping of (attribute, value) pairs set for all edges.
+
+        Returns: graphviz.Digraph <https://graphviz.readthedocs.io/en/stable/api.html#digraph>
+        """
+        # https://www.graphviz.org/doc/info/
+        from graphviz import Digraph
+        g = Digraph("directory", #filename="flow_%s.gv" % os.path.basename(self.relworkdir),
+            engine=engine) # if engine == "automatic" else engine)
+
+        # Set graph attributes.
+        #g.attr(label="%s@%s" % (self.__class__.__name__, self.relworkdir))
+        g.attr(label=self.top)
+        #g.attr(fontcolor="white", bgcolor='purple:pink')
+        #g.attr(rankdir="LR", pagedir="BL")
+        #g.attr(constraint="false", pack="true", packMode="clust")
+        g.node_attr.update(color='lightblue2', style='filled')
+        #g.node_attr.update(ranksep='equally')
+
+        # Add input attributes.
+        if graph_attr is not None:
+            fg.graph_attr.update(**graph_attr)
+        if node_attr is not None:
+            fg.node_attr.update(**node_attr)
+        if edge_attr is not None:
+            fg.edge_attr.update(**edge_attr)
+
+        def node_kwargs(path):
+            return dict(
+                #shape="circle",
+                #shape="none",
+                #shape="plaintext",
+                #shape="point",
+                shape="record",
+                #color=node.color_hex,
+                fontsize="8.0",
+                label=os.path.basename(path),
+            )
+
+        edge_kwargs = dict(arrowType="vee", style="solid", minlen="1")
+        cluster_kwargs = dict(rankdir="LR", pagedir="BL", style="rounded", bgcolor="azure2")
+
+        # TODO: Write other method without clusters if not walk.
+        exclude_top_node = False
+        for root, dirs, files in os.walk(self.top):
+            if exclude_top_node and root == self.top: continue
+            cluster_name = "cluster_%s" % root
+            #print("root", root, cluster_name, "dirs", dirs, "files", files, sep="\n")
+
+            with g.subgraph(name=cluster_name) as d:
+                d.attr(**cluster_kwargs)
+                d.attr(rank="source" if (files or dirs) else "sink")
+                d.attr(label=os.path.basename(root))
+                for f in files:
+                    filepath = os.path.join(root, f)
+                    d.node(filepath, **node_kwargs(filepath))
+                    if os.path.islink(filepath):
+                        # Follow the link and use the relpath wrt link as label.
+                        realp = os.path.realpath(filepath)
+                        realp = os.path.relpath(realp, filepath)
+                        #realp = os.path.relpath(realp, self.top)
+                        #print(filepath, realp)
+                        #g.node(realp, **node_kwargs(realp))
+                        g.edge(filepath, realp, **edge_kwargs)
+
+                for dirname in dirs:
+                    dirpath = os.path.join(root, dirname)
+                    #head, basename = os.path.split(dirpath)
+                    new_cluster_name = "cluster_%s" % dirpath
+                    #rank = "source" if os.listdir(dirpath) else "sink"
+                    #g.node(dirpath, rank=rank, **node_kwargs(dirpath))
+                    #g.edge(dirpath, new_cluster_name, **edge_kwargs)
+                    #d.edge(cluster_name, new_cluster_name, minlen="2", **edge_kwargs)
+                    d.edge(cluster_name, new_cluster_name, **edge_kwargs)
+        return g

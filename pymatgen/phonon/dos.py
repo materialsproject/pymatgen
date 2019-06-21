@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import numpy as np
 import scipy.constants as const
 
@@ -67,7 +66,7 @@ class PhononDos(MSONable):
         """
         if not all(np.equal(self.frequencies, other.frequencies)):
             raise ValueError("Frequencies of both DOS are not compatible!")
-        densities = self.frequencies + other.frequencies
+        densities = self.densities + other.densities
         return PhononDos(self.frequencies, densities)
 
     def __radd__(self, other):
@@ -327,9 +326,9 @@ class CompletePhononDos(PhononDos):
         Dict of partial densities of the form {Site:Densities}
     """
     def __init__(self, structure, total_dos, pdoss):
-        super(CompletePhononDos, self).__init__(
+        super().__init__(
             frequencies=total_dos.frequencies, densities=total_dos.densities)
-        self.pdos = pdoss
+        self.pdos = {s: np.array(d) for s, d in pdoss.items()}
         self.structure = structure
 
     def get_site_dos(self, site):
@@ -356,9 +355,9 @@ class CompletePhononDos(PhononDos):
         for site, atom_dos in self.pdos.items():
             el = site.specie
             if el not in el_dos:
-                el_dos[el] = atom_dos
+                el_dos[el] = np.array(atom_dos)
             else:
-                el_dos[el] += atom_dos
+                el_dos[el] += np.array(atom_dos)
         return {el: PhononDos(self.frequencies, densities)
                 for el, densities in el_dos.items()}
 

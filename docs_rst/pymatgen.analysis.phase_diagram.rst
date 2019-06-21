@@ -1,7 +1,7 @@
-pymatgen\.analysis\.phase\_diagram module
-=========================================
+pymatgen.analysis.phase\_diagram module
+=======================================
 
 .. automodule:: pymatgen.analysis.phase_diagram
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

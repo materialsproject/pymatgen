@@ -1,5 +1,11 @@
-pymatgen\.transformations package
-=================================
+pymatgen.transformations package
+================================
+
+Subpackages
+-----------
+
+.. toctree::
+
 
 Submodules
 ----------
@@ -16,6 +22,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.transformations
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

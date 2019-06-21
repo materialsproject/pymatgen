@@ -1,7 +1,7 @@
-pymatgen\.apps\.battery\.insertion\_battery module
-==================================================
+pymatgen.apps.battery.insertion\_battery module
+===============================================
 
 .. automodule:: pymatgen.apps.battery.insertion_battery
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

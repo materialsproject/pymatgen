@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import os
 import subprocess
@@ -11,7 +10,7 @@ import warnings
 import glob
 import numpy as np
 
-from six.moves import map, zip
+
 from pymatgen.io.vasp.outputs import Chgcar
 from pymatgen.io.vasp.inputs import Potcar
 from monty.dev import requires
@@ -43,7 +42,7 @@ __date__ = "4/5/13"
 BADEREXE = which("bader") or which("bader.exe")
 
 
-class BaderAnalysis(object):
+class BaderAnalysis:
     """
     Bader analysis for a CHGCAR.
 

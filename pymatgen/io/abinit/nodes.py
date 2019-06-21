@@ -2,14 +2,12 @@
 """
 This module defines the Node class that is inherited by Task, Work and Flow objects.
 """
-from __future__ import division, print_function, unicode_literals
 
 import sys
 import os
 import time
 import collections
 import abc
-import six
 import numpy as np
 
 from pprint import pprint
@@ -23,7 +21,7 @@ from monty.collections import AttrDict, Namespace
 from monty.functools import lazy_property
 from monty.json import MSONable
 from pymatgen.util.serialization import json_pretty_dump, pmg_serialize
-from .utils import File, Directory, irdvars_for_ext, abi_extensions
+from .utils import File, Directory, Dirviz, irdvars_for_ext, abi_extensions
 
 
 import logging
@@ -103,7 +101,7 @@ class Status(int):
         return colored(str(self), **self.color_opts)
 
 
-class Dependency(object):
+class Dependency:
     """
     This object describes the dependencies among the nodes of a calculation.
 
@@ -210,7 +208,7 @@ class Dependency(object):
         return filepaths, exts
 
 
-class Product(object):
+class Product:
     """
     A product represents an output file produced by ABINIT instance.
     This file is needed to start another `Task` or another `Work`.
@@ -259,7 +257,7 @@ class Product(object):
 class GridFsFile(AttrDict):
     """Information on a file that will stored in the MongoDb gridfs collection."""
     def __init__(self, path, fs_id=None, mode="b"):
-        super(GridFsFile, self).__init__(path=path, fs_id=fs_id, mode=mode)
+        super().__init__(path=path, fs_id=fs_id, mode=mode)
 
 
 class NodeResults(dict, MSONable):
@@ -295,7 +293,7 @@ class NodeResults(dict, MSONable):
         return node.Results(node, **kwargs)
 
     def __init__(self, node, **kwargs):
-        super(NodeResults, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.node = node
 
         if "in" not in self: self["in"] = Namespace()
@@ -439,7 +437,7 @@ class SpectatorNodeError(NodeError):
     """
 
 
-class Node(six.with_metaclass(abc.ABCMeta, object)):
+class Node(metaclass=abc.ABCMeta):
     """
     Abstract base class defining the interface that must be
     implemented by the nodes of the calculation.
@@ -481,7 +479,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     ]
 
     # Color used to plot the network in networkx
-    color_rgb = (0, 0, 0)
+    color_rgb = np.array((105, 105, 105)) / 255
 
     def __init__(self):
         self._in_spectator_mode = False
@@ -525,7 +523,16 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     #def __setattr__(self, name, value):
     #    if self.in_spectator_mode:
     #        raise RuntimeError("You should not call __setattr__ in spectator_mode")
-    #    return super(Node, self).__setattr__(name,value)
+    #    return super().__setattr__(name,value)
+
+    @lazy_property
+    def color_hex(self):
+        """Node color as Hex Triplet https://en.wikipedia.org/wiki/Web_colors#Hex_triplet"""
+        def clamp(x):
+            return max(0, min(int(x), 255))
+
+        r, g, b = np.trunc(self.color_rgb * 255)
+        return "#{0:02x}{1:02x}{2:02x}".format(clamp(r), clamp(g), clamp(b))
 
     def isinstance(self, class_or_string):
         """
@@ -581,6 +588,8 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     @property
     def relworkdir(self):
         """Return a relative version of the workdir"""
+        if getattr(self, "workdir", None) is None:
+            return None
         try:
             return os.path.relpath(self.workdir)
         except OSError:
@@ -709,6 +718,11 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
             for task in self:
                 task.add_deps(deps)
 
+        # If we have a FileNode as dependency, add self to its children
+        # Node.get_parents will use this list if node.is_isfile.
+        for dep in (d for d in deps if d.node.is_file):
+            dep.node.add_filechild(self)
+
     @check_spectator
     def remove_deps(self, deps):
         """
@@ -742,15 +756,27 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
 
     def get_parents(self):
         """Return the list of nodes in the :class:`Flow` required by this :class:`Node`"""
-        parents = []
-        for work in self.flow:
-            if self.depends_on(work): parents.append(work)
-            for task in work:
-                if self.depends_on(task): parents.append(task)
-        return parents
+        return [d.node for d in self.deps]
+        #parents = []
+        #for work in self.flow:
+        #    if self.depends_on(work): parents.append(work)
+        #    for task in work:
+        #        if self.depends_on(task): parents.append(task)
+        #return parents
 
     def get_children(self):
-        """Return the list of nodes in the :class:`Flow` that depends on this :class:`Node`"""
+        """
+        Return the list of nodes in the :class:`Flow` that depends on this :class:`Node`
+
+        .. note::
+
+            This routine assumes the entire flow has been allocated.
+        """
+        # Specialized branch for FileNode.
+        if self.is_file:
+            return self.filechildren
+
+        # Inspect the entire flow to get children.
         children = []
         for work in self.flow:
             if work.depends_on(self): children.append(work)
@@ -768,6 +794,46 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
             app("%d) %s, status=%s" % (i, dep.info, str(dep.status)))
 
         return "\n".join(lines)
+
+    def get_vars_dataframe(self, *varnames):
+        """
+        Return pandas DataFrame with the value of the variables specified in `varnames`.
+        Can be used for task/works/flow. It's recursive!
+
+        .. example:
+
+            flow.get_vars_dataframe("ecut", "ngkpt")
+            work.get_vars_dataframe("acell", "usepawu")
+        """
+        import pandas as pd
+        if self.is_task:
+            df = pd.DataFrame([{v: self.input.get(v, None) for v in varnames}], index=[self.name], columns=varnames)
+            df["class"] = self.__class__.__name__
+            return df
+
+        elif self.is_work:
+            frames = [task.get_vars_dataframe(*varnames) for task in self]
+            return pd.concat(frames)
+
+        elif self.is_flow:
+            frames = [work.get_vars_dataframe(*varnames) for work in self]
+            return pd.concat(frames)
+
+        else:
+            #print("Ignoring node of type: `%s`" % type(self))
+            return pd.DataFrame(index=[self.name])
+
+    def get_graphviz_dirtree(self, engine="automatic", **kwargs):
+        """
+        Generate directory graph in the DOT language. The graph show the files and directories
+        in the node workdir.
+
+        Returns: graphviz.Digraph <https://graphviz.readthedocs.io/en/stable/api.html#digraph>
+        """
+        if engine == "automatic":
+            engine = "fdp"
+
+        return Dirviz(self.workdir).get_cluster_graph(engine=engine, **kwargs)
 
     def set_gc(self, gc):
         """
@@ -887,7 +953,7 @@ class FileNode(Node):
     color_rgb = np.array((102, 51, 255)) / 255
 
     def __init__(self, filename):
-        super(FileNode, self).__init__()
+        super().__init__()
         self.filepath = os.path.abspath(filename)
 
         # Directories with input|output|temporary data.
@@ -896,6 +962,21 @@ class FileNode(Node):
         self.indir = Directory(self.workdir)
         self.outdir = Directory(self.workdir)
         self.tmpdir = Directory(self.workdir)
+
+        self._filechildren = []
+
+    def __repr__(self):
+        try:
+            return "<%s, node_id=%s, rpath=%s>" % (
+                self.__class__.__name__, self.node_id, os.path.relpath(self.filepath))
+        except AttributeError:
+            # this usually happens when workdir has not been initialized
+            return "<%s, node_id=%s, path=%s>" % (self.__class__.__name__, self.node_id, self.filepath)
+
+    @lazy_property
+    def basename(self):
+        """Basename of the file."""
+        return os.path.basename(self.filepath)
 
     @property
     def products(self):
@@ -912,12 +993,50 @@ class FileNode(Node):
         return self.status
 
     def get_results(self, **kwargs):
-        results = super(FileNode, self).get_results(**kwargs)
+        results = super().get_results(**kwargs)
         #results.register_gridfs_files(filepath=self.filepath)
         return results
 
+    def add_filechild(self, node):
+        """Add a node (usually Task) to the children of this FileNode."""
+        self._filechildren.append(node)
 
-class HistoryRecord(object):
+    @property
+    def filechildren(self):
+        """List with the children (nodes) of this FileNode."""
+        return self._filechildren
+
+    # This part provides IO capabilities to FileNode with API similar to the one implemented in Task.
+    # We may need it at runtime to extract information from netcdf files e.g.
+    # a NscfTask will change the FFT grid to match the one used in the GsTask.
+
+    def abiopen(self):
+        from abipy import abilab
+        return abilab.abiopen(self.filepath)
+
+    def open_gsr(self):
+        return self._abiopen_abiext("_GSR.nc")
+
+    def _abiopen_abiext(self, abiext):
+        import glob
+        from abipy import abilab
+        if not self.filepath.endswith(abiext):
+            msg = """\n
+File type does not match the abinit file extension.
+Caller asked for abiext: `%s` whereas filepath: `%s`.
+Continuing anyway assuming that the netcdf file provides the API/dims/vars neeeded by the caller.
+""" % (abiext, self.filepath)
+            logger.warning(msg)
+            self.history.warning(msg)
+
+        #try to find file in the same path
+        filepath = os.path.dirname(self.filepath)
+        glob_result = glob.glob(os.path.join(filepath,"*%s"%abiext))
+        if len(glob_result): return abilab.abiopen(glob_result[0])
+        return self.abiopen()
+
+
+class HistoryRecord:
     """
     A `HistoryRecord` instance represents an entry in the :class:`NodeHistory`.
 
@@ -1015,7 +1134,7 @@ class HistoryRecord(object):
     def __str__(self):
         return self.get_message(metadata=False)
 
-    def get_message(self,  metadata=False, asctime=True):
+    def get_message(self, metadata=False, asctime=True):
         """
         Return the message after merging any user-supplied arguments with the message.
 
@@ -1076,8 +1195,6 @@ class NodeHistory(collections.deque):
         if exc_info and not isinstance(exc_info, tuple):
             exc_info = sys.exc_info()
 
-        #from monty.inspect import caller_name
-        #c = find_caller()
         self.append(HistoryRecord(level, "unknown filename", 0, msg, args, exc_info, func="unknown func"))
 
 
@@ -1097,7 +1214,7 @@ class NodeCorrections(list):
     #def _find(self, event_class)
 
 
-class GarbageCollector(object):
+class GarbageCollector:
     """This object stores information on the """
     def __init__(self, exts, policy):
         self.exts, self.policy = set(exts), policy

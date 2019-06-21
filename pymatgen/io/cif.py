@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
 
 import math
 import re
@@ -10,20 +9,15 @@ import os
 import textwrap
 import warnings
 from collections import OrderedDict, deque
-
-import six
-from six.moves import zip, cStringIO
-
+from io import StringIO
 import numpy as np
 from functools import partial
-
-try:
-    from inspect import getfullargspec as getargspec
-except ImportError:
-    from inspect import getargspec
+from pathlib import Path
+from inspect import getfullargspec as getargspec
 from itertools import groupby
 from pymatgen.core.periodic_table import Element, Specie, get_el_sp, DummySpecie
 from monty.io import zopen
+from monty.dev import requires
 from pymatgen.util.coord import in_coord_list_pbc, pbc_diff, \
     find_in_coord_list_pbc
 from monty.string import remove_non_ascii
@@ -40,8 +34,7 @@ from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 try:
     from pybtex.database import BibliographyData, Entry
 except ImportError:
-    warnings.warn("Please install optional dependency pybtex if you"
-                  "want to extract references from CIF files.")
+    BibliographyData, Entry = None, None
 
 """
 Wrapper classes for Cif input and output from Structures.
@@ -79,7 +72,7 @@ def _get_cod_data():
     return _COD_DATA
 
 
-class CifBlock(object):
+class CifBlock:
     maxlen = 70  # not quite 80 so we can deal with semicolons and things
 
     def __init__(self, data, loops, header):
@@ -180,7 +173,6 @@ class CifBlock(object):
         string = re.sub(r"^\s*\n", "", string, flags=re.MULTILINE)
         # remove non_ascii
         string = remove_non_ascii(string)
-
         # since line breaks in .cif files are mostly meaningless,
         # break up into a stream of tokens to parse, rejoining multiline
         # strings (between semicolons)
@@ -224,7 +216,10 @@ class CifBlock(object):
             if s[0] == "_eof":
                 break
             if s[0].startswith("_"):
-                data[s[0]] = "".join(q.popleft())
+                try:
+                    data[s[0]] = "".join(q.popleft())
+                except IndexError:
+                    data[s[0]] = ""
             elif s[0].startswith("loop_"):
                 columns = []
                 items = []
@@ -250,7 +245,7 @@ class CifBlock(object):
         return cls(data, loops, header)
 
 
-class CifFile(object):
+class CifFile:
     """
     Reads and parses CifBlocks from a .cif file or string
     """
@@ -289,16 +284,18 @@ class CifFile(object):
 
     @classmethod
     def from_file(cls, filename):
-        with zopen(filename, "rt", errors="replace") as f:
+        with zopen(str(filename), "rt", errors="replace") as f:
             return cls.from_string(f.read())
 
 
-class CifParser(object):
+class CifParser:
     """
-    Parses a cif file
+    Parses a CIF file. Attempts to fix CIFs that are out-of-spec, but will
+    issue warnings if corrections applied. These are also stored in the
+    CifParser's errors attribute.
 
     Args:
-        filename (str): Cif filename. bzipped or gzipped cifs are fine too.
+        filename (str): CIF filename, bzipped or gzipped CIF files are fine too.
         occupancy_tolerance (float): If total occupancy of a site is between 1
             and occupancy_tolerance, the occupancies will be scaled down to 1.
         site_tolerance (float): This tolerance is used to determine if two
@@ -309,7 +306,7 @@ class CifParser(object):
     def __init__(self, filename, occupancy_tolerance=1., site_tolerance=1e-4):
         self._occupancy_tolerance = occupancy_tolerance
         self._site_tolerance = site_tolerance
-        if isinstance(filename, six.string_types):
+        if isinstance(filename, (str, Path)):
             self._cif = CifFile.from_file(filename)
         else:
             self._cif = CifFile.from_string(filename.read())
@@ -317,6 +314,7 @@ class CifParser(object):
         # store if CIF contains features from non-core CIF dictionaries
         # e.g. magCIF
         self.feature_flags = {}
+        self.errors = []
 
         def is_magcif():
             """
@@ -373,7 +371,7 @@ class CifParser(object):
         Returns:
             CifParser
         """
-        stream = cStringIO(cif_string)
+        stream = StringIO(cif_string)
         return CifParser(stream, occupancy_tolerance)
 
     def _sanitize_data(self, data):
@@ -393,6 +391,15 @@ class CifParser(object):
         CIF files extracted from the Springer Materials/Pauling File
         databases, and that are different from standard ICSD formats.
         """
+
+        # check for implicit hydrogens, warn if any present
+        if "_atom_site_attached_hydrogens" in data.data.keys():
+            attached_hydrogens = [str2float(x) for x in data.data['_atom_site_attached_hydrogens']
+                                  if str2float(x) != 0]
+            if len(attached_hydrogens) > 0:
+                self.errors.append("Structure has implicit hydrogens defined, "
+                                   "parsed structure unlikely to be suitable for use "
+                                   "in calculations unless hydrogens added.")
 
         # Check to see if "_atom_site_type_symbol" exists, as some test CIFs do
         # not contain this key.
@@ -476,6 +483,9 @@ class CifParser(object):
                         del data.data[original_key][id]
 
             if len(idxs_to_remove) > 0:
+
+                self.errors.append("Pauling file corrections applied.")
+
                 data.data["_atom_site_label"] += new_atom_site_label
                 data.data["_atom_site_type_symbol"] += new_atom_site_type_symbol
                 data.data["_atom_site_occupancy"] += new_atom_site_occupancy
@@ -530,8 +540,33 @@ class CifParser(object):
             for interim_key, final_key in renamed_keys.items():
                 if data.data.get(interim_key):
                     changes_to_make[final_key] = interim_key
+
+            if len(changes_to_make) > 0:
+                self.errors.append("Keys changed to match new magCIF specification.")
+
             for final_key, interim_key in changes_to_make.items():
                 data.data[final_key] = data.data[interim_key]
+
+        # check for finite precision frac co-ordinates (e.g. 0.6667 instead of 0.6666666...7)
+        # this can sometimes cause serious issues when applying symmetry operations
+        important_fracs = (1/3., 2/3.)
+        fracs_to_change = {}
+        for label in ('_atom_site_fract_x', '_atom_site_fract_y', '_atom_site_fract_z'):
+            if label in data.data.keys():
+                for idx, frac in enumerate(data.data[label]):
+                    try:
+                        frac = str2float(frac)
+                    except:
+                        # co-ordinate might not be defined e.g. '?'
+                        continue
+                    for comparison_frac in important_fracs:
+                        if abs(1 - frac/comparison_frac) < 1e-4:
+                            fracs_to_change[(label, idx)] = str(comparison_frac)
+        if fracs_to_change:
+            self.errors.append("Some fractional co-ordinates rounded to ideal values to "
+                               "avoid finite precision errors.")
+            for (label, idx), val in fracs_to_change.items():
+                data.data[label][idx] = val
 
         return data
 
@@ -612,6 +647,7 @@ class CifParser(object):
                         return self.get_lattice(data, lengths, angles,
                                                 lattice_type=lattice_type)
                     except AttributeError as exc:
+                        self.errors.append(str(exc))
                         warnings.warn(exc)
 
                 else:
@@ -630,8 +666,10 @@ class CifParser(object):
                                "_space_group_symop_operation_xyz_"]:
             if data.data.get(symmetry_label):
                 xyz = data.data.get(symmetry_label)
-                if isinstance(xyz, six.string_types):
-                    warnings.warn("A 1-line symmetry op P1 CIF is detected!")
+                if isinstance(xyz, str):
+                    msg = "A 1-line symmetry op P1 CIF is detected!"
+                    warnings.warn(msg)
+                    self.errors.append(msg)
                     xyz = [xyz]
                 try:
                     symops = [SymmOp.from_xyz_string(s)
@@ -661,9 +699,10 @@ class CifParser(object):
                         spg = space_groups.get(sg)
                         if spg:
                             symops = SpaceGroup(spg).symmetry_ops
-                            warnings.warn(
-                                "No _symmetry_equiv_pos_as_xyz type key found. "
-                                "Spacegroup from %s used." % symmetry_label)
+                            msg = "No _symmetry_equiv_pos_as_xyz type key found. " \
+                                    "Spacegroup from %s used." % symmetry_label
+                            warnings.warn(msg)
+                            self.errors.append(msg)
                             break
                     except ValueError:
                         # Ignore any errors
@@ -676,9 +715,10 @@ class CifParser(object):
                                 xyz = d["symops"]
                                 symops = [SymmOp.from_xyz_string(s)
                                           for s in xyz]
-                                warnings.warn(
-                                    "No _symmetry_equiv_pos_as_xyz type key found. "
-                                    "Spacegroup from %s used." % symmetry_label)
+                                msg = "No _symmetry_equiv_pos_as_xyz type key found. " \
+                                        "Spacegroup from %s used." % symmetry_label
+                                warnings.warn(msg)
+                                self.errors.append(msg)
                                 break
                     except Exception as ex:
                         continue
@@ -700,8 +740,10 @@ class CifParser(object):
                         continue
 
         if not symops:
-            warnings.warn("No _symmetry_equiv_pos_as_xyz type key found. "
-                          "Defaulting to P1.")
+            msg = "No _symmetry_equiv_pos_as_xyz type key found. " \
+                  "Defaulting to P1."
+            warnings.warn(msg)
+            self.errors.append(msg)
             symops = [SymmOp.from_xyz_string(s) for s in ['x', 'y', 'z']]
 
         return symops
@@ -718,14 +760,14 @@ class CifParser(object):
         if data.data.get("_space_group_symop_magn_operation.xyz"):
 
             xyzt = data.data.get("_space_group_symop_magn_operation.xyz")
-            if isinstance(xyzt, six.string_types):
+            if isinstance(xyzt, str):
                 xyzt = [xyzt]
             magsymmops = [MagSymmOp.from_xyzt_string(s) for s in xyzt]
 
             if data.data.get("_space_group_symop_magn_centering.xyz"):
 
                 xyzt = data.data.get("_space_group_symop_magn_centering.xyz")
-                if isinstance(xyzt, six.string_types):
+                if isinstance(xyzt, str):
                     xyzt = [xyzt]
                 centering_symops = [MagSymmOp.from_xyzt_string(s) for s in xyzt]
 
@@ -770,8 +812,9 @@ class CifParser(object):
             magsymmops = msg.symmetry_ops
 
         if not magsymmops:
-            warnings.warn(
-                "No magnetic symmetry detected, using primitive symmetry.")
+            msg = "No magnetic symmetry detected, using primitive symmetry."
+            warnings.warn(msg)
+            self.errors.append(msg)
             magsymmops = [MagSymmOp.from_xyzt_string("x, y, z, 1")]
 
         return magsymmops
@@ -816,25 +859,48 @@ class CifParser(object):
             return None
         return magmoms
 
+    def _parse_symbol(self, sym):
+        """
+        Parse a string with a symbol to extract a string representing an element.
+
+        Args:
+            sym (str): A symbol to be parsed.
+
+        Returns:
+            A string with the parsed symbol. None if no parsing was possible.
+        """
+        # Common representations for elements/water in cif files
+        # TODO: fix inconsistent handling of water
+        special = {"Hw": "H", "Ow": "O", "Wat": "O",
+                   "wat": "O", "OH": "", "OH2": "", "NO3": "N"}
+
+        parsed_sym = None
+        # try with special symbols, otherwise check the first two letters,
+        # then the first letter alone. If everything fails try extracting the
+        # first letters.
+        m_sp = re.match("|".join(special.keys()), sym)
+        if m_sp:
+            parsed_sym = special[m_sp.group()]
+        elif Element.is_valid_symbol(sym[:2].title()):
+            parsed_sym = sym[:2].title()
+        elif Element.is_valid_symbol(sym[0].upper()):
+            parsed_sym = sym[0].upper()
+        else:
+            m = re.match(r"w?[A-Z][a-z]*", sym)
+            if m:
+                parsed_sym = m.group()
+
+        if parsed_sym is not None and (m_sp or not re.match(r"{}\d*".format(parsed_sym), sym)):
+            msg = "{} parsed as {}".format(sym, parsed_sym)
+            warnings.warn(msg)
+            self.errors.append(msg)
+
+        return parsed_sym
+
     def _get_structure(self, data, primitive):
         """
         Generate structure from part of the cif.
         """
-
-        def parse_symbol(sym):
-            # Common representations for elements/water in cif files
-            # TODO: fix inconsistent handling of water
-            special = {"D": "D", "Hw": "H", "Ow": "O", "Wat": "O",
-                       "wat": "O", "OH": "", "OH2": ""}
-            m = re.findall(r"w?[A-Z][a-z]*", sym)
-            if m and m != "?":
-                if sym in special:
-                    v = special[sym]
-                else:
-                    v = special.get(m[0], m[0])
-                if len(m) > 1 or (m[0] in special):
-                    warnings.warn("{} parsed as {}".format(sym, v))
-                return v
 
         def get_num_implicit_hydrogens(sym):
             num_h = {"Wat": 2, "wat": 2, "O-H": 1}
@@ -876,11 +942,11 @@ class CifParser(object):
             try:
                 # If site type symbol exists, use it. Otherwise, we use the
                 # label.
-                symbol = parse_symbol(data["_atom_site_type_symbol"][i])
+                symbol = self._parse_symbol(data["_atom_site_type_symbol"][i])
                 num_h = get_num_implicit_hydrogens(
                     data["_atom_site_type_symbol"][i])
             except KeyError:
-                symbol = parse_symbol(data["_atom_site_label"][i])
+                symbol = self._parse_symbol(data["_atom_site_label"][i])
                 num_h = get_num_implicit_hydrogens(data["_atom_site_label"][i])
             if not symbol:
                 continue
@@ -915,6 +981,9 @@ class CifParser(object):
                 comp_d = {el: occu}
                 if num_h > 0:
                     comp_d["H"] = num_h
+                    self.errors.append("Structure has implicit hydrogens defined, "
+                                       "parsed structure unlikely to be suitable for use "
+                                       "in calculations unless hydrogens added.")
                 comp = Composition(comp_d)
                 if not match:
                     coord_to_species[coord] = comp
@@ -927,9 +996,10 @@ class CifParser(object):
         sum_occu = [sum(c.values()) for c in coord_to_species.values()
                     if not set(c.elements) == {Element("O"), Element("H")}]
         if any([o > 1 for o in sum_occu]):
-            warnings.warn(
-                "Some occupancies (%s) sum to > 1! If they are within "
-                "the tolerance, they will be rescaled." % str(sum_occu))
+            msg = "Some occupancies (%s) sum to > 1! If they are within " \
+                    "the tolerance, they will be rescaled." % str(sum_occu)
+            warnings.warn(msg)
+            self.errors.append(msg)
 
         allspecies = []
         allcoords = []
@@ -1031,11 +1101,17 @@ class CifParser(object):
                 # Warn the user (Errors should never pass silently)
                 # A user reported a problem with cif files produced by Avogadro
                 # in which the atomic coordinates are in Cartesian coords.
+                self.errors.append(str(exc))
                 warnings.warn(str(exc))
+        if self.errors:
+            warnings.warn("Issues encountered while parsing CIF:")
+            for error in self.errors:
+                warnings.warn(error)
         if len(structures) == 0:
             raise ValueError("Invalid cif file with no structures!")
         return structures
 
+    @requires(BibliographyData, "Bibliographic data extraction requires pybtex.")
     def get_bibtex_string(self):
         """
         Get BibTeX reference from CIF file.
@@ -1069,11 +1145,20 @@ class CifParser(object):
             for field, tags in bibtex_keys.items():
                 for tag in tags:
                     if tag in data:
-                        bibtex_entry[field] = data[tag]
+                        if isinstance(data[tag], list):
+                            bibtex_entry[field] = data[tag][0]
+                        else:
+                            bibtex_entry[field] = data[tag]
 
             # convert to bibtex author format ('and' delimited)
             if 'author' in bibtex_entry:
-                bibtex_entry['author'] = ' and '.join(bibtex_entry['author'])
+                # separate out semicolon authors
+                if isinstance(bibtex_entry["author"], str):
+                    if ";" in bibtex_entry["author"]:
+                        bibtex_entry["author"] = bibtex_entry["author"].split(";")
+
+                if isinstance(bibtex_entry['author'], list):
+                    bibtex_entry['author'] = ' and '.join(bibtex_entry['author'])
 
             # convert to bibtex page range format, use empty string if not specified
             if ('page_first' in bibtex_entry) or ('page_last' in bibtex_entry):
@@ -1096,8 +1181,12 @@ class CifParser(object):
                 d[k][k2] = v2
         return d
 
+    @property
+    def has_errors(self):
+        return len(self.errors) > 0
 
-class CifWriter(object):
+
+class CifWriter:
     def __init__(self, struct, symprec=None, write_magmoms=False):
         """
         A wrapper around CifFile to write CIF files from pymatgen structures.
@@ -1168,20 +1257,17 @@ class CifWriter(object):
         loops.append(["_symmetry_equiv_pos_site_id",
                       "_symmetry_equiv_pos_as_xyz"])
 
-        contains_oxidation = True
         try:
             symbol_to_oxinum = OrderedDict([
                 (el.__str__(),
                  float(el.oxi_state))
                 for el in sorted(comp.elements)])
-        except AttributeError:
-            symbol_to_oxinum = OrderedDict([(el.symbol, 0) for el in
-                                            sorted(comp.elements)])
-            contains_oxidation = False
-        if contains_oxidation:
             block["_atom_type_symbol"] = symbol_to_oxinum.keys()
             block["_atom_type_oxidation_number"] = symbol_to_oxinum.values()
             loops.append(["_atom_type_symbol", "_atom_type_oxidation_number"])
+        except (TypeError, AttributeError):
+            symbol_to_oxinum = OrderedDict([(el.symbol, 0) for el in
+                                            sorted(comp.elements)])
 
         atom_site_type_symbol = []
         atom_site_symmetry_multiplicity = []
@@ -1194,10 +1280,10 @@ class CifWriter(object):
         atom_site_moment_crystalaxis_x = []
         atom_site_moment_crystalaxis_y = []
         atom_site_moment_crystalaxis_z = []
-        count = 1
+        count = 0
         if symprec is None:
             for site in struct:
-                for sp, occu in sorted(site.species_and_occu.items()):
+                for sp, occu in sorted(site.species.items()):
                     atom_site_type_symbol.append(sp.__str__())
                     atom_site_symmetry_multiplicity.append("1")
                     atom_site_fract_x.append("{0:f}".format(site.a))
@@ -1228,9 +1314,9 @@ class CifWriter(object):
             ]
             for site, mult in sorted(
                     unique_sites,
-                    key=lambda t: (t[0].species_and_occu.average_electroneg,
+                    key=lambda t: (t[0].species.average_electroneg,
                                    -t[1], t[0].a, t[0].b, t[0].c)):
-                for sp, occu in site.species_and_occu.items():
+                for sp, occu in site.species.items():
                     atom_site_type_symbol.append(sp.__str__())
                     atom_site_symmetry_multiplicity.append("%d" % mult)
                     atom_site_fract_x.append("{0:f}".format(site.a))
@@ -1291,10 +1377,12 @@ def str2float(text):
     """
 
     try:
-        return float(re.sub(r"\(.+\)", "", text))
+        # Note that the ending ) is sometimes missing. That is why the code has
+        # been modified to treat it as optional. Same logic applies to lists.
+        return float(re.sub(r"\(.+\)*", "", text))
     except TypeError:
         if isinstance(text, list) and len(text) == 1:
-            return float(re.sub(r"\(.+\)", "", text[0]))
+            return float(re.sub(r"\(.+\)*", "", text[0]))
     except ValueError as ex:
         if text.strip() == ".":
             return 0

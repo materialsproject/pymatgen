@@ -1,7 +1,6 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-from __future__ import unicode_literals, division, print_function
 
 import os
 
@@ -66,7 +65,6 @@ class SpinModeTest(PymatgenTest):
 class SmearingTest(PymatgenTest):
     def test_base(self):
         fd1ev = Smearing.as_smearing("fermi_dirac:1 eV")
-        print(fd1ev)
         fd1ev.to_abivars()
 
         self.assertTrue(fd1ev)
@@ -95,7 +93,7 @@ class SmearingTest(PymatgenTest):
 class ElectronsAlgorithmTest(PymatgenTest):
     def test_base(self):
         algo = ElectronsAlgorithm(nstep=70)
-        print(algo.to_abivars())
+        abivars = algo.to_abivars()
 
         # Test pickle
         self.serialize_with_pickle(algo)
@@ -111,7 +109,7 @@ class ElectronsTest(PymatgenTest):
         self.assertTrue(default_electrons.nspinor==1)
         self.assertTrue(default_electrons.nspden==2)
 
-        print(default_electrons.to_abivars())
+        abivars = default_electrons.to_abivars()
 
         #new = Electron.from_dict(default_electrons.as_dict())
 
@@ -137,6 +135,7 @@ class KSamplingTest(PymatgenTest):
         self.assertMSONable(monkhorst)
         self.assertMSONable(gamma_centered)
 
+
 class RelaxationTest(PymatgenTest):
 
     def test_base(self):
@@ -154,8 +153,8 @@ class PPModelTest(PymatgenTest):
 
     def test_base(self):
         godby = PPModel.as_ppmodel("godby:12 eV")
-        print(godby)
-        print(repr(godby))
+        # print(godby)
+        # print(repr(godby))
         godby.to_abivars()
         self.assertTrue(godby)
 

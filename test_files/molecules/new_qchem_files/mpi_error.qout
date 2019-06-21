@@ -1,0 +1,5 @@
+
+Running Job 1 of 1 mol.qin
+qchem mol.qin_30243.0 /tmp/qchem30243/ 1
+srun -n 1 /global/common/edison/software/qchem/5.1beta/exe/qcprog.exe mol.qin_30243.0 /tmp/qchem30243/
+

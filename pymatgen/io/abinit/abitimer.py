@@ -5,14 +5,13 @@
 This module provides objects for extracting timing data from the ABINIT output files
 It also provides tools to analye and to visualize the parallel efficiency.
 """
-from __future__ import unicode_literals, division
 
 import sys
 import os
 import collections
 import numpy as np
 
-from six.moves import zip
+
 from monty.string import is_string, list_strings
 from pymatgen.util.num import minloc
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt
@@ -37,7 +36,7 @@ class AbinitTimerParserError(Exception):
     """Errors raised by AbinitTimerParser"""
 
 
-class AbinitTimerParser(collections.Iterable):
+class AbinitTimerParser(collections.abc.Iterable):
     """
     Responsible for parsing a list of output files, extracting the timing results
     and analyzing the results.
@@ -550,7 +549,7 @@ class ParallelEfficiency(dict):
         return bad_sections[:nmax]
 
 
-class AbinitTimerSection(object):
+class AbinitTimerSection:
     """Record with the timing results associated to a section of code."""
     STR_FIELDS = [
         "name"
@@ -602,7 +601,7 @@ class AbinitTimerSection(object):
         return string[:-1]
 
 
-class AbinitTimer(object):
+class AbinitTimer:
     """Container class storing the timing results."""
 
     def __init__(self, sections, info, cpu_time, wall_time):

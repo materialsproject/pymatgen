@@ -1,7 +1,7 @@
-pymatgen\.io\.abinit\.abitimer module
-=====================================
+pymatgen.io.abinit.abitimer module
+==================================
 
 .. automodule:: pymatgen.io.abinit.abitimer
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

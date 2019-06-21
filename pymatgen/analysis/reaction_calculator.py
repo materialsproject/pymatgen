@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import logging
 import numpy as np
@@ -333,13 +332,14 @@ class Reaction(BalancedReaction):
         f_mat[len(reactants), 0] = 1  # set normalization by the first product
         b = np.zeros(len(els) + 1)
         b[0] = 1
-        coeffs, res, _, s = np.linalg.lstsq(f_mat.T, b)
+        coeffs, res, _, s = np.linalg.lstsq(f_mat.T, b, rcond=None)
 
         # for whatever reason the rank returned by lstsq isn't always correct
-        # seems to be a problem with low-rank M but inconsistent system  M x = b.
+        # seems to be a problem with low-rank M but inconsistent system
+        # M x = b.
         # the singular values seem ok, so checking based on those
         if sum(np.abs(s) > 1e-12) == len(f_mat):
-            if res and res[0] > self.TOLERANCE ** 2:
+            if res.size > 0 and res[0] > self.TOLERANCE ** 2:
                 raise ReactionError("Reaction cannot be balanced.")
             else:
                 ok = True
@@ -360,15 +360,18 @@ class Reaction(BalancedReaction):
                 for j, i in enumerate(inds):
                     f_mat[i, j] = 1
                 # try a solution
-                coeffs, res, _, s = np.linalg.lstsq(f_mat.T, b)
+                coeffs, res, _, s = np.linalg.lstsq(f_mat.T, b, rcond=None)
                 if sum(np.abs(s) > 1e-12) == len(self._all_comp) and \
-                        (not res or res[0] < self.TOLERANCE ** 2):
+                        (res.size == 0 or res[0] < self.TOLERANCE ** 2):
                     ok = True
                     break
 
         if not ok:
             r_mat = np.array([[c[el] for el in els] for c in reactants])
-            if np.linalg.lstsq(r_mat.T, np.zeros(len(els)))[2] != len(reactants):
+            reactants_underdetermined = (
+                np.linalg.lstsq(r_mat.T, np.zeros(len(els)), rcond=None)[2]
+                != len(reactants))
+            if reactants_underdetermined:
                 raise ReactionError("Reaction cannot be balanced. "
                                     "Reactants are underdetermined.")
             raise ReactionError("Reaction cannot be balanced. "
@@ -394,6 +397,7 @@ class Reaction(BalancedReaction):
         reactants = [Composition(sym_amt) for sym_amt in d["reactants"]]
         products = [Composition(sym_amt) for sym_amt in d["products"]]
         return cls(reactants, products)
+
 
 class ReactionError(Exception):
     """
@@ -430,8 +434,7 @@ class ComputedReaction(Reaction):
         product_comp = set([e.composition
                             .get_reduced_composition_and_factor()[0]
                             for e in product_entries])
-        super(ComputedReaction, self).__init__(list(reactant_comp),
-                                               list(product_comp))
+        super().__init__(list(reactant_comp), list(product_comp))
 
     @property
     def all_entries(self):

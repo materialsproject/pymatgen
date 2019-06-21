@@ -1,7 +1,7 @@
-pymatgen\.io\.cssr module
-=========================
+pymatgen.io.cssr module
+=======================
 
 .. automodule:: pymatgen.io.cssr
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

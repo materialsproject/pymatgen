@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals
 
 import numpy as np
 import unittest
@@ -11,7 +10,7 @@ import os
 from pymatgen.analysis.structure_analyzer import solid_angle, \
     contains_peroxide, RelaxationAnalyzer, VoronoiConnectivity, \
     oxide_type, sulfide_type, average_coordination_number, \
-    VoronoiAnalyzer, get_dimensionality
+    VoronoiAnalyzer
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.outputs import Xdatcar
 from pymatgen import Element, Structure, Lattice
@@ -22,6 +21,7 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
 
 
 class VoronoiAnalyzerTest(PymatgenTest):
+    _multiprocess_shared_ = True
 
     def setUp(self):
         self.ss = Xdatcar(os.path.join(test_dir, 'XDATCAR.MD')).structures
@@ -41,20 +41,6 @@ class VoronoiAnalyzerTest(PymatgenTest):
         self.assertIn(('[1 3 4 7 1 0 0 0]', 3),
                       ensemble, "Cannot find the right polyhedron in ensemble.")
 
-
-class GetDimensionalityTest(PymatgenTest):
-
-    def test_get_dimensionality(self):
-        s = self.get_structure('LiFePO4')
-        self.assertEqual(get_dimensionality(s), 3)
-
-        s = self.get_structure('Graphite')
-        self.assertEqual(get_dimensionality(s), 2)
-
-    def test_get_dimensionality_with_bonds(self):
-        s = self.get_structure('CsCl')
-        self.assertEqual(get_dimensionality(s), 1)
-        self.assertEqual(get_dimensionality(s, bonds={("Cs", "Cl"): 3.7}), 3)
 
 class RelaxationAnalyzerTest(unittest.TestCase):
     def setUp(self):
@@ -87,8 +73,6 @@ class VoronoiConnectivityTest(PymatgenTest):
     def test_connectivity_array(self):
         vc = VoronoiConnectivity(self.get_structure("LiFePO4"))
         ca = vc.connectivity_array
-        np.set_printoptions(threshold=np.NAN, linewidth=np.NAN, suppress=np.NAN)
-
         expected = np.array([0, 1.96338392, 0, 0.04594495])
         self.assertTrue(np.allclose(ca[15, :4, ca.shape[2] // 2], expected))
 
@@ -259,6 +243,10 @@ class MiscFunctionTest(PymatgenTest):
                   [0.50000, 0.29400, 0.35500],
                   [0.50000, 0.30300, 0.61140]]
         struct = Structure.from_spacegroup(36, latt, species, coords)
+        self.assertEqual(sulfide_type(struct), "sulfide")
+        
+        # test for unphysical cells
+        struct.scale_lattice(struct.volume*10)
         self.assertEqual(sulfide_type(struct), "sulfide")
 
 

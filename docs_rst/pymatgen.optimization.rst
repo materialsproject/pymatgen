@@ -1,5 +1,11 @@
-pymatgen\.optimization package
-==============================
+pymatgen.optimization package
+=============================
+
+Subpackages
+-----------
+
+.. toctree::
+
 
 Submodules
 ----------
@@ -13,6 +19,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.optimization
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

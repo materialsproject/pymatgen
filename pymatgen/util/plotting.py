@@ -2,11 +2,11 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import math
 import numpy as np
 
 from pymatgen.core.periodic_table import Element
+from itertools import combinations
 
 """
 Utilities for generating nicer plots.
@@ -205,7 +205,7 @@ def periodic_table_heatmap(elemental_data, cbar_label="",
             the first 9 rows of elements.
     """
 
-    # Convert elemental data in the form of numpy array for plotting.
+    # Convert primitive_elemental data in the form of numpy array for plotting.
     max_val = max(elemental_data.values())
     min_val = min(elemental_data.values())
     max_row = min(max_row, 9)
@@ -262,11 +262,146 @@ def periodic_table_heatmap(elemental_data, cbar_label="",
     return plt
 
 
-def get_ax_fig_plt(ax=None):
+def format_formula(formula):
+    """
+    Converts str of chemical formula into
+    latex format for labelling purposes
+
+    Args:
+        formula (str): Chemical formula
+    """
+
+    formatted_formula = ""
+    number_format = ""
+    for i, s in enumerate(formula):
+        if s.isdigit():
+            if not number_format:
+                number_format = "_{"
+            number_format += s
+            if i == len(formula) - 1:
+                number_format += "}"
+                formatted_formula += number_format
+        else:
+            if number_format:
+                number_format += "}"
+                formatted_formula += number_format
+                number_format = ""
+            formatted_formula += s
+
+    return r"$%s$" % (formatted_formula)
+
+
+def van_arkel_triangle(list_of_materials, annotate=True):
+    """
+    A static method that generates a binary van Arkel-Ketelaar triangle to
+        quantify the ionic, metallic and covalent character of a compound
+        by plotting the electronegativity difference (y) vs average (x).
+        See:
+            A.E. van Arkel, Molecules and Crystals in Inorganic Chemistry,
+                Interscience, New York (1956)
+        and
+            J.A.A Ketelaar, Chemical Constitution (2nd edn.), An Introduction
+                to the Theory of the Chemical Bond, Elsevier, New York (1958)
+
+    Args:
+         list_of_materials (list): A list of computed entries of binary
+            materials or a list of lists containing two elements (str).
+         annotate (bool): Whether or not to lable the points on the
+            triangle with reduced formula (if list of entries) or pair
+            of elements (if list of list of str).
+    """
+
+    # F-Fr has the largest X difference. We set this
+    # as our top corner of the triangle (most ionic)
+    pt1 = np.array([(Element("F").X + Element("Fr").X) / 2,
+                    abs(Element("F").X - Element("Fr").X)])
+    # Cs-Fr has the lowest average X. We set this as our
+    # bottom left corner of the triangle (most metallic)
+    pt2 = np.array([(Element("Cs").X + Element("Fr").X) / 2,
+                    abs(Element("Cs").X - Element("Fr").X)])
+    # O-F has the highest average X. We set this as our
+    # bottom right corner of the triangle (most covalent)
+    pt3 = np.array([(Element("O").X + Element("F").X) / 2,
+                    abs(Element("O").X - Element("F").X)])
+
+    # get the parameters for the lines of the triangle
+    d = np.array(pt1) - np.array(pt2)
+    slope1 = d[1] / d[0]
+    b1 = pt1[1] - slope1 * pt1[0]
+    d = pt3 - pt1
+    slope2 = d[1] / d[0]
+    b2 = pt3[1] - slope2 * pt3[0]
+
+    # Initialize the plt object
+    import matplotlib.pyplot as plt
+
+    # set labels and appropriate limits for plot
+    plt.xlim(pt2[0] - 0.45, -b2 / slope2 + 0.45)
+    plt.ylim(-0.45, pt1[1] + 0.45)
+    plt.annotate("Ionic", xy=[pt1[0] - 0.3, pt1[1] + 0.05], fontsize=20)
+    plt.annotate("Covalent", xy=[-b2 / slope2 - 0.65, -0.4], fontsize=20)
+    plt.annotate("Metallic", xy=[pt2[0] - 0.4, -0.4], fontsize=20)
+    plt.xlabel(r"$\frac{\chi_{A}+\chi_{B}}{2}$", fontsize=25)
+    plt.ylabel(r"$|\chi_{A}-\chi_{B}|$", fontsize=25)
+
+    # Set the lines of the triangle
+    chi_list = [el.X for el in Element]
+    plt.plot([min(chi_list), pt1[0]], [slope1 * min(chi_list) + b1, pt1[1]], 'k-', linewidth=3)
+    plt.plot([pt1[0], -b2 / slope2], [pt1[1], 0], 'k-', linewidth=3)
+    plt.plot([min(chi_list), -b2 / slope2], [0, 0], 'k-', linewidth=3)
+    plt.xticks(fontsize=15)
+    plt.yticks(fontsize=15)
+
+    # Shade with appropriate colors corresponding to ionic, metallci and covalent
+    ax = plt.gca()
+    # ionic filling
+    ax.fill_between([min(chi_list), pt1[0]],
+                    [slope1 * min(chi_list) + b1, pt1[1]], facecolor=[1, 1, 0],
+                    zorder=-5, edgecolor=[1, 1, 0])
+    ax.fill_between([pt1[0], -b2 / slope2],
+                    [pt1[1], slope2 * min(chi_list) - b1], facecolor=[1, 1, 0],
+                    zorder=-5, edgecolor=[1, 1, 0])
+    # metal filling
+    XPt = Element("Pt").X
+    ax.fill_between([min(chi_list), (XPt + min(chi_list)) / 2],
+                    [0, slope1 * (XPt + min(chi_list)) / 2 + b1],
+                    facecolor=[1, 0, 0], zorder=-3, alpha=0.8)
+    ax.fill_between([(XPt + min(chi_list)) / 2, XPt],
+                    [slope1 * ((XPt + min(chi_list)) / 2) + b1, 0],
+                    facecolor=[1, 0, 0], zorder=-3, alpha=0.8)
+    # covalent filling
+    ax.fill_between([(XPt + min(chi_list)) / 2, ((XPt + min(chi_list)) / 2 + -b2 / slope2) / 2],
+                    [0, slope2 * (((XPt + min(chi_list)) / 2 + -b2 / slope2) / 2) + b2],
+                    facecolor=[0, 1, 0], zorder=-4, alpha=0.8)
+    ax.fill_between([((XPt + min(chi_list)) / 2 + -b2 / slope2) / 2, -b2 / slope2],
+                    [slope2 * (((XPt + min(chi_list)) / 2 + -b2 / slope2) / 2) + b2, 0],
+                    facecolor=[0, 1, 0], zorder=-4, alpha=0.8)
+
+    # Label the triangle with datapoints
+    for entry in list_of_materials:
+        if type(entry).__name__ not in ['ComputedEntry', 'ComputedStructureEntry']:
+            X_pair = [Element(el).X for el in entry]
+            formatted_formula = "%s-%s" % tuple(entry)
+        else:
+            X_pair = [Element(el).X for el in entry.composition.as_dict().keys()]
+            formatted_formula = format_formula(entry.composition.reduced_formula)
+        plt.scatter(np.mean(X_pair), abs(X_pair[0] - X_pair[1]), c='b', s=100)
+        if annotate:
+            plt.annotate(formatted_formula, fontsize=15,
+                         xy=[np.mean(X_pair) + 0.005, abs(X_pair[0] - X_pair[1])])
+
+    plt.tight_layout()
+    return plt
+
+
+def get_ax_fig_plt(ax=None, **kwargs):
     """
     Helper function used in plot functions supporting an optional Axes argument.
     If ax is None, we build the `matplotlib` figure and create the Axes else
     we return the current active figure.
+
+    Args:
+        kwargs: keyword arguments are passed to plt.figure if ax is not None.
 
     Returns:
         ax: :class:`Axes` object
@@ -275,7 +410,7 @@ def get_ax_fig_plt(ax=None):
     """
     import matplotlib.pyplot as plt
     if ax is None:
-        fig = plt.figure()
+        fig = plt.figure(**kwargs)
         ax = fig.add_subplot(1, 1, 1)
     else:
         fig = plt.gcf()
@@ -283,11 +418,14 @@ def get_ax_fig_plt(ax=None):
     return ax, fig, plt
 
 
-def get_ax3d_fig_plt(ax=None):
+def get_ax3d_fig_plt(ax=None, **kwargs):
     """
     Helper function used in plot functions supporting an optional Axes3D
     argument. If ax is None, we build the `matplotlib` figure and create the
     Axes3D else we return the current active figure.
+
+    Args:
+        kwargs: keyword arguments are passed to plt.figure if ax is not None.
 
     Returns:
         ax: :class:`Axes` object
@@ -297,7 +435,7 @@ def get_ax3d_fig_plt(ax=None):
     import matplotlib.pyplot as plt
     from mpl_toolkits.mplot3d import axes3d
     if ax is None:
-        fig = plt.figure()
+        fig = plt.figure(**kwargs)
         ax = axes3d.Axes3D(fig)
     else:
         fig = plt.gcf()
@@ -328,10 +466,12 @@ def get_axarray_fig_plt(ax_array, nrows=1, ncols=1, sharex=False, sharey=False,
                                      gridspec_kw=gridspec_kw, **fig_kw)
     else:
         fig = plt.gcf()
+        ax_array = np.reshape(np.array(ax_array), (nrows, ncols))
         if squeeze:
-            ax_array = np.array(ax_array).ravel()
-            if len(ax_array) == 1:
-                ax_array = ax_array[1]
+            if ax_array.size == 1:
+                ax_array = ax_array[0]
+            elif any(s == 1 for s in ax_array.shape):
+                ax_array = ax_array.ravel()
 
     return ax_array, fig, plt
 
@@ -355,6 +495,8 @@ def add_fig_kwargs(func):
         show = kwargs.pop("show", True)
         savefig = kwargs.pop("savefig", None)
         tight_layout = kwargs.pop("tight_layout", False)
+        ax_grid = kwargs.pop("ax_grid", None)
+        ax_annotate = kwargs.pop("ax_annotate", None)
 
         # Call func and return immediately if None is returned.
         fig = func(*args, **kwargs)
@@ -369,8 +511,18 @@ def add_fig_kwargs(func):
             fig.set_size_inches(size_kwargs.pop("w"), size_kwargs.pop("h"),
                                 **size_kwargs)
 
-        if savefig:
-            fig.savefig(savefig)
+        if ax_grid is not None:
+            for ax in fig.axes:
+                ax.grid(bool(ax_grid))
+
+        if ax_annotate:
+            from string import ascii_letters
+            tags = ascii_letters
+            if len(fig.axes) > len(tags):
+                tags = (1 + len(ascii_letters) // len(fig.axes)) * ascii_letters
+            for ax, tag in zip(fig.axes, tags):
+                ax.annotate("(%s)" % tag, xy=(0.05, 0.95), xycoords="axes fraction")
+
         if tight_layout:
             try:
                 fig.tight_layout()
@@ -378,6 +530,10 @@ def add_fig_kwargs(func):
                 # For some unknown reason, this problem shows up only on travis.
                 # https://stackoverflow.com/questions/22708888/valueerror-when-using-matplotlib-tight-layout
                 print("Ignoring Exception raised by fig.tight_layout\n", str(exc))
+
+        if savefig:
+            fig.savefig(savefig)
+
         if show:
             import matplotlib.pyplot as plt
             plt.show()
@@ -397,6 +553,10 @@ def add_fig_kwargs(func):
         size_kwargs       Dictionary with options passed to fig.set_size_inches
                           e.g. size_kwargs=dict(w=3, h=4)
         tight_layout      True to call fig.tight_layout (default: False)
+        ax_grid           True (False) to add (remove) grid from all axes in fig.
+                          Default: None i.e. fig is left unchanged.
+        ax_annotate       Add labels to  subplots e.g. (a), (b).
+                          Default: False
         ================  ====================================================
 
 """

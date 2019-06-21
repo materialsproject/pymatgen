@@ -1,13 +1,13 @@
 ===============================================
 Execution sur noeud     : dnas-node31.univ-pau.fr
-Job id = 853327
-Fichiers temporaire sur :  /scratch/853327
+Job id = 1038990
+Fichiers temporaire sur :  /scratch/1038990
 ===============================================
-Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
+Debut execution du job  : jeu. mars  8 14:10:15 CET 2018
  Entering Gaussian System, Link 0=g09
  Initial command:
- /opt/g09-d01/g09/l1.exe "/scratch/853327/Gau-20518.inp" -scrdir="/scratch/853327/"
- Entering Link 1 = /opt/g09-d01/g09/l1.exe PID=     20519.
+ /opt/g09-d01/g09/l1.exe "/scratch/1038990/Gau-56317.inp" -scrdir="/scratch/1038990/"
+ Entering Link 1 = /opt/g09-d01/g09/l1.exe PID=     56318.
   
  Copyright (c) 1988,1990,1992,1993,1995,1998,2003,2009,2013,
             Gaussian, Inc.  All Rights Reserved.
@@ -80,18 +80,18 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  
  ******************************************
  Gaussian 09:  EM64L-G09RevD.01 24-Apr-2013
-                17-Nov-2016 
+                 8-Mar-2018 
  ******************************************
  %chk=h2o.chk
- --------------------------------------
- #P B3LYP / 6-31+G* opt=tight freq form
- --------------------------------------
+ --------------------------------------------------
+ #P B3LYP / 6-31+G* opt=tight freq form pop=NBOREAD
+ --------------------------------------------------
  1/7=10,14=-1,18=20,19=15,26=3,38=1/1,3;
  2/9=110,12=2,17=6,18=5,40=1/2;
  3/5=1,6=6,7=11,11=2,16=1,25=1,30=1,71=1,74=-5/1,2,3;
  4//1;
  5/5=2,38=5/2;
- 6/7=2,8=2,9=2,10=2,28=1/1;
+ 6/7=2,8=2,9=2,10=2,28=1,40=2/1,7;
  7//1,2,3,16;
  1/7=10,14=-1,18=20,19=15,26=3/3(2);
  2/9=110/2;
@@ -103,9 +103,9 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  7//1,2,3,16;
  1/7=10,14=-1,18=20,19=15,26=3/3(-5);
  2/9=110/2;
- 6/7=2,8=2,9=2,10=2,19=2,28=1/1;
+ 6/7=2,8=2,9=2,10=2,19=2,28=1,40=2/1,7;
  99/9=1/99;
- Leave Link    1 at Thu Nov 17 12:10:42 2016, MaxMem=           0 cpu:         0.0
+ Leave Link    1 at Thu Mar  8 14:10:15 2018, MaxMem=           0 cpu:         0.1
  (Enter /opt/g09-d01/g09/l101.exe)
  -------
  vib H2O
@@ -132,7 +132,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  NQMom=    0.0000000   0.0000000   0.0000000
  NMagM=    0.0000000   2.7928460   2.7928460
  AtZNuc=   8.0000000   1.0000000   1.0000000
- Leave Link  101 at Thu Nov 17 12:10:42 2016, MaxMem=    33554432 cpu:         0.1
+ Leave Link  101 at Thu Mar  8 14:10:15 2018, MaxMem=    33554432 cpu:         0.1
  (Enter /opt/g09-d01/g09/l103.exe)
 
  GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad
@@ -152,7 +152,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  Number of steps in this run=     20 maximum allowed number of steps=    100.
  GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad
 
- Leave Link  103 at Thu Nov 17 12:10:42 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  103 at Thu Mar  8 14:10:15 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l202.exe)
                           Input orientation:                          
  ---------------------------------------------------------------------
@@ -184,7 +184,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
       3          1           0       -1.439742   -0.885562    0.000000
  ---------------------------------------------------------------------
  Rotational constants (GHZ):    230.3959797    120.9574758     79.3164709
- Leave Link  202 at Thu Nov 17 12:10:42 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  202 at Thu Mar  8 14:10:15 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l301.exe)
  Standard basis: 6-31+G(d) (6D, 7F)
  Ernie: Thresh=  0.10000D-02 Tol=  0.10000D-05 Strict=F.
@@ -202,7 +202,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  Integral buffers will be    131072 words long.
  Raffenetti 2 integral format.
  Two-electron integral symmetry is turned on.
- Leave Link  301 at Thu Nov 17 12:10:42 2016, MaxMem=    33554432 cpu:         0.1
+ Leave Link  301 at Thu Mar  8 14:10:15 2018, MaxMem=    33554432 cpu:         0.1
  (Enter /opt/g09-d01/g09/l302.exe)
  NPDir=0 NMtPBC=     1 NCelOv=     1 NCel=       1 NClECP=     1 NCelD=      1
          NCelK=      1 NCelE2=     1 NClLst=     1 CellRange=     0.0.
@@ -213,10 +213,10 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  IXCGrd= 4 IRadAn=           0 IRanWt=          -1 IRanGd=           0 AccXCQ= 0.00D+00.
  Generated NRdTot=       0 NPtTot=           0 NUsed=           0 NTot=          32
  NSgBfM=    23    23    23    23    23 MxSgAt=     3 MxSgA2=     3.
- Leave Link  302 at Thu Nov 17 12:10:42 2016, MaxMem=    33554432 cpu:         0.2
+ Leave Link  302 at Thu Mar  8 14:10:15 2018, MaxMem=    33554432 cpu:         0.2
  (Enter /opt/g09-d01/g09/l303.exe)
  DipDrv:  MaxL=1.
- Leave Link  303 at Thu Nov 17 12:10:42 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  303 at Thu Mar  8 14:10:15 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l401.exe)
  ExpMin= 8.45D-02 ExpMax= 5.48D+03 ExpMxC= 8.25D+02 IAcc=2 IRadAn=         4 AccDes= 0.00D+00
  Harris functional with IExCor=  402 and IRadAn=       4 diagonalized for initial guess.
@@ -234,7 +234,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
        Virtual   (A') (A') (A') (A") (A') (A') (A') (A') (A") (A')
                  (A') (A') (A') (A") (A") (A') (A') (A')
  The electronic state of the initial guess is 1-A'.
- Leave Link  401 at Thu Nov 17 12:10:43 2016, MaxMem=    33554432 cpu:         0.2
+ Leave Link  401 at Thu Mar  8 14:10:16 2018, MaxMem=    33554432 cpu:         0.2
  (Enter /opt/g09-d01/g09/l502.exe)
  Closed shell SCF:
  Using DIIS extrapolation, IDIIS=  1040.
@@ -412,7 +412,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  SCF Done:  E(RB3LYP) =  -76.1251855609     A.U. after   13 cycles
             NFock= 13  Conv=0.99D-08     -V/T= 2.0169
  KE= 7.485901897578D+01 PE=-1.893264342216D+02 EE= 3.349637324671D+01
- Leave Link  502 at Thu Nov 17 12:10:44 2016, MaxMem=    33554432 cpu:         0.9
+ Leave Link  502 at Thu Mar  8 14:10:17 2018, MaxMem=    33554432 cpu:         0.9
  (Enter /opt/g09-d01/g09/l601.exe)
  Copying SCF densities to generalized density rwf, IOpCl= 0 IROHF=0.
 
@@ -469,14 +469,298 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  Symmetry A'   KE= 7.012882137039D+01
  Symmetry A"   KE= 4.730197605395D+00
  No NMR shielding tensors so no spin-rotation constants.
- Leave Link  601 at Thu Nov 17 12:10:44 2016, MaxMem=    33554432 cpu:         0.2
+ Leave Link  601 at Thu Mar  8 14:10:17 2018, MaxMem=    33554432 cpu:         0.2
+ (Enter /opt/g09-d01/g09/l607.exe)
+ ******************************Gaussian NBO Version 3.1******************************
+             N A T U R A L   A T O M I C   O R B I T A L   A N D
+          N A T U R A L   B O N D   O R B I T A L   A N A L Y S I S
+ ******************************Gaussian NBO Version 3.1******************************
+
+       /RESON  / : Allow strongly delocalized NBO set
+       /BNDIDX / : Print bond indices based on the NAO density matrix
+
+ Analyzing the SCF density
+
+ Job title: vib H2O                                                         
+
+ Storage needed:      1799 in NPA,      2273 in NBO (  33554369 available)
+
+
+ NATURAL POPULATIONS:  Natural atomic orbital occupancies 
+                                                          
+   NAO  Atom  No  lang   Type(AO)    Occupancy      Energy
+ ----------------------------------------------------------
+     1    O    1  S      Cor( 1S)     2.00000     -19.15563
+     2    O    1  S      Val( 2S)     1.97913      -0.96133
+     3    O    1  S      Ryd( 3S)     0.00014       1.11408
+     4    O    1  S      Ryd( 4S)     0.00000       1.18100
+     5    O    1  S      Ryd( 5S)     0.00000       2.86471
+     6    O    1  px     Val( 2p)     1.39483      -0.29011
+     7    O    1  px     Ryd( 3p)     0.00004       0.25823
+     8    O    1  px     Ryd( 4p)     0.00000       1.03791
+     9    O    1  py     Val( 2p)     1.38159      -0.28637
+    10    O    1  py     Ryd( 3p)     0.00007       0.23494
+    11    O    1  py     Ryd( 4p)     0.00004       1.03876
+    12    O    1  pz     Val( 2p)     1.99976      -0.30286
+    13    O    1  pz     Ryd( 3p)     0.00012       0.23203
+    14    O    1  pz     Ryd( 4p)     0.00000       1.05695
+    15    O    1  dxy    Ryd( 3d)     0.00047       1.81981
+    16    O    1  dxz    Ryd( 3d)     0.00000       1.80340
+    17    O    1  dyz    Ryd( 3d)     0.00011       1.80728
+    18    O    1  dx2y2  Ryd( 3d)     0.00003       1.78632
+    19    O    1  dz2    Ryd( 3d)     0.00025       1.82967
+
+    20    H    2  S      Val( 1S)     0.62155      -0.21334
+    21    H    2  S      Ryd( 2S)     0.00016       0.77862
+
+    22    H    3  S      Val( 1S)     0.62155      -0.21333
+    23    H    3  S      Ryd( 2S)     0.00016       0.77862
+
+
+ Summary of Natural Population Analysis:                  
+                                                          
+                                       Natural Population 
+                Natural  -----------------------------------------------
+    Atom  No    Charge         Core      Valence    Rydberg      Total
+ -----------------------------------------------------------------------
+      O    1   -0.75658      2.00000     6.75531    0.00127     8.75658
+      H    2    0.37829      0.00000     0.62155    0.00016     0.62171
+      H    3    0.37829      0.00000     0.62155    0.00016     0.62171
+ =======================================================================
+   * Total *    0.00000      2.00000     7.99841    0.00159    10.00000
+
+                                 Natural Population      
+ --------------------------------------------------------
+   Core                       2.00000 ( 99.9998% of   2)
+   Valence                    7.99841 ( 99.9802% of   8)
+   Natural Minimal Basis      9.99841 ( 99.9841% of  10)
+   Natural Rydberg Basis      0.00159 (  0.0159% of  10)
+ --------------------------------------------------------
+
+    Atom  No          Natural Electron Configuration
+ ----------------------------------------------------------------------------
+      O    1      [core]2S( 1.98)2p( 4.78)
+      H    2            1S( 0.62)
+      H    3            1S( 0.62)
+
+
+ Wiberg bond index matrix in the NAO basis:                                    
+
+     Atom    1       2       3
+     ---- ------  ------  ------
+   1.  O  0.0000  0.8567  0.8567
+   2.  H  0.8567  0.0000  0.0004
+   3.  H  0.8567  0.0004  0.0000
+
+
+ Wiberg bond index, Totals by atom:                                            
+
+     Atom    1
+     ---- ------
+   1.  O  1.7134
+   2.  H  0.8571
+   3.  H  0.8571
+
+
+ Atom-atom overlap-weighted NAO bond order:                                    
+
+     Atom    1       2       3
+     ---- ------  ------  ------
+   1.  O  0.0000  0.3673  0.3673
+   2.  H  0.3673  0.0000  0.0022
+   3.  H  0.3673  0.0022  0.0000
+
+
+ Atom-atom overlap-weighted NAO bond order, Totals by atom:                    
+
+     Atom    1
+     ---- ------
+   1.  O  0.7345
+   2.  H  0.3694
+   3.  H  0.3694
+
+
+ MO bond order:                                                                
+
+     Atom    1       2       3
+     ---- ------  ------  ------
+   1.  O  0.0000  0.1020 -1.1971
+   2.  H  0.1020  0.0000  0.0029
+   3.  H -1.1971  0.0029  0.0000
+
+
+ MO atomic valencies:                                                          
+
+     Atom    1
+     ---- ------
+   1.  O -1.0951
+   2.  H  0.1049
+   3.  H -1.1942
+
+
+ NATURAL BOND ORBITAL ANALYSIS:
+
+                       Occupancies       Lewis Structure    Low   High
+           Occ.    -------------------  -----------------   occ   occ
+  Cycle   Thresh.   Lewis   Non-Lewis     CR  BD  3C  LP    (L)   (NL)   Dev
+ =============================================================================
+   1(1)    1.90     9.99934   0.00066      1   2   0   2     0      0    0.00
+ -----------------------------------------------------------------------------
+
+ Structure accepted: No low occupancy Lewis orbitals
+
+ --------------------------------------------------------
+   Core                      2.00000 (100.000% of   2)
+   Valence Lewis             7.99935 ( 99.992% of   8)
+  ==================       ============================
+   Total Lewis               9.99934 ( 99.993% of  10)
+  -----------------------------------------------------
+   Valence non-Lewis         0.00034 (  0.003% of  10)
+   Rydberg non-Lewis         0.00032 (  0.003% of  10)
+  ==================       ============================
+   Total non-Lewis           0.00066 (  0.007% of  10)
+ --------------------------------------------------------
+
+
+       (Occupancy)   Bond orbital/ Coefficients/ Hybrids
+ ---------------------------------------------------------------------------------
+     1. (1.99975) BD ( 1) O   1 - H   2  
+                ( 68.92%)   0.8302* O   1 s(  1.61%)p61.01( 98.36%)d 0.01(  0.02%)
+                                            0.0000  0.1268  0.0072  0.0000  0.0000
+                                            0.7070  0.0039  0.0013 -0.6956 -0.0035
+                                           -0.0005  0.0000  0.0000  0.0000 -0.0130
+                                            0.0000  0.0000 -0.0027 -0.0079
+                ( 31.08%)   0.5575* H   2 s(100.00%)
+                                            1.0000  0.0003
+     2. (1.99975) BD ( 1) O   1 - H   3  
+                ( 68.92%)   0.8302* O   1 s(  1.61%)p61.01( 98.36%)d 0.01(  0.02%)
+                                            0.0000 -0.1268 -0.0072  0.0000  0.0000
+                                            0.7070  0.0039  0.0013  0.6955  0.0035
+                                            0.0005  0.0000  0.0000  0.0000 -0.0130
+                                            0.0000  0.0000  0.0027  0.0079
+                ( 31.08%)   0.5575* H   3 s(100.00%)
+                                           -1.0000 -0.0003
+     3. (2.00000) CR ( 1) O   1           s(100.00%)
+                                            1.0000  0.0000  0.0000  0.0000  0.0000
+                                            0.0000  0.0000  0.0000  0.0000  0.0000
+                                            0.0000  0.0000  0.0000  0.0000  0.0000
+                                            0.0000  0.0000  0.0000  0.0000
+     4. (2.00000) LP ( 1) O   1           s(  0.00%)p 1.00( 99.99%)d 0.00(  0.01%)
+                                            0.0000  0.0000  0.0000  0.0000  0.0000
+                                            0.0000  0.0000  0.0000  0.0000  0.0000
+                                            0.0000  0.9999 -0.0079 -0.0009  0.0000
+                                            0.0000 -0.0074  0.0000  0.0000
+     5. (1.99985) LP ( 2) O   1           s( 96.78%)p 0.03(  3.22%)d 0.00(  0.00%)
+                                            0.0000  0.9837 -0.0013  0.0000  0.0000
+                                            0.0000  0.0000  0.0000  0.1793  0.0040
+                                           -0.0041  0.0000  0.0000  0.0000  0.0000
+                                            0.0000  0.0000  0.0022 -0.0061
+     6. (0.00000) RY*( 1) O   1           s( 99.99%)p 0.00(  0.01%)d 0.00(  0.00%)
+     7. (0.00000) RY*( 2) O   1           s(100.00%)
+     8. (0.00000) RY*( 3) O   1           s(100.00%)
+     9. (0.00000) RY*( 4) O   1           s(  0.00%)p 1.00(100.00%)d 0.00(  0.00%)
+    10. (0.00000) RY*( 5) O   1           s(  0.00%)p 1.00(100.00%)
+    11. (0.00000) RY*( 6) O   1           s(  0.00%)p 1.00(100.00%)
+    12. (0.00000) RY*( 7) O   1           s(  0.00%)p 1.00(100.00%)
+    13. (0.00000) RY*( 8) O   1           s(  0.00%)p 1.00(100.00%)
+    14. (0.00000) RY*( 9) O   1           s(  0.00%)p 1.00(100.00%)
+    15. (0.00000) RY*(10) O   1           s(  0.00%)p 1.00(  0.03%)d99.99( 99.97%)
+    16. (0.00000) RY*(11) O   1           s(  0.00%)p 0.00(  0.00%)d 1.00(100.00%)
+    17. (0.00000) RY*(12) O   1           s(  0.00%)p 0.00(  0.01%)d 1.00( 99.99%)
+    18. (0.00000) RY*(13) O   1           s(  0.00%)p 0.00(  0.00%)d 1.00(100.00%)
+    19. (0.00000) RY*(14) O   1           s(  0.01%)p 0.00(  0.01%)d 1.00( 99.98%)
+    20. (0.00016) RY*( 1) H   2           s(100.00%)
+                                           -0.0003  1.0000
+    21. (0.00016) RY*( 1) H   3           s(100.00%)
+                                           -0.0003  1.0000
+    22. (0.00017) BD*( 1) O   1 - H   2  
+                ( 31.08%)   0.5575* O   1 s(  1.61%)p61.01( 98.36%)d 0.01(  0.02%)
+                                            0.0000 -0.1268 -0.0072  0.0000  0.0000
+                                           -0.7070 -0.0039 -0.0013  0.6956  0.0035
+                                            0.0005  0.0000  0.0000  0.0000  0.0130
+                                            0.0000  0.0000  0.0027  0.0079
+                ( 68.92%)  -0.8302* H   2 s(100.00%)
+                                           -1.0000 -0.0003
+    23. (0.00017) BD*( 1) O   1 - H   3  
+                ( 31.08%)   0.5575* O   1 s(  1.61%)p61.01( 98.36%)d 0.01(  0.02%)
+                                            0.0000  0.1268  0.0072  0.0000  0.0000
+                                           -0.7070 -0.0039 -0.0013 -0.6955 -0.0035
+                                           -0.0005  0.0000  0.0000  0.0000  0.0130
+                                            0.0000  0.0000 -0.0027 -0.0079
+                ( 68.92%)  -0.8302* H   3 s(100.00%)
+                                            1.0000  0.0003
+
+
+ NHO Directionality and "Bond Bending" (deviations from line of nuclear centers)
+
+         [Thresholds for printing:  angular deviation  >  1.0 degree]
+                                    hybrid p-character > 25.0%
+                                    orbital occupancy  >  0.10e
+
+                                Line of Centers        Hybrid 1              Hybrid 2
+                                ---------------  -------------------   ------------------
+                NBO               Theta   Phi    Theta   Phi    Dev    Theta   Phi    Dev
+ ========================================================================================
+     1. BD (   1) O   1 - H   2    90.0  322.4    90.0  315.5   6.9      --     --    --
+     2. BD (   1) O   1 - H   3    90.0  217.6    90.0  224.5   6.9      --     --    --
+     4. LP (   1) O   1             --     --      0.0    0.0   --       --     --    --
+
+
+ Second Order Perturbation Theory Analysis of Fock Matrix in NBO Basis
+
+     Threshold for printing:   0.50 kcal/mol
+                                                                              E(2)  E(j)-E(i) F(i,j)
+         Donor NBO (i)                     Acceptor NBO (j)                 kcal/mol   a.u.    a.u. 
+ ===================================================================================================
+
+ within unit  1
+       None above threshold
+
+
+ Natural Bond Orbitals (Summary):
+
+                                                            Principal Delocalizations
+           NBO                        Occupancy    Energy   (geminal,vicinal,remote)
+ ====================================================================================
+ Molecular unit  1  (H2O)
+     1. BD (   1) O   1 - H   2          1.99975    -0.37313   
+     2. BD (   1) O   1 - H   3          1.99975    -0.37313   
+     3. CR (   1) O   1                  2.00000   -19.15565   
+     4. LP (   1) O   1                  2.00000    -0.30301   
+     5. LP (   2) O   1                  1.99985    -0.93612   
+     6. RY*(   1) O   1                  0.00000     1.11385   
+     7. RY*(   2) O   1                  0.00000     1.18100   
+     8. RY*(   3) O   1                  0.00000     2.86471   
+     9. RY*(   4) O   1                  0.00000     0.25836   
+    10. RY*(   5) O   1                  0.00000     1.03797   
+    11. RY*(   6) O   1                  0.00000     0.23502   
+    12. RY*(   7) O   1                  0.00000     1.03880   
+    13. RY*(   8) O   1                  0.00000     0.23207   
+    14. RY*(   9) O   1                  0.00000     1.05696   
+    15. RY*(  10) O   1                  0.00000     1.81991   
+    16. RY*(  11) O   1                  0.00000     1.80340   
+    17. RY*(  12) O   1                  0.00000     1.80740   
+    18. RY*(  13) O   1                  0.00000     1.78640   
+    19. RY*(  14) O   1                  0.00000     1.82984   
+    20. RY*(   1) H   2                  0.00016     0.77858   
+    21. RY*(   1) H   3                  0.00016     0.77858   
+    22. BD*(   1) O   1 - H   2          0.00017    -0.14122   
+    23. BD*(   1) O   1 - H   3          0.00017    -0.14122   
+       -------------------------------
+              Total Lewis    9.99934  ( 99.9934%)
+        Valence non-Lewis    0.00034  (  0.0034%)
+        Rydberg non-Lewis    0.00032  (  0.0032%)
+       -------------------------------
+            Total unit  1   10.00000  (100.0000%)
+           Charge unit  1    0.00000
+ Leave Link  607 at Thu Mar  8 14:10:17 2018, MaxMem=    33554432 cpu:         0.2
  (Enter /opt/g09-d01/g09/l701.exe)
  Compute integral first derivatives.
  ... and contract with generalized density number  0.
- Leave Link  701 at Thu Nov 17 12:10:44 2016, MaxMem=    33554432 cpu:         0.2
+ Leave Link  701 at Thu Mar  8 14:10:17 2018, MaxMem=    33554432 cpu:         0.2
  (Enter /opt/g09-d01/g09/l702.exe)
  L702 exits ... SP integral derivatives will be done elsewhere.
- Leave Link  702 at Thu Nov 17 12:10:44 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  702 at Thu Mar  8 14:10:18 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l703.exe)
  Compute integral first derivatives, UseDBF=F ICtDFT=           0.
  Integral derivatives from FoFJK, PRISM(SPDF).
@@ -488,7 +772,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
          wScrn=  0.000000 ICntrl=    2127 IOpCl=  0 I1Cent=           0 NGrid=           0
          NMat0=    1 NMatS0=      1 NMatT0=    0 NMatD0=    1 NMtDS0=    0 NMtDT0=    0
  Petite list used in FoFCou.
- Leave Link  703 at Thu Nov 17 12:10:44 2016, MaxMem=    33554432 cpu:         0.3
+ Leave Link  703 at Thu Mar  8 14:10:18 2018, MaxMem=    33554432 cpu:         0.3
  (Enter /opt/g09-d01/g09/l716.exe)
  Dipole        =-4.17459808D-06-8.65831885D-01 8.91029224D-17
  ***** Axes restored to original set *****
@@ -501,7 +785,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
       3        1          -0.037862261    0.071330400   -0.019299274
  -------------------------------------------------------------------
  Cartesian Forces:  Max     0.083799259 RMS     0.050028029
- Leave Link  716 at Thu Nov 17 12:10:44 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  716 at Thu Mar  8 14:10:18 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l103.exe)
 
  GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad
@@ -545,7 +829,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  Lowest energy point so far.  Saving SCF results.
  GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad
 
- Leave Link  103 at Thu Nov 17 12:10:44 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  103 at Thu Mar  8 14:10:18 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l202.exe)
                           Input orientation:                          
  ---------------------------------------------------------------------
@@ -578,7 +862,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
       3          1           0       -1.337913   -0.844521    0.000000
  ---------------------------------------------------------------------
  Rotational constants (GHZ):    253.3327068    140.0703470     90.1985885
- Leave Link  202 at Thu Nov 17 12:10:45 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  202 at Thu Mar  8 14:10:18 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l301.exe)
  Standard basis: 6-31+G(d) (6D, 7F)
  Ernie: Thresh=  0.10000D-02 Tol=  0.10000D-05 Strict=F.
@@ -596,7 +880,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  Integral buffers will be    131072 words long.
  Raffenetti 2 integral format.
  Two-electron integral symmetry is turned on.
- Leave Link  301 at Thu Nov 17 12:10:45 2016, MaxMem=    33554432 cpu:         0.1
+ Leave Link  301 at Thu Mar  8 14:10:18 2018, MaxMem=    33554432 cpu:         0.1
  (Enter /opt/g09-d01/g09/l302.exe)
  NPDir=0 NMtPBC=     1 NCelOv=     1 NCel=       1 NClECP=     1 NCelD=      1
          NCelK=      1 NCelE2=     1 NClLst=     1 CellRange=     0.0.
@@ -607,10 +891,10 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  IXCGrd= 4 IRadAn=           0 IRanWt=          -1 IRanGd=           0 AccXCQ= 0.00D+00.
  Generated NRdTot=       0 NPtTot=           0 NUsed=           0 NTot=          32
  NSgBfM=    23    23    23    23    23 MxSgAt=     3 MxSgA2=     3.
- Leave Link  302 at Thu Nov 17 12:10:45 2016, MaxMem=    33554432 cpu:         0.2
+ Leave Link  302 at Thu Mar  8 14:10:19 2018, MaxMem=    33554432 cpu:         0.2
  (Enter /opt/g09-d01/g09/l303.exe)
  DipDrv:  MaxL=1.
- Leave Link  303 at Thu Nov 17 12:10:45 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  303 at Thu Mar  8 14:10:19 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l401.exe)
  Initial guess from the checkpoint file:  "h2o.chk"
  B after Tr=     0.000000    0.000000    0.000000
@@ -633,7 +917,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
          NMat0=    1 NMatS0=      1 NMatT0=    0 NMatD0=    1 NMtDS0=    0 NMtDT0=    0
  Petite list used in FoFCou.
  Harris En= -76.2137829489675    
- Leave Link  401 at Thu Nov 17 12:10:45 2016, MaxMem=    33554432 cpu:         0.3
+ Leave Link  401 at Thu Mar  8 14:10:19 2018, MaxMem=    33554432 cpu:         0.3
  (Enter /opt/g09-d01/g09/l502.exe)
  Closed shell SCF:
  Using DIIS extrapolation, IDIIS=  1040.
@@ -792,14 +1076,14 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  SCF Done:  E(RB3LYP) =  -76.1625055126     A.U. after   12 cycles
             NFock= 12  Conv=0.34D-08     -V/T= 2.0172
  KE= 7.487432186164D+01 PE=-1.900035995517D+02 EE= 3.380092367579D+01
- Leave Link  502 at Thu Nov 17 12:10:46 2016, MaxMem=    33554432 cpu:         0.9
+ Leave Link  502 at Thu Mar  8 14:10:20 2018, MaxMem=    33554432 cpu:         1.0
  (Enter /opt/g09-d01/g09/l701.exe)
  Compute integral first derivatives.
  ... and contract with generalized density number  0.
- Leave Link  701 at Thu Nov 17 12:10:46 2016, MaxMem=    33554432 cpu:         0.2
+ Leave Link  701 at Thu Mar  8 14:10:20 2018, MaxMem=    33554432 cpu:         0.2
  (Enter /opt/g09-d01/g09/l702.exe)
  L702 exits ... SP integral derivatives will be done elsewhere.
- Leave Link  702 at Thu Nov 17 12:10:46 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  702 at Thu Mar  8 14:10:20 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l703.exe)
  Compute integral first derivatives, UseDBF=F ICtDFT=           0.
  Integral derivatives from FoFJK, PRISM(SPDF).
@@ -811,7 +1095,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
          wScrn=  0.000000 ICntrl=    2127 IOpCl=  0 I1Cent=           0 NGrid=           0
          NMat0=    1 NMatS0=      1 NMatT0=    0 NMatD0=    1 NMtDS0=    0 NMtDT0=    0
  Petite list used in FoFCou.
- Leave Link  703 at Thu Nov 17 12:10:47 2016, MaxMem=    33554432 cpu:         0.3
+ Leave Link  703 at Thu Mar  8 14:10:21 2018, MaxMem=    33554432 cpu:         0.3
  (Enter /opt/g09-d01/g09/l716.exe)
  Dipole        =-5.33692804D-06-8.77416550D-01-1.76979879D-16
  ***** Axes restored to original set *****
@@ -824,7 +1108,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
       3        1          -0.042886537    0.078553753   -0.020584359
  -------------------------------------------------------------------
  Cartesian Forces:  Max     0.094616451 RMS     0.055783076
- Leave Link  716 at Thu Nov 17 12:10:47 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  716 at Thu Mar  8 14:10:21 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l103.exe)
 
  GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad
@@ -876,7 +1160,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  Lowest energy point so far.  Saving SCF results.
  GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad
 
- Leave Link  103 at Thu Nov 17 12:10:47 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  103 at Thu Mar  8 14:10:21 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l202.exe)
                           Input orientation:                          
  ---------------------------------------------------------------------
@@ -909,7 +1193,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
       3          1           0       -1.168043   -0.773442    0.000000
  ---------------------------------------------------------------------
  Rotational constants (GHZ):    302.0326252    183.7742853    114.2549203
- Leave Link  202 at Thu Nov 17 12:10:47 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  202 at Thu Mar  8 14:10:21 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l301.exe)
  Standard basis: 6-31+G(d) (6D, 7F)
  Ernie: Thresh=  0.10000D-02 Tol=  0.10000D-05 Strict=F.
@@ -927,7 +1211,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  Integral buffers will be    131072 words long.
  Raffenetti 2 integral format.
  Two-electron integral symmetry is turned on.
- Leave Link  301 at Thu Nov 17 12:10:47 2016, MaxMem=    33554432 cpu:         0.1
+ Leave Link  301 at Thu Mar  8 14:10:21 2018, MaxMem=    33554432 cpu:         0.1
  (Enter /opt/g09-d01/g09/l302.exe)
  NPDir=0 NMtPBC=     1 NCelOv=     1 NCel=       1 NClECP=     1 NCelD=      1
          NCelK=      1 NCelE2=     1 NClLst=     1 CellRange=     0.0.
@@ -938,10 +1222,10 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  IXCGrd= 4 IRadAn=           0 IRanWt=          -1 IRanGd=           0 AccXCQ= 0.00D+00.
  Generated NRdTot=       0 NPtTot=           0 NUsed=           0 NTot=          32
  NSgBfM=    23    23    23    23    23 MxSgAt=     3 MxSgA2=     3.
- Leave Link  302 at Thu Nov 17 12:10:47 2016, MaxMem=    33554432 cpu:         0.2
+ Leave Link  302 at Thu Mar  8 14:10:21 2018, MaxMem=    33554432 cpu:         0.2
  (Enter /opt/g09-d01/g09/l303.exe)
  DipDrv:  MaxL=1.
- Leave Link  303 at Thu Nov 17 12:10:47 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  303 at Thu Mar  8 14:10:22 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l401.exe)
  Initial guess from the checkpoint file:  "h2o.chk"
  B after Tr=     0.000000    0.000000    0.000000
@@ -964,7 +1248,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
          NMat0=    1 NMatS0=      1 NMatT0=    0 NMatD0=    1 NMtDS0=    0 NMtDT0=    0
  Petite list used in FoFCou.
  Harris En= -76.2730102303595    
- Leave Link  401 at Thu Nov 17 12:10:48 2016, MaxMem=    33554432 cpu:         0.3
+ Leave Link  401 at Thu Mar  8 14:10:22 2018, MaxMem=    33554432 cpu:         0.4
  (Enter /opt/g09-d01/g09/l502.exe)
  Closed shell SCF:
  Using DIIS extrapolation, IDIIS=  1040.
@@ -1110,14 +1394,14 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  SCF Done:  E(RB3LYP) =  -76.2333914444     A.U. after   11 cycles
             NFock= 11  Conv=0.18D-08     -V/T= 2.0174
  KE= 7.493280646087D+01 PE=-1.913798182059D+02 EE= 3.440310145356D+01
- Leave Link  502 at Thu Nov 17 12:10:48 2016, MaxMem=    33554432 cpu:         0.8
+ Leave Link  502 at Thu Mar  8 14:10:23 2018, MaxMem=    33554432 cpu:         0.9
  (Enter /opt/g09-d01/g09/l701.exe)
  Compute integral first derivatives.
  ... and contract with generalized density number  0.
- Leave Link  701 at Thu Nov 17 12:10:49 2016, MaxMem=    33554432 cpu:         0.2
+ Leave Link  701 at Thu Mar  8 14:10:23 2018, MaxMem=    33554432 cpu:         0.2
  (Enter /opt/g09-d01/g09/l702.exe)
  L702 exits ... SP integral derivatives will be done elsewhere.
- Leave Link  702 at Thu Nov 17 12:10:49 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  702 at Thu Mar  8 14:10:23 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l703.exe)
  Compute integral first derivatives, UseDBF=F ICtDFT=           0.
  Integral derivatives from FoFJK, PRISM(SPDF).
@@ -1129,7 +1413,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
          wScrn=  0.000000 ICntrl=    2127 IOpCl=  0 I1Cent=           0 NGrid=           0
          NMat0=    1 NMatS0=      1 NMatT0=    0 NMatD0=    1 NMtDS0=    0 NMtDT0=    0
  Petite list used in FoFCou.
- Leave Link  703 at Thu Nov 17 12:10:49 2016, MaxMem=    33554432 cpu:         0.3
+ Leave Link  703 at Thu Mar  8 14:10:24 2018, MaxMem=    33554432 cpu:         0.3
  (Enter /opt/g09-d01/g09/l716.exe)
  Dipole        =-7.29381242D-06-9.07708814D-01 3.65642728D-17
  ***** Axes restored to original set *****
@@ -1142,7 +1426,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
       3        1          -0.051926586    0.089208368   -0.021563726
  -------------------------------------------------------------------
  Cartesian Forces:  Max     0.113763206 RMS     0.065270083
- Leave Link  716 at Thu Nov 17 12:10:49 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  716 at Thu Mar  8 14:10:24 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l103.exe)
 
  GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad
@@ -1195,7 +1479,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  Lowest energy point so far.  Saving SCF results.
  GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad
 
- Leave Link  103 at Thu Nov 17 12:10:49 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  103 at Thu Mar  8 14:10:24 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l202.exe)
                           Input orientation:                          
  ---------------------------------------------------------------------
@@ -1228,7 +1512,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
       3          1           0       -0.901568   -0.632928    0.000000
  ---------------------------------------------------------------------
  Rotational constants (GHZ):    451.0193647    308.4642451    183.1815013
- Leave Link  202 at Thu Nov 17 12:10:49 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  202 at Thu Mar  8 14:10:24 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l301.exe)
  Standard basis: 6-31+G(d) (6D, 7F)
  Ernie: Thresh=  0.10000D-02 Tol=  0.10000D-05 Strict=F.
@@ -1246,7 +1530,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  Integral buffers will be    131072 words long.
  Raffenetti 2 integral format.
  Two-electron integral symmetry is turned on.
- Leave Link  301 at Thu Nov 17 12:10:49 2016, MaxMem=    33554432 cpu:         0.1
+ Leave Link  301 at Thu Mar  8 14:10:24 2018, MaxMem=    33554432 cpu:         0.1
  (Enter /opt/g09-d01/g09/l302.exe)
  NPDir=0 NMtPBC=     1 NCelOv=     1 NCel=       1 NClECP=     1 NCelD=      1
          NCelK=      1 NCelE2=     1 NClLst=     1 CellRange=     0.0.
@@ -1257,10 +1541,10 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  IXCGrd= 4 IRadAn=           0 IRanWt=          -1 IRanGd=           0 AccXCQ= 0.00D+00.
  Generated NRdTot=       0 NPtTot=           0 NUsed=           0 NTot=          32
  NSgBfM=    23    23    23    23    23 MxSgAt=     3 MxSgA2=     3.
- Leave Link  302 at Thu Nov 17 12:10:49 2016, MaxMem=    33554432 cpu:         0.2
+ Leave Link  302 at Thu Mar  8 14:10:24 2018, MaxMem=    33554432 cpu:         0.2
  (Enter /opt/g09-d01/g09/l303.exe)
  DipDrv:  MaxL=1.
- Leave Link  303 at Thu Nov 17 12:10:49 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  303 at Thu Mar  8 14:10:24 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l401.exe)
  Initial guess from the checkpoint file:  "h2o.chk"
  B after Tr=     0.000000    0.000000    0.000000
@@ -1283,7 +1567,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
          NMat0=    1 NMatS0=      1 NMatT0=    0 NMatD0=    1 NMtDS0=    0 NMtDT0=    0
  Petite list used in FoFCou.
  Harris En= -76.3910432572044    
- Leave Link  401 at Thu Nov 17 12:10:50 2016, MaxMem=    33554432 cpu:         0.3
+ Leave Link  401 at Thu Mar  8 14:10:25 2018, MaxMem=    33554432 cpu:         0.3
  (Enter /opt/g09-d01/g09/l502.exe)
  Closed shell SCF:
  Using DIIS extrapolation, IDIIS=  1040.
@@ -1429,14 +1713,14 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  SCF Done:  E(RB3LYP) =  -76.3646431398     A.U. after   11 cycles
             NFock= 11  Conv=0.35D-08     -V/T= 2.0154
  KE= 7.520504562451D+01 PE=-1.946950079533D+02 EE= 3.577318952653D+01
- Leave Link  502 at Thu Nov 17 12:10:51 2016, MaxMem=    33554432 cpu:         0.8
+ Leave Link  502 at Thu Mar  8 14:10:25 2018, MaxMem=    33554432 cpu:         0.8
  (Enter /opt/g09-d01/g09/l701.exe)
  Compute integral first derivatives.
  ... and contract with generalized density number  0.
- Leave Link  701 at Thu Nov 17 12:10:51 2016, MaxMem=    33554432 cpu:         0.1
+ Leave Link  701 at Thu Mar  8 14:10:26 2018, MaxMem=    33554432 cpu:         0.2
  (Enter /opt/g09-d01/g09/l702.exe)
  L702 exits ... SP integral derivatives will be done elsewhere.
- Leave Link  702 at Thu Nov 17 12:10:51 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  702 at Thu Mar  8 14:10:26 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l703.exe)
  Compute integral first derivatives, UseDBF=F ICtDFT=           0.
  Integral derivatives from FoFJK, PRISM(SPDF).
@@ -1448,7 +1732,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
          wScrn=  0.000000 ICntrl=    2127 IOpCl=  0 I1Cent=           0 NGrid=           0
          NMat0=    1 NMatS0=      1 NMatT0=    0 NMatD0=    1 NMtDS0=    0 NMtDT0=    0
  Petite list used in FoFCou.
- Leave Link  703 at Thu Nov 17 12:10:51 2016, MaxMem=    33554432 cpu:         0.3
+ Leave Link  703 at Thu Mar  8 14:10:26 2018, MaxMem=    33554432 cpu:         0.3
  (Enter /opt/g09-d01/g09/l716.exe)
  Dipole        =-9.18556644D-06-9.54442001D-01 1.16692680D-16
  ***** Axes restored to original set *****
@@ -1461,7 +1745,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
       3        1          -0.057090361    0.083867768   -0.015620643
  -------------------------------------------------------------------
  Cartesian Forces:  Max     0.123159034 RMS     0.066622949
- Leave Link  716 at Thu Nov 17 12:10:51 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  716 at Thu Mar  8 14:10:26 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l103.exe)
 
  GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad
@@ -1509,7 +1793,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  Lowest energy point so far.  Saving SCF results.
  GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad
 
- Leave Link  103 at Thu Nov 17 12:10:51 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  103 at Thu Mar  8 14:10:26 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l202.exe)
                           Input orientation:                          
  ---------------------------------------------------------------------
@@ -1542,7 +1826,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
       3          1           0       -0.629891   -0.433163    0.000000
  ---------------------------------------------------------------------
  Rotational constants (GHZ):    962.9834343    631.9332609    381.5504996
- Leave Link  202 at Thu Nov 17 12:10:51 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  202 at Thu Mar  8 14:10:26 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l301.exe)
  Standard basis: 6-31+G(d) (6D, 7F)
  Ernie: Thresh=  0.10000D-02 Tol=  0.10000D-05 Strict=F.
@@ -1560,7 +1844,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  Integral buffers will be    131072 words long.
  Raffenetti 2 integral format.
  Two-electron integral symmetry is turned on.
- Leave Link  301 at Thu Nov 17 12:10:51 2016, MaxMem=    33554432 cpu:         0.1
+ Leave Link  301 at Thu Mar  8 14:10:26 2018, MaxMem=    33554432 cpu:         0.1
  (Enter /opt/g09-d01/g09/l302.exe)
  NPDir=0 NMtPBC=     1 NCelOv=     1 NCel=       1 NClECP=     1 NCelD=      1
          NCelK=      1 NCelE2=     1 NClLst=     1 CellRange=     0.0.
@@ -1571,10 +1855,10 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  IXCGrd= 4 IRadAn=           0 IRanWt=          -1 IRanGd=           0 AccXCQ= 0.00D+00.
  Generated NRdTot=       0 NPtTot=           0 NUsed=           0 NTot=          32
  NSgBfM=    23    23    23    23    23 MxSgAt=     3 MxSgA2=     3.
- Leave Link  302 at Thu Nov 17 12:10:52 2016, MaxMem=    33554432 cpu:         0.2
+ Leave Link  302 at Thu Mar  8 14:10:27 2018, MaxMem=    33554432 cpu:         0.2
  (Enter /opt/g09-d01/g09/l303.exe)
  DipDrv:  MaxL=1.
- Leave Link  303 at Thu Nov 17 12:10:52 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  303 at Thu Mar  8 14:10:27 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l401.exe)
  Initial guess from the checkpoint file:  "h2o.chk"
  B after Tr=     0.000000    0.000000    0.000000
@@ -1597,7 +1881,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
          NMat0=    1 NMatS0=      1 NMatT0=    0 NMatD0=    1 NMtDS0=    0 NMtDT0=    0
  Petite list used in FoFCou.
  Harris En= -76.4184023793543    
- Leave Link  401 at Thu Nov 17 12:10:52 2016, MaxMem=    33554432 cpu:         0.3
+ Leave Link  401 at Thu Mar  8 14:10:27 2018, MaxMem=    33554432 cpu:         0.3
  (Enter /opt/g09-d01/g09/l502.exe)
  Closed shell SCF:
  Using DIIS extrapolation, IDIIS=  1040.
@@ -1732,14 +2016,14 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  SCF Done:  E(RB3LYP) =  -76.3698975233     A.U. after   10 cycles
             NFock= 10  Conv=0.46D-08     -V/T= 1.9998
  KE= 7.638360933111D+01 PE=-2.016932544413D+02 EE= 3.832636944789D+01
- Leave Link  502 at Thu Nov 17 12:10:53 2016, MaxMem=    33554432 cpu:         0.7
+ Leave Link  502 at Thu Mar  8 14:10:28 2018, MaxMem=    33554432 cpu:         0.7
  (Enter /opt/g09-d01/g09/l701.exe)
  Compute integral first derivatives.
  ... and contract with generalized density number  0.
- Leave Link  701 at Thu Nov 17 12:10:53 2016, MaxMem=    33554432 cpu:         0.1
+ Leave Link  701 at Thu Mar  8 14:10:28 2018, MaxMem=    33554432 cpu:         0.2
  (Enter /opt/g09-d01/g09/l702.exe)
  L702 exits ... SP integral derivatives will be done elsewhere.
- Leave Link  702 at Thu Nov 17 12:10:53 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  702 at Thu Mar  8 14:10:28 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l703.exe)
  Compute integral first derivatives, UseDBF=F ICtDFT=           0.
  Integral derivatives from FoFJK, PRISM(SPDF).
@@ -1751,7 +2035,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
          wScrn=  0.000000 ICntrl=    2127 IOpCl=  0 I1Cent=           0 NGrid=           0
          NMat0=    1 NMatS0=      1 NMatT0=    0 NMatD0=    1 NMtDS0=    0 NMtDT0=    0
  Petite list used in FoFCou.
- Leave Link  703 at Thu Nov 17 12:10:53 2016, MaxMem=    33554432 cpu:         0.3
+ Leave Link  703 at Thu Mar  8 14:10:29 2018, MaxMem=    33554432 cpu:         0.3
  (Enter /opt/g09-d01/g09/l716.exe)
  Dipole        =-1.26280078D-06-8.84714896D-01-6.02496677D-17
  ***** Axes restored to original set *****
@@ -1764,7 +2048,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
       3        1           0.104735976   -0.196951145    0.053178295
  -------------------------------------------------------------------
  Cartesian Forces:  Max     0.231755329 RMS     0.138242346
- Leave Link  716 at Thu Nov 17 12:10:53 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  716 at Thu Mar  8 14:10:29 2018, MaxMem=    33554432 cpu:         0.1
  (Enter /opt/g09-d01/g09/l103.exe)
 
  GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad
@@ -1810,7 +2094,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  Lowest energy point so far.  Saving SCF results.
  GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad
 
- Leave Link  103 at Thu Nov 17 12:10:53 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  103 at Thu Mar  8 14:10:29 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l202.exe)
                           Input orientation:                          
  ---------------------------------------------------------------------
@@ -1843,7 +2127,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
       3          1           0       -0.771699   -0.470576    0.000000
  ---------------------------------------------------------------------
  Rotational constants (GHZ):    816.1724708    421.0236074    277.7473062
- Leave Link  202 at Thu Nov 17 12:10:53 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  202 at Thu Mar  8 14:10:29 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l301.exe)
  Standard basis: 6-31+G(d) (6D, 7F)
  Ernie: Thresh=  0.10000D-02 Tol=  0.10000D-05 Strict=F.
@@ -1861,7 +2145,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  Integral buffers will be    131072 words long.
  Raffenetti 2 integral format.
  Two-electron integral symmetry is turned on.
- Leave Link  301 at Thu Nov 17 12:10:54 2016, MaxMem=    33554432 cpu:         0.1
+ Leave Link  301 at Thu Mar  8 14:10:29 2018, MaxMem=    33554432 cpu:         0.1
  (Enter /opt/g09-d01/g09/l302.exe)
  NPDir=0 NMtPBC=     1 NCelOv=     1 NCel=       1 NClECP=     1 NCelD=      1
          NCelK=      1 NCelE2=     1 NClLst=     1 CellRange=     0.0.
@@ -1872,10 +2156,10 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  IXCGrd= 4 IRadAn=           0 IRanWt=          -1 IRanGd=           0 AccXCQ= 0.00D+00.
  Generated NRdTot=       0 NPtTot=           0 NUsed=           0 NTot=          32
  NSgBfM=    23    23    23    23    23 MxSgAt=     3 MxSgA2=     3.
- Leave Link  302 at Thu Nov 17 12:10:54 2016, MaxMem=    33554432 cpu:         0.2
+ Leave Link  302 at Thu Mar  8 14:10:29 2018, MaxMem=    33554432 cpu:         0.2
  (Enter /opt/g09-d01/g09/l303.exe)
  DipDrv:  MaxL=1.
- Leave Link  303 at Thu Nov 17 12:10:54 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  303 at Thu Mar  8 14:10:30 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l401.exe)
  Initial guess from the checkpoint file:  "h2o.chk"
  B after Tr=     0.000000    0.000000    0.000000
@@ -1898,7 +2182,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
          NMat0=    1 NMatS0=      1 NMatT0=    0 NMatD0=    1 NMtDS0=    0 NMtDT0=    0
  Petite list used in FoFCou.
  Harris En= -76.4522031393319    
- Leave Link  401 at Thu Nov 17 12:10:54 2016, MaxMem=    33554432 cpu:         0.3
+ Leave Link  401 at Thu Mar  8 14:10:30 2018, MaxMem=    33554432 cpu:         0.3
  (Enter /opt/g09-d01/g09/l502.exe)
  Closed shell SCF:
  Using DIIS extrapolation, IDIIS=  1040.
@@ -2033,14 +2317,14 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  SCF Done:  E(RB3LYP) =  -76.4225690224     A.U. after   10 cycles
             NFock= 10  Conv=0.71D-08     -V/T= 2.0093
  KE= 7.571963457347D+01 PE=-1.984040532410D+02 EE= 3.719274976772D+01
- Leave Link  502 at Thu Nov 17 12:10:55 2016, MaxMem=    33554432 cpu:         0.7
+ Leave Link  502 at Thu Mar  8 14:10:31 2018, MaxMem=    33554432 cpu:         0.7
  (Enter /opt/g09-d01/g09/l701.exe)
  Compute integral first derivatives.
  ... and contract with generalized density number  0.
- Leave Link  701 at Thu Nov 17 12:10:55 2016, MaxMem=    33554432 cpu:         0.2
+ Leave Link  701 at Thu Mar  8 14:10:31 2018, MaxMem=    33554432 cpu:         0.2
  (Enter /opt/g09-d01/g09/l702.exe)
  L702 exits ... SP integral derivatives will be done elsewhere.
- Leave Link  702 at Thu Nov 17 12:10:55 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  702 at Thu Mar  8 14:10:31 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l703.exe)
  Compute integral first derivatives, UseDBF=F ICtDFT=           0.
  Integral derivatives from FoFJK, PRISM(SPDF).
@@ -2052,7 +2336,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
          wScrn=  0.000000 ICntrl=    2127 IOpCl=  0 I1Cent=           0 NGrid=           0
          NMat0=    1 NMatS0=      1 NMatT0=    0 NMatD0=    1 NMtDS0=    0 NMtDT0=    0
  Petite list used in FoFCou.
- Leave Link  703 at Thu Nov 17 12:10:56 2016, MaxMem=    33554432 cpu:         0.3
+ Leave Link  703 at Thu Mar  8 14:10:31 2018, MaxMem=    33554432 cpu:         0.3
  (Enter /opt/g09-d01/g09/l716.exe)
  Dipole        = 2.43203945D-05-8.86037705D-01-1.13432382D-16
  ***** Axes restored to original set *****
@@ -2065,7 +2349,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
       3        1          -0.000709624    0.001042096   -0.000193953
  -------------------------------------------------------------------
  Cartesian Forces:  Max     0.001487457 RMS     0.000805675
- Leave Link  716 at Thu Nov 17 12:10:56 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  716 at Thu Mar  8 14:10:31 2018, MaxMem=    33554432 cpu:         0.1
  (Enter /opt/g09-d01/g09/l103.exe)
 
  GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad
@@ -2110,7 +2394,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  Lowest energy point so far.  Saving SCF results.
  GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad
 
- Leave Link  103 at Thu Nov 17 12:10:56 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  103 at Thu Mar  8 14:10:31 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l202.exe)
                           Input orientation:                          
  ---------------------------------------------------------------------
@@ -2143,7 +2427,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
       3          1           0       -0.770681   -0.469471    0.000000
  ---------------------------------------------------------------------
  Rotational constants (GHZ):    818.1421005    422.1362625    278.4596255
- Leave Link  202 at Thu Nov 17 12:10:56 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  202 at Thu Mar  8 14:10:31 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l301.exe)
  Standard basis: 6-31+G(d) (6D, 7F)
  Ernie: Thresh=  0.10000D-02 Tol=  0.10000D-05 Strict=F.
@@ -2161,7 +2445,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  Integral buffers will be    131072 words long.
  Raffenetti 2 integral format.
  Two-electron integral symmetry is turned on.
- Leave Link  301 at Thu Nov 17 12:10:56 2016, MaxMem=    33554432 cpu:         0.1
+ Leave Link  301 at Thu Mar  8 14:10:32 2018, MaxMem=    33554432 cpu:         0.1
  (Enter /opt/g09-d01/g09/l302.exe)
  NPDir=0 NMtPBC=     1 NCelOv=     1 NCel=       1 NClECP=     1 NCelD=      1
          NCelK=      1 NCelE2=     1 NClLst=     1 CellRange=     0.0.
@@ -2172,10 +2456,10 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  IXCGrd= 4 IRadAn=           0 IRanWt=          -1 IRanGd=           0 AccXCQ= 0.00D+00.
  Generated NRdTot=       0 NPtTot=           0 NUsed=           0 NTot=          32
  NSgBfM=    23    23    23    23    23 MxSgAt=     3 MxSgA2=     3.
- Leave Link  302 at Thu Nov 17 12:10:56 2016, MaxMem=    33554432 cpu:         0.2
+ Leave Link  302 at Thu Mar  8 14:10:32 2018, MaxMem=    33554432 cpu:         0.2
  (Enter /opt/g09-d01/g09/l303.exe)
  DipDrv:  MaxL=1.
- Leave Link  303 at Thu Nov 17 12:10:56 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  303 at Thu Mar  8 14:10:32 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l401.exe)
  Initial guess from the checkpoint file:  "h2o.chk"
  B after Tr=     0.000000    0.000000    0.000000
@@ -2187,7 +2471,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
        Virtual   (A') (A') (A') (A') (A') (A') (A') (A') (A') (A')
                  (A') (A') (A') (A') (A") (A") (A") (A")
  The electronic state of the initial guess is 1-A'.
- Leave Link  401 at Thu Nov 17 12:10:56 2016, MaxMem=    33554432 cpu:         0.1
+ Leave Link  401 at Thu Mar  8 14:10:32 2018, MaxMem=    33554432 cpu:         0.1
  (Enter /opt/g09-d01/g09/l502.exe)
  Closed shell SCF:
  Using DIIS extrapolation, IDIIS=  1040.
@@ -2289,14 +2573,14 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  SCF Done:  E(RB3LYP) =  -76.4225718311     A.U. after    7 cycles
             NFock=  7  Conv=0.20D-08     -V/T= 2.0092
  KE= 7.572399712167D+01 PE=-1.984289819306D+02 EE= 3.720170377843D+01
- Leave Link  502 at Thu Nov 17 12:10:57 2016, MaxMem=    33554432 cpu:         0.7
+ Leave Link  502 at Thu Mar  8 14:10:33 2018, MaxMem=    33554432 cpu:         0.7
  (Enter /opt/g09-d01/g09/l701.exe)
  Compute integral first derivatives.
  ... and contract with generalized density number  0.
- Leave Link  701 at Thu Nov 17 12:10:57 2016, MaxMem=    33554432 cpu:         0.2
+ Leave Link  701 at Thu Mar  8 14:10:33 2018, MaxMem=    33554432 cpu:         0.2
  (Enter /opt/g09-d01/g09/l702.exe)
  L702 exits ... SP integral derivatives will be done elsewhere.
- Leave Link  702 at Thu Nov 17 12:10:57 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  702 at Thu Mar  8 14:10:33 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l703.exe)
  Compute integral first derivatives, UseDBF=F ICtDFT=           0.
  Integral derivatives from FoFJK, PRISM(SPDF).
@@ -2308,7 +2592,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
          wScrn=  0.000000 ICntrl=    2127 IOpCl=  0 I1Cent=           0 NGrid=           0
          NMat0=    1 NMatS0=      1 NMatT0=    0 NMatD0=    1 NMtDS0=    0 NMtDT0=    0
  Petite list used in FoFCou.
- Leave Link  703 at Thu Nov 17 12:10:58 2016, MaxMem=    33554432 cpu:         0.3
+ Leave Link  703 at Thu Mar  8 14:10:33 2018, MaxMem=    33554432 cpu:         0.3
  (Enter /opt/g09-d01/g09/l716.exe)
  Dipole        =-1.88640130D-04-8.85820578D-01 2.10110289D-16
  ***** Axes restored to original set *****
@@ -2321,7 +2605,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
       3        1          -0.000017654   -0.000263358    0.000159796
  -------------------------------------------------------------------
  Cartesian Forces:  Max     0.000358300 RMS     0.000251347
- Leave Link  716 at Thu Nov 17 12:10:58 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  716 at Thu Mar  8 14:10:34 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l103.exe)
 
  GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad
@@ -2367,7 +2651,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  Lowest energy point so far.  Saving SCF results.
  GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad
 
- Leave Link  103 at Thu Nov 17 12:10:58 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  103 at Thu Mar  8 14:10:34 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l202.exe)
                           Input orientation:                          
  ---------------------------------------------------------------------
@@ -2400,7 +2684,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
       3          1           0       -0.770624   -0.472512    0.000000
  ---------------------------------------------------------------------
  Rotational constants (GHZ):    820.9261913    422.1827970    278.8017132
- Leave Link  202 at Thu Nov 17 12:10:58 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  202 at Thu Mar  8 14:10:34 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l301.exe)
  Standard basis: 6-31+G(d) (6D, 7F)
  Ernie: Thresh=  0.10000D-02 Tol=  0.10000D-05 Strict=F.
@@ -2418,7 +2702,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  Integral buffers will be    131072 words long.
  Raffenetti 2 integral format.
  Two-electron integral symmetry is turned on.
- Leave Link  301 at Thu Nov 17 12:10:58 2016, MaxMem=    33554432 cpu:         0.1
+ Leave Link  301 at Thu Mar  8 14:10:34 2018, MaxMem=    33554432 cpu:         0.1
  (Enter /opt/g09-d01/g09/l302.exe)
  NPDir=0 NMtPBC=     1 NCelOv=     1 NCel=       1 NClECP=     1 NCelD=      1
          NCelK=      1 NCelE2=     1 NClLst=     1 CellRange=     0.0.
@@ -2429,10 +2713,10 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  IXCGrd= 4 IRadAn=           0 IRanWt=          -1 IRanGd=           0 AccXCQ= 0.00D+00.
  Generated NRdTot=       0 NPtTot=           0 NUsed=           0 NTot=          32
  NSgBfM=    23    23    23    23    23 MxSgAt=     3 MxSgA2=     3.
- Leave Link  302 at Thu Nov 17 12:10:58 2016, MaxMem=    33554432 cpu:         0.2
+ Leave Link  302 at Thu Mar  8 14:10:34 2018, MaxMem=    33554432 cpu:         0.2
  (Enter /opt/g09-d01/g09/l303.exe)
  DipDrv:  MaxL=1.
- Leave Link  303 at Thu Nov 17 12:10:58 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  303 at Thu Mar  8 14:10:34 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l401.exe)
  Initial guess from the checkpoint file:  "h2o.chk"
  B after Tr=     0.000000    0.000000    0.000000
@@ -2444,7 +2728,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
        Virtual   (A') (A') (A') (A') (A') (A') (A') (A') (A') (A')
                  (A') (A') (A') (A') (A") (A") (A") (A")
  The electronic state of the initial guess is 1-A'.
- Leave Link  401 at Thu Nov 17 12:10:58 2016, MaxMem=    33554432 cpu:         0.1
+ Leave Link  401 at Thu Mar  8 14:10:34 2018, MaxMem=    33554432 cpu:         0.1
  (Enter /opt/g09-d01/g09/l502.exe)
  Closed shell SCF:
  Using DIIS extrapolation, IDIIS=  1040.
@@ -2547,14 +2831,14 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  SCF Done:  E(RB3LYP) =  -76.4225639977     A.U. after    7 cycles
             NFock=  7  Conv=0.18D-08     -V/T= 2.0092
  KE= 7.572606281941D+01 PE=-1.984415628498D+02 EE= 3.720639996900D+01
- Leave Link  502 at Thu Nov 17 12:10:59 2016, MaxMem=    33554432 cpu:         0.7
+ Leave Link  502 at Thu Mar  8 14:10:35 2018, MaxMem=    33554432 cpu:         0.7
  (Enter /opt/g09-d01/g09/l701.exe)
  Compute integral first derivatives.
  ... and contract with generalized density number  0.
- Leave Link  701 at Thu Nov 17 12:10:59 2016, MaxMem=    33554432 cpu:         0.2
+ Leave Link  701 at Thu Mar  8 14:10:35 2018, MaxMem=    33554432 cpu:         0.2
  (Enter /opt/g09-d01/g09/l702.exe)
  L702 exits ... SP integral derivatives will be done elsewhere.
- Leave Link  702 at Thu Nov 17 12:10:59 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  702 at Thu Mar  8 14:10:35 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l703.exe)
  Compute integral first derivatives, UseDBF=F ICtDFT=           0.
  Integral derivatives from FoFJK, PRISM(SPDF).
@@ -2566,7 +2850,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
          wScrn=  0.000000 ICntrl=    2127 IOpCl=  0 I1Cent=           0 NGrid=           0
          NMat0=    1 NMatS0=      1 NMatT0=    0 NMatD0=    1 NMtDS0=    0 NMtDT0=    0
  Petite list used in FoFCou.
- Leave Link  703 at Thu Nov 17 12:11:00 2016, MaxMem=    33554432 cpu:         0.3
+ Leave Link  703 at Thu Mar  8 14:10:36 2018, MaxMem=    33554432 cpu:         0.3
  (Enter /opt/g09-d01/g09/l716.exe)
  Dipole        = 1.32184619D-03-8.85079313D-01-4.72884514D-17
  ***** Axes restored to original set *****
@@ -2579,7 +2863,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
       3        1          -0.000795177    0.001227777   -0.000251506
  -------------------------------------------------------------------
  Cartesian Forces:  Max     0.002606467 RMS     0.001473190
- Leave Link  716 at Thu Nov 17 12:11:00 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  716 at Thu Mar  8 14:10:36 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l103.exe)
 
  GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad
@@ -2622,7 +2906,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  Predicted change in Energy=-2.482836D-07
  GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad
 
- Leave Link  103 at Thu Nov 17 12:11:00 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  103 at Thu Mar  8 14:10:36 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l202.exe)
                           Input orientation:                          
  ---------------------------------------------------------------------
@@ -2655,7 +2939,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
       3          1           0       -0.770674   -0.469908    0.000000
  ---------------------------------------------------------------------
  Rotational constants (GHZ):    818.5381373    422.1444269    278.5090424
- Leave Link  202 at Thu Nov 17 12:11:00 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  202 at Thu Mar  8 14:10:36 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l301.exe)
  Standard basis: 6-31+G(d) (6D, 7F)
  Ernie: Thresh=  0.10000D-02 Tol=  0.10000D-05 Strict=F.
@@ -2673,7 +2957,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  Integral buffers will be    131072 words long.
  Raffenetti 2 integral format.
  Two-electron integral symmetry is turned on.
- Leave Link  301 at Thu Nov 17 12:11:00 2016, MaxMem=    33554432 cpu:         0.1
+ Leave Link  301 at Thu Mar  8 14:10:36 2018, MaxMem=    33554432 cpu:         0.1
  (Enter /opt/g09-d01/g09/l302.exe)
  NPDir=0 NMtPBC=     1 NCelOv=     1 NCel=       1 NClECP=     1 NCelD=      1
          NCelK=      1 NCelE2=     1 NClLst=     1 CellRange=     0.0.
@@ -2684,10 +2968,10 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  IXCGrd= 4 IRadAn=           0 IRanWt=          -1 IRanGd=           0 AccXCQ= 0.00D+00.
  Generated NRdTot=       0 NPtTot=           0 NUsed=           0 NTot=          32
  NSgBfM=    23    23    23    23    23 MxSgAt=     3 MxSgA2=     3.
- Leave Link  302 at Thu Nov 17 12:11:00 2016, MaxMem=    33554432 cpu:         0.2
+ Leave Link  302 at Thu Mar  8 14:10:36 2018, MaxMem=    33554432 cpu:         0.2
  (Enter /opt/g09-d01/g09/l303.exe)
  DipDrv:  MaxL=1.
- Leave Link  303 at Thu Nov 17 12:11:00 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  303 at Thu Mar  8 14:10:36 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l401.exe)
  Lowest energy guess from the checkpoint file:  "h2o.chk"
  B after Tr=     0.000000    0.000000    0.000000
@@ -2704,7 +2988,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
        Virtual   (A') (A') (A') (A") (A') (A') (A') (A') (A') (A')
                  (A') (A') (A') (A') (A") (A") (A") (A")
  The electronic state of the initial guess is 1-A'.
- Leave Link  401 at Thu Nov 17 12:11:00 2016, MaxMem=    33554432 cpu:         0.1
+ Leave Link  401 at Thu Mar  8 14:10:36 2018, MaxMem=    33554432 cpu:         0.2
  (Enter /opt/g09-d01/g09/l502.exe)
  Closed shell SCF:
  Using DIIS extrapolation, IDIIS=  1040.
@@ -2759,14 +3043,14 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  SCF Done:  E(RB3LYP) =  -76.4225720585     A.U. after    3 cycles
             NFock=  3  Conv=0.61D-08     -V/T= 2.0092
  KE= 7.572428980238D+01 PE=-1.984307811796D+02 EE= 3.720237754537D+01
- Leave Link  502 at Thu Nov 17 12:11:01 2016, MaxMem=    33554432 cpu:         0.4
+ Leave Link  502 at Thu Mar  8 14:10:37 2018, MaxMem=    33554432 cpu:         0.4
  (Enter /opt/g09-d01/g09/l701.exe)
  Compute integral first derivatives.
  ... and contract with generalized density number  0.
- Leave Link  701 at Thu Nov 17 12:11:01 2016, MaxMem=    33554432 cpu:         0.2
+ Leave Link  701 at Thu Mar  8 14:10:37 2018, MaxMem=    33554432 cpu:         0.2
  (Enter /opt/g09-d01/g09/l702.exe)
  L702 exits ... SP integral derivatives will be done elsewhere.
- Leave Link  702 at Thu Nov 17 12:11:01 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  702 at Thu Mar  8 14:10:37 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l703.exe)
  Compute integral first derivatives, UseDBF=F ICtDFT=           0.
  Integral derivatives from FoFJK, PRISM(SPDF).
@@ -2778,7 +3062,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
          wScrn=  0.000000 ICntrl=    2127 IOpCl=  0 I1Cent=           0 NGrid=           0
          NMat0=    1 NMatS0=      1 NMatT0=    0 NMatD0=    1 NMtDS0=    0 NMtDT0=    0
  Petite list used in FoFCou.
- Leave Link  703 at Thu Nov 17 12:11:01 2016, MaxMem=    33554432 cpu:         0.3
+ Leave Link  703 at Thu Mar  8 14:10:38 2018, MaxMem=    33554432 cpu:         0.3
  (Enter /opt/g09-d01/g09/l716.exe)
  Dipole        = 2.92190990D-05-8.85713990D-01 7.55791377D-17
  ***** Axes restored to original set *****
@@ -2791,7 +3075,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
       3        1          -0.000130509   -0.000047723    0.000100551
  -------------------------------------------------------------------
  Cartesian Forces:  Max     0.000196520 RMS     0.000116047
- Leave Link  716 at Thu Nov 17 12:11:01 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  716 at Thu Mar  8 14:10:38 2018, MaxMem=    33554432 cpu:         0.1
  (Enter /opt/g09-d01/g09/l103.exe)
 
  GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad
@@ -2833,7 +3117,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  Lowest energy point so far.  Saving SCF results.
  GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad
 
- Leave Link  103 at Thu Nov 17 12:11:01 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  103 at Thu Mar  8 14:10:38 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l202.exe)
                           Input orientation:                          
  ---------------------------------------------------------------------
@@ -2866,7 +3150,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
       3          1           0       -0.771146   -0.469341    0.000000
  ---------------------------------------------------------------------
  Rotational constants (GHZ):    820.3002057    421.6271708    278.4871817
- Leave Link  202 at Thu Nov 17 12:11:01 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  202 at Thu Mar  8 14:10:38 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l301.exe)
  Standard basis: 6-31+G(d) (6D, 7F)
  Ernie: Thresh=  0.10000D-02 Tol=  0.10000D-05 Strict=F.
@@ -2884,7 +3168,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  Integral buffers will be    131072 words long.
  Raffenetti 2 integral format.
  Two-electron integral symmetry is turned on.
- Leave Link  301 at Thu Nov 17 12:11:02 2016, MaxMem=    33554432 cpu:         0.1
+ Leave Link  301 at Thu Mar  8 14:10:38 2018, MaxMem=    33554432 cpu:         0.1
  (Enter /opt/g09-d01/g09/l302.exe)
  NPDir=0 NMtPBC=     1 NCelOv=     1 NCel=       1 NClECP=     1 NCelD=      1
          NCelK=      1 NCelE2=     1 NClLst=     1 CellRange=     0.0.
@@ -2895,10 +3179,10 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  IXCGrd= 4 IRadAn=           0 IRanWt=          -1 IRanGd=           0 AccXCQ= 0.00D+00.
  Generated NRdTot=       0 NPtTot=           0 NUsed=           0 NTot=          32
  NSgBfM=    23    23    23    23    23 MxSgAt=     3 MxSgA2=     3.
- Leave Link  302 at Thu Nov 17 12:11:02 2016, MaxMem=    33554432 cpu:         0.2
+ Leave Link  302 at Thu Mar  8 14:10:38 2018, MaxMem=    33554432 cpu:         0.2
  (Enter /opt/g09-d01/g09/l303.exe)
  DipDrv:  MaxL=1.
- Leave Link  303 at Thu Nov 17 12:11:02 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  303 at Thu Mar  8 14:10:38 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l401.exe)
  Initial guess from the checkpoint file:  "h2o.chk"
  B after Tr=     0.000000    0.000000    0.000000
@@ -2910,7 +3194,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
        Virtual   (A') (A') (A') (A') (A') (A') (A') (A') (A') (A')
                  (A') (A') (A') (A') (A") (A") (A") (A")
  The electronic state of the initial guess is 1-A'.
- Leave Link  401 at Thu Nov 17 12:11:02 2016, MaxMem=    33554432 cpu:         0.1
+ Leave Link  401 at Thu Mar  8 14:10:38 2018, MaxMem=    33554432 cpu:         0.1
  (Enter /opt/g09-d01/g09/l502.exe)
  Closed shell SCF:
  Using DIIS extrapolation, IDIIS=  1040.
@@ -2997,14 +3281,14 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  SCF Done:  E(RB3LYP) =  -76.4225723520     A.U. after    6 cycles
             NFock=  6  Conv=0.25D-08     -V/T= 2.0092
  KE= 7.572409036076D+01 PE=-1.984305213311D+02 EE= 3.720247026489D+01
- Leave Link  502 at Thu Nov 17 12:11:03 2016, MaxMem=    33554432 cpu:         0.7
+ Leave Link  502 at Thu Mar  8 14:10:39 2018, MaxMem=    33554432 cpu:         0.6
  (Enter /opt/g09-d01/g09/l701.exe)
  Compute integral first derivatives.
  ... and contract with generalized density number  0.
- Leave Link  701 at Thu Nov 17 12:11:03 2016, MaxMem=    33554432 cpu:         0.2
+ Leave Link  701 at Thu Mar  8 14:10:39 2018, MaxMem=    33554432 cpu:         0.2
  (Enter /opt/g09-d01/g09/l702.exe)
  L702 exits ... SP integral derivatives will be done elsewhere.
- Leave Link  702 at Thu Nov 17 12:11:03 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  702 at Thu Mar  8 14:10:39 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l703.exe)
  Compute integral first derivatives, UseDBF=F ICtDFT=           0.
  Integral derivatives from FoFJK, PRISM(SPDF).
@@ -3016,7 +3300,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
          wScrn=  0.000000 ICntrl=    2127 IOpCl=  0 I1Cent=           0 NGrid=           0
          NMat0=    1 NMatS0=      1 NMatT0=    0 NMatD0=    1 NMtDS0=    0 NMtDT0=    0
  Petite list used in FoFCou.
- Leave Link  703 at Thu Nov 17 12:11:03 2016, MaxMem=    33554432 cpu:         0.3
+ Leave Link  703 at Thu Mar  8 14:10:40 2018, MaxMem=    33554432 cpu:         0.3
  (Enter /opt/g09-d01/g09/l716.exe)
  Dipole        = 4.85518482D-06-8.85080307D-01-6.31633179D-17
  ***** Axes restored to original set *****
@@ -3029,7 +3313,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
       3        1          -0.000020876   -0.000001350    0.000012508
  -------------------------------------------------------------------
  Cartesian Forces:  Max     0.000031994 RMS     0.000017244
- Leave Link  716 at Thu Nov 17 12:11:03 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  716 at Thu Mar  8 14:10:40 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l103.exe)
 
  GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad
@@ -3076,7 +3360,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  Lowest energy point so far.  Saving SCF results.
  GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad
 
- Leave Link  103 at Thu Nov 17 12:11:03 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  103 at Thu Mar  8 14:10:40 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l202.exe)
                           Input orientation:                          
  ---------------------------------------------------------------------
@@ -3109,7 +3393,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
       3          1           0       -0.771217   -0.469245    0.000000
  ---------------------------------------------------------------------
  Rotational constants (GHZ):    820.5938589    421.5493578    278.4870614
- Leave Link  202 at Thu Nov 17 12:11:03 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  202 at Thu Mar  8 14:10:40 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l301.exe)
  Standard basis: 6-31+G(d) (6D, 7F)
  Ernie: Thresh=  0.10000D-02 Tol=  0.10000D-05 Strict=F.
@@ -3127,7 +3411,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  Integral buffers will be    131072 words long.
  Raffenetti 2 integral format.
  Two-electron integral symmetry is turned on.
- Leave Link  301 at Thu Nov 17 12:11:03 2016, MaxMem=    33554432 cpu:         0.1
+ Leave Link  301 at Thu Mar  8 14:10:40 2018, MaxMem=    33554432 cpu:         0.1
  (Enter /opt/g09-d01/g09/l302.exe)
  NPDir=0 NMtPBC=     1 NCelOv=     1 NCel=       1 NClECP=     1 NCelD=      1
          NCelK=      1 NCelE2=     1 NClLst=     1 CellRange=     0.0.
@@ -3138,10 +3422,10 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  IXCGrd= 4 IRadAn=           0 IRanWt=          -1 IRanGd=           0 AccXCQ= 0.00D+00.
  Generated NRdTot=       0 NPtTot=           0 NUsed=           0 NTot=          32
  NSgBfM=    23    23    23    23    23 MxSgAt=     3 MxSgA2=     3.
- Leave Link  302 at Thu Nov 17 12:11:04 2016, MaxMem=    33554432 cpu:         0.2
+ Leave Link  302 at Thu Mar  8 14:10:40 2018, MaxMem=    33554432 cpu:         0.2
  (Enter /opt/g09-d01/g09/l303.exe)
  DipDrv:  MaxL=1.
- Leave Link  303 at Thu Nov 17 12:11:04 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  303 at Thu Mar  8 14:10:40 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l401.exe)
  Initial guess from the checkpoint file:  "h2o.chk"
  B after Tr=     0.000000    0.000000    0.000000
@@ -3153,7 +3437,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
        Virtual   (A') (A') (A') (A') (A') (A') (A') (A') (A') (A')
                  (A') (A') (A') (A') (A") (A") (A") (A")
  The electronic state of the initial guess is 1-A'.
- Leave Link  401 at Thu Nov 17 12:11:04 2016, MaxMem=    33554432 cpu:         0.1
+ Leave Link  401 at Thu Mar  8 14:10:40 2018, MaxMem=    33554432 cpu:         0.1
  (Enter /opt/g09-d01/g09/l502.exe)
  Closed shell SCF:
  Using DIIS extrapolation, IDIIS=  1040.
@@ -3229,14 +3513,14 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  SCF Done:  E(RB3LYP) =  -76.4225723577     A.U. after    5 cycles
             NFock=  5  Conv=0.45D-08     -V/T= 2.0092
  KE= 7.572407905456D+01 PE=-1.984305981894D+02 EE= 3.720252774992D+01
- Leave Link  502 at Thu Nov 17 12:11:04 2016, MaxMem=    33554432 cpu:         0.6
+ Leave Link  502 at Thu Mar  8 14:10:41 2018, MaxMem=    33554432 cpu:         0.6
  (Enter /opt/g09-d01/g09/l701.exe)
  Compute integral first derivatives.
  ... and contract with generalized density number  0.
- Leave Link  701 at Thu Nov 17 12:11:05 2016, MaxMem=    33554432 cpu:         0.2
+ Leave Link  701 at Thu Mar  8 14:10:41 2018, MaxMem=    33554432 cpu:         0.2
  (Enter /opt/g09-d01/g09/l702.exe)
  L702 exits ... SP integral derivatives will be done elsewhere.
- Leave Link  702 at Thu Nov 17 12:11:05 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  702 at Thu Mar  8 14:10:41 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l703.exe)
  Compute integral first derivatives, UseDBF=F ICtDFT=           0.
  Integral derivatives from FoFJK, PRISM(SPDF).
@@ -3248,7 +3532,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
          wScrn=  0.000000 ICntrl=    2127 IOpCl=  0 I1Cent=           0 NGrid=           0
          NMat0=    1 NMatS0=      1 NMatT0=    0 NMatD0=    1 NMtDS0=    0 NMtDT0=    0
  Petite list used in FoFCou.
- Leave Link  703 at Thu Nov 17 12:11:05 2016, MaxMem=    33554432 cpu:         0.3
+ Leave Link  703 at Thu Mar  8 14:10:42 2018, MaxMem=    33554432 cpu:         0.3
  (Enter /opt/g09-d01/g09/l716.exe)
  Dipole        =-1.17660657D-08-8.84977190D-01-1.93844906D-16
  ***** Axes restored to original set *****
@@ -3261,7 +3545,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
       3        1          -0.000000011   -0.000000016    0.000000015
  -------------------------------------------------------------------
  Cartesian Forces:  Max     0.000000038 RMS     0.000000020
- Leave Link  716 at Thu Nov 17 12:11:05 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  716 at Thu Mar  8 14:10:42 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l103.exe)
 
  GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad
@@ -3320,7 +3604,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad
 
  Largest change from initial coordinates is atom    2       0.788 Angstoms.
- Leave Link  103 at Thu Nov 17 12:11:05 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  103 at Thu Mar  8 14:10:42 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l202.exe)
                           Input orientation:                          
  ---------------------------------------------------------------------
@@ -3353,7 +3637,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
       3          1           0       -0.771217   -0.469245    0.000000
  ---------------------------------------------------------------------
  Rotational constants (GHZ):    820.5938589    421.5493578    278.4870614
- Leave Link  202 at Thu Nov 17 12:11:05 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  202 at Thu Mar  8 14:10:42 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l601.exe)
  Copying SCF densities to generalized density rwf, IOpCl= 0 IROHF=0.
 
@@ -3410,24 +3694,299 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  Symmetry A'   KE= 7.124773759684D+01
  Symmetry A"   KE= 4.476341457720D+00
  No NMR shielding tensors so no spin-rotation constants.
- Leave Link  601 at Thu Nov 17 12:11:05 2016, MaxMem=    33554432 cpu:         0.2
+ Leave Link  601 at Thu Mar  8 14:10:42 2018, MaxMem=    33554432 cpu:         0.2
+ (Enter /opt/g09-d01/g09/l607.exe)
+ ******************************Gaussian NBO Version 3.1******************************
+             N A T U R A L   A T O M I C   O R B I T A L   A N D
+          N A T U R A L   B O N D   O R B I T A L   A N A L Y S I S
+ ******************************Gaussian NBO Version 3.1******************************
+
+       /RESON  / : Allow strongly delocalized NBO set
+       /BNDIDX / : Print bond indices based on the NAO density matrix
+
+ Analyzing the SCF density
+
+ Job title: vib H2O                                                         
+
+ Storage needed:      1799 in NPA,      2273 in NBO (  33554369 available)
+
+
+ NATURAL POPULATIONS:  Natural atomic orbital occupancies 
+                                                          
+   NAO  Atom  No  lang   Type(AO)    Occupancy      Energy
+ ----------------------------------------------------------
+     1    O    1  S      Cor( 1S)     1.99991     -19.01979
+     2    O    1  S      Val( 2S)     1.76440      -0.91098
+     3    O    1  S      Ryd( 3S)     0.00105       1.07319
+     4    O    1  S      Ryd( 4S)     0.00000       1.38135
+     5    O    1  S      Ryd( 5S)     0.00000       2.89665
+     6    O    1  px     Val( 2p)     1.47519      -0.27806
+     7    O    1  px     Ryd( 3p)     0.00577       0.54511
+     8    O    1  px     Ryd( 4p)     0.00000       0.94715
+     9    O    1  py     Val( 2p)     1.73161      -0.31166
+    10    O    1  py     Ryd( 3p)     0.00072       0.37616
+    11    O    1  py     Ryd( 4p)     0.00002       0.95021
+    12    O    1  pz     Val( 2p)     1.99537      -0.31608
+    13    O    1  pz     Ryd( 3p)     0.00231       0.34983
+    14    O    1  pz     Ryd( 4p)     0.00000       0.91965
+    15    O    1  dxy    Ryd( 3d)     0.00204       2.50239
+    16    O    1  dxz    Ryd( 3d)     0.00000       1.72086
+    17    O    1  dyz    Ryd( 3d)     0.00232       1.75491
+    18    O    1  dx2y2  Ryd( 3d)     0.00168       1.75158
+    19    O    1  dz2    Ryd( 3d)     0.00153       2.07671
+
+    20    H    2  S      Val( 1S)     0.50769       0.17135
+    21    H    2  S      Ryd( 2S)     0.00035       0.52847
+
+    22    H    3  S      Val( 1S)     0.50769       0.17135
+    23    H    3  S      Ryd( 2S)     0.00035       0.52847
+
+ WARNING:  Population inversion found on atom  O    1
+
+
+ Summary of Natural Population Analysis:                  
+                                                          
+                                       Natural Population 
+                Natural  -----------------------------------------------
+    Atom  No    Charge         Core      Valence    Rydberg      Total
+ -----------------------------------------------------------------------
+      O    1   -0.98392      1.99991     6.96656    0.01744     8.98392
+      H    2    0.49196      0.00000     0.50769    0.00035     0.50804
+      H    3    0.49196      0.00000     0.50769    0.00035     0.50804
+ =======================================================================
+   * Total *    0.00000      1.99991     7.98195    0.01814    10.00000
+
+                                 Natural Population      
+ --------------------------------------------------------
+   Core                       1.99991 ( 99.9955% of   2)
+   Valence                    7.98195 ( 99.7744% of   8)
+   Natural Minimal Basis      9.98186 ( 99.8186% of  10)
+   Natural Rydberg Basis      0.01814 (  0.1814% of  10)
+ --------------------------------------------------------
+
+    Atom  No          Natural Electron Configuration
+ ----------------------------------------------------------------------------
+      O    1      [core]2S( 1.76)2p( 5.20)3p( 0.01)3d( 0.01)
+      H    2            1S( 0.51)
+      H    3            1S( 0.51)
+
+
+ Wiberg bond index matrix in the NAO basis:                                    
+
+     Atom    1       2       3
+     ---- ------  ------  ------
+   1.  O  0.0000  0.7582  0.7582
+   2.  H  0.7582  0.0000  0.0002
+   3.  H  0.7582  0.0002  0.0000
+
+
+ Wiberg bond index, Totals by atom:                                            
+
+     Atom    1
+     ---- ------
+   1.  O  1.5163
+   2.  H  0.7583
+   3.  H  0.7583
+
+
+ Atom-atom overlap-weighted NAO bond order:                                    
+
+     Atom    1       2       3
+     ---- ------  ------  ------
+   1.  O  0.0000  0.5687  0.5687
+   2.  H  0.5687  0.0000 -0.0063
+   3.  H  0.5687 -0.0063  0.0000
+
+
+ Atom-atom overlap-weighted NAO bond order, Totals by atom:                    
+
+     Atom    1
+     ---- ------
+   1.  O  1.1374
+   2.  H  0.5625
+   3.  H  0.5625
+
+
+ MO bond order:                                                                
+
+     Atom    1       2       3
+     ---- ------  ------  ------
+   1.  O  0.0000  0.5009 -0.6243
+   2.  H  0.5009  0.0000 -0.0222
+   3.  H -0.6243 -0.0222  0.0000
+
+
+ MO atomic valencies:                                                          
+
+     Atom    1
+     ---- ------
+   1.  O -0.1235
+   2.  H  0.4787
+   3.  H -0.6466
+
+
+ NATURAL BOND ORBITAL ANALYSIS:
+
+                       Occupancies       Lewis Structure    Low   High
+           Occ.    -------------------  -----------------   occ   occ
+  Cycle   Thresh.   Lewis   Non-Lewis     CR  BD  3C  LP    (L)   (NL)   Dev
+ =============================================================================
+   1(1)    1.90     9.99919   0.00081      1   2   0   2     0      0    0.00
+ -----------------------------------------------------------------------------
+
+ Structure accepted: No low occupancy Lewis orbitals
+
+ --------------------------------------------------------
+   Core                      1.99991 ( 99.996% of   2)
+   Valence Lewis             7.99928 ( 99.991% of   8)
+  ==================       ============================
+   Total Lewis               9.99919 ( 99.992% of  10)
+  -----------------------------------------------------
+   Valence non-Lewis         0.00011 (  0.001% of  10)
+   Rydberg non-Lewis         0.00070 (  0.007% of  10)
+  ==================       ============================
+   Total non-Lewis           0.00081 (  0.008% of  10)
+ --------------------------------------------------------
+
+
+       (Occupancy)   Bond orbital/ Coefficients/ Hybrids
+ ---------------------------------------------------------------------------------
+     1. (1.99986) BD ( 1) O   1 - H   2  
+                ( 74.62%)   0.8638* O   1 s( 23.50%)p 3.25( 76.37%)d 0.01(  0.13%)
+                                            0.0000  0.4846  0.0145  0.0000  0.0000
+                                            0.7052 -0.0441 -0.0004 -0.5142  0.0010
+                                           -0.0019  0.0000  0.0000  0.0000 -0.0262
+                                            0.0000  0.0000 -0.0098 -0.0218
+                ( 25.38%)   0.5038* H   2 s(100.00%)
+                                            1.0000 -0.0002
+     2. (1.99986) BD ( 1) O   1 - H   3  
+                ( 74.62%)   0.8638* O   1 s( 23.50%)p 3.25( 76.37%)d 0.01(  0.13%)
+                                            0.0000 -0.4846 -0.0145  0.0000  0.0000
+                                            0.7052 -0.0441 -0.0004  0.5142 -0.0010
+                                            0.0019  0.0000  0.0000  0.0000 -0.0262
+                                            0.0000  0.0000  0.0098  0.0218
+                ( 25.38%)   0.5038* H   3 s(100.00%)
+                                           -1.0000  0.0002
+     3. (1.99991) CR ( 1) O   1           s(100.00%)
+                                            1.0000 -0.0001  0.0000  0.0000  0.0000
+                                            0.0000  0.0000  0.0000  0.0000  0.0000
+                                            0.0000  0.0000  0.0000  0.0000  0.0000
+                                            0.0000  0.0000  0.0000  0.0000
+     4. (2.00000) LP ( 1) O   1           s(  0.00%)p 1.00( 99.88%)d 0.00(  0.12%)
+                                            0.0000  0.0000  0.0000  0.0000  0.0000
+                                            0.0000  0.0000  0.0000  0.0000  0.0000
+                                            0.0000  0.9988  0.0340  0.0004  0.0000
+                                            0.0000 -0.0341  0.0000  0.0000
+     5. (1.99956) LP ( 2) O   1           s( 53.00%)p 0.89( 46.93%)d 0.00(  0.07%)
+                                            0.0000  0.7279 -0.0145  0.0000  0.0000
+                                            0.0000  0.0000  0.0000  0.6848  0.0189
+                                           -0.0020  0.0000  0.0000  0.0000  0.0000
+                                            0.0000  0.0000  0.0264  0.0068
+     6. (0.00000) RY*( 1) O   1           s( 99.94%)p 0.00(  0.06%)d 0.00(  0.00%)
+     7. (0.00000) RY*( 2) O   1           s(100.00%)
+     8. (0.00000) RY*( 3) O   1           s(100.00%)
+     9. (0.00000) RY*( 4) O   1           s(  0.00%)p 1.00(100.00%)d 0.00(  0.00%)
+    10. (0.00000) RY*( 5) O   1           s(  0.00%)p 1.00(100.00%)
+    11. (0.00000) RY*( 6) O   1           s(  0.02%)p99.99( 99.98%)d 0.00(  0.00%)
+    12. (0.00000) RY*( 7) O   1           s(  0.00%)p 1.00(100.00%)
+    13. (0.00000) RY*( 8) O   1           s(  0.00%)p 1.00(100.00%)d 0.00(  0.00%)
+    14. (0.00000) RY*( 9) O   1           s(  0.00%)p 1.00(100.00%)
+    15. (0.00000) RY*(10) O   1           s(  0.00%)p 1.00(  0.14%)d99.99( 99.86%)
+    16. (0.00000) RY*(11) O   1           s(  0.00%)p 0.00(  0.00%)d 1.00(100.00%)
+    17. (0.00000) RY*(12) O   1           s(  0.00%)p 1.00(  0.12%)d99.99( 99.88%)
+    18. (0.00000) RY*(13) O   1           s(  0.01%)p 1.00(  0.08%)d99.99( 99.91%)
+    19. (0.00000) RY*(14) O   1           s(  0.03%)p 2.81(  0.07%)d99.99( 99.90%)
+    20. (0.00035) RY*( 1) H   2           s(100.00%)
+                                            0.0002  1.0000
+    21. (0.00035) RY*( 1) H   3           s(100.00%)
+                                            0.0002  1.0000
+    22. (0.00006) BD*( 1) O   1 - H   2  
+                ( 25.38%)   0.5038* O   1 s( 23.50%)p 3.25( 76.37%)d 0.01(  0.13%)
+                ( 74.62%)  -0.8638* H   2 s(100.00%)
+    23. (0.00006) BD*( 1) O   1 - H   3  
+                ( 25.38%)   0.5038* O   1 s( 23.50%)p 3.25( 76.37%)d 0.01(  0.13%)
+                ( 74.62%)  -0.8638* H   3 s(100.00%)
+
+
+ NHO Directionality and "Bond Bending" (deviations from line of nuclear centers)
+
+         [Thresholds for printing:  angular deviation  >  1.0 degree]
+                                    hybrid p-character > 25.0%
+                                    orbital occupancy  >  0.10e
+
+                                Line of Centers        Hybrid 1              Hybrid 2
+                                ---------------  -------------------   ------------------
+                NBO               Theta   Phi    Theta   Phi    Dev    Theta   Phi    Dev
+ ========================================================================================
+     4. LP (   1) O   1             --     --      0.0    0.0   --       --     --    --
+     5. LP (   2) O   1             --     --     90.0   90.0   --       --     --    --
+
+
+ Second Order Perturbation Theory Analysis of Fock Matrix in NBO Basis
+
+     Threshold for printing:   0.50 kcal/mol
+                                                                              E(2)  E(j)-E(i) F(i,j)
+         Donor NBO (i)                     Acceptor NBO (j)                 kcal/mol   a.u.    a.u. 
+ ===================================================================================================
+
+ within unit  1
+       None above threshold
+
+
+ Natural Bond Orbitals (Summary):
+
+                                                            Principal Delocalizations
+           NBO                        Occupancy    Energy   (geminal,vicinal,remote)
+ ====================================================================================
+ Molecular unit  1  (H2O)
+     1. BD (   1) O   1 - H   2          1.99986    -0.74066   
+     2. BD (   1) O   1 - H   3          1.99986    -0.74066   
+     3. CR (   1) O   1                  1.99991   -19.01963   
+     4. LP (   1) O   1                  2.00000    -0.31926   
+     5. LP (   2) O   1                  1.99956    -0.62773   
+     6. RY*(   1) O   1                  0.00000     1.07058   
+     7. RY*(   2) O   1                  0.00000     1.38135   
+     8. RY*(   3) O   1                  0.00000     2.89665   
+     9. RY*(   4) O   1                  0.00000     0.53876   
+    10. RY*(   5) O   1                  0.00000     0.94705   
+    11. RY*(   6) O   1                  0.00000     0.37645   
+    12. RY*(   7) O   1                  0.00000     0.95049   
+    13. RY*(   8) O   1                  0.00000     0.35060   
+    14. RY*(   9) O   1                  0.00000     0.91964   
+    15. RY*(  10) O   1                  0.00000     2.49882   
+    16. RY*(  11) O   1                  0.00000     1.72086   
+    17. RY*(  12) O   1                  0.00000     1.75732   
+    18. RY*(  13) O   1                  0.00000     1.75467   
+    19. RY*(  14) O   1                  0.00000     2.07452   
+    20. RY*(   1) H   2                  0.00035     0.52831   
+    21. RY*(   1) H   3                  0.00035     0.52831   
+    22. BD*(   1) O   1 - H   2          0.00006     0.48119   
+    23. BD*(   1) O   1 - H   3          0.00006     0.48119   
+       -------------------------------
+              Total Lewis    9.99919  ( 99.9919%)
+        Valence non-Lewis    0.00011  (  0.0011%)
+        Rydberg non-Lewis    0.00070  (  0.0070%)
+       -------------------------------
+            Total unit  1   10.00000  (100.0000%)
+           Charge unit  1    0.00000
+ Leave Link  607 at Thu Mar  8 14:10:42 2018, MaxMem=    33554432 cpu:         0.3
  (Enter /opt/g09-d01/g09/l9999.exe)
- 1\1\GINC-DNAS-NODE31\FOpt\RB3LYP\6-31+G(d)\H2O1\GVALLVER\17-Nov-2016\0
- \\#P B3LYP / 6-31+G* opt=tight freq form\\vib H2O\\0,1\O,0.1999786654,
- -0.0610346817,-0.0777277681\H,0.7712024465,0.4363383751,-0.6820023705\
- H,0.6804488881,-0.8794156935,0.1177851386\\Version=EM64L-G09RevD.01\St
- ate=1-A'\HF=-76.4225724\RMSD=4.527e-09\RMSF=1.995e-08\Dipole=0.7933812
- ,-0.2421633,-0.3083633\Quadrupole=-0.3869134,0.7815015,-0.3945881,-0.1
- 235254,-0.4093805,-1.0808286\PG=CS [SG(H2O1)]\\@
+ 1\1\GINC-DNAS-NODE31\FOpt\RB3LYP\6-31+G(d)\H2O1\GVALLVER\08-Mar-2018\0
+ \\#P B3LYP / 6-31+G* opt=tight freq form pop=NBOREAD\\vib H2O\\0,1\O,0
+ .1999786654,-0.0610346817,-0.0777277681\H,0.7712024465,0.4363383751,-0
+ .6820023705\H,0.6804488881,-0.8794156935,0.1177851386\\Version=EM64L-G
+ 09RevD.01\State=1-A'\HF=-76.4225724\RMSD=4.527e-09\RMSF=1.995e-08\Dipo
+ le=0.7933812,-0.2421633,-0.3083633\Quadrupole=-0.3869134,0.7815015,-0.
+ 3945881,-0.1235254,-0.4093805,-1.0808286\PG=CS [SG(H2O1)]\\@
 
 
- When cryptography is outlawed, bayl bhgynjf jvyy unir cevinpl.
+ QED = W**5 (WHICH WAS WHAT WE WANTED)
  FChkPn:  Coordinates translated and rotated.
  FChkPn:  Coordinates match /B/ after translation and rotation.
- Leave Link 9999 at Thu Nov 17 12:11:05 2016, MaxMem=    33554432 cpu:         0.1
- Job cpu time:       0 days  0 hours  0 minutes 22.6 seconds.
+ Leave Link 9999 at Thu Mar  8 14:10:42 2018, MaxMem=    33554432 cpu:         0.1
+ Job cpu time:       0 days  0 hours  0 minutes 25.4 seconds.
  File lengths (MBytes):  RWF=      5 Int=      0 D2E=      0 Chk=      1 Scr=      1
- Normal termination of Gaussian 09 at Thu Nov 17 12:11:06 2016.
+ Normal termination of Gaussian 09 at Thu Mar  8 14:10:42 2018.
  (Enter /opt/g09-d01/g09/l1.exe)
  Link1:  Proceeding to internal job step number  2.
  ---------------------------------------------------------------------
@@ -3441,11 +4000,11 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  8/6=4,10=90,11=11/1;
  11/6=1,8=1,9=11,15=111,16=1/1,2,10;
  10/6=1/2;
- 6/7=2,8=2,9=2,10=2,18=1,28=1/1;
+ 6/7=2,8=2,9=2,10=2,18=1,28=1,40=2/1,7;
  7/8=1,10=1,25=1/1,2,3,16;
  1/7=10,10=4,30=1/3;
  99//99;
- Leave Link    1 at Thu Nov 17 12:11:06 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link    1 at Thu Mar  8 14:10:43 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l101.exe)
  Structure from the checkpoint file:  "h2o.chk"
  -------
@@ -3471,7 +4030,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  NQMom=    0.0000000   0.0000000   0.0000000
  NMagM=    0.0000000   2.7928460   2.7928460
  AtZNuc=   8.0000000   1.0000000   1.0000000
- Leave Link  101 at Thu Nov 17 12:11:06 2016, MaxMem=    33554432 cpu:         0.1
+ Leave Link  101 at Thu Mar  8 14:10:43 2018, MaxMem=    33554432 cpu:         0.1
  (Enter /opt/g09-d01/g09/l103.exe)
 
  GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad
@@ -3491,7 +4050,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  Number of steps in this run=      2 maximum allowed number of steps=      2.
  GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad
 
- Leave Link  103 at Thu Nov 17 12:11:06 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  103 at Thu Mar  8 14:10:43 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l202.exe)
                           Input orientation:                          
  ---------------------------------------------------------------------
@@ -3524,7 +4083,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
       3          1           0       -0.771217   -0.469245    0.000000
  ---------------------------------------------------------------------
  Rotational constants (GHZ):    820.5938589    421.5493578    278.4870614
- Leave Link  202 at Thu Nov 17 12:11:06 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  202 at Thu Mar  8 14:10:43 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l301.exe)
  Standard basis: 6-31+G(d) (6D, 7F)
  Ernie: Thresh=  0.10000D-02 Tol=  0.10000D-05 Strict=F.
@@ -3542,7 +4101,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  Integral buffers will be    131072 words long.
  Raffenetti 2 integral format.
  Two-electron integral symmetry is turned on.
- Leave Link  301 at Thu Nov 17 12:11:06 2016, MaxMem=    33554432 cpu:         0.1
+ Leave Link  301 at Thu Mar  8 14:10:43 2018, MaxMem=    33554432 cpu:         0.1
  (Enter /opt/g09-d01/g09/l302.exe)
  NPDir=0 NMtPBC=     1 NCelOv=     1 NCel=       1 NClECP=     1 NCelD=      1
          NCelK=      1 NCelE2=     1 NClLst=     1 CellRange=     0.0.
@@ -3553,10 +4112,10 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  IXCGrd= 4 IRadAn=           0 IRanWt=          -1 IRanGd=           0 AccXCQ= 0.00D+00.
  Generated NRdTot=       0 NPtTot=           0 NUsed=           0 NTot=          32
  NSgBfM=    23    23    23    23    23 MxSgAt=     3 MxSgA2=     3.
- Leave Link  302 at Thu Nov 17 12:11:06 2016, MaxMem=    33554432 cpu:         0.2
+ Leave Link  302 at Thu Mar  8 14:10:43 2018, MaxMem=    33554432 cpu:         0.2
  (Enter /opt/g09-d01/g09/l303.exe)
  DipDrv:  MaxL=1.
- Leave Link  303 at Thu Nov 17 12:11:06 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  303 at Thu Mar  8 14:10:43 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l401.exe)
  Initial guess from the checkpoint file:  "h2o.chk"
  B after Tr=     0.000000    0.000000    0.000000
@@ -3568,7 +4127,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
        Virtual   (A') (A') (A") (A') (A') (A') (A') (A') (A') (A")
                  (A') (A') (A') (A") (A") (A') (A') (A')
  The electronic state of the initial guess is 1-A'.
- Leave Link  401 at Thu Nov 17 12:11:06 2016, MaxMem=    33554432 cpu:         0.1
+ Leave Link  401 at Thu Mar  8 14:10:43 2018, MaxMem=    33554432 cpu:         0.1
  (Enter /opt/g09-d01/g09/l502.exe)
  Closed shell SCF:
  Using DIIS extrapolation, IDIIS=  1040.
@@ -3600,21 +4159,21 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  SCF Done:  E(RB3LYP) =  -76.4225723577     A.U. after    1 cycles
             NFock=  1  Conv=0.65D-09     -V/T= 2.0092
  KE= 7.572407896604D+01 PE=-1.984305982638D+02 EE= 3.720252791277D+01
- Leave Link  502 at Thu Nov 17 12:11:07 2016, MaxMem=    33554432 cpu:         0.2
+ Leave Link  502 at Thu Mar  8 14:10:44 2018, MaxMem=    33554432 cpu:         0.2
  (Enter /opt/g09-d01/g09/l801.exe)
  DoSCS=F DFT=T ScalE2(SS,OS)=  1.000000  1.000000
  Range of M.O.s used for correlation:     1    23
  NBasis=    23 NAE=     5 NBE=     5 NFC=     0 NFV=     0
  NROrb=     23 NOA=     5 NOB=     5 NVA=    18 NVB=    18
- Leave Link  801 at Thu Nov 17 12:11:07 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  801 at Thu Mar  8 14:10:44 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l1101.exe)
  Using compressed storage, NAtomX=     3.
  Will process      4 centers per pass.
- Leave Link 1101 at Thu Nov 17 12:11:07 2016, MaxMem=    33554432 cpu:         0.2
+ Leave Link 1101 at Thu Mar  8 14:10:44 2018, MaxMem=    33554432 cpu:         0.2
  (Enter /opt/g09-d01/g09/l1102.exe)
  Symmetrizing basis deriv contribution to polar:
  IMax=3 JMax=2 DiffMx= 0.00D+00
- Leave Link 1102 at Thu Nov 17 12:11:07 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link 1102 at Thu Mar  8 14:10:44 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l1110.exe)
  Forming Gx(P) for the SCF density, NAtomX=     3.
  Integral derivatives from FoFJK, PRISM(SPDF).
@@ -3632,7 +4191,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  End of G2Drv F.D. properties file   721 does not exist.
  End of G2Drv F.D. properties file   722 does not exist.
  End of G2Drv F.D. properties file   788 does not exist.
- Leave Link 1110 at Thu Nov 17 12:11:07 2016, MaxMem=    33554432 cpu:         0.6
+ Leave Link 1110 at Thu Mar  8 14:10:45 2018, MaxMem=    33554432 cpu:         0.6
  (Enter /opt/g09-d01/g09/l1002.exe)
  Minotr:  Closed shell wavefunction.
           IDoAtm=111
@@ -3669,7 +4228,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  End of Minotr F.D. properties file   721 does not exist.
  End of Minotr F.D. properties file   722 does not exist.
  End of Minotr F.D. properties file   788 does not exist.
- Leave Link 1002 at Thu Nov 17 12:11:08 2016, MaxMem=    33554432 cpu:         0.9
+ Leave Link 1002 at Thu Mar  8 14:10:46 2018, MaxMem=    33554432 cpu:         0.9
  (Enter /opt/g09-d01/g09/l601.exe)
  Copying SCF densities to generalized density rwf, IOpCl= 0 IROHF=0.
 
@@ -3737,14 +4296,289 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
   Exact polarizability:   7.749   0.000   6.456   0.000   0.000   6.515
  Approx polarizability:   9.509   0.000   7.457   0.000   0.000   6.602
  No NMR shielding tensors so no spin-rotation constants.
- Leave Link  601 at Thu Nov 17 12:11:09 2016, MaxMem=    33554432 cpu:         0.2
+ Leave Link  601 at Thu Mar  8 14:10:46 2018, MaxMem=    33554432 cpu:         0.2
+ (Enter /opt/g09-d01/g09/l607.exe)
+ ******************************Gaussian NBO Version 3.1******************************
+             N A T U R A L   A T O M I C   O R B I T A L   A N D
+          N A T U R A L   B O N D   O R B I T A L   A N A L Y S I S
+ ******************************Gaussian NBO Version 3.1******************************
+
+       /RESON  / : Allow strongly delocalized NBO set
+       /BNDIDX / : Print bond indices based on the NAO density matrix
+
+ Analyzing the SCF density
+
+ Job title: vib H2O                                                         
+
+ Storage needed:      1799 in NPA,      2273 in NBO (  33554369 available)
+
+
+ NATURAL POPULATIONS:  Natural atomic orbital occupancies 
+                                                          
+   NAO  Atom  No  lang   Type(AO)    Occupancy      Energy
+ ----------------------------------------------------------
+     1    O    1  S      Cor( 1S)     1.99991     -19.01979
+     2    O    1  S      Val( 2S)     1.76440      -0.91098
+     3    O    1  S      Ryd( 3S)     0.00105       1.07319
+     4    O    1  S      Ryd( 4S)     0.00000       1.38135
+     5    O    1  S      Ryd( 5S)     0.00000       2.89665
+     6    O    1  px     Val( 2p)     1.47519      -0.27806
+     7    O    1  px     Ryd( 3p)     0.00577       0.54511
+     8    O    1  px     Ryd( 4p)     0.00000       0.94715
+     9    O    1  py     Val( 2p)     1.73161      -0.31166
+    10    O    1  py     Ryd( 3p)     0.00072       0.37616
+    11    O    1  py     Ryd( 4p)     0.00002       0.95021
+    12    O    1  pz     Val( 2p)     1.99537      -0.31608
+    13    O    1  pz     Ryd( 3p)     0.00231       0.34983
+    14    O    1  pz     Ryd( 4p)     0.00000       0.91965
+    15    O    1  dxy    Ryd( 3d)     0.00204       2.50239
+    16    O    1  dxz    Ryd( 3d)     0.00000       1.72086
+    17    O    1  dyz    Ryd( 3d)     0.00232       1.75491
+    18    O    1  dx2y2  Ryd( 3d)     0.00168       1.75158
+    19    O    1  dz2    Ryd( 3d)     0.00153       2.07671
+
+    20    H    2  S      Val( 1S)     0.50769       0.17135
+    21    H    2  S      Ryd( 2S)     0.00035       0.52847
+
+    22    H    3  S      Val( 1S)     0.50769       0.17135
+    23    H    3  S      Ryd( 2S)     0.00035       0.52847
+
+ WARNING:  Population inversion found on atom  O    1
+
+
+ Summary of Natural Population Analysis:                  
+                                                          
+                                       Natural Population 
+                Natural  -----------------------------------------------
+    Atom  No    Charge         Core      Valence    Rydberg      Total
+ -----------------------------------------------------------------------
+      O    1   -0.98392      1.99991     6.96656    0.01744     8.98392
+      H    2    0.49196      0.00000     0.50769    0.00035     0.50804
+      H    3    0.49196      0.00000     0.50769    0.00035     0.50804
+ =======================================================================
+   * Total *    0.00000      1.99991     7.98195    0.01814    10.00000
+
+                                 Natural Population      
+ --------------------------------------------------------
+   Core                       1.99991 ( 99.9955% of   2)
+   Valence                    7.98195 ( 99.7744% of   8)
+   Natural Minimal Basis      9.98186 ( 99.8186% of  10)
+   Natural Rydberg Basis      0.01814 (  0.1814% of  10)
+ --------------------------------------------------------
+
+    Atom  No          Natural Electron Configuration
+ ----------------------------------------------------------------------------
+      O    1      [core]2S( 1.76)2p( 5.20)3p( 0.01)3d( 0.01)
+      H    2            1S( 0.51)
+      H    3            1S( 0.51)
+
+
+ Wiberg bond index matrix in the NAO basis:                                    
+
+     Atom    1       2       3
+     ---- ------  ------  ------
+   1.  O  0.0000  0.7582  0.7582
+   2.  H  0.7582  0.0000  0.0002
+   3.  H  0.7582  0.0002  0.0000
+
+
+ Wiberg bond index, Totals by atom:                                            
+
+     Atom    1
+     ---- ------
+   1.  O  1.5163
+   2.  H  0.7583
+   3.  H  0.7583
+
+
+ Atom-atom overlap-weighted NAO bond order:                                    
+
+     Atom    1       2       3
+     ---- ------  ------  ------
+   1.  O  0.0000  0.5687  0.5687
+   2.  H  0.5687  0.0000 -0.0063
+   3.  H  0.5687 -0.0063  0.0000
+
+
+ Atom-atom overlap-weighted NAO bond order, Totals by atom:                    
+
+     Atom    1
+     ---- ------
+   1.  O  1.1374
+   2.  H  0.5625
+   3.  H  0.5625
+
+
+ MO bond order:                                                                
+
+     Atom    1       2       3
+     ---- ------  ------  ------
+   1.  O  0.0000  0.5009 -0.6243
+   2.  H  0.5009  0.0000 -0.0222
+   3.  H -0.6243 -0.0222  0.0000
+
+
+ MO atomic valencies:                                                          
+
+     Atom    1
+     ---- ------
+   1.  O -0.1235
+   2.  H  0.4787
+   3.  H -0.6466
+
+
+ NATURAL BOND ORBITAL ANALYSIS:
+
+                       Occupancies       Lewis Structure    Low   High
+           Occ.    -------------------  -----------------   occ   occ
+  Cycle   Thresh.   Lewis   Non-Lewis     CR  BD  3C  LP    (L)   (NL)   Dev
+ =============================================================================
+   1(1)    1.90     9.99919   0.00081      1   2   0   2     0      0    0.00
+ -----------------------------------------------------------------------------
+
+ Structure accepted: No low occupancy Lewis orbitals
+
+ --------------------------------------------------------
+   Core                      1.99991 ( 99.996% of   2)
+   Valence Lewis             7.99928 ( 99.991% of   8)
+  ==================       ============================
+   Total Lewis               9.99919 ( 99.992% of  10)
+  -----------------------------------------------------
+   Valence non-Lewis         0.00011 (  0.001% of  10)
+   Rydberg non-Lewis         0.00070 (  0.007% of  10)
+  ==================       ============================
+   Total non-Lewis           0.00081 (  0.008% of  10)
+ --------------------------------------------------------
+
+
+       (Occupancy)   Bond orbital/ Coefficients/ Hybrids
+ ---------------------------------------------------------------------------------
+     1. (1.99986) BD ( 1) O   1 - H   2  
+                ( 74.62%)   0.8638* O   1 s( 23.50%)p 3.25( 76.37%)d 0.01(  0.13%)
+                                            0.0000  0.4846  0.0145  0.0000  0.0000
+                                            0.7052 -0.0441 -0.0004 -0.5142  0.0010
+                                           -0.0019  0.0000  0.0000  0.0000 -0.0262
+                                            0.0000  0.0000 -0.0098 -0.0218
+                ( 25.38%)   0.5038* H   2 s(100.00%)
+                                            1.0000 -0.0002
+     2. (1.99986) BD ( 1) O   1 - H   3  
+                ( 74.62%)   0.8638* O   1 s( 23.50%)p 3.25( 76.37%)d 0.01(  0.13%)
+                                            0.0000 -0.4846 -0.0145  0.0000  0.0000
+                                            0.7052 -0.0441 -0.0004  0.5142 -0.0010
+                                            0.0019  0.0000  0.0000  0.0000 -0.0262
+                                            0.0000  0.0000  0.0098  0.0218
+                ( 25.38%)   0.5038* H   3 s(100.00%)
+                                           -1.0000  0.0002
+     3. (1.99991) CR ( 1) O   1           s(100.00%)
+                                            1.0000 -0.0001  0.0000  0.0000  0.0000
+                                            0.0000  0.0000  0.0000  0.0000  0.0000
+                                            0.0000  0.0000  0.0000  0.0000  0.0000
+                                            0.0000  0.0000  0.0000  0.0000
+     4. (2.00000) LP ( 1) O   1           s(  0.00%)p 1.00( 99.88%)d 0.00(  0.12%)
+                                            0.0000  0.0000  0.0000  0.0000  0.0000
+                                            0.0000  0.0000  0.0000  0.0000  0.0000
+                                            0.0000  0.9988  0.0340  0.0004  0.0000
+                                            0.0000 -0.0341  0.0000  0.0000
+     5. (1.99956) LP ( 2) O   1           s( 53.00%)p 0.89( 46.93%)d 0.00(  0.07%)
+                                            0.0000  0.7279 -0.0145  0.0000  0.0000
+                                            0.0000  0.0000  0.0000  0.6848  0.0189
+                                           -0.0020  0.0000  0.0000  0.0000  0.0000
+                                            0.0000  0.0000  0.0264  0.0068
+     6. (0.00000) RY*( 1) O   1           s( 99.94%)p 0.00(  0.06%)d 0.00(  0.00%)
+     7. (0.00000) RY*( 2) O   1           s(100.00%)
+     8. (0.00000) RY*( 3) O   1           s(100.00%)
+     9. (0.00000) RY*( 4) O   1           s(  0.00%)p 1.00(100.00%)d 0.00(  0.00%)
+    10. (0.00000) RY*( 5) O   1           s(  0.00%)p 1.00(100.00%)
+    11. (0.00000) RY*( 6) O   1           s(  0.02%)p99.99( 99.98%)d 0.00(  0.00%)
+    12. (0.00000) RY*( 7) O   1           s(  0.00%)p 1.00(100.00%)
+    13. (0.00000) RY*( 8) O   1           s(  0.00%)p 1.00(100.00%)d 0.00(  0.00%)
+    14. (0.00000) RY*( 9) O   1           s(  0.00%)p 1.00(100.00%)
+    15. (0.00000) RY*(10) O   1           s(  0.00%)p 1.00(  0.14%)d99.99( 99.86%)
+    16. (0.00000) RY*(11) O   1           s(  0.00%)p 0.00(  0.00%)d 1.00(100.00%)
+    17. (0.00000) RY*(12) O   1           s(  0.00%)p 1.00(  0.12%)d99.99( 99.88%)
+    18. (0.00000) RY*(13) O   1           s(  0.01%)p 1.00(  0.08%)d99.99( 99.91%)
+    19. (0.00000) RY*(14) O   1           s(  0.03%)p 2.81(  0.07%)d99.99( 99.90%)
+    20. (0.00035) RY*( 1) H   2           s(100.00%)
+                                            0.0002  1.0000
+    21. (0.00035) RY*( 1) H   3           s(100.00%)
+                                            0.0002  1.0000
+    22. (0.00006) BD*( 1) O   1 - H   2  
+                ( 25.38%)   0.5038* O   1 s( 23.50%)p 3.25( 76.37%)d 0.01(  0.13%)
+                ( 74.62%)  -0.8638* H   2 s(100.00%)
+    23. (0.00006) BD*( 1) O   1 - H   3  
+                ( 25.38%)   0.5038* O   1 s( 23.50%)p 3.25( 76.37%)d 0.01(  0.13%)
+                ( 74.62%)  -0.8638* H   3 s(100.00%)
+
+
+ NHO Directionality and "Bond Bending" (deviations from line of nuclear centers)
+
+         [Thresholds for printing:  angular deviation  >  1.0 degree]
+                                    hybrid p-character > 25.0%
+                                    orbital occupancy  >  0.10e
+
+                                Line of Centers        Hybrid 1              Hybrid 2
+                                ---------------  -------------------   ------------------
+                NBO               Theta   Phi    Theta   Phi    Dev    Theta   Phi    Dev
+ ========================================================================================
+     4. LP (   1) O   1             --     --      0.0    0.0   --       --     --    --
+     5. LP (   2) O   1             --     --     90.0   90.0   --       --     --    --
+
+
+ Second Order Perturbation Theory Analysis of Fock Matrix in NBO Basis
+
+     Threshold for printing:   0.50 kcal/mol
+                                                                              E(2)  E(j)-E(i) F(i,j)
+         Donor NBO (i)                     Acceptor NBO (j)                 kcal/mol   a.u.    a.u. 
+ ===================================================================================================
+
+ within unit  1
+       None above threshold
+
+
+ Natural Bond Orbitals (Summary):
+
+                                                            Principal Delocalizations
+           NBO                        Occupancy    Energy   (geminal,vicinal,remote)
+ ====================================================================================
+ Molecular unit  1  (H2O)
+     1. BD (   1) O   1 - H   2          1.99986    -0.74066   
+     2. BD (   1) O   1 - H   3          1.99986    -0.74066   
+     3. CR (   1) O   1                  1.99991   -19.01963   
+     4. LP (   1) O   1                  2.00000    -0.31926   
+     5. LP (   2) O   1                  1.99956    -0.62773   
+     6. RY*(   1) O   1                  0.00000     1.07058   
+     7. RY*(   2) O   1                  0.00000     1.38135   
+     8. RY*(   3) O   1                  0.00000     2.89665   
+     9. RY*(   4) O   1                  0.00000     0.53876   
+    10. RY*(   5) O   1                  0.00000     0.94705   
+    11. RY*(   6) O   1                  0.00000     0.37645   
+    12. RY*(   7) O   1                  0.00000     0.95049   
+    13. RY*(   8) O   1                  0.00000     0.35060   
+    14. RY*(   9) O   1                  0.00000     0.91964   
+    15. RY*(  10) O   1                  0.00000     2.49882   
+    16. RY*(  11) O   1                  0.00000     1.72086   
+    17. RY*(  12) O   1                  0.00000     1.75732   
+    18. RY*(  13) O   1                  0.00000     1.75467   
+    19. RY*(  14) O   1                  0.00000     2.07452   
+    20. RY*(   1) H   2                  0.00035     0.52831   
+    21. RY*(   1) H   3                  0.00035     0.52831   
+    22. BD*(   1) O   1 - H   2          0.00006     0.48119   
+    23. BD*(   1) O   1 - H   3          0.00006     0.48119   
+       -------------------------------
+              Total Lewis    9.99919  ( 99.9919%)
+        Valence non-Lewis    0.00011  (  0.0011%)
+        Rydberg non-Lewis    0.00070  (  0.0070%)
+       -------------------------------
+            Total unit  1   10.00000  (100.0000%)
+           Charge unit  1    0.00000
+ Leave Link  607 at Thu Mar  8 14:10:46 2018, MaxMem=    33554432 cpu:         0.3
  (Enter /opt/g09-d01/g09/l701.exe)
  Compute integral second derivatives.
  ... and contract with generalized density number  0.
- Leave Link  701 at Thu Nov 17 12:11:09 2016, MaxMem=    33554432 cpu:         0.2
+ Leave Link  701 at Thu Mar  8 14:10:46 2018, MaxMem=    33554432 cpu:         0.2
  (Enter /opt/g09-d01/g09/l702.exe)
  L702 exits ... SP integral derivatives will be done elsewhere.
- Leave Link  702 at Thu Nov 17 12:11:09 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  702 at Thu Mar  8 14:10:46 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l703.exe)
  Compute integral second derivatives, UseDBF=F ICtDFT=           0.
  Integral derivatives from FoFJK, PRISM(SPDF).
@@ -3756,7 +4590,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
          wScrn=  0.000000 ICntrl=  100127 IOpCl=  0 I1Cent=           0 NGrid=           0
          NMat0=    1 NMatS0=      1 NMatT0=    0 NMatD0=    1 NMtDS0=    0 NMtDT0=    0
  Petite list used in FoFCou.
- Leave Link  703 at Thu Nov 17 12:11:10 2016, MaxMem=    33554432 cpu:         1.0
+ Leave Link  703 at Thu Mar  8 14:10:48 2018, MaxMem=    33554432 cpu:         1.0
  (Enter /opt/g09-d01/g09/l716.exe)
  Dipole        = 1.80038814D-08-8.84977177D-01 2.37367968D-16
  Polarizability= 7.74873478D+00 2.05562571D-07 6.45582419D+00
@@ -3890,7 +4724,7 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
       1  0.518467D+00
       2 -0.789699D-02  0.518467D+00
       3  0.280753D-01  0.280753D-01  0.166792D+00
- Leave Link  716 at Thu Nov 17 12:11:10 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  716 at Thu Mar  8 14:10:48 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l103.exe)
 
  GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad
@@ -3938,9 +4772,9 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  --------------------------------------------------------------------------------
  GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad
 
- Leave Link  103 at Thu Nov 17 12:11:10 2016, MaxMem=    33554432 cpu:         0.0
+ Leave Link  103 at Thu Mar  8 14:10:48 2018, MaxMem=    33554432 cpu:         0.0
  (Enter /opt/g09-d01/g09/l9999.exe)
- 1\1\GINC-DNAS-NODE31\Freq\RB3LYP\6-31+G(d)\H2O1\GVALLVER\17-Nov-2016\0
+ 1\1\GINC-DNAS-NODE31\Freq\RB3LYP\6-31+G(d)\H2O1\GVALLVER\08-Mar-2018\0
  \\#P Geom=AllCheck Guess=TCheck SCRF=Check GenChk RB3LYP/6-31+G(d) Fre
  q\\vib H2O\\0,1\O,0.1999786654,-0.0610346817,-0.0777277681\H,0.7712024
  465,0.4363383751,-0.6820023705\H,0.6804488881,-0.8794156935,0.11778513
@@ -3963,13 +4797,12 @@ Debut execution du job  : jeu. nov. 17 12:10:42 CET 2016
  .00000002\\\@
 
 
- IF NO USE IS MADE OF THE LABOR OF PAST AGES,
- THE WORLD MUST REMAIN ALWAYS IN THE INFANCY OF KNOWLEDGE.
-
-                          -- CICERO
+ SIC AS THE CAWSE OF EWERY THING IS, SIC WILBE THE EFFECT.
+ -- PROVERBS AND REASONS OF THE YEAR 1585
+           AS REPRINTED IN PAISLEY MAGAZINE 1828.
  FChkPn:  Coordinates translated and rotated.
  FChkPn:  Coordinates match /B/ after translation and rotation.
- Job cpu time:       0 days  0 hours  0 minutes  4.5 seconds.
+ Job cpu time:       0 days  0 hours  0 minutes  5.0 seconds.
  File lengths (MBytes):  RWF=      5 Int=      0 D2E=      0 Chk=      1 Scr=      1
- Normal termination of Gaussian 09 at Thu Nov 17 12:11:10 2016.
- Fin  execution du job  : jeu. nov. 17 12:11:10 CET 2016
+ Normal termination of Gaussian 09 at Thu Mar  8 14:10:48 2018.
+ Fin  execution du job  : jeu. mars  8 14:10:48 CET 2018
