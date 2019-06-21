@@ -56,6 +56,12 @@ class MPResterTest(PymatgenTest):
         doc = self.rester.get_doc(mids.pop(0))
         self.assertEqual(doc["pretty_formula"], "Al2O3")
 
+    def test_get_xas_data(self):
+        # Test getting XAS data
+        data = self.rester.get_xas_data("mp-24850", "Li")
+        self.assertNotEqual(data, [])
+        self.assertEqual(len(data['spectrum']['y']), 200)
+        
     def test_get_data(self):
         props = ["energy", "energy_per_atom", "formation_energy_per_atom",
                  "nsites", "unit_cell_formula", "pretty_formula", "is_hubbard",
@@ -99,7 +105,7 @@ class MPResterTest(PymatgenTest):
                 obj = self.rester.get_data("mp-19017", prop=prop)[0][prop]
                 self.assertIsInstance(obj, ComputedEntry)
 
-        #Test chemsys search
+        # Test chemsys search
         data = self.rester.get_data('Fe-Li-O', prop='unit_cell_formula')
         self.assertTrue(len(data) > 1)
         elements = {Element("Li"), Element("Fe"), Element("O")}
