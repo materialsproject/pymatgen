@@ -17,6 +17,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.structure import Structure
 import numpy as np 
 
+
 class InterfaceTest(PymatgenTest):
 
     @classmethod
@@ -120,6 +121,37 @@ class InterfaceTest(PymatgenTest):
                 self.assertArrayAlmostEqual(copy.__getattribute__(attr), interface.__getattribute__(attr))
             else:
                 assert copy.__getattribute__(attr) == interface.__getattribute__(attr)
+                
+    def test_serialization(self):
+        interface = self.ib.interfaces[0]
+        interface_dict = interface.as_dict()
+        interface_from_dict = Interface.from_dict(interface_dict)
+        for attr in ['lattice', 'cart_coords', 'sub_plane', 'film_plane',\
+                    'modified_film_structure', 'modified_sub_structure',\
+                    'strained_film_structure', 'strained_sub_structure',\
+                    'sub_init_cell', 'film_init_cell', 'site_properties',\
+                    'offset_vector', 'ab_shift', 'z_shift', 'vacuum_thickness']:
+            if type(interface_from_dict.__getattribute__(attr)) == np.ndarray:
+                self.assertArrayAlmostEqual(interface_from_dict.__getattribute__(attr), interface.__getattribute__(attr))
+            else:
+                self.assertAlmostEqual(interface_from_dict.__getattribute__(attr), interface.__getattribute__(attr))
+
+
+        # Shift film and check equality
+        interface = self.ib.interfaces[0].copy()
+        interface.z_shift = 4
+        interface.ab_shift = [0.5, 0.5]
+        interface_dict = interface.as_dict()
+        interface_from_dict = Interface.from_dict(interface_dict)
+        for attr in ['lattice', 'cart_coords', 'sub_plane', 'film_plane',\
+                    'modified_film_structure', 'modified_sub_structure',\
+                    'strained_film_structure', 'strained_sub_structure',\
+                    'sub_init_cell', 'film_init_cell', 'site_properties',\
+                    'offset_vector', 'ab_shift', 'z_shift', 'vacuum_thickness']:
+            if type(interface_from_dict.__getattribute__(attr)) == np.ndarray:
+                self.assertArrayAlmostEqual(interface_from_dict.__getattribute__(attr), interface.__getattribute__(attr))
+            else:
+                self.assertAlmostEqual(interface_from_dict.__getattribute__(attr), interface.__getattribute__(attr))
 
 
 class InterfaceBuilderTest(PymatgenTest):
@@ -179,3 +211,7 @@ class InterfaceBuilderTest(PymatgenTest):
                 sio2dm = sio2dm[sio2dm > 0]
                 assert si.is_valid(tol=2.32)
                 assert sio2.is_valid(tol=1.6)
+
+
+if __name__ == '__main__':
+    unittest.main()
