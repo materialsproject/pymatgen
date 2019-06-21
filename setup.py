@@ -86,7 +86,7 @@ who require Python 2.7 should install pymatgen v2018.x.
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2019.6.5",
+    version="2019.6.20",
     cmdclass={'build_ext': build_ext},
     setup_requires=['numpy>=1.14.3', 'setuptools>=18.0'],
     install_requires=["numpy>=1.14.3", "requests", "ruamel.yaml>=0.15.6",
