@@ -67,7 +67,7 @@ class ChemicalShielding(SquareTensor):
         Returns a chemical shielding tensor aligned to the principle axis system
         so that only the 3 diagnol components are non-zero
         """
-        return ChemicalShielding(np.diag(np.sort(np.linalg.eigvals(self))))
+        return ChemicalShielding(np.diag(np.sort(np.linalg.eigvals(self.symmetrized))))
 
     @property
     def haeberlen_values(self):

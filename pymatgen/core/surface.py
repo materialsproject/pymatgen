@@ -784,6 +784,14 @@ class SlabGenerator:
                 the c direction is the third vector of the lattice matrix
 
         """
+
+        # Add Wyckoff symbols of the bulk, will help with
+        # identfying types of sites in the slab system
+        sg = SpacegroupAnalyzer(initial_structure)
+        initial_structure.add_site_property("bulk_wyckoff",
+                                            sg.get_symmetry_dataset()['wyckoffs'])
+        initial_structure.add_site_property("bulk_equivalent",
+                                            sg.get_symmetry_dataset()['equivalent_atoms'])
         latt = initial_structure.lattice
         miller_index = reduce_vector(miller_index)
         # Calculate the surface normal using the reciprocal lattice vector.
@@ -895,7 +903,7 @@ class SlabGenerator:
         """
 
         h = self._proj_height
-        p = h/self.parent.lattice.d_hkl(self.miller_index)
+        p = round(h/self.parent.lattice.d_hkl(self.miller_index), 8)
         if self.in_unit_planes:
             nlayers_slab = int(math.ceil(self.min_slab_size / p))
             nlayers_vac = int(math.ceil(self.min_vac_size / p))
@@ -1641,7 +1649,7 @@ def hkl_transformation(transf, miller_index):
 
 
 def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
-                       bonds=None, tol=1e-3, max_broken_bonds=0,
+                       bonds=None, tol=0.1, ftol=0.1, max_broken_bonds=0,
                        lll_reduce=False, center_slab=False, primitive=True,
                        max_normal_search=None, symmetrize=False, repair=False,
                        include_reconstructions=False, in_unit_planes=False):
@@ -1708,7 +1716,7 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
                             center_slab=center_slab, primitive=primitive,
                             max_normal_search=max_normal_search,
                             in_unit_planes=in_unit_planes)
-        slabs = gen.get_slabs(bonds=bonds, tol=tol, symmetrize=symmetrize,
+        slabs = gen.get_slabs(bonds=bonds, tol=tol, ftol=ftol, symmetrize=symmetrize,
                               max_broken_bonds=max_broken_bonds, repair=repair)
 
         if len(slabs) > 0:

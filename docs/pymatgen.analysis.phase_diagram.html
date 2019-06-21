@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.phase_diagram module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.analysis.phase_diagram module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -46,7 +46,7 @@
 <span id="pymatgen-analysis-phase-diagram-module"></span><h1>pymatgen.analysis.phase_diagram module<a class="headerlink" href="#module-pymatgen.analysis.phase_diagram" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.analysis.phase_diagram.CompoundPhaseDiagram">
-<em class="property">class </em><code class="descname">CompoundPhaseDiagram</code><span class="sig-paren">(</span><em>entries</em>, <em>terminal_compositions</em>, <em>normalize_terminal_compositions=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#CompoundPhaseDiagram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.CompoundPhaseDiagram" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">CompoundPhaseDiagram</code><span class="sig-paren">(</span><em class="sig-param">entries</em>, <em class="sig-param">terminal_compositions</em>, <em class="sig-param">normalize_terminal_compositions=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#CompoundPhaseDiagram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.CompoundPhaseDiagram" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.phase_diagram.PhaseDiagram" title="pymatgen.analysis.phase_diagram.PhaseDiagram"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.phase_diagram.PhaseDiagram</span></code></a></p>
 <p>Generates phase diagrams from compounds as terminations instead of
 elements.</p>
@@ -70,23 +70,23 @@ more intuitive in terms of compositional breakdowns.</p></li>
 </dl>
 <dl class="attribute">
 <dt id="pymatgen.analysis.phase_diagram.CompoundPhaseDiagram.amount_tol">
-<code class="descname">amount_tol</code><em class="property"> = 1e-05</em><a class="headerlink" href="#pymatgen.analysis.phase_diagram.CompoundPhaseDiagram.amount_tol" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">amount_tol</code><em class="property"> = 1e-05</em><a class="headerlink" href="#pymatgen.analysis.phase_diagram.CompoundPhaseDiagram.amount_tol" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.CompoundPhaseDiagram.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#CompoundPhaseDiagram.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.CompoundPhaseDiagram.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#CompoundPhaseDiagram.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.CompoundPhaseDiagram.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>A JSON serializable dict representation of an object.</p>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.CompoundPhaseDiagram.from_dict">
-<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#CompoundPhaseDiagram.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.CompoundPhaseDiagram.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#CompoundPhaseDiagram.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.CompoundPhaseDiagram.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.CompoundPhaseDiagram.transform_entries">
-<code class="descname">transform_entries</code><span class="sig-paren">(</span><em>entries</em>, <em>terminal_compositions</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#CompoundPhaseDiagram.transform_entries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.CompoundPhaseDiagram.transform_entries" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">transform_entries</code><span class="sig-paren">(</span><em class="sig-param">entries</em>, <em class="sig-param">terminal_compositions</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#CompoundPhaseDiagram.transform_entries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.CompoundPhaseDiagram.transform_entries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method to transform all entries to the composition coordinate in the
 terminal compositions. If the entry does not fall within the space
 defined by the terminal compositions, they are excluded. For example,
@@ -109,7 +109,7 @@ compositions are represented by DummySpecies.</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.phase_diagram.GrandPotPDEntry">
-<em class="property">class </em><code class="descname">GrandPotPDEntry</code><span class="sig-paren">(</span><em>entry</em>, <em>chempots</em>, <em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#GrandPotPDEntry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.GrandPotPDEntry" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">GrandPotPDEntry</code><span class="sig-paren">(</span><em class="sig-param">entry</em>, <em class="sig-param">chempots</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#GrandPotPDEntry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.GrandPotPDEntry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.phase_diagram.PDEntry" title="pymatgen.analysis.phase_diagram.PDEntry"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.phase_diagram.PDEntry</span></code></a></p>
 <p>A grand potential pd entry object encompassing all relevant data for phase
 diagrams.  Chemical potentials are given as a element-chemical potential
@@ -126,18 +126,18 @@ chemical formula of the original entry.</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.GrandPotPDEntry.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#GrandPotPDEntry.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.GrandPotPDEntry.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#GrandPotPDEntry.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.GrandPotPDEntry.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>A JSON serializable dict representation of an object.</p>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.GrandPotPDEntry.from_dict">
-<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#GrandPotPDEntry.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.GrandPotPDEntry.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#GrandPotPDEntry.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.GrandPotPDEntry.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.GrandPotPDEntry.is_element">
-<code class="descname">is_element</code><a class="headerlink" href="#pymatgen.analysis.phase_diagram.GrandPotPDEntry.is_element" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">is_element</code><a class="headerlink" href="#pymatgen.analysis.phase_diagram.GrandPotPDEntry.is_element" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if the entry is an element.</p>
 </dd></dl>
 
@@ -145,7 +145,7 @@ chemical formula of the original entry.</p></li>
 
 <dl class="class">
 <dt id="pymatgen.analysis.phase_diagram.GrandPotentialPhaseDiagram">
-<em class="property">class </em><code class="descname">GrandPotentialPhaseDiagram</code><span class="sig-paren">(</span><em>entries</em>, <em>chempots</em>, <em>elements=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#GrandPotentialPhaseDiagram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.GrandPotentialPhaseDiagram" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">GrandPotentialPhaseDiagram</code><span class="sig-paren">(</span><em class="sig-param">entries</em>, <em class="sig-param">chempots</em>, <em class="sig-param">elements=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#GrandPotentialPhaseDiagram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.GrandPotentialPhaseDiagram" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.phase_diagram.PhaseDiagram" title="pymatgen.analysis.phase_diagram.PhaseDiagram"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.phase_diagram.PhaseDiagram</span></code></a></p>
 <p>A class representing a Grand potential phase diagram. Grand potential phase
 diagrams are essentially phase diagrams that are open to one or more
@@ -179,37 +179,37 @@ the the entries themselves.</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.GrandPotentialPhaseDiagram.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#GrandPotentialPhaseDiagram.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.GrandPotentialPhaseDiagram.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#GrandPotentialPhaseDiagram.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.GrandPotentialPhaseDiagram.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>A JSON serializable dict representation of an object.</p>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.GrandPotentialPhaseDiagram.from_dict">
-<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#GrandPotentialPhaseDiagram.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.GrandPotentialPhaseDiagram.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#GrandPotentialPhaseDiagram.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.GrandPotentialPhaseDiagram.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.analysis.phase_diagram.PDEntry">
-<em class="property">class </em><code class="descname">PDEntry</code><span class="sig-paren">(</span><em>composition: pymatgen.core.composition.Composition</em>, <em>energy: float</em>, <em>name: str = None</em>, <em>attribute: object = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDEntry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDEntry" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">PDEntry</code><span class="sig-paren">(</span><em class="sig-param">composition: pymatgen.core.composition.Composition</em>, <em class="sig-param">energy: float</em>, <em class="sig-param">name: str = None</em>, <em class="sig-param">attribute: object = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDEntry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDEntry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>An object encompassing all relevant data for phase diagrams.</p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.phase_diagram.PDEntry.composition">
-<code class="descname">composition</code><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDEntry.composition" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">composition</code><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDEntry.composition" title="Permalink to this definition">¶</a></dt>
 <dd><p>The composition associated with the PDEntry.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.phase_diagram.PDEntry.energy">
-<code class="descname">energy</code><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDEntry.energy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">energy</code><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDEntry.energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>The energy associated with the entry.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.phase_diagram.PDEntry.name">
-<code class="descname">name</code><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDEntry.name" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">name</code><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDEntry.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>A name for the entry. This is the string shown in the phase diagrams.
 By default, this is the reduced formula for the composition, but can be
 set to some other string for display purposes.</p>
@@ -217,7 +217,7 @@ set to some other string for display purposes.</p>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.phase_diagram.PDEntry.attribute">
-<code class="descname">attribute</code><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDEntry.attribute" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">attribute</code><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDEntry.attribute" title="Permalink to this definition">¶</a></dt>
 <dd><p>A arbitrary attribute.</p>
 </dd></dl>
 
@@ -238,24 +238,24 @@ but must be MSONable.</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PDEntry.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDEntry.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDEntry.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDEntry.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDEntry.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>A JSON serializable dict representation of an object.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PDEntry.energy_per_atom">
-<code class="descname">energy_per_atom</code><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDEntry.energy_per_atom" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">energy_per_atom</code><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDEntry.energy_per_atom" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the final energy per atom.</p>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PDEntry.from_dict">
-<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDEntry.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDEntry.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDEntry.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDEntry.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PDEntry.is_element">
-<code class="descname">is_element</code><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDEntry.is_element" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">is_element</code><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDEntry.is_element" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if the entry is an element.</p>
 </dd></dl>
 
@@ -263,7 +263,7 @@ but must be MSONable.</p></li>
 
 <dl class="class">
 <dt id="pymatgen.analysis.phase_diagram.PDPlotter">
-<em class="property">class </em><code class="descname">PDPlotter</code><span class="sig-paren">(</span><em>phasediagram</em>, <em>show_unstable=0</em>, <em>**plotkwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDPlotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDPlotter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">PDPlotter</code><span class="sig-paren">(</span><em class="sig-param">phasediagram</em>, <em class="sig-param">show_unstable=0</em>, <em class="sig-param">**plotkwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDPlotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDPlotter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A plotter class for phase diagrams.</p>
 <dl class="field-list simple">
@@ -288,7 +288,7 @@ be used to customize markers etc. If not set, the default is
 </dl>
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PDPlotter.get_chempot_range_map_plot">
-<code class="descname">get_chempot_range_map_plot</code><span class="sig-paren">(</span><em>elements</em>, <em>referenced=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDPlotter.get_chempot_range_map_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDPlotter.get_chempot_range_map_plot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_chempot_range_map_plot</code><span class="sig-paren">(</span><em class="sig-param">elements</em>, <em class="sig-param">referenced=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDPlotter.get_chempot_range_map_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDPlotter.get_chempot_range_map_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a plot of the chemical potential range _map. Currently works
 only for 3-component PDs.</p>
 <dl class="field-list simple">
@@ -310,7 +310,7 @@ energy of the elemental phase. If False, gives absolute values.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PDPlotter.get_contour_pd_plot">
-<code class="descname">get_contour_pd_plot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDPlotter.get_contour_pd_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDPlotter.get_contour_pd_plot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_contour_pd_plot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDPlotter.get_contour_pd_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDPlotter.get_contour_pd_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot a contour phase diagram plot, where phase triangles are colored
 according to degree of instability by interpolation. Currently only
 works for 3-component phase diagrams.</p>
@@ -323,12 +323,12 @@ works for 3-component phase diagrams.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PDPlotter.get_plot">
-<code class="descname">get_plot</code><span class="sig-paren">(</span><em>label_stable=True</em>, <em>label_unstable=True</em>, <em>ordering=None</em>, <em>energy_colormap=None</em>, <em>process_attributes=False</em>, <em>plt=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDPlotter.get_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDPlotter.get_plot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_plot</code><span class="sig-paren">(</span><em class="sig-param">label_stable=True</em>, <em class="sig-param">label_unstable=True</em>, <em class="sig-param">ordering=None</em>, <em class="sig-param">energy_colormap=None</em>, <em class="sig-param">process_attributes=False</em>, <em class="sig-param">plt=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDPlotter.get_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDPlotter.get_plot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PDPlotter.pd_plot_data">
-<code class="descname">pd_plot_data</code><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDPlotter.pd_plot_data" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">pd_plot_data</code><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDPlotter.pd_plot_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot data for phase diagram.
 2-comp - Full hull with energies
 3/4-comp - Projection into 2D or 3D Gibbs triangle.</p>
@@ -352,7 +352,7 @@ nodes in the phase diagram.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PDPlotter.plot_chempot_range_map">
-<code class="descname">plot_chempot_range_map</code><span class="sig-paren">(</span><em>elements</em>, <em>referenced=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDPlotter.plot_chempot_range_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDPlotter.plot_chempot_range_map" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_chempot_range_map</code><span class="sig-paren">(</span><em class="sig-param">elements</em>, <em class="sig-param">referenced=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDPlotter.plot_chempot_range_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDPlotter.plot_chempot_range_map" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the chemical potential range _map. Currently works only for
 3-component PDs.</p>
 <dl class="field-list simple">
@@ -371,7 +371,7 @@ energy of the elemental phase. If False, gives absolute values.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PDPlotter.plot_element_profile">
-<code class="descname">plot_element_profile</code><span class="sig-paren">(</span><em>element</em>, <em>comp</em>, <em>show_label_index=None</em>, <em>xlim=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDPlotter.plot_element_profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDPlotter.plot_element_profile" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_element_profile</code><span class="sig-paren">(</span><em class="sig-param">element</em>, <em class="sig-param">comp</em>, <em class="sig-param">show_label_index=None</em>, <em class="sig-param">xlim=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDPlotter.plot_element_profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDPlotter.plot_element_profile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Draw the element profile plot for a composition varying different
 chemical potential of an element.
 X value is the negative value of the chemical potential reference to
@@ -405,7 +405,7 @@ of an element.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PDPlotter.show">
-<code class="descname">show</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDPlotter.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDPlotter.show" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">show</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDPlotter.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDPlotter.show" title="Permalink to this definition">¶</a></dt>
 <dd><p>Draws the phase diagram using Matplotlib and show it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -419,7 +419,7 @@ of an element.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PDPlotter.write_image">
-<code class="descname">write_image</code><span class="sig-paren">(</span><em>stream</em>, <em>image_format='svg'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDPlotter.write_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDPlotter.write_image" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_image</code><span class="sig-paren">(</span><em class="sig-param">stream</em>, <em class="sig-param">image_format='svg'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDPlotter.write_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDPlotter.write_image" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes the phase diagram to an image in a stream.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -437,7 +437,7 @@ Defaults to svg for best results for vector graphics.</p></li>
 
 <dl class="class">
 <dt id="pymatgen.analysis.phase_diagram.PhaseDiagram">
-<em class="property">class </em><code class="descname">PhaseDiagram</code><span class="sig-paren">(</span><em>entries</em>, <em>elements=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">PhaseDiagram</code><span class="sig-paren">(</span><em class="sig-param">entries</em>, <em class="sig-param">elements=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Simple phase diagram class taking in elements and entries as inputs.
 The algorithm is based on the work in the following papers:</p>
@@ -469,35 +469,35 @@ the the entries themselves.</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PhaseDiagram.all_entries_hulldata">
-<code class="descname">all_entries_hulldata</code><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.all_entries_hulldata" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">all_entries_hulldata</code><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.all_entries_hulldata" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PhaseDiagram.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>A JSON serializable dict representation of an object.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.phase_diagram.PhaseDiagram.formation_energy_tol">
-<code class="descname">formation_energy_tol</code><em class="property"> = 1e-11</em><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.formation_energy_tol" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">formation_energy_tol</code><em class="property"> = 1e-11</em><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.formation_energy_tol" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PhaseDiagram.from_dict">
-<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PhaseDiagram.get_all_chempots">
-<code class="descname">get_all_chempots</code><span class="sig-paren">(</span><em>comp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_all_chempots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_all_chempots" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_all_chempots</code><span class="sig-paren">(</span><em class="sig-param">comp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_all_chempots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_all_chempots" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PhaseDiagram.get_chempot_range_map">
-<code class="descname">get_chempot_range_map</code><span class="sig-paren">(</span><em>elements</em>, <em>referenced=True</em>, <em>joggle=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_chempot_range_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_chempot_range_map" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_chempot_range_map</code><span class="sig-paren">(</span><em class="sig-param">elements</em>, <em class="sig-param">referenced=True</em>, <em class="sig-param">joggle=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_chempot_range_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_chempot_range_map" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a chemical potential range map for each stable entry.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -525,7 +525,7 @@ allowable chemical potential range of each entry.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PhaseDiagram.get_chempot_range_stability_phase">
-<code class="descname">get_chempot_range_stability_phase</code><span class="sig-paren">(</span><em>target_comp</em>, <em>open_elt</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_chempot_range_stability_phase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_chempot_range_stability_phase" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_chempot_range_stability_phase</code><span class="sig-paren">(</span><em class="sig-param">target_comp</em>, <em class="sig-param">open_elt</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_chempot_range_stability_phase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_chempot_range_stability_phase" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns a set of chemical potentials corresponding to the max and min
 chemical potential of the open element for a given composition. It is
 quite common to have for instance a ternary oxide (e.g., ABO3) for
@@ -551,12 +551,12 @@ oxidizing conditions). This is useful for defect computations.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PhaseDiagram.get_composition_chempots">
-<code class="descname">get_composition_chempots</code><span class="sig-paren">(</span><em>comp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_composition_chempots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_composition_chempots" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_composition_chempots</code><span class="sig-paren">(</span><em class="sig-param">comp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_composition_chempots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_composition_chempots" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PhaseDiagram.get_critical_compositions">
-<code class="descname">get_critical_compositions</code><span class="sig-paren">(</span><em>comp1</em>, <em>comp2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_critical_compositions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_critical_compositions" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_critical_compositions</code><span class="sig-paren">(</span><em class="sig-param">comp1</em>, <em class="sig-param">comp2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_critical_compositions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_critical_compositions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the critical compositions along the tieline between two
 compositions. I.e. where the decomposition products change.
 The endpoints are also returned.
@@ -578,7 +578,7 @@ The endpoints are also returned.
 
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PhaseDiagram.get_decomp_and_e_above_hull">
-<code class="descname">get_decomp_and_e_above_hull</code><span class="sig-paren">(</span><em>entry</em>, <em>allow_negative=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_decomp_and_e_above_hull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_decomp_and_e_above_hull" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_decomp_and_e_above_hull</code><span class="sig-paren">(</span><em class="sig-param">entry</em>, <em class="sig-param">allow_negative=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_decomp_and_e_above_hull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_decomp_and_e_above_hull" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides the decomposition and energy above convex hull for an entry.
 Due to caching, can be much faster if entries with the same composition
 are processed together.</p>
@@ -600,7 +600,7 @@ energy above hull of 0. The decomposition is provided as a dict of
 
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PhaseDiagram.get_decomposition">
-<code class="descname">get_decomposition</code><span class="sig-paren">(</span><em>comp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_decomposition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_decomposition" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_decomposition</code><span class="sig-paren">(</span><em class="sig-param">comp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_decomposition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_decomposition" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides the decomposition at a particular composition.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -617,7 +617,7 @@ energy above hull of 0. The decomposition is provided as a dict of
 
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PhaseDiagram.get_e_above_hull">
-<code class="descname">get_e_above_hull</code><span class="sig-paren">(</span><em>entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_e_above_hull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_e_above_hull" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_e_above_hull</code><span class="sig-paren">(</span><em class="sig-param">entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_e_above_hull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_e_above_hull" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides the energy above convex hull for an entry</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -632,7 +632,7 @@ energy above hull of 0.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PhaseDiagram.get_element_profile">
-<code class="descname">get_element_profile</code><span class="sig-paren">(</span><em>element</em>, <em>comp</em>, <em>comp_tol=1e-05</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_element_profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_element_profile" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_element_profile</code><span class="sig-paren">(</span><em class="sig-param">element</em>, <em class="sig-param">comp</em>, <em class="sig-param">comp_tol=1e-05</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_element_profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_element_profile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides the element evolution data for a composition.
 For example, can be used to analyze Li conversion voltages by varying
 uLi and looking at the phases formed. Also can be used to analyze O2
@@ -659,7 +659,7 @@ Defaults to 1e-5.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PhaseDiagram.get_equilibrium_reaction_energy">
-<code class="descname">get_equilibrium_reaction_energy</code><span class="sig-paren">(</span><em>entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_equilibrium_reaction_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_equilibrium_reaction_energy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_equilibrium_reaction_energy</code><span class="sig-paren">(</span><em class="sig-param">entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_equilibrium_reaction_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_equilibrium_reaction_energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides the reaction energy of a stable entry from the neighboring
 equilibrium stable entries (also known as the inverse distance to
 hull).</p>
@@ -676,7 +676,7 @@ equilibrium reaction energy &lt;= 0.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PhaseDiagram.get_form_energy">
-<code class="descname">get_form_energy</code><span class="sig-paren">(</span><em>entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_form_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_form_energy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_form_energy</code><span class="sig-paren">(</span><em class="sig-param">entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_form_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_form_energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the formation energy for an entry (NOT normalized) from the
 elemental references.</p>
 <dl class="field-list simple">
@@ -691,7 +691,7 @@ elemental references.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PhaseDiagram.get_form_energy_per_atom">
-<code class="descname">get_form_energy_per_atom</code><span class="sig-paren">(</span><em>entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_form_energy_per_atom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_form_energy_per_atom" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_form_energy_per_atom</code><span class="sig-paren">(</span><em class="sig-param">entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_form_energy_per_atom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_form_energy_per_atom" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the formation energy per atom for an entry from the
 elemental references.</p>
 <dl class="field-list simple">
@@ -706,7 +706,7 @@ elemental references.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PhaseDiagram.get_hull_energy">
-<code class="descname">get_hull_energy</code><span class="sig-paren">(</span><em>comp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_hull_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_hull_energy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_hull_energy</code><span class="sig-paren">(</span><em class="sig-param">comp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_hull_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_hull_energy" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>comp</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – Input composition</p>
@@ -720,7 +720,7 @@ normalized by atoms, i.e. E(Li4O2) = 2 * E(Li2O)</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PhaseDiagram.get_transition_chempots">
-<code class="descname">get_transition_chempots</code><span class="sig-paren">(</span><em>element</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_transition_chempots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_transition_chempots" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_transition_chempots</code><span class="sig-paren">(</span><em class="sig-param">element</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_transition_chempots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_transition_chempots" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the critical chemical potentials for an element in the Phase
 Diagram.</p>
 <dl class="field-list simple">
@@ -736,7 +736,7 @@ negative to more negative.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PhaseDiagram.getmu_vertices_stability_phase">
-<code class="descname">getmu_vertices_stability_phase</code><span class="sig-paren">(</span><em>target_comp</em>, <em>dep_elt</em>, <em>tol_en=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.getmu_vertices_stability_phase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.getmu_vertices_stability_phase" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">getmu_vertices_stability_phase</code><span class="sig-paren">(</span><em class="sig-param">target_comp</em>, <em class="sig-param">dep_elt</em>, <em class="sig-param">tol_en=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.getmu_vertices_stability_phase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.getmu_vertices_stability_phase" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns a set of chemical potentials corresponding to the vertices of
 the simplex in the chemical potential phase diagram.
 The simplex is built using all elements in the target_composition
@@ -768,26 +768,26 @@ value. “absolute” values (i.e., not referenced to element energies)</p>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.phase_diagram.PhaseDiagram.numerical_tol">
-<code class="descname">numerical_tol</code><em class="property"> = 1e-08</em><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.numerical_tol" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">numerical_tol</code><em class="property"> = 1e-08</em><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.numerical_tol" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PhaseDiagram.pd_coords">
-<code class="descname">pd_coords</code><span class="sig-paren">(</span><em>comp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.pd_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.pd_coords" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">pd_coords</code><span class="sig-paren">(</span><em class="sig-param">comp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.pd_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.pd_coords" title="Permalink to this definition">¶</a></dt>
 <dd><p>The phase diagram is generated in a reduced dimensional space
 (n_elements - 1). This function returns the coordinates in that space.
 These coordinates are compatible with the stored simplex objects.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PhaseDiagram.stable_entries">
-<code class="descname">stable_entries</code><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.stable_entries" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">stable_entries</code><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.stable_entries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the stable entries in the phase diagram.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PhaseDiagram.unstable_entries">
-<code class="descname">unstable_entries</code><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.unstable_entries" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">unstable_entries</code><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.unstable_entries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Entries that are unstable in the phase diagram. Includes positive
 formation energy entries.</p>
 </dd></dl>
@@ -796,14 +796,14 @@ formation energy entries.</p>
 
 <dl class="exception">
 <dt id="pymatgen.analysis.phase_diagram.PhaseDiagramError">
-<em class="property">exception </em><code class="descname">PhaseDiagramError</code><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagramError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagramError" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="sig-name descname">PhaseDiagramError</code><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagramError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagramError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>An exception class for Phase Diagram generation.</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.analysis.phase_diagram.ReactionDiagram">
-<em class="property">class </em><code class="descname">ReactionDiagram</code><span class="sig-paren">(</span><em>entry1</em>, <em>entry2</em>, <em>all_entries</em>, <em>tol=0.0001</em>, <em>float_fmt='%.4f'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#ReactionDiagram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.ReactionDiagram" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">ReactionDiagram</code><span class="sig-paren">(</span><em class="sig-param">entry1</em>, <em class="sig-param">entry2</em>, <em class="sig-param">all_entries</em>, <em class="sig-param">tol=0.0001</em>, <em class="sig-param">float_fmt='%.4f'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#ReactionDiagram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.ReactionDiagram" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Analyzes the possible reactions between a pair of compounds, e.g.,
 an electrolyte and an electrode.</p>
@@ -831,7 +831,7 @@ Determines number of decimal places in reaction string.</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.ReactionDiagram.get_compound_pd">
-<code class="descname">get_compound_pd</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#ReactionDiagram.get_compound_pd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.ReactionDiagram.get_compound_pd" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_compound_pd</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#ReactionDiagram.get_compound_pd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.ReactionDiagram.get_compound_pd" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the CompoundPhaseDiagram object, which can then be used for
 plotting.</p>
 <dl class="field-list simple">
@@ -845,7 +845,7 @@ plotting.</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.phase_diagram.TransformedPDEntry">
-<em class="property">class </em><code class="descname">TransformedPDEntry</code><span class="sig-paren">(</span><em>comp</em>, <em>original_entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#TransformedPDEntry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.TransformedPDEntry" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">TransformedPDEntry</code><span class="sig-paren">(</span><em class="sig-param">comp</em>, <em class="sig-param">original_entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#TransformedPDEntry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.TransformedPDEntry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.phase_diagram.PDEntry" title="pymatgen.analysis.phase_diagram.PDEntry"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.phase_diagram.PDEntry</span></code></a></p>
 <p>This class repesents a TransformedPDEntry, which allows for a PDEntry to be
 transformed to a different composition coordinate space. It is used in the
@@ -861,20 +861,20 @@ compositions.</p>
 </dl>
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.TransformedPDEntry.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#TransformedPDEntry.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.TransformedPDEntry.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#TransformedPDEntry.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.TransformedPDEntry.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>A JSON serializable dict representation of an object.</p>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.TransformedPDEntry.from_dict">
-<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#TransformedPDEntry.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.TransformedPDEntry.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#TransformedPDEntry.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.TransformedPDEntry.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.analysis.phase_diagram.get_facets">
-<code class="descname">get_facets</code><span class="sig-paren">(</span><em>qhull_data</em>, <em>joggle=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#get_facets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.get_facets" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_facets</code><span class="sig-paren">(</span><em class="sig-param">qhull_data</em>, <em class="sig-param">joggle=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#get_facets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.get_facets" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the simplex facets for the Convex hull.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -892,9 +892,14 @@ errors.</p></li>
 </dl>
 </dd></dl>
 
+<dl class="data">
+<dt id="pymatgen.analysis.phase_diagram.logger">
+<code class="sig-name descname">logger</code><em class="property"> = &lt;Logger pymatgen.analysis.phase_diagram (WARNING)&gt;</em><a class="headerlink" href="#pymatgen.analysis.phase_diagram.logger" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="function">
 <dt id="pymatgen.analysis.phase_diagram.order_phase_diagram">
-<code class="descname">order_phase_diagram</code><span class="sig-paren">(</span><em>lines</em>, <em>stable_entries</em>, <em>unstable_entries</em>, <em>ordering</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#order_phase_diagram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.order_phase_diagram" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">order_phase_diagram</code><span class="sig-paren">(</span><em class="sig-param">lines</em>, <em class="sig-param">stable_entries</em>, <em class="sig-param">unstable_entries</em>, <em class="sig-param">ordering</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#order_phase_diagram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.order_phase_diagram" title="Permalink to this definition">¶</a></dt>
 <dd><p>Orders the entries (their coordinates) in a phase diagram plot according
 to the user specified ordering.
 Ordering should be given as [‘Up’, ‘Left’, ‘Right’], where Up,
@@ -931,7 +936,7 @@ nodes in the phase diagram.</p>
 
 <dl class="function">
 <dt id="pymatgen.analysis.phase_diagram.tet_coord">
-<code class="descname">tet_coord</code><span class="sig-paren">(</span><em>coord</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#tet_coord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.tet_coord" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">tet_coord</code><span class="sig-paren">(</span><em class="sig-param">coord</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#tet_coord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.tet_coord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a 3D coordinate into a tetrahedron based coordinate system for a
 prettier phase diagram.</p>
 <dl class="field-list simple">
@@ -946,7 +951,7 @@ prettier phase diagram.</p>
 
 <dl class="function">
 <dt id="pymatgen.analysis.phase_diagram.triangular_coord">
-<code class="descname">triangular_coord</code><span class="sig-paren">(</span><em>coord</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#triangular_coord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.triangular_coord" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">triangular_coord</code><span class="sig-paren">(</span><em class="sig-param">coord</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#triangular_coord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.triangular_coord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a 2D coordinate into a triangle-based coordinate system for a
 prettier phase diagram.</p>
 <dl class="field-list simple">
@@ -961,7 +966,7 @@ prettier phase diagram.</p>
 
 <dl class="function">
 <dt id="pymatgen.analysis.phase_diagram.uniquelines">
-<code class="descname">uniquelines</code><span class="sig-paren">(</span><em>q</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#uniquelines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.uniquelines" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">uniquelines</code><span class="sig-paren">(</span><em class="sig-param">q</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#uniquelines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.uniquelines" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given all the facets, convert it into a set of unique lines.  Specifically
 used for converting convex hull facets into line pairs of coordinates.</p>
 <dl class="field-list simple">
@@ -994,10 +999,10 @@ used for converting convex hull facets into line pairs of coordinates.</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -1016,13 +1021,13 @@ used for converting convex hull facets into line pairs of coordinates.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

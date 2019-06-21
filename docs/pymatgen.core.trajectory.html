@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.trajectory module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.core.trajectory module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -46,7 +46,7 @@
 <span id="pymatgen-core-trajectory-module"></span><h1>pymatgen.core.trajectory module<a class="headerlink" href="#module-pymatgen.core.trajectory" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.core.trajectory.Trajectory">
-<em class="property">class </em><code class="descname">Trajectory</code><span class="sig-paren">(</span><em>lattice</em>, <em>species</em>, <em>frac_coords</em>, <em>time_step=2</em>, <em>site_properties=None</em>, <em>constant_lattice=True</em>, <em>coords_are_displacement=False</em>, <em>base_positions=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/trajectory.html#Trajectory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Trajectory</code><span class="sig-paren">(</span><em class="sig-param">lattice</em>, <em class="sig-param">species</em>, <em class="sig-param">frac_coords</em>, <em class="sig-param">time_step=2</em>, <em class="sig-param">site_properties=None</em>, <em class="sig-param">constant_lattice=True</em>, <em class="sig-param">coords_are_displacement=False</em>, <em class="sig-param">base_positions=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/trajectory.html#Trajectory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Trajectory object that stores structural information related to a MD simulation.
 Provides basic functions such as slicing trajectory or obtaining displacements.</p>
@@ -87,18 +87,18 @@ coords_are_displacement=True. Defaults to first index of frac_coords if coords_a
 </dl>
 <dl class="method">
 <dt id="pymatgen.core.trajectory.Trajectory.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/trajectory.html#Trajectory.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/trajectory.html#Trajectory.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>A JSON serializable dict representation of an object.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.trajectory.Trajectory.copy">
-<code class="descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/trajectory.html#Trajectory.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.copy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/trajectory.html#Trajectory.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.copy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.trajectory.Trajectory.extend">
-<code class="descname">extend</code><span class="sig-paren">(</span><em>trajectory</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/trajectory.html#Trajectory.extend"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.extend" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">extend</code><span class="sig-paren">(</span><em class="sig-param">trajectory</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/trajectory.html#Trajectory.extend"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.extend" title="Permalink to this definition">¶</a></dt>
 <dd><p>Concatenate another trajectory</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -107,9 +107,9 @@ coords_are_displacement=True. Defaults to first index of frac_coords if coords_a
 </dl>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.core.trajectory.Trajectory.from_file">
-<em class="property">classmethod </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em>, <em>constant_lattice=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/trajectory.html#Trajectory.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param">filename</em>, <em class="sig-param">constant_lattice=True</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/trajectory.html#Trajectory.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience constructor to obtain trajectory from XDATCAR or vasprun.xml file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -125,9 +125,9 @@ simulation. True results in</p></li>
 </dl>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.core.trajectory.Trajectory.from_structures">
-<em class="property">classmethod </em><code class="descname">from_structures</code><span class="sig-paren">(</span><em>structures</em>, <em>constant_lattice=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/trajectory.html#Trajectory.from_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.from_structures" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_structures</code><span class="sig-paren">(</span><em class="sig-param">structures</em>, <em class="sig-param">constant_lattice=True</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/trajectory.html#Trajectory.from_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.from_structures" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience constructor to obtain trajectory from a list of structures.
 Note: Assumes no atoms removed during simulation</p>
 <dl class="field-list simple">
@@ -146,7 +146,7 @@ simulation. True results in</p></li>
 
 <dl class="method">
 <dt id="pymatgen.core.trajectory.Trajectory.get_structure">
-<code class="descname">get_structure</code><span class="sig-paren">(</span><em>i</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/trajectory.html#Trajectory.get_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.get_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_structure</code><span class="sig-paren">(</span><em class="sig-param">i</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/trajectory.html#Trajectory.get_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.get_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns structure at specified index
 :param i: Index of structure
 :type i: int</p>
@@ -159,13 +159,13 @@ simulation. True results in</p></li>
 
 <dl class="method">
 <dt id="pymatgen.core.trajectory.Trajectory.to_displacements">
-<code class="descname">to_displacements</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/trajectory.html#Trajectory.to_displacements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.to_displacements" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to_displacements</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/trajectory.html#Trajectory.to_displacements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.to_displacements" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts position coordinates of trajectory into displacements between consecutive frames</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.trajectory.Trajectory.to_positions">
-<code class="descname">to_positions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/trajectory.html#Trajectory.to_positions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.to_positions" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to_positions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/trajectory.html#Trajectory.to_positions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.to_positions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts fractional coordinates of trajectory into positions</p>
 </dd></dl>
 
@@ -187,10 +187,10 @@ simulation. True results in</p></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -209,13 +209,13 @@ simulation. True results in</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

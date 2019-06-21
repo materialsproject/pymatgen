@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.units module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.core.units module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,9 +44,14 @@
             
   <div class="section" id="module-pymatgen.core.units">
 <span id="pymatgen-core-units-module"></span><h1>pymatgen.core.units module<a class="headerlink" href="#module-pymatgen.core.units" title="Permalink to this headline">¶</a></h1>
+<dl class="data">
+<dt id="pymatgen.core.units.ALL_UNITS">
+<code class="sig-name descname">ALL_UNITS</code><em class="property"> = {'amount': {'atom': 1.6605390404271643e-24, 'mol': 1}, 'capacitance': {'F': {'A': 2, 'kg': -1, 'm': -2, 's': 4}}, 'charge': {'C': {'A': 1, 's': 1}, 'e': {'A': 1, 's': 1, 1.6021766208e-19: 1}}, 'conductance': {'S': {'A': 2, 'kg': -1, 'm': -2, 's': 3}}, 'cross_section': {'barn': {'m': 2, 1e-28: 1}, 'mbarn': {'m': 2, 1e-31: 1}}, 'current': {'A': 1}, 'emf': {'V': {'A': -1, 'kg': 1, 'm': 2, 's': -3}}, 'energy': {'Ha': {'kg': 1, 'm': 2, 's': -2, 4.359744650182188e-18: 1}, 'J': {'kg': 1, 'm': 2, 's': -2}, 'Ry': {'kg': 1, 'm': 2, 's': -2, 2.179872325091094e-18: 1}, 'eV': {'kg': 1, 'm': 2, 's': -2, 1.6021766208e-19: 1}, 'kJ': {'kg': 1, 'm': 2, 's': -2, 1000: 1}, 'meV': {'kg': 1, 'm': 2, 's': -2, 1.6021766208000002e-22: 1}}, 'force': {'GN': {'kg': 1, 'm': 1, 's': -2, 1000000000.0: 1}, 'KN': {'kg': 1, 'm': 1, 's': -2, 1000: 1}, 'MN': {'kg': 1, 'm': 1, 's': -2, 1000000.0: 1}, 'N': {'kg': 1, 'm': 1, 's': -2}}, 'frequency': {'GHz': {'s': -1, 1000000000.0: 1}, 'Hz': {'s': -1}, 'KHz': {'s': -1, 1000: 1}, 'MHz': {'s': -1, 1000000.0: 1}, 'THz': {'s': -1, 1000000000000.0: 1}}, 'intensity': {'cd': 1}, 'length': {'ang': 1e-10, 'bohr': 5.2917721067e-11, 'cm': 0.01, 'km': 1000, 'm': 1, 'mile': 1609.3439999999998, 'pm': 1e-12}, 'magnetic_flux': {'Wb': {'A': -1, 'kg': 1, 'm': 2, 's': -2}}, 'mass': {'amu': 1.66053904e-27, 'g': 0.001, 'kg': 1}, 'memory': {'Gb': 1073741824, 'Kb': 1024, 'Mb': 1048576, 'Tb': 1099511627776, 'byte': 1, 'gb': 1073741824, 'kb': 1024, 'mb': 1048576, 'tb': 1099511627776}, 'power': {'GW': {'m': 2, 'kg': 1, 's': -3, 1000000000.0: 1}, 'KW': {'m': 2, 'kg': 1, 's': -3, 1000: 1}, 'MW': {'m': 2, 'kg': 1, 's': -3, 1000000.0: 1}, 'W': {'kg': 1, 'm': 2, 's': -3}}, 'pressure': {'GPa': {'kg': 1, 'm': -1, 's': -2, 1000000000.0: 1}, 'KPa': {'kg': 1, 'm': -1, 's': -2, 1000: 1}, 'MPa': {'kg': 1, 'm': -1, 's': -2, 1000000.0: 1}, 'Pa': {'kg': 1, 'm': -1, 's': -2}}, 'resistance': {'ohm': {'A': -2, 'kg': 1, 'm': 2, 's': -3}}, 'temperature': {'K': 1}, 'time': {'h': 3600, 'min': 60, 's': 1}}</em><a class="headerlink" href="#pymatgen.core.units.ALL_UNITS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="class">
 <dt id="pymatgen.core.units.ArrayWithUnit">
-<em class="property">class </em><code class="descname">ArrayWithUnit</code><a class="reference internal" href="_modules/pymatgen/core/units.html#ArrayWithUnit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">ArrayWithUnit</code><a class="reference internal" href="_modules/pymatgen/core/units.html#ArrayWithUnit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></p>
 <p>Subclasses <cite>numpy.ndarray</cite> to attach a unit type. Typically, you should
 use the pre-defined unit type subclasses such as EnergyArray,
@@ -65,13 +70,13 @@ leftmost quantity).</p>
 </div>
 <dl class="attribute">
 <dt id="pymatgen.core.units.ArrayWithUnit.Error">
-<code class="descname">Error</code><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit.Error" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">Error</code><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit.Error" title="Permalink to this definition">¶</a></dt>
 <dd><p>alias of <a class="reference internal" href="#pymatgen.core.units.UnitError" title="pymatgen.core.units.UnitError"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnitError</span></code></a></p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.core.units.ArrayWithUnit.as_base_units">
-<code class="descname">as_base_units</code><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit.as_base_units" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">as_base_units</code><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit.as_base_units" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns this ArrayWithUnit in base SI units, including derived units.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -82,20 +87,20 @@ leftmost quantity).</p>
 
 <dl class="method">
 <dt id="pymatgen.core.units.ArrayWithUnit.conversions">
-<code class="descname">conversions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/units.html#ArrayWithUnit.conversions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit.conversions" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">conversions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/units.html#ArrayWithUnit.conversions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit.conversions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a string showing the available conversions.
 Useful tool in interactive mode.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.core.units.ArrayWithUnit.supported_units">
-<code class="descname">supported_units</code><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit.supported_units" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">supported_units</code><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit.supported_units" title="Permalink to this definition">¶</a></dt>
 <dd><p>Supported units for specific unit type.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.units.ArrayWithUnit.to">
-<code class="descname">to</code><span class="sig-paren">(</span><em>new_unit</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/units.html#ArrayWithUnit.to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit.to" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to</code><span class="sig-paren">(</span><em class="sig-param">new_unit</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/units.html#ArrayWithUnit.to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit.to" title="Permalink to this definition">¶</a></dt>
 <dd><p>Conversion to a new_unit.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -111,21 +116,26 @@ Useful tool in interactive mode.</p>
 array([ 27.21138386,  29.93252225]) eV</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.core.units.ArrayWithUnit.unit">
-<code class="descname">unit</code><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit.unit" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">unit</code><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit.unit" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.core.units.ArrayWithUnit.unit_type">
-<code class="descname">unit_type</code><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit.unit_type" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">unit_type</code><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit.unit_type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="data">
+<dt id="pymatgen.core.units.BASE_UNITS">
+<code class="sig-name descname">BASE_UNITS</code><em class="property"> = {'amount': {'atom': 1.6605390404271643e-24, 'mol': 1}, 'current': {'A': 1}, 'intensity': {'cd': 1}, 'length': {'ang': 1e-10, 'bohr': 5.2917721067e-11, 'cm': 0.01, 'km': 1000, 'm': 1, 'mile': 1609.3439999999998, 'pm': 1e-12}, 'mass': {'amu': 1.66053904e-27, 'g': 0.001, 'kg': 1}, 'memory': {'Gb': 1073741824, 'Kb': 1024, 'Mb': 1048576, 'Tb': 1099511627776, 'byte': 1, 'gb': 1073741824, 'kb': 1024, 'mb': 1048576, 'tb': 1099511627776}, 'temperature': {'K': 1}, 'time': {'h': 3600, 'min': 60, 's': 1}}</em><a class="headerlink" href="#pymatgen.core.units.BASE_UNITS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="data">
 <dt id="pymatgen.core.units.Charge">
-<code class="descname">Charge</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.FloatWithUnit'&gt;, unit_type='charge')</em><a class="headerlink" href="#pymatgen.core.units.Charge" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">Charge</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.FloatWithUnit'&gt;, unit_type='charge')</em><a class="headerlink" href="#pymatgen.core.units.Charge" title="Permalink to this definition">¶</a></dt>
 <dd><p>A float with a charge unit.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -139,8 +149,18 @@ is raised.</p></li>
 </dd></dl>
 
 <dl class="data">
+<dt id="pymatgen.core.units.ChargeArray">
+<code class="sig-name descname">ChargeArray</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.ArrayWithUnit'&gt;, unit_type='charge')</em><a class="headerlink" href="#pymatgen.core.units.ChargeArray" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="data">
+<dt id="pymatgen.core.units.DERIVED_UNITS">
+<code class="sig-name descname">DERIVED_UNITS</code><em class="property"> = {'capacitance': {'F': {'A': 2, 'kg': -1, 'm': -2, 's': 4}}, 'charge': {'C': {'A': 1, 's': 1}, 'e': {'A': 1, 's': 1, 1.6021766208e-19: 1}}, 'conductance': {'S': {'A': 2, 'kg': -1, 'm': -2, 's': 3}}, 'cross_section': {'barn': {'m': 2, 1e-28: 1}, 'mbarn': {'m': 2, 1e-31: 1}}, 'emf': {'V': {'A': -1, 'kg': 1, 'm': 2, 's': -3}}, 'energy': {'Ha': {'kg': 1, 'm': 2, 's': -2, 4.359744650182188e-18: 1}, 'J': {'kg': 1, 'm': 2, 's': -2}, 'Ry': {'kg': 1, 'm': 2, 's': -2, 2.179872325091094e-18: 1}, 'eV': {'kg': 1, 'm': 2, 's': -2, 1.6021766208e-19: 1}, 'kJ': {'kg': 1, 'm': 2, 's': -2, 1000: 1}, 'meV': {'kg': 1, 'm': 2, 's': -2, 1.6021766208000002e-22: 1}}, 'force': {'GN': {'kg': 1, 'm': 1, 's': -2, 1000000000.0: 1}, 'KN': {'kg': 1, 'm': 1, 's': -2, 1000: 1}, 'MN': {'kg': 1, 'm': 1, 's': -2, 1000000.0: 1}, 'N': {'kg': 1, 'm': 1, 's': -2}}, 'frequency': {'GHz': {'s': -1, 1000000000.0: 1}, 'Hz': {'s': -1}, 'KHz': {'s': -1, 1000: 1}, 'MHz': {'s': -1, 1000000.0: 1}, 'THz': {'s': -1, 1000000000000.0: 1}}, 'magnetic_flux': {'Wb': {'A': -1, 'kg': 1, 'm': 2, 's': -2}}, 'power': {'GW': {'m': 2, 'kg': 1, 's': -3, 1000000000.0: 1}, 'KW': {'m': 2, 'kg': 1, 's': -3, 1000: 1}, 'MW': {'m': 2, 'kg': 1, 's': -3, 1000000.0: 1}, 'W': {'kg': 1, 'm': 2, 's': -3}}, 'pressure': {'GPa': {'kg': 1, 'm': -1, 's': -2, 1000000000.0: 1}, 'KPa': {'kg': 1, 'm': -1, 's': -2, 1000: 1}, 'MPa': {'kg': 1, 'm': -1, 's': -2, 1000000.0: 1}, 'Pa': {'kg': 1, 'm': -1, 's': -2}}, 'resistance': {'ohm': {'A': -2, 'kg': 1, 'm': 2, 's': -3}}}</em><a class="headerlink" href="#pymatgen.core.units.DERIVED_UNITS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="data">
 <dt id="pymatgen.core.units.Energy">
-<code class="descname">Energy</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.FloatWithUnit'&gt;, unit_type='energy')</em><a class="headerlink" href="#pymatgen.core.units.Energy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">Energy</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.FloatWithUnit'&gt;, unit_type='energy')</em><a class="headerlink" href="#pymatgen.core.units.Energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>A float with an energy unit.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -152,9 +172,14 @@ is raised.</p></li>
 </dl>
 </dd></dl>
 
+<dl class="data">
+<dt id="pymatgen.core.units.EnergyArray">
+<code class="sig-name descname">EnergyArray</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.ArrayWithUnit'&gt;, unit_type='energy')</em><a class="headerlink" href="#pymatgen.core.units.EnergyArray" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="class">
 <dt id="pymatgen.core.units.FloatWithUnit">
-<em class="property">class </em><code class="descname">FloatWithUnit</code><span class="sig-paren">(</span><em>val</em>, <em>unit</em>, <em>unit_type=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/units.html#FloatWithUnit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.FloatWithUnit" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">FloatWithUnit</code><span class="sig-paren">(</span><em class="sig-param">val</em>, <em class="sig-param">unit</em>, <em class="sig-param">unit_type=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/units.html#FloatWithUnit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.FloatWithUnit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
 <p>Subclasses float to attach a unit type. Typically, you should use the
 pre-defined unit type subclasses such as Energy, Length, etc. instead of
@@ -187,13 +212,13 @@ are expected.</p>
 </dl>
 <dl class="attribute">
 <dt id="pymatgen.core.units.FloatWithUnit.Error">
-<code class="descname">Error</code><a class="headerlink" href="#pymatgen.core.units.FloatWithUnit.Error" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">Error</code><a class="headerlink" href="#pymatgen.core.units.FloatWithUnit.Error" title="Permalink to this definition">¶</a></dt>
 <dd><p>alias of <a class="reference internal" href="#pymatgen.core.units.UnitError" title="pymatgen.core.units.UnitError"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnitError</span></code></a></p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.core.units.FloatWithUnit.as_base_units">
-<code class="descname">as_base_units</code><a class="headerlink" href="#pymatgen.core.units.FloatWithUnit.as_base_units" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">as_base_units</code><a class="headerlink" href="#pymatgen.core.units.FloatWithUnit.as_base_units" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns this FloatWithUnit in base SI units, including derived units.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -202,21 +227,21 @@ are expected.</p>
 </dl>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.core.units.FloatWithUnit.from_string">
-<em class="property">classmethod </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/units.html#FloatWithUnit.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.FloatWithUnit.from_string" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param">s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/units.html#FloatWithUnit.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.FloatWithUnit.from_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize a FloatWithUnit from a string. Example Memory.from_string(“1. Mb”)</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.core.units.FloatWithUnit.supported_units">
-<code class="descname">supported_units</code><a class="headerlink" href="#pymatgen.core.units.FloatWithUnit.supported_units" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">supported_units</code><a class="headerlink" href="#pymatgen.core.units.FloatWithUnit.supported_units" title="Permalink to this definition">¶</a></dt>
 <dd><p>Supported units for specific unit type.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.units.FloatWithUnit.to">
-<code class="descname">to</code><span class="sig-paren">(</span><em>new_unit</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/units.html#FloatWithUnit.to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.FloatWithUnit.to" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to</code><span class="sig-paren">(</span><em class="sig-param">new_unit</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/units.html#FloatWithUnit.to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.FloatWithUnit.to" title="Permalink to this definition">¶</a></dt>
 <dd><p>Conversion to a new_unit. Right now, only supports 1 to 1 mapping of
 units of each type.</p>
 <dl class="field-list simple">
@@ -234,21 +259,26 @@ units of each type.</p>
 29.932522246 eV</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.core.units.FloatWithUnit.unit">
-<code class="descname">unit</code><a class="headerlink" href="#pymatgen.core.units.FloatWithUnit.unit" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">unit</code><a class="headerlink" href="#pymatgen.core.units.FloatWithUnit.unit" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.core.units.FloatWithUnit.unit_type">
-<code class="descname">unit_type</code><a class="headerlink" href="#pymatgen.core.units.FloatWithUnit.unit_type" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">unit_type</code><a class="headerlink" href="#pymatgen.core.units.FloatWithUnit.unit_type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="data">
+<dt id="pymatgen.core.units.Ha_to_eV">
+<code class="sig-name descname">Ha_to_eV</code><em class="property"> = 27.211386020632837</em><a class="headerlink" href="#pymatgen.core.units.Ha_to_eV" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="data">
 <dt id="pymatgen.core.units.Length">
-<code class="descname">Length</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.FloatWithUnit'&gt;, unit_type='length')</em><a class="headerlink" href="#pymatgen.core.units.Length" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">Length</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.FloatWithUnit'&gt;, unit_type='length')</em><a class="headerlink" href="#pymatgen.core.units.Length" title="Permalink to this definition">¶</a></dt>
 <dd><p>A float with a length unit.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -262,8 +292,13 @@ raised.</p></li>
 </dd></dl>
 
 <dl class="data">
+<dt id="pymatgen.core.units.LengthArray">
+<code class="sig-name descname">LengthArray</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.ArrayWithUnit'&gt;, unit_type='length')</em><a class="headerlink" href="#pymatgen.core.units.LengthArray" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="data">
 <dt id="pymatgen.core.units.Mass">
-<code class="descname">Mass</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.FloatWithUnit'&gt;, unit_type='mass')</em><a class="headerlink" href="#pymatgen.core.units.Mass" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">Mass</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.FloatWithUnit'&gt;, unit_type='mass')</em><a class="headerlink" href="#pymatgen.core.units.Mass" title="Permalink to this definition">¶</a></dt>
 <dd><p>A float with a mass unit.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -277,8 +312,13 @@ raised.</p></li>
 </dd></dl>
 
 <dl class="data">
+<dt id="pymatgen.core.units.MassArray">
+<code class="sig-name descname">MassArray</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.ArrayWithUnit'&gt;, unit_type='mass')</em><a class="headerlink" href="#pymatgen.core.units.MassArray" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="data">
 <dt id="pymatgen.core.units.Memory">
-<code class="descname">Memory</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.FloatWithUnit'&gt;, unit_type='memory')</em><a class="headerlink" href="#pymatgen.core.units.Memory" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">Memory</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.FloatWithUnit'&gt;, unit_type='memory')</em><a class="headerlink" href="#pymatgen.core.units.Memory" title="Permalink to this definition">¶</a></dt>
 <dd><p>A float with a memory unit.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -292,8 +332,18 @@ is raised.</p></li>
 </dd></dl>
 
 <dl class="data">
+<dt id="pymatgen.core.units.Ry_to_eV">
+<code class="sig-name descname">Ry_to_eV</code><em class="property"> = 13.605693010316418</em><a class="headerlink" href="#pymatgen.core.units.Ry_to_eV" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="data">
+<dt id="pymatgen.core.units.SUPPORTED_UNIT_NAMES">
+<code class="sig-name descname">SUPPORTED_UNIT_NAMES</code><em class="property"> = ('m', 'km', 'mile', 'ang', 'cm', 'pm', 'bohr', 'kg', 'g', 'amu', 's', 'min', 'h', 'A', 'K', 'mol', 'atom', 'cd', 'byte', 'Kb', 'Mb', 'Gb', 'Tb', 'kb', 'mb', 'gb', 'tb', 'eV', 'meV', 'Ha', 'Ry', 'J', 'kJ', 'C', 'e', 'N', 'KN', 'MN', 'GN', 'Hz', 'KHz', 'MHz', 'GHz', 'THz', 'Pa', 'KPa', 'MPa', 'GPa', 'W', 'KW', 'MW', 'GW', 'V', 'F', 'ohm', 'S', 'Wb', 'barn', 'mbarn')</em><a class="headerlink" href="#pymatgen.core.units.SUPPORTED_UNIT_NAMES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="data">
 <dt id="pymatgen.core.units.Temp">
-<code class="descname">Temp</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.FloatWithUnit'&gt;, unit_type='temperature')</em><a class="headerlink" href="#pymatgen.core.units.Temp" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">Temp</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.FloatWithUnit'&gt;, unit_type='temperature')</em><a class="headerlink" href="#pymatgen.core.units.Temp" title="Permalink to this definition">¶</a></dt>
 <dd><p>A float with a temperature unit.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -306,8 +356,13 @@ is raised.</p></li>
 </dd></dl>
 
 <dl class="data">
+<dt id="pymatgen.core.units.TempArray">
+<code class="sig-name descname">TempArray</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.ArrayWithUnit'&gt;, unit_type='temperature')</em><a class="headerlink" href="#pymatgen.core.units.TempArray" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="data">
 <dt id="pymatgen.core.units.Time">
-<code class="descname">Time</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.FloatWithUnit'&gt;, unit_type='time')</em><a class="headerlink" href="#pymatgen.core.units.Time" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">Time</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.FloatWithUnit'&gt;, unit_type='time')</em><a class="headerlink" href="#pymatgen.core.units.Time" title="Permalink to this definition">¶</a></dt>
 <dd><p>A float with a time unit.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -320,9 +375,14 @@ raised.</p></li>
 </dl>
 </dd></dl>
 
+<dl class="data">
+<dt id="pymatgen.core.units.TimeArray">
+<code class="sig-name descname">TimeArray</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.ArrayWithUnit'&gt;, unit_type='time')</em><a class="headerlink" href="#pymatgen.core.units.TimeArray" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="class">
 <dt id="pymatgen.core.units.Unit">
-<em class="property">class </em><code class="descname">Unit</code><span class="sig-paren">(</span><em>unit_def</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/units.html#Unit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.Unit" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Unit</code><span class="sig-paren">(</span><em class="sig-param">unit_def</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/units.html#Unit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.Unit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.Mapping</span></code></p>
 <p>Represents a unit, e.g., “m” for meters, etc. Supports compound units.
 Only integer powers are supported for units.</p>
@@ -338,13 +398,13 @@ space-separated.</p>
 </dl>
 <dl class="attribute">
 <dt id="pymatgen.core.units.Unit.Error">
-<code class="descname">Error</code><a class="headerlink" href="#pymatgen.core.units.Unit.Error" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">Error</code><a class="headerlink" href="#pymatgen.core.units.Unit.Error" title="Permalink to this definition">¶</a></dt>
 <dd><p>alias of <a class="reference internal" href="#pymatgen.core.units.UnitError" title="pymatgen.core.units.UnitError"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnitError</span></code></a></p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.core.units.Unit.as_base_units">
-<code class="descname">as_base_units</code><a class="headerlink" href="#pymatgen.core.units.Unit.as_base_units" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">as_base_units</code><a class="headerlink" href="#pymatgen.core.units.Unit.as_base_units" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts all units to base SI units, including derived units.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -356,7 +416,7 @@ contain any constants, which are gathered in the scaling factor.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.units.Unit.get_conversion_factor">
-<code class="descname">get_conversion_factor</code><span class="sig-paren">(</span><em>new_unit</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/units.html#Unit.get_conversion_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.Unit.get_conversion_factor" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_conversion_factor</code><span class="sig-paren">(</span><em class="sig-param">new_unit</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/units.html#Unit.get_conversion_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.Unit.get_conversion_factor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a conversion factor between this unit and a new unit.
 Compound units are supported, but must have the same powers in each
 unit type.</p>
@@ -371,27 +431,52 @@ unit type.</p>
 
 <dl class="exception">
 <dt id="pymatgen.core.units.UnitError">
-<em class="property">exception </em><code class="descname">UnitError</code><a class="reference internal" href="_modules/pymatgen/core/units.html#UnitError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.UnitError" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="sig-name descname">UnitError</code><a class="reference internal" href="_modules/pymatgen/core/units.html#UnitError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.UnitError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseException</span></code></p>
 <p>Exception class for unit errors.</p>
 </dd></dl>
 
 <dl class="data">
+<dt id="pymatgen.core.units.amu_to_kg">
+<code class="sig-name descname">amu_to_kg</code><em class="property"> = 1.66053904e-27</em><a class="headerlink" href="#pymatgen.core.units.amu_to_kg" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="data">
 <dt id="pymatgen.core.units.ang_to_bohr">
-<code class="descname">ang_to_bohr</code><em class="property"> = 1.8897261254578281</em><a class="headerlink" href="#pymatgen.core.units.ang_to_bohr" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ang_to_bohr</code><em class="property"> = 1.8897261254578281</em><a class="headerlink" href="#pymatgen.core.units.ang_to_bohr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Definitions of supported units. Values below are essentially scaling and
 conversion factors. What matters is the relative values, not the absolute.
 The SI units must have factor 1.</p>
 </dd></dl>
 
+<dl class="data">
+<dt id="pymatgen.core.units.bohr_to_ang">
+<code class="sig-name descname">bohr_to_ang</code><em class="property"> = 0.52917721067</em><a class="headerlink" href="#pymatgen.core.units.bohr_to_ang" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="data">
+<dt id="pymatgen.core.units.bohr_to_angstrom">
+<code class="sig-name descname">bohr_to_angstrom</code><em class="property"> = 0.52917721067</em><a class="headerlink" href="#pymatgen.core.units.bohr_to_angstrom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="function">
 <dt id="pymatgen.core.units.check_mappings">
-<code class="descname">check_mappings</code><span class="sig-paren">(</span><em>u</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/units.html#check_mappings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.check_mappings" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">check_mappings</code><span class="sig-paren">(</span><em class="sig-param">u</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/units.html#check_mappings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.check_mappings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="data">
+<dt id="pymatgen.core.units.eV_to_Ha">
+<code class="sig-name descname">eV_to_Ha</code><em class="property"> = 0.03674932248</em><a class="headerlink" href="#pymatgen.core.units.eV_to_Ha" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="data">
+<dt id="pymatgen.core.units.mile_to_meters">
+<code class="sig-name descname">mile_to_meters</code><em class="property"> = 1609.3439999999998</em><a class="headerlink" href="#pymatgen.core.units.mile_to_meters" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.core.units.obj_with_unit">
-<code class="descname">obj_with_unit</code><span class="sig-paren">(</span><em>obj</em>, <em>unit</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/units.html#obj_with_unit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.obj_with_unit" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">obj_with_unit</code><span class="sig-paren">(</span><em class="sig-param">obj</em>, <em class="sig-param">unit</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/units.html#obj_with_unit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.obj_with_unit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a <cite>FloatWithUnit</cite> instance if obj is scalar, a dictionary of
 objects with units if obj is a dict, else an instance of
 <cite>ArrayWithFloatWithUnit</cite>.</p>
@@ -404,7 +489,7 @@ objects with units if obj is a dict, else an instance of
 
 <dl class="function">
 <dt id="pymatgen.core.units.unitized">
-<code class="descname">unitized</code><span class="sig-paren">(</span><em>unit</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/units.html#unitized"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.unitized" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">unitized</code><span class="sig-paren">(</span><em class="sig-param">unit</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/units.html#unitized"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.unitized" title="Permalink to this definition">¶</a></dt>
 <dd><p>Useful decorator to assign units to the output of a function. You can also
 use it to standardize the output units of a function that already returns
 a FloatWithUnit or ArrayWithUnit. For sequences, all values in the sequences
@@ -440,10 +525,10 @@ are assigned units.</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -462,13 +547,13 @@ are assigned units.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

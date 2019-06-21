@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.composition &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.core.composition &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.5.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -66,7 +66,7 @@
 <span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">total_ordering</span>
 
 <span class="kn">from</span> <span class="nn">monty.fractions</span> <span class="k">import</span> <span class="n">gcd</span><span class="p">,</span> <span class="n">gcd_float</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">get_el_sp</span><span class="p">,</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Specie</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">get_el_sp</span><span class="p">,</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">DummySpecie</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.string</span> <span class="k">import</span> <span class="n">formula_double_format</span>
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="k">import</span> <span class="n">unitized</span>
@@ -87,7 +87,7 @@
 
 
 <div class="viewcode-block" id="Composition"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition">[docs]</a><span class="nd">@total_ordering</span>
-<span class="k">class</span> <span class="nc">Composition</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">Hashable</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Composition</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Hashable</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Mapping</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Represents a Composition, which is essentially a {element:amount} mapping</span>
 <span class="sd">    type. Composition is written to be immutable and hashable,</span>
@@ -144,7 +144,7 @@
 
     <span class="n">oxi_prob</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># prior probability of oxidation used by oxi_state_guesses</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># allow_negative=False</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># allow_negative=False</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Very flexible Composition construction, similar to the built-in Python</span>
 <span class="sd">        dict(). Also extended to allow simple string init.</span>
@@ -163,6 +163,8 @@
 
 <span class="sd">            In addition, the Composition constructor also allows a single</span>
 <span class="sd">            string as an input formula. E.g., Composition(&quot;Li2O&quot;).</span>
+
+<span class="sd">            strict: Only allow valid Elements and Species in the Composition.</span>
 
 <span class="sd">            allow_negative: Whether to allow negative compositions. This</span>
 <span class="sd">                argument must be popped from the \\*\\*kwargs due to \\*args</span>
@@ -187,6 +189,9 @@
                 <span class="n">elamt</span><span class="p">[</span><span class="n">get_el_sp</span><span class="p">(</span><span class="n">k</span><span class="p">)]</span> <span class="o">=</span> <span class="n">v</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_natoms</span> <span class="o">+=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">elamt</span>
+        <span class="k">if</span> <span class="n">strict</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">valid</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Composition is not valid, contains: </span><span class="si">{}</span><span class="s2">&quot;</span>
+                             <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">))))</span>
 
     <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
@@ -548,6 +553,35 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">get_el_sp</span><span class="p">(</span><span class="n">el</span><span class="p">)</span><span class="o">.</span><span class="n">atomic_mass</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">el</span><span class="p">])</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span></div>
 
+<div class="viewcode-block" id="Composition.contains_element_type"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.contains_element_type">[docs]</a>    <span class="k">def</span> <span class="nf">contains_element_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">category</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if Composition contains any elements matching a given category.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            category (str): one of &quot;noble_gas&quot;, &quot;transition_metal&quot;,</span>
+<span class="sd">            &quot;post_transition_metal&quot;, &quot;rare_earth_metal&quot;, &quot;metal&quot;, &quot;metalloid&quot;,</span>
+<span class="sd">            &quot;alkali&quot;, &quot;alkaline&quot;, &quot;halogen&quot;, &quot;chalcogen&quot;, &quot;lanthanoid&quot;,</span>
+<span class="sd">            &quot;actinoid&quot;, &quot;quadrupolar&quot;, &quot;s-block&quot;, &quot;p-block&quot;, &quot;d-block&quot;, &quot;f-block&quot;</span>
+
+
+<span class="sd">        Returns:</span>
+<span class="sd">            True if any elements in Composition match category, otherwise False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">allowed_categories</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;noble_gas&quot;</span><span class="p">,</span> <span class="s2">&quot;transition_metal&quot;</span><span class="p">,</span> <span class="s2">&quot;post_transition_metal&quot;</span><span class="p">,</span>
+                              <span class="s2">&quot;rare_earth_metal&quot;</span><span class="p">,</span> <span class="s2">&quot;metal&quot;</span><span class="p">,</span> <span class="s2">&quot;metalloid&quot;</span><span class="p">,</span> <span class="s2">&quot;alkali&quot;</span><span class="p">,</span>
+                              <span class="s2">&quot;alkaline&quot;</span><span class="p">,</span> <span class="s2">&quot;halogen&quot;</span><span class="p">,</span> <span class="s2">&quot;chalcogen&quot;</span><span class="p">,</span> <span class="s2">&quot;lanthanoid&quot;</span><span class="p">,</span>
+                              <span class="s2">&quot;actinoid&quot;</span><span class="p">,</span> <span class="s2">&quot;quadrupolar&quot;</span><span class="p">,</span> <span class="s2">&quot;s-block&quot;</span><span class="p">,</span> <span class="s2">&quot;p-block&quot;</span><span class="p">,</span>
+                              <span class="s2">&quot;d-block&quot;</span><span class="p">,</span> <span class="s2">&quot;f-block&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">category</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">allowed_categories</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Please pick a category from: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">allowed_categories</span><span class="p">)))</span>
+
+        <span class="k">if</span> <span class="s2">&quot;block&quot;</span> <span class="ow">in</span> <span class="n">category</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">any</span><span class="p">([</span><span class="n">category</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">el</span><span class="o">.</span><span class="n">block</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">any</span><span class="p">([</span><span class="nb">getattr</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="s2">&quot;is_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">category</span><span class="p">))</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">])</span></div>
+
     <span class="k">def</span> <span class="nf">_parse_formula</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">formula</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
@@ -610,6 +644,25 @@
                 <span class="n">amt_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">amt</span><span class="p">)</span>
             <span class="n">anon</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">amt_str</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">anon</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">chemical_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the chemical system of a Composition, for example &quot;O-Si&quot; for</span>
+<span class="sd">        SiO2. Chemical system is a string of a list of elements</span>
+<span class="sd">        sorted alphabetically and joined by dashes, by convention for use</span>
+<span class="sd">        in database keys.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;-&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">]))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">valid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns True if Composition contains valid elements or species and</span>
+<span class="sd">        False if the Composition contains any dummy species.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">DummySpecie</span><span class="p">)</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">])</span>
+
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;Comp: &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">formula</span>
@@ -1238,10 +1291,10 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -1260,7 +1313,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.5.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1268,7 +1321,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

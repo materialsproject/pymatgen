@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.abinit.scheduler_error_handlers module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.io.abinit.scheduler_error_handlers module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -46,8 +46,109 @@
 <span id="pymatgen-io-abinit-scheduler-error-handlers-module"></span><h1>pymatgen.io.abinit.scheduler_error_handlers module<a class="headerlink" href="#module-pymatgen.io.abinit.scheduler_error_handlers" title="Permalink to this headline">¶</a></h1>
 <p>Error handlers for errors originating from the Submission systems.</p>
 <dl class="class">
+<dt id="pymatgen.io.abinit.scheduler_error_handlers.ErrorHandler">
+<em class="property">class </em><code class="sig-name descname">ErrorHandler</code><a class="reference internal" href="_modules/custodian/custodian.html#ErrorHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.scheduler_error_handlers.ErrorHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Abstract base class defining the interface for an ErrorHandler.</p>
+<dl class="method">
+<dt id="pymatgen.io.abinit.scheduler_error_handlers.ErrorHandler.check">
+<em class="property">abstract </em><code class="sig-name descname">check</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/custodian/custodian.html#ErrorHandler.check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.scheduler_error_handlers.ErrorHandler.check" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is called during the job (for monitors) or at the end of
+the job to check for errors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(bool) Indicating if errors are detected.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.scheduler_error_handlers.ErrorHandler.correct">
+<em class="property">abstract </em><code class="sig-name descname">correct</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/custodian/custodian.html#ErrorHandler.correct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.scheduler_error_handlers.ErrorHandler.correct" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is called at the end of a job when an error is detected.
+It should perform any corrective measures relating to the detected
+error.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(dict) JSON serializable dict that describes the errors and
+actions taken. E.g.
+{“errors”: list_of_errors, “actions”: list_of_actions_taken}.
+If this is an unfixable error, actions should be set to None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.abinit.scheduler_error_handlers.ErrorHandler.is_monitor">
+<code class="sig-name descname">is_monitor</code><em class="property"> = False</em><a class="headerlink" href="#pymatgen.io.abinit.scheduler_error_handlers.ErrorHandler.is_monitor" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class property indicates whether the error handler is a monitor,
+i.e., a handler that monitors a job as it is running. If a
+monitor-type handler notices an error, the job will be sent a
+termination signal, the error is then corrected,
+and then the job is restarted. This is useful for catching errors
+that occur early in the run but do not cause immediate failure.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.abinit.scheduler_error_handlers.ErrorHandler.is_terminating">
+<code class="sig-name descname">is_terminating</code><em class="property"> = True</em><a class="headerlink" href="#pymatgen.io.abinit.scheduler_error_handlers.ErrorHandler.is_terminating" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether this handler terminates a job upon error detection. By
+default, this is True, which means that the current Job will be
+terminated upon error detection, corrections applied,
+and restarted. In some instances, some errors may not need the job to be
+terminated or may need to wait for some other event to terminate a job.
+For example, a particular error may require a flag to be set to request
+a job to terminate gracefully once it finishes its current task. The
+handler to set the flag should be classified as is_terminating = False to
+not terminate the job.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.abinit.scheduler_error_handlers.ErrorHandler.max_num_corrections">
+<code class="sig-name descname">max_num_corrections</code><em class="property"> = None</em><a class="headerlink" href="#pymatgen.io.abinit.scheduler_error_handlers.ErrorHandler.max_num_corrections" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.scheduler_error_handlers.ErrorHandler.n_applied_corrections">
+<em class="property">property </em><code class="sig-name descname">n_applied_corrections</code><a class="headerlink" href="#pymatgen.io.abinit.scheduler_error_handlers.ErrorHandler.n_applied_corrections" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of times the handler has given a correction and this
+has been applied.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the number of corrections applied.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(int)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.abinit.scheduler_error_handlers.ErrorHandler.raise_on_max">
+<code class="sig-name descname">raise_on_max</code><em class="property"> = False</em><a class="headerlink" href="#pymatgen.io.abinit.scheduler_error_handlers.ErrorHandler.raise_on_max" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether corrections from this specific handler should be applied only a
+fixed maximum number of times on a single job (i.e. the counter is reset
+at the beginning of each job). If the maximum number is reached the code
+will either raise a MaxCorrectionsPerHandlerError (raise_on_max==True) or stops
+considering the correction (raise_on_max==False). If max_num_corrections
+is None this option is not considered. These options can be overridden
+as class attributes of the subclass or as customizable options setting
+an instance attribute from __init__.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.abinit.scheduler_error_handlers.ErrorHandler.raises_runtime_error">
+<code class="sig-name descname">raises_runtime_error</code><em class="property"> = True</em><a class="headerlink" href="#pymatgen.io.abinit.scheduler_error_handlers.ErrorHandler.raises_runtime_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether this handler causes custodian to raise a runtime error if it cannot
+handle the error (i.e. if correct returns a dict with “actions”:None, or
+“actions”:[])</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="pymatgen.io.abinit.scheduler_error_handlers.SchedulerErrorHandler">
-<em class="property">class </em><code class="descname">SchedulerErrorHandler</code><span class="sig-paren">(</span><em>scheduler_adapter</em>, <em>application_adapter=None</em>, <em>err_file='queue.err'</em>, <em>out_file='queue.out'</em>, <em>run_err_file='run.err'</em>, <em>batch_err_file='batch.err'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/scheduler_error_handlers.html#SchedulerErrorHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.scheduler_error_handlers.SchedulerErrorHandler" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">SchedulerErrorHandler</code><span class="sig-paren">(</span><em class="sig-param">scheduler_adapter</em>, <em class="sig-param">application_adapter=None</em>, <em class="sig-param">err_file='queue.err'</em>, <em class="sig-param">out_file='queue.out'</em>, <em class="sig-param">run_err_file='run.err'</em>, <em class="sig-param">batch_err_file='batch.err'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/scheduler_error_handlers.html#SchedulerErrorHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.scheduler_error_handlers.SchedulerErrorHandler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">custodian.custodian.ErrorHandler</span></code></p>
 <dl class="simple">
 <dt>Custodian error handler for scheduler related errors</dt><dd><p>scheduler_adapter takes the scheduler, it should at least provide a .name attribute indentifying the scheduler,
@@ -60,26 +161,26 @@ problems can also be fixed a the level of the application, e.g. making the appli
 </dl>
 <dl class="method">
 <dt id="pymatgen.io.abinit.scheduler_error_handlers.SchedulerErrorHandler.apply_corrections">
-<code class="descname">apply_corrections</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/scheduler_error_handlers.html#SchedulerErrorHandler.apply_corrections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.scheduler_error_handlers.SchedulerErrorHandler.apply_corrections" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">apply_corrections</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/scheduler_error_handlers.html#SchedulerErrorHandler.apply_corrections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.scheduler_error_handlers.SchedulerErrorHandler.apply_corrections" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method to directly apply the corrections.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.scheduler_error_handlers.SchedulerErrorHandler.check">
-<code class="descname">check</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/scheduler_error_handlers.html#SchedulerErrorHandler.check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.scheduler_error_handlers.SchedulerErrorHandler.check" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">check</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/scheduler_error_handlers.html#SchedulerErrorHandler.check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.scheduler_error_handlers.SchedulerErrorHandler.check" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check for the defined errors, put all found errors in self.errors, return True if any were found False if no
 errors were found</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.scheduler_error_handlers.SchedulerErrorHandler.correct">
-<code class="descname">correct</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/scheduler_error_handlers.html#SchedulerErrorHandler.correct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.scheduler_error_handlers.SchedulerErrorHandler.correct" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">correct</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/scheduler_error_handlers.html#SchedulerErrorHandler.correct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.scheduler_error_handlers.SchedulerErrorHandler.correct" title="Permalink to this definition">¶</a></dt>
 <dd><p>For custodian compatibility</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.scheduler_error_handlers.SchedulerErrorHandler.return_corrections">
-<code class="descname">return_corrections</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/scheduler_error_handlers.html#SchedulerErrorHandler.return_corrections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.scheduler_error_handlers.SchedulerErrorHandler.return_corrections" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">return_corrections</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/scheduler_error_handlers.html#SchedulerErrorHandler.return_corrections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.scheduler_error_handlers.SchedulerErrorHandler.return_corrections" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -100,10 +201,10 @@ errors were found</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -122,13 +223,13 @@ errors were found</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

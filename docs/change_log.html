@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Change log &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>Change log &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +44,37 @@
             
   <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="v2019-6-5">
+<h2>v2019.6.5<a class="headerlink" href="#v2019-6-5" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Linear scaling get_all_neighbors. Tested to be faster for &gt; 100 atoms (&#64;chc273).</p></li>
+<li><p>Lobsterin class to handle input for Lobster (&#64;JaGeo).</p></li>
+<li><p>Strict options for composition parsing (&#64;mkhorton).</p></li>
+<li><p>Bug fix for CovalentBondNN.get_bonded_structure (&#64;lan496).</p></li>
+</ul>
+</div>
+<div class="section" id="v2019-5-28">
+<h2>v2019.5.28<a class="headerlink" href="#v2019-5-28" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>New VASP Input Set “from previous” interface (&#64;utf)</p></li>
+<li><p>ELFCAR support (&#64;mkhorton)</p></li>
+<li><p>Improvements to plotting of band structures and densities of states (&#64;ShuaishuaiYuan)</p></li>
+<li><p>Convenience functions added to Composition including chemical system convention (&#64;mkhorton)</p></li>
+<li><p>Various bug fixes (&#64;mkhorton, &#64;utf)</p></li>
+<li><p>Improvements to MEGNET API (&#64;shyuep)</p></li>
+<li><p>Improvements to Structure interpolation (&#64;mturiansky)</p></li>
+</ul>
+</div>
+<div class="section" id="v2019-5-8">
+<h2>v2019.5.8<a class="headerlink" href="#v2019-5-8" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Numerous updates and improvements to defect classes (&#64;dbroberg)</p></li>
+<li><p>New API for MEGNET models, see <a class="reference external" href="http://megnet.crystals.ai">http://megnet.crystals.ai</a> (&#64;shyuep)</p></li>
+<li><p>Update to NMR symmeterization (&#64;dongsenfo)</p></li>
+<li><p>Change CIF indexing (&#64;kmu)</p></li>
+<li><p>Add BoltzTraP mode to NonSCF input sets (&#64;utf)</p></li>
+</ul>
+</div>
 <div class="section" id="v2019-5-1">
 <h2>v2019.5.1<a class="headerlink" href="#v2019-5-1" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
@@ -2181,6 +2212,9 @@ environment variable.</p></li>
   <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Change log</a><ul>
+<li><a class="reference internal" href="#v2019-6-5">v2019.6.5</a></li>
+<li><a class="reference internal" href="#v2019-5-28">v2019.5.28</a></li>
+<li><a class="reference internal" href="#v2019-5-8">v2019.5.8</a></li>
 <li><a class="reference internal" href="#v2019-5-1">v2019.5.1</a></li>
 <li><a class="reference internal" href="#v2019-4-11">v2019.4.11</a></li>
 <li><a class="reference internal" href="#v2019-3-27">v2019.3.27</a></li>
@@ -2415,10 +2449,10 @@ environment variable.</p></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -2437,13 +2471,13 @@ environment variable.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

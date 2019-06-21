@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.lobster &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.io.lobster &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.5.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -56,16 +56,24 @@
 <span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">monty.io</span> <span class="k">import</span> <span class="n">zopen</span>
+<span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="k">import</span> <span class="n">loadfn</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
 <span class="kn">import</span> <span class="nn">fnmatch</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">spglib</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="k">import</span> <span class="n">Spin</span><span class="p">,</span> <span class="n">Orbital</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.vasp.outputs</span> <span class="k">import</span> <span class="n">Vasprun</span>
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.dos</span> <span class="k">import</span> <span class="n">Dos</span><span class="p">,</span> <span class="n">LobsterCompleteDos</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.bandstructure</span> <span class="k">import</span> <span class="n">Kpoint</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="k">import</span> <span class="n">Kpoints</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.bandstructure</span> <span class="k">import</span> <span class="n">LobsterBandStructureSymmLine</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="k">import</span> <span class="n">Incar</span><span class="p">,</span> <span class="n">Kpoints</span><span class="p">,</span> <span class="n">Potcar</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.bandstructure</span> <span class="k">import</span> <span class="n">HighSymmKpath</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Module for reading Lobster output files. For more information</span>
@@ -78,6 +86,8 @@
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Marco Esters, Janine George&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;esters@uoregon.edu, janine.george@uclouvain.be&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Dec 13, 2017&quot;</span>
+
+<span class="n">MODULE_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
 
 
 <div class="viewcode-block" id="Cohpcar"><a class="viewcode-back" href="../../../pymatgen.io.lobster.html#pymatgen.io.lobster.Cohpcar">[docs]</a><span class="k">class</span> <span class="nc">Cohpcar</span><span class="p">:</span>
@@ -980,7 +990,7 @@
 <span class="sd">      .. attribute: kpoints_array</span>
 <span class="sd">        list of kpoint as numpy arrays, in frac_coords of the</span>
 <span class="sd">            given lattice by default</span>
-<span class="sd">            </span>
+
 <span class="sd">      .. attribute: label_dict</span>
 <span class="sd">     (dict) of {} this link a kpoint (in frac coords or</span>
 <span class="sd">            cartesian coordinates depending on the coords).</span>
@@ -992,9 +1002,9 @@
 <span class="sd">      number of bands used in the calculation</span>
 
 <span class="sd">      .. attribute: p_eigenvals</span>
-<span class="sd">      dict of orbital projections as {spin: array of dict}. </span>
-<span class="sd">      The indices of the array are [band_index, kpoint_index]. </span>
-<span class="sd">      The dict is then built the following way: </span>
+<span class="sd">      dict of orbital projections as {spin: array of dict}.</span>
+<span class="sd">      The indices of the array are [band_index, kpoint_index].</span>
+<span class="sd">      The dict is then built the following way:</span>
 <span class="sd">      {&quot;string of element&quot;: &quot;string of orbital as read in from FATBAND file&quot;}</span>
 <span class="sd">      If the band structure is not spin polarized, we only store one data set under Spin.up.</span>
 
@@ -1166,6 +1176,536 @@
                                             <span class="n">efermi</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">efermi</span><span class="p">,</span> <span class="n">labels_dict</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">label_dict</span><span class="p">,</span>
                                             <span class="n">structure</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span>
                                             <span class="n">projections</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">p_eigenvals</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="Lobsterin"><a class="viewcode-back" href="../../../pymatgen.io.lobster.html#pymatgen.io.lobster.Lobsterin">[docs]</a><span class="k">class</span> <span class="nc">Lobsterin</span><span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class can handle and generate lobsterin files</span>
+<span class="sd">    Furthermore, it can also modify INCAR files for lobster, generate KPOINT files for fatband calculations in Lobster,</span>
+<span class="sd">    and generate the standard primitive cells in a POSCAR file that are needed for the fatband calculations.</span>
+<span class="sd">    There are also several standard lobsterin files that can be easily generated.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        settingsdict: dict to initialize Lobsterin</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># all keywords known to this class so far</span>
+    <span class="c1"># reminder: lobster is not case sensitive</span>
+    <span class="n">AVAILABLEKEYWORDS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;COHPstartEnergy&#39;</span><span class="p">,</span> <span class="s1">&#39;COHPendEnergy&#39;</span><span class="p">,</span> <span class="s1">&#39;basisSet&#39;</span><span class="p">,</span> <span class="s1">&#39;cohpGenerator&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;gaussianSmearingWidth&#39;</span><span class="p">,</span> <span class="s1">&#39;saveProjectionToFile&#39;</span><span class="p">,</span> <span class="s1">&#39;basisfunctions&#39;</span><span class="p">,</span> <span class="s1">&#39;skipdos&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;skipcohp&#39;</span><span class="p">,</span> <span class="s1">&#39;skipcoop&#39;</span><span class="p">,</span> <span class="s1">&#39;skipPopulationAnalysis&#39;</span><span class="p">,</span> <span class="s1">&#39;skipGrossPopulation&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;userecommendedbasisfunctions&#39;</span><span class="p">,</span> <span class="s1">&#39;loadProjectionFromFile&#39;</span><span class="p">,</span> <span class="s1">&#39;forceEnergyRange&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;DensityOfEnergy&#39;</span><span class="p">,</span> <span class="s1">&#39;BWDF&#39;</span><span class="p">,</span> <span class="s1">&#39;BWDFCOHP&#39;</span><span class="p">,</span> <span class="s1">&#39;skipProjection&#39;</span><span class="p">,</span> <span class="s1">&#39;createFatband&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;writeBasisFunctions&#39;</span><span class="p">,</span> <span class="s1">&#39;writeMatricesToFile&#39;</span><span class="p">,</span> <span class="s1">&#39;realspaceHamiltonian&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;realspaceOverlap&#39;</span><span class="p">,</span> <span class="s1">&#39;printPAWRealSpaceWavefunction&#39;</span><span class="p">,</span> <span class="s1">&#39;printLCAORealSpaceWavefunction&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;noFFTforVisualization&#39;</span><span class="p">,</span> <span class="s1">&#39;RMSp&#39;</span><span class="p">,</span> <span class="s1">&#39;onlyReadVasprun.xml&#39;</span><span class="p">,</span> <span class="s1">&#39;noMemoryMappedFiles&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;skipPAWOrthonormalityTest&#39;</span><span class="p">,</span> <span class="s1">&#39;doNotIgnoreExcessiveBands&#39;</span><span class="p">,</span> <span class="s1">&#39;doNotUseAbsoluteSpilling&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;skipReOrthonormalization&#39;</span><span class="p">,</span> <span class="s1">&#39;forceV1HMatrix&#39;</span><span class="p">,</span> <span class="s1">&#39;useOriginalTetrahedronMethod&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;useDecimalPlaces&#39;</span><span class="p">,</span> <span class="s1">&#39;kSpaceCOHP&#39;</span><span class="p">]</span>
+
+    <span class="c1"># keyword + one float can be used in file</span>
+    <span class="n">FLOATKEYWORDS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;COHPstartEnergy&#39;</span><span class="p">,</span> <span class="s1">&#39;COHPendEnergy&#39;</span><span class="p">,</span> <span class="s1">&#39;gaussianSmearingWidth&#39;</span><span class="p">,</span> <span class="s1">&#39;useDecimalPlaces&#39;</span><span class="p">]</span>
+    <span class="c1"># one of these keywords +endstring can be used in file</span>
+    <span class="n">STRINGKEYWORDS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;basisSet&#39;</span><span class="p">,</span> <span class="s1">&#39;cohpGenerator&#39;</span><span class="p">,</span> <span class="s1">&#39;realspaceHamiltonian&#39;</span><span class="p">,</span> <span class="s1">&#39;realspaceOverlap&#39;</span><span class="p">,</span>
+                      <span class="s1">&#39;printPAWRealSpaceWavefunction&#39;</span><span class="p">,</span> <span class="s1">&#39;printLCAORealSpaceWavefunction&#39;</span><span class="p">,</span> <span class="s1">&#39;kSpaceCOHP&#39;</span><span class="p">]</span>
+    <span class="c1"># the keyword alone will turn on or off a function</span>
+    <span class="n">BOOLEANKEYWORDS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;saveProjectionToFile&#39;</span><span class="p">,</span> <span class="s1">&#39;skipdos&#39;</span><span class="p">,</span> <span class="s1">&#39;skipcohp&#39;</span><span class="p">,</span> <span class="s1">&#39;skipcoop&#39;</span><span class="p">,</span> <span class="s1">&#39;loadProjectionFromFile&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;forceEnergyRange&#39;</span><span class="p">,</span> <span class="s1">&#39;DensityOfEnergy&#39;</span><span class="p">,</span> <span class="s1">&#39;BWDF&#39;</span><span class="p">,</span> <span class="s1">&#39;BWDFCOHP&#39;</span><span class="p">,</span> <span class="s1">&#39;skipPopulationAnalysis&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;skipGrossPopulation&#39;</span><span class="p">,</span> <span class="s1">&#39;userecommendedbasisfunctions&#39;</span><span class="p">,</span> <span class="s1">&#39;skipProjection&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;writeBasisFunctions&#39;</span><span class="p">,</span> <span class="s1">&#39;writeMatricesToFile&#39;</span><span class="p">,</span> <span class="s1">&#39;noFFTforVisualization&#39;</span><span class="p">,</span> <span class="s1">&#39;RMSp&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;onlyReadVasprun.xml&#39;</span><span class="p">,</span> <span class="s1">&#39;noMemoryMappedFiles&#39;</span><span class="p">,</span> <span class="s1">&#39;skipPAWOrthonormalityTest&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;doNotIgnoreExcessiveBands&#39;</span><span class="p">,</span> <span class="s1">&#39;doNotUseAbsoluteSpilling&#39;</span><span class="p">,</span> <span class="s1">&#39;skipReOrthonormalization&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;forceV1HMatrix&#39;</span><span class="p">,</span> <span class="s1">&#39;useOriginalTetrahedronMethod&#39;</span><span class="p">]</span>
+    <span class="c1"># several of these keywords + ending can be used in a lobsterin file:</span>
+    <span class="n">LISTKEYWORDS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;basisfunctions&#39;</span><span class="p">,</span> <span class="s1">&#39;cohpbetween&#39;</span><span class="p">,</span> <span class="s1">&#39;createFatband&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">settingsdict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="c1"># check for duplicates</span>
+        <span class="n">listkey</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">settingsdict</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">listkey</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">listkey</span><span class="p">))):</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;There are duplicates for the keywords! The program will stop here.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">settingsdict</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add parameter-val pair to Lobsterin.  Warns if parameter is not in list of</span>
+<span class="sd">        valid lobsterintags. Also cleans the parameter and val by stripping</span>
+<span class="sd">        leading and trailing white spaces. Similar to INCAR class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># due to the missing case sensitivity of lobster, the following code is neccessary</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">key_here</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">key_here</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="n">new_key</span> <span class="o">=</span> <span class="n">key_here</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+            <span class="n">new_key</span> <span class="o">=</span> <span class="n">key</span>
+        <span class="k">if</span> <span class="n">new_key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">element</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">Lobsterin</span><span class="o">.</span><span class="n">AVAILABLEKEYWORDS</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Key is currently not available&quot;</span><span class="p">))</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__setitem__</span><span class="p">(</span><span class="n">new_key</span><span class="p">,</span> <span class="n">val</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">val</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        implements getitem from dict to avoid problems with cases</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">key_here</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">key_here</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="n">new_key</span> <span class="o">=</span> <span class="n">key_here</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+            <span class="n">new_key</span> <span class="o">=</span> <span class="n">item</span>
+
+        <span class="n">val</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_key</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">val</span>
+
+<div class="viewcode-block" id="Lobsterin.diff"><a class="viewcode-back" href="../../../pymatgen.io.lobster.html#pymatgen.io.lobster.Lobsterin.diff">[docs]</a>    <span class="k">def</span> <span class="nf">diff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Diff function for lobsterin. Compares two lobsterin and indicates which parameters are the same.</span>
+<span class="sd">        Similar to the diff in INCAR.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            other (Lobsterin): Lobsterin object to compare to</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            dict with differences and similarities</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">similar_param</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">different_param</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">key_list_others</span> <span class="o">=</span> <span class="p">[</span><span class="n">element</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+
+        <span class="k">for</span> <span class="n">k1</span><span class="p">,</span> <span class="n">v1</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">k1lower</span> <span class="o">=</span> <span class="n">k1</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">k1lower</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">key_list_others</span><span class="p">:</span>
+                <span class="n">different_param</span><span class="p">[</span><span class="n">k1</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;lobsterin1&quot;</span><span class="p">:</span> <span class="n">v1</span><span class="p">,</span> <span class="s2">&quot;lobsterin2&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">key_here</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">k1</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">key_here</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                        <span class="n">new_key</span> <span class="o">=</span> <span class="n">key_here</span>
+
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">v1</span><span class="p">)</span> <span class="o">==</span> <span class="nb">type</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">v1</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="n">other</span><span class="p">[</span><span class="n">new_key</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+
+                        <span class="n">different_param</span><span class="p">[</span><span class="n">k1</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;lobsterin1&quot;</span><span class="p">:</span> <span class="n">v1</span><span class="p">,</span> <span class="s2">&quot;lobsterin2&quot;</span><span class="p">:</span> <span class="n">other</span><span class="p">[</span><span class="n">new_key</span><span class="p">]}</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">similar_param</span><span class="p">[</span><span class="n">k1</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span> <span class="o">=</span> <span class="n">v1</span>
+                <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">v1</span><span class="p">)</span> <span class="o">==</span> <span class="nb">type</span><span class="p">([]):</span>
+                    <span class="n">new_set1</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">element</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">v1</span><span class="p">])</span>
+                    <span class="n">new_set2</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">element</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">other</span><span class="p">[</span><span class="n">new_key</span><span class="p">]])</span>
+                    <span class="k">if</span> <span class="n">new_set1</span> <span class="o">!=</span> <span class="n">new_set2</span><span class="p">:</span>
+                        <span class="n">different_param</span><span class="p">[</span><span class="n">k1</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;lobsterin1&quot;</span><span class="p">:</span> <span class="n">v1</span><span class="p">,</span> <span class="s2">&quot;lobsterin2&quot;</span><span class="p">:</span> <span class="n">other</span><span class="p">[</span><span class="n">new_key</span><span class="p">]}</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">v1</span> <span class="o">!=</span> <span class="n">other</span><span class="p">[</span><span class="n">new_key</span><span class="p">]:</span>
+                        <span class="n">different_param</span><span class="p">[</span><span class="n">k1</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;lobsterin1&quot;</span><span class="p">:</span> <span class="n">v1</span><span class="p">,</span> <span class="s2">&quot;lobsterin2&quot;</span><span class="p">:</span> <span class="n">other</span><span class="p">[</span><span class="n">new_key</span><span class="p">]}</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">similar_param</span><span class="p">[</span><span class="n">k1</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span> <span class="o">=</span> <span class="n">v1</span>
+
+        <span class="k">for</span> <span class="n">k2</span><span class="p">,</span> <span class="n">v2</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">k2</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">similar_param</span> <span class="ow">and</span> <span class="n">k2</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">different_param</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">key_here</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">k2</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">key_here</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                        <span class="n">new_key</span> <span class="o">=</span> <span class="n">key_here</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">new_key</span> <span class="o">=</span> <span class="n">k2</span>
+                <span class="k">if</span> <span class="n">new_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+                    <span class="n">different_param</span><span class="p">[</span><span class="n">k2</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;lobsterin1&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;lobsterin2&quot;</span><span class="p">:</span> <span class="n">v2</span><span class="p">}</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;Same&quot;</span><span class="p">:</span> <span class="n">similar_param</span><span class="p">,</span> <span class="s2">&quot;Different&quot;</span><span class="p">:</span> <span class="n">different_param</span><span class="p">}</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_nbands</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        get basis functions from a file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;basisfunctions&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;No basis functions are provided. The program cannot calculate nbands.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">basis_functions</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">string_basis</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;basisfunctions&quot;</span><span class="p">):</span>
+                <span class="c1"># string_basis.lstrip()</span>
+                <span class="n">string_basis_raw</span> <span class="o">=</span> <span class="n">string_basis</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+                <span class="k">while</span> <span class="s2">&quot;&quot;</span> <span class="ow">in</span> <span class="n">string_basis_raw</span><span class="p">:</span>
+                    <span class="n">string_basis_raw</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">basis_functions</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">string_basis_raw</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+
+        <span class="n">no_basis_functions</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">basis</span> <span class="ow">in</span> <span class="n">basis_functions</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;s&quot;</span> <span class="ow">in</span> <span class="n">basis</span><span class="p">:</span>
+                <span class="n">no_basis_functions</span> <span class="o">=</span> <span class="n">no_basis_functions</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="s2">&quot;p&quot;</span> <span class="ow">in</span> <span class="n">basis</span><span class="p">:</span>
+                <span class="n">no_basis_functions</span> <span class="o">=</span> <span class="n">no_basis_functions</span> <span class="o">+</span> <span class="mi">3</span>
+            <span class="k">elif</span> <span class="s2">&quot;d&quot;</span> <span class="ow">in</span> <span class="n">basis</span><span class="p">:</span>
+                <span class="n">no_basis_functions</span> <span class="o">=</span> <span class="n">no_basis_functions</span> <span class="o">+</span> <span class="mi">5</span>
+            <span class="k">elif</span> <span class="s2">&quot;f&quot;</span> <span class="ow">in</span> <span class="n">basis</span><span class="p">:</span>
+                <span class="n">no_basis_functions</span> <span class="o">=</span> <span class="n">no_basis_functions</span> <span class="o">+</span> <span class="mi">7</span>
+
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">no_basis_functions</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Lobsterin.write_lobsterin"><a class="viewcode-back" href="../../../pymatgen.io.lobster.html#pymatgen.io.lobster.Lobsterin.write_lobsterin">[docs]</a>    <span class="k">def</span> <span class="nf">write_lobsterin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s2">&quot;lobsterin&quot;</span><span class="p">,</span> <span class="n">overwritedict</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        writes a lobsterin file</span>
+<span class="sd">        Args:</span>
+<span class="sd">            path (str): filename of the lobsterin file that will be written</span>
+<span class="sd">            overwritedict (dict): dict that can be used to overwrite lobsterin, e.g. {&quot;skipdos&quot;: True}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># will overwrite previous entries</span>
+        <span class="c1"># has to search first if entry is already in Lobsterindict (due to case insensitivity)</span>
+        <span class="k">if</span> <span class="n">overwritedict</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">overwritedict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">for</span> <span class="n">key2</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">key2</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">[</span><span class="n">key2</span><span class="p">]</span> <span class="o">=</span> <span class="n">entry</span>
+                        <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">entry</span>
+
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">Lobsterin</span><span class="o">.</span><span class="n">AVAILABLEKEYWORDS</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="n">element</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">()]:</span>
+                    <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="n">element</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">Lobsterin</span><span class="o">.</span><span class="n">FLOATKEYWORDS</span><span class="p">]:</span>
+                        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">key</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="n">element</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">Lobsterin</span><span class="o">.</span><span class="n">BOOLEANKEYWORDS</span><span class="p">]:</span>
+                        <span class="c1"># checks if entry is True or False</span>
+                        <span class="k">for</span> <span class="n">key_here</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                            <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">key_here</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                                <span class="n">new_key</span> <span class="o">=</span> <span class="n">key_here</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">new_key</span><span class="p">):</span>
+                            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">key</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="n">element</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">Lobsterin</span><span class="o">.</span><span class="n">STRINGKEYWORDS</span><span class="p">]:</span>
+                        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">key</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">))</span>
+                    <span class="k">elif</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="n">element</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">Lobsterin</span><span class="o">.</span><span class="n">LISTKEYWORDS</span><span class="p">]:</span>
+                        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+                            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">key</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Lobsterin.as_dict"><a class="viewcode-back" href="../../../pymatgen.io.lobster.html#pymatgen.io.lobster.Lobsterin.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        get dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;@module&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;@class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="k">return</span> <span class="n">d</span></div>
+
+<div class="viewcode-block" id="Lobsterin.from_dict"><a class="viewcode-back" href="../../../pymatgen.io.lobster.html#pymatgen.io.lobster.Lobsterin.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        initalize from dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Lobsterin</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;@module&quot;</span><span class="p">,</span>
+                                                                  <span class="s2">&quot;@class&quot;</span><span class="p">]})</span></div>
+
+<div class="viewcode-block" id="Lobsterin.write_INCAR"><a class="viewcode-back" href="../../../pymatgen.io.lobster.html#pymatgen.io.lobster.Lobsterin.write_INCAR">[docs]</a>    <span class="k">def</span> <span class="nf">write_INCAR</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">incar_input</span><span class="o">=</span><span class="s2">&quot;INCAR&quot;</span><span class="p">,</span> <span class="n">incar_output</span><span class="o">=</span><span class="s2">&quot;INCAR.lobster&quot;</span><span class="p">,</span> <span class="n">further_settings</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Will only make the run static, insert nbands, make ISYM=-1, and write a new INCAR.</span>
+<span class="sd">        You have to check for the rest.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            incar_input (str): path to input INCAR</span>
+<span class="sd">            incar_output (str): path to output INCAR</span>
+<span class="sd">            further_settings (dict): A dict can be used to include further settings, e.g. {&quot;ISMEAR&quot;:-5}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># reads old incar from file, this one will be modified</span>
+        <span class="n">incar</span> <span class="o">=</span> <span class="n">Incar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">incar_input</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Please check your incar_input before using it. This method only changes three settings!&quot;</span><span class="p">)</span>
+        <span class="n">incar</span><span class="p">[</span><span class="s2">&quot;ISYM&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">incar</span><span class="p">[</span><span class="s2">&quot;NSW&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># get nbands from _get_nbands (use basis set that is inserted)</span>
+        <span class="n">incar</span><span class="p">[</span><span class="s2">&quot;NBANDS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_nbands</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">further_settings</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">further_settings</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">incar</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">further_settings</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="c1"># print it to file</span>
+        <span class="n">incar</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">incar_output</span><span class="p">)</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_basis</span><span class="p">(</span><span class="n">structure</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">POTCAR</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        will get the basis from a file for a given POTCAR. </span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): Structure object</span>
+<span class="sd">            POTCAR (str): address to POSCAR</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            returns basis</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">potcar</span> <span class="o">=</span> <span class="n">Potcar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">POTCAR</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">pot</span> <span class="ow">in</span> <span class="n">potcar</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">pot</span><span class="o">.</span><span class="n">potential_type</span> <span class="o">!=</span> <span class="s2">&quot;PAW&quot;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Lobster only works with PAW! Use different POTCARs&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">potcar</span><span class="o">.</span><span class="n">functional</span> <span class="o">!=</span> <span class="s2">&quot;PBE&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;We only have BASIS options for PBE so far&quot;</span><span class="p">)</span>
+
+        <span class="n">Potcar_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span><span class="p">[</span><span class="s2">&quot;symbol&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">potcar</span><span class="o">.</span><span class="n">spec</span><span class="p">]</span>
+
+        <span class="n">AtomTypes_Potcar</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">Potcar_names</span><span class="p">]</span>
+
+        <span class="n">AtomTypes</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">symbol_set</span>
+
+        <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">AtomTypes</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">set</span><span class="p">(</span><span class="n">AtomTypes_Potcar</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Your POSCAR does not correspond to your POTCAR!&quot;</span><span class="p">)</span>
+        <span class="n">BASIS</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s2">&quot;BASIS_PBE_54.yaml&quot;</span><span class="p">))[</span><span class="s1">&#39;BASIS&#39;</span><span class="p">]</span>
+
+        <span class="n">basis_functions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">list_forin</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">itype</span><span class="p">,</span> <span class="nb">type</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">Potcar_names</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">BASIS</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;You have to provide the basis for&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
+                    <span class="nb">type</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;manually. We don&#39;t have any information on this POTCAR.&quot;</span><span class="p">)</span>
+            <span class="n">basis_functions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">BASIS</span><span class="p">[</span><span class="nb">type</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+            <span class="n">tojoin</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">AtomTypes_Potcar</span><span class="p">[</span><span class="n">itype</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span>
+            <span class="n">tojoin2</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">BASIS</span><span class="p">[</span><span class="nb">type</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+            <span class="n">list_forin</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">tojoin</span> <span class="o">+</span> <span class="n">tojoin2</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">list_forin</span>
+
+<div class="viewcode-block" id="Lobsterin.write_POSCAR_with_standard_primitive"><a class="viewcode-back" href="../../../pymatgen.io.lobster.html#pymatgen.io.lobster.Lobsterin.write_POSCAR_with_standard_primitive">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">write_POSCAR_with_standard_primitive</span><span class="p">(</span><span class="n">POSCAR_input</span><span class="o">=</span><span class="s2">&quot;POSCAR&quot;</span><span class="p">,</span> <span class="n">POSCAR_output</span><span class="o">=</span><span class="s2">&quot;POSCAR.lobster&quot;</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        writes a POSCAR with the standard primitive cell. This is needed to arrive at the correct kpath</span>
+<span class="sd">        Args:</span>
+<span class="sd">            POSCAR_input (str): filename of input POSCAR</span>
+<span class="sd">            POSCAR_output (str): filename of output POSCAR</span>
+<span class="sd">            symprec (float): precision to find symmetry</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">POSCAR_input</span><span class="p">)</span>
+        <span class="n">kpath</span> <span class="o">=</span> <span class="n">HighSymmKpath</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="n">symprec</span><span class="p">)</span>
+        <span class="n">new_structure</span> <span class="o">=</span> <span class="n">kpath</span><span class="o">.</span><span class="n">prim</span>
+        <span class="n">new_structure</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">POSCAR_output</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Lobsterin.write_KPOINTS"><a class="viewcode-back" href="../../../pymatgen.io.lobster.html#pymatgen.io.lobster.Lobsterin.write_KPOINTS">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">write_KPOINTS</span><span class="p">(</span><span class="n">POSCAR_input</span><span class="o">=</span><span class="s2">&quot;POSCAR&quot;</span><span class="p">,</span> <span class="n">KPOINTS_output</span><span class="o">=</span><span class="s2">&quot;KPOINTS.lobster&quot;</span><span class="p">,</span> <span class="n">reciprocal_density</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">from_grid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                      <span class="n">input_grid</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="n">line_mode</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                      <span class="n">kpoints_line_density</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        writes a KPOINT file for lobster (no symmetry considered!, ISYM=-1)</span>
+<span class="sd">        Args:</span>
+<span class="sd">            POSCAR_input (str): path to POSCAR</span>
+<span class="sd">            KPOINTS_output (str): path to output KPOINTS</span>
+<span class="sd">            reciprocal_density (int): Grid density</span>
+<span class="sd">            from_grid (bool): If True KPOINTS will be generated with the help of a grid given in input_grid. Otherwise, they will be generated from the reciprocal_density</span>
+<span class="sd">            input_grid (list): grid to generate the KPOINTS file</span>
+<span class="sd">            line_mode (bool): If True, band structure will be generated</span>
+<span class="sd">            kpoints_line_density (int): density of the lines in the band structure</span>
+<span class="sd">            symprec (float): precision to determine symmetry</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">POSCAR_input</span><span class="p">)</span>
+        <span class="c1"># should this really be static? -&gt; make it similar to INCAR?</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">from_grid</span><span class="p">:</span>
+            <span class="n">kpointgrid</span> <span class="o">=</span> <span class="n">Kpoints</span><span class="o">.</span><span class="n">automatic_density_by_vol</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">reciprocal_density</span><span class="p">)</span><span class="o">.</span><span class="n">kpts</span>
+            <span class="n">mesh</span> <span class="o">=</span> <span class="n">kpointgrid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mesh</span> <span class="o">=</span> <span class="n">input_grid</span>
+
+        <span class="c1"># The following code is taken from: SpacegroupAnalyzer</span>
+        <span class="c1"># we need to switch off symmetry here</span>
+        <span class="n">latt</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span>
+        <span class="n">positions</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">frac_coords</span>
+        <span class="n">unique_species</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">zs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">magmoms</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">species</span><span class="p">,</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span>
+                                            <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">species</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">species</span> <span class="ow">in</span> <span class="n">unique_species</span><span class="p">:</span>
+                <span class="n">ind</span> <span class="o">=</span> <span class="n">unique_species</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">species</span><span class="p">)</span>
+                <span class="n">zs</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">ind</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">g</span><span class="p">)))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">unique_species</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">species</span><span class="p">)</span>
+                <span class="n">zs</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">unique_species</span><span class="p">)]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">g</span><span class="p">)))</span>
+
+        <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">structure</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="s1">&#39;magmom&#39;</span><span class="p">):</span>
+                <span class="n">magmoms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">magmom</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">site</span><span class="o">.</span><span class="n">is_ordered</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="s1">&#39;spin&#39;</span><span class="p">):</span>
+                <span class="n">magmoms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">spin</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">magmoms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># For now, we are setting magmom to zero. (Taken from INCAR class)</span>
+        <span class="n">cell</span> <span class="o">=</span> <span class="n">latt</span><span class="p">,</span> <span class="n">positions</span><span class="p">,</span> <span class="n">zs</span><span class="p">,</span> <span class="n">magmoms</span>
+        <span class="n">mapping</span><span class="p">,</span> <span class="n">grid</span> <span class="o">=</span> <span class="n">spglib</span><span class="o">.</span><span class="n">get_ir_reciprocal_mesh</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">cell</span><span class="p">,</span> <span class="n">is_shift</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
+        <span class="c1"># get the kpoints for the grid</span>
+        <span class="n">kpts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">all_labels</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">ir_gp_id</span><span class="p">,</span> <span class="n">gp</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">mapping</span><span class="p">,</span> <span class="n">grid</span><span class="p">)):</span>
+            <span class="c1"># print(&quot;%3d -&gt;%3d %s&quot; % (i, ir_gp_id, gp.astype(float) / mesh))</span>
+            <span class="n">kpts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gp</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="o">/</span> <span class="n">mesh</span><span class="p">)</span>
+            <span class="n">weights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">all_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="c1"># line mode</span>
+        <span class="k">if</span> <span class="n">line_mode</span><span class="p">:</span>
+            <span class="n">kpath</span> <span class="o">=</span> <span class="n">HighSymmKpath</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="n">symprec</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">kpath</span><span class="o">.</span><span class="n">prim</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;You are not using the standard primitive cell. The k-path is not correct. Please generate a standard primitive cell first.&quot;</span><span class="p">)</span>
+
+            <span class="n">frac_k_points</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">kpath</span><span class="o">.</span><span class="n">get_kpoints</span><span class="p">(</span>
+                <span class="n">line_density</span><span class="o">=</span><span class="n">kpoints_line_density</span><span class="p">,</span>
+                <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">frac_k_points</span><span class="p">)):</span>
+                <span class="n">kpts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">frac_k_points</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+                <span class="n">weights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+                <span class="n">all_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+
+        <span class="n">comment</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;ISYM=-1, grid: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">line_mode</span> <span class="k">else</span> <span class="s2">&quot;ISYM=-1, grid: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; plus kpoint path&quot;</span><span class="p">)</span>
+
+        <span class="n">KpointObject</span> <span class="o">=</span> <span class="n">Kpoints</span><span class="p">(</span><span class="n">comment</span><span class="o">=</span><span class="n">comment</span><span class="p">,</span>
+                               <span class="n">style</span><span class="o">=</span><span class="n">Kpoints</span><span class="o">.</span><span class="n">supported_modes</span><span class="o">.</span><span class="n">Reciprocal</span><span class="p">,</span>
+                               <span class="n">num_kpts</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">kpts</span><span class="p">),</span> <span class="n">kpts</span><span class="o">=</span><span class="n">kpts</span><span class="p">,</span> <span class="n">kpts_weights</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span>
+                               <span class="n">labels</span><span class="o">=</span><span class="n">all_labels</span><span class="p">)</span>
+
+        <span class="n">KpointObject</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">KPOINTS_output</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Lobsterin.from_file"><a class="viewcode-back" href="../../../pymatgen.io.lobster.html#pymatgen.io.lobster.Lobsterin.from_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">lobsterin</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            lobsterin (str): path to lobsterin</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Lobsterin object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">lobsterin</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;lobsterin file contains no data.&quot;</span><span class="p">)</span>
+        <span class="n">Lobsterindict</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">datum</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="c1"># will remove all commments to avoid complications</span>
+            <span class="n">raw_datum</span> <span class="o">=</span> <span class="n">datum</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;!&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">raw_datum</span> <span class="o">=</span> <span class="n">raw_datum</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;//&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">raw_datum</span> <span class="o">=</span> <span class="n">raw_datum</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">raw_datum</span> <span class="o">=</span> <span class="n">raw_datum</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+            <span class="k">while</span> <span class="s2">&quot;&quot;</span> <span class="ow">in</span> <span class="n">raw_datum</span><span class="p">:</span>
+                <span class="n">raw_datum</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">raw_datum</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># check which type of keyword this is, handle accordingly</span>
+                <span class="k">if</span> <span class="n">raw_datum</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">datum2</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">datum2</span> <span class="ow">in</span> <span class="n">Lobsterin</span><span class="o">.</span><span class="n">LISTKEYWORDS</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">raw_datum</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">datum2</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">datum2</span> <span class="ow">in</span> <span class="n">Lobsterin</span><span class="o">.</span><span class="n">FLOATKEYWORDS</span><span class="p">]:</span>
+                        <span class="k">if</span> <span class="n">raw_datum</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">Lobsterindict</span><span class="p">:</span>
+                            <span class="n">Lobsterindict</span><span class="p">[</span><span class="n">raw_datum</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">raw_datum</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Same keyword &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">raw_datum</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span> <span class="o">+</span> <span class="s2">&quot;twice!&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">raw_datum</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">Lobsterindict</span><span class="p">:</span>
+                            <span class="n">Lobsterindict</span><span class="p">[</span><span class="n">raw_datum</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">raw_datum</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Same keyword &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">raw_datum</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span> <span class="o">+</span> <span class="s2">&quot;twice!&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">raw_datum</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">Lobsterindict</span><span class="p">:</span>
+                        <span class="n">Lobsterindict</span><span class="p">[</span><span class="n">raw_datum</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">raw_datum</span><span class="p">[</span><span class="mi">1</span><span class="p">:])]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">Lobsterindict</span><span class="p">[</span><span class="n">raw_datum</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">raw_datum</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">raw_datum</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">Lobsterindict</span><span class="p">[</span><span class="n">raw_datum</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">Lobsterindict</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Lobsterin.standard_calculations_from_vasp_files"><a class="viewcode-back" href="../../../pymatgen.io.lobster.html#pymatgen.io.lobster.Lobsterin.standard_calculations_from_vasp_files">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">standard_calculations_from_vasp_files</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">POSCAR_input</span><span class="o">=</span><span class="s2">&quot;POSCAR&quot;</span><span class="p">,</span> <span class="n">INCAR_input</span><span class="o">=</span><span class="s2">&quot;INCAR&quot;</span><span class="p">,</span> <span class="n">POTCAR_input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                              <span class="n">dict_for_basis</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                              <span class="n">option</span><span class="o">=</span><span class="s1">&#39;standard&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        will generate Lobsterin with standard settings</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            POSCAR_input(str): path to POSCAR</span>
+<span class="sd">            INCAR_input(str): path to INCAR</span>
+<span class="sd">            POTCAR_input (str): path to POTCAR</span>
+<span class="sd">            dict_for_basis (dict): can be provided: it should look the following: dict_for_basis={&quot;Fe&quot;:&#39;3p 3d 4s 4f&#39;, &quot;C&quot;: &#39;2s 2p&#39;} and will overwrite all settings from POTCAR_input</span>
+
+<span class="sd">            option (str): &#39;standard&#39; will start a normal lobster run where COHPs, COOPs, DOS, CHARGE etc. will be calculated</span>
+<span class="sd">                        &#39;standard_from_projection&#39; will start a normal lobster run from a projection</span>
+<span class="sd">                        &#39;standard_with_fatband&#39; will do a fatband calculation, run over all orbitals</span>
+<span class="sd">                        &#39;onlyprojection&#39; will only do a projection</span>
+<span class="sd">                        &#39;onlydos&#39; will only calculate a projected dos</span>
+<span class="sd">                        &#39;onlycohp&#39; will only calculate cohp</span>
+<span class="sd">                        &#39;onlycoop&#39; will only calculate coop</span>
+<span class="sd">                        &#39;onlycohpcoop&#39; will only calculate cohp and coop</span>
+
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Lobsterin Object with standard settings</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;Always check and test the provided basis functions. The spilling of your Lobster calculation might help&quot;</span><span class="p">)</span>
+        <span class="c1"># warn that fatband calc cannot be done with tetrahedron method at the moment</span>
+        <span class="k">if</span> <span class="n">option</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;standard&#39;</span><span class="p">,</span> <span class="s1">&#39;standard_from_projection&#39;</span><span class="p">,</span> <span class="s1">&#39;standard_with_fatband&#39;</span><span class="p">,</span> <span class="s1">&#39;onlyprojection&#39;</span><span class="p">,</span> <span class="s1">&#39;onlydos&#39;</span><span class="p">,</span>
+                          <span class="s1">&#39;onlycohp&#39;</span><span class="p">,</span> <span class="s1">&#39;onlycoop&#39;</span><span class="p">,</span> <span class="s1">&#39;onlycohpcoop&#39;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The option is not valid!&quot;</span><span class="p">)</span>
+
+        <span class="n">Lobsterindict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># this basis set covers most elements</span>
+        <span class="n">Lobsterindict</span><span class="p">[</span><span class="s1">&#39;basisSet&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;pbeVaspFit2015&#39;</span>
+        <span class="c1"># energies around e-fermi</span>
+        <span class="n">Lobsterindict</span><span class="p">[</span><span class="s1">&#39;COHPstartEnergy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">15.0</span>
+        <span class="n">Lobsterindict</span><span class="p">[</span><span class="s1">&#39;COHPendEnergy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">5.0</span>
+
+        <span class="k">if</span> <span class="n">option</span> <span class="o">==</span> <span class="s1">&#39;standard&#39;</span> <span class="ow">or</span> <span class="n">option</span> <span class="o">==</span> <span class="s1">&#39;onlycohp&#39;</span> <span class="ow">or</span> <span class="n">option</span> <span class="o">==</span> <span class="s1">&#39;onlycoop&#39;</span> <span class="ow">or</span> <span class="n">option</span> <span class="o">==</span> <span class="s1">&#39;onlycohpcoop&#39;</span> <span class="ow">or</span> <span class="n">option</span> <span class="o">==</span> <span class="s1">&#39;standard_with_fatband&#39;</span><span class="p">:</span>
+            <span class="c1"># every interaction with a distance of 6.0 is checked</span>
+            <span class="n">Lobsterindict</span><span class="p">[</span><span class="s1">&#39;cohpGenerator&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;from 0.1 to 6.0 orbitalwise&quot;</span>
+            <span class="c1"># the projection is saved</span>
+            <span class="n">Lobsterindict</span><span class="p">[</span><span class="s1">&#39;saveProjectionToFile&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="n">option</span> <span class="o">==</span> <span class="s1">&#39;standard_from_projection&#39;</span><span class="p">:</span>
+            <span class="n">Lobsterindict</span><span class="p">[</span><span class="s1">&#39;cohpGenerator&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;from 0.1 to 6.0 orbitalwise&quot;</span>
+            <span class="n">Lobsterindict</span><span class="p">[</span><span class="s1">&#39;loadProjectionFromFile&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="n">option</span> <span class="o">==</span> <span class="s1">&#39;onlycohp&#39;</span><span class="p">:</span>
+            <span class="n">Lobsterindict</span><span class="p">[</span><span class="s1">&#39;skipdos&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">Lobsterindict</span><span class="p">[</span><span class="s1">&#39;skipcoop&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">Lobsterindict</span><span class="p">[</span><span class="s1">&#39;skipPopulationAnalysis&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">Lobsterindict</span><span class="p">[</span><span class="s1">&#39;skipGrossPopulation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="n">option</span> <span class="o">==</span> <span class="s1">&#39;onlycoop&#39;</span><span class="p">:</span>
+            <span class="n">Lobsterindict</span><span class="p">[</span><span class="s1">&#39;skipdos&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">Lobsterindict</span><span class="p">[</span><span class="s1">&#39;skipcohp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">Lobsterindict</span><span class="p">[</span><span class="s1">&#39;skipPopulationAnalysis&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">Lobsterindict</span><span class="p">[</span><span class="s1">&#39;skipGrossPopulation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="n">option</span> <span class="o">==</span> <span class="s1">&#39;onlycohpcoop&#39;</span><span class="p">:</span>
+            <span class="n">Lobsterindict</span><span class="p">[</span><span class="s1">&#39;skipdos&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">Lobsterindict</span><span class="p">[</span><span class="s1">&#39;skipPopulationAnalysis&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">Lobsterindict</span><span class="p">[</span><span class="s1">&#39;skipGrossPopulation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="n">option</span> <span class="o">==</span> <span class="s1">&#39;onlydos&#39;</span><span class="p">:</span>
+            <span class="n">Lobsterindict</span><span class="p">[</span><span class="s1">&#39;skipcohp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">Lobsterindict</span><span class="p">[</span><span class="s1">&#39;skipcoop&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">Lobsterindict</span><span class="p">[</span><span class="s1">&#39;skipPopulationAnalysis&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">Lobsterindict</span><span class="p">[</span><span class="s1">&#39;skipGrossPopulation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="n">option</span> <span class="o">==</span> <span class="s1">&#39;onlyprojection&#39;</span><span class="p">:</span>
+            <span class="n">Lobsterindict</span><span class="p">[</span><span class="s1">&#39;skipdos&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">Lobsterindict</span><span class="p">[</span><span class="s1">&#39;skipcohp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">Lobsterindict</span><span class="p">[</span><span class="s1">&#39;skipcoop&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">Lobsterindict</span><span class="p">[</span><span class="s1">&#39;skipPopulationAnalysis&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">Lobsterindict</span><span class="p">[</span><span class="s1">&#39;skipGrossPopulation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">Lobsterindict</span><span class="p">[</span><span class="s1">&#39;saveProjectionToFile&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">incar</span> <span class="o">=</span> <span class="n">Incar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">INCAR_input</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">incar</span><span class="p">[</span><span class="s2">&quot;ISMEAR&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">Lobsterindict</span><span class="p">[</span><span class="s1">&#39;gaussianSmearingWidth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">incar</span><span class="p">[</span><span class="s2">&quot;SIGMA&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">incar</span><span class="p">[</span><span class="s2">&quot;ISMEAR&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">option</span> <span class="o">==</span> <span class="s2">&quot;standard_with_fatband&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ISMEAR has to be 0 for a fatband calculation with Lobster&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dict_for_basis</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># dict_for_basis={&quot;Fe&quot;:&#39;3p 3d 4s 4f&#39;, &quot;C&quot;: &#39;2s 2p&#39;}</span>
+            <span class="c1"># will just insert this basis and not check with poscar</span>
+            <span class="n">basis</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">dict_for_basis</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">basis</span> <span class="o">=</span> <span class="n">Lobsterin</span><span class="o">.</span><span class="n">_get_basis</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">POSCAR_input</span><span class="p">),</span>
+                                         <span class="n">POTCAR</span><span class="o">=</span><span class="n">POTCAR_input</span><span class="p">)</span>
+        <span class="n">Lobsterindict</span><span class="p">[</span><span class="s2">&quot;basisfunctions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">basis</span>
+        <span class="k">if</span> <span class="n">option</span> <span class="o">==</span> <span class="s1">&#39;standard_with_fatband&#39;</span><span class="p">:</span>
+            <span class="n">Lobsterindict</span><span class="p">[</span><span class="s1">&#39;createFatband&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">basis</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">Lobsterindict</span><span class="p">)</span></div></div>
 </pre></div>
 
           </div>
@@ -1174,10 +1714,10 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -1196,7 +1736,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.5.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1204,7 +1744,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

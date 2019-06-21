@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.functional_groups module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.analysis.functional_groups module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -46,7 +46,7 @@
 <span id="pymatgen-analysis-functional-groups-module"></span><h1>pymatgen.analysis.functional_groups module<a class="headerlink" href="#module-pymatgen.analysis.functional_groups" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.analysis.functional_groups.FunctionalGroupExtractor">
-<em class="property">class </em><code class="descname">FunctionalGroupExtractor</code><span class="sig-paren">(</span><em>molecule</em>, <em>optimize=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/functional_groups.html#FunctionalGroupExtractor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">FunctionalGroupExtractor</code><span class="sig-paren">(</span><em class="sig-param">molecule</em>, <em class="sig-param">optimize=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/functional_groups.html#FunctionalGroupExtractor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This class is used to algorithmically parse a molecule (represented by an
 instance of pymatgen.analysis.graphs.MoleculeGraph) and determine arbitrary
@@ -65,7 +65,7 @@ etc.</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.analysis.functional_groups.FunctionalGroupExtractor.categorize_functional_groups">
-<code class="descname">categorize_functional_groups</code><span class="sig-paren">(</span><em>groups</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/functional_groups.html#FunctionalGroupExtractor.categorize_functional_groups"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.categorize_functional_groups" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">categorize_functional_groups</code><span class="sig-paren">(</span><em class="sig-param">groups</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/functional_groups.html#FunctionalGroupExtractor.categorize_functional_groups"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.categorize_functional_groups" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine classes of functional groups present in a set.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -81,7 +81,7 @@ type of group there is.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_all_functional_groups">
-<code class="descname">get_all_functional_groups</code><span class="sig-paren">(</span><em>elements=None</em>, <em>func_groups=None</em>, <em>catch_basic=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/functional_groups.html#FunctionalGroupExtractor.get_all_functional_groups"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_all_functional_groups" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_all_functional_groups</code><span class="sig-paren">(</span><em class="sig-param">elements=None</em>, <em class="sig-param">func_groups=None</em>, <em class="sig-param">catch_basic=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/functional_groups.html#FunctionalGroupExtractor.get_all_functional_groups"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_all_functional_groups" title="Permalink to this definition">¶</a></dt>
 <dd><p>Identify all functional groups (or all within a certain subset) in the
 molecule, combining the methods described above.</p>
 <dl class="field-list simple">
@@ -105,7 +105,7 @@ other methods</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_basic_functional_groups">
-<code class="descname">get_basic_functional_groups</code><span class="sig-paren">(</span><em>func_groups=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/functional_groups.html#FunctionalGroupExtractor.get_basic_functional_groups"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_basic_functional_groups" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_basic_functional_groups</code><span class="sig-paren">(</span><em class="sig-param">func_groups=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/functional_groups.html#FunctionalGroupExtractor.get_basic_functional_groups"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_basic_functional_groups" title="Permalink to this definition">¶</a></dt>
 <dd><p>Identify functional groups that cannot be identified by the Ertl method
 of get_special_carbon and get_heteroatoms, such as benzene rings, methyl
 groups, and ethyl groups.</p>
@@ -125,7 +125,7 @@ defined in this function will be sought.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_heteroatoms">
-<code class="descname">get_heteroatoms</code><span class="sig-paren">(</span><em>elements=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/functional_groups.html#FunctionalGroupExtractor.get_heteroatoms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_heteroatoms" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_heteroatoms</code><span class="sig-paren">(</span><em class="sig-param">elements=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/functional_groups.html#FunctionalGroupExtractor.get_heteroatoms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_heteroatoms" title="Permalink to this definition">¶</a></dt>
 <dd><p>Identify non-H, non-C atoms in the MoleculeGraph, returning a list of
 their node indices.</p>
 <dl class="field-list simple">
@@ -141,7 +141,7 @@ functional groups are of interest).</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_special_carbon">
-<code class="descname">get_special_carbon</code><span class="sig-paren">(</span><em>elements=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/functional_groups.html#FunctionalGroupExtractor.get_special_carbon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_special_carbon" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_special_carbon</code><span class="sig-paren">(</span><em class="sig-param">elements=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/functional_groups.html#FunctionalGroupExtractor.get_special_carbon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_special_carbon" title="Permalink to this definition">¶</a></dt>
 <dd><p>Identify Carbon atoms in the MoleculeGraph that fit the characteristics
 defined Ertl (2017), returning a list of their node indices.</p>
 <dl class="simple">
@@ -167,7 +167,7 @@ Default None.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.functional_groups.FunctionalGroupExtractor.link_marked_atoms">
-<code class="descname">link_marked_atoms</code><span class="sig-paren">(</span><em>atoms</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/functional_groups.html#FunctionalGroupExtractor.link_marked_atoms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.link_marked_atoms" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">link_marked_atoms</code><span class="sig-paren">(</span><em class="sig-param">atoms</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/functional_groups.html#FunctionalGroupExtractor.link_marked_atoms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.link_marked_atoms" title="Permalink to this definition">¶</a></dt>
 <dd><p>Take a list of marked “interesting” atoms (heteroatoms, special carbons)
 and attempt to connect them, returning a list of disjoint groups of
 special atoms (and their connected hydrogens).</p>
@@ -200,10 +200,10 @@ using other functions in this class.</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -222,13 +222,13 @@ using other functions in this class.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

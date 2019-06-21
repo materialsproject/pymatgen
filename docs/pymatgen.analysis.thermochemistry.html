@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.thermochemistry module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.analysis.thermochemistry module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -45,9 +45,14 @@
   <div class="section" id="module-pymatgen.analysis.thermochemistry">
 <span id="pymatgen-analysis-thermochemistry-module"></span><h1>pymatgen.analysis.thermochemistry module<a class="headerlink" href="#module-pymatgen.analysis.thermochemistry" title="Permalink to this headline">¶</a></h1>
 <p>A module to perform experimental thermochemical data analysis.</p>
+<dl class="data">
+<dt id="pymatgen.analysis.thermochemistry.STANDARD_TEMP">
+<code class="sig-name descname">STANDARD_TEMP</code><em class="property"> = 298.0</em><a class="headerlink" href="#pymatgen.analysis.thermochemistry.STANDARD_TEMP" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="class">
 <dt id="pymatgen.analysis.thermochemistry.ThermoData">
-<em class="property">class </em><code class="descname">ThermoData</code><span class="sig-paren">(</span><em>data_type</em>, <em>cpdname</em>, <em>phaseinfo</em>, <em>formula</em>, <em>value</em>, <em>ref=''</em>, <em>method=''</em>, <em>temp_range=(298</em>, <em>298)</em>, <em>uncertainty=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/thermochemistry.html#ThermoData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.thermochemistry.ThermoData" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">ThermoData</code><span class="sig-paren">(</span><em class="sig-param">data_type</em>, <em class="sig-param">cpdname</em>, <em class="sig-param">phaseinfo</em>, <em class="sig-param">formula</em>, <em class="sig-param">value</em>, <em class="sig-param">ref=''</em>, <em class="sig-param">method=''</em>, <em class="sig-param">temp_range=(298</em>, <em class="sig-param">298)</em>, <em class="sig-param">uncertainty=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/thermochemistry.html#ThermoData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.thermochemistry.ThermoData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A object container for an experimental Thermochemical Data.</p>
 <dl class="field-list simple">
@@ -75,12 +80,12 @@ data in Kelvin. Defaults to 298 K only.</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.analysis.thermochemistry.ThermoData.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/thermochemistry.html#ThermoData.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.thermochemistry.ThermoData.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/thermochemistry.html#ThermoData.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.thermochemistry.ThermoData.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.thermochemistry.ThermoData.from_dict">
-<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/thermochemistry.html#ThermoData.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.thermochemistry.ThermoData.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/thermochemistry.html#ThermoData.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.thermochemistry.ThermoData.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -101,10 +106,10 @@ data in Kelvin. Defaults to 298 K only.</p></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -123,13 +128,13 @@ data in Kelvin. Defaults to 298 K only.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

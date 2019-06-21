@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.qchem.utils module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.io.qchem.utils module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -46,7 +46,7 @@
 <span id="pymatgen-io-qchem-utils-module"></span><h1>pymatgen.io.qchem.utils module<a class="headerlink" href="#module-pymatgen.io.qchem.utils" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pymatgen.io.qchem.utils.lower_and_check_unique">
-<code class="descname">lower_and_check_unique</code><span class="sig-paren">(</span><em>dict_to_check</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/utils.html#lower_and_check_unique"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.utils.lower_and_check_unique" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">lower_and_check_unique</code><span class="sig-paren">(</span><em class="sig-param">dict_to_check</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/utils.html#lower_and_check_unique"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.utils.lower_and_check_unique" title="Permalink to this definition">¶</a></dt>
 <dd><p>Takes a dictionary and makes all the keys lower case. Also replaces
 “jobtype” with “job_type” just so that key specifically can be called
 elsewhere without ambiguity. Finally, ensures that multiple identical
@@ -71,14 +71,14 @@ present. If there are multiple equivalent keys, an Exception is raised.</p>
 
 <dl class="function">
 <dt id="pymatgen.io.qchem.utils.process_parsed_coords">
-<code class="descname">process_parsed_coords</code><span class="sig-paren">(</span><em>coords</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/utils.html#process_parsed_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.utils.process_parsed_coords" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">process_parsed_coords</code><span class="sig-paren">(</span><em class="sig-param">coords</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/utils.html#process_parsed_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.utils.process_parsed_coords" title="Permalink to this definition">¶</a></dt>
 <dd><p>Takes a set of parsed coordinates, which come as an array of strings,
 and returns a numpy array of floats.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.io.qchem.utils.read_pattern">
-<code class="descname">read_pattern</code><span class="sig-paren">(</span><em>text_str</em>, <em>patterns</em>, <em>terminate_on_match=False</em>, <em>postprocess=&lt;class 'str'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/utils.html#read_pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.utils.read_pattern" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">read_pattern</code><span class="sig-paren">(</span><em class="sig-param">text_str</em>, <em class="sig-param">patterns</em>, <em class="sig-param">terminate_on_match=False</em>, <em class="sig-param">postprocess=&lt;class 'str'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/utils.html#read_pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.utils.read_pattern" title="Permalink to this definition">¶</a></dt>
 <dd><p>General pattern reading on an input string</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -105,7 +105,7 @@ are lists of lists, because you can grep multiple items on one line.</p>
 
 <dl class="function">
 <dt id="pymatgen.io.qchem.utils.read_table_pattern">
-<code class="descname">read_table_pattern</code><span class="sig-paren">(</span><em>text_str</em>, <em>header_pattern</em>, <em>row_pattern</em>, <em>footer_pattern</em>, <em>postprocess=&lt;class 'str'&gt;</em>, <em>attribute_name=None</em>, <em>last_one_only=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/utils.html#read_table_pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.utils.read_table_pattern" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">read_table_pattern</code><span class="sig-paren">(</span><em class="sig-param">text_str</em>, <em class="sig-param">header_pattern</em>, <em class="sig-param">row_pattern</em>, <em class="sig-param">footer_pattern</em>, <em class="sig-param">postprocess=&lt;class 'str'&gt;</em>, <em class="sig-param">attribute_name=None</em>, <em class="sig-param">last_one_only=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/utils.html#read_table_pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.utils.read_table_pattern" title="Permalink to this definition">¶</a></dt>
 <dd><blockquote>
 <div><p>Parse table-like data. A table composes of three parts: header,
 main body, footer. All the data matches “row pattern” in the main body
@@ -171,10 +171,10 @@ row_pattern.</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -193,13 +193,13 @@ row_pattern.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

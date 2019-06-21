@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.ewald module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.analysis.ewald module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -46,7 +46,7 @@
 <span id="pymatgen-analysis-ewald-module"></span><h1>pymatgen.analysis.ewald module<a class="headerlink" href="#module-pymatgen.analysis.ewald" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.analysis.ewald.EwaldMinimizer">
-<em class="property">class </em><code class="descname">EwaldMinimizer</code><span class="sig-paren">(</span><em>matrix</em>, <em>m_list</em>, <em>num_to_return=1</em>, <em>algo=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldMinimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">EwaldMinimizer</code><span class="sig-paren">(</span><em class="sig-param">matrix</em>, <em class="sig-param">m_list</em>, <em class="sig-param">num_to_return=1</em>, <em class="sig-param">algo=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldMinimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This class determines the manipulations that will minimize an ewald matrix,
 given a list of possible manipulations. This class does not perform the
@@ -81,7 +81,7 @@ process is extremely expensive)</p></li>
 </dl>
 <dl class="attribute">
 <dt id="pymatgen.analysis.ewald.EwaldMinimizer.ALGO_BEST_FIRST">
-<code class="descname">ALGO_BEST_FIRST</code><em class="property"> = 2</em><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.ALGO_BEST_FIRST" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ALGO_BEST_FIRST</code><em class="property"> = 2</em><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.ALGO_BEST_FIRST" title="Permalink to this definition">¶</a></dt>
 <dd><p>Slowly increases the speed (with the cost of decreasing
 accuracy) as the minimizer runs. Attempts to limit the run time to
 approximately 30 minutes.</p>
@@ -94,29 +94,29 @@ approximately 30 minutes.</p>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.ewald.EwaldMinimizer.ALGO_COMPLETE">
-<code class="descname">ALGO_COMPLETE</code><em class="property"> = 1</em><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.ALGO_COMPLETE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ALGO_COMPLETE</code><em class="property"> = 1</em><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.ALGO_COMPLETE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.ewald.EwaldMinimizer.ALGO_FAST">
-<code class="descname">ALGO_FAST</code><em class="property"> = 0</em><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.ALGO_FAST" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ALGO_FAST</code><em class="property"> = 0</em><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.ALGO_FAST" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.ewald.EwaldMinimizer.ALGO_TIME_LIMIT">
-<code class="descname">ALGO_TIME_LIMIT</code><em class="property"> = 3</em><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.ALGO_TIME_LIMIT" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ALGO_TIME_LIMIT</code><em class="property"> = 3</em><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.ALGO_TIME_LIMIT" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.ewald.EwaldMinimizer.add_m_list">
-<code class="descname">add_m_list</code><span class="sig-paren">(</span><em>matrix_sum</em>, <em>m_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldMinimizer.add_m_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.add_m_list" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_m_list</code><span class="sig-paren">(</span><em class="sig-param">matrix_sum</em>, <em class="sig-param">m_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldMinimizer.add_m_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.add_m_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>This adds an m_list to the output_lists and updates the current
 minimum if the list is full.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.ewald.EwaldMinimizer.best_case">
-<code class="descname">best_case</code><span class="sig-paren">(</span><em>matrix</em>, <em>m_list</em>, <em>indices_left</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldMinimizer.best_case"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.best_case" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">best_case</code><span class="sig-paren">(</span><em class="sig-param">matrix</em>, <em class="sig-param">m_list</em>, <em class="sig-param">indices_left</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldMinimizer.best_case"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.best_case" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes a best case given a matrix and manipulation list.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -132,40 +132,40 @@ performed on them.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.ewald.EwaldMinimizer.best_m_list">
-<code class="descname">best_m_list</code><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.best_m_list" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">best_m_list</code><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.best_m_list" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.ewald.EwaldMinimizer.get_next_index">
-<code class="descname">get_next_index</code><span class="sig-paren">(</span><em>matrix</em>, <em>manipulation</em>, <em>indices_left</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldMinimizer.get_next_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.get_next_index" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_next_index</code><span class="sig-paren">(</span><em class="sig-param">matrix</em>, <em class="sig-param">manipulation</em>, <em class="sig-param">indices_left</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldMinimizer.get_next_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.get_next_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an index that should have the most negative effect on the
 matrix sum</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.ewald.EwaldMinimizer.minimize_matrix">
-<code class="descname">minimize_matrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldMinimizer.minimize_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.minimize_matrix" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">minimize_matrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldMinimizer.minimize_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.minimize_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method finds and returns the permutations that produce the lowest
 ewald sum calls recursive function to iterate through permutations</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.ewald.EwaldMinimizer.minimized_sum">
-<code class="descname">minimized_sum</code><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.minimized_sum" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">minimized_sum</code><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.minimized_sum" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.ewald.EwaldMinimizer.output_lists">
-<code class="descname">output_lists</code><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.output_lists" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">output_lists</code><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.output_lists" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.analysis.ewald.EwaldSummation">
-<em class="property">class </em><code class="descname">EwaldSummation</code><span class="sig-paren">(</span><em>structure</em>, <em>real_space_cut=None</em>, <em>recip_space_cut=None</em>, <em>eta=None</em>, <em>acc_factor=12.0</em>, <em>w=0.7071067811865475</em>, <em>compute_forces=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldSummation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">EwaldSummation</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">real_space_cut=None</em>, <em class="sig-param">recip_space_cut=None</em>, <em class="sig-param">eta=None</em>, <em class="sig-param">acc_factor=12.0</em>, <em class="sig-param">w=0.7071067811865475</em>, <em class="sig-param">compute_forces=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldSummation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Calculates the electrostatic energy of a periodic array of charges using
 the Ewald technique.
@@ -207,19 +207,19 @@ default since it is usually not needed.</p></li>
 </dl>
 <dl class="attribute">
 <dt id="pymatgen.analysis.ewald.EwaldSummation.CONV_FACT">
-<code class="descname">CONV_FACT</code><em class="property"> = 14.399645351950547</em><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.CONV_FACT" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">CONV_FACT</code><em class="property"> = 14.399645351950547</em><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.CONV_FACT" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.ewald.EwaldSummation.compute_partial_energy">
-<code class="descname">compute_partial_energy</code><span class="sig-paren">(</span><em>removed_indices</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldSummation.compute_partial_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.compute_partial_energy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">compute_partial_energy</code><span class="sig-paren">(</span><em class="sig-param">removed_indices</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldSummation.compute_partial_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.compute_partial_energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gives total ewald energy for certain sites being removed, i.e. zeroed
 out.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.ewald.EwaldSummation.compute_sub_structure">
-<code class="descname">compute_sub_structure</code><span class="sig-paren">(</span><em>sub_structure</em>, <em>tol=0.001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldSummation.compute_sub_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.compute_sub_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">compute_sub_structure</code><span class="sig-paren">(</span><em class="sig-param">sub_structure</em>, <em class="sig-param">tol=0.001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldSummation.compute_sub_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.compute_sub_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gives total ewald energy for an sub structure in the same
 lattice. The sub_structure must be a subset of the original
 structure, with possible different charges.</p>
@@ -236,21 +236,21 @@ structure, with possible different charges.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.ewald.EwaldSummation.eta">
-<code class="descname">eta</code><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.eta" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">eta</code><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.eta" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.ewald.EwaldSummation.forces">
-<code class="descname">forces</code><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.forces" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">forces</code><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.forces" title="Permalink to this definition">¶</a></dt>
 <dd><p>The forces on each site as a Nx3 matrix. Each row corresponds to a
 site.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.ewald.EwaldSummation.get_site_energy">
-<code class="descname">get_site_energy</code><span class="sig-paren">(</span><em>site_index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldSummation.get_site_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.get_site_energy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_site_energy</code><span class="sig-paren">(</span><em class="sig-param">site_index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldSummation.get_site_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.get_site_energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the energy for a single site in the structure</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -262,55 +262,55 @@ site.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.ewald.EwaldSummation.point_energy">
-<code class="descname">point_energy</code><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.point_energy" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">point_energy</code><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.point_energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>The point energy.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.ewald.EwaldSummation.point_energy_matrix">
-<code class="descname">point_energy_matrix</code><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.point_energy_matrix" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">point_energy_matrix</code><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.point_energy_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>The point space matrix. A diagonal matrix with the point terms for each
 site in the diagonal elements.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.ewald.EwaldSummation.real_space_energy">
-<code class="descname">real_space_energy</code><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.real_space_energy" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">real_space_energy</code><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.real_space_energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>The real space space energy.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.ewald.EwaldSummation.real_space_energy_matrix">
-<code class="descname">real_space_energy_matrix</code><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.real_space_energy_matrix" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">real_space_energy_matrix</code><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.real_space_energy_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>The real space energy matrix. Each matrix element (i, j) corresponds to
 the interaction energy between site i and site j in real space.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.ewald.EwaldSummation.reciprocal_space_energy">
-<code class="descname">reciprocal_space_energy</code><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.reciprocal_space_energy" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">reciprocal_space_energy</code><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.reciprocal_space_energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>The reciprocal space energy.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.ewald.EwaldSummation.reciprocal_space_energy_matrix">
-<code class="descname">reciprocal_space_energy_matrix</code><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.reciprocal_space_energy_matrix" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">reciprocal_space_energy_matrix</code><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.reciprocal_space_energy_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>The reciprocal space energy matrix. Each matrix element (i, j)
 corresponds to the interaction energy between site i and site j in
 reciprocal space.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.ewald.EwaldSummation.total_energy">
-<code class="descname">total_energy</code><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.total_energy" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">total_energy</code><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.total_energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>The total energy.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.ewald.EwaldSummation.total_energy_matrix">
-<code class="descname">total_energy_matrix</code><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.total_energy_matrix" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">total_energy_matrix</code><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.total_energy_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>The total energy matrix. Each matrix element (i, j) corresponds to the
 total interaction energy between site i and site j.</p>
 <p>Note that this does not include the charged-cell energy, which is only important
@@ -321,7 +321,7 @@ when the simulation cell is not charge balanced.</p>
 
 <dl class="function">
 <dt id="pymatgen.analysis.ewald.compute_average_oxidation_state">
-<code class="descname">compute_average_oxidation_state</code><span class="sig-paren">(</span><em>site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#compute_average_oxidation_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.compute_average_oxidation_state" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">compute_average_oxidation_state</code><span class="sig-paren">(</span><em class="sig-param">site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#compute_average_oxidation_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.compute_average_oxidation_state" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the average oxidation state of a site</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -349,10 +349,10 @@ when the simulation cell is not charge balanced.</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -371,13 +371,13 @@ when the simulation cell is not charge balanced.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

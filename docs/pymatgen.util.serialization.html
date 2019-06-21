@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.util.serialization module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.util.serialization module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -46,13 +46,13 @@
 <span id="pymatgen-util-serialization-module"></span><h1>pymatgen.util.serialization module<a class="headerlink" href="#module-pymatgen.util.serialization" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.util.serialization.PmgPickler">
-<em class="property">class </em><code class="descname">PmgPickler</code><a class="reference internal" href="_modules/pymatgen/util/serialization.html#PmgPickler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.PmgPickler" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">PmgPickler</code><a class="reference internal" href="_modules/pymatgen/util/serialization.html#PmgPickler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.PmgPickler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_pickle.Pickler</span></code></p>
 <p>Persistence of External Objects as described in section 12.1.5.1 of
 <a class="reference external" href="https://docs.python.org/3/library/pickle.html">https://docs.python.org/3/library/pickle.html</a></p>
 <dl class="method">
 <dt id="pymatgen.util.serialization.PmgPickler.persistent_id">
-<code class="descname">persistent_id</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/serialization.html#PmgPickler.persistent_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.PmgPickler.persistent_id" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">persistent_id</code><span class="sig-paren">(</span><em class="sig-param">obj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/serialization.html#PmgPickler.persistent_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.PmgPickler.persistent_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Instead of pickling as a regular class instance, we emit a
 persistent ID.</p>
 </dd></dl>
@@ -61,13 +61,13 @@ persistent ID.</p>
 
 <dl class="class">
 <dt id="pymatgen.util.serialization.PmgUnpickler">
-<em class="property">class </em><code class="descname">PmgUnpickler</code><a class="reference internal" href="_modules/pymatgen/util/serialization.html#PmgUnpickler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.PmgUnpickler" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">PmgUnpickler</code><a class="reference internal" href="_modules/pymatgen/util/serialization.html#PmgUnpickler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.PmgUnpickler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_pickle.Unpickler</span></code></p>
 <p>Persistence of External Objects as described in section 12.1.5.1 of
 <a class="reference external" href="https://docs.python.org/3/library/pickle.html">https://docs.python.org/3/library/pickle.html</a></p>
 <dl class="method">
 <dt id="pymatgen.util.serialization.PmgUnpickler.persistent_load">
-<code class="descname">persistent_load</code><span class="sig-paren">(</span><em>pid</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/serialization.html#PmgUnpickler.persistent_load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.PmgUnpickler.persistent_load" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">persistent_load</code><span class="sig-paren">(</span><em class="sig-param">pid</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/serialization.html#PmgUnpickler.persistent_load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.PmgUnpickler.persistent_load" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method is invoked whenever a persistent ID is encountered.
 Here, pid is the tuple returned by PmgPickler.</p>
 </dd></dl>
@@ -76,7 +76,7 @@ Here, pid is the tuple returned by PmgPickler.</p>
 
 <dl class="class">
 <dt id="pymatgen.util.serialization.SlotPickleMixin">
-<em class="property">class </em><code class="descname">SlotPickleMixin</code><a class="reference internal" href="_modules/pymatgen/util/serialization.html#SlotPickleMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.SlotPickleMixin" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">SlotPickleMixin</code><a class="reference internal" href="_modules/pymatgen/util/serialization.html#SlotPickleMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.SlotPickleMixin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This mixin makes it possible to pickle/unpickle objects with __slots__
 defined.</p>
@@ -84,14 +84,14 @@ defined.</p>
 
 <dl class="function">
 <dt id="pymatgen.util.serialization.json_pretty_dump">
-<code class="descname">json_pretty_dump</code><span class="sig-paren">(</span><em>obj</em>, <em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/serialization.html#json_pretty_dump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.json_pretty_dump" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">json_pretty_dump</code><span class="sig-paren">(</span><em class="sig-param">obj</em>, <em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/serialization.html#json_pretty_dump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.json_pretty_dump" title="Permalink to this definition">¶</a></dt>
 <dd><p>Serialize obj as a JSON formatted stream to the given filename (
 pretty printing version)</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.serialization.pmg_pickle_dump">
-<code class="descname">pmg_pickle_dump</code><span class="sig-paren">(</span><em>obj</em>, <em>filobj</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/serialization.html#pmg_pickle_dump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.pmg_pickle_dump" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">pmg_pickle_dump</code><span class="sig-paren">(</span><em class="sig-param">obj</em>, <em class="sig-param">filobj</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/serialization.html#pmg_pickle_dump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.pmg_pickle_dump" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dump an object to a pickle file using PmgPickler.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -106,7 +106,7 @@ pretty printing version)</p>
 
 <dl class="function">
 <dt id="pymatgen.util.serialization.pmg_pickle_load">
-<code class="descname">pmg_pickle_load</code><span class="sig-paren">(</span><em>filobj</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/serialization.html#pmg_pickle_load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.pmg_pickle_load" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">pmg_pickle_load</code><span class="sig-paren">(</span><em class="sig-param">filobj</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/serialization.html#pmg_pickle_load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.pmg_pickle_load" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads a pickle file and deserialize it with PmgUnpickler.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -123,7 +123,7 @@ pretty printing version)</p>
 
 <dl class="function">
 <dt id="pymatgen.util.serialization.pmg_serialize">
-<code class="descname">pmg_serialize</code><span class="sig-paren">(</span><em>method</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/serialization.html#pmg_serialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.pmg_serialize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">pmg_serialize</code><span class="sig-paren">(</span><em class="sig-param">method</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/serialization.html#pmg_serialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.pmg_serialize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decorator for methods that add MSON serializations keys
 to the dictionary. See documentation of MSON for more details</p>
 </dd></dl>
@@ -144,10 +144,10 @@ to the dictionary. See documentation of MSON for more details</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -166,13 +166,13 @@ to the dictionary. See documentation of MSON for more details</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

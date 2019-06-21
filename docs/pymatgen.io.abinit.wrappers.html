@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.abinit.wrappers module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.io.abinit.wrappers module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -47,7 +47,7 @@
 <p>Wrappers for ABINIT main executables</p>
 <dl class="class">
 <dt id="pymatgen.io.abinit.wrappers.Mrgscr">
-<em class="property">class </em><code class="descname">Mrgscr</code><span class="sig-paren">(</span><em>manager=None</em>, <em>executable=None</em>, <em>verbose=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/wrappers.html#Mrgscr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.wrappers.Mrgscr" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Mrgscr</code><span class="sig-paren">(</span><em class="sig-param">manager=None</em>, <em class="sig-param">executable=None</em>, <em class="sig-param">verbose=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/wrappers.html#Mrgscr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.wrappers.Mrgscr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.wrappers.ExecWrapper</span></code></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -61,7 +61,7 @@ if manager is None, the default manager is used.</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.io.abinit.wrappers.Mrgscr.merge_qpoints">
-<code class="descname">merge_qpoints</code><span class="sig-paren">(</span><em>workdir</em>, <em>files_to_merge</em>, <em>out_prefix</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/wrappers.html#Mrgscr.merge_qpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.wrappers.Mrgscr.merge_qpoints" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">merge_qpoints</code><span class="sig-paren">(</span><em class="sig-param">workdir</em>, <em class="sig-param">files_to_merge</em>, <em class="sig-param">out_prefix</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/wrappers.html#Mrgscr.merge_qpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.wrappers.Mrgscr.merge_qpoints" title="Permalink to this definition">¶</a></dt>
 <dd><p>Execute mrgscr inside directory <cite>workdir</cite> to merge <cite>files_to_merge</cite>.
 Produce new file with prefix <cite>out_prefix</cite></p>
 </dd></dl>
@@ -70,7 +70,7 @@ Produce new file with prefix <cite>out_prefix</cite></p>
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.wrappers.Mrggkk">
-<em class="property">class </em><code class="descname">Mrggkk</code><span class="sig-paren">(</span><em>manager=None</em>, <em>executable=None</em>, <em>verbose=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/wrappers.html#Mrggkk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.wrappers.Mrggkk" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Mrggkk</code><span class="sig-paren">(</span><em class="sig-param">manager=None</em>, <em class="sig-param">executable=None</em>, <em class="sig-param">verbose=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/wrappers.html#Mrggkk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.wrappers.Mrggkk" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.wrappers.ExecWrapper</span></code></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -84,7 +84,7 @@ if manager is None, the default manager is used.</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.io.abinit.wrappers.Mrggkk.merge">
-<code class="descname">merge</code><span class="sig-paren">(</span><em>workdir</em>, <em>gswfk_file</em>, <em>dfpt_files</em>, <em>gkk_files</em>, <em>out_gkk</em>, <em>binascii=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/wrappers.html#Mrggkk.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.wrappers.Mrggkk.merge" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">merge</code><span class="sig-paren">(</span><em class="sig-param">workdir</em>, <em class="sig-param">gswfk_file</em>, <em class="sig-param">dfpt_files</em>, <em class="sig-param">gkk_files</em>, <em class="sig-param">out_gkk</em>, <em class="sig-param">binascii=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/wrappers.html#Mrggkk.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.wrappers.Mrggkk.merge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Merge GGK files, return the absolute path of the new database.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -103,7 +103,7 @@ if manager is None, the default manager is used.</p></li>
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.wrappers.Mrgddb">
-<em class="property">class </em><code class="descname">Mrgddb</code><span class="sig-paren">(</span><em>manager=None</em>, <em>executable=None</em>, <em>verbose=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/wrappers.html#Mrgddb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.wrappers.Mrgddb" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Mrgddb</code><span class="sig-paren">(</span><em class="sig-param">manager=None</em>, <em class="sig-param">executable=None</em>, <em class="sig-param">verbose=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/wrappers.html#Mrgddb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.wrappers.Mrgddb" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.wrappers.ExecWrapper</span></code></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -117,7 +117,7 @@ if manager is None, the default manager is used.</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.io.abinit.wrappers.Mrgddb.merge">
-<code class="descname">merge</code><span class="sig-paren">(</span><em>workdir</em>, <em>ddb_files</em>, <em>out_ddb</em>, <em>description</em>, <em>delete_source_ddbs=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/wrappers.html#Mrgddb.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.wrappers.Mrgddb.merge" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">merge</code><span class="sig-paren">(</span><em class="sig-param">workdir</em>, <em class="sig-param">ddb_files</em>, <em class="sig-param">out_ddb</em>, <em class="sig-param">description</em>, <em class="sig-param">delete_source_ddbs=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/wrappers.html#Mrgddb.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.wrappers.Mrgddb.merge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Merge DDB file, return the absolute path of the new database in workdir.</p>
 </dd></dl>
 
@@ -125,7 +125,7 @@ if manager is None, the default manager is used.</p></li>
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.wrappers.Mrgdvdb">
-<em class="property">class </em><code class="descname">Mrgdvdb</code><span class="sig-paren">(</span><em>manager=None</em>, <em>executable=None</em>, <em>verbose=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/wrappers.html#Mrgdvdb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.wrappers.Mrgdvdb" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Mrgdvdb</code><span class="sig-paren">(</span><em class="sig-param">manager=None</em>, <em class="sig-param">executable=None</em>, <em class="sig-param">verbose=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/wrappers.html#Mrgdvdb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.wrappers.Mrgdvdb" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.wrappers.ExecWrapper</span></code></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -139,7 +139,7 @@ if manager is None, the default manager is used.</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.io.abinit.wrappers.Mrgdvdb.merge">
-<code class="descname">merge</code><span class="sig-paren">(</span><em>workdir</em>, <em>pot_files</em>, <em>out_dvdb</em>, <em>delete_source=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/wrappers.html#Mrgdvdb.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.wrappers.Mrgdvdb.merge" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">merge</code><span class="sig-paren">(</span><em class="sig-param">workdir</em>, <em class="sig-param">pot_files</em>, <em class="sig-param">out_dvdb</em>, <em class="sig-param">delete_source=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/wrappers.html#Mrgdvdb.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.wrappers.Mrgdvdb.merge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Merge POT files containing 1st order DFPT potential
 return the absolute path of the new database in workdir.</p>
 <dl class="field-list simple">
@@ -167,10 +167,10 @@ return the absolute path of the new database in workdir.</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -189,13 +189,13 @@ return the absolute path of the new database in workdir.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

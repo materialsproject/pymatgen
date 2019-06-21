@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.nmr module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.analysis.nmr module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -46,7 +46,7 @@
 <span id="pymatgen-analysis-nmr-module"></span><h1>pymatgen.analysis.nmr module<a class="headerlink" href="#module-pymatgen.analysis.nmr" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.analysis.nmr.ChemicalShielding">
-<em class="property">class </em><code class="descname">ChemicalShielding</code><a class="reference internal" href="_modules/pymatgen/analysis/nmr.html#ChemicalShielding"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.nmr.ChemicalShielding" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">ChemicalShielding</code><a class="reference internal" href="_modules/pymatgen/analysis/nmr.html#ChemicalShielding"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.nmr.ChemicalShielding" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.core.tensors.html#pymatgen.core.tensors.SquareTensor" title="pymatgen.core.tensors.SquareTensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.tensors.SquareTensor</span></code></a></p>
 <p>This class extends the SquareTensor to perform extra analysis unique to
 NMR Chemical shielding tensors</p>
@@ -71,30 +71,30 @@ voigt-notation vector with the tensor entries</p></li>
 </dl>
 <dl class="attribute">
 <dt id="pymatgen.analysis.nmr.ChemicalShielding.HaeberlenNotation">
-<code class="descname">HaeberlenNotation</code><a class="headerlink" href="#pymatgen.analysis.nmr.ChemicalShielding.HaeberlenNotation" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">HaeberlenNotation</code><a class="headerlink" href="#pymatgen.analysis.nmr.ChemicalShielding.HaeberlenNotation" title="Permalink to this definition">¶</a></dt>
 <dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">HaeberlenNotion</span></code></p>
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.analysis.nmr.ChemicalShielding.MarylandNotation">
-<em class="property">class </em><code class="descname">MarylandNotation</code><span class="sig-paren">(</span><em>sigma_iso</em>, <em>omega</em>, <em>kappa</em><span class="sig-paren">)</span><a class="headerlink" href="#pymatgen.analysis.nmr.ChemicalShielding.MarylandNotation" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">MarylandNotation</code><span class="sig-paren">(</span><em class="sig-param">sigma_iso</em>, <em class="sig-param">omega</em>, <em class="sig-param">kappa</em><span class="sig-paren">)</span><a class="headerlink" href="#pymatgen.analysis.nmr.ChemicalShielding.MarylandNotation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
 <p>Create new instance of MarylandNotation(sigma_iso, omega, kappa)</p>
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.nmr.ChemicalShielding.MarylandNotation.kappa">
-<code class="descname">kappa</code><a class="headerlink" href="#pymatgen.analysis.nmr.ChemicalShielding.MarylandNotation.kappa" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">kappa</code><a class="headerlink" href="#pymatgen.analysis.nmr.ChemicalShielding.MarylandNotation.kappa" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 2</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.nmr.ChemicalShielding.MarylandNotation.omega">
-<code class="descname">omega</code><a class="headerlink" href="#pymatgen.analysis.nmr.ChemicalShielding.MarylandNotation.omega" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">omega</code><a class="headerlink" href="#pymatgen.analysis.nmr.ChemicalShielding.MarylandNotation.omega" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 1</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.nmr.ChemicalShielding.MarylandNotation.sigma_iso">
-<code class="descname">sigma_iso</code><a class="headerlink" href="#pymatgen.analysis.nmr.ChemicalShielding.MarylandNotation.sigma_iso" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">sigma_iso</code><a class="headerlink" href="#pymatgen.analysis.nmr.ChemicalShielding.MarylandNotation.sigma_iso" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 0</p>
 </dd></dl>
 
@@ -102,76 +102,61 @@ voigt-notation vector with the tensor entries</p></li>
 
 <dl class="class">
 <dt id="pymatgen.analysis.nmr.ChemicalShielding.MehringNotation">
-<em class="property">class </em><code class="descname">MehringNotation</code><span class="sig-paren">(</span><em>sigma_iso</em>, <em>sigma_11</em>, <em>sigma_22</em>, <em>sigma_33</em><span class="sig-paren">)</span><a class="headerlink" href="#pymatgen.analysis.nmr.ChemicalShielding.MehringNotation" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">MehringNotation</code><span class="sig-paren">(</span><em class="sig-param">sigma_iso</em>, <em class="sig-param">sigma_11</em>, <em class="sig-param">sigma_22</em>, <em class="sig-param">sigma_33</em><span class="sig-paren">)</span><a class="headerlink" href="#pymatgen.analysis.nmr.ChemicalShielding.MehringNotation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
 <p>Create new instance of MehringNotation(sigma_iso, sigma_11, sigma_22, sigma_33)</p>
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.nmr.ChemicalShielding.MehringNotation.sigma_11">
-<code class="descname">sigma_11</code><a class="headerlink" href="#pymatgen.analysis.nmr.ChemicalShielding.MehringNotation.sigma_11" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">sigma_11</code><a class="headerlink" href="#pymatgen.analysis.nmr.ChemicalShielding.MehringNotation.sigma_11" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 1</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.nmr.ChemicalShielding.MehringNotation.sigma_22">
-<code class="descname">sigma_22</code><a class="headerlink" href="#pymatgen.analysis.nmr.ChemicalShielding.MehringNotation.sigma_22" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">sigma_22</code><a class="headerlink" href="#pymatgen.analysis.nmr.ChemicalShielding.MehringNotation.sigma_22" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 2</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.nmr.ChemicalShielding.MehringNotation.sigma_33">
-<code class="descname">sigma_33</code><a class="headerlink" href="#pymatgen.analysis.nmr.ChemicalShielding.MehringNotation.sigma_33" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">sigma_33</code><a class="headerlink" href="#pymatgen.analysis.nmr.ChemicalShielding.MehringNotation.sigma_33" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 3</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.nmr.ChemicalShielding.MehringNotation.sigma_iso">
-<code class="descname">sigma_iso</code><a class="headerlink" href="#pymatgen.analysis.nmr.ChemicalShielding.MehringNotation.sigma_iso" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">sigma_iso</code><a class="headerlink" href="#pymatgen.analysis.nmr.ChemicalShielding.MehringNotation.sigma_iso" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 0</p>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="pymatgen.analysis.nmr.ChemicalShielding.from_maryland_notation">
-<em class="property">classmethod </em><code class="descname">from_maryland_notation</code><span class="sig-paren">(</span><em>sigma_iso</em>, <em>omega</em>, <em>kappa</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/nmr.html#ChemicalShielding.from_maryland_notation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.nmr.ChemicalShielding.from_maryland_notation" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_maryland_notation</code><span class="sig-paren">(</span><em class="sig-param">sigma_iso</em>, <em class="sig-param">omega</em>, <em class="sig-param">kappa</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/nmr.html#ChemicalShielding.from_maryland_notation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.nmr.ChemicalShielding.from_maryland_notation" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.nmr.ChemicalShielding.haeberlen_values">
-<code class="descname">haeberlen_values</code><a class="headerlink" href="#pymatgen.analysis.nmr.ChemicalShielding.haeberlen_values" title="Permalink to this definition">¶</a></dt>
-<dd><p>the Chemical shielding tensor in Haeberlen Notation</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Returns</p>
-</dd>
-</dl>
+<em class="property">property </em><code class="sig-name descname">haeberlen_values</code><a class="headerlink" href="#pymatgen.analysis.nmr.ChemicalShielding.haeberlen_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns: the Chemical shielding tensor in Haeberlen Notation</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.nmr.ChemicalShielding.maryland_values">
-<code class="descname">maryland_values</code><a class="headerlink" href="#pymatgen.analysis.nmr.ChemicalShielding.maryland_values" title="Permalink to this definition">¶</a></dt>
-<dd><p>the Chemical shielding tensor in Maryland Notation</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Returns</p>
-</dd>
-</dl>
+<em class="property">property </em><code class="sig-name descname">maryland_values</code><a class="headerlink" href="#pymatgen.analysis.nmr.ChemicalShielding.maryland_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns: the Chemical shielding tensor in Maryland Notation</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.nmr.ChemicalShielding.mehring_values">
-<code class="descname">mehring_values</code><a class="headerlink" href="#pymatgen.analysis.nmr.ChemicalShielding.mehring_values" title="Permalink to this definition">¶</a></dt>
-<dd><p>the Chemical shielding tensor in Mehring Notation</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Returns</p>
-</dd>
-</dl>
+<em class="property">property </em><code class="sig-name descname">mehring_values</code><a class="headerlink" href="#pymatgen.analysis.nmr.ChemicalShielding.mehring_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns: the Chemical shielding tensor in Mehring Notation</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.nmr.ChemicalShielding.principal_axis_system">
-<code class="descname">principal_axis_system</code><a class="headerlink" href="#pymatgen.analysis.nmr.ChemicalShielding.principal_axis_system" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">principal_axis_system</code><a class="headerlink" href="#pymatgen.analysis.nmr.ChemicalShielding.principal_axis_system" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a chemical shielding tensor aligned to the principle axis system
 so that only the 3 diagnol components are non-zero</p>
 </dd></dl>
@@ -180,7 +165,7 @@ so that only the 3 diagnol components are non-zero</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.nmr.ElectricFieldGradient">
-<em class="property">class </em><code class="descname">ElectricFieldGradient</code><a class="reference internal" href="_modules/pymatgen/analysis/nmr.html#ElectricFieldGradient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.nmr.ElectricFieldGradient" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">ElectricFieldGradient</code><a class="reference internal" href="_modules/pymatgen/analysis/nmr.html#ElectricFieldGradient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.nmr.ElectricFieldGradient" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.core.tensors.html#pymatgen.core.tensors.SquareTensor" title="pymatgen.core.tensors.SquareTensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.tensors.SquareTensor</span></code></a></p>
 <p>This class extends the SquareTensor to perform extra analysis unique to
 NMR Electric Field Gradient tensors in units of V/Angstrom^2</p>
@@ -201,31 +186,33 @@ voigt-notation vector with the tensor entries</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.nmr.ElectricFieldGradient.V_xx">
-<code class="descname">V_xx</code><a class="headerlink" href="#pymatgen.analysis.nmr.ElectricFieldGradient.V_xx" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">V_xx</code><a class="headerlink" href="#pymatgen.analysis.nmr.ElectricFieldGradient.V_xx" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.nmr.ElectricFieldGradient.V_yy">
-<code class="descname">V_yy</code><a class="headerlink" href="#pymatgen.analysis.nmr.ElectricFieldGradient.V_yy" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">V_yy</code><a class="headerlink" href="#pymatgen.analysis.nmr.ElectricFieldGradient.V_yy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.nmr.ElectricFieldGradient.V_zz">
-<code class="descname">V_zz</code><a class="headerlink" href="#pymatgen.analysis.nmr.ElectricFieldGradient.V_zz" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">V_zz</code><a class="headerlink" href="#pymatgen.analysis.nmr.ElectricFieldGradient.V_zz" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.nmr.ElectricFieldGradient.asymmetry">
-<code class="descname">asymmetry</code><a class="headerlink" href="#pymatgen.analysis.nmr.ElectricFieldGradient.asymmetry" title="Permalink to this definition">¶</a></dt>
-<dd><p>Asymmetry of the electric field tensor defined as:
-(V_yy - V_xx)/V_zz</p>
+<em class="property">property </em><code class="sig-name descname">asymmetry</code><a class="headerlink" href="#pymatgen.analysis.nmr.ElectricFieldGradient.asymmetry" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Asymmetry of the electric field tensor defined as:</dt><dd><p>(V_yy - V_xx)/V_zz</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.nmr.ElectricFieldGradient.coupling_constant">
-<code class="descname">coupling_constant</code><span class="sig-paren">(</span><em>specie</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/nmr.html#ElectricFieldGradient.coupling_constant"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.nmr.ElectricFieldGradient.coupling_constant" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">coupling_constant</code><span class="sig-paren">(</span><em class="sig-param">specie</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/nmr.html#ElectricFieldGradient.coupling_constant"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.nmr.ElectricFieldGradient.coupling_constant" title="Permalink to this definition">¶</a></dt>
 <dd><dl>
 <dt>Computes the couplling constant C_q as defined in:</dt><dd><p>Wasylishen R E, Ashbrook S E, Wimperis S. NMR of quadrupolar nuclei
 in solid materials[M]. John Wiley &amp; Sons, 2012. (Chapter 3.2)</p>
@@ -250,9 +237,9 @@ or Site object</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.analysis.nmr.ElectricFieldGradient.principal_axis_system">
-<code class="descname">principal_axis_system</code><a class="headerlink" href="#pymatgen.analysis.nmr.ElectricFieldGradient.principal_axis_system" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">principal_axis_system</code><a class="headerlink" href="#pymatgen.analysis.nmr.ElectricFieldGradient.principal_axis_system" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a electric field gradient tensor aligned to the principle axis system so that only the 3 diagnol components are non-zero</p>
 </dd></dl>
 
@@ -274,10 +261,10 @@ or Site object</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -296,13 +283,13 @@ or Site object</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

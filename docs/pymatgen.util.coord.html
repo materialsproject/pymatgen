@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.util.coord module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.util.coord module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,9 +44,14 @@
             
   <div class="section" id="module-pymatgen.util.coord">
 <span id="pymatgen-util-coord-module"></span><h1>pymatgen.util.coord module<a class="headerlink" href="#module-pymatgen.util.coord" title="Permalink to this headline">¶</a></h1>
+<dl class="data">
+<dt id="pymatgen.util.coord.LOOP_THRESHOLD">
+<code class="sig-name descname">LOOP_THRESHOLD</code><em class="property"> = 1000000.0</em><a class="headerlink" href="#pymatgen.util.coord.LOOP_THRESHOLD" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="class">
 <dt id="pymatgen.util.coord.Simplex">
-<em class="property">class </em><code class="descname">Simplex</code><span class="sig-paren">(</span><em>coords</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#Simplex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.Simplex" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Simplex</code><span class="sig-paren">(</span><em class="sig-param">coords</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#Simplex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.Simplex" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A generalized simplex object. See <a class="reference external" href="http://en.wikipedia.org/wiki/Simplex">http://en.wikipedia.org/wiki/Simplex</a>.</p>
 <p>Initializes a Simplex from vertex coordinates.</p>
@@ -58,18 +63,18 @@
 </dl>
 <dl class="method">
 <dt id="pymatgen.util.coord.Simplex.bary_coords">
-<code class="descname">bary_coords</code><span class="sig-paren">(</span><em>point</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#Simplex.bary_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.Simplex.bary_coords" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">bary_coords</code><span class="sig-paren">(</span><em class="sig-param">point</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#Simplex.bary_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.Simplex.bary_coords" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.util.coord.Simplex.coords">
-<code class="descname">coords</code><a class="headerlink" href="#pymatgen.util.coord.Simplex.coords" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">coords</code><a class="headerlink" href="#pymatgen.util.coord.Simplex.coords" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a copy of the vertex coordinates in the simplex.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.util.coord.Simplex.in_simplex">
-<code class="descname">in_simplex</code><span class="sig-paren">(</span><em>point</em>, <em>tolerance=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#Simplex.in_simplex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.Simplex.in_simplex" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">in_simplex</code><span class="sig-paren">(</span><em class="sig-param">point</em>, <em class="sig-param">tolerance=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#Simplex.in_simplex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.Simplex.in_simplex" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if a point is in the simplex using the standard barycentric
 coordinate system algorithm.</p>
 <p>Taking an arbitrary vertex as an origin, we compute the basis for the
@@ -90,7 +95,7 @@ is in the facet.</p>
 
 <dl class="method">
 <dt id="pymatgen.util.coord.Simplex.line_intersection">
-<code class="descname">line_intersection</code><span class="sig-paren">(</span><em>point1</em>, <em>point2</em>, <em>tolerance=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#Simplex.line_intersection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.Simplex.line_intersection" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">line_intersection</code><span class="sig-paren">(</span><em class="sig-param">point1</em>, <em class="sig-param">point2</em>, <em class="sig-param">tolerance=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#Simplex.line_intersection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.Simplex.line_intersection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes the intersection points of a line with a simplex
 :param point1, point2: Points that determine the line
 :type point1, point2: [float]</p>
@@ -103,12 +108,12 @@ is in the facet.</p>
 
 <dl class="method">
 <dt id="pymatgen.util.coord.Simplex.point_from_bary_coords">
-<code class="descname">point_from_bary_coords</code><span class="sig-paren">(</span><em>bary_coords</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#Simplex.point_from_bary_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.Simplex.point_from_bary_coords" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">point_from_bary_coords</code><span class="sig-paren">(</span><em class="sig-param">bary_coords</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#Simplex.point_from_bary_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.Simplex.point_from_bary_coords" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.util.coord.Simplex.volume">
-<code class="descname">volume</code><a class="headerlink" href="#pymatgen.util.coord.Simplex.volume" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">volume</code><a class="headerlink" href="#pymatgen.util.coord.Simplex.volume" title="Permalink to this definition">¶</a></dt>
 <dd><p>Volume of the simplex.</p>
 </dd></dl>
 
@@ -116,7 +121,7 @@ is in the facet.</p>
 
 <dl class="function">
 <dt id="pymatgen.util.coord.all_distances">
-<code class="descname">all_distances</code><span class="sig-paren">(</span><em>coords1</em>, <em>coords2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#all_distances"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.all_distances" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">all_distances</code><span class="sig-paren">(</span><em class="sig-param">coords1</em>, <em class="sig-param">coords2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#all_distances"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.all_distances" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the distances between two lists of coordinates</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -134,7 +139,7 @@ coords1[i] and coords2[j] is distances[i,j]</p>
 
 <dl class="function">
 <dt id="pymatgen.util.coord.barycentric_coords">
-<code class="descname">barycentric_coords</code><span class="sig-paren">(</span><em>coords</em>, <em>simplex</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#barycentric_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.barycentric_coords" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">barycentric_coords</code><span class="sig-paren">(</span><em class="sig-param">coords</em>, <em class="sig-param">simplex</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#barycentric_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.barycentric_coords" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts a list of coordinates to barycentric coordinates, given a
 simplex with d+1 points. Only works for d &gt;= 2.</p>
 <dl class="field-list simple">
@@ -153,7 +158,7 @@ simplex with d+1 points. Only works for d &gt;= 2.</p>
 
 <dl class="function">
 <dt id="pymatgen.util.coord.coord_list_mapping">
-<code class="descname">coord_list_mapping</code><span class="sig-paren">(</span><em>subset</em>, <em>superset</em>, <em>atol=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#coord_list_mapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.coord_list_mapping" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">coord_list_mapping</code><span class="sig-paren">(</span><em class="sig-param">subset</em>, <em class="sig-param">superset</em>, <em class="sig-param">atol=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#coord_list_mapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.coord_list_mapping" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gives the index mapping from a subset to a superset.
 Subset and superset cannot contain duplicate rows</p>
 <dl class="field-list simple">
@@ -168,7 +173,7 @@ Subset and superset cannot contain duplicate rows</p>
 
 <dl class="function">
 <dt id="pymatgen.util.coord.coord_list_mapping_pbc">
-<code class="descname">coord_list_mapping_pbc</code><span class="sig-paren">(</span><em>subset</em>, <em>superset</em>, <em>atol=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#coord_list_mapping_pbc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.coord_list_mapping_pbc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">coord_list_mapping_pbc</code><span class="sig-paren">(</span><em class="sig-param">subset</em>, <em class="sig-param">superset</em>, <em class="sig-param">atol=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#coord_list_mapping_pbc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.coord_list_mapping_pbc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gives the index mapping from a subset to a superset.
 Superset cannot contain duplicate matching rows</p>
 <dl class="field-list simple">
@@ -183,7 +188,7 @@ Superset cannot contain duplicate matching rows</p>
 
 <dl class="function">
 <dt id="pymatgen.util.coord.find_in_coord_list">
-<code class="descname">find_in_coord_list</code><span class="sig-paren">(</span><em>coord_list</em>, <em>coord</em>, <em>atol=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#find_in_coord_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.find_in_coord_list" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">find_in_coord_list</code><span class="sig-paren">(</span><em class="sig-param">coord_list</em>, <em class="sig-param">coord</em>, <em class="sig-param">atol=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#find_in_coord_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.find_in_coord_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find the indices of matches of a particular coord in a coord_list.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -202,7 +207,7 @@ array.</p></li>
 
 <dl class="function">
 <dt id="pymatgen.util.coord.find_in_coord_list_pbc">
-<code class="descname">find_in_coord_list_pbc</code><span class="sig-paren">(</span><em>fcoord_list</em>, <em>fcoord</em>, <em>atol=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#find_in_coord_list_pbc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.find_in_coord_list_pbc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">find_in_coord_list_pbc</code><span class="sig-paren">(</span><em class="sig-param">fcoord_list</em>, <em class="sig-param">fcoord</em>, <em class="sig-param">atol=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#find_in_coord_list_pbc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.find_in_coord_list_pbc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the indices of all points in a fractional coord list that are
 equal to a fractional coord (with a tolerance), taking into account
 periodic boundary conditions.</p>
@@ -222,7 +227,7 @@ periodic boundary conditions.</p>
 
 <dl class="function">
 <dt id="pymatgen.util.coord.get_angle">
-<code class="descname">get_angle</code><span class="sig-paren">(</span><em>v1</em>, <em>v2</em>, <em>units='degrees'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#get_angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.get_angle" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_angle</code><span class="sig-paren">(</span><em class="sig-param">v1</em>, <em class="sig-param">v2</em>, <em class="sig-param">units='degrees'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#get_angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.get_angle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the angle between two vectors.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -240,7 +245,7 @@ periodic boundary conditions.</p>
 
 <dl class="function">
 <dt id="pymatgen.util.coord.get_linear_interpolated_value">
-<code class="descname">get_linear_interpolated_value</code><span class="sig-paren">(</span><em>x_values</em>, <em>y_values</em>, <em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#get_linear_interpolated_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.get_linear_interpolated_value" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_linear_interpolated_value</code><span class="sig-paren">(</span><em class="sig-param">x_values</em>, <em class="sig-param">y_values</em>, <em class="sig-param">x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#get_linear_interpolated_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.get_linear_interpolated_value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an interpolated value by linear interpolation between two values.
 This method is written to avoid dependency on scipy, which causes issues on
 threading servers.</p>
@@ -260,7 +265,7 @@ threading servers.</p>
 
 <dl class="function">
 <dt id="pymatgen.util.coord.in_coord_list">
-<code class="descname">in_coord_list</code><span class="sig-paren">(</span><em>coord_list</em>, <em>coord</em>, <em>atol=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#in_coord_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.in_coord_list" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">in_coord_list</code><span class="sig-paren">(</span><em class="sig-param">coord_list</em>, <em class="sig-param">coord</em>, <em class="sig-param">atol=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#in_coord_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.in_coord_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tests if a particular coord is within a coord_list.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -279,7 +284,7 @@ array.</p></li>
 
 <dl class="function">
 <dt id="pymatgen.util.coord.in_coord_list_pbc">
-<code class="descname">in_coord_list_pbc</code><span class="sig-paren">(</span><em>fcoord_list</em>, <em>fcoord</em>, <em>atol=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#in_coord_list_pbc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.in_coord_list_pbc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">in_coord_list_pbc</code><span class="sig-paren">(</span><em class="sig-param">fcoord_list</em>, <em class="sig-param">fcoord</em>, <em class="sig-param">atol=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#in_coord_list_pbc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.in_coord_list_pbc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tests if a particular fractional coord is within a fractional coord_list.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -297,7 +302,7 @@ array.</p></li>
 
 <dl class="function">
 <dt id="pymatgen.util.coord.is_coord_subset">
-<code class="descname">is_coord_subset</code><span class="sig-paren">(</span><em>subset</em>, <em>superset</em>, <em>atol=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#is_coord_subset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.is_coord_subset" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">is_coord_subset</code><span class="sig-paren">(</span><em class="sig-param">subset</em>, <em class="sig-param">superset</em>, <em class="sig-param">atol=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#is_coord_subset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.is_coord_subset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tests if all coords in subset are contained in superset.
 Doesn’t use periodic boundary conditions</p>
 <dl class="field-list simple">
@@ -312,7 +317,7 @@ Doesn’t use periodic boundary conditions</p>
 
 <dl class="function">
 <dt id="pymatgen.util.coord.is_coord_subset_pbc">
-<code class="descname">is_coord_subset_pbc</code><span class="sig-paren">(</span><em>subset</em>, <em>superset</em>, <em>atol=1e-08</em>, <em>mask=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#is_coord_subset_pbc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.is_coord_subset_pbc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">is_coord_subset_pbc</code><span class="sig-paren">(</span><em class="sig-param">subset</em>, <em class="sig-param">superset</em>, <em class="sig-param">atol=1e-08</em>, <em class="sig-param">mask=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#is_coord_subset_pbc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.is_coord_subset_pbc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tests if all fractional coords in subset are contained in superset.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -332,7 +337,7 @@ to superset[2]</p></li>
 
 <dl class="function">
 <dt id="pymatgen.util.coord.lattice_points_in_supercell">
-<code class="descname">lattice_points_in_supercell</code><span class="sig-paren">(</span><em>supercell_matrix</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#lattice_points_in_supercell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.lattice_points_in_supercell" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">lattice_points_in_supercell</code><span class="sig-paren">(</span><em class="sig-param">supercell_matrix</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#lattice_points_in_supercell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.lattice_points_in_supercell" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the list of points on the original lattice contained in the
 supercell in fractional coordinates (with the supercell basis).
 e.g. [[2,0,0],[0,1,0],[0,0,1]] returns [[0,0,0],[0.5,0,0]]</p>
@@ -348,7 +353,7 @@ e.g. [[2,0,0],[0,1,0],[0,0,1]] returns [[0,0,0],[0.5,0,0]]</p>
 
 <dl class="function">
 <dt id="pymatgen.util.coord.pbc_diff">
-<code class="descname">pbc_diff</code><span class="sig-paren">(</span><em>fcoords1</em>, <em>fcoords2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#pbc_diff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.pbc_diff" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">pbc_diff</code><span class="sig-paren">(</span><em class="sig-param">fcoords1</em>, <em class="sig-param">fcoords2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#pbc_diff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.pbc_diff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the ‘fractional distance’ between two coordinates taking into
 account periodic boundary conditions.</p>
 <dl class="field-list simple">
@@ -371,7 +376,7 @@ pbc_diff([0.9, 0.1, 1.01], [0.3, 0.5, 0.9]) = [-0.4, -0.4, 0.11]</p>
 
 <dl class="function">
 <dt id="pymatgen.util.coord.pbc_shortest_vectors">
-<code class="descname">pbc_shortest_vectors</code><span class="sig-paren">(</span><em>lattice</em>, <em>fcoords1</em>, <em>fcoords2</em>, <em>mask=None</em>, <em>return_d2=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#pbc_shortest_vectors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.pbc_shortest_vectors" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">pbc_shortest_vectors</code><span class="sig-paren">(</span><em class="sig-param">lattice</em>, <em class="sig-param">fcoords1</em>, <em class="sig-param">fcoords2</em>, <em class="sig-param">mask=None</em>, <em class="sig-param">return_d2=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/coord.html#pbc_shortest_vectors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.pbc_shortest_vectors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the shortest vectors between two lists of coordinates taking into
 account periodic boundary conditions and the lattice.</p>
 <dl class="field-list simple">
@@ -411,10 +416,10 @@ first index is fcoords1 index, second is fcoords2 index</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -433,13 +438,13 @@ first index is fcoords1 index, second is fcoords2 index</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

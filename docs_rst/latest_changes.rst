@@ -1,11 +1,9 @@
 Change log
 ==========
 
-v2019.5.1
+v2019.6.5
 ---------
-* Small speeds to Structure.get_all_neighbors.
-* Big fixes for gulp_caller. (@kmu)
-* Plot fatbands from Lobster. (@jageo)
-* Speed up get_ir_mesh (@utf)
-* Parsing of plasma frequencies from Outcar.
-* Miscellaneous bug fixes.
+* Linear scaling get_all_neighbors. Tested to be faster for > 100 atoms (@chc273). 
+* Lobsterin class to handle input for Lobster (@JaGeo).
+* Strict options for composition parsing (@mkhorton).
+* Bug fix for CovalentBondNN.get_bonded_structure (@lan496).

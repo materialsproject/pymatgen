@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.apps.battery.plotter module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.apps.battery.plotter module &#8212; pymatgen 2019.6.5 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -47,7 +47,7 @@
 <p>This module provides plotting capabilities for battery related applications.</p>
 <dl class="class">
 <dt id="pymatgen.apps.battery.plotter.VoltageProfilePlotter">
-<em class="property">class </em><code class="descname">VoltageProfilePlotter</code><span class="sig-paren">(</span><em>xaxis='capacity'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/plotter.html#VoltageProfilePlotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.plotter.VoltageProfilePlotter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">VoltageProfilePlotter</code><span class="sig-paren">(</span><em class="sig-param">xaxis='capacity'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/plotter.html#VoltageProfilePlotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.plotter.VoltageProfilePlotter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A plotter to make voltage profile plots for batteries.</p>
 <dl class="field-list simple">
@@ -58,7 +58,7 @@ default), or the frac_x.</p>
 </dl>
 <dl class="method">
 <dt id="pymatgen.apps.battery.plotter.VoltageProfilePlotter.add_electrode">
-<code class="descname">add_electrode</code><span class="sig-paren">(</span><em>electrode</em>, <em>label=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/plotter.html#VoltageProfilePlotter.add_electrode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.plotter.VoltageProfilePlotter.add_electrode" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_electrode</code><span class="sig-paren">(</span><em class="sig-param">electrode</em>, <em class="sig-param">label=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/plotter.html#VoltageProfilePlotter.add_electrode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.plotter.VoltageProfilePlotter.add_electrode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add an electrode to the plot.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -74,7 +74,7 @@ system, i.e. ‘Electrode 1’, ‘Electrode 2’, …</p></li>
 
 <dl class="method">
 <dt id="pymatgen.apps.battery.plotter.VoltageProfilePlotter.get_plot">
-<code class="descname">get_plot</code><span class="sig-paren">(</span><em>width=8</em>, <em>height=8</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/plotter.html#VoltageProfilePlotter.get_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.plotter.VoltageProfilePlotter.get_plot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_plot</code><span class="sig-paren">(</span><em class="sig-param">width=8</em>, <em class="sig-param">height=8</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/plotter.html#VoltageProfilePlotter.get_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.plotter.VoltageProfilePlotter.get_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a plot object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -91,12 +91,12 @@ system, i.e. ‘Electrode 1’, ‘Electrode 2’, …</p></li>
 
 <dl class="method">
 <dt id="pymatgen.apps.battery.plotter.VoltageProfilePlotter.get_plot_data">
-<code class="descname">get_plot_data</code><span class="sig-paren">(</span><em>electrode</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/plotter.html#VoltageProfilePlotter.get_plot_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.plotter.VoltageProfilePlotter.get_plot_data" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_plot_data</code><span class="sig-paren">(</span><em class="sig-param">electrode</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/plotter.html#VoltageProfilePlotter.get_plot_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.plotter.VoltageProfilePlotter.get_plot_data" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.apps.battery.plotter.VoltageProfilePlotter.save">
-<code class="descname">save</code><span class="sig-paren">(</span><em>filename</em>, <em>image_format='eps'</em>, <em>width=8</em>, <em>height=6</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/plotter.html#VoltageProfilePlotter.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.plotter.VoltageProfilePlotter.save" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param">filename</em>, <em class="sig-param">image_format='eps'</em>, <em class="sig-param">width=8</em>, <em class="sig-param">height=6</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/plotter.html#VoltageProfilePlotter.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.plotter.VoltageProfilePlotter.save" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the plot to an image file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -110,7 +110,7 @@ system, i.e. ‘Electrode 1’, ‘Electrode 2’, …</p></li>
 
 <dl class="method">
 <dt id="pymatgen.apps.battery.plotter.VoltageProfilePlotter.show">
-<code class="descname">show</code><span class="sig-paren">(</span><em>width=8</em>, <em>height=6</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/plotter.html#VoltageProfilePlotter.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.plotter.VoltageProfilePlotter.show" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">show</code><span class="sig-paren">(</span><em class="sig-param">width=8</em>, <em class="sig-param">height=6</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/plotter.html#VoltageProfilePlotter.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.plotter.VoltageProfilePlotter.show" title="Permalink to this definition">¶</a></dt>
 <dd><p>Show the voltage profile plot.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -140,10 +140,10 @@ system, i.e. ‘Electrode 1’, ‘Electrode 2’, …</p></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -162,13 +162,13 @@ system, i.e. ‘Electrode 1’, ‘Electrode 2’, …</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
