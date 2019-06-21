@@ -1,6 +1,17 @@
 Change log
 ==========
 
+v2019.6.20
+----------
+* New interface class (@sivonxay, @kylebystrom, @shyamd)
+* Updates to SlabGenerator (@richardtran415)
+* Updates to PiezoTensor (@dongsenfo)
+* Add support for parsing on-site density matrix to Outcar (@mkhorton, @mhsiron, @clegaspi)
+* Fixes for magnetic space groups (@simonward86)
+* Fixes for Lobster class (@JaGeo)
+* Fix for FEFF (@stevetorr)
+* Fix for Waveder (@JRSuckert)
+
 v2019.6.5
 ---------
 * Linear scaling get_all_neighbors. Tested to be faster for > 100 atoms (@chc273). 
