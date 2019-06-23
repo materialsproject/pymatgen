@@ -257,6 +257,31 @@ class MPRester:
         """
         return self._make_request("/materials/%s/doc" % materials_id,
                                   mp_decode=False)
+    
+    def get_xas_data(self, material_id, absorbing_element):
+        """
+        Get X-ray absorption spectroscopy data for absorbing element in the 
+        structure corresponding to a material_id. Only X-ray Absorption Near Edge 
+        Structure (XANES) for K-edge is supported.
+        
+        REST Endpoint: 
+        https://www.materialsproject.org/materials/<mp-id>/xas/<absorbing_element>.
+
+        Args:
+            material_id (str): E.g., mp-1143 for Al2O3
+            absorbing_element (str): The absorbing element in the corresponding
+                structure. E.g., Al in Al2O3
+        """
+        element_list = self.get_data(material_id,
+                                     prop="elements")[0]["elements"]
+        if absorbing_element not in element_list:
+            raise ValueError(
+                "{} element not contained in corresponding structure with "\
+                "mp_id: {}".format(absorbing_element, material_id))
+        data = self._make_request(
+            "/materials/{}/xas/{}".format(material_id, absorbing_element),
+            mp_decode=False)
+        return data[0]
 
     def get_task_data(self, chemsys_formula_id, prop=""):
         """
