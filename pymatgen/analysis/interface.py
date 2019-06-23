@@ -2,26 +2,18 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from pymatgen.analysis.elasticity.strain import Deformation
-from pymatgen.core.surface import (SlabGenerator,
-                                   get_symmetrically_distinct_miller_indices)
+from pymatgen.core.surface import SlabGenerator
 from pymatgen import Lattice, Structure
 from pymatgen.core.surface import Slab
 from itertools import product
 import numpy as np
-from pymatgen import Element
-from pymatgen.analysis.adsorption import AdsorbateSiteFinder, get_mi_vec
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.coord import pbc_shortest_vectors
 from matplotlib import pyplot as plt
 from pymatgen.core.operations import SymmOp
 from matplotlib.lines import Line2D
 from pymatgen.io.vasp.inputs import Poscar
-from pymatgen.analysis.substrate_analyzer import (SubstrateAnalyzer,
-                                                  gen_sl_transform_matricies,
-                                                  rel_strain, rel_angle,
-                                                  fast_norm, vec_angle, vec_area,
-                                                  reduce_vectors, get_factors)
+from pymatgen.core.sites import PeriodicSite
+from pymatgen.analysis.substrate_analyzer import (SubstrateAnalyzer, reduce_vectors)
 import warnings
 
 """
@@ -45,13 +37,15 @@ class Interface(Structure):
     
     def __init__(self, lattice, species, coords,
                  sub_plane, film_plane,
-                 sub_init_cell, film_init_cell, site_properties,
+                 sub_init_cell, film_init_cell,
                  modified_sub_structure, modified_film_structure,
                  strained_sub_structure, strained_film_structure,
                  validate_proximity=False,
                  coords_are_cartesian=False,
                  init_inplane_shift=None,
-                 charge=None):
+                 charge=None,
+                 site_properties=None,
+                 to_unit_cell=False):
         """
         Makes an interface structure, a Structure object with additional
         information and methods pertaining to interfaces.
@@ -99,6 +93,7 @@ class Interface(Structure):
         
         super().__init__(
             lattice, species, coords, validate_proximity=validate_proximity,
+            to_unit_cell=to_unit_cell,
             coords_are_cartesian=coords_are_cartesian,
             site_properties=site_properties, charge=charge)
 
@@ -152,7 +147,7 @@ class Interface(Structure):
         if self.offset_vector[2] + delta[2] < 0 or delta[2] > self.vacuum_thickness:
             raise ValueError("The shift {} will collide the film and substrate.".format(delta))
         self._offset_vector += np.array(delta)
-        print("SHIFT", delta)
+        # print("SHIFT", delta)
         self.translate_sites(self.get_film_indices(),
                              delta, frac_coords=False, to_unit_cell=True)
 
@@ -251,7 +246,7 @@ class Interface(Structure):
         """
         return Structure.from_sites(self.film_sites)
 
-    def copy(self):
+    def copy(self, site_properties=None):
         """
         Convenience method to get a copy of the structure, with options to add
         site properties.
@@ -259,15 +254,67 @@ class Interface(Structure):
         Returns:
             A copy of the Interface.
         """
+        props = self.site_properties
+        if site_properties:
+            props.update(site_properties)
         return Interface(self.lattice, self.species_and_occu, self.frac_coords,
                          self.sub_plane, self.film_plane,
-                         self.sub_init_cell, self.film_init_cell, self.site_properties,
+                         self.sub_init_cell, self.film_init_cell,
                          self.modified_sub_structure, self.modified_film_structure,
                          self.strained_sub_structure, self.strained_film_structure,
                          validate_proximity=False, coords_are_cartesian=False,
-                         init_inplane_shift=self.offset_vector[:2], charge=self.charge)
+                         init_inplane_shift=self.offset_vector[:2], charge=self.charge,
+                         site_properties=self.site_properties)
 
+    def get_sorted_structure(self, key=None, reverse=False):
+        """
+        Get a sorted copy of the structure. The parameters have the same
+        meaning as in list.sort. By default, sites are sorted by the
+        electronegativity of the species.
 
+        Args:
+            key: Specifies a function of one argument that is used to extract
+                a comparison key from each list element: key=str.lower. The
+                default value is None (compare the elements directly).
+            reverse (bool): If set to True, then the list elements are sorted
+                as if each comparison were reversed.
+        """
+        struct_copy = self.copy()
+        struct_copy.sort(key=key, reverse=reverse)
+        return struct_copy
+      
+    def as_dict(self):
+        d = super().as_dict()
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        d["sub_plane"] = self.sub_plane
+        d["film_plane"] = self.film_plane
+        d["sub_init_cell"] = self.sub_init_cell
+        d["film_init_cell"] = self.film_init_cell
+        d["modified_sub_structure"] = self.modified_sub_structure
+        d["modified_film_structure"] = self.modified_film_structure
+        d["strained_sub_structure"] =self.strained_sub_structure
+        d["strained_film_structure"] = self.strained_film_structure
+        d['init_inplane_shift'] = self.offset_vector[0:2]
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        lattice = Lattice.from_dict(d["lattice"])
+        sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
+        s = Structure.from_sites(sites)
+
+        return Interface(
+            lattice=lattice,
+            species=s.species_and_occu, coords=s.frac_coords,
+            sub_plane=d["sub_plane"], film_plane=d["film_plane"],
+            sub_init_cell=d["sub_init_cell"], film_init_cell=d["film_init_cell"],
+            modified_sub_structure=d["modified_sub_structure"], modified_film_structure=d["modified_film_structure"],
+            strained_sub_structure=d["strained_sub_structure"], strained_film_structure=d["strained_film_structure"],
+            site_properties=s.site_properties, init_inplane_shift=d["init_inplane_shift"]
+        )
+
+      
 class InterfaceBuilder:
     """
     This class constructs the epitaxially matched interfaces between two crystalline slabs
@@ -693,9 +740,9 @@ class InterfaceBuilder:
                               orthogonal_structure.frac_coords,
                               slab_substrate.miller_index, slab_film.miller_index,
                               self.original_substrate_structure, self.original_film_structure,
-                              orthogonal_structure.site_properties,
                               unstrained_slab_substrate, unstrained_slab_film,
-                              slab_substrate, slab_film, init_inplane_shift=offset[1:])
+                              slab_substrate, slab_film, init_inplane_shift=offset[1:],
+                              site_properties=orthogonal_structure.site_properties)
 
         return interface
                                
