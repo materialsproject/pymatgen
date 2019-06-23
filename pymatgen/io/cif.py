@@ -17,9 +17,7 @@ from inspect import getfullargspec as getargspec
 from itertools import groupby
 from pymatgen.core.periodic_table import Element, Specie, get_el_sp, DummySpecie
 from monty.io import zopen
-from monty.dev import requires
-from pymatgen.util.coord import in_coord_list_pbc, pbc_diff, \
-    find_in_coord_list_pbc
+from pymatgen.util.coord import in_coord_list_pbc, find_in_coord_list_pbc
 from monty.string import remove_non_ascii
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
@@ -1100,9 +1098,7 @@ class CifParser:
                 self.errors.append(str(exc))
                 warnings.warn(str(exc))
         if self.errors:
-            warnings.warn("Issues encountered while parsing CIF:")
-            for error in self.errors:
-                warnings.warn(error)
+            warnings.warn("Issues encountered while parsing CIF: %s" % "\n".join(self.errors))
         if len(structures) == 0:
             raise ValueError("Invalid cif file with no structures!")
         return structures
