@@ -31,10 +31,6 @@ from pymatgen.electronic_structure.core import Magmom
 from pymatgen.core.operations import MagSymmOp
 from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 
-try:
-    from pybtex.database import BibliographyData, Entry
-except ImportError:
-    BibliographyData, Entry = None, None
 
 """
 Wrapper classes for Cif input and output from Structures.
@@ -1111,13 +1107,17 @@ class CifParser:
             raise ValueError("Invalid cif file with no structures!")
         return structures
 
-    @requires(BibliographyData, "Bibliographic data extraction requires pybtex.")
     def get_bibtex_string(self):
         """
         Get BibTeX reference from CIF file.
         :param data:
         :return: BibTeX string
         """
+
+        try:
+            from pybtex.database import BibliographyData, Entry
+        except ImportError:
+            raise RuntimeError("Bibliographic data extraction requires pybtex.")
 
         bibtex_keys = {'author': ('_publ_author_name', '_citation_author_name'),
                        'title': ('_publ_section_title', '_citation_title'),
