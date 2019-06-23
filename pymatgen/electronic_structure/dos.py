@@ -2,11 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import numpy as np
-
-import six
 import warnings
+import functools
 from monty.json import MSONable
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.core.periodic_table import get_el_sp
@@ -14,7 +12,6 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.util.coord import get_linear_interpolated_value
 from scipy.constants.codata import value as _cd
-
 
 """
 This module defines classes to represent the density of states, etc.
@@ -57,7 +54,7 @@ class DOS(Spectrum):
     YLABEL = "Density"
 
     def __init__(self, energies, densities, efermi):
-        super(DOS, self).__init__(energies, densities, efermi)
+        super().__init__(energies, densities, efermi)
         self.efermi = efermi
 
     def get_interpolated_gap(self, tol=0.001, abs_tol=False, spin=None):
@@ -416,148 +413,218 @@ class Dos(MSONable):
                               for spin, dens in self.densities.items()}}
 
 
-class FermiDos(Dos):
+class FermiDos(Dos, MSONable):
     """
-    This wrapper class helps relates the density of states, doping levels
+    This wrapper class helps relate the density of states, doping levels
     (i.e. carrier concentrations) and corresponding fermi levels. A negative
-    doping concentration (c) means that the majority carriers are electrons
-    (n-type doping) and positive c represents holes or p-type doping.
+    doping concentration indicates the majority carriers are electrons
+    (n-type doping); a positive doping concentration indicates holes are the
+    majority carriers (p-type doping).
 
     Args:
-        dos (pymatgen Dos class): density of states at corresponding energy levels
-        structure (pymatgen Structure class): provided either as input or
-            inside Dos (e.g. if CompleteDos used)
-        nelecs (float): the number of electrons included in the energy range of
+        dos: Pymatgen Dos object.
+        structure: A structure. If not provided, the structure
+            of the dos object will be used. If the dos does not have an
+            associated structure object, an error will be thrown.
+        nelecs: The number of electrons included in the energy range of
             dos. It is used for normalizing the densities. Default is the total
             number of electrons in the structure.
-        bandgap (float): if set, the energy values are scissored so that the
-            electronic band gap matches this value.
+        bandgap: If set, the energy values are scissored so that the electronic
+            band gap matches this value.
     """
 
-    def __init__(self, dos, structure=None, nelecs=None, bandgap=None):
-        super(FermiDos, self).__init__(
-            dos.efermi, energies=dos.energies,
-            densities={k: np.array(d) for k, d in dos.densities.items()})
+    def __init__(self, dos: Dos, structure: Structure = None,
+                 nelecs: float = None, bandgap: float = None):
+        super().__init__(dos.efermi, energies=dos.energies,
+                         densities={k: np.array(d) for k, d in
+                                    dos.densities.items()})
+
         if structure is None:
-            try:
-                self.structure = dos.structure
-            except:
-                raise ValueError('"structure" not provided!')
-        else:
-            self.structure = structure
+            if hasattr(dos, "structure"):
+                structure = dos.structure
+            else:
+                raise ValueError("Structure object is not provided and not "
+                                 "present in dos")
+
+        self.structure = structure
+        self.nelecs = nelecs or self.structure.composition.total_electrons
+
         self.volume = self.structure.volume
         self.energies = np.array(dos.energies)
-        self.de = np.hstack((self.energies[1:], self.energies[-1])) - self.energies
-        tdos = np.array(self.get_densities())
-        nelecs = nelecs or self.structure.composition.total_electrons
+        self.de = np.hstack(
+            (self.energies[1:], self.energies[-1])) - self.energies
+
         # normalize total density of states based on integral at 0K
-        self.tdos = tdos * nelecs / (tdos * self.de)[self.energies <= self.efermi].sum()
+        tdos = np.array(self.get_densities())
+        self.tdos = tdos * self.nelecs / (tdos * self.de)[self.energies <=
+                                                          self.efermi].sum()
+
         ecbm, evbm = self.get_cbm_vbm()
         self.idx_vbm = np.argmin(abs(self.energies - evbm))
         self.idx_cbm = np.argmin(abs(self.energies - ecbm))
         self.A_to_cm = 1e-8
+
         if bandgap:
-            if self.efermi < ecbm and self.efermi > evbm:
+            if evbm < self.efermi < ecbm:
                 eref = self.efermi
             else:
                 eref = (evbm + ecbm) / 2.0
+
             idx_fermi = np.argmin(abs(self.energies - eref))
+
+            if idx_fermi == self.idx_vbm:
+                # Fermi level and vbm should be different indices
+                idx_fermi += 1
+
             self.energies[:idx_fermi] -= (bandgap - (ecbm - evbm)) / 2.0
             self.energies[idx_fermi:] += (bandgap - (ecbm - evbm)) / 2.0
 
-    def get_doping(self, fermi, T):
+    def get_doping(self, fermi_level: float, temperature: float) -> float:
         """
-        Calculate the doping (majority carrier concentration) at a given fermi
-        level and temperature. A simple Left Riemann sum is used for integrating
-        the density of states over energy & equilibrium Fermi-Dirac distribution
+        Calculate the doping (majority carrier concentration) at a given
+        fermi level  and temperature. A simple Left Riemann sum is used for
+        integrating the density of states over energy & equilibrium Fermi-Dirac
+        distribution.
 
         Args:
-            fermi (float): the fermi level in eV
-            T (float): the temperature in Kelvin
+            fermi_level: The fermi_level level in eV.
+            temperature: The temperature in Kelvin.
 
-        Returns (float): in units 1/cm3. If negative it means that the majority
-            carriers are electrons (n-type doping) and if positive holes/p-type
+        Returns:
+            The doping concentration in units of 1/cm^3. Negative values
+            indicate that the majority carriers are electrons (n-type doping)
+            whereas positivie values indicates the majority carriers are holes
+            (p-type doping).
         """
-        cb_integral = np.sum(self.tdos[self.idx_cbm:]
-                             * f0(self.energies[self.idx_cbm:], fermi, T)
-                             * self.de[self.idx_cbm:], axis=0)
-        vb_integral = np.sum(self.tdos[:self.idx_vbm + 1]
-                             * (1 - f0(self.energies[:self.idx_vbm + 1], fermi, T))
-                             * self.de[:self.idx_vbm + 1], axis=0)
-        return (vb_integral - cb_integral) / (self.volume * self.A_to_cm**3)
+        cb_integral = np.sum(
+            self.tdos[self.idx_cbm:]
+            * f0(self.energies[self.idx_cbm:], fermi_level, temperature)
+            * self.de[self.idx_cbm:], axis=0)
+        vb_integral = np.sum(
+            self.tdos[:self.idx_vbm + 1] *
+            (1 - f0(self.energies[:self.idx_vbm + 1], fermi_level, temperature))
+            * self.de[:self.idx_vbm + 1], axis=0)
+        return (vb_integral - cb_integral) / (self.volume * self.A_to_cm ** 3)
 
-    def get_fermi_interextrapolated(self, c, T, warn=True, c_ref=1e10, **kwargs):
+    def get_fermi_interextrapolated(self, concentration: float,
+                                    temperature: float, warn: bool = True,
+                                    c_ref: float = 1e10, **kwargs) -> float:
         """
         Similar to get_fermi except that when get_fermi fails to converge,
-        an interpolated or extrapolated fermi (depending on c) is returned with
-        the assumption that the fermi level changes linearly with log(abs(c)).
+        an interpolated or extrapolated fermi is returned with the assumption
+        that the fermi level changes linearly with log(abs(concentration)).
 
         Args:
-            c (float): doping concentration in 1/cm3. c<0 represents n-type
-                doping and c>0 p-type doping (i.e. majority carriers are holes)
-            T (float): absolute temperature in Kelvin
-            warn (bool): whether to warn for the first time when no fermi can
-                be found.
-            c_ref (float): a doping concentration where get_fermi returns a
-                value without error for both c_ref and -c_ref
-            **kwargs: see keyword arguments of the get_fermi function
+            concentration: The doping concentration in 1/cm^3. Negative values
+                represent n-type doping and positive values represent p-type
+                doping.
+            temperature: The temperature in Kelvin.
+            warn: Whether to give a warning the first time the fermi cannot be
+                found.
+            c_ref: A doping concentration where get_fermi returns a
+                value without error for both c_ref and -c_ref.
+            **kwargs: Keyword arguments passed to the get_fermi function.
 
-        Returns (float): the fermi level that is possibly interapolated or
+        Returns:
+            The Fermi level. Note, the value is possibly interpolated or
             extrapolated and must be used with caution.
         """
         try:
-            return self.get_fermi(c, T, **kwargs)
+            return self.get_fermi(concentration, temperature, **kwargs)
         except ValueError as e:
             if warn:
                 warnings.warn(str(e))
-            if abs(c) < c_ref:
-                if abs(c) < 1e-10:
-                    c = 1e-10
-                # max(10, ) is to avoid log(0<x<1) and log(1+x) both of which are slow
-                f2 = self.get_fermi_interextrapolated(max(10, abs(c)*10.), T, warn=False, **kwargs)
-                f1  = self.get_fermi_interextrapolated(-max(10, abs(c)*10.), T, warn=False, **kwargs)
-                c2 = np.log(abs(1+self.get_doping(f2, T)))
-                c1 = -np.log(abs(1+self.get_doping(f1, T)))
-                slope = (f2-f1)/(c2-c1)
-                return f2 + slope * (np.sign(c)*np.log(abs(1+c)) - c2)
+
+            if abs(concentration) < c_ref:
+                if abs(concentration) < 1e-10:
+                    concentration = 1e-10
+
+                # max(10, ) is to avoid log(0<x<1) and log(1+x) both of which
+                # are slow
+                f2 = self.get_fermi_interextrapolated(
+                    max(10, abs(concentration) * 10.), temperature, warn=False,
+                    **kwargs)
+                f1 = self.get_fermi_interextrapolated(
+                    -max(10, abs(concentration) * 10.), temperature, warn=False,
+                    **kwargs)
+                c2 = np.log(abs(1 + self.get_doping(f2, temperature)))
+                c1 = -np.log(abs(1 + self.get_doping(f1, temperature)))
+                slope = (f2 - f1) / (c2 - c1)
+                return f2 + slope * (np.sign(concentration) *
+                                     np.log(abs(1 + concentration)) - c2)
+
             else:
-                f_ref = self.get_fermi_interextrapolated(np.sign(c)*c_ref, T, warn=False, **kwargs)
-                f_new = self.get_fermi_interextrapolated(c/10., T, warn=False, **kwargs)
-                clog = np.sign(c)*np.log(abs(c))
-                c_newlog = np.sign(c)*np.log(abs(self.get_doping(f_new, T)))
-                slope = (f_new - f_ref) / (c_newlog - np.sign(c)*10.)
+                f_ref = self.get_fermi_interextrapolated(
+                    np.sign(concentration) * c_ref, temperature, warn=False,
+                    **kwargs)
+                f_new = self.get_fermi_interextrapolated(
+                    concentration / 10., temperature, warn=False, **kwargs)
+                clog = np.sign(concentration) * np.log(abs(concentration))
+                c_newlog = np.sign(concentration) * np.log(
+                    abs(self.get_doping(f_new, temperature)))
+                slope = (f_new - f_ref) / (c_newlog - np.sign(concentration)
+                                           * 10.)
                 return f_new + slope * (clog - c_newlog)
 
-    def get_fermi(self, c, T, rtol=0.01, nstep=50, step=0.1, precision=8):
+    def get_fermi(self, concentration: float, temperature: float,
+                  rtol: float = 0.01, nstep: int = 50, step: float = 0.1,
+                  precision: int = 8):
         """
         Finds the fermi level at which the doping concentration at the given
-        temperature (T) is equal to c. A greedy algorithm is used where the
-        relative error is minimized by calculating the doping at a grid which
-        is continuously become finer.
+        temperature (T) is equal to concentration. A greedy algorithm is used
+        where the relative error is minimized by calculating the doping at a
+        grid which continually becomes finer.
 
         Args:
-            c (float): doping concentration. c<0 represents n-type doping and
-                c>0 represents p-type doping (i.e. majority carriers are holes)
-            T (float): absolute temperature in Kelvin
-            rtol (float): maximum acceptable relative error
-            nstep (int): number of steps checked around a given fermi level
-            step (float): initial step in fermi level when searching
-            precision (int): essentially the decimal places of calculated fermi
+            concentration: The doping concentration in 1/cm^3. Negative values
+                represent n-type doping and positive values represent p-type
+                doping.
+            temperature: The temperature in Kelvin.
+            rtol: The maximum acceptable relative error.
+            nstep: THe number of steps checked around a given fermi level.
+            step: Initial step in energy when searching for the Fermi level.
+            precision: Essentially the decimal places of calculated Fermi level.
 
-        Returns (float): the fermi level. Note that this is different from the
-            default dos.efermi.
+        Returns:
+            The fermi level in eV.. Note that this is different from the default
+            dos.efermi.
         """
         fermi = self.efermi  # initialize target fermi
+        relative_error = float("inf")
         for _ in range(precision):
             frange = np.arange(-nstep, nstep + 1) * step + fermi
-            calc_doping = np.array([self.get_doping(f, T) for f in frange])
-            relative_error = abs(calc_doping / c - 1.0)
+            calc_doping = np.array([self.get_doping(f, temperature)
+                                    for f in frange])
+            relative_error = abs(calc_doping / concentration - 1.0)
             fermi = frange[np.argmin(relative_error)]
             step /= 10.0
+
         if min(relative_error) > rtol:
-            raise ValueError('Could not find fermi within {}% of c={}'.format(
-                rtol * 100, c))
+            raise ValueError(
+                "Could not find fermi within {}% of concentration={}".format(
+                    rtol * 100, concentration))
         return fermi
+
+    @classmethod
+    def from_dict(cls, d):
+        """
+        Returns Dos object from dict representation of Dos.
+        """
+        dos = Dos(d["efermi"], d["energies"],
+                  {Spin(int(k)): v for k, v in d["densities"].items()})
+        return FermiDos(dos, structure=Structure.from_dict(d["structure"]),
+                        nelecs=d["nelecs"])
+
+    def as_dict(self):
+        """
+        Json-serializable dict representation of Dos.
+        """
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__, "efermi": self.efermi,
+                "energies": list(self.energies),
+                "densities": {str(spin): list(dens)
+                              for spin, dens in self.densities.items()},
+                "structure": self.structure, "nelecs": self.nelecs}
 
 
 class CompleteDos(Dos):
@@ -583,7 +650,7 @@ class CompleteDos(Dos):
     """
 
     def __init__(self, structure, total_dos, pdoss):
-        super(CompleteDos, self).__init__(
+        super().__init__(
             total_dos.efermi, energies=total_dos.energies,
             densities={k: np.array(d) for k, d in total_dos.densities.items()})
         self.pdos = pdoss
@@ -612,7 +679,7 @@ class CompleteDos(Dos):
         Returns:
             Dos containing summed orbital densities for site.
         """
-        site_dos = six.moves.reduce(add_densities, self.pdos[site].values())
+        site_dos = functools.reduce(add_densities, self.pdos[site].values())
         return Dos(self.efermi, self.energies, site_dos)
 
     def get_site_spd_dos(self, site):
@@ -656,9 +723,9 @@ class CompleteDos(Dos):
                     elif orb in (Orbital.dx2, Orbital.dz2):
                         eg_dos.append(pdos)
         return {"t2g": Dos(self.efermi, self.energies,
-                           six.moves.reduce(add_densities, t2g_dos)),
+                           functools.reduce(add_densities, t2g_dos)),
                 "e_g": Dos(self.efermi, self.energies,
-                           six.moves.reduce(add_densities, eg_dos))}
+                           functools.reduce(add_densities, eg_dos))}
 
     def get_spd_dos(self):
         """
@@ -783,16 +850,137 @@ class CompleteDos(Dos):
                 for orb, pdos in self.pdos[at].items():
                     dd[str(orb)] = {"densities": {str(int(spin)): list(dens)
                                                   for spin,
-                                                  dens in pdos.items()}}
+                                                      dens in pdos.items()}}
                 d["pdos"].append(dd)
             d["atom_dos"] = {str(at): dos.as_dict() for at,
-                             dos in self.get_element_dos().items()}
+                                                        dos in self.get_element_dos().items()}
             d["spd_dos"] = {str(orb): dos.as_dict() for orb,
-                            dos in self.get_spd_dos().items()}
+                                                        dos in self.get_spd_dos().items()}
         return d
 
     def __str__(self):
         return "Complete DOS for " + str(self.structure)
+
+
+class LobsterCompleteDos(CompleteDos):
+    """
+    Extended CompleteDOS for Lobster
+    """
+
+    def get_site_orbital_dos(self, site, orbital):
+        """
+        Get the Dos for a particular orbital of a particular site.
+
+        Args:
+            site: Site in Structure associated with CompleteDos.
+            orbital: principal quantum number and orbital in string format, e.g. "4s".
+                    possible orbitals are: "s", "p_y", "p_z", "p_x", "d_xy", "d_yz", "d_z^2",
+                    "d_xz", "d_x^2-y^2", "f_y(3x^2-y^2)", "f_xyz",
+                    "f_yz^2", "f_z^3", "f_xz^2", "f_z(x^2-y^2)", "f_x(x^2-3y^2)"
+                    In contrast to the Cohpcar and the Cohplist objects, the strings from the Lobster files are used
+
+        Returns:
+            Dos containing densities of an orbital of a specific site.
+        """
+        if orbital[1:] not in ["s", "p_y", "p_z", "p_x", "d_xy", "d_yz", "d_z^2", "d_xz", "d_x^2-y^2", "f_y(3x^2-y^2)",
+                               "f_xyz",
+                               "f_yz^2", "f_z^3", "f_xz^2", "f_z(x^2-y^2)", "f_x(x^2-3y^2)"]:
+            raise ValueError('orbital is not correct')
+        else:
+            return Dos(self.efermi, self.energies, self.pdos[site][orbital])
+
+    def get_site_t2g_eg_resolved_dos(self, site):
+        """
+        Get the t2g, eg projected DOS for a particular site.
+        Args:
+            site: Site in Structure associated with CompleteDos.
+
+        Returns:
+            A dict {"e_g": Dos, "t2g": Dos} containing summed e_g and t2g DOS
+            for the site.
+
+        """
+
+        warnings.warn("Are the orbitals correctly oriented? Are you sure?")
+        t2g_dos = []
+        eg_dos = []
+        for s, atom_dos in self.pdos.items():
+            if s == site:
+
+                for orb, pdos in atom_dos.items():
+                    if _get_orb_lobster(orb) in (Orbital.dxy, Orbital.dxz, Orbital.dyz):
+                        t2g_dos.append(pdos)
+                    elif _get_orb_lobster(orb) in (Orbital.dx2, Orbital.dz2):
+                        eg_dos.append(pdos)
+        return {"t2g": Dos(self.efermi, self.energies,
+                           functools.reduce(add_densities, t2g_dos)),
+                "e_g": Dos(self.efermi, self.energies,
+                           functools.reduce(add_densities, eg_dos))}
+
+    def get_spd_dos(self):
+        """
+        Get orbital projected Dos.
+        For example, if 3s and 4s are included in the basis of some element, they will be both summed in the orbital projected DOS
+
+        Returns:
+            dict of {orbital: Dos}, e.g. {"s": Dos object, ...}
+        """
+        spd_dos = {}
+        for atom_dos in self.pdos.values():
+            for orb, pdos in atom_dos.items():
+                orbital_type = _get_orb_type_lobster(orb)
+                if orbital_type not in spd_dos:
+                    spd_dos[orbital_type] = pdos
+                else:
+                    spd_dos[orbital_type] = \
+                        add_densities(spd_dos[orbital_type], pdos)
+
+        return {orb: Dos(self.efermi, self.energies, densities)
+                for orb, densities in spd_dos.items()}
+
+    def get_element_spd_dos(self, el):
+        """
+        Get element and spd projected Dos
+
+
+        Args:
+            el: Element in Structure.composition associated with LobsterCompleteDos
+
+        Returns:
+            dict of {Element: {"S": densities, "P": densities, "D": densities}}
+        """
+        el = get_el_sp(el)
+        el_dos = {}
+        for site, atom_dos in self.pdos.items():
+            if site.specie == el:
+                for orb, pdos in atom_dos.items():
+                    orbital_type = _get_orb_type_lobster(orb)
+                    if orbital_type not in el_dos:
+                        el_dos[orbital_type] = pdos
+                    else:
+                        el_dos[orbital_type] = \
+                            add_densities(el_dos[orbital_type], pdos)
+
+        return {orb: Dos(self.efermi, self.energies, densities)
+                for orb, densities in el_dos.items()}
+
+    @classmethod
+    def from_dict(cls, d):
+        """
+        Returns: CompleteDos object from dict representation.
+        """
+        tdos = Dos.from_dict(d)
+        struct = Structure.from_dict(d["structure"])
+        pdoss = {}
+        for i in range(len(d["pdos"])):
+            at = struct[i]
+            orb_dos = {}
+            for orb_str, odos in d["pdos"][i].items():
+                orb = orb_str
+                orb_dos[orb] = {Spin(int(k)): v
+                                for k, v in odos["densities"].items()}
+            pdoss[at] = orb_dos
+        return LobsterCompleteDos(struct, tdos, pdoss)
 
 
 def add_densities(density1, density2):
@@ -826,3 +1014,39 @@ def f0(E, fermi, T):
         T (float): the temperature in kelvin
     """
     return 1. / (1. + np.exp((E - fermi) / (_cd("Boltzmann constant in eV/K") * T)))
+
+
+def _get_orb_type_lobster(orb):
+    """
+    Args:
+     orb: string representation of orbital
+    Returns:
+     OrbitalType
+    """
+    orb_labs = ["s", "p_y", "p_z", "p_x", "d_xy", "d_yz", "d_z^2",
+                "d_xz", "d_x^2-y^2", "f_y(3x^2-y^2)", "f_xyz",
+                "f_yz^2", "f_z^3", "f_xz^2", "f_z(x^2-y^2)", "f_x(x^2-3y^2)"]
+
+    try:
+        orbital = Orbital(orb_labs.index(orb[1:]))
+        return orbital.orbital_type
+    except AttributeError:
+        print("Orb not in list")
+
+
+def _get_orb_lobster(orb):
+    """
+    Args:
+        orb: string representation of orbital
+    Returns:
+         Orbital
+    """
+    orb_labs = ["s", "p_y", "p_z", "p_x", "d_xy", "d_yz", "d_z^2",
+                "d_xz", "d_x^2-y^2", "f_y(3x^2-y^2)", "f_xyz",
+                "f_yz^2", "f_z^3", "f_xz^2", "f_z(x^2-y^2)", "f_x(x^2-3y^2)"]
+
+    try:
+        orbital = Orbital(orb_labs.index(orb[1:]))
+        return orbital
+    except AttributeError:
+        print("Orb not in list")

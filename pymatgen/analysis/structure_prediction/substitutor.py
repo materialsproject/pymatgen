@@ -2,13 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import itertools
 import logging
 from operator import mul
-import six
-from six.moves import zip
-
+import functools
 from monty.json import MSONable
 
 from pymatgen.core.periodic_table import get_el_sp
@@ -224,12 +221,12 @@ class Substitutor(MSONable):
         def _recurse(output_prob, output_species):
             best_case_prob = list(max_probabilities)
             best_case_prob[:len(output_prob)] = output_prob
-            if six.moves.reduce(mul, best_case_prob) > self._threshold:
+            if functools.reduce(mul, best_case_prob) > self._threshold:
                 if len(output_species) == len(species_list):
                     odict = {
                         'substitutions':
                             dict(zip(species_list, output_species)),
-                        'probability': six.moves.reduce(mul, best_case_prob)}
+                        'probability': functools.reduce(mul, best_case_prob)}
                     output.append(odict)
                     return
                 for sp in self._sp.species:

@@ -13,6 +13,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.analysis.magnetism
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

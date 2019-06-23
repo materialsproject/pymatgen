@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 
 import sys
 import os
@@ -10,7 +9,7 @@ __author__ = "Pymatgen Development Team"
 __email__ ="pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong"
 __maintainer_email__ ="shyuep@gmail.com"
-__version__ = "2018.7.23"
+__version__ = "2019.6.20"
 
 
 SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
@@ -29,16 +28,7 @@ def _load_pmg_settings():
                 d[k] = v
             elif k in ["VASP_PSP_DIR", "MAPI_KEY", "DEFAULT_FUNCTIONAL"]:
                 d["PMG_" + k] = v
-    clean_d = {}
-    for k, v in d.items():
-        if not k.startswith("PMG_"):
-            warnings.warn('With effect from pmg 5.0, all pymatgen settings are'
-                          ' prefixed with a "PMG_". E.g., "PMG_VASP_PSP_DIR" '
-                          'instead of "VASP_PSP_DIR".')
-            clean_d["PMG_" + k] = v
-        else:
-            clean_d[k] = v
-    return clean_d
+    return dict(d)
 
 
 SETTINGS = _load_pmg_settings()
@@ -104,7 +94,7 @@ def loadfn(fname):
         (obj) if *json* (passthrough to monty.serialization.loadfn)
     """
     if (fnmatch(fname, "*POSCAR*") or fnmatch(fname, "*CONTCAR*") or
-            ".cif" in fname.lower()):
+            ".cif" in fname.lower()) or fnmatch(fname, "*.vasp"):
         return Structure.from_file(fname)
     elif fnmatch(fname, "*vasprun*"):
         from pymatgen.io.vasp import Vasprun

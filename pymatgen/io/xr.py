@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 """
 This module provides input and output mechanisms
@@ -23,7 +22,7 @@ __date__ = "June 23, 2016"
 
 import re
 
-from six.moves import map
+
 import numpy as np
 
 from monty.io import zopen
@@ -31,7 +30,7 @@ from math import fabs
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 
-class Xr(object):
+class Xr:
     """
     Basic object for working with xr files.
 

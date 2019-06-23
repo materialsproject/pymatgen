@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals
 
 import unittest
 
@@ -104,7 +103,7 @@ class FeffAtomsTest(unittest.TestCase):
         atoms_2 = Atoms.atoms_string_from_file(os.path.join(test_dir, "ATOMS"))
         atoms_2 = atoms_2.splitlines()[3:]
         distances_2 = [float(a.split()[5]) for a in atoms_2]
-        np.testing.assert_allclose(distances_1, distances_2)
+        np.testing.assert_allclose(distances_1, distances_2, rtol=1e-5)
 
     def test_atoms_from_file(self):
         filepath = os.path.join(test_dir, 'ATOMS')
@@ -292,14 +291,14 @@ class PathsTest(unittest.TestCase):
                    "---------------",
                    "9999 3 1" ,
                    "x y z ipot label",
-                   "-0.014350 5.898564 -0.064551 1 Fe",
-                   "-1.705160 2.953424 -0.043034 1 Fe",
+                   "8.492100 0.926479 0.637094 2 O",
+                   "1.711726 4.847501 5.315367 1 Fe",
                    "0.000000 0.000000 0.000000 0 Fe",
                    "9998 4 1",
                    "x y z ipot label",
-                   "-1.695811 0.951333 0.572543 2 O",
-                   "-3.383559 1.950917 3.233005 2 O",
-                   "-1.695811 0.951333 0.572543 2 O",
+                   "-5.027491 -4.988772 5.973978 2 O",
+                   "-1.768052 -4.798773 -7.974430 1 Fe",
+                   "-5.027491 -4.988772 5.973978 2 O",
                    "0.000000 0.000000 0.000000 0 Fe"]
         ans = "\n".join(lines)
         self.assertEqual(ans, str(self.paths))

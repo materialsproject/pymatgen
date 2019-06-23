@@ -3,7 +3,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import os
 import sys
 import glob
@@ -12,11 +11,8 @@ import subprocess
 from monty.serialization import loadfn, dumpfn
 
 from pymatgen import SETTINGS_FILE
-try:
-    from urllib.request import urlretrieve
-except ImportError:
-    from urllib import urlretrieve
-from six.moves import input
+from urllib.request import urlretrieve
+
 
 
 """

@@ -2,20 +2,18 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 from collections import defaultdict
 from operator import mul
 from pymatgen.core.periodic_table import Specie, get_el_sp
 from monty.design_patterns import cached_class
 
+import functools
 import itertools
 import json
 import logging
 import math
 import os
 
-import six
-from six.moves import zip
 
 """
 This module provides classes for representing species substitution
@@ -31,7 +29,7 @@ __date__ = "Aug 31, 2012"
 
 
 @cached_class
-class SubstitutionProbability(object):
+class SubstitutionProbability:
     """
     This class finds substitution probabilities given lists of atoms
     to substitute. The inputs make more sense if you look through the
@@ -154,7 +152,7 @@ class SubstitutionProbability(object):
         return cls(**d['init_args'])
 
 
-class SubstitutionPredictor(object):
+class SubstitutionPredictor:
     """
     Predicts likely substitutions either to or from a given composition
     or species list using the SubstitutionProbability
@@ -197,10 +195,10 @@ class SubstitutionPredictor(object):
         def _recurse(output_prob, output_species):
             best_case_prob = list(max_probabilities)
             best_case_prob[:len(output_prob)] = output_prob
-            if six.moves.reduce(mul, best_case_prob) > self.threshold:
+            if functools.reduce(mul, best_case_prob) > self.threshold:
                 if len(output_species) == len(species):
                     odict = {
-                        'probability': six.moves.reduce(mul, best_case_prob)}
+                        'probability': functools.reduce(mul, best_case_prob)}
                     if to_this_composition:
                         odict['substitutions'] = dict(
                             zip(output_species, species))

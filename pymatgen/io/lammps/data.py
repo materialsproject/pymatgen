@@ -1,10 +1,6 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
-from __future__ import division, print_function, unicode_literals, \
-    absolute_import
-
 from collections import OrderedDict
 from io import StringIO
 import itertools
@@ -16,7 +12,7 @@ import pandas as pd
 from monty.json import MSONable
 from monty.dev import deprecated
 from ruamel.yaml import YAML
-from six import string_types
+
 
 from pymatgen.util.io_utils import clean_lines
 from pymatgen import Molecule, Element, Lattice, Structure, SymmOp
@@ -36,8 +32,11 @@ more info.
 """
 
 __author__ = "Kiran Mathew, Zhi Deng"
-__email__ = "kmathew@lbl.gov, z4deng@eng.ucsd.edu"
-__credits__ = "Brandon Wood"
+__copyright__ = "Copyright 2018, The Materials Virtual Lab"
+__version__ = "1.0"
+__maintainer__ = "Zhi Deng"
+__email__ = "z4deng@eng.ucsd.edu"
+__date__ = "Aug 1, 2018"
 
 
 SECTION_KEYWORDS = {"atom": ["Atoms", "Velocities", "Masses",
@@ -112,6 +111,9 @@ class LammpsBox(MSONable):
         self._matrix = matrix
 
     def __str__(self):
+        return self.get_string()
+
+    def __repr__(self):
         return self.get_string()
 
     @property
@@ -191,22 +193,16 @@ def lattice_2_lmpbox(lattice, origin=(0, 0, 0)):
     a, b, c = lattice.abc
     xlo, ylo, zlo = origin
     xhi = a + xlo
-    if lattice.is_orthogonal:
-        yhi = b + ylo
-        zhi = c + zlo
-        tilt = None
-        rot_matrix = np.eye(3)
-    else:
-        m = lattice.matrix
-        xy = np.dot(m[1], m[0] / a)
-        yhi = np.sqrt(b ** 2 - xy ** 2) + ylo
-        xz = np.dot(m[2], m[0] / a)
-        yz = (np.dot(m[1], m[2]) - xy * xz) / (yhi - ylo)
-        zhi = np.sqrt(c ** 2 - xz ** 2 - yz ** 2) + zlo
-        tilt = [xy, xz, yz]
-        rot_matrix = np.linalg.solve([[xhi - xlo, 0, 0],
-                                      [xy, yhi - ylo, 0],
-                                      [xz, yz, zhi - zlo]], m)
+    m = lattice.matrix
+    xy = np.dot(m[1], m[0] / a)
+    yhi = np.sqrt(b ** 2 - xy ** 2) + ylo
+    xz = np.dot(m[2], m[0] / a)
+    yz = (np.dot(m[1], m[2]) - xy * xz) / (yhi - ylo)
+    zhi = np.sqrt(c ** 2 - xz ** 2 - yz ** 2) + zlo
+    tilt = None if lattice.is_orthogonal else [xy, xz, yz]
+    rot_matrix = np.linalg.solve([[xhi - xlo, 0, 0],
+                                  [xy, yhi - ylo, 0],
+                                  [xz, yz, zhi - zlo]], m)
     bounds = [[xlo, xhi], [ylo, yhi], [zlo, zhi]]
     symmop = SymmOp.from_rotation_and_translation(rot_matrix, origin)
     return LammpsBox(bounds, tilt), symmop
@@ -268,6 +264,9 @@ class LammpsData(MSONable):
         self.atom_style = atom_style
 
     def __str__(self):
+        return self.get_string()
+
+    def __repr__(self):
         return self.get_string()
 
     @property
@@ -447,7 +446,7 @@ class LammpsData(MSONable):
         masses["label"] = atom_labels
         unique_masses = np.unique(masses["mass"])
         if guess_element:
-            ref_masses = sorted([el.atomic_mass.real for el in Element])
+            ref_masses = [el.atomic_mass.real for el in Element]
             diff = np.abs(np.array(ref_masses) - unique_masses[:, None])
             atomic_numbers = np.argmin(diff, axis=1) + 1
             symbols = [Element.from_Z(an).symbol for an in atomic_numbers]
@@ -804,7 +803,7 @@ class LammpsData(MSONable):
         encode_df = lambda df: df.to_json(orient="split")
         d = dict()
         d["@module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@class"] = self.__class__.__name__
         d["box"] = self.box.as_dict()
         d["masses"] = encode_df(self.masses)
         d["atoms"] = encode_df(self.atoms)
@@ -921,13 +920,13 @@ class Topology(MSONable):
         else:
             angle_list, dihedral_list = [], []
             dests, freq = np.unique(bond_list, return_counts=True)
-            hubs = dests[np.where(freq > 1)]
+            hubs = dests[np.where(freq > 1)].tolist()
             bond_arr = np.array(bond_list)
             if len(hubs) > 0:
                 hub_spokes = {}
                 for hub in hubs:
                     ix = np.any(np.isin(bond_arr, hub), axis=1)
-                    bonds = list(np.unique(bond_arr[ix]))
+                    bonds = np.unique(bond_arr[ix]).tolist()
                     bonds.remove(hub)
                     hub_spokes[hub] = bonds
             # skip angle or dihedral searching if too few bonds or hubs
@@ -941,10 +940,10 @@ class Topology(MSONable):
                                        itertools.combinations(v, 2)])
             if dihedral:
                 hub_cons = bond_arr[np.all(np.isin(bond_arr, hubs), axis=1)]
-                for i, j in hub_cons:
+                for i, j in hub_cons.tolist():
                     ks = [k for k in hub_spokes[i] if k != j]
                     ls = [l for l in hub_spokes[j] if l != i]
-                    dihedral_list.extend([[k, i, j, l] for k,l in
+                    dihedral_list.extend([[k, i, j, l] for k, l in
                                           itertools.product(ks, ls)
                                           if k != l])
 
@@ -1014,7 +1013,7 @@ class ForceField(MSONable):
 
         """
         map_mass = lambda v: v.atomic_mass.real if isinstance(v, Element) \
-            else Element(v).atomic_mass.real if isinstance(v, string_types) \
+            else Element(v).atomic_mass.real if isinstance(v, str) \
             else v
         index, masses, self.mass_info, atoms_map = [], [], [], {}
         for i, m in enumerate(mass_info):
@@ -1189,7 +1188,7 @@ def structure_2_lmpdata(structure, ff_elements=None, atom_style="charge"):
     box_tilt = None if not any(box_tilt) else box_tilt
     box = LammpsBox(box_bounds, box_tilt)
     new_latt = Lattice([[xhi, 0, 0], [xy, yhi, 0], [xz, yz, zhi]])
-    s.modify_lattice(new_latt)
+    s.lattice = new_latt
 
     symbols = list(s.symbol_set)
     if ff_elements:

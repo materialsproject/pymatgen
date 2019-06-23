@@ -2,24 +2,20 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, print_function, unicode_literals
-from __future__ import absolute_import
 
-from pymatgen.analysis.elasticity.tensors import Tensor, \
-    TensorCollection, get_uvec, SquareTensor
+from pymatgen.core.tensors import Tensor, \
+    TensorCollection, get_uvec, SquareTensor, DEFAULT_QUAD
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.analysis.elasticity.strain import Strain
 from pymatgen.core.units import Unit
 from scipy.special import factorial
 from scipy.integrate import quad
 from scipy.optimize import root
-from monty.serialization import loadfn
 from collections import OrderedDict
 from monty.dev import deprecated
 import numpy as np
 import warnings
 import itertools
-import os
 
 import sympy as sp
 
@@ -47,9 +43,10 @@ class NthOrderElasticTensor(Tensor):
     of the stress-strain constitutive equations
     """
     GPa_to_eV_A3 = Unit("GPa").get_conversion_factor(Unit("eV ang^-3"))
+    symbol = "C"
 
     def __new__(cls, input_array, check_rank=None, tol=1e-4):
-        obj = super(NthOrderElasticTensor, cls).__new__(
+        obj = super().__new__(
             cls, input_array, check_rank=check_rank)
         if obj.rank % 2 != 0:
             raise ValueError("ElasticTensor must have even rank")
@@ -133,7 +130,7 @@ class ElasticTensor(NthOrderElasticTensor):
             tol (float): tolerance for initial symmetry test of tensor
         """
 
-        obj = super(ElasticTensor, cls).__new__(cls, input_array,
+        obj = super().__new__(cls, input_array,
                                                 check_rank=4, tol=tol)
         return obj.view(cls)
 
@@ -512,7 +509,7 @@ class ComplianceTensor(Tensor):
         vscale = np.ones((6, 6))
         vscale[3:] *= 2
         vscale[:, 3:] *= 2
-        obj = super(ComplianceTensor, cls).__new__(cls, s_array, vscale=vscale)
+        obj = super().__new__(cls, s_array, vscale=vscale)
         return obj.view(cls)
 
 
@@ -535,7 +532,7 @@ class ElasticTensorExpansion(TensorCollection):
         """
         c_list = [NthOrderElasticTensor(c, check_rank=4+i*2)
                   for i, c in enumerate(c_list)]
-        super(ElasticTensorExpansion, self).__init__(c_list)
+        super().__init__(c_list)
 
     @classmethod
     def from_diff_fit(cls, strains, stresses, eq_stress=None,
@@ -607,9 +604,7 @@ class ElasticTensorExpansion(TensorCollection):
             raise ValueError("If using temperature input, you must also "
                              "include structure")
 
-        if not quad:
-            quad = loadfn(os.path.join(os.path.dirname(__file__),
-                                       "quad_data.json"))
+        quad = quad if quad else DEFAULT_QUAD
         points = quad['points']
         weights = quad['weights']
         num, denom, c = np.zeros((3, 3)), 0, 1

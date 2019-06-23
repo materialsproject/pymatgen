@@ -1,10 +1,6 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
-from __future__ import division, print_function, unicode_literals, \
-    absolute_import
-
 import unittest
 import os
 import random
@@ -123,6 +119,16 @@ class LammpsDataTest(unittest.TestCase):
                                               0.71487872,
                                               0.14134139])
 
+        co = Structure.from_spacegroup(194,
+                                       Lattice.hexagonal(2.50078, 4.03333),
+                                       ["Co"], [[1/3, 2/3, 1/4]])
+        ld_co = LammpsData.from_structure(co)
+        self.assertEqual(ld_co.structure.composition.reduced_formula, "Co")
+        ni = Structure.from_spacegroup(225, Lattice.cubic(3.50804),
+                                       ["Ni"], [[0, 0, 0]])
+        ld_ni = LammpsData.from_structure(ni)
+        self.assertEqual(ld_ni.structure.composition.reduced_formula, "Ni")
+
     def test_get_string(self):
         pep = self.peptide.get_string(distance=7, velocity=5, charge=4)
         pep_lines = pep.split("\n")
@@ -235,7 +241,7 @@ class LammpsDataTest(unittest.TestCase):
         virus = self.virus.get_string()
         virus_lines = virus.split("\n")
         pairij_coeff = virus_lines[virus_lines.index("PairIJ Coeffs") + 5]
-        self.assertEqual(pairij_coeff, "1  4  1  1.000  1.12250")
+        self.assertEqual(pairij_coeff.strip(), "1  4  1  1.000  1.12250")
 
     def test_write_file(self):
         filename1 = "test1.data"
@@ -589,6 +595,7 @@ class TopologyTest(unittest.TestCase):
                           [6, 0, 1, 2], [6, 0, 1, 7], [6, 0, 1, 8],
                           [0, 1, 2, 3], [7, 1, 2, 3], [8, 1, 2, 3]]
         np.testing.assert_array_equal(tp_etoh["Dihedrals"], etoh_dihedrals)
+        self.assertIsNotNone(json.dumps(topo_etoh.as_dict()))
         # bond flag to off
         topo_etoh0 = Topology.from_bonding(molecule=etoh, bond=False,
                                            angle=True, dihedral=True)
@@ -735,9 +742,16 @@ class FuncTest(unittest.TestCase):
         tetra_latt = Lattice.tetragonal(5, 5)
         tetra_box, _ = lattice_2_lmpbox(tetra_latt)
         self.assertIsNone(tetra_box.tilt)
-        orthorhombic_latt = Lattice.orthorhombic(5, 5, 5)
-        orthorhombic_box, _ = lattice_2_lmpbox(orthorhombic_latt)
-        self.assertIsNone(orthorhombic_box.tilt)
+        ortho_latt = Lattice.orthorhombic(5, 5, 5)
+        ortho_box, _ = lattice_2_lmpbox(ortho_latt)
+        self.assertIsNone(ortho_box.tilt)
+        rot_tetra_latt = Lattice([[5, 0, 0], [0, 2, 2], [0, -2, 2]])
+        _, rotop = lattice_2_lmpbox(rot_tetra_latt)
+        np.testing.\
+            assert_array_almost_equal(rotop.rotation_matrix,
+                                      [[1, 0, 0],
+                                       [0, 2 ** 0.5 / 2, 2 ** 0.5 / 2],
+                                       [0, -2 ** 0.5 / 2, 2 ** 0.5 / 2]])
 
     @unittest.skip("The function is deprecated")
     def test_structure_2_lmpdata(self):

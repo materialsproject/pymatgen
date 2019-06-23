@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
 
 import os
 import re
@@ -89,7 +88,7 @@ class ZeoCssr(Cssr):
     """
 
     def __init__(self, structure):
-        super(ZeoCssr, self).__init__(structure)
+        super().__init__(structure)
 
     def __str__(self):
         """
@@ -194,7 +193,7 @@ class ZeoVoronoiXYZ(XYZ):
     """
 
     def __init__(self, mol):
-        super(ZeoVoronoiXYZ, self).__init__(mol)
+        super().__init__(mol)
 
     @staticmethod
     def from_string(contents):

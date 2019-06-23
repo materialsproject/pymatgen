@@ -2,15 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import numpy as np
 from fractions import Fraction
-
-try:
-    from math import gcd
-except ImportError:
-    from fractions import gcd
+from math import gcd
 from itertools import groupby, product
 from string import ascii_lowercase
 from warnings import warn
@@ -37,7 +32,7 @@ from pymatgen.analysis.energy_models import SymmetryModel
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.electronic_structure.core import Spin
-from pymatgen.analysis.gb.gb import GBGenerator
+from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
 
 """
 This module implements more advanced transformations.
@@ -150,7 +145,7 @@ class SuperTransformation(AbstractTransformation):
         return True
 
 
-class MultipleSubstitutionTransformation(object):
+class MultipleSubstitutionTransformation:
     """
     Performs multiple substitutions on a structure. For example, can do a
     fractional replacement of Ge in LiGePS with a list of species, creating one
@@ -356,7 +351,6 @@ class EnumerateStructureTransformation(AbstractTransformation):
                         ndisordered, self.max_disordered_sites))
             max_cell_sizes = range(self.min_cell_size, int(
                 math.floor(self.max_disordered_sites / ndisordered)) + 1)
-
         else:
             max_cell_sizes = [self.max_cell_size]
 
@@ -371,7 +365,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
             try:
                 adaptor.run()
             except EnumError:
-                warn("Unable to enumerate for max_cell_size = %d".format(
+                warn("Unable to enumerate for max_cell_size = {}".format(
                     max_cell_size))
             structures = adaptor.structures
             if structures:
@@ -617,11 +611,11 @@ class MagOrderingTransformation(AbstractTransformation):
         mag_species_occurrences = {}
         for idx, site in enumerate(disordered_structure):
             if not site.is_ordered:
-                op = max(site.species_and_occu.values())
+                op = max(site.species.values())
                 # this very hacky bit of code only works because we know
                 # that on disordered sites in this class, all species are the same
                 # but have different spins, and this is comma-delimited
-                sp = str(list(site.species_and_occu.keys())[0]).split(",")[0]
+                sp = str(list(site.species.keys())[0]).split(",")[0]
                 if sp in mag_species_order_parameter:
                     mag_species_occurrences[sp] += 1
                 else:
@@ -1131,6 +1125,141 @@ class SlabTransformation(AbstractTransformation):
         return None
 
 
+class DisorderOrderedTransformation(AbstractTransformation):
+    """
+    Not to be confused with OrderDisorderedTransformation,
+    this transformation attempts to obtain a
+    *disordered* structure from an input ordered structure.
+    This may or may not be physically plausible, further
+    inspection of the returned structures is advised.
+    The main purpose for this transformation is for structure
+    matching to crystal prototypes for structures that have
+    been derived from a parent prototype structure by
+    substitutions or alloying additions.
+    """
+
+    def __init__(self, max_sites_to_merge=2):
+        """
+        Args:
+            max_sites_to_merge: only merge this number of sites together
+        """
+        self.max_sites_to_merge = max_sites_to_merge
+
+    def apply_transformation(self, structure, return_ranked_list=False):
+        """
+        Args:
+            structure: ordered structure
+            return_ranked_list: as in other pymatgen Transformations
+
+        Returns: transformed disordered structure(s)
+        """
+
+        if not structure.is_ordered:
+            raise ValueError("This transformation is for disordered structures only.")
+
+        partitions = self._partition_species(structure.composition,
+                                             max_components=self.max_sites_to_merge)
+        disorder_mappings = self._get_disorder_mappings(structure.composition, partitions)
+
+        disordered_structures = []
+        for mapping in disorder_mappings:
+            disordered_structure = structure.copy()
+            disordered_structure.replace_species(mapping)
+            disordered_structures.append({'structure': disordered_structure,
+                                          'mapping': mapping})
+
+        if len(disordered_structures) == 0:
+            return None
+        elif not return_ranked_list:
+            return disordered_structures[0]['structure']
+        else:
+            if len(disordered_structures) > return_ranked_list:
+                disordered_structures = disordered_structures[0:return_ranked_list]
+            return disordered_structures
+
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return True
+
+    @staticmethod
+    def _partition_species(composition, max_components=2):
+        """
+        Private method to split a list of species into
+        various partitions.
+        """
+
+        def _partition(collection):
+            # thanks https://stackoverflow.com/a/30134039
+
+            if len(collection) == 1:
+                yield [collection]
+                return
+
+            first = collection[0]
+            for smaller in _partition(collection[1:]):
+                # insert `first` in each of the subpartition's subsets
+                for n, subset in enumerate(smaller):
+                    yield smaller[:n] + [[first] + subset] + smaller[n + 1:]
+                # put `first` in its own subset
+                yield [[first]] + smaller
+
+        def _sort_partitions(partitions_to_sort):
+            """
+            Sort partitions by those we want to check first
+            (typically, merging two sites into one is the
+            one to try first).
+            """
+
+            partition_indices = [(idx, [len(p) for p in partition])
+                                 for idx, partition in enumerate(partitions_to_sort)]
+
+            # sort by maximum length of partition first (try smallest maximums first)
+            # and secondarily by number of partitions (most partitions first, i.e.
+            # create the 'least disordered' structures first)
+            partition_indices = sorted(partition_indices, key=lambda x: (max(x[1]), -len(x[1])))
+
+            # merge at most max_component sites,
+            # e.g. merge at most 2 species into 1 disordered site
+            partition_indices = [x for x in partition_indices if max(x[1]) <= max_components]
+
+            partition_indices.pop(0)  # this is just the input structure
+
+            sorted_partitions = [partitions_to_sort[x[0]] for x in partition_indices]
+
+            return sorted_partitions
+
+        collection = list(composition.keys())
+        partitions = list(_partition(collection))
+        partitions = _sort_partitions(partitions)
+
+        return partitions
+
+    @staticmethod
+    def _get_disorder_mappings(composition, partitions):
+        """
+        Private method to obtain the mapping to create
+        a disordered structure from a given partition.
+        """
+
+        def _get_replacement_dict_from_partition(partition):
+            d = {}  # to be passed to Structure.replace_species()
+            for sp_list in partition:
+                if len(sp_list) > 1:
+                    total_occ = sum([composition[sp] for sp in sp_list])
+                    merged_comp = {sp: composition[sp] / total_occ for sp in sp_list}
+                    for sp in sp_list:
+                        d[sp] = merged_comp
+            return d
+
+        disorder_mapping = [_get_replacement_dict_from_partition(p)
+                            for p in partitions]
+
+        return disorder_mapping
+
 class GrainBoundaryTransformation(AbstractTransformation):
     """
     A transformation that creates a gb from a bulk structure.
@@ -1201,7 +1330,7 @@ class GrainBoundaryTransformation(AbstractTransformation):
         self.tol_coi = tol_coi
 
     def apply_transformation(self, structure):
-        gbg = GBGenerator(structure)
+        gbg = GrainBoundaryGenerator(structure)
         gb_struct = gbg.gb_from_parameters(
             self.rotation_axis,
             self.rotation_angle,
@@ -1214,11 +1343,11 @@ class GrainBoundaryTransformation(AbstractTransformation):
             self.max_search,
             self.tol_coi)
         return gb_struct
-
+      
     @property
     def inverse(self):
         return None
 
     @property
     def is_one_to_many(self):
-        return None
+        return False

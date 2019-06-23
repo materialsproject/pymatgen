@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals
 
 
 import unittest
@@ -10,6 +9,7 @@ import os
 from monty.serialization import loadfn
 import warnings
 import numpy as np
+import multiprocessing
 
 from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, PourbaixEntry,\
     PourbaixPlotter, IonEntry, MultiEntry
@@ -20,7 +20,9 @@ from pymatgen import SETTINGS
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
+
 class PourbaixEntryTest(unittest.TestCase):
+    _multiprocess_shared_ = True
     """
     Test all functions using a fictitious entry
     """
@@ -86,6 +88,8 @@ class PourbaixEntryTest(unittest.TestCase):
 
 
 class PourbaixDiagramTest(unittest.TestCase):
+    _multiprocess_shared_ = True
+
     @classmethod
     def setUpClass(cls):
         cls.test_data = loadfn(os.path.join(test_dir, 'pourbaix_test_data.json'))
@@ -107,6 +111,9 @@ class PourbaixDiagramTest(unittest.TestCase):
                                       filter_solids=True)
         self.assertEqual(set([e.name for e in pbx_lowconc.stable_entries]),
                          {"Zn(HO)2(aq)", "Zn[2+]", "ZnHO2[-]", "ZnO2[2-]", "Zn(s)"})
+
+    def test_properties(self):
+        self.assertEqual(len(self.pbx.unstable_entries), 2)
 
     def test_multicomponent(self):
         # Assure no ions get filtered at high concentration
@@ -136,6 +143,12 @@ class PourbaixDiagramTest(unittest.TestCase):
         ag = self.test_data['Ag-Te-N'][30]
         self.assertAlmostEqual(pd_ternary.get_decomposition_energy(ag, 2, -1), 0)
         self.assertAlmostEqual(pd_ternary.get_decomposition_energy(ag, 10, -2), 0)
+
+        # Test invocation of pourbaix diagram from ternary data
+        new_ternary = PourbaixDiagram(pd_ternary.all_entries)
+        self.assertEqual(len(new_ternary.stable_entries), 49)
+        self.assertAlmostEqual(new_ternary.get_decomposition_energy(ag, 2, -1), 0)
+        self.assertAlmostEqual(new_ternary.get_decomposition_energy(ag, 10, -2), 0)
 
     def test_get_pourbaix_domains(self):
         domains = PourbaixDiagram.get_pourbaix_domains(self.test_data['Zn'])
@@ -167,6 +180,13 @@ class PourbaixDiagramTest(unittest.TestCase):
         ph, v = np.meshgrid(np.linspace(0, 14), np.linspace(-3, 3))
         self.pbx.get_decomposition_energy(entry, ph, v)
 
+    def test_multielement_parallel(self):
+        # Simple test to ensure that multiprocessing is working
+        test_entries = self.test_data["Ag-Te-N"]
+        nproc = multiprocessing.cpu_count()
+        pbx = PourbaixDiagram(test_entries, filter_solids=True, nproc=nproc)
+        self.assertEqual(len(pbx.stable_entries), 49)
+
     @unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY"),
                      "PMG_MAPI_KEY environment variable not set.")
     def test_mpr_pipeline(self):
@@ -181,7 +201,7 @@ class PourbaixDiagramTest(unittest.TestCase):
                               conc_dict={"Ag": 1e-8, "Te": 1e-8})
         self.assertEqual(len(pbx.stable_entries), 30)
         test_entry = pbx.find_stable_entry(8, 2)
-        self.assertAlmostEqual(test_entry.energy, 2.3936747835000016, 3)
+        self.assertAlmostEqual(test_entry.energy, 2.3894017960000009, 3)
 
         # Test custom ions
         entries = mpr.get_pourbaix_entries(["Sn", "C", "Na"])
@@ -190,7 +210,40 @@ class PourbaixDiagramTest(unittest.TestCase):
         pbx = PourbaixDiagram(entries + [custom_ion_entry], filter_solids=True,
                               comp_dict={"Na": 1, "Sn": 12, "C": 24})
         self.assertAlmostEqual(pbx.get_decomposition_energy(custom_ion_entry, 5, 2),
-                               8.31202738629504, 2)
+                               8.31202738629504, 1)
+
+    def test_nofilter(self):
+        entries = self.test_data['Ag-Te']
+        pbx = PourbaixDiagram(entries)
+        pbx.get_decomposition_energy(entries[0], 0, 0)
+
+    def test_solid_filter(self):
+        entries = self.test_data['Ag-Te-N']
+        pbx = PourbaixDiagram(entries, filter_solids=True)
+        pbx.get_decomposition_energy(entries[0], 0, 0)
+
+    def test_serialization(self):
+        d = self.pbx.as_dict()
+        new = PourbaixDiagram.from_dict(d)
+        self.assertEqual(set([e.name for e in new.stable_entries]),
+                         {"ZnO(s)", "Zn[2+]", "ZnHO2[-]", "ZnO2[2-]", "Zn(s)"},
+                         "List of stable entries does not match")
+
+        # Test with unprocessed entries included, this should result in the
+        # previously filtered entries being included
+        d = self.pbx.as_dict(include_unprocessed_entries=True)
+        new = PourbaixDiagram.from_dict(d)
+        self.assertEqual(
+            set([e.name for e in new.stable_entries]),
+            {"ZnO(s)", "Zn[2+]", "ZnHO2[-]", "ZnO2[2-]", "Zn(s)", "ZnO2(s)", "ZnH(s)"},
+            "List of stable entries for unfiltered pbx does not match")
+
+        pd_binary = PourbaixDiagram(self.test_data['Ag-Te'], filter_solids=True,
+                                    comp_dict={"Ag": 0.5, "Te": 0.5},
+                                    conc_dict={"Ag": 1e-8, "Te": 1e-8})
+        new_binary = PourbaixDiagram.from_dict(pd_binary.as_dict())
+        self.assertEqual(len(pd_binary.stable_entries),
+                         len(new_binary.stable_entries))
 
 
 class PourbaixPlotterTest(unittest.TestCase):
@@ -201,7 +254,7 @@ class PourbaixPlotterTest(unittest.TestCase):
         self.plotter = PourbaixPlotter(self.pd)
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_plot_pourbaix(self):
         plotter = PourbaixPlotter(self.pd)
@@ -221,6 +274,7 @@ class PourbaixPlotterTest(unittest.TestCase):
         test_entry = pd_binary._unprocessed_entries[0]
         plt = binary_plotter.plot_entry_stability(test_entry)
         plt.close()
+
 
 if __name__ == '__main__':
     unittest.main()

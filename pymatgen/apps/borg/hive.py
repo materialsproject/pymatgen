@@ -2,20 +2,13 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
-
 
 import abc
 import os
-import re
 import glob
 import logging
-import fnmatch
 import json
 import warnings
-
-import six
-from six.moves import zip
 
 from monty.io import zopen
 from pymatgen.io.vasp.inputs import Incar, Potcar, Poscar
@@ -41,7 +34,7 @@ __date__ = "Mar 18, 2012"
 logger = logging.getLogger(__name__)
 
 
-class AbstractDrone(six.with_metaclass(abc.ABCMeta, MSONable)):
+class AbstractDrone(MSONable, metaclass=abc.ABCMeta):
     """
     Abstract drone class that defines the various methods that must be
     implemented by drones. Because of the quirky nature of Python"s
@@ -251,14 +244,14 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                 param["hubbards"] = dict(zip(poscar.site_symbols,
                                              incar["LDAUU"]))
             param["is_hubbard"] = (
-                incar.get("LDAU", False) and sum(param["hubbards"].values()) > 0
+                incar.get("LDAU", True) and sum(param["hubbards"].values()) > 0
             ) if incar is not None else False
             param["run_type"] = None
             if incar is not None:
-                param["run_type"] = "GGA+U" if param["is_hubbard"] else "GGA"
+                param["run_type"] = Vasprun.run_type
             # param["history"] = _get_transformation_history(path)
             param["potcar_spec"] = potcar.spec if potcar is not None else None
-            energy = oszicar.final_energy if oszicar is not None else 1e10
+            energy = oszicar.final_energy if oszicar is not None else Vasprun.final_energy
             structure = contcar.structure if contcar is not None\
                 else poscar.structure
             initial_vol = poscar.structure.volume if poscar is not None else \

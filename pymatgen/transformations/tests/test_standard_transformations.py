@@ -2,14 +2,12 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import os
 import random
 import unittest
 import json
-import six
 import warnings
-
+import functools
 from monty.os.path import which
 from pymatgen import Lattice, PeriodicSite, Element
 from monty.json import MontyDecoder
@@ -134,7 +132,7 @@ class SupercellTransformationTest(unittest.TestCase):
         t = SupercellTransformation.from_scaling_factors(*scale_factors)
         s = t.apply_transformation(self.struct)
         self.assertEqual(s.num_sites,
-                         4 * six.moves.reduce(lambda a, b: a * b,
+                         4 * functools.reduce(lambda a, b: a * b,
                                               scale_factors))
 
 
@@ -205,7 +203,7 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_apply_transformation(self):
         t = PartialRemoveSpecieTransformation("Li+", 1.0 / 3, 3)
@@ -404,6 +402,22 @@ class PrimitiveCellTransformationTest(unittest.TestCase):
                          PrimitiveCellTransformation)
 
 
+class ConventionalCellTransformationTest(unittest.TestCase):
+    def test_apply_transformation(self):
+        t = ConventionalCellTransformation()
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0.75, 0.75, 0.75])
+        coords.append([0.5, 0.5, 0.5])
+        coords.append([0.25, 0.25, 0.25])
+        lattice = Lattice([[3.8401979337, 0.00, 0.00],
+                           [1.9200989668, 3.3257101909, 0.00],
+                           [0.00, -2.2171384943, 3.1355090603]])
+        struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
+        conventional_struct = t.apply_transformation(struct)
+        self.assertEqual(conventional_struct.lattice.alpha, 90)
+
+
 class PerturbStructureTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
         t = PerturbStructureTransformation(0.05)
@@ -469,7 +483,7 @@ class DiscretizeOccupanciesTransformationTest(unittest.TestCase):
                       [[0, 0, 0], [0.5, 0.5, 0.5]])
         dot = DiscretizeOccupanciesTransformation(max_denominator=5, tol=0.5)
         s = dot.apply_transformation(s_orig)
-        self.assertEqual(dict(s[0].species_and_occu), {Element("Li"): 0.2,
+        self.assertEqual(dict(s[0].species), {Element("Li"): 0.2,
                                                        Element("Na"): 0.2,
                                                        Element("K"): 0.6})
 
@@ -483,7 +497,7 @@ class DiscretizeOccupanciesTransformationTest(unittest.TestCase):
                                                   fix_denominator=False)
 
         s = dot.apply_transformation(s_orig_2)
-        self.assertEqual(dict(s[0].species_and_occu), {Element("Li"): Fraction(1/2),
+        self.assertEqual(dict(s[0].species), {Element("Li"): Fraction(1/2),
                                                        Element("Na"): Fraction(1/4),
                                                        Element("K"): Fraction(1/4)})
 
@@ -501,6 +515,42 @@ class ChargedCellTransformationTest(unittest.TestCase):
         cct = ChargedCellTransformation(charge=3)
         s = cct.apply_transformation(s_orig)
         self.assertEqual(s.charge, 3)
+
+
+class ScaleToRelaxedTransformationTest(unittest.TestCase):
+
+    def test_apply_transformation(self):
+
+        # Test on slab relaxation where volume is fixed
+        f = os.path.join(test_dir, "surface_tests")
+        Cu_fin = Structure.from_file(os.path.join(f, 'Cu_slab_fin.cif'))
+        Cu_init = Structure.from_file(os.path.join(f, 'Cu_slab_init.cif'))
+        slab_scaling = ScaleToRelaxedTransformation(Cu_init, Cu_fin)
+        Au_init = Structure.from_file(os.path.join(f, 'Au_slab_init.cif'))
+        Au_fin = slab_scaling.apply_transformation(Au_init)
+        self.assertAlmostEqual(Au_fin.lattice.volume, Au_init.lattice.volume)
+
+        # Test on gb relaxation
+        f = os.path.join(test_dir, "grain_boundary")
+        Be_fin = Structure.from_file(os.path.join(f, 'Be_gb_fin.cif'))
+        Be_init = Structure.from_file(os.path.join(f, 'Be_gb_init.cif'))
+        Zn_init = Structure.from_file(os.path.join(f, 'Zn_gb_init.cif'))
+        gb_scaling = ScaleToRelaxedTransformation(Be_init, Be_fin)
+        Zn_fin = gb_scaling.apply_transformation(Zn_init)
+        self.assertTrue(all([site.species_string == "Zn" for site in Zn_fin]))
+        self.assertEqual(Be_init.lattice.a < Be_fin.lattice.a, Zn_init.lattice.a < Zn_fin.lattice.a)
+        self.assertEqual(Be_init.lattice.b < Be_fin.lattice.b, Zn_init.lattice.b < Zn_fin.lattice.b)
+        self.assertEqual(Be_init.lattice.c < Be_fin.lattice.c, Zn_init.lattice.c < Zn_fin.lattice.c)
+        Fe_fin = Structure.from_file(os.path.join(f, 'Fe_gb_fin.cif'))
+        Fe_init = Structure.from_file(os.path.join(f, 'Fe_gb_init.cif'))
+        Mo_init = Structure.from_file(os.path.join(f, 'Mo_gb_init.cif'))
+        gb_scaling = ScaleToRelaxedTransformation(Fe_init, Fe_fin)
+        Mo_fin = gb_scaling.apply_transformation(Mo_init)
+        self.assertTrue(all([site.species_string == "Mo" for site in Mo_fin]))
+        self.assertEqual(Fe_init.lattice.a < Fe_fin.lattice.a, Mo_init.lattice.a < Mo_fin.lattice.a)
+        self.assertEqual(Fe_init.lattice.b < Fe_fin.lattice.b, Mo_init.lattice.b < Mo_fin.lattice.b)
+        self.assertEqual(Fe_init.lattice.c < Fe_fin.lattice.c, Mo_init.lattice.c < Mo_fin.lattice.c)
+
 
 if __name__ == "__main__":
     unittest.main()

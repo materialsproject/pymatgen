@@ -2,8 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
-from __future__ import absolute_import, print_function
 
 """
 This module provides classes used to enumerate surface sites
@@ -11,22 +9,15 @@ and to find adsorption sites on slabs
 """
 
 import numpy as np
-from six.moves import range
 from pymatgen import Structure, Lattice, vis
-import tempfile
-import sys
-import subprocess
 import itertools
 import os
 from monty.serialization import loadfn
 from scipy.spatial import Delaunay
-import warnings
 
 from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.symmetry.analyzer import generate_full_symmops
-from pymatgen.util.coord import in_coord_list, in_coord_list_pbc
-from pymatgen.core.sites import PeriodicSite
+from pymatgen.util.coord import in_coord_list_pbc
 from pymatgen.analysis.local_env import VoronoiNN
 from pymatgen.core.surface import generate_all_slabs
 from pymatgen.analysis.structure_matcher import StructureMatcher
@@ -44,7 +35,7 @@ __status__ = "Development"
 __date__ = "December 2, 2015"
 
 
-class AdsorbateSiteFinder(object):
+class AdsorbateSiteFinder:
     """
     This class finds adsorbate sites on slabs and generates
     adsorbate structures according to user-defined criteria.

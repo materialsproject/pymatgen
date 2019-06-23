@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import warnings
 import ruamel.yaml as yaml
@@ -21,10 +20,12 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 
-from math import pi, sin, asin, sqrt, exp, cos, acos
+from math import pi, acos
 import numpy as np
 import itertools
 import collections
+
+from monty.dev import deprecated
 
 from warnings import warn
 from scipy.spatial import Voronoi
@@ -32,8 +33,8 @@ from pymatgen import PeriodicSite
 from pymatgen import Element, Specie, Composition
 from pymatgen.util.num import abs_cap
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.core.surface import Slab, SlabGenerator
-from pymatgen.analysis.local_env import VoronoiNN, JMolNN
+from pymatgen.core.surface import SlabGenerator
+from pymatgen.analysis.local_env import VoronoiNN, JmolNN
 
 
 def average_coordination_number(structures, freq=10):
@@ -66,7 +67,7 @@ def average_coordination_number(structures, freq=10):
     return coordination_numbers
 
 
-class VoronoiAnalyzer(object):
+class VoronoiAnalyzer:
     """
     Performs a statistical analysis of Voronoi polyhedra around each site.
     Each Voronoi polyhedron is described using Schaefli notation.
@@ -178,7 +179,7 @@ class VoronoiAnalyzer(object):
         return plt
 
 
-class RelaxationAnalyzer(object):
+class RelaxationAnalyzer:
     """
     This class analyzes the relaxation in a calculation.
     """
@@ -254,7 +255,7 @@ class RelaxationAnalyzer(object):
         return data
 
 
-class VoronoiConnectivity(object):
+class VoronoiConnectivity:
     """
     Computes the solid angles swept out by the shared face of the voronoi
     polyhedron between two sites.
@@ -356,7 +357,7 @@ class VoronoiConnectivity(object):
             site_index (int): index of the site (3 in the example)
             image_index (int): index of the image (12 in the example)
         """
-        atoms_n_occu = self.s[site_index].species_and_occu
+        atoms_n_occu = self.s[site_index].species
         lattice = self.s.lattice
         coords = self.s[site_index].frac_coords + self.offsets[image_index]
         return PeriodicSite(atoms_n_occu, coords, lattice)
@@ -401,7 +402,7 @@ def get_max_bond_lengths(structure, el_radius_updates=None):
         ordered by Z.
     """
     #jmc = JMolCoordFinder(el_radius_updates)
-    jmnn = JMolNN(el_radius_updates)
+    jmnn = JmolNN(el_radius_updates=el_radius_updates)
 
     bonds_lens = {}
     els = sorted(structure.composition.elements, key=lambda x: x.Z)
@@ -414,39 +415,42 @@ def get_max_bond_lengths(structure, el_radius_updates=None):
     return bonds_lens
 
 
+@deprecated(message=("find_dimension has been moved to"
+                     "pymatgen.analysis.dimensionality.get_dimensionality_gorai"
+                     " this method will be removed in pymatgen v2019.1.1."))
 def get_dimensionality(structure, max_hkl=2, el_radius_updates=None,
                        min_slab_size=5, min_vacuum_size=5,
                        standardize=True, bonds=None):
     """
-    This method returns whether a structure is 3D, 2D (layered), or 1D (linear 
-    chains or molecules) according to the algorithm published in Gorai, P., 
-    Toberer, E. & Stevanovic, V. Computational Identification of Promising 
-    Thermoelectric Materials Among Known Quasi-2D Binary Compounds. J. Mater. 
+    This method returns whether a structure is 3D, 2D (layered), or 1D (linear
+    chains or molecules) according to the algorithm published in Gorai, P.,
+    Toberer, E. & Stevanovic, V. Computational Identification of Promising
+    Thermoelectric Materials Among Known Quasi-2D Binary Compounds. J. Mater.
     Chem. A 2, 4136 (2016).
-    
+
     Note that a 1D structure detection might indicate problems in the bonding
     algorithm, particularly for ionic crystals (e.g., NaCl)
-    
+
     Users can change the behavior of bonds detection by passing either
-    el_radius_updates to update atomic radii for auto-detection of max bond 
+    el_radius_updates to update atomic radii for auto-detection of max bond
     distances, or bonds to explicitly specify max bond distances for atom pairs.
     Note that if you pass both, el_radius_updates are ignored.
-    
+
     Args:
-        structure: (Structure) structure to analyze dimensionality for 
+        structure: (Structure) structure to analyze dimensionality for
         max_hkl: (int) max index of planes to look for layers
         el_radius_updates: (dict) symbol->float to update atomic radii
         min_slab_size: (float) internal surface construction parameter
         min_vacuum_size: (float) internal surface construction parameter
-        standardize (bool): whether to standardize the structure before 
-            analysis. Set to False only if you already have the structure in a 
+        standardize (bool): whether to standardize the structure before
+            analysis. Set to False only if you already have the structure in a
             convention where layers / chains will be along low <hkl> indexes.
         bonds ({(specie1, specie2): max_bond_dist}: bonds are
                 specified as a dict of tuples: float of specie1, specie2
                 and the max bonding distance. For example, PO4 groups may be
                 defined as {("P", "O"): 3}.
 
-    Returns: (int) the dimensionality of the structure - 1 (molecules/chains), 
+    Returns: (int) the dimensionality of the structure - 1 (molecules/chains),
         2 (layered), or 3 (3D)
 
     """
@@ -492,7 +496,7 @@ def contains_peroxide(structure, relative_cutoff=1.1):
         return False
 
 
-class OxideType(object):
+class OxideType:
     """
     Separate class for determining oxide type.
 
@@ -530,14 +534,14 @@ class OxideType(object):
         elif isinstance(structure.composition.elements[0], Specie):
             elmap = collections.defaultdict(float)
             for site in structure:
-                for species, occu in site.species_and_occu.items():
+                for species, occu in site.species.items():
                     elmap[species.element] += occu
             comp = Composition(elmap)
         if Element("O") not in comp or comp.is_element:
             return "None", 0
 
         for site in structure:
-            syms = [sp.symbol for sp in site.species_and_occu.keys()]
+            syms = [sp.symbol for sp in site.species.keys()]
             if "O" in syms:
                 o_sites_frac_coords.append(site.frac_coords)
             if "H" in syms:
@@ -623,7 +627,17 @@ def sulfide_type(structure):
                sites[0].specie == s]
 
     def process_site(site):
-        neighbors = structure.get_neighbors(site, 4)
+
+        # in an exceptionally rare number of structures, the search
+        # radius needs to be increased to find a neighbor atom
+        search_radius = 4
+        neighbors = []
+        while len(neighbors) == 0:
+            neighbors = structure.get_neighbors(site, search_radius)
+            search_radius *= 2
+            if search_radius > max(structure.lattice.abc)*2:
+                break
+
         neighbors = sorted(neighbors, key=lambda n: n[1])
         nn, dist = neighbors[0]
         coord_elements = [site.specie for site, d in neighbors

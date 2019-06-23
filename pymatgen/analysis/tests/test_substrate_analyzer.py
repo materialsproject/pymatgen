@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 """
 TODO: Modify unittest doc.
@@ -26,7 +25,7 @@ from pymatgen.analysis.elasticity.elastic import ElasticTensor
 class ZSLGenTest(PymatgenTest):
     # Clean up test to be based on test structures
 
-    def runTest(self):
+    def test_init(self):
         # Film VO2
         film = SpacegroupAnalyzer(self.get_structure("VO2"),
                                   symprec=0.1).get_conventional_standard_structure()
@@ -56,7 +55,7 @@ class ZSLGenTest(PymatgenTest):
 class SubstrateAnalyzerTest(PymatgenTest):
     # Clean up test to be based on test structures
 
-    def runTest(self):
+    def test_init(self):
         # Film VO2
         film = SpacegroupAnalyzer(self.get_structure("VO2"),
                                   symprec=0.1).get_conventional_standard_structure()

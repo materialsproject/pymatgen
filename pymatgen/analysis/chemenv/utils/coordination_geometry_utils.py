@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 """
 This module contains some utility functions and classes that are used in the chemenv package.
@@ -537,7 +536,7 @@ def is_anion_cation_bond(valences, ii, jj):
     return (valences[ii] > 0 > valences[jj]) or (valences[jj] > 0 > valences[ii])
 
 
-class Plane(object):
+class Plane:
     """
     Class used to describe a plane
     """

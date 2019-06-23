@@ -2,37 +2,17 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
-
-import os
-import re
-import itertools
-import warnings
-import logging
-
-import six
 import numpy as np
-from numpy.linalg import det
-from collections import OrderedDict, namedtuple
-from hashlib import md5
 
 from monty.io import zopen
-from monty.os.path import zpath
-from monty.json import MontyDecoder
 
 import xml.etree.cElementTree as ET
-from enum import Enum
-from tabulate import tabulate
 
 import scipy.constants as const
 
-from pymatgen import SETTINGS
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.core.periodic_table import Element, get_el_sp
-from monty.design_patterns import cached_class
-from pymatgen.util.string import str_delimited
-from pymatgen.util.io_utils import clean_lines
+from pymatgen.core.periodic_table import Element
 from monty.json import MSONable
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer

@@ -1,14 +1,13 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
-from __future__ import division, unicode_literals
-
+import platform
+import re
 import unittest
-import os
 import warnings
 import random
-from pymatgen import SETTINGS
+import sys
+from pymatgen import SETTINGS, __version__ as pmg_version
 from pymatgen.ext.matproj import MPRester, MPRestError
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure, Composition
@@ -24,6 +23,7 @@ from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.io.cif import CifParser
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
+from pymatgen.util.testing import PymatgenTest
 
 """
 Created on Jun 9, 2012
@@ -38,19 +38,17 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Jun 9, 2012"
 
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files')
-
-
-@unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY"), "PMG_MAPI_KEY environment variable not set.")
-class MPResterTest(unittest.TestCase):
+@unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY"),
+                 "PMG_MAPI_KEY environment variable not set.")
+class MPResterTest(PymatgenTest):
+    _multiprocess_shared_ = True
 
     def setUp(self):
         self.rester = MPRester()
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_get_all_materials_ids_doc(self):
         mids = self.rester.get_materials_ids("Al2O3")
@@ -58,6 +56,13 @@ class MPResterTest(unittest.TestCase):
         doc = self.rester.get_doc(mids.pop(0))
         self.assertEqual(doc["pretty_formula"], "Al2O3")
 
+    def test_get_xas_data(self):
+        # Test getting XAS data
+        data = self.rester.get_xas_data("mp-19017", "Li")
+        self.assertEqual("mp-19017,Li", data['mid_and_el'])
+        self.assertAlmostEqual(data['spectrum']['x'][0], 55.178, places=2)
+        self.assertAlmostEqual(data['spectrum']['y'][0], 0.0164634, places=2)
+        
     def test_get_data(self):
         props = ["energy", "energy_per_atom", "formation_energy_per_atom",
                  "nsites", "unit_cell_formula", "pretty_formula", "is_hubbard",
@@ -101,7 +106,7 @@ class MPResterTest(unittest.TestCase):
                 obj = self.rester.get_data("mp-19017", prop=prop)[0][prop]
                 self.assertIsInstance(obj, ComputedEntry)
 
-        #Test chemsys search
+        # Test chemsys search
         data = self.rester.get_data('Fe-Li-O', prop='unit_cell_formula')
         self.assertTrue(len(data) > 1)
         elements = {Element("Li"), Element("Fe"), Element("O")}
@@ -112,6 +117,13 @@ class MPResterTest(unittest.TestCase):
 
         self.assertRaises(MPRestError, self.rester.get_data, "Fe2O3",
                           "badmethod")
+
+    def test_get_data(self):
+        # Test getting supported properties
+        self.assertNotEqual(self.rester.get_task_data("mp-30"), [])
+        # Test aliasing
+        data = self.rester.get_task_data("mp-30", "energy")
+        self.assertAlmostEqual(data[0]["energy"], -4.09929227, places=2)
 
     def test_get_materials_id_from_task_id(self):
         self.assertEqual(self.rester.get_materials_id_from_task_id(
@@ -126,8 +138,8 @@ class MPResterTest(unittest.TestCase):
     def test_find_structure(self):
         # nosetests pymatgen/matproj/tests/test_matproj.py:MPResterTest.test_find_structure
         m = MPRester()
-        ciffile = os.path.join(test_dir, 'Fe3O4.cif')
-        data = m.find_structure(ciffile)
+        ciffile = self.TEST_FILES_DIR / 'Fe3O4.cif'
+        data = m.find_structure(str(ciffile))
         self.assertTrue(len(data) > 1)
         s = CifParser(ciffile).get_structures()[0]
         data = m.find_structure(s)
@@ -153,11 +165,24 @@ class MPResterTest(unittest.TestCase):
     def test_query(self):
         criteria = {'elements': {'$in': ['Li', 'Na', 'K'], '$all': ['O']}}
         props = ['pretty_formula', 'energy']
-        data = self.rester.query(criteria=criteria, properties=props)
+        data = self.rester.query(
+            criteria=criteria, properties=props, chunk_size=0)
         self.assertTrue(len(data) > 6)
-        data = self.rester.query(criteria="*2O", properties=props)
+        data = self.rester.query(
+            criteria="*2O", properties=props, chunk_size=0)
         self.assertGreaterEqual(len(data), 52)
         self.assertIn("Li2O", (d["pretty_formula"] for d in data))
+
+    def test_query_chunk_size(self):
+        criteria = {"nelements": 2, "elements": "O"}
+        props = ['pretty_formula']
+        data1 = self.rester.query(
+            criteria=criteria, properties=props, chunk_size=0)
+        data2 = self.rester.query(
+            criteria=criteria, properties=props, chunk_size=500)
+        self.assertEqual({d['pretty_formula'] for d in data1},
+                         {d['pretty_formula'] for d in data2})
+        self.assertIn("Al2O3", {d['pretty_formula'] for d in data1})
 
     def test_get_exp_thermo_data(self):
         data = self.rester.get_exp_thermo_data("Fe2O3")
@@ -245,20 +270,28 @@ class MPResterTest(unittest.TestCase):
         self.assertEqual(len(th_entry.structure), 4)
         self.assertEqual(len(th_entry_initial.structure), 2)
 
+        # Test if the polymorphs of Fe are properly sorted
+        # by e_above_hull when sort_by_e_above_hull=True
+        Fe_entries = self.rester.get_entries("Fe", sort_by_e_above_hull=True)
+        self.assertEqual(Fe_entries[0].data["e_above_hull"], 0)
 
     def test_get_pourbaix_entries(self):
-        pbx_entries = self.rester.get_pourbaix_entries(["Fe"])
+        pbx_entries = self.rester.get_pourbaix_entries(["Fe", "Cr"])
         for pbx_entry in pbx_entries:
             self.assertTrue(isinstance(pbx_entry, PourbaixEntry))
         # Ensure entries are pourbaix compatible
         pbx = PourbaixDiagram(pbx_entries)
 
         # Try binary system
-        pbx_entries = self.rester.get_pourbaix_entries(["Fe", "Cr"])
-        pbx = PourbaixDiagram(pbx_entries)
+        #pbx_entries = self.rester.get_pourbaix_entries(["Fe", "Cr"])
+        #pbx = PourbaixDiagram(pbx_entries)
+
+        # TODO: Shyue Ping: I do not understand this test. You seem to
+        # be grabbing Zn-S system, but I don't see proper test for anything,
+        # including Na ref. This test also takes a long time.
 
         # Test Zn-S, which has Na in reference solids
-        pbx_entries = self.rester.get_pourbaix_entries(["Zn", "S"])
+        # pbx_entries = self.rester.get_pourbaix_entries(["Zn", "S"])
 
     def test_get_exp_entry(self):
         entry = self.rester.get_exp_entry("Fe2O3")
@@ -328,12 +361,16 @@ class MPResterTest(unittest.TestCase):
         ws = self.rester.get_wulff_shape("mp-126")
         self.assertTrue(isinstance(ws, WulffShape))
 
+    def test_get_cohesive_energy(self):
+        ecoh = self.rester.get_cohesive_energy("mp-13")
+        self.assertTrue(ecoh, 5.04543279)
+
     def test_get_interface_reactions(self):
         kinks = self.rester.get_interface_reactions("LiCoO2", "Li3PS4")
         self.assertTrue(len(kinks) > 0)
         kink = kinks[0]
         self.assertIn("energy", kink)
-        self.assertIn("ratio", kink)
+        self.assertIn("ratio_atomic", kink)
         self.assertIn("rxn", kink)
         self.assertTrue(isinstance(kink['rxn'], Reaction))
         kinks_open_O = self.rester.get_interface_reactions(
@@ -374,6 +411,21 @@ class MPResterTest(unittest.TestCase):
 
         crit = MPRester.parse_criteria("POPO2")
         self.assertIn("P2O3", crit["pretty_formula"]["$in"])
+
+    def test_include_user_agent(self):
+        headers = self.rester.session.headers
+        self.assertIn("user-agent", headers, msg="Include user-agent header by default")
+        m = re.match(
+            r"pymatgen/(\d+)\.(\d+)\.(\d+) \(Python/(\d+)\.(\d)+\.(\d+) ([^\/]*)/([^\)]*)\)",
+            headers['user-agent'])
+        self.assertIsNotNone(m, msg="Unexpected user-agent value {}".format(headers['user-agent']))
+        self.assertEqual(m.groups()[:3], tuple(pmg_version.split(".")))
+        self.assertEqual(
+            m.groups()[3:6],
+            tuple(str(n) for n in (sys.version_info.major, sys.version_info.minor, sys.version_info.micro))
+        )
+        self.rester = MPRester(include_user_agent=False)
+        self.assertNotIn("user-agent", self.rester.session.headers, msg="user-agent header unwanted")
 
 
 if __name__ == "__main__":

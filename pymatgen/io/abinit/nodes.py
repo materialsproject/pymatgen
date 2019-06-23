@@ -2,14 +2,12 @@
 """
 This module defines the Node class that is inherited by Task, Work and Flow objects.
 """
-from __future__ import division, print_function, unicode_literals
 
 import sys
 import os
 import time
 import collections
 import abc
-import six
 import numpy as np
 
 from pprint import pprint
@@ -103,7 +101,7 @@ class Status(int):
         return colored(str(self), **self.color_opts)
 
 
-class Dependency(object):
+class Dependency:
     """
     This object describes the dependencies among the nodes of a calculation.
 
@@ -210,7 +208,7 @@ class Dependency(object):
         return filepaths, exts
 
 
-class Product(object):
+class Product:
     """
     A product represents an output file produced by ABINIT instance.
     This file is needed to start another `Task` or another `Work`.
@@ -259,7 +257,7 @@ class Product(object):
 class GridFsFile(AttrDict):
     """Information on a file that will stored in the MongoDb gridfs collection."""
     def __init__(self, path, fs_id=None, mode="b"):
-        super(GridFsFile, self).__init__(path=path, fs_id=fs_id, mode=mode)
+        super().__init__(path=path, fs_id=fs_id, mode=mode)
 
 
 class NodeResults(dict, MSONable):
@@ -295,7 +293,7 @@ class NodeResults(dict, MSONable):
         return node.Results(node, **kwargs)
 
     def __init__(self, node, **kwargs):
-        super(NodeResults, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.node = node
 
         if "in" not in self: self["in"] = Namespace()
@@ -439,7 +437,7 @@ class SpectatorNodeError(NodeError):
     """
 
 
-class Node(six.with_metaclass(abc.ABCMeta, object)):
+class Node(metaclass=abc.ABCMeta):
     """
     Abstract base class defining the interface that must be
     implemented by the nodes of the calculation.
@@ -525,7 +523,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     #def __setattr__(self, name, value):
     #    if self.in_spectator_mode:
     #        raise RuntimeError("You should not call __setattr__ in spectator_mode")
-    #    return super(Node, self).__setattr__(name,value)
+    #    return super().__setattr__(name,value)
 
     @lazy_property
     def color_hex(self):
@@ -809,7 +807,9 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         """
         import pandas as pd
         if self.is_task:
-            return pd.DataFrame([{v: self.input.get(v, None) for v in varnames}], index=[self.name], columns=varnames)
+            df = pd.DataFrame([{v: self.input.get(v, None) for v in varnames}], index=[self.name], columns=varnames)
+            df["class"] = self.__class__.__name__
+            return df
 
         elif self.is_work:
             frames = [task.get_vars_dataframe(*varnames) for task in self]
@@ -953,7 +953,7 @@ class FileNode(Node):
     color_rgb = np.array((102, 51, 255)) / 255
 
     def __init__(self, filename):
-        super(FileNode, self).__init__()
+        super().__init__()
         self.filepath = os.path.abspath(filename)
 
         # Directories with input|output|temporary data.
@@ -993,7 +993,7 @@ class FileNode(Node):
         return self.status
 
     def get_results(self, **kwargs):
-        results = super(FileNode, self).get_results(**kwargs)
+        results = super().get_results(**kwargs)
         #results.register_gridfs_files(filepath=self.filepath)
         return results
 
@@ -1018,6 +1018,8 @@ class FileNode(Node):
         return self._abiopen_abiext("_GSR.nc")
 
     def _abiopen_abiext(self, abiext):
+        import glob
+        from abipy import abilab
         if not self.filepath.endswith(abiext):
             msg = """\n
 File type does not match the abinit file extension.
@@ -1027,10 +1029,14 @@ Continuing anyway assuming that the netcdf file provides the API/dims/vars neeed
             logger.warning(msg)
             self.history.warning(msg)
 
+        #try to find file in the same path
+        filepath = os.path.dirname(self.filepath)
+        glob_result = glob.glob(os.path.join(filepath,"*%s"%abiext))
+        if len(glob_result): return abilab.abiopen(glob_result[0])
         return self.abiopen()
 
 
-class HistoryRecord(object):
+class HistoryRecord:
     """
     A `HistoryRecord` instance represents an entry in the :class:`NodeHistory`.
 
@@ -1208,7 +1214,7 @@ class NodeCorrections(list):
     #def _find(self, event_class)
 
 
-class GarbageCollector(object):
+class GarbageCollector:
     """This object stores information on the """
     def __init__(self, exts, policy):
         self.exts, self.policy = set(exts), policy

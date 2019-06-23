@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import unittest
 import os
@@ -48,7 +47,7 @@ class FunctionalGroupExtractorTest(unittest.TestCase):
         self.extractor = FunctionalGroupExtractor(self.mg)
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
         del self.extractor
         del self.mg
         del self.strat

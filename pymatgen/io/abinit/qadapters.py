@@ -13,7 +13,6 @@ This programmatic interface is used by the `TaskManager` for optimizing the para
 of the run before submitting the job (Abinit provides the autoparal option that
 allows one to get a list of parallel configuration and their expected efficiency).
 """
-from __future__ import print_function, division, unicode_literals
 
 import sys
 import os
@@ -21,7 +20,6 @@ import abc
 import string
 import copy
 import getpass
-import six
 import json
 import math
 from . import qutils as qu
@@ -65,7 +63,7 @@ class SubmitResults(namedtuple("SubmitResult", "qid, out, err, process")):
     """
 
 
-class MpiRunner(object):
+class MpiRunner:
     """
     This object provides an abstraction for the mpirunner provided
     by the different MPI libraries. It's main task is handling the
@@ -170,7 +168,7 @@ class OmpEnv(AttrDict):
         To create an instance from an INI file, use:
            OmpEnv.from_file(filename)
         """
-        super(OmpEnv, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         err_msg = ""
         for key, value in self.items():
@@ -186,7 +184,7 @@ class OmpEnv(AttrDict):
         return "\n".join("export %s=%s" % (k, v) for k, v in self.items())
 
 
-class Hardware(object):
+class Hardware:
     """
     This object collects information on the hardware available in a given queue.
 
@@ -261,7 +259,7 @@ class Hardware(object):
                    mem_per_node=dd['mem_per_node'])
 
 
-class _ExcludeNodesFile(object):
+class _ExcludeNodesFile:
     """
     This file contains the list of nodes to be excluded.
     Nodes are indexed by queue name.
@@ -353,7 +351,7 @@ class MaxNumLaunchesError(QueueAdapterError):
     """Raised by `submit_to_queue` if we try to submit more than `max_num_launches` times."""
 
 
-class QueueAdapter(six.with_metaclass(abc.ABCMeta, MSONable)):
+class QueueAdapter(MSONable, metaclass=abc.ABCMeta):
     """
     The `QueueAdapter` is responsible for all interactions with a specific queue management system.
     This includes handling all details of queue script format as well as queue submission and management.
@@ -1266,28 +1264,28 @@ $${qverbatim}
 """
 
     def set_qname(self, qname):
-        super(SlurmAdapter, self).set_qname(qname)
+        super().set_qname(qname)
         if qname:
             self.qparams["partition"] = qname
 
     def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
-        super(SlurmAdapter, self).set_mpi_procs(mpi_procs)
+        super().set_mpi_procs(mpi_procs)
         self.qparams["ntasks"] = mpi_procs
 
     def set_omp_threads(self, omp_threads):
-        super(SlurmAdapter, self).set_omp_threads(omp_threads)
+        super().set_omp_threads(omp_threads)
         self.qparams["cpus_per_task"] = omp_threads
 
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in megabytes"""
-        super(SlurmAdapter, self).set_mem_per_proc(mem_mb)
+        super().set_mem_per_proc(mem_mb)
         self.qparams["mem_per_cpu"] = self.mem_per_proc
         # Remove mem if it's defined.
         #self.qparams.pop("mem", None)
 
     def set_timelimit(self, timelimit):
-        super(SlurmAdapter, self).set_timelimit(timelimit)
+        super().set_timelimit(timelimit)
         self.qparams["time"] = qu.time2slurm(timelimit)
 
     def cancel(self, job_id):
@@ -1405,17 +1403,17 @@ $${qverbatim}
 """
 
     def set_qname(self, qname):
-        super(PbsProAdapter, self).set_qname(qname)
+        super().set_qname(qname)
         if qname:
             self.qparams["queue"] = qname
 
     def set_timelimit(self, timelimit):
-        super(PbsProAdapter, self).set_timelimit(timelimit)
+        super().set_timelimit(timelimit)
         self.qparams["walltime"] = qu.time2pbspro(timelimit)
 
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in megabytes"""
-        super(PbsProAdapter, self).set_mem_per_proc(mem_mb)
+        super().set_mem_per_proc(mem_mb)
         #self.qparams["mem"] = self.mem_per_proc
 
     def cancel(self, job_id):
@@ -1760,16 +1758,20 @@ $${qverbatim}
         QueueAdapter.set_mem_per_proc(self, mem_mb)
         #self.qparams["mem"] = self.mem_per_proc
 
-    #@property
-    #def mpi_procs(self):
-    #    """Number of MPI processes."""
-    #    return self.qparams.get("nodes", 1) * self.qparams.get("ppn", 1)
-
     def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
         QueueAdapter.set_mpi_procs(self, mpi_procs)
-        self.qparams["nodes"] = 1
-        self.qparams["ppn"] = mpi_procs
+
+        num_nodes, rest_cores = self.hw.divmod_node(mpi_procs, omp_threads=1)
+        if num_nodes == 0:
+            self.qparams["nodes"] = 1
+            self.qparams["ppn"] = mpi_procs
+        else:
+            if rest_cores != 0:
+                # Pack cores as much as possible.
+                num_nodes += 1
+            self.qparams["nodes"] = num_nodes
+            self.qparams["ppn"] = self.hw.cores_per_node
 
     def exclude_nodes(self, nodes):
         raise self.Error('qadapter failed to exclude nodes, not implemented yet in torque')
@@ -1809,26 +1811,26 @@ class SGEAdapter(QueueAdapter):
 $${qverbatim}
 """
     def set_qname(self, qname):
-        super(SGEAdapter, self).set_qname(qname)
+        super().set_qname(qname)
         if qname:
             self.qparams["queue_name"] = qname
 
     def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
-        super(SGEAdapter, self).set_mpi_procs(mpi_procs)
+        super().set_mpi_procs(mpi_procs)
         self.qparams["ncpus"] = mpi_procs
 
     def set_omp_threads(self, omp_threads):
-        super(SGEAdapter, self).set_omp_threads(omp_threads)
+        super().set_omp_threads(omp_threads)
         logger.warning("Cannot use omp_threads with SGE")
 
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in megabytes"""
-        super(SGEAdapter, self).set_mem_per_proc(mem_mb)
+        super().set_mem_per_proc(mem_mb)
         self.qparams["mem_per_slot"] = str(int(self.mem_per_proc)) + "M"
 
     def set_timelimit(self, timelimit):
-        super(SGEAdapter, self).set_timelimit(timelimit)
+        super().set_timelimit(timelimit)
         # Same convention as pbspro e.g. [hours:minutes:]seconds
         self.qparams["walltime"] = qu.time2pbspro(timelimit)
 
@@ -1912,15 +1914,15 @@ $${qverbatim}
 
     def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
-        super(MOABAdapter, self).set_mpi_procs(mpi_procs)
+        super().set_mpi_procs(mpi_procs)
         self.qparams["procs"] = mpi_procs
 
     def set_timelimit(self, timelimit):
-        super(MOABAdapter, self).set_timelimit(timelimit)
+        super().set_timelimit(timelimit)
         self.qparams["walltime"] = qu.time2slurm(timelimit)
 
     def set_mem_per_proc(self, mem_mb):
-        super(MOABAdapter, self).set_mem_per_proc(mem_mb)
+        super().set_mem_per_proc(mem_mb)
         #TODO
         #raise NotImplementedError("set_mem_per_cpu")
 
@@ -2004,27 +2006,27 @@ $${qverbatim}
 """
 
     def set_qname(self, qname):
-        super(BlueGeneAdapter, self).set_qname(qname)
+        super().set_qname(qname)
         if qname:
             self.qparams["class"] = qname
 
     #def set_mpi_procs(self, mpi_procs):
     #    """Set the number of CPUs used for MPI."""
-    #    super(BlueGeneAdapter, self).set_mpi_procs(mpi_procs)
+    #    super().set_mpi_procs(mpi_procs)
     #    #self.qparams["ntasks"] = mpi_procs
 
     #def set_omp_threads(self, omp_threads):
-    #    super(BlueGeneAdapter, self).set_omp_threads(omp_threads)
+    #    super().set_omp_threads(omp_threads)
     #    #self.qparams["cpus_per_task"] = omp_threads
 
     #def set_mem_per_proc(self, mem_mb):
     #    """Set the memory per process in megabytes"""
-    #    super(BlueGeneAdapter, self).set_mem_per_proc(mem_mb)
+    #    super().set_mem_per_proc(mem_mb)
     #    #self.qparams["mem_per_cpu"] = self.mem_per_proc
 
     def set_timelimit(self, timelimit):
         """Limits are specified with the format hh:mm:ss (hours:minutes:seconds)"""
-        super(BlueGeneAdapter, self).set_timelimit(timelimit)
+        super().set_timelimit(timelimit)
         self.qparams["wall_clock_limit"] = qu.time2loadlever(timelimit)
 
     def cancel(self, job_id):

@@ -5,14 +5,12 @@
 This module defines the events signaled by abinit during the execution. It also
 provides a parser to extract these events form the main output file and the log file.
 """
-from __future__ import unicode_literals, division, print_function, absolute_import
 
 import sys
 import os.path
 import datetime
 import collections
 import ruamel.yaml as yaml
-import six
 import abc
 import logging
 import numpy as np
@@ -258,7 +256,7 @@ _BASE_CLASSES = [
 ]
 
 
-class EventReport(collections.Iterable, MSONable):
+class EventReport(collections.abc.Iterable, MSONable):
     """
     Iterable storing the events raised by an ABINIT calculation.
 
@@ -409,7 +407,7 @@ class EventsParserError(Exception):
     """Base class for the exceptions raised by :class:`EventsParser`."""
 
 
-class EventsParser(object):
+class EventsParser:
     """
     Parses the output or the log file produced by ABINIT and extract the list of events.
     """
@@ -475,7 +473,7 @@ class EventsParser(object):
         return EventReport(filename, events=[event])
 
 
-class EventHandler(six.with_metaclass(abc.ABCMeta, MSONable, object)):
+class EventHandler(MSONable, metaclass=abc.ABCMeta):
     """
     Abstract base class defining the interface for an EventHandler.
 
@@ -520,7 +518,7 @@ class EventHandler(six.with_metaclass(abc.ABCMeta, MSONable, object)):
 
     def __init__(self):
         """Simple init for compatibility with introspection in as_dict/from_dict"""
-        return super(EventHandler,self).__init__()
+        return super().__init__()
 
     @classmethod
     def cls2str(cls):

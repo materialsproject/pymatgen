@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals
 
 import unittest
 
@@ -20,6 +19,7 @@ aconvasp_present = False  # disable aconvasp testing for now.
 
 @unittest.skipIf(not aconvasp_present, "aconvasp not present.")
 class AconvaspCallerTest(unittest.TestCase):
+    _multiprocess_shared_ = True
 
     def setUp(self):
         self.si = Element("Si")

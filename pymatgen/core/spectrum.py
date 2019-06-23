@@ -43,7 +43,7 @@ class Spectrum(MSONable):
             y (ndarray): A ndarray of N x k values. The first dimension must be
                 the same as that of x. Each of the k values are interpreted as
             \\*args: All subclasses should provide args other than x and y
-                when calling super, e.g., super(Subclass, self).__init__(
+                when calling super, e.g., super().__init__(
                 x, y, arg1, arg2, kwarg1=val1, ..). This guarantees the +, -, *,
                 etc. operators work properly.
             \\*\\*kwargs: Same as that for \\*args.

@@ -1192,7 +1192,7 @@ struct __pyx_array_obj {
 /* "View.MemoryView":278
  * 
  * @cname('__pyx_MemviewEnum')
- * cdef class Enum(object):             # <<<<<<<<<<<<<<
+ * cdef class Enum:             # <<<<<<<<<<<<<<
  *     cdef object name
  *     def __init__(self, name):
  */
@@ -1205,7 +1205,7 @@ struct __pyx_MemviewEnum_obj {
 /* "View.MemoryView":329
  * 
  * @cname('__pyx_memoryview')
- * cdef class memoryview(object):             # <<<<<<<<<<<<<<
+ * cdef class memoryview:             # <<<<<<<<<<<<<<
  * 
  *     cdef object obj
  */
@@ -1259,7 +1259,7 @@ static struct __pyx_vtabstruct_array *__pyx_vtabptr_array;
 /* "View.MemoryView":329
  * 
  * @cname('__pyx_memoryview')
- * cdef class memoryview(object):             # <<<<<<<<<<<<<<
+ * cdef class memoryview:             # <<<<<<<<<<<<<<
  * 
  *     cdef object obj
  */
@@ -9274,7 +9274,7 @@ static struct __pyx_array_obj *__pyx_array_new(PyObject *__pyx_v_shape, Py_ssize
 }
 
 /* "View.MemoryView":280
- * cdef class Enum(object):
+ * cdef class Enum:
  *     cdef object name
  *     def __init__(self, name):             # <<<<<<<<<<<<<<
  *         self.name = name
@@ -9350,7 +9350,7 @@ static int __pyx_MemviewEnum___pyx_pf_15View_dot_MemoryView_4Enum___init__(struc
   __pyx_v_self->name = __pyx_v_name;
 
   /* "View.MemoryView":280
- * cdef class Enum(object):
+ * cdef class Enum:
  *     cdef object name
  *     def __init__(self, name):             # <<<<<<<<<<<<<<
  *         self.name = name
@@ -21575,7 +21575,7 @@ static int __Pyx_InitCachedConstants(void) {
   /* "pymatgen/optimization/linear_assignment.pyx":25
  * 
  * 
- * class LinearAssignment(object):             # <<<<<<<<<<<<<<
+ * class LinearAssignment:             # <<<<<<<<<<<<<<
  *     """
  *     This class finds the solution to the Linear Assignment Problem.
  */
@@ -22056,7 +22056,7 @@ if (!__Pyx_RefNanny) {
   /* "pymatgen/optimization/linear_assignment.pyx":25
  * 
  * 
- * class LinearAssignment(object):             # <<<<<<<<<<<<<<
+ * class LinearAssignment:             # <<<<<<<<<<<<<<
  *     """
  *     This class finds the solution to the Linear Assignment Problem.
  */
@@ -22081,7 +22081,7 @@ if (!__Pyx_RefNanny) {
   /* "pymatgen/optimization/linear_assignment.pyx":25
  * 
  * 
- * class LinearAssignment(object):             # <<<<<<<<<<<<<<
+ * class LinearAssignment:             # <<<<<<<<<<<<<<
  *     """
  *     This class finds the solution to the Linear Assignment Problem.
  */

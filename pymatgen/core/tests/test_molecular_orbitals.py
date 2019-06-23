@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import unittest
 
@@ -32,6 +31,10 @@ class MolecularOrbitalTestCase(PymatgenTest):
                       'metal': False}
         for k in test_edges.keys():
             self.assertEqual(test_edges[k], test_case.obtain_band_edges()[k])
+
+    # test for raising ValueError for fractional composition
+    def test_fractional_compositions(self):
+        self.assertRaises(ValueError, lambda: MolecularOrbitals('Na0.5Cl0.5'))
 
 
 if __name__ == "__main__":

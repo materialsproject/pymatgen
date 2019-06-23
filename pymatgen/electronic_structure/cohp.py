@@ -2,11 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
-
-import six
 import warnings
 import numpy as np
+import re
+import sys
 
 from monty.json import MSONable
 from pymatgen.electronic_structure.core import Spin, Orbital
@@ -23,11 +22,11 @@ populations (COHP) and integrated COHP (ICOHP), but can also be used
 for crystal orbital overlap populations (COOP).
 """
 
-__author__ = "Marco Esters"
+__author__ = "Marco Esters, Janine George"
 __copyright__ = "Copyright 2017, The Materials Project"
 __version__ = "0.2"
-__maintainer__ = "Marco Esters"
-__email__ = "esters@uoregon.edu"
+__maintainer__ = "Marco Esters, Janine George"
+__email__ = "esters@uoregon.edu, janine.george@uclouvain.be"
 __date__ = "Dec 13, 2017"
 
 
@@ -46,6 +45,7 @@ class Cohp(MSONable):
 
         icohp ({Spin: np.array}): representing the ICOHP for each spin.
     """
+
     def __init__(self, efermi, energies, cohp, are_coops=False, icohp=None):
         self.are_coops = are_coops
         self.efermi = efermi
@@ -146,9 +146,9 @@ class Cohp(MSONable):
         elif spin is None:
             return populations
         else:
-            if isinstance(spin, six.integer_types):
+            if isinstance(spin, int):
                 spin = Spin(spin)
-            elif isinstance(spin, six.string_types):
+            elif isinstance(spin, str):
                 s = {"up": 1, "down": -1}[spin.lower()]
                 spin = Spin(s)
             return {spin: populations[spin]}
@@ -179,6 +179,41 @@ class Cohp(MSONable):
             else:
                 raise ValueError("ICOHP is empty.")
         return inter
+
+    def has_antibnd_states_below_efermi(self, spin=None, limit=0.01):
+        """
+        Returns dict indicating if there are antibonding states below the Fermi level depending on the spin
+            spin: Spin
+            limit: -COHP smaller -limit will be considered.
+
+        """
+        warnings.warn("This method has not been tested on many examples. Check the parameter limit, pls!")
+
+        populations = self.cohp
+        number_energies_below_efermi = len([x for x in self.energies if x <= self.efermi])
+
+        if populations is None:
+            return None
+        elif spin is None:
+            dict_to_return = {}
+            for spin, cohpvalues in populations.items():
+                if (max(cohpvalues[0:number_energies_below_efermi])) > limit:
+                    dict_to_return[spin] = True
+                else:
+                    dict_to_return[spin] = False
+        else:
+            dict_to_return = {}
+            if isinstance(spin, int):
+                spin = Spin(spin)
+            elif isinstance(spin, str):
+                s = {"up": 1, "down": -1}[spin.lower()]
+                spin = Spin(s)
+            if (max(populations[spin][0:number_energies_below_efermi])) > limit:
+                dict_to_return[spin] = True
+            else:
+                dict_to_return[spin] = False
+
+        return dict_to_return
 
     @classmethod
     def from_dict(cls, d):
@@ -249,13 +284,11 @@ class CompleteCohp(Cohp):
 
         Orbital-resolved COHPs.
     """
+
     def __init__(self, structure, avg_cohp, cohp_dict, bonds=None,
                  are_coops=False, orb_res_cohp=None):
-        super(CompleteCohp, self).__init__(avg_cohp.efermi,
-                                           avg_cohp.energies,
-                                           avg_cohp.cohp,
-                                           are_coops=are_coops,
-                                           icohp=avg_cohp.icohp)
+        super().__init__(avg_cohp.efermi, avg_cohp.energies, avg_cohp.cohp,
+                         are_coops=are_coops, icohp=avg_cohp.icohp)
         self.structure = structure
         self.are_coops = are_coops
         self.all_cohps = cohp_dict
@@ -326,45 +359,106 @@ class CompleteCohp(Cohp):
 
         return d
 
-    def get_cohp(self, label, spin=None, integrated=False):
+    def get_cohp_by_label(self, label):
         """
-        Get specific COHP or ICOHP. If label is not in the COHP labels,
-        try reversing the order of the sites.
+        Get specific COHP object.
 
         Args:
-            spin: Spin. Can be parsed as spin object, integer (-1/1)
-                or str ("up"/"down")
-            integrated: Return COHP (False) or ICOHP (True)
+            label: string (for newer Lobster versions: a number)
 
         Returns:
-            Returns the CHOP or ICOHP for the input spin. If Spin is
-            None and both spins are present, both spins will be returned
-            as a dictionary.
+            Returns the COHP object to simplify plotting
         """
         if label.lower() == "average":
-            return self.cohp.get_cohp(spin=spin, integrated=integrated)
+            return Cohp(efermi=self.efermi, energies=self.energies,
+                        cohp=self.cohp, are_coops=self.are_coops, icohp=self.icohp)
         else:
             try:
-                return self.all_cohps[label].get_cohp(spin=spin,
-                                                      integrated=integrated)
-            except KeyError:
-                atoms = label.split("-")
-                label = atoms[1] + "-" + atoms[0]
-                return self.all_cohps[label].get_cohp(spin=spin,
-                                                      integrated=integrated)
+                return Cohp(efermi=self.efermi, energies=self.energies,
+                            cohp=self.all_cohps[label].get_cohp(spin=None, integrated=False),
+                            are_coops=self.are_coops,
+                            icohp=self.all_cohps[label].get_icohp(spin=None))
 
-    def get_icohp(self, label, spin=None):
+            except KeyError:
+                print("The label does not exist")
+
+    def get_summed_cohp_by_label_list(self, label_list, divisor=1):
         """
-        Convenient alternative to get a specific ICOHP.
+        Returns a COHP object that includes a summed COHP divided by divisor
+
+        Args:
+            label_list: list of labels for the COHP that should be included in the summed cohp
+            divisor: float/int, the summed cohp will be divided by this divisor
+        Returns:
+            Returns a COHP object including a summed COHP
         """
-        return self.get_cohp(label, spin=spin, integrated=True)
+        # check if cohps are spinpolarized or not
+        first_cohpobject = self.get_cohp_by_label(label_list[0])
+        summed_cohp = first_cohpobject.cohp.copy()
+        summed_icohp = first_cohpobject.icohp.copy()
+        for label in label_list[1:]:
+            cohp_here = self.get_cohp_by_label(label)
+            summed_cohp[Spin.up] = np.sum([summed_cohp[Spin.up], cohp_here.cohp[Spin.up]], axis=0)
+            if Spin.down in summed_cohp:
+                summed_cohp[Spin.down] = np.sum([summed_cohp[Spin.down], cohp_here.cohp[Spin.down]], axis=0)
+            summed_icohp[Spin.up] = np.sum([summed_icohp[Spin.up], cohp_here.icohp[Spin.up]], axis=0)
+            if Spin.down in summed_icohp:
+                summed_icohp[Spin.down] = np.sum([summed_icohp[Spin.down], cohp_here.icohp[Spin.down]], axis=0)
+
+        divided_cohp = {}
+        divided_icohp = {}
+        divided_cohp[Spin.up] = np.divide(summed_cohp[Spin.up], divisor)
+        divided_icohp[Spin.up] = np.divide(summed_icohp[Spin.up], divisor)
+        if Spin.down in summed_cohp:
+            divided_cohp[Spin.down] = np.divide(summed_cohp[Spin.down], divisor)
+            divided_icohp[Spin.down] = np.divide(summed_icohp[Spin.down], divisor)
+
+        return Cohp(efermi=first_cohpobject.efermi, energies=first_cohpobject.energies, cohp=divided_cohp,
+                    are_coops=first_cohpobject.are_coops,
+                    icohp=divided_icohp)
+
+    def get_summed_cohp_by_label_and_orbital_list(self, label_list, orbital_list, divisor=1):
+        """
+        Returns a COHP object that includes a summed COHP divided by divisor
+
+        Args:
+            label_list: list of labels for the COHP that should be included in the summed cohp
+            orbital_list: list of orbitals for the COHPs that should be included in the summed cohp (same order as label_list)
+            divisor: float/int, the summed cohp will be divided by this divisor
+        Returns:
+            Returns a COHP object including a summed COHP
+        """
+        # check if cohps are spinpolarized or not
+        first_cohpobject = self.get_orbital_resolved_cohp(label_list[0], orbital_list[0])
+        summed_cohp = first_cohpobject.cohp.copy()
+        summed_icohp = first_cohpobject.icohp.copy()
+        for ilabel, label in enumerate(label_list[1:], 1):
+            cohp_here = self.get_orbital_resolved_cohp(label, orbital_list[ilabel])
+            summed_cohp[Spin.up] = np.sum([summed_cohp[Spin.up], cohp_here.cohp.copy()[Spin.up]], axis=0)
+            if Spin.down in summed_cohp:
+                summed_cohp[Spin.down] = np.sum([summed_cohp[Spin.down], cohp_here.cohp.copy()[Spin.down]], axis=0)
+            summed_icohp[Spin.up] = np.sum([summed_icohp[Spin.up], cohp_here.icohp.copy()[Spin.up]], axis=0)
+            if Spin.down in summed_icohp:
+                summed_icohp[Spin.down] = np.sum([summed_icohp[Spin.down], cohp_here.icohp.copy()[Spin.down]], axis=0)
+
+        divided_cohp = {}
+        divided_icohp = {}
+        divided_cohp[Spin.up] = np.divide(summed_cohp[Spin.up], divisor)
+        divided_icohp[Spin.up] = np.divide(summed_icohp[Spin.up], divisor)
+        if Spin.down in summed_cohp:
+            divided_cohp[Spin.down] = np.divide(summed_cohp[Spin.down], divisor)
+            divided_icohp[Spin.down] = np.divide(summed_icohp[Spin.down], divisor)
+
+        return Cohp(efermi=first_cohpobject.efermi, energies=first_cohpobject.energies, cohp=divided_cohp,
+                    are_coops=first_cohpobject.are_coops,
+                    icohp=divided_icohp)
 
     def get_orbital_resolved_cohp(self, label, orbitals):
         """
         Get orbital-resolved COHP.
 
         Args:
-            label: bond label.
+            label: bond label (Lobster: labels as in ICOHPLIST/ICOOPLIST.lobster).
 
             orbitals: The orbitals as a label, or list or tuple of the form
                 [(n1, orbital1), (n2, orbital2)]. Orbitals can either be str,
@@ -389,13 +483,13 @@ class CompleteCohp(Cohp):
                     orbs.append(tuple((orbital[0], Orbital(orbital[1]))))
                 elif isinstance(orbital[1], Orbital):
                     orbs.append(tuple((orbital[0], orbital[1])))
-                elif isinstance(orbital[1], six.string_types):
+                elif isinstance(orbital[1], str):
                     orbs.append(tuple((orbital[0], Orbital[orbital[1]])))
                 else:
                     raise TypeError("Orbital must be str, int, or Orbital.")
             orb_index = cohp_orbs.index(orbs)
             orb_label = list(self.orb_res_cohp[label].keys())[orb_index]
-        elif isinstance(orbitals, six.string_types):
+        elif isinstance(orbitals, str):
             orb_label = orbitals
         else:
             raise TypeError("Orbitals must be str, list, or tuple.")
@@ -442,14 +536,14 @@ class CompleteCohp(Cohp):
                 orb_cohp[label] = {}
                 for orb in d["orb_res_cohp"][label]:
                     cohp = {Spin(int(s)): np.array(
-                            d["orb_res_cohp"][label][orb]["COHP"][s],
-                            dtype=float)
-                            for s in d["orb_res_cohp"][label][orb]["COHP"]}
+                        d["orb_res_cohp"][label][orb]["COHP"][s],
+                        dtype=float)
+                        for s in d["orb_res_cohp"][label][orb]["COHP"]}
                     try:
                         icohp = {Spin(int(s)): np.array(
-                                 d["orb_res_cohp"][label][orb]["ICOHP"][s],
-                                 dtype=float)
-                                 for s in d["orb_res_cohp"][label][orb]["ICOHP"]}
+                            d["orb_res_cohp"][label][orb]["ICOHP"][s],
+                            dtype=float)
+                            for s in d["orb_res_cohp"][label][orb]["ICOHP"]}
                     except KeyError:
                         icohp = None
                     orbitals = [tuple((int(o[0]), Orbital[o[1]])) for o in
@@ -462,26 +556,26 @@ class CompleteCohp(Cohp):
                 # in LOBSTER versions 2.2.0 and earlier.
                 if label not in d["COHP"] or d["COHP"][label] is None:
                     cohp = {Spin.up: np.sum(np.array(
-                                      [orb_cohp[label][orb]["COHP"][Spin.up]
-                                       for orb in orb_cohp[label]]), axis=0)}
+                        [orb_cohp[label][orb]["COHP"][Spin.up]
+                         for orb in orb_cohp[label]]), axis=0)}
                     try:
                         cohp[Spin.down] = np.sum(np.array(
-                                              [orb_cohp[label][orb]["COHP"][Spin.down]
-                                               for orb in orb_cohp[label]]), axis=0)
+                            [orb_cohp[label][orb]["COHP"][Spin.down]
+                             for orb in orb_cohp[label]]), axis=0)
                     except KeyError:
                         pass
 
                 orb_res_icohp = None in [orb_cohp[label][orb]["ICOHP"]
                                          for orb in orb_cohp[label]]
                 if (label not in d["ICOHP"] or
-                   d["ICOHP"][label] is None) and orb_res_icohp:
+                    d["ICOHP"][label] is None) and orb_res_icohp:
                     icohp = {Spin.up: np.sum(np.array(
-                                       [orb_cohp[label][orb]["ICOHP"][Spin.up]
-                                        for orb in orb_cohp[label]]), axis=0)}
+                        [orb_cohp[label][orb]["ICOHP"][Spin.up]
+                         for orb in orb_cohp[label]]), axis=0)}
                     try:
                         icohp[Spin.down] = np.sum(np.array(
-                                               [orb_cohp[label][orb]["ICOHP"][Spin.down]
-                                                for orb in orb_cohp[label]]), axis=0)
+                            [orb_cohp[label][orb]["ICOHP"][Spin.down]
+                             for orb in orb_cohp[label]]), axis=0)
                     except KeyError:
                         pass
         else:
@@ -542,7 +636,9 @@ class CompleteCohp(Cohp):
                 structure_file = "POSCAR"
             if filename is None:
                 filename = "COOPCAR.lobster" if are_coops \
-                            else "COHPCAR.lobster"
+                    else "COHPCAR.lobster"
+            warnings.warn(
+                "The bond labels are currently consistent with ICOHPLIST.lobster/ICOOPLIST.lobster, not with COHPCAR.lobster/COOPCAR.lobster. Please be aware!")
             cohp_file = Cohpcar(filename=filename, are_coops=are_coops)
             orb_res_cohp = cohp_file.orb_res_cohp
         else:
@@ -567,12 +663,14 @@ class CompleteCohp(Cohp):
             # COHPs from the single-orbital populations. Total COHPs
             # may not be present when the cohpgenerator keyword is used
             # in LOBSTER versions 2.2.0 and earlier.
+            # TODO: Test this more extensively
             for label in orb_res_cohp:
                 if cohp_file.cohp_data[label]["COHP"] is None:
-                    cohp_data[label]["COHP"] = \
-                        {sp: np.sum([orb_res_cohp[label][orbs]["COHP"][sp]
-                                     for orbs in orb_res_cohp[label]],
-                                    axis=0) for sp in spins}
+                    # print(label)
+                    cohp_data[label]["COHP"] = {
+                        sp: np.sum([orb_res_cohp[label][orbs]["COHP"][sp] for orbs in orb_res_cohp[label]], axis=0) for
+                        sp
+                        in spins}
                 if cohp_file.cohp_data[label]["ICOHP"] is None:
                     cohp_data[label]["ICOHP"] = \
                         {sp: np.sum([orb_res_cohp[label][orbs]["ICOHP"][sp]
@@ -585,11 +683,11 @@ class CompleteCohp(Cohp):
             avg_data = {"COHP": {}, "ICOHP": {}}
             for i in avg_data:
                 for spin in spins:
-                        rows = np.array([cohp_data[label][i][spin]
-                                         for label in cohp_data])
-                        avg = np.average(rows, axis=0)
-                        # LMTO COHPs have 5 significant figures
-                        avg_data[i].update({spin:
+                    rows = np.array([cohp_data[label][i][spin]
+                                     for label in cohp_data])
+                    avg = np.average(rows, axis=0)
+                    # LMTO COHPs have 5 significant figures
+                    avg_data[i].update({spin:
                                             np.array([round_to_sigfigs(a, 5)
                                                       for a in avg],
                                                      dtype=float)})
@@ -616,3 +714,332 @@ class CompleteCohp(Cohp):
 
         return CompleteCohp(structure, avg_cohp, cohp_dict, bonds=bond_dict,
                             are_coops=are_coops, orb_res_cohp=orb_res_cohp)
+
+
+class IcohpValue(MSONable):
+    """
+    Class to store information on an ICOHP or ICOOP value
+    Args:
+        label: label for the icohp
+        atom1: str of atom that is contributing to the bond
+        atom2: str of second atom that is contributing to the bond
+        length: float of bond lengths
+        translation: translation list, e.g. [0,0,0]
+        num: integer describing how often the bond exists
+        icohp: dict={Spin.up: icohpvalue for spin.up, Spin.down: icohpvalue for spin.down}
+
+    .. attribute:: num_bonds
+            number of bonds used for the average cohp (relevant for Lobster versions <3.0) (int)
+
+    .. attribute:: are_coops
+            Boolean to indicate whether ICOOP or not
+
+    .. attribute:: icohp
+            dict={Spin.up: icohpvalue for spin.up, Spin.down: icohpvalue for spin.down}
+
+    .. attribute:: summed_icohp:
+            sum of icohp/icoop of both spin channels
+
+    """
+
+    def __init__(self, label, atom1, atom2, length, translation, num, icohp, are_coops=False):
+        self._are_coops = are_coops
+        self._label = label
+        self._atom1 = atom1
+        self._atom2 = atom2
+        self._length = length
+        self._translation = translation
+        self._num = num
+        self._icohp = icohp
+        if Spin.down in self._icohp:
+            self._is_spin_polarized = True
+        else:
+            self._is_spin_polarized = False
+
+    def __str__(self):
+
+        if not self._are_coops:
+            if self._is_spin_polarized:
+                return ("ICOHP " + str(self._label) + " between " + str(self._atom1) + " and " + str(
+                    self._atom2) + " (" + str(self._translation) + "): " + str(
+                    self._icohp[Spin.up]) + " eV (Spin up) and " + str(self._icohp[Spin.down]) + " eV (Spin down)")
+            else:
+                return ("ICOHP " + str(self._label) + " between " + str(self._atom1) + " and " + str(
+                    self._atom2) + " (" + str(self._translation) + "): " + str(
+                    self._icohp[Spin.up]) + " eV (Spin up)")
+        else:
+            if self._is_spin_polarized:
+                return ("ICOOP " + str(self._label) + " between " + str(self._atom1) + " and " + str(
+                    self._atom2) + " (" + str(self._translation) + "): " + str(
+                    self._icohp[Spin.up]) + " (Spin up) and " + str(self._icohp[Spin.down]) + " (Spin down)")
+            else:
+                return ("ICOOP " + str(self._label) + " between " + str(self._atom1) + " and " + str(
+                    self._atom2) + " (" + str(self._translation) + "): " + str(
+                    self._icohp[Spin.up]) + " (Spin up)")
+
+    @property
+    def num_bonds(self):
+        """
+        tells the number of bonds for which the ICOHP value is an average
+        Returns:
+            Int
+        """
+        return self._num
+
+    @property
+    def are_coops(self):
+        """
+        tells if ICOOPs or not
+        Returns:
+            Boolean
+        """
+        return self._are_coops
+
+    @property
+    def is_spin_polarized(self):
+        """
+        tells if spin polarized calculation or not
+        Returns:
+            Boolean
+
+        """
+        return self._is_spin_polarized
+
+    def icohpvalue(self, spin=Spin.up):
+        """
+        Args:
+            spin: Spin.up or Spin.down
+        Returns:
+            icohpvalue (float) corresponding to chosen spin
+        """
+        if not self.is_spin_polarized and spin == Spin.down:
+            raise ValueError("The calculation was not performed with spin polarization")
+
+        return self._icohp[spin]
+
+    @property
+    def icohp(self):
+        """
+        dict with icohps for spinup and spindown
+        Return:
+            dict={Spin.up: icohpvalue for spin.up, Spin.down: icohpvalue for spin.down}
+        """
+        return self._icohp
+
+    @property
+    def summed_icohp(self):
+        """
+        Adds ICOHPs of both spin channels for spin polarized compounds
+        Returns:
+             icohp value in eV
+        """
+        if self._is_spin_polarized:
+            sum_icohp = self._icohp[Spin.down] + self._icohp[Spin.up]
+        else:
+            sum_icohp = self._icohp[Spin.up]
+        return sum_icohp
+
+
+class IcohpCollection(MSONable):
+    """
+    Class to store IcohpValues
+    Args:
+        is_spin_polarized:Boolean to indicate if the Lobster calculation was done spin polarized or not Boolean to indicate if the Lobster calculation was done spin polarized or not
+        are_coops: Boolean to indicate whether ICOHPs or ICOOPs are stored
+        list_labels: list of labels for ICOHP/ICOOP values
+        list_atom1: list of str of atomnames e.g. "O1"
+        list_atom2: list of str of atomnames e.g. "O1"
+        list_length: list of lengths of corresponding bonds in Angstrom
+        list_translation: list of translation list, e.g. [0,0,0]
+        list_num: list of equivalent bonds, usually 1 starting from Lobster 3.0.0
+        list_icohp: list of dict={Spin.up: icohpvalue for spin.up, Spin.down: icohpvalue for spin.down}
+
+    .. attribute:: are_coops
+        Boolean to indicate whether ICOHPs or ICOOPs are stored
+
+    .. attribute:: is_spin_polarized
+        Boolean to indicate if the Lobster calculation was done spin polarized or not
+
+    """
+
+    def __init__(self, list_labels, list_atom1, list_atom2, list_length,
+                 list_translation, list_num, list_icohp, is_spin_polarized, are_coops=False):
+        self._are_coops = are_coops
+        self._icohplist = {}
+        self._is_spin_polarized = is_spin_polarized
+        self._list_labels = list_labels
+        self._list_atom1 = list_atom1
+        self._list_atom2 = list_atom2
+        self._list_length = list_length
+        self._list_translation = list_translation
+        self._list_num = list_num
+        self._list_icohp = list_icohp
+
+        for ilist, listel in enumerate(list_labels):
+            self._icohplist[listel] = IcohpValue(listel, list_atom1[ilist], list_atom2[ilist], list_length[ilist],
+                                                 list_translation[ilist], list_num[ilist], list_icohp[ilist])
+
+    def __str__(self):
+        joinstr = []
+        for value in self._icohplist.values():
+            joinstr.append(str(value))
+        return "\n".join(joinstr)
+
+    def get_icohp_by_label(self, label, summed_spin_channels=True, spin=Spin.up):
+        """
+        get an icohp value for a certain bond as indicated by the label (bond labels starting by "1" as in ICOHPLIST/ICOOPLIST)
+        Args:
+            label: label in str format (usually the bond number in Icohplist.lobster/Icooplist.lobster
+            summed_spin_channels: Boolean to indicate whether the ICOHPs/ICOOPs of both spin channels should be summed
+            spin: if summed_spin_channels is equal to False, this spin indicates which spin channel should be returned
+
+        Returns:
+            float describing ICOHP/ICOOP value
+        """
+
+        icohp_here = self._icohplist[label]
+        if icohp_here._is_spin_polarized:
+            if summed_spin_channels:
+                return icohp_here.summed_icohp
+            else:
+                return icohp_here.icohpvalue(spin)
+        else:
+            return icohp_here.icohpvalue(spin)
+
+    def get_summed_icohp_by_label_list(self, label_list, divisor=1.0, summed_spin_channels=True, spin=Spin.up):
+        """
+        get the sum of several ICOHP values that are indicated by a list of labels (labels of the bonds are the same as in ICOHPLIST/ICOOPLIST)
+        Args:
+            label_list: list of labels of the ICOHPs/ICOOPs that should be summed
+            divisor: is used to divide the sum
+            summed_spin_channels: Boolean to indicate whether the ICOHPs/ICOOPs of both spin channels should be summed
+            spin: if summed_spin_channels is equal to False, this spin indicates which spin channel should be returned
+
+        Returns:
+             float that is a sum of all ICOHPs/ICOOPs as indicated with label_list
+        """
+        sum_icohp = 0
+        for label in label_list:
+            icohp_here = self._icohplist[label]
+            if icohp_here.num_bonds != 1:
+                warnings.warn("One of the ICOHP values is an average over bonds. This is currently not considered.")
+            # prints warning if num_bonds is not equal to 1
+            if icohp_here._is_spin_polarized:
+                if summed_spin_channels:
+                    sum_icohp = sum_icohp + icohp_here.summed_icohp
+                else:
+                    sum_icohp = sum_icohp + icohp_here.icohpvalue(spin)
+            else:
+                sum_icohp = sum_icohp + icohp_here.icohpvalue(spin)
+        return sum_icohp / divisor
+
+    def get_icohp_dict_by_bondlengths(self, minbondlength=0.0, maxbondlength=8.0):
+        """
+        get a dict of IcohpValues corresponding to certaind bond lengths
+        Args:
+            minbondlength: defines the minimum of the bond lengths of the bonds
+            maxbondlength: defines the maximum of the bond lengths of the bonds
+        Returns:
+             dict of IcohpValues, the keys correspond to the values from the initial list_labels
+        """
+        newicohp_dict = {}
+        for value in self._icohplist.values():
+            if value._length >= minbondlength and value._length <= maxbondlength:
+                newicohp_dict[value._label] = value
+        return newicohp_dict
+
+    def get_icohp_dict_of_site(self, site, minsummedicohp=None, maxsummedicohp=None, minbondlength=0.0,
+                               maxbondlength=8.0, only_bonds_to=None):
+        """
+        get a dict of IcohpValue for a certain site (indicated by integer)
+        Args:
+            site: integer describing the site of interest, order as in Icohplist.lobster/Icooplist.lobster, starts at 0
+            minsummedicohp: float, minimal icohp/icoop of the bonds that are considered. It is the summed ICOHP value from both spin channels for spin polarized cases
+            maxsummedicohp: float, maximal icohp/icoop of the bonds that are considered. It is the summed ICOHP value from both spin channels for spin polarized cases
+            minbondlength: float, defines the minimum of the bond lengths of the bonds
+            maxbondlength: float, defines the maximum of the bond lengths of the bonds
+            only_bonds_to: list of strings describing the bonding partners that are allowed, e.g. ['O']
+        Returns:
+             dict of IcohpValues, the keys correspond to the values from the initial list_labels
+        """
+
+        newicohp_dict = {}
+        for key, value in self._icohplist.items():
+            atomnumber1 = int(re.split(r'(\d+)', value._atom1)[1]) - 1
+            atomnumber2 = int(re.split(r'(\d+)', value._atom2)[1]) - 1
+            if site == atomnumber1 or site == atomnumber2:
+                # manipulate order of atoms so that searched one is always atom1
+                if site == atomnumber2:
+                    save = value._atom1
+                    value._atom1 = value._atom2
+                    value._atom2 = save
+
+                if only_bonds_to is None:
+                    second_test = True
+                else:
+                    second_test = (re.split(r'(\d+)', value._atom2)[0] in only_bonds_to)
+                if value._length >= minbondlength and value._length <= maxbondlength and second_test:
+                    if minsummedicohp is not None:
+                        if value.summed_icohp >= minsummedicohp:
+                            if maxsummedicohp is not None:
+                                if value.summed_icohp <= maxsummedicohp:
+                                    newicohp_dict[key] = value
+                            else:
+                                newicohp_dict[key] = value
+                    else:
+                        if maxsummedicohp is not None:
+                            if value.summed_icohp <= maxsummedicohp:
+                                newicohp_dict[key] = value
+                        else:
+                            newicohp_dict[key] = value
+
+        return newicohp_dict
+
+    def extremum_icohpvalue(self, summed_spin_channels=True, spin=Spin.up):
+        """
+        get ICOHP/ICOOP of strongest bond
+        Args:
+            summed_spin_channels: Boolean to indicate whether the ICOHPs/ICOOPs of both spin channels should be summed
+
+            spin: if summed_spin_channels is equal to False, this spin indicates which spin channel should be returned
+        Returns:
+            lowest ICOHP/largest ICOOP value (i.e. ICOHP/ICOOP value of strongest bond)
+        """
+        if not self._are_coops:
+            extremum = sys.float_info.max
+        else:
+            extremum = -sys.float_info.max
+
+        if not self._is_spin_polarized:
+            if spin == Spin.down:
+                warnings.warn("This spin channel does not exist. I am switching to Spin.up")
+            spin = Spin.up
+
+        for value in self._icohplist.values():
+            if not value.is_spin_polarized or not summed_spin_channels:
+                if not self._are_coops:
+                    if value.icohpvalue(spin) < extremum:
+                        extremum = value.icohpvalue(spin)
+                        # print(extremum)
+                else:
+                    if value.icohpvalue(spin) > extremum:
+                        extremum = value.icohpvalue(spin)
+                        # print(extremum)
+            else:
+                if not self._are_coops:
+                    if value.summed_icohp < extremum:
+                        extremum = value.summed_icohp
+                        # print(extremum)
+                else:
+                    if value.summed_icohp > extremum:
+                        extremum = value.summed_icohp
+                        # print(extremum)
+        return extremum
+
+    @property
+    def is_spin_polarized(self):
+        return self._is_spin_polarized
+
+    @property
+    def are_coops(self):
+        return self._are_coops

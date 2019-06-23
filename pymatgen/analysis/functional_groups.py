@@ -2,11 +2,12 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+import copy
+
 from pymatgen.core.structure import Molecule
 from pymatgen.io.babel import BabelMolAdaptor
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
-
 
 try:
     import networkx as nx
@@ -15,11 +16,10 @@ except ImportError:
     raise ImportError("pymatgen.analysis.functional_groups requires the "
                       "NetworkX graph library to be installed.")
 
-
 __author__ = "Evan Spotte-Smith"
 __version__ = "0.1"
 __maintainer__ = "Evan Spotte-Smith"
-__email__ = "ewcspottesmith@lbl.gov"
+__email__ = "espottesmith@gmail.com"
 __status__ = "Beta"
 __date__ = "July 2018"
 __credit__ = "Peiyuan Yu"
@@ -291,14 +291,15 @@ class FunctionalGroupExtractor:
 
                 if num_deviants <= 1:
                     for node in ring:
+                        ring_group = copy.deepcopy(ring)
                         neighbors = self.molgraph.graph[node]
 
                         # Add hydrogens to the functional group
                         for neighbor in neighbors.keys():
                             if neighbor in hydrogens:
-                                ring.add(neighbor)
+                                ring_group.add(neighbor)
 
-                    results.append(ring)
+                    results.append(ring_group)
 
         return results
 

@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals, division, print_function
 
 """
 This module implements the Quasi-harmonic Debye approximation that can
@@ -30,7 +29,7 @@ __author__ = "Kiran Mathew, Brandon Bocklund"
 __credits__ = "Cormac Toher"
 
 
-class QuasiharmonicDebyeApprox(object):
+class QuasiharmonicDebyeApprox:
     """
     Args:
         energies (list): list of DFT energies in eV

@@ -2,12 +2,12 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import unittest
 import pickle
 import warnings
 import math
+import numpy as np
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.periodic_table import Element, Specie, DummySpecie, get_el_sp
@@ -27,6 +27,12 @@ class ElementTestCase(PymatgenTest):
 
         # Test caching
         self.assertEqual(id(Element("Fe")), id(Element("Fe")))
+
+    def test_is_metal(self):
+        for metal in ["Fe", "Eu", "Li", "Ca", "In"]:
+            self.assertTrue(Element(metal).is_metal)
+        for non_metal in ["Ge", "Si", "O", "He"]:
+            self.assertFalse(Element(non_metal).is_metal)
 
     def test_nan_X(self):
         self.assertTrue(math.isnan(Element.He.X))
@@ -57,55 +63,58 @@ class ElementTestCase(PymatgenTest):
         for k, v in testsets.items():
             self.assertEqual(Element(k).full_electronic_structure, v)
 
-
     def test_valence(self):
         testsets = {"O": (1, 4),
                     "Fe": (2, 6),
-                    "Li":  (0, 1)}
+                    "Li": (0, 1)}
         for k, v in testsets.items():
             self.assertEqual(Element(k).valence, v)
 
         with self.assertRaises(ValueError):
             Element("U").valence
 
+        valence = Element("He").valence
+        self.assertTrue(np.isnan(valence[0]))
+        self.assertEqual(valence[1], 0)
+
     def test_term_symbols(self):
-        testsets = {"Li": [['2S0.5']], # s1
+        testsets = {"Li": [['2S0.5']],  # s1
                     "C": [['1D2.0'],
                           ['3P0.0', '3P1.0', '3P2.0'],
-                          ['1S0.0']], # p2
-                    "Ti": [ ['1G4.0'],
-                            ['3F2.0', '3F3.0', '3F4.0'],
-                            ['1D2.0'],
-                            ['3P0.0', '3P1.0', '3P2.0'],
-                            ['1S0.0']], # d2
-                    "Pr": [  ['2L7.5', '2L8.5'],
-                             ['2K6.5', '2K7.5'],
-                             ['4I4.5', '4I5.5', '4I6.5', '4I7.5'],
-                             ['2I5.5', '2I6.5'],
-                             ['2H4.5', '2H5.5'],
-                             ['2H4.5', '2H5.5'],
-                             ['4G2.5', '4G3.5', '4G4.5', '4G5.5'],
-                             ['2G3.5', '2G4.5'],
-                             ['2G3.5', '2G4.5'],
-                             ['4F1.5', '4F2.5', '4F3.5', '4F4.5'],
-                             ['2F2.5', '2F3.5'],
-                             ['2F2.5', '2F3.5'],
-                             ['4D0.5', '4D1.5', '4D2.5', '4D3.5'],
-                             ['2D1.5', '2D2.5'],
-                             ['2D1.5', '2D2.5'],
-                             ['2P0.5', '2P1.5'],
-                             ['4S1.5']] # f3
+                          ['1S0.0']],  # p2
+                    "Ti": [['1G4.0'],
+                           ['3F2.0', '3F3.0', '3F4.0'],
+                           ['1D2.0'],
+                           ['3P0.0', '3P1.0', '3P2.0'],
+                           ['1S0.0']],  # d2
+                    "Pr": [['2L7.5', '2L8.5'],
+                           ['2K6.5', '2K7.5'],
+                           ['4I4.5', '4I5.5', '4I6.5', '4I7.5'],
+                           ['2I5.5', '2I6.5'],
+                           ['2H4.5', '2H5.5'],
+                           ['2H4.5', '2H5.5'],
+                           ['4G2.5', '4G3.5', '4G4.5', '4G5.5'],
+                           ['2G3.5', '2G4.5'],
+                           ['2G3.5', '2G4.5'],
+                           ['4F1.5', '4F2.5', '4F3.5', '4F4.5'],
+                           ['2F2.5', '2F3.5'],
+                           ['2F2.5', '2F3.5'],
+                           ['4D0.5', '4D1.5', '4D2.5', '4D3.5'],
+                           ['2D1.5', '2D2.5'],
+                           ['2D1.5', '2D2.5'],
+                           ['2P0.5', '2P1.5'],
+                           ['4S1.5']]  # f3
                     }
-        for k,v in testsets.items():
+        for k, v in testsets.items():
             self.assertEqual(Element(k).term_symbols, v)
 
     def test_ground_state_term_symbol(self):
-        testsets = {"Li": '2S0.5', # s1
+        testsets = {"Li": '2S0.5',  # s1
                     "C": '3P0.0',  # p2
                     "O": '3P2.0',  # p4
-                    "Ti": '3F2.0', # d2
+                    "Ti": '3F2.0',  # d2
                     "Pr": '4I4.5'}  # f3
-        for k,v in testsets.items():
+        for k, v in testsets.items():
             self.assertEqual(Element(k).ground_state_term_symbol, v)
 
     def test_attributes(self):
@@ -133,10 +142,12 @@ class ElementTestCase(PymatgenTest):
                 "superconduction_temperature",
                 "bulk_modulus", "youngs_modulus", "brinell_hardness",
                 "rigidity_modulus", "mineral_hardness",
-                "vickers_hardness", "density_of_solid", "atomic_orbitals"
-                "coefficient_of_linear_thermal_expansion", "oxidation_states",
+                "vickers_hardness", "density_of_solid",
+                "atomic_orbitals", "coefficient_of_linear_thermal_expansion",
+                "oxidation_states",
                 "common_oxidation_states", "average_ionic_radius",
-                "ionic_radii", "long_name", "metallic_radius"]
+                "average_cationic_radius", "average_anionic_radius",
+                "ionic_radii", "long_name", "metallic_radius", "iupac_ordering"]
 
         # Test all elements up to Uranium
         for i in range(1, 104):
@@ -148,6 +159,9 @@ class ElementTestCase(PymatgenTest):
                     self.assertIsNotNone(getattr(el, k))
                 elif k == "long_name":
                     self.assertEqual(getattr(el, "long_name"), d["Name"])
+                elif k == "iupac_ordering":
+                    self.assertTrue("IUPAC ordering" in d)
+                    self.assertIsNotNone(getattr(el, k))
             el = Element.from_Z(i)
             if len(el.oxidation_states) > 0:
                 self.assertEqual(max(el.oxidation_states),
@@ -198,12 +212,15 @@ class ElementTestCase(PymatgenTest):
         o = pickle.dumps(el1)
         self.assertEqual(el1, pickle.loads(o))
 
-        #Test all elements up to Uranium
+        # Test all elements up to Uranium
         for i in range(1, 93):
             self.serialize_with_pickle(Element.from_Z(i), test_eq=True)
 
     def test_print_periodic_table(self):
         Element.print_periodic_table()
+
+    def test_is(self):
+        self.assertTrue(Element("Bi").is_post_transition_metal, True)
 
 
 class SpecieTestCase(PymatgenTest):
@@ -216,10 +233,6 @@ class SpecieTestCase(PymatgenTest):
 
     def test_init(self):
         self.assertRaises(ValueError, Specie, "Fe", 2, {"magmom": 5})
-
-    def test_cached(self):
-        specie5 = Specie("Fe", 2)
-        # self.assertEqual(id(specie5), id(self.specie3))
 
     def test_ionic_radius(self):
         self.assertEqual(self.specie2.ionic_radius, 78.5 / 100)
@@ -254,7 +267,7 @@ class SpecieTestCase(PymatgenTest):
     def test_pickle(self):
         self.assertEqual(self.specie1, pickle.loads(pickle.dumps(self.specie1)))
         for i in range(1, 5):
-            self.serialize_with_pickle(getattr(self, "specie%d" % i) , test_eq=True)
+            self.serialize_with_pickle(getattr(self, "specie%d" % i), test_eq=True)
         cs = Specie("Cs", 1)
         cl = Specie("Cl", 1)
 
@@ -352,11 +365,6 @@ class DummySpecieTestCase(unittest.TestCase):
         self.assertRaises(ValueError, DummySpecie, "Vac")
         self.specie2 = DummySpecie("X", 2, {"spin": 3})
         self.assertEqual(self.specie2.spin, 3)
-
-    def test_cached(self):
-        sp1 = DummySpecie("X", 2)
-        sp2 = DummySpecie("X", 2)
-        # self.assertEqual(id(sp1), id(sp2))
 
     def test_eq(self):
         self.assertFalse(DummySpecie("Xg") == DummySpecie("Xh"))

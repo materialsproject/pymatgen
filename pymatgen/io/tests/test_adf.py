@@ -1,4 +1,3 @@
-from __future__ import print_function, absolute_import
 
 from pymatgen.io.adf import AdfKey, AdfTask, AdfOutput, AdfInput
 from pymatgen.core.structure import Molecule

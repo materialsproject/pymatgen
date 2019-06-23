@@ -2,12 +2,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
-from six.moves import filter, zip
 import numpy as np
-import six
-
 import collections
 from numbers import Number
 import numbers
@@ -191,7 +187,7 @@ def check_mappings(u):
     return u
 
 
-class Unit(collections.Mapping):
+class Unit(collections.abc.Mapping):
     """
     Represents a unit, e.g., "m" for meters, etc. Supports compound units.
     Only integer powers are supported for units.
@@ -210,7 +206,7 @@ class Unit(collections.Mapping):
                 space-separated.
         """
 
-        if isinstance(unit_def, six.string_types):
+        if isinstance(unit_def, str):
             unit = collections.defaultdict(int)
             import re
             for m in re.finditer(r"([A-Za-z]+)\s*\^*\s*([\-0-9]*)", unit_def):
@@ -387,15 +383,15 @@ class FloatWithUnit(float):
         self._unit_type = unit_type
 
     def __repr__(self):
-        return super(FloatWithUnit, self).__repr__()
+        return super().__repr__()
 
     def __str__(self):
-        s = super(FloatWithUnit, self).__str__()
+        s = super().__str__()
         return "{} {}".format(s, self._unit)
 
     def __add__(self, other):
         if not hasattr(other, "unit_type"):
-            return super(FloatWithUnit, self).__add__(other)
+            return super().__add__(other)
         if other.unit_type != self._unit_type:
             raise UnitError("Adding different types of units is not allowed")
         val = other
@@ -406,7 +402,7 @@ class FloatWithUnit(float):
 
     def __sub__(self, other):
         if not hasattr(other, "unit_type"):
-            return super(FloatWithUnit, self).__sub__(other)
+            return super().__sub__(other)
         if other.unit_type != self._unit_type:
             raise UnitError("Subtracting different units is not allowed")
         val = other
@@ -436,7 +432,7 @@ class FloatWithUnit(float):
                              unit=self._unit ** i)
 
     def __div__(self, other):
-        val = super(FloatWithUnit, self).__div__(other)
+        val = super().__div__(other)
         if not isinstance(other, FloatWithUnit):
             return FloatWithUnit(val, unit_type=self._unit_type,
                                  unit=self._unit)
@@ -444,7 +440,7 @@ class FloatWithUnit(float):
                              unit=self._unit / other._unit)
 
     def __truediv__(self, other):
-        val = super(FloatWithUnit, self).__truediv__(other)
+        val = super().__truediv__(other)
         if not isinstance(other, FloatWithUnit):
             return FloatWithUnit(val, unit_type=self._unit_type,
                                  unit=self._unit)
@@ -452,7 +448,7 @@ class FloatWithUnit(float):
                              unit=self._unit / other._unit)
 
     def __neg__(self):
-        return FloatWithUnit(super(FloatWithUnit, self).__neg__(),
+        return FloatWithUnit(super().__neg__(),
                              unit_type=self._unit_type,
                              unit=self._unit)
 
@@ -581,7 +577,7 @@ class ArrayWithUnit(np.ndarray):
 
     def __reduce__(self):
         #print("in reduce")
-        reduce = list(super(ArrayWithUnit, self).__reduce__())
+        reduce = list(super().__reduce__())
         #print("unit",self._unit)
         #print(reduce[2])
         reduce[2] = {"np_state": reduce[2], "_unit": self._unit}
@@ -589,7 +585,7 @@ class ArrayWithUnit(np.ndarray):
 
     def __setstate__(self, state):
         #print("in setstate %s" % str(state))
-        super(ArrayWithUnit, self).__setstate__(state["np_state"])
+        super().__setstate__(state["np_state"])
         self._unit = state["_unit"]
 
     def __repr__(self):
@@ -855,7 +851,7 @@ def unitized(unit):
             if isinstance(val, FloatWithUnit) or isinstance(val, ArrayWithUnit):
                 return val.to(unit)
 
-            elif isinstance(val, collections.Sequence):
+            elif isinstance(val, collections.abc.Sequence):
                 # TODO: why don't we return a ArrayWithUnit?
                 # This complicated way is to ensure the sequence type is
                 # preserved (list or tuple).

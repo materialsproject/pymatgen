@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import logging
 import os
@@ -91,6 +90,14 @@ $end"""
    dielectric 5.0
 $end"""
         self.assertEqual(solvent_actual, solvent_test)
+
+    def test_smx_template(self):
+        smx_params = {"solvent": "water"}
+        smx_test = QCInput.smx_template(smx_params)
+        smx_actual = """$smx
+   solvent water
+$end"""
+        self.assertEqual(smx_actual, smx_test)
 
     def test_find_sections(self):
         str_single_job_input = """$molecule
@@ -564,6 +571,28 @@ $end"""
         solvent_test = QCInput.read_solvent(str_solvent)
         solvent_actual = {}
         self.assertDictEqual(solvent_actual, solvent_test)
+
+    def test_read_smx(self):
+        str_smx = """Once again, I'm trying to break you!
+
+$smx
+   solvent water
+$end"""
+        smx_test = QCInput.read_smx(str_smx)
+        smx_actual = {
+            "solvent": "water",
+        }
+        self.assertDictEqual(smx_actual, smx_test)
+
+    def test_read_bad_smx(self):
+        str_smx = """Once again, I'm trying to break you!
+
+$solvent
+   solvent = water
+$end"""
+        smx_test = QCInput.read_smx(str_smx)
+        smx_actual = {}
+        self.assertDictEqual(smx_actual, smx_test)
 
     def test_read_negative(self):
         str_molecule = """$molecule
