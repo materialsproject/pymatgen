@@ -927,11 +927,11 @@ class OutcarTest(PymatgenTest):
 
     def test_onsite_density_matrix(self):
         outcar = Outcar(self.TEST_FILES_DIR / "OUTCAR.LinearResponseU.gz")
-        outcar.read_onsite_density_matrices()
         matrices = outcar.data["onsite_density_matrices"]
         self.assertEqual(matrices[0][Spin.up][0][0], 1.0227)
         self.assertEqual(len(matrices[0][Spin.up]), 5)
         self.assertEqual(len(matrices[0][Spin.up][0]), 5)
+        self.assertTrue("onsite_density_matrices" in outcar.as_dict())
 
 
 class BSVasprunTest(PymatgenTest):
