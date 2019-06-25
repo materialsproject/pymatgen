@@ -386,36 +386,35 @@ class AdsorbateSiteFinder:
             ads_coord (array): coordinate of adsorbate position
             repeat (3-tuple or list): input for making a supercell of slab
                 prior to placing the adsorbate
-            translate (bool): flag on whether to translate the molecule to
-                the origin prior to adding it to the surface
+            translate (bool): flag on whether to translate the molecule so
+                that its CoM is at the origin prior to adding it to the surface
             reorient (bool): flag on whether to reorient the molecule to
                 have its z-axis concurrent with miller index
         """
-        adsorbate = molecule.copy()
+        molecule = molecule.copy()
         if translate:
             # Translate the molecule so that the center of mass of the atoms
             # that have the most negative z coordinate is at (0, 0, 0)
-            front_atoms = adsorbate.copy()
-            front_atoms._sites = [s for s in adsorbate.sites
-                                       if s.coords[2]==min([s.coords[2]
-                                       for s in adsorbate.sites])]
-            [x,y,z]=front_atoms.center_of_mass
-            sop = SymmOp.from_rotation_and_translation(translation_vec=(-x,-y,-z))
-            adsorbate.apply_operation(sop)
+            front_atoms = molecule.copy()
+            front_atoms._sites = [s for s in molecule.sites
+                                  if s.coords[2] == min([s.coords[2]
+                                  for s in molecule.sites])]
+            x, y, z = front_atoms.center_of_mass
+            molecule.translate_sites(vector = [-x, -y, -z])
         if reorient:    
             # Reorient the molecule along slab m_index
             sop = get_rot(self.slab)
-            adsorbate.apply_operation(sop.inverse)
+            molecule.apply_operation(sop.inverse)
         struct = self.slab.copy()
         if repeat:
             struct.make_supercell(repeat)
         if 'surface_properties' in struct.site_properties.keys():
-            adsorbate.add_site_property("surface_properties",
-                                       ["adsorbate"] * adsorbate.num_sites)
+            molecule.add_site_property("surface_properties",
+                                       ["adsorbate"] * molecule.num_sites)
         if 'selective_dynamics' in struct.site_properties.keys():
-            adsorbate.add_site_property("selective_dynamics",
-                                       [[True, True, True]] * adsorbate.num_sites)
-        for site in adsorbate:
+            molecule.add_site_property("selective_dynamics",
+                                       [[True, True, True]] * molecule.num_sites)
+        for site in molecule:
             struct.append(site.specie, ads_coord + site.coords, coords_are_cartesian=True,
                           properties=site.properties)
         return struct
