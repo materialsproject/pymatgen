@@ -1266,8 +1266,8 @@ class GrainBoundaryTransformation(AbstractTransformation):
     """
 
     def __init__(self, rotation_axis, rotation_angle, expand_times=4, vacuum_thickness=0.0,
-                 ab_shift=[0, 0], normal=False, ratio=None, plane=None, max_search=50,
-                 tol_coi=1.e-3):
+                 ab_shift=[0, 0], normal=False, ratio=None, plane=None, max_search=20,
+                 tol_coi=1.e-8, rm_ratio=0.7, quick_gen=False):
         """
         Args:
             rotation_axis (list): Rotation axis of GB in the form of a list of integer
@@ -1315,8 +1315,13 @@ class GrainBoundaryTransformation(AbstractTransformation):
                 obtain the correct number of coincidence sites. To check the number of coincidence
                 sites are correct or not, you can compare the generated Gb object's sigma with enum*
                 sigma values (what user expected by input).
+            rm_ratio (float): the criteria to remove the atoms which are too close with each other.
+                rm_ratio * bond_length of bulk system is the criteria of bond length, below which the atom
+                will be removed. Default to 0.7.
+            quick_gen (bool): whether to quickly generate a supercell, if set to true, no need to
+                find the smallest cell.
         Returns:
-           Grain boundary structure (Gb (Structure) object).
+           Grain boundary structure (gb (Structure) object).
         """
         self.rotation_axis = rotation_axis
         self.rotation_angle = rotation_angle
@@ -1328,6 +1333,8 @@ class GrainBoundaryTransformation(AbstractTransformation):
         self.plane = plane
         self.max_search = max_search
         self.tol_coi = tol_coi
+        self.rm_ratio = rm_ratio
+        self.quick_gen = quick_gen
 
     def apply_transformation(self, structure):
         gbg = GrainBoundaryGenerator(structure)
@@ -1341,7 +1348,9 @@ class GrainBoundaryTransformation(AbstractTransformation):
             self.ratio,
             self.plane,
             self.max_search,
-            self.tol_coi)
+            self.tol_coi,
+            self.rm_ratio,
+            self.quick_gen)
         return gb_struct
       
     @property
