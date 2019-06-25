@@ -3,7 +3,7 @@
 
 __author__ = 'waroquiers'
 
-import unittest2 as unittest
+# import unittest2 as unittest
 import networkx as nx
 import os
 import shutil

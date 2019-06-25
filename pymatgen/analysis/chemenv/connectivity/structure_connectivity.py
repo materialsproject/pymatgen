@@ -4,10 +4,17 @@ import collections
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import LightStructureEnvironments
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import get_environment_node
 from pymatgen.analysis.chemenv.connectivity.connected_components import ConnectedComponent
+from monty.json import MSONable
 from monty.json import jsanitize
 import logging
 
-__author__ = 'waroquiers'
+__author__ = "David Waroquiers"
+__copyright__ = "Copyright 2012, The Materials Project"
+__credits__ = "Geoffroy Hautier"
+__version__ = "1.0"
+__maintainer__ = "David Waroquiers"
+__email__ = "david.waroquiers@gmail.com"
+__date__ = "June 25, 2019"
 
 
 def get_delta_image(isite1, isite2, data1, data2):
@@ -23,17 +30,25 @@ def get_delta_image(isite1, isite2, data1, data2):
             return -np.array(data1['delta']) + np.array(data2['delta'])
 
 
-class StructureConnectivity():
+class StructureConnectivity(MSONable):
+    """
+    Main class containing the connectivity of a structure.
+    """
     def __init__(self, light_structure_environment, connectivity_graph=None):
         """
+        Constructore for the StructureConnectivity object.
 
-        :param structure_environment:
+        :param light_structure_environment: a LightStructureEnvironments object
+            containing the relevant local environments for the sites in the
+            structure
+        :param connectivity_graph:
         """
         self.light_structure_environments = light_structure_environment
         if connectivity_graph is None:
             self._graph = nx.MultiGraph()
         else:
             self._graph = connectivity_graph
+        self.environment_subgraphs = {}
 
     def add_sites(self):
         self._graph.add_nodes_from(list(range(len(self.light_structure_environments.structure))))
@@ -64,7 +79,6 @@ class StructureConnectivity():
                                     exists = True
                                     break
                             elif data1['end'] == isite:
-                                print()
                                 if np.allclose(data1['delta'], -nb_image_cell):
                                     exists = True
                                     break
@@ -77,8 +91,16 @@ class StructureConnectivity():
         logging.info('Setup of environment subgraph for environments {}'.format(', '.join(environments_symbols)))
         if not isinstance(environments_symbols, collections.Iterable):
             environments_symbols = [environments_symbols]
+        environments_symbols = sorted(environments_symbols)
+        envs_string = '-'.join(environments_symbols)
+        # Get it directly if it was already computed
+        if envs_string in self.environment_subgraphs:
+            self._environment_subgraph = self.environment_subgraphs[envs_string]
+            return
+
+        # Initialize graph for a subset of environments
         self._environment_subgraph = nx.MultiGraph()
-        #Add the sites with the required environment
+        # Add the sites with the required environment(s)
         for isite, ce_this_site_all in enumerate(self.light_structure_environments.coordination_environments):
             if ce_this_site_all is None:
                 continue
@@ -106,7 +128,7 @@ class StructureConnectivity():
                                                                 isite, ce_this_site)
                                 self._environment_subgraph.add_node(env_node)
                                 break
-        #Find the connections between the environments
+        # Find the connections between the environments
         nodes = list(self._environment_subgraph.nodes())
         for inode1, node1 in enumerate(nodes):
             isite1 = node1.isite
@@ -147,6 +169,7 @@ class StructureConnectivity():
                 for conn, ligands in list(connections_site1_site2.items()):
                     self._environment_subgraph.add_edge(node1, node2, start=node1.isite, end=node2.isite,
                                                         delta=conn, ligands=ligands)
+        self.environment_subgraphs[envs_string] = self._environment_subgraph
 
     def setup_connectivity_description(self):
         pass

@@ -504,7 +504,7 @@ class ConnectedComponent(MSONable):
         centered_connected_subgraph.add_nodes_from(self.graph.nodes())
         centered_connected_subgraph.add_edges_from(self.graph.edges(data=True))
         if start_node is None:
-            start_node = self.graph.nodes()[0]
+            start_node = list(self.graph.nodes())[0]
         tree = bfs_tree(G=self.graph, source=start_node)
         current_nodes = [start_node]
         nodes_traversed = [start_node]

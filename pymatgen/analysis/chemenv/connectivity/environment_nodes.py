@@ -84,7 +84,7 @@ class AbstractEnvironmentNode(with_metaclass(abc.ABCMeta)):
             descr += '.'
             env_subgraph = kwargs['environments_subgraph']
             neighboring_ces_nodes = env_subgraph.neighbors(self)
-            if len(neighboring_ces_nodes) == 0:
+            if len(list(neighboring_ces_nodes)) == 0:
                 descr += '0-..'
             else:
                 my_neighboring_nodes = []
