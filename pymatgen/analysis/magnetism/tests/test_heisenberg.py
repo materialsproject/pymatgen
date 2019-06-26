@@ -29,16 +29,20 @@ class HeisenbergMapperTest(unittest.TestCase):
     def setUpClass(cls):
         cls.df = pd.read_json(os.path.join(test_dir, 'mag_orderings_test_cases.json'))
 
-        cls.CoS2 = cls.df[cls.df['formula_pretty']=='CoS2']
-        cls.MnNi2Sn = cls.df[cls.df['formula_pretty']=='MnNi2Sn']
-        cls.MnSi = cls.df[cls.df['formula_pretty']=='MnSi']
-        cls.LiMnPO4 = cls.df[cls.df['formula_pretty']=='LiMnPO4']
-        cls.Ta2CoO6 = cls.df[cls.df['formula_pretty']=='Ta2CoO6']
-        cls.Ni_SbO3_2 = cls.df[cls.df['formula_pretty']=='Ni(SbO3)2']
+        cls.CoS2 = pd.read_json(os.path.join(test_dir, 'CoS2.json'))
+        cls.MnNi2Sn = pd.read_json(os.path.join(test_dir, 'MnNi2Sn.json'))
+        cls.MnSi = pd.read_json(os.path.join(test_dir, 'MnSi.json'))
+        cls.LiMnPO4 = pd.read_json(os.path.join(test_dir, 'LiMnPO4.json'))
+        cls.Ta2CoO6 = pd.read_json(os.path.join(test_dir, 'Ta2CoO6.json'))
+        cls.Ni_SbO3_2 = pd.read_json(os.path.join(test_dir, 'Ni(SbO3)2.json'))
+        cls.Mn3Al = pd.read_json(os.path.join(test_dir,
+            'Mn3Al.json'))
+        cls.NbFe2 = pd.read_json(os.path.join(test_dir, 'NbFe2.json'))
+        cls.Cr2FeS4 = pd.read_json(os.path.join(test_dir, 'Cr2FeS4.json'))
 
         # cls.compounds = [cls.CoS2, cls.MnNi2Sn, cls.MnSi,
         # cls.LiMnPO4, cls.Ta2CoO6, cls.Ni_SbO3_2]
-        cls.compounds = [cls.MnSi]  # FMs
+        cls.compounds = [cls.Cr2FeS4]
         # cls.compounds = [cls.CoS2]
 
         cls.hms = []
@@ -48,7 +52,7 @@ class HeisenbergMapperTest(unittest.TestCase):
             epa = list(c['energy_per_atom'])
             energies = [e*len(s) for (e, s) in zip(epa, ordered_structures)]
 
-            hm = heisenberg.HeisenbergMapper(ordered_structures, energies)
+            hm = heisenberg.HeisenbergMapper(ordered_structures, energies, cutoff=5.0)
             cls.hms.append(hm)
 
     def setUp(self):
@@ -79,14 +83,16 @@ class HeisenbergMapperTest(unittest.TestCase):
                 print('NN interactions: ' + str(nn_interactions))
             except:
                 pass
+
     def test_exchange_matrix(self):
         for hm in self.hms:
             try:
                 ex_mat = hm.ex_mat
                 print('Ex mat: ')
-                print(ex_mat.values)
+                print(ex_mat)
             except:
                 pass
+
     def test_exchange_params(self):
         for hm in self.hms:
             try:
@@ -94,8 +100,9 @@ class HeisenbergMapperTest(unittest.TestCase):
                 print('Ex params: ' + str(ex_params))
             except:
                 pass
+
     def test_mean_field(self):
-        for hm in self.hms:\
+        for hm in self.hms:
             try:
                 j_avg = hm.estimate_exchange()
                 print('<J> ' + str(j_avg))

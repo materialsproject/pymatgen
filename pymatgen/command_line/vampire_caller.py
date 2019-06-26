@@ -80,17 +80,7 @@ class VampireCaller:
         self.ex_params = hm.get_exchange()
 
         # Get mean field estimate of critical temp
-        mag_min = np.inf
-        for s, e in zip(ordered_structures, energies):
-            magmoms = s.site_properties['magmom']
-            if all(m > 0 for m in magmoms):
-                fm_struct = s  # FM config
-                fm_e = e
-            elif abs(sum(magmoms)) < mag_min:
-                afm_struct = s
-                afm_e = e
-                mag_min = abs(sum(magmoms))
-        j_avg = hm.estimate_exchange(fm_struct, afm_struct, fm_e, afm_e)
+        j_avg = hm.estimate_exchange()
         self.mft_t = hm.get_mft_temperature(j_avg)
 
         # Create input files
@@ -122,7 +112,6 @@ class VampireCaller:
        
     def _create_mat(self, structure):
         """Todo: 
-            * fix structure[i].site_properties['magmom']
             * make different materials (sublattices) for up and down spin
         """
 
