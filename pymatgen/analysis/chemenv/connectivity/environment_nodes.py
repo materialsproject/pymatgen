@@ -19,7 +19,7 @@ class AbstractEnvironmentNode(with_metaclass(abc.ABCMeta)):
     NEIGHBORS_LIGANDS_ARRANGEMENT = 5
     ATOM = 6
     CE_NNBCES_NBCES_LIGANDS = -1
-    DEFAULT_EXTENSIONS = [COORDINATION_ENVIRONMENT]
+    DEFAULT_EXTENSIONS = [ATOM, COORDINATION_ENVIRONMENT]
     # DEFAULT_EXTENSIONS = [COORDINATION_ENVIRONMENT,
     #                       NUMBER_OF_NEIGHBOURS,
     #                       NUMBER_OF_LIGANDS_FOR_EACH_NEIGHBOUR]
@@ -59,7 +59,7 @@ class AbstractEnvironmentNode(with_metaclass(abc.ABCMeta)):
         return str(count)
 
     def neighboring_coordination_environments(self, environments_subgraph):
-        raise NotImplementedError()
+        pass
         # neighboring_environments_nodes = environments_subgraph.neighbors(self)
         # return str(len(neighboring_environments_nodes))
 
@@ -106,6 +106,8 @@ class AbstractEnvironmentNode(with_metaclass(abc.ABCMeta)):
                 descr += ','.join([str(nn['neighbor'].coordination_environment) for nn in my_neighboring_nodes])
                 #TODO: check sorting according to the nomenclature !
             return descr
+        elif extension == AbstractEnvironmentNode.ATOM:
+            return self.atom_symbol
         else:
             return 'NULL'
 
@@ -116,6 +118,10 @@ class AbstractEnvironmentNode(with_metaclass(abc.ABCMeta)):
     @property
     def mp_symbol(self):
         return self.coordination_environment
+
+    @property
+    def atom_symbol(self):
+        return self.central_site.specie.symbol
 
     def __str__(self):
         return 'Node #{:d} ({})'.format(self.isite, self.mp_symbol)
@@ -131,6 +137,7 @@ class EnvironmentNode(AbstractEnvironmentNode):
     def coordination_environment(self):
         return self.ce_symbol
 
+
 class OctahedralEnvironmentNode(AbstractEnvironmentNode):
 
     CG = AllCoordinationGeometries().get_geometry_from_mp_symbol('O:6')
@@ -141,28 +148,6 @@ class OctahedralEnvironmentNode(AbstractEnvironmentNode):
     @property
     def coordination_environment(self):
         return self.CG.mp_symbol
-
-    # def get_descriptor(self, extension, **kwargs):
-    #     if extension == AbstractEnvironmentNode.COORDINATION_ENVIRONMENT:
-    #         return self.coordination_environment
-    #     elif extension == AbstractEnvironmentNode.NUMBER_OF_NEIGHBORING_CES:
-    #         env_subgraph = kwargs['environments_subgraph']
-    #         return self.number_of_neighboring_coordination_environments(environments_subgraph=env_subgraph)
-    #     elif extension == AbstractEnvironmentNode.CE_NNBCES_NBCES_LIGANDS:
-    #         descr = str(self.coordination_environment)
-    #         descr += '.'
-    #         env_subgraph = kwargs['environments_subgraph']
-    #         neighboring_ces_nodes = env_subgraph.neighbors(self)
-    #         neighboring_ces_nodes.sort(key=lambda x: len(env_subgraph[self][x]['ligands']))
-    #         descr += str(len(neighboring_ces_nodes))
-    #         descr += '-'
-    #         descr += ''.join([len(env_subgraph[self][nn]['ligands']) for nn in neighboring_ces_nodes])
-    #         descr += '.'
-    #         descr += ''.join([nn.coordination_environment for nn in neighboring_ces_nodes])
-    #         #TODO: check sorting according to the nomenclature !
-    #         return descr
-    #     else:
-    #         return 'NULL'
 
 
 class TetrahedralEnvironmentNode(AbstractEnvironmentNode):
@@ -176,12 +161,6 @@ class TetrahedralEnvironmentNode(AbstractEnvironmentNode):
     def coordination_environment(self):
         return self.CG.mp_symbol
 
-    # def get_descriptor(self, extension, **kwargs):
-    #     if extension == AbstractEnvironmentNode.COORDINATION_ENVIRONMENT:
-    #         return self.coordination_environment
-    #     else:
-    #         return 'NULL'
-
 
 allowed_environment_nodes = {'O:6': OctahedralEnvironmentNode,
                              'T:4': TetrahedralEnvironmentNode}
@@ -189,12 +168,11 @@ allowed_environment_nodes = {'O:6': OctahedralEnvironmentNode,
 
 def get_environment_node(central_site, i_central_site, ce_symbol):
     """
+    Get the EnvironmentNode class or subclass for the given site and symbol.
 
-    :param central_site:
-    :param ce_symbol:
-    :raise NotImplementedError:
+    :param central_site: Central site of the environment
+    :param i_central_site: Index of the central site in the structure
+    :param ce_symbol: Environment symbol
+    :return: An EnvironmentNode object
     """
     return EnvironmentNode(central_site=central_site, i_central_site=i_central_site, ce_symbol=ce_symbol)
-    # if ce_symbol in allowed_environment_nodes:
-    #     raise NotImplementedError('Coordination environment "{}" is not yet allowed for connectivity description')
-    # return allowed_environment_nodes[ce_symbol](central_site, i_central_site)

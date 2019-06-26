@@ -51,9 +51,20 @@ class StructureConnectivity(MSONable):
         self.environment_subgraphs = {}
 
     def add_sites(self):
+        """
+        Add the sites in the structure connectivity graph.
+        :return: None
+        """
         self._graph.add_nodes_from(list(range(len(self.light_structure_environments.structure))))
 
     def add_bonds(self, isite, site_neighbors_set):
+        """
+        Add the bonds for a given site index to the structure connectivity graph.
+
+        :param isite: Index of the site for which the bonds have to be added.
+        :param site_neighbors_set: Neighbors set of the site
+        :return: None
+        """
         existing_edges = self._graph.edges(nbunch=[isite], data=True)
         for nb_index_and_image in site_neighbors_set.neighb_indices_and_images:
             nb_index_unitcell = nb_index_and_image['index']
