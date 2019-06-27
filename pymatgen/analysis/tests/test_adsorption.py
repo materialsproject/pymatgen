@@ -106,7 +106,7 @@ class AdsorbateSiteFinderTest(PymatgenTest):
         self.assertEqual(str(c_site.specie), 'C')
         self.assertArrayAlmostEqual(c_site.coords, sites['all'][0])
         # Check no translation
-        structures = self.asf_111.generate_adsorption_structures(co, translate = False)
+        structures = self.asf_111.generate_adsorption_structures(co, translate=False)
         self.assertEqual(co, Molecule("CO", [[1.0, -0.5, 3], [0.8, 0.46, 3.75]]))
         sites = self.asf_111.find_adsorption_sites()
         ads_site_coords = sites['all'][0]

@@ -400,7 +400,7 @@ class AdsorbateSiteFinder:
                                   if s.coords[2] == min([s.coords[2]
                                   for s in molecule.sites])]
             x, y, z = front_atoms.center_of_mass
-            molecule.translate_sites(vector = [-x, -y, -z])
+            molecule.translate_sites(vector=[-x, -y, -z])
         if reorient:    
             # Reorient the molecule along slab m_index
             sop = get_rot(self.slab)
