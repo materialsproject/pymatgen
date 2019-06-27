@@ -2,7 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from pymatgen.analysis.magnetism import CollinearMagneticStructureAnalyzer
+from pymatgen.analysis.magnetism import CollinearMagneticStructureAnalyzer, Ordering
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.analysis.local_env import MinimumDistanceNN
 from pymatgen.analysis.structure_matcher import ElementComparator, StructureMatcher
@@ -33,7 +33,7 @@ __date__ = "June 2019"
 
 class HeisenbergMapper:
 
-    def __init__(self, ordered_structures, energies, cutoff=0.0):
+    def __init__(self, ordered_structures, energies, cutoff=0.0, tol=0.02):
         """Compute exchange parameters from low energy magnetic orderings.
 
         Exchange parameters are computed by mapping to a classical Heisenberg
@@ -53,6 +53,8 @@ class HeisenbergMapper:
             energies (list): Energies of each relaxed magnetic structure.
             cutoff (float): Cutoff in Angstrom for nearest neighbor search.
                 Defaults to 0 (only NN, no NNN, etc.)
+            tol (float): Tolerance (in Angstrom) on nearest neighbor distances 
+                being equal.
 
         Parameters:
             strategy (object): Class from pymatgen.analysis.local_env for
@@ -64,6 +66,7 @@ class HeisenbergMapper:
                 position.
             nn_interacations (dict): {i: j} pairs of NN interactions
                 between unique sites.
+            dists (dict): NN, NNN, and NNNN interaction distances
             ex_mat (DataFrame): Invertible Heisenberg Hamiltonian for each
                 graph.
             ex_params (dict): Exchange parameter values (meV/atom) 
@@ -108,12 +111,14 @@ class HeisenbergMapper:
         self.ordered_structures = ordered_structures
         self.energies = energies
         self.cutoff = cutoff
+        self.tol = tol
 
         # These attributes are set by internal methods
         self.sgraphs = None
         self.wyckoff_ids = None
         self.unique_site_ids = None
         self.nn_interactions = None
+        self.dists = None
         self.ex_mat = None
         self.ex_params = None
 
@@ -130,7 +135,6 @@ class HeisenbergMapper:
         else:  # Set attributes
             self._get_nn_dict()
             self._get_exchange_df()
-
 
     def _get_graphs(self, cutoff):
         """
@@ -203,10 +207,11 @@ class HeisenbergMapper:
         """Get dict of unique nearest neighbor interactions.
 
         Returns:
-            None: (sets self.nn_interactions instance variable)
+            None: (sets self.nn_interactions and self.dists instance variables)
 
         """
 
+        tol = self.tol  # tolerance on NN distances
         sgraph = self.sgraphs[0]
         unique_site_ids = self.unique_site_ids
 
@@ -214,7 +219,9 @@ class HeisenbergMapper:
         nnn_dict = {}
         nnnn_dict = {}
 
-        # Loop over unique sites and get neighbor distances
+        all_dists = []
+
+        # Loop over unique sites and get neighbor distances up to NNNN
         for k in unique_site_ids:
             i = k[0]
             i_key = unique_site_ids[k]
@@ -222,18 +229,47 @@ class HeisenbergMapper:
             dists = [round(cs[-1], 2) for cs in connected_sites]  # i<->j distances
             dists = sorted(list(set(dists)))  # NN, NNN, NNNN, etc.
 
+            dists = dists[:3]  # keep up to NNNN
+            all_dists += dists
+
+        # Keep only up to NNNN and call dists equal if they are within tol
+        all_dists = sorted(list(set(all_dists)))
+        rm_list = []
+        for idx, d in enumerate(all_dists[:-1]):
+            if abs(d - all_dists[idx+1]) < tol:
+                rm_list.append(idx+1)
+
+        all_dists = [d for idx, d in enumerate(all_dists) if idx not in rm_list]
+        
+        if len(all_dists) < 3:  # pad with zeros
+            all_dists += [0.0] * (3 - len(all_dists))
+   
+        all_dists = all_dists[:3]
+        labels = ['nn', 'nnn', 'nnnn']
+        dists = {l: d for (l, d) in zip(labels, all_dists)}
+
+
+        self.dists = dists  # NN distances
+
+        # Get dictionary keys for interactions
+        for k in unique_site_ids:
+            i = k[0]
+            i_key = unique_site_ids[k]
+            connected_sites = sgraph.get_connected_sites(i)
+
             # Loop over sites and determine unique NN, NNN, etc. interactions 
             for cs in connected_sites:
                 dist = round(cs[-1], 2)  # i_j distance
+
                 j = cs[2]  # j index
                 for key in unique_site_ids.keys():
                     if j in key:
                         j_key = unique_site_ids[key]
-                if dist == dists[0]:
+                if abs(dist - dists['nn']) <= tol:
                     nn_dict[i_key] = j_key
-                elif dist == dists[1]:
+                elif abs(dist - dists['nnn']) <= tol:
                     nnn_dict[i_key] = j_key
-                elif dist == dists[2]:
+                elif abs(dist - dists['nnnn']) <= tol:
                     nnnn_dict[i_key] = j_key
 
         nn_interactions = {'nn': nn_dict, 'nnn': nnn_dict, 'nnnn': nnnn_dict}
@@ -250,13 +286,19 @@ class HeisenbergMapper:
             None: (sets self.ex_mat instance variable)
 
         TODO:
-            * Account for beyond NN if possible
+            * Deal with large variance in |S| across configs
 
         """
 
         sgraphs = self.sgraphs
+        tol = self.tol
         unique_site_ids = self.unique_site_ids
         nn_interactions = self.nn_interactions
+        dists = self.dists
+
+        # Get |site magmoms| from FM ordering so that S_i and S_j are consistent?
+        # Large S variations is throwing a loop
+        # fm_struct = self.get_low_energy_orderings()[0]
 
         # Total energy and nonmagnetic energy contribution
         columns = ['E', 'E0']
@@ -272,7 +314,7 @@ class HeisenbergMapper:
         num_sgraphs = len(sgraphs)
 
         # Keep n interactions (not counting 'E') for n+1 structure graphs
-        columns = columns[:num_sgraphs]
+        columns = columns[:num_sgraphs+1]
 
         num_nn_j = len(columns) - 1  # ignore total energy
         j_columns = [name for name in columns if name not in ['E', 'E0']]
@@ -293,6 +335,7 @@ class HeisenbergMapper:
                                       index=[sgraph_index], columns=columns)
 
                 for i, node in enumerate(sgraph.graph.nodes):
+                    #s_i_sign = np.sign(sgraph.structure.site_properties['magmom'][i])
                     s_i = sgraph.structure.site_properties['magmom'][i]
 
                     for k in unique_site_ids.keys():
@@ -301,26 +344,27 @@ class HeisenbergMapper:
 
                     # Get all connections for ith site and compute |S_i . S_j|
                     connections = sgraph.get_connected_sites(i)
-                    dists = [round(cs[-1], 2) for cs in connections]  # i<->j distances
-                    dists = sorted(list(set(dists)))  # NN, NNN, NNNN, etc.
+                    # dists = [round(cs[-1], 2) for cs in connections]  # i<->j distances
+                    # dists = sorted(list(set(dists)))  # NN, NNN, NNNN, etc.
 
                     for j, connection in enumerate(connections):
                         j_site = connection[2]
                         dist = round(connection[-1], 2)  # i_j distance
 
+                        #s_j_sign = np.sign(sgraph.structure.site_properties['magmom'][j_site])
                         s_j = sgraph.structure.site_properties['magmom'][j_site]
 
                         for k in unique_site_ids.keys():
-                            if j in k:
+                            if j_site in k:
                                 j_index = unique_site_ids[k]
 
                         # Determine order of connection
-                        if dist == dists[0]:
+                        if abs(dist - dists['nn']) <= tol:
                             order = '-nn'
-                        elif dist == dists[1]:
+                        elif abs(dist - dists['nnn']) <= tol:
                             order = '-nnn'
-                        elif dist == dists[2]:
-                            order = '-nnn'
+                        elif abs(dist - dists['nnnn']) <= tol:
+                            order = '-nnnn'
                         j_ij = str(i_index) + '-' + str(j_index) + order
                         j_ji = str(j_index) + '-' + str(i_index) + order
 
@@ -350,9 +394,9 @@ class HeisenbergMapper:
                 c = ex_mat.columns[zeros.index(True)]
                 len_zeros = len(c)
                 ex_mat = ex_mat.drop(columns=[c], axis=1)
-                ex_mat = ex_mat.drop(ex_mat.tail(len_zeros).index)
+                #ex_mat = ex_mat.drop(ex_mat.tail(len_zeros).index)
 
-            # Check if ex_mat is square
+            # Force ex_mat to be square
             ex_mat = ex_mat[:ex_mat.shape[1]-1]                 
 
             self.ex_mat = ex_mat
@@ -384,13 +428,13 @@ class HeisenbergMapper:
 
         # Solve eigenvalue problem for more than 1 NN interaction
         H = ex_mat.loc[:, ex_mat.columns != 'E'].values
-        np.savetxt('H.json', H)
         H_inv = np.linalg.inv(H)
         j_ij = np.dot(H_inv, E)
-        j_ij[1:] *= 1000  # meV
-        #j_ij[1:] /= len(self.ordered_structures[0])  # / atom
+
+        # Convert J_ij to meV
+        j_ij[1:] *= 1000  # J_ij in meV
         j_ij = j_ij.tolist()
-        ex_params = {j_name: j for j_name, j in zip(j_names, j_ij)}
+        ex_params = {j_name: j[0] for j_name, j in zip(j_names, j_ij)}
 
         self.ex_params = ex_params
 
@@ -406,54 +450,62 @@ class HeisenbergMapper:
             fm_e (float): fm energy
             afm_e (float): afm energy
 
-        TODO:
-            * Should we just take the energy diff between two lowest energy
-            orderings?
-
         """
 
+        fm_struct, afm_struct = None, None
         mag_min = np.inf
-        mag_max = 0.01
+        mag_max = 0.001
         fm_e_min = 0
         afm_e_min = 0
-        afm_threshold = 0.1  # total magnetization < threshold -> AFM, not FiM
+        afm_threshold = 1  # total magnetization < threshold -> AFM, not FiM
             
         for s, e in zip(self.ordered_structures, self.energies):
+            
+            ordering = CollinearMagneticStructureAnalyzer(s, threshold=0.0, 
+                make_primitive=False).ordering
             magmoms = s.site_properties['magmom']
-            if abs(sum(magmoms)) > mag_max and e < fm_e_min:  # FM ground state
+
+            # Try to find matching orderings first
+            if ordering == Ordering.FM and e < fm_e_min:
                 fm_struct = s
-                fm_e = e
                 mag_max = abs(sum(magmoms))
+                fm_e = e
                 fm_e_min = e
 
-            # AFM ground state
-            if abs(sum(magmoms)) < mag_min or abs(sum(magmoms)) < afm_threshold and e < afm_e_min:
+            if ordering == Ordering.AFM and e < afm_e_min:
                 afm_struct = s
                 afm_e = e
                 mag_min = abs(sum(magmoms))
                 afm_e_min = e
 
-        # Get two lowest energy configs and determine FM vs AFM
-        # s0, s1 = self.ordered_structures[0], self.ordered_structures[1]
-        # e0, e1 = self.energies[0], self.energies[1]
-        # tot_mag_s0 = abs(sum(s0.site_properties['magmom']))
-        # tot_mag_s1 = abs(sum(s1.site_properties['magmom']))
+        # Brute force search for closest thing to FM and AFM
+        if not fm_struct or not afm_struct:
+            for s, e in zip(self.ordered_structures, self.energies):
+                magmoms = s.site_properties['magmom']
+                print(abs(sum(magmoms)), e)
 
-        # if tot_mag_s0 > tot_mag_s1:
-        #     fm_struct = s0
-        #     fm_e = e0
-        #     afm_struct = s1
-        #     afm_e = e1
-        # else:
-        #     fm_struct = s1
-        #     fm_e = e1
-        #     afm_struct = s0
-        #     afm_e = e0
+                if abs(sum(magmoms)) > mag_max:  # FM ground state
+                    fm_struct = s
+                    fm_e = e
+                    mag_max = abs(sum(magmoms))
+
+                # AFM ground state
+                if abs(sum(magmoms)) < mag_min:
+                    afm_struct = s
+                    afm_e = e
+                    mag_min = abs(sum(magmoms))
+                    afm_e_min = e
+                elif abs(sum(magmoms)) == 0 and mag_min == 0:
+                    if e < afm_e_min:
+                        afm_struct = s
+                        afm_e = e
+                        afm_e_min = e
 
         # Convert to magnetic structures with 'magmom' site property
         fm_struct = CollinearMagneticStructureAnalyzer(fm_struct,
             make_primitive=False, 
             threshold=0.0).get_structure_with_only_magnetic_atoms(make_primitive=False)
+
         afm_struct = CollinearMagneticStructureAnalyzer(afm_struct,
             make_primitive=False, 
             threshold=0.0).get_structure_with_only_magnetic_atoms(make_primitive=False)
@@ -489,6 +541,15 @@ class HeisenbergMapper:
         m_avg = np.mean([np.sqrt(m**2) for m in magmoms])
         afm_m_avg = np.mean([np.sqrt(m**2) for m in afm_magmoms])
 
+        # If m_avg for FM config is < 1 we won't get sensibile results.
+        if m_avg < 1:
+            warning_msg = """ 
+                Local magnetic moments are very small. The
+                exchange parameters will be wrong, but <J> and the mean
+                field critical temperature estimate may be OK. 
+                """
+            warnings.warn(warning_msg)
+
         delta_e = afm_e - fm_e  # J > 0 -> FM
         #j_avg = delta_e / (n*m_avg**2)
         j_avg = delta_e / (n * m_avg**2)  # eV / magnetic ion
@@ -518,22 +579,30 @@ class HeisenbergMapper:
             
             mft_t = 2 * abs(j_avg) / 3 / k_boltzmann
 
-            return mft_t
-
         else:  # multiple magnetic sublattices
             omega = np.zeros((num_sublattices, num_sublattices))
-            for k in self.ex_params:
+            ex_params = self.ex_params
+            ex_params = {k: v for (k, v) in ex_params.items() if k != 'E0'}  # ignore E0
+            for k in ex_params:  
                 # split into i, j unique site identifiers
-                sites = [int(num) for num in k.split('-')]
+                sites = [elem for elem in k.split('-')]
+                sites = [int(num) for num in sites[:2]] # cut 'nn' identifier
                 i, j = sites[0], sites[1]
-                omega[i, j] = self.ex_params[k]
-                omega[j, i] = self.ex_params[k]
+                omega[i, j] += ex_params[k]
+                omega[j, i] += ex_params[k]
 
             omega = omega * 2 / 3 / k_boltzmann
             eigenvals, eigenvecs = np.linalg.eig(omega)
             mft_t = max(eigenvals)
 
-            return mft_t
+        if mft_t > 1500:  # Not sensible!
+            warning_msg = """ 
+                This mean field estimate is too high! Probably
+                the true low energy orderings were not given as inputs.
+                """
+            warnings.warn(warning_msg) 
+
+        return mft_t
 
     def get_interaction_graph(self, filename=None):
         """
@@ -549,9 +618,18 @@ class HeisenbergMapper:
         structure = self.ordered_structures[0]
         sgraph = self.sgraphs[0]
         unique_site_ids = self.unique_site_ids
+        dists = self.dists
+        tol = self.tol
 
         igraph = StructureGraph.with_empty_graph(structure, edge_weight_name=
-            'exchange_constant', edge_weight_units='meV/atom')
+            'exchange_constant', edge_weight_units='meV')
+
+        if '<J>' in self.ex_params:  # Only <J> is available
+            warning_msg = """
+                Only <J> is available. The interaction graph will not tell
+                you much.
+                """
+            warnings.warn(warning_msg)
 
         # J_ij exchange interaction matrix
         for i, node in enumerate(sgraph.graph.nodes):
@@ -562,6 +640,7 @@ class HeisenbergMapper:
                 dy = jimage[1]
                 dz = jimage[2]
                 j = c[2]  # index of neighbor
+                dist = c[-1]  # i <-> j distance
 
                 # uniqe site identifiers
                 for key in unique_site_ids.keys():
@@ -570,8 +649,16 @@ class HeisenbergMapper:
                     if j in key:
                         j_site = unique_site_ids[key]
 
-                j_ij = str(i_site) + '-' + str(j_site)
-                j_ji = str(j_site) + '-' + str(i_site)
+                # Determine order of connection
+                if abs(dist - dists['nn']) <= tol:
+                    order = '-nn'
+                elif abs(dist - dists['nnn']) <= tol:
+                    order = '-nnn'
+                elif abs(dist - dists['nnnn']) <= tol:
+                    order = '-nnnn'
+
+                j_ij = str(i_site) + '-' + str(j_site) + order
+                j_ji = str(j_site) + '-' + str(i_site) + order
 
                 if j_ij in self.ex_params:
                     j_value = self.ex_params[j_ij]
@@ -580,8 +667,14 @@ class HeisenbergMapper:
                 else:
                     j_value = 0
 
-                igraph.add_edge(i, j, to_jimage=jimage, weight=j_value,
-                    warn_duplicates=False)
+                # Check if only averaged NN <J> values are available
+                if '<J>' in self.ex_params and order == '-nn':
+                    j_value = self.ex_params['<J>']
+
+
+                if order == '-nn':
+                    igraph.add_edge(i, j, to_jimage=jimage, weight=j_value,
+                        warn_duplicates=False)
 
         # Save to a json file if desired
         if filename:

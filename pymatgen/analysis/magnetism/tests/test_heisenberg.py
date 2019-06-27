@@ -16,8 +16,6 @@ from pymatgen import Structure
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files', 'magnetic_orderings')
 
-formulas = ['CoS2', 'MnNi2Sn', 'MnSi', 'LiMnPO4', 'Ta2CoO6', 'Ni(SbO3)2']
-
 """
 References for computed exchange constants and Curie temps
 CoS2: https://iopscience.iop.org/article/10.1088/0953-8984/17/10/013/meta
@@ -29,20 +27,25 @@ class HeisenbergMapperTest(unittest.TestCase):
     def setUpClass(cls):
         cls.df = pd.read_json(os.path.join(test_dir, 'mag_orderings_test_cases.json'))
 
+        # xx - Magmoms all too small for sensible results
+        # CoS2 <J> is OK
         cls.CoS2 = pd.read_json(os.path.join(test_dir, 'CoS2.json'))
         cls.MnNi2Sn = pd.read_json(os.path.join(test_dir, 'MnNi2Sn.json'))
         cls.MnSi = pd.read_json(os.path.join(test_dir, 'MnSi.json'))
-        cls.LiMnPO4 = pd.read_json(os.path.join(test_dir, 'LiMnPO4.json'))
-        cls.Ta2CoO6 = pd.read_json(os.path.join(test_dir, 'Ta2CoO6.json'))
-        cls.Ni_SbO3_2 = pd.read_json(os.path.join(test_dir, 'Ni(SbO3)2.json'))
+        cls.Cr2FeS4 = pd.read_json(os.path.join(test_dir, 'Cr2FeS4.json'))
+
+        # Good tests
         cls.Mn3Al = pd.read_json(os.path.join(test_dir,
             'Mn3Al.json'))
         cls.NbFe2 = pd.read_json(os.path.join(test_dir, 'NbFe2.json'))
-        cls.Cr2FeS4 = pd.read_json(os.path.join(test_dir, 'Cr2FeS4.json'))
+        cls.LiMnPO4 = pd.read_json(os.path.join(test_dir, 'LiMnPO4.json'))
+        cls.Ta2CoO6 = pd.read_json(os.path.join(test_dir, 'Ta2CoO6.json'))
+        cls.Ni_SbO3_2 = pd.read_json(os.path.join(test_dir, 'Ni(SbO3)2.json'))
+        
 
         # cls.compounds = [cls.CoS2, cls.MnNi2Sn, cls.MnSi,
         # cls.LiMnPO4, cls.Ta2CoO6, cls.Ni_SbO3_2]
-        cls.compounds = [cls.Cr2FeS4]
+        cls.compounds = [cls.Mn3Al]
         # cls.compounds = [cls.CoS2]
 
         cls.hms = []
@@ -52,7 +55,7 @@ class HeisenbergMapperTest(unittest.TestCase):
             epa = list(c['energy_per_atom'])
             energies = [e*len(s) for (e, s) in zip(epa, ordered_structures)]
 
-            hm = heisenberg.HeisenbergMapper(ordered_structures, energies, cutoff=5.0)
+            hm = heisenberg.HeisenbergMapper(ordered_structures, energies, cutoff=7.5)
             cls.hms.append(hm)
 
     def setUp(self):
@@ -66,6 +69,7 @@ class HeisenbergMapperTest(unittest.TestCase):
             print(hm.ordered_structures_[0].formula)
             sgraphs = hm.sgraphs
             print('Num of graphs: %d' % (len(sgraphs)))
+            print(sgraphs[0].structure)
         pass
 
     def test_sites(self):
@@ -81,6 +85,8 @@ class HeisenbergMapperTest(unittest.TestCase):
             try:
                 nn_interactions = hm.nn_interactions
                 print('NN interactions: ' + str(nn_interactions))
+                dists = hm.dists
+                print('NN distances: ' + str(dists))
             except:
                 pass
 
@@ -89,7 +95,7 @@ class HeisenbergMapperTest(unittest.TestCase):
             try:
                 ex_mat = hm.ex_mat
                 print('Ex mat: ')
-                print(ex_mat)
+                # print(ex_mat)
             except:
                 pass
 
@@ -112,11 +118,11 @@ class HeisenbergMapperTest(unittest.TestCase):
             except:
                 pass
 
-    # def test_get_igraph(self):
-    #     for hm in self.hms:
-    #         igraph = hm.get_interaction_graph()
-    #         #print('Interaction graph: ')
-    #         #print(igraph)
+    def test_get_igraph(self):
+        for hm in self.hms:
+            igraph = hm.get_interaction_graph('igraph.json')
+            print('Interaction graph: ')
+            # print(igraph)
 
 if __name__ == '__main__':
     unittest.main()
