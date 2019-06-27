@@ -393,145 +393,7 @@ def ion_or_solid_comp_object(formula):
     return comp_obj
 
 
-elements_HO = {Element('H'), Element('O')}
-
-
-def get_hull_in_nph_nphi_space(pourbaix_entries, comp_dict=None):
-    # Get non-OH elements
-    pbx_elts = set(itertools.chain.from_iterable(
-        [entry.composition.elements for entry in pourbaix_entries]))
-    pbx_elts = list(pbx_elts - elements_HO)
-    dim = len(pbx_elts) - 1
-    comp_dict = comp_dict or {k: 1 / (dim + 1) for k in pbx_elts}
-
-    # Process ions:
-    solid_entries = [entry for entry in pourbaix_entries
-                     if entry.phase_type == "Solid"]
-    ion_entries = [entry for entry in pourbaix_entries
-                   if entry.phase_type == "Ion"]
-
-    # If a conc_dict is specified, override individual entry concentrations
-    for entry in ion_entries:
-        ion_elts = list(set(entry.composition.elements) - elements_HO)
-        # TODO: the logic here for ion concentration setting is in two
-        #       places, in PourbaixEntry and here, should be consolidated
-        if len(ion_elts) == 1:
-            # Just use default concentration for now
-            entry.concentration = 1e-06 * entry.normalization_factor
-        elif len(ion_elts) > 1 and not entry.concentration:
-            raise ValueError("Elemental concentration not compatible "
-                             "with multi-element ions")
-
-    entries = solid_entries + ion_entries
-
-    vecs = [[entry.npH, entry.nPhi, entry.energy] +
-            [entry.composition.get(elt) for elt in pbx_elts[:-1]]
-            for entry in entries]
-    vecs = np.array(vecs)
-    norms = np.transpose([[entry.normalization_factor
-                           for entry in entries]])
-    vecs *= norms
-    maxes = np.max(vecs[:, :3], axis=0)
-    extra_point = np.concatenate([maxes, np.ones(dim) / dim], axis=0)
-
-    # Add padding for extra point
-    pad = 1000
-    extra_point[2] += pad
-    points = np.concatenate([vecs, np.array([extra_point])], axis=0)
-    hull = ConvexHull(points, qhull_options="QJ i")
-    # Create facets and remove top
-    facets = [facet for facet in hull.simplices
-              if not len(points) - 1 in facet]
-    return facets
-
-# Temporary home to get convex hull in npH-nphi-e0-frac space
-def preprocess_pourbaix_entries(pourbaix_entries, comp_dict=None):
-    """
-
-    Args:
-        entries ([PourbaixEntry]): list of PourbaixEntries to preprocess
-            into MultiEntries
-        comp_dict ({Element: float}): composition dictionary
-
-    Returns:
-        ([MultiEntry]) list of stable MultiEntry candidates
-
-    """
-    # Get non-OH elements
-    pbx_elts = set(itertools.chain.from_iterable(
-        [entry.composition.elements for entry in pourbaix_entries]))
-    pbx_elts = list(pbx_elts - elements_HO)
-    dim = len(pbx_elts) - 1
-    comp_dict = comp_dict or {k: 1 / (dim + 1) for k in pbx_elts}
-
-    # Process ions:
-    solid_entries = [entry for entry in pourbaix_entries
-                   if entry.phase_type == "Solid"]
-    ion_entries = [entry for entry in pourbaix_entries
-                   if entry.phase_type == "Ion"]
-
-    # If a conc_dict is specified, override individual entry concentrations
-    for entry in ion_entries:
-        ion_elts = list(set(entry.composition.elements) - elements_HO)
-        # TODO: the logic here for ion concentration setting is in two
-        #       places, in PourbaixEntry and here, should be consolidated
-        if len(ion_elts) == 1:
-            # Just use default concentration for now
-            entry.concentration = 1e-06 * entry.normalization_factor
-        elif len(ion_elts) > 1 and not entry.concentration:
-            raise ValueError("Elemental concentration not compatible "
-                             "with multi-element ions")
-
-    entries = solid_entries + ion_entries
-
-    vecs = [[entry.npH, entry.nPhi, entry.energy] +
-            [entry.composition.get(elt) for elt in pbx_elts[:-1]]
-            for entry in entries]
-    vecs = np.array(vecs)
-    norms = np.transpose([[entry.normalization_factor
-                           for entry in entries]])
-    vecs *= norms
-    maxes = np.max(vecs[:, :3], axis=0)
-    extra_point = np.concatenate([maxes, np.ones(dim) / dim], axis=0)
-
-    # Add padding for extra point
-    pad = 1000
-    extra_point[2] += pad
-    points = np.concatenate([vecs, np.array([extra_point])], axis=0)
-    hull = ConvexHull(points, qhull_options="QJ i")
-
-    # Create facets and remove top
-    facets = [facet for facet in hull.simplices
-              if not len(points) - 1 in facet]
-    if dim > 1:
-        valid_facets = []
-        for facet in facets:
-            comps = vecs[facet][:, 3:]
-            full_comps = np.concatenate([
-                comps, 1 - np.sum(comps, axis=1).reshape(len(comps), 1)], axis=1)
-            # Ensure an compositional interior point exists in the simplex
-            if np.linalg.matrix_rank(full_comps) > dim:
-                valid_facets.append(facet)
-
-    else:
-        valid_facets = facets
-    combos = []
-    for facet in valid_facets:
-        for i in range(1, dim + 2):
-           combos.append([
-                frozenset(combo) for combo in itertools.combinations(facet, i)])
-
-    all_combos = set(itertools.chain.from_iterable(combos))
-    multi_entries = []
-    for combo in tqdm(all_combos):
-        these_entries = [entries[i] for i in combo]
-        mentry = PourbaixDiagram.process_multientry(
-            these_entries, Composition(comp_dict))
-        if mentry:
-            multi_entries.append(mentry)
-
-    return multi_entries
-
+ELEMENTS_HO = {Element('H'), Element('O')}
 
 # TODO: There's a lot of functionality here that diverges
 #   based on whether or not the pbx diagram is multielement
@@ -573,7 +435,7 @@ class PourbaixDiagram(MSONable):
         # Get non-OH elements
         self.pbx_elts = set(itertools.chain.from_iterable(
             [entry.composition.elements for entry in entries]))
-        self.pbx_elts = list(self.pbx_elts - elements_HO)
+        self.pbx_elts = list(self.pbx_elts - ELEMENTS_HO)
         self.dim = len(self.pbx_elts) - 1
 
         # Process multientry inputs
@@ -586,7 +448,7 @@ class PourbaixDiagram(MSONable):
             self._filtered_entries = single_entries
             self._conc_dict = None
             self._elt_comp = {k: v for k, v in entries[0].composition.items()
-                              if not k in elements_HO}
+                              if not k in ELEMENTS_HO}
             self._multielement = True
 
         # Process single entry inputs
@@ -608,7 +470,7 @@ class PourbaixDiagram(MSONable):
 
             # If a conc_dict is specified, override individual entry concentrations
             for entry in ion_entries:
-                ion_elts = list(set(entry.composition.elements) - elements_HO)
+                ion_elts = list(set(entry.composition.elements) - ELEMENTS_HO)
                 # TODO: the logic here for ion concentration setting is in two
                 #       places, in PourbaixEntry and here, should be consolidated
                 if len(ion_elts) == 1:
@@ -652,31 +514,42 @@ class PourbaixDiagram(MSONable):
             entries ([PourbaixEntry]): list of PourbaixEntries to construct
                 the convex hull
 
-        Returns: list of stable MultiEntries
+        Returns: list of stable MultiEntries, the facets, and the vectors
 
         """
-        # Pre-filter based on composition
+        ion_entries = [entry for entry in entries
+                       if entry.phase_type == "Ion"]
+        solid_entries = [entry for entry in entries
+                         if entry.phase_type == "Solid"]
+
+        # Pre-filter solids based on min at each composition
+        logger.debug("Pre-filtering solids by min energy at each composition")
         sorted_entries = sorted(
-            entries, key=lambda x: (x.composition.reduced_composition,
+            solid_entries, key=lambda x: (x.composition.reduced_composition,
                                     x.entry.energy_per_atom))
         grouped_by_composition = itertools.groupby(
             sorted_entries, key=lambda x: x.composition.reduced_composition)
-        min_entries = [grouped_entries[0]
-                       for grouped_entries in grouped_by_composition]
+        min_entries = [list(grouped_entries)[0]
+                       for comp, grouped_entries in grouped_by_composition]
+        min_entries += ion_entries
+
+        logger.debug("Constructing nph-nphi-composition points for qhull")
         vecs = [[entry.npH, entry.nPhi, entry.energy] +
                 [entry.composition.get(elt) for elt in self.pbx_elts[:-1]]
                 for entry in min_entries]
         vecs = np.array(vecs)
         norms = np.transpose([[entry.normalization_factor
-                               for entry in entries]])
+                               for entry in min_entries]])
         vecs *= norms
         maxes = np.max(vecs[:, :3], axis=0)
-        extra_point = np.concatenate([maxes, np.ones(self.dim) / self.dim], axis=0)
+        extra_point = np.concatenate(
+            [maxes, np.ones(self.dim) / self.dim], axis=0)
 
         # Add padding for extra point
         pad = 1000
         extra_point[2] += pad
         points = np.concatenate([vecs, np.array([extra_point])], axis=0)
+        logger.debug("Constructing convex hull in nph-nphi-composition space")
         hull = ConvexHull(points, qhull_options="QJ i")
 
         # Create facets and remove top
@@ -684,6 +557,7 @@ class PourbaixDiagram(MSONable):
                   if not len(points) - 1 in facet]
 
         if self.dim > 1:
+            logger.debug("Filtering facets by pourbaix composition")
             valid_facets = []
             for facet in facets:
                 comps = vecs[facet][:, 3:]
@@ -695,7 +569,7 @@ class PourbaixDiagram(MSONable):
         else:
             valid_facets = facets
 
-        return valid_facets
+        return min_entries, valid_facets
 
     def _preprocess_pourbaix_entries(self, entries, forced_include=None, nproc=None):
         """
@@ -716,14 +590,14 @@ class PourbaixDiagram(MSONable):
         # Get composition
         tot_comp = Composition(self._elt_comp)
 
-        valid_facets = self._get_hull_in_nph_nphi_space(entries)
+        min_entries, valid_facets = self._get_hull_in_nph_nphi_space(entries)
 
         combos = []
         for facet in valid_facets:
             for i in range(1, self.dim + 2):
                 these_combos = list()
                 for combo in itertools.combinations(facet, i):
-                    these_entries = [entries[i] for i in combo]
+                    these_entries = [min_entries[i] for i in combo]
                     if forced_include:
                         these_entries += forced_include
                     these_combos.append(frozenset(these_entries))
@@ -785,7 +659,6 @@ class PourbaixDiagram(MSONable):
 
         if forced_include:
             entry_combos = [forced_include + list(ec) for ec in entry_combos]
-
 
         entry_combos = filter(lambda x: total_comp < MultiEntry(x).composition,
                               entry_combos)
@@ -973,7 +846,7 @@ class PourbaixDiagram(MSONable):
         n_atoms_forced = 0
         n_atoms_total = 0
         forced_compdict = dict()
-        entry_elts = set(entry.composition.elements) - elements_HO
+        entry_elts = set(entry.composition.elements) - ELEMENTS_HO
         for elt in entry_elts:
             forced_compdict[elt] = entry.composition.get(elt, 0.0)
             n_atoms_forced += forced_compdict[elt]
