@@ -113,20 +113,17 @@ class HeisenbergMapper:
         self.cutoff = cutoff
         self.tol = tol
 
+        # Get graph representations
+        self.sgraphs = self._get_graphs(cutoff, ordered_structures)
+
+        # Get unique site ids and wyckoff symbols
+        self.unique_site_ids, self.wyckoff_ids = self._get_unique_sites(ordered_structures[0])
+
         # These attributes are set by internal methods
-        self.sgraphs = None
-        self.wyckoff_ids = None
-        self.unique_site_ids = None
         self.nn_interactions = None
         self.dists = None
         self.ex_mat = None
         self.ex_params = None
-
-        # Get number of unique sites
-        self._get_unique_sites()
-        
-        # Get graph representations
-        self._get_graphs(self.cutoff)
 
         # Check how many commensurate graphs we found
         if len(self.sgraphs) < 2:
@@ -136,19 +133,19 @@ class HeisenbergMapper:
             self._get_nn_dict()
             self._get_exchange_df()
 
-    def _get_graphs(self, cutoff):
+    @staticmethod
+    def _get_graphs(cutoff, ordered_structures):
         """
         Generate graph representations of magnetic structures with nearest
         neighbor bonds. Right now this only works for MinimumDistanceNN.
 
         Args:
             cutoff (float): Cutoff in Angstrom for nearest neighbor search.
+            ordered_structures (list): Structure objects.
 
         Returns:
-            None (sets self.sgraphs instance variable)
+            sgraphs (list): StructureGraph objects.
 
-        Todo:
-            * Implement other strategies that capture NNN bonds, etc.
         """
 
         # Strategy for finding neighbors
@@ -159,22 +156,28 @@ class HeisenbergMapper:
 
         # Generate structure graphs
         sgraphs = [StructureGraph.with_local_env_strategy(s, strategy=strategy)
-                   for s in self.ordered_structures]
+                   for s in ordered_structures]
 
-        self.sgraphs = sgraphs
+        return sgraphs
 
-    def _get_unique_sites(self):
+    @staticmethod
+    def _get_unique_sites(structure):
         """
         Get dict that maps site indices to unique identifiers.
 
+        Args:
+            structure (Structure): ground state Structure object.
+
         Returns:
-            None: (sets self.unique_site_ids and self.wyckoff_ids 
-            instance variables)
+            unique_site_ids (dict): maps tuples of equivalent site indices to a 
+                unique int identifier
+            wyckoff_ids (dict): maps tuples of equivalent site indices to their
+                wyckoff symbols
 
         """
 
         # Get a nonmagnetic representation of the supercell geometry
-        s0 = CollinearMagneticStructureAnalyzer(self.ordered_structures[0], 
+        s0 = CollinearMagneticStructureAnalyzer(structure, 
             make_primitive=False,
             threshold=0.0).get_nonmagnetic_structure(make_primitive=False)
 
@@ -200,8 +203,7 @@ class HeisenbergMapper:
             for index in indices:
                 wyckoff[index] = symbol
 
-        self.unique_site_ids = unique_site_ids
-        self.wyckoff_ids = wyckoff_ids
+        return unique_site_ids, wyckoff_ids
 
     def _get_nn_dict(self):
         """Get dict of unique nearest neighbor interactions.
@@ -248,8 +250,6 @@ class HeisenbergMapper:
         labels = ['nn', 'nnn', 'nnnn']
         dists = {l: d for (l, d) in zip(labels, all_dists)}
 
-        self.dists = dists  # NN distances
-
         # Get dictionary keys for interactions
         for k in unique_site_ids:
             i = k[0]
@@ -273,6 +273,7 @@ class HeisenbergMapper:
 
         nn_interactions = {'nn': nn_dict, 'nnn': nnn_dict, 'nnnn': nnnn_dict}
 
+        self.dists = dists
         self.nn_interactions = nn_interactions
 
     def _get_exchange_df(self):
