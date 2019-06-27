@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 import copy
 
-import warnings
+import logging
 import sys
 
 """
@@ -247,7 +247,6 @@ class HeisenbergMapper:
         all_dists = all_dists[:3]
         labels = ['nn', 'nnn', 'nnnn']
         dists = {l: d for (l, d) in zip(labels, all_dists)}
-
 
         self.dists = dists  # NN distances
 
@@ -482,7 +481,6 @@ class HeisenbergMapper:
         if not fm_struct or not afm_struct:
             for s, e in zip(self.ordered_structures, self.energies):
                 magmoms = s.site_properties['magmom']
-                print(abs(sum(magmoms)), e)
 
                 if abs(sum(magmoms)) > mag_max:  # FM ground state
                     fm_struct = s
@@ -543,15 +541,14 @@ class HeisenbergMapper:
 
         # If m_avg for FM config is < 1 we won't get sensibile results.
         if m_avg < 1:
-            warning_msg = """ 
-                Local magnetic moments are very small. The
+            iamthedanger = """ 
+                Local magnetic moments are small (< 1 muB). The
                 exchange parameters will be wrong, but <J> and the mean
                 field critical temperature estimate may be OK. 
                 """
-            warnings.warn(warning_msg)
+            logging.warning(iamthedanger)
 
         delta_e = afm_e - fm_e  # J > 0 -> FM
-        #j_avg = delta_e / (n*m_avg**2)
         j_avg = delta_e / (n * m_avg**2)  # eV / magnetic ion
         j_avg *= 1000 # meV / ion
 
@@ -596,11 +593,11 @@ class HeisenbergMapper:
             mft_t = max(eigenvals)
 
         if mft_t > 1500:  # Not sensible!
-            warning_msg = """ 
+            stayoutofmyterritory = """ 
                 This mean field estimate is too high! Probably
                 the true low energy orderings were not given as inputs.
                 """
-            warnings.warn(warning_msg) 
+            logging.warning(stayoutofmyterritory) 
 
         return mft_t
 
@@ -642,38 +639,10 @@ class HeisenbergMapper:
                 j = c[2]  # index of neighbor
                 dist = c[-1]  # i <-> j distance
 
-                # uniqe site identifiers
-                for key in unique_site_ids.keys():
-                    if i in key:
-                        i_site = unique_site_ids[key]
-                    if j in key:
-                        j_site = unique_site_ids[key]
-
-                # Determine order of connection
-                if abs(dist - dists['nn']) <= tol:
-                    order = '-nn'
-                elif abs(dist - dists['nnn']) <= tol:
-                    order = '-nnn'
-                elif abs(dist - dists['nnnn']) <= tol:
-                    order = '-nnnn'
-
-                j_ij = str(i_site) + '-' + str(j_site) + order
-                j_ji = str(j_site) + '-' + str(i_site) + order
-
-                if j_ij in self.ex_params:
-                    j_value = self.ex_params[j_ij]
-                elif j_ji in self.ex_params:
-                    j_value = self.ex_params[j_ji]
-                else:
-                    j_value = 0
-
-                # Check if only averaged NN <J> values are available
-                if '<J>' in self.ex_params and order == '-nn':
-                    j_value = self.ex_params['<J>']
-
+                j_exc = self._get_j_exc(i, j, dist)
 
                 if order == '-nn':
-                    igraph.add_edge(i, j, to_jimage=jimage, weight=j_value,
+                    igraph.add_edge(i, j, to_jimage=jimage, weight=j_exc,
                         warn_duplicates=False)
 
         # Save to a json file if desired
@@ -686,4 +655,48 @@ class HeisenbergMapper:
 
         return igraph
 
+    def _get_j_exc(i, j, dist):
+        """
+        Convenience method for looking up exchange parameter between two sites.
+
+        Args:
+            i (int): index of ith site
+            j (int): index of jth site
+            dist (float): distance (Angstrom) between sites 
+                (10E-2 precision) 
+
+        Returns:
+            j_exc (float): Exchange parameter in meV
+        """
+
+        # Get unique site identifiers
+        for k in self.unique_site_ids.keys():
+            if i in k:
+                i_index = self.unique_site_ids[k]
+            if j in k:
+                j_index = self.unique_site_ids[k]
+
+        # Determine order of interaction
+        if abs(dist - self.dists['nn']) <= self.tol:
+            order = '-nn'
+        elif abs(dist - self.dists['nnn']) <= self.tol:
+            order = '-nnn'
+        elif abs(dist - self.dists['nnnn']) <= self.tol:
+            order = '-nnnn'
+
+        j_ij = str(i_index) + '-' + str(j_index) + order
+        j_ji = str(j_index) + '-' + str(i_index) + order
+
+        if j_ij in self.ex_params:
+            j_exc = self.ex_params[j_ij]
+        elif j_ji in self.ex_params:
+            j_exc = self.ex_params[j_ji]
+        else:
+            j_exc = 0
+
+        # Check if only averaged NN <J> values are available
+        if '<J>' in self.ex_params and order == '-nn':
+            j_exc = self.ex_params['<J>']
+
+        return j_exc
 

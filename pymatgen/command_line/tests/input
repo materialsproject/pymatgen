@@ -1,0 +1,21 @@
+material:unit-cell-file=Mn3Al.ucf
+material:file=Mn3Al.mat
+create:periodic-boundaries-x
+create:periodic-boundaries-y
+create:periodic-boundaries-z
+dimensions:unit-cell-size-x = 4.0998326964 !A
+dimensions:unit-cell-size-y = 4.1043626312 !A
+dimensions:unit-cell-size-z = 7.1099159441 !A
+dimensions:system-size-x = 4.0 !nm
+dimensions:system-size-y = 4.0 !nm
+dimensions:system-size-z = 4.0 !nm
+sim:integrator = monte-carlo
+sim:program = curie-temperature
+sim:equilibration-time-steps = 100
+sim:loop-time-steps = 100
+sim:time-steps-increment = 1
+sim:minimum-temperature = 273
+sim:maximum-temperature = 1073
+sim:temperature-increment = 25
+output:temperature
+output:mean-magnetisation-length

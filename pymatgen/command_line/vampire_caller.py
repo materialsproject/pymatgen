@@ -3,7 +3,7 @@
 # Distributed under the terms of the MIT License.
 
 import subprocess
-import warnings
+import logging
 import numpy as np
 import pandas as pd
 
@@ -42,8 +42,8 @@ class VampireCaller:
     @requires(VAMPEXE, "VampireCaller requires vampire-serial to be in the path."
     "Please follow the instructions at https://vampire.york.ac.uk/download/.")
     
-    def __init__(self, ordered_structures, energies, mc_box_size=4.0, 
-        equil_timesteps=10000, mc_timesteps=10000):
+    def __init__(self, ordered_structures, energies, 
+        mc_box_size=4.0, equil_timesteps=10000, mc_timesteps=10000, hm=None):
         
         """
         Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical temperature with classical Monte Carlo.
@@ -54,6 +54,8 @@ class VampireCaller:
             mc_box_size (float): x=y=z dimensions (nm) of MC simulation box
             equil_timesteps (int): number of MC steps for equilibrating
             mc_timesteps (int): number of MC steps for averaging
+            hm (HeisenbergMapper): object already fit to low energy
+                magnetic orderings.
 
         Parameters:
             sgraph (StructureGraph): Ground state graph.
@@ -66,6 +68,10 @@ class VampireCaller:
 
         """
     
+        self.mc_box_size = mc_box_size
+        self.equil_timesteps = equil_timesteps
+        self.mc_timesteps = mc_timesteps
+
         # Sort by energy if not already sorted
         ordered_structures = [s for _, s in
                               sorted(zip(energies, ordered_structures), reverse=False)]
@@ -73,10 +79,17 @@ class VampireCaller:
         energies = sorted(energies, reverse=False)
 
         # Get exchange parameters and set instance variables
-        hm = HeisenbergMapper(ordered_structures, energies)
+        if not hm:
+            hm = HeisenbergMapper(ordered_structures, energies, cutoff=7.5,
+                tol=0.02)
+
+        # Instance attributes from HeisenbergMapper
+        self.hm = hm
         self.sgraph = hm.sgraphs[0]  # ground state graph
         self.unique_site_ids = hm.unique_site_ids
-        self.nn_interacations = hm.nn_interacations
+        self.nn_interactions = hm.nn_interactions
+        self.dists = hm.dists
+        self.tol = hm.tol
         self.ex_params = hm.get_exchange()
 
         # Get mean field estimate of critical temp
@@ -85,13 +98,13 @@ class VampireCaller:
 
         # Create input files
         structure = ordered_structures[0]  # ground state
-        self.mat_name = str(structure.formula)
+        self.mat_name = str(structure.composition.reduced_formula)
         self._create_mat(structure)
-        self._create_input(mat_name)
-        self._create_ucf(structure, exchange)
+        self._create_input(structure)
+        self._create_ucf(structure)
         
         # Call Vampire
-        process = subprocess.Popen(['vampire-serial', 'input'],
+        process = subprocess.Popen(['vampire-serial'],
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
@@ -99,20 +112,22 @@ class VampireCaller:
 
         if stderr:
             stderr = stderr.decode()
-            warnings.warn(stderr)
+            logging.warning(stderr)
         
         if process.returncode != 0:
-                raise RuntimeError("Vampire exited with return code {}.".format(process.returncode))
+            raise RuntimeError("Vampire exited with return code {}.".format(process.returncode))
         
         self._stdout = stdout
         self._stderr = stderr
     
         # Process output
-        self.output = VampireOutput(stdout)
+        self.output = VampireOutput('output')
        
     def _create_mat(self, structure):
         """Todo: 
             * make different materials (sublattices) for up and down spin
+            * if up/down spins are on inequivalent sites this is already
+              taken care of
         """
 
         mat_name = self.mat_name
@@ -123,12 +138,15 @@ class VampireCaller:
         for key in self.unique_site_ids:
             for site in key:
                 i = self.unique_site_ids[key]
+                mat_id = i + 1  # Starts at 1
                 atom = structure[i].species.reduced_formula
-                mag_mom = structure.site_properties['magmom'][site]
-                mat_file += ['material[%d]:material-element=%s' % (i, atom)]
-                mat_file += ['material[%d]:damping-constant=1.0' % (i),
-                                 'material[%d]:uniaxial-anisotropy-constant=0.0' % (i),
-                                 'material[%d]:atomic-spin-moment=%.2f' % (i, mag_mom)]
+
+                # Only positive magmoms are allowed
+                mag_mom = abs(structure.site_properties['magmom'][site])
+                mat_file += ['material[%d]:material-element=%s' % (mat_id, atom)]
+                mat_file += ['material[%d]:damping-constant=1.0' % (mat_id),
+                                 'material[%d]:uniaxial-anisotropy-constant=0.0' % (mat_id),
+                                 'material[%d]:atomic-spin-moment=%.2f !muB' % (mat_id, mag_mom)]
             
         mat_file = "\n".join(mat_file)
         mat_file_name = mat_name + '.mat'
@@ -136,7 +154,11 @@ class VampireCaller:
         with open(mat_file_name, 'w') as f:
             f.write(mat_file)
         
-    def _create_input(self):
+    def _create_input(self, structure):
+        """Todo:
+            * Does temperature increment need to evenly divide the
+              interval?
+        """
         
         mcbs = self.mc_box_size
         equil_timesteps = self.equil_timesteps
@@ -144,17 +166,25 @@ class VampireCaller:
         mat_name = self.mat_name
 
         input_script = ['material:unit-cell-file=%s.ucf' % (mat_name)]
+        input_script += ['material:file=%s.mat' % (mat_name)]
         
         # Specify periodic boundary conditions
-        input_script = ['create:periodic-boundaries-x',
+        input_script += ['create:periodic-boundaries-x',
                          'create:periodic-boundaries-y',
                          'create:periodic-boundaries-z']
         
-        # xx - define unit cell size and system size to get total # of atoms
+        # Unit cell size in Angstrom
+        abc = structure.lattice.abc
+        ucx, ucy, ucz = abc[0], abc[1], abc[2]
+        
+        input_script += ['dimensions:unit-cell-size-x = %.10f !A' % (ucx)]
+        input_script += ['dimensions:unit-cell-size-y = %.10f !A' % (ucy)]
+        input_script += ['dimensions:unit-cell-size-z = %.10f !A' % (ucz)]
+
         # System size in nm
-        input_script += ['dimensions:system-size-x = %.1f' % (mcbs),
-                         'dimensions:system-size-y = %.1f' % (mcbs),
-                         'dimensions:system-size-z = %.1f' % (mcbs)]
+        input_script += ['dimensions:system-size-x = %.1f !nm' % (mcbs),
+                         'dimensions:system-size-y = %.1f !nm' % (mcbs),
+                         'dimensions:system-size-z = %.1f !nm' % (mcbs)]
         
         # Critical temperature Monte Carlo calculation
         input_script += ['sim:integrator = monte-carlo',
@@ -181,20 +211,19 @@ class VampireCaller:
         
         # Output to save
         input_script += ['output:temperature',
-                         'output:mean-magnetization-length']
+                         'output:mean-magnetisation-length']
         
         input_script = "\n".join(input_script)
         
         with open('input', 'w') as f:
             f.write(input_script)
         
-    def _create_ucf(self, structure, exchange):
-        """Todo: 
-            * map all exchange interactions between sites.
-            * Is ninter off by factor of 2?
-            """
+    def _create_ucf(self, structure):
         
         mat_name = self.mat_name
+        tol = self.tol
+        dists = self.dists
+
         abc = structure.lattice.abc
         ucx, ucy, ucz = abc[0], abc[1], abc[2]
         
@@ -209,15 +238,13 @@ class VampireCaller:
         a3 = list(structure.lattice.matrix[2])
         ucf += ['%.10f %.10f %.10f' % (a3[0], a3[1], a3[2])]
         
-        cmsa = CollinearMagneticStructureAnalyzer(structure)
-        mag_dict = cmsa.magnetic_species_and_magmoms()
         nmats = len(self.unique_site_ids)
         
         ucf += ['# Atoms num_materials; id cx cy cz mat cat hcat']
         ucf += ['%d %d' % (len(structure), nmats)]
         
         # Fractional coordinates of atoms
-        for i, r in enumerate(structure.frac_coords, 0):
+        for i, r in enumerate(structure.frac_coords):
             for key in self.unique_site_ids:
                 if i in key:
                     mat_id = self.unique_site_ids[key]
@@ -226,13 +253,14 @@ class VampireCaller:
         # J_ij exchange interaction matrix
         sgraph = self.sgraph
         ninter = 0
-        for i in range(len(sgraph)):
+        for i, node in enumerate(sgraph.graph.nodes):
             ninter += sgraph.get_coordination_of_site(i)
 
         ucf += ['# Interactions']
         ucf += ['%d isotropic' % (ninter)]
         
-        for i in range(len(sgraph)):
+        iid = 0  # counts number of interaction
+        for i, node in enumerate(sgraph.graph.nodes):
             connections = sgraph.get_connected_sites(i)
             for c in connections:
                 jimage = c[1]  # relative integer coordinates of atom j
@@ -240,22 +268,25 @@ class VampireCaller:
                 dy = jimage[1]
                 dz = jimage[2]
                 j = c[2]  # index of neighbor
-                j_ij = str(i) + '-' + str(j)
-                j_ji = str(j) + '-' + str(i)
-                if j_ij in self.ex_params:
-                    j_value = self.ex_params[j_ij]
-                elif j_ji in self.ex_params:
-                    j_value = self.ex_params[j_ji]
-                else:
-                    j_value = 0
-                ucf += ['%d %d %d %d %d %d %.6f' % (i, i, j, dx, dy, dz, j_value)]
-            
+                dist = round(c[-1], 2)
+
+                # Look up J_ij between the sites
+                j_exc = self.hm._get_j_exc(i, j, dist)
+
+                # Convert J_ij from meV to Joules
+                j_exc *= 1.6021766e-22
+                j_exc = str(j_exc)  # otherwise this rounds to 0
+
+                ucf += ['%d %d %d %d %d %d %s' % (iid, i, j, dx, dy, dz, j_exc)]
+                iid += 1
+        
         ucf = '\n'.join(ucf)
         ucf_file_name = mat_name + '.ucf'
         
         with open(ucf_file_name, 'w') as f:
             f.write(ucf)
-        
+
+  
 class VampireOutput:
     
     def __init__(self, vamp_stdout):
@@ -276,9 +307,12 @@ class VampireOutput:
         
     def _parse_stdout(self, vamp_stdout):
         
+        # Parsing vampire MC output
         df = pd.read_csv(vamp_stdout,sep='\t',skiprows=8,header=None,
                          names=['T','m','nan'])
         df.drop('nan', axis=1, inplace=True)
+
+        # Compute derivative to get critical temp
         grad = np.gradient(df['m'], df['T'])
         T_crit = df.iloc[grad.argmin()]['T']
         
