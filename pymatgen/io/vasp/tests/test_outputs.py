@@ -561,6 +561,10 @@ class VasprunTest(PymatgenTest):
         self.assertEqual(vasprun.parameters.get('NELECT', 0), 7)
         self.assertEqual(vasprun.structures[-1].charge, 1)
 
+    def test_kpointset_electronvelocities(self):
+        vpath = self.TEST_FILES_DIR / 'vasprun.lvel.Si2H.xml'
+        vasprun = Vasprun(vpath, parse_potcar_file=False)
+        self.assertEqual(vasprun.eigenvalues[Spin.up].shape[0], len(vasprun.actual_kpoints))
 
 class OutcarTest(PymatgenTest):
     _multiprocess_shared_ = True

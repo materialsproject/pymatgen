@@ -414,9 +414,10 @@ class Vasprun(MSONable):
                     elif tag == "incar":
                         self.incar = self._parse_params(elem)
                     elif tag == "kpoints":
-                        self.kpoints, self.actual_kpoints, \
-                        self.actual_kpoints_weights = self._parse_kpoints(
-                            elem)
+                        if not hasattr(self, 'kpoints'):
+                            self.kpoints, self.actual_kpoints, \
+                            self.actual_kpoints_weights = self._parse_kpoints(
+                                elem)
                     elif tag == "parameters":
                         self.parameters = self._parse_params(elem)
                     elif tag == "structure" and elem.attrib.get("name") == \
