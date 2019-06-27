@@ -414,9 +414,10 @@ class Vasprun(MSONable):
                     elif tag == "incar":
                         self.incar = self._parse_params(elem)
                     elif tag == "kpoints":
-                        self.kpoints, self.actual_kpoints, \
-                        self.actual_kpoints_weights = self._parse_kpoints(
-                            elem)
+                        if not hasattr(self, 'kpoints'):
+                            self.kpoints, self.actual_kpoints, \
+                            self.actual_kpoints_weights = self._parse_kpoints(
+                                elem)
                     elif tag == "parameters":
                         self.parameters = self._parse_params(elem)
                     elif tag == "structure" and elem.attrib.get("name") == \
@@ -1690,6 +1691,13 @@ class Outcar:
             self.read_nmr_efg()
             self.read_nmr_efg_tensor()
 
+        self.has_onsite_density_matrices = False
+        self.read_pattern({"has_onsite_density_matrices": r"onsite density matrix"},
+                          terminate_on_match=True)
+        if "has_onsite_density_matrices" in self.data:
+            self.has_onsite_density_matrices = True
+            self.read_onsite_density_matrices()
+
         # Store the individual contributions to the final total energy
         final_energy_contribs = {}
         for k in ["PSCENC", "TEWEN", "DENC", "EXHF", "XCENC", "PAW double counting",
@@ -2721,6 +2729,13 @@ class Outcar:
         if self.nmr_efg:
             d.update({"nmr_efg": {"raw": self.data["unsym_efg_tensor"],
                                   "parameters": self.data["efg"]}})
+
+        if self.has_onsite_density_matrices:
+            # cast Spin to str for consistency with electronic_structure
+            # TODO: improve handling of Enum (de)serialization in monty
+            onsite_density_matrices = [{str(k): v for k, v in d.items()}
+                                       for d in self.data["onsite_density_matrices"]]
+            d.update({"onsite_density_matrices": onsite_density_matrices})
 
         return d
 

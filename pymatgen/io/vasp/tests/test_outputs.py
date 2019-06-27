@@ -561,6 +561,10 @@ class VasprunTest(PymatgenTest):
         self.assertEqual(vasprun.parameters.get('NELECT', 0), 7)
         self.assertEqual(vasprun.structures[-1].charge, 1)
 
+    def test_kpointset_electronvelocities(self):
+        vpath = self.TEST_FILES_DIR / 'vasprun.lvel.Si2H.xml'
+        vasprun = Vasprun(vpath, parse_potcar_file=False)
+        self.assertEqual(vasprun.eigenvalues[Spin.up].shape[0], len(vasprun.actual_kpoints))
 
 class OutcarTest(PymatgenTest):
     _multiprocess_shared_ = True
@@ -927,11 +931,11 @@ class OutcarTest(PymatgenTest):
 
     def test_onsite_density_matrix(self):
         outcar = Outcar(self.TEST_FILES_DIR / "OUTCAR.LinearResponseU.gz")
-        outcar.read_onsite_density_matrices()
         matrices = outcar.data["onsite_density_matrices"]
         self.assertEqual(matrices[0][Spin.up][0][0], 1.0227)
         self.assertEqual(len(matrices[0][Spin.up]), 5)
         self.assertEqual(len(matrices[0][Spin.up][0]), 5)
+        self.assertTrue("onsite_density_matrices" in outcar.as_dict())
 
 
 class BSVasprunTest(PymatgenTest):

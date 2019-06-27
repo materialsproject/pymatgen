@@ -365,6 +365,19 @@ class MPResterTest(PymatgenTest):
         ecoh = self.rester.get_cohesive_energy("mp-13")
         self.assertTrue(ecoh, 5.04543279)
 
+    def test_get_gb_data(self):
+        mo_gbs = self.rester.get_gb_data(material_id='mp-129')
+        self.assertEqual(len(mo_gbs), 10)
+        mo_gbs_s5 = self.rester.get_gb_data(pretty_formula='Mo', sigma=5)
+        self.assertEqual(len(mo_gbs_s5), 3)
+        mo_s5_001 = self.rester.get_gb_data(chemsys='Mo', sigma=5, gb_plane=[1, 0, 0])
+        self.assertEqual(len(mo_s5_001), 1)
+        gb_f = mo_s5_001[0]['final_structure']
+        self.assertArrayAlmostEqual(gb_f.rotation_axis, [1, 0, 0])
+        self.assertAlmostEqual(gb_f.rotation_angle, 36.86989, places=4)
+        self.assertAlmostEqual(mo_s5_001[0]['gb_energy'], 2.43219, places=2)
+        self.assertIn("Mo80", gb_f.formula)
+
     def test_get_interface_reactions(self):
         kinks = self.rester.get_interface_reactions("LiCoO2", "Li3PS4")
         self.assertTrue(len(kinks) > 0)
