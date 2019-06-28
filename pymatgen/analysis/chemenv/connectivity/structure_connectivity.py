@@ -17,7 +17,7 @@ __email__ = "david.waroquiers@gmail.com"
 __date__ = "June 25, 2019"
 
 
-def get_delta_image(isite1, isite2, data1, data2):
+def get_ligand_delta_image(isite1, isite2, data1, data2):
     if data1['start'] == isite1:
         if data2['start'] == isite2:
             return np.array(data1['delta']) - np.array(data2['delta'])
@@ -152,7 +152,7 @@ class StructureConnectivity(MSONable):
                 for (site1_1, ilig_site1, d1) in links_node1:
                     for (site2_1, ilig_site2, d2) in links_node2:
                         if ilig_site1 == ilig_site2:
-                            delta_image = get_delta_image(isite1, isite2, d1, d2)
+                            delta_image = get_ligand_delta_image(isite1, isite2, d1, d2)
                             if isite1 == isite2 and np.all(delta_image == 0):
                                 continue
                             tuple_delta_image = tuple(delta_image)

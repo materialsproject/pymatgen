@@ -80,7 +80,6 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
                                 lw=2,
                                 alpha=alpha,
                                 color=ecolor)
-
         ax.annotate(delta, midarc, ha='center', va='center', xycoords='data', xytext=xytext_offset,
                     textcoords='offset points')
         seen[(u, v)] = rad
@@ -422,101 +421,95 @@ class ConnectedComponent(MSONable):
         # Loop on start_nodes, sometimes some nodes cannot be elastically taken
         # inside the cell if you start from a specific node
         ntest_nodes = 0
-        for start_node in self.graph.nodes():
-            ntest_nodes += 1
-            centered_connected_subgraph = nx.MultiGraph()
-            centered_connected_subgraph.add_nodes_from(self.graph.nodes())
-            centered_connected_subgraph.add_edges_from(self.graph.edges(data=True))
-            tree = bfs_tree(G=self.graph, source=start_node)
-            current_nodes = [start_node]
-            nodes_traversed = [start_node]
-            # isites_incell = [start_node.isite]
-            inode = 0
-            # Loop on "levels" in the tree
-            tree_level = 0
-            while True:
-                tree_level += 1
-                logging.debug('In tree level {:d}'.format(tree_level))
-                new_current_nodes = []
-                # Loop on nodes in this level of the tree
-                for node in current_nodes:
-                    inode += 1
-                    logging.debug('  In node #{:d}/{:d} ({})'.format(inode, len(centered_connected_subgraph), str(node)))
-                    node_neighbors = tree.neighbors(n=node)
-                    node_edges = centered_connected_subgraph.edges(nbunch=[node],
-                                                                   data=True, keys=True)
-                    # Loop on neighbors of a node (from the tree used)
-                    for inode_neighbor, node_neighbor in enumerate(node_neighbors):
-                        logging.debug('    Testing neighbor #{:d} ({}) of node #{:d} ({})'.format(inode_neighbor,
-                                                                                                  node_neighbor,
-                                                                                                  inode,
-                                                                                                  node))
-                        already_inside = False
-                        ddeltas = []
-                        for n1, n2, key, edata in node_edges:
-                            if (n1 == node and n2 == node_neighbor) or (n2 == node and n1 == node_neighbor):
-                                if edata['delta'] == (0, 0, 0):
-                                    already_inside = True
-                                    thisdelta = edata['delta']
-                                else:
-                                    if edata['start'] == node.isite and edata['end'] != node.isite:
-                                        thisdelta = edata['delta']
-                                    elif edata['end'] == node.isite:
-                                        thisdelta = tuple([-dd for dd in edata['delta']])
-                                    else:
-                                        raise ValueError("Should not be here ...")
-                                ddeltas.append(thisdelta)
-                        logging.debug('        ddeltas : {}'.format(', '.join(['({})'.format(', '.join(str(ddd) for ddd in dd))
-                                                                               for dd in ddeltas])))
-                        if ddeltas.count((0, 0, 0)) > 1:
-                            raise ValueError('Should not have more than one 000 delta ...')
-                        if already_inside:
-                            logging.debug('          Edge inside the cell ... continuing to next neighbor')
-                            continue
-                        logging.debug('          Edge outside the cell ... getting neighbor back inside')
-                        if (0, 0, 0) in ddeltas:
-                            ddeltas.remove((0, 0, 0))
-                        myddelta = np.array(ddeltas[0], np.int)
-                        node_neighbor_edges = centered_connected_subgraph.edges(nbunch=[node_neighbor],
-                                                                                data=True, keys=True)
-                        logging.debug('            Delta image from node {} to neighbor {} : '
-                                      '{}'.format(str(node),
-                                                  str(node_neighbor),
-                                                  '({})'.format(', '.join([str(iii) for iii in myddelta]))))
-                        # # Loop on the edges of this neighbor
-                        for n1, n2, key, edata in node_neighbor_edges:
-                            if ((n1 == node_neighbor and n2 != node_neighbor) or
-                                    (n2 == node_neighbor and n1 != node_neighbor)):
-                                if edata['start'] == node_neighbor.isite and edata['end'] != node_neighbor.isite:
-                                    centered_connected_subgraph[n1][n2][key]['delta'] = tuple([ii
-                                                                                               for ii in
-                                                                                               np.array(edata['delta'],
-                                                                                                        np.int)+myddelta])
-                                elif edata['end'] == node_neighbor.isite:
-                                    centered_connected_subgraph[n1][n2][key]['delta'] = tuple([ii
-                                                                                               for ii in
-                                                                                               np.array(edata['delta'],
-                                                                                                        np.int)-myddelta])
-                                else:
-                                    raise ValueError('DUHH')
-                                logging.debug('                  {} to node {} now has delta '
-                                              '{}'.format(str(n1), str(n2),
-                                                          str(centered_connected_subgraph[n1][n2][key]['delta'])))
-                    new_current_nodes.extend(node_neighbors)
-                    nodes_traversed.extend(node_neighbors)
-                current_nodes = new_current_nodes
-                if not current_nodes:
-                    break
+        start_node = list(self.graph.nodes())[0]
 
-            # Check if the graph is connected if "periodic" edges are removed
-            check_centered_connected_subgraph = nx.MultiGraph()
-            check_centered_connected_subgraph.add_nodes_from(centered_connected_subgraph.nodes())
-            check_centered_connected_subgraph.add_edges_from([e for e in centered_connected_subgraph.edges(data=True)
-                                                              if np.allclose(e[2]['delta'], np.zeros(3))])
-            if is_connected(check_centered_connected_subgraph):
-                logging.debug('  Found elastic centered subgraph after {:d} start nodes'.format(ntest_nodes))
+        ntest_nodes += 1
+        centered_connected_subgraph = nx.MultiGraph()
+        centered_connected_subgraph.add_nodes_from(self.graph.nodes())
+        centered_connected_subgraph.add_edges_from(self.graph.edges(data=True))
+        tree = bfs_tree(G=self.graph, source=start_node)
+
+        current_nodes = [start_node]
+        nodes_traversed = [start_node]
+
+        inode = 0
+        # Loop on "levels" in the tree
+        tree_level = 0
+        while True:
+            tree_level += 1
+            logging.debug('In tree level {:d} ({:d} nodes)'.format(tree_level, len(current_nodes)))
+            new_current_nodes = []
+            # Loop on nodes in this level of the tree
+            for node in current_nodes:
+                inode += 1
+                logging.debug('  In node #{:d}/{:d} in level {:d} ({})'.format(inode, len(current_nodes), tree_level, str(node)))
+                node_neighbors = list(tree.neighbors(n=node))
+                node_edges = centered_connected_subgraph.edges(nbunch=[node],
+                                                               data=True, keys=True)
+                # Loop on neighbors of a node (from the tree used)
+                for inode_neighbor, node_neighbor in enumerate(node_neighbors):
+                    logging.debug('    Testing neighbor #{:d}/{:d} ({}) of node #{:d} ({})'.format(inode_neighbor, len(node_neighbors),
+                                                                                                   node_neighbor,
+                                                                                                   inode,
+                                                                                                   node))
+                    already_inside = False
+                    ddeltas = []
+                    for n1, n2, key, edata in node_edges:
+                        if (n1 == node and n2 == node_neighbor) or (n2 == node and n1 == node_neighbor):
+                            if edata['delta'] == (0, 0, 0):
+                                already_inside = True
+                                thisdelta = edata['delta']
+                            else:
+                                if edata['start'] == node.isite and edata['end'] != node.isite:
+                                    thisdelta = edata['delta']
+                                elif edata['end'] == node.isite:
+                                    thisdelta = tuple([-dd for dd in edata['delta']])
+                                else:
+                                    raise ValueError("Should not be here ...")
+                            ddeltas.append(thisdelta)
+                    logging.debug('        ddeltas : {}'.format(', '.join(['({})'.format(', '.join(str(ddd) for ddd in dd))
+                                                                           for dd in ddeltas])))
+                    if ddeltas.count((0, 0, 0)) > 1:
+                        raise ValueError('Should not have more than one 000 delta ...')
+                    if already_inside:
+                        logging.debug('          Edge inside the cell ... continuing to next neighbor')
+                        continue
+                    logging.debug('          Edge outside the cell ... getting neighbor back inside')
+                    if (0, 0, 0) in ddeltas:
+                        ddeltas.remove((0, 0, 0))
+                    myddelta = np.array(ddeltas[0], np.int)
+                    node_neighbor_edges = centered_connected_subgraph.edges(nbunch=[node_neighbor],
+                                                                            data=True, keys=True)
+                    logging.debug('            Delta image from node {} to neighbor {} : '
+                                  '{}'.format(str(node),
+                                              str(node_neighbor),
+                                              '({})'.format(', '.join([str(iii) for iii in myddelta]))))
+                    # Loop on the edges of this neighbor
+                    for n1, n2, key, edata in node_neighbor_edges:
+                        if ((n1 == node_neighbor and n2 != node_neighbor) or
+                                (n2 == node_neighbor and n1 != node_neighbor)):
+                            if edata['start'] == node_neighbor.isite and edata['end'] != node_neighbor.isite:
+                                centered_connected_subgraph[n1][n2][key]['delta'] = tuple([ii
+                                                                                           for ii in
+                                                                                           np.array(edata['delta'],
+                                                                                                    np.int)+myddelta])
+                            elif edata['end'] == node_neighbor.isite:
+                                centered_connected_subgraph[n1][n2][key]['delta'] = tuple([ii
+                                                                                           for ii in
+                                                                                           np.array(edata['delta'],
+                                                                                                    np.int)-myddelta])
+                            else:
+                                raise ValueError('DUHH')
+                            logging.debug('                  {} to node {} now has delta '
+                                          '{}'.format(str(n1), str(n2),
+                                                      str(centered_connected_subgraph[n1][n2][key]['delta'])))
+                new_current_nodes.extend(node_neighbors)
+                nodes_traversed.extend(node_neighbors)
+            current_nodes = new_current_nodes
+            if not current_nodes:
                 break
-                # Check if the graph is connected if "periodic" edges are removed
+
+        # Check if the graph is indeed connected if "periodic" edges (i.e. whose "delta" is not 0, 0, 0) are removed
         check_centered_connected_subgraph = nx.MultiGraph()
         check_centered_connected_subgraph.add_nodes_from(centered_connected_subgraph.nodes())
         check_centered_connected_subgraph.add_edges_from(
