@@ -1157,7 +1157,7 @@ class MPRester:
 
         return self._make_request("/materials/all_substrate_ids")
 
-    def get_surface_data(self, material_id, inc_structures=False):
+    def get_surface_data(self, material_id, miller_index=None, inc_structures=False):
         """
         Gets surface data for a material. Useful for Wulff shapes.
 
@@ -1170,6 +1170,9 @@ class MPRester:
 
         Args:
             material_id (str): Materials Project material_id, e.g. 'mp-123'.
+            miller_index (list of integer): The miller index of the surface.
+            e.g., [3, 2, 1]. If miller_index is provided, only one dictionary
+            of this specific plane will be returned.
             inc_structures (bool): Include final surface slab structures.
                 These are unnecessary for Wulff shape construction.
         Returns:
@@ -1178,7 +1181,17 @@ class MPRester:
         req = "/materials/{}/surfaces".format(material_id)
         if inc_structures:
             req += "?include_structures=true"
-        return self._make_request(req)
+
+        if miller_index:
+            abs_miller_index = [abs(i) for i in miller_index]
+            sorted_miller_index = sorted(abs_miller_index, key=int, reverse=True)
+            surf_data_dict = self._make_request(req)
+            surf_list = surf_data_dict['surfaces']
+            for one_surf in surf_list:
+                if one_surf['miller_index'] == sorted_miller_index:
+                    return one_surf
+        else:
+            return self._make_request(req)
 
     def get_wulff_shape(self, material_id):
         """
@@ -1207,7 +1220,7 @@ class MPRester:
 
     def get_gb_data(self, material_id=None, pretty_formula=None,
                     chemsys=None, sigma=None, gb_plane=None,
-                    rotation_axis=None):
+                    rotation_axis=None, include_work_of_separation=False):
         """
         Gets grain boundary data for a material.
 
@@ -1218,13 +1231,19 @@ class MPRester:
             gb_plane(list of integer): The Miller index of grain
             boundary plane. e.g., [1, 1, 1]
             rotation_axis(list of integer): The Miller index of rotation
-            axis. e.g., [1, 2, 3]
+            axis. e.g., [1, 0, 0], [1, 1, 0], and [1, 1, 1]
             Sigma value is determined by the combination of rotation axis and
             rotation angle. The five degrees of freedom (DOF) of one grain boundary
             include: rotation axis (2 DOFs), rotation angle (1 DOF), and grain
             boundary plane (2 DOFs).
+            include_work_of_separation (bool): whether to include the work of separation
+            (in unit of (J/m^2)). If you want to query the work of separation, please
+            specify the material_id.
+
+
         Returns:
-            Grain boundary data for material. Energies are given in SI units (J/m^2).
+            A list of grain boundaries that satisfy the query conditions (sigma, gb_plane).
+            Energies are given in SI units (J/m^2).
         """
         if gb_plane:
             gb_plane = ','.join([str(i) for i in gb_plane])
@@ -1238,7 +1257,20 @@ class MPRester:
                    "gb_plane": gb_plane,
                    "rotation_axis":rotation_axis}
 
-        return self._make_request("/grain_boundaries",
+        if include_work_of_separation and material_id:
+            list_of_gbs = self._make_request("/grain_boundaries",
+                               payload=payload)
+            for i, gb_dict in enumerate(list_of_gbs):
+                gb_energy = gb_dict['gb_energy']
+                gb_plane_int = gb_dict['gb_plane']
+                surface_energy = self.get_surface_data(material_id=material_id,
+                                                       miller_index=gb_plane_int)['surface_energy']
+                wsep = 2 * surface_energy - gb_energy # calculate the work of separation
+                gb_dict['work_of_separation'] = wsep
+            return list_of_gbs
+
+        else:
+            return self._make_request("/grain_boundaries",
                                   payload=payload)
 
     def get_interface_reactions(self, reactant1, reactant2,
