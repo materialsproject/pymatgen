@@ -18,7 +18,8 @@ from pymatgen.transformations.advanced_transformations import \
     SubstitutionPredictorTransformation, MagOrderingTransformation, \
     DopingTransformation, _find_codopant, SlabTransformation, \
     MagOrderParameterConstraint, DisorderOrderedTransformation, \
-    GrainBoundaryTransformation
+    GrainBoundaryTransformation, CubicSupercellTransformation, \
+    PerturbedSupercellsTransformation
 from monty.os.path import which
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.cif import CifParser
@@ -614,6 +615,30 @@ class DisorderedOrderedTransformationTest(PymatgenTest):
         self.assertDictEqual(output[-1].species.as_dict(),
                              {'Ni': 0.5, 'Ba': 0.5})
 
+class CubicSupercellTransformationTest(PymatgenTest):
+
+    def test_gen_scaling_matrix(self):
+
+        structure = structure = PymatgenTest.get_structure("LiFePO4") #what structure should i put in here????
+        sc_generator = CubicSupercellTransformation(structure, min_atoms=150,
+                                                    max_atoms=1000, num_nn_dists=5)
+        superstructure, scale_mat = sc_generator.gen_scaling_matrix()
+
+
+class PerturbedSupercellsTransformationTest(PymatgenTest):
+
+    def test_perturbed_supercells_class(self):
+
+        structure = structure = PymatgenTest.get_structure("LiFePO4") #what structure should i put in here????
+        sc_generator = CubicSupercellTransformation(structure, min_atoms=150,
+                                                    max_atoms=1000, num_nn_dists=5)
+        superstructure, scale_mat = sc_generator.gen_scaling_matrix()
+        enumerator = PerturbedSupercellsTransformation(superstructure,
+                                                max_displacement_val=0.05,
+                                                min_displacement_val=0.01,
+                                                num_displacements=2,
+                                                scs_per_displacement_val=1)
+        random_supercells = enumerator.perturbed_supercells
 
 if __name__ == "__main__":
     unittest.main()
