@@ -45,7 +45,7 @@ class HeisenbergMapperTest(unittest.TestCase):
 
         # cls.compounds = [cls.CoS2, cls.MnNi2Sn, cls.MnSi,
         # cls.LiMnPO4, cls.Ta2CoO6, cls.Ni_SbO3_2]
-        cls.compounds = [cls.Mn3Al]
+        cls.compounds = [cls.LiMnPO4]
         # cls.compounds = [cls.CoS2]
 
         cls.hms = []

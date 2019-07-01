@@ -83,7 +83,7 @@ class CollinearMagneticStructureAnalyzer:
         make_primitive: bool = True,
         default_magmoms: bool = None,
         set_net_positive: bool = True,
-        threshold: float = 0.1,
+        threshold: float = 0.00,
         threshold_nonmag: float = 0.5,
     ):
         """
@@ -129,8 +129,7 @@ class CollinearMagneticStructureAnalyzer:
         moments such that the net magnetization is positive. Argument will be
         ignored if mode "respect_sign" is used.
         :param threshold (float): number (in Bohr magnetons) below which magmoms
-        will be rounded to zero, default of 0.1 can probably be increased for many
-        magnetic systems, depending on your application
+        will be rounded to zero,
         :param threshold_nonmag (float): number (in Bohr magneton) below which nonmagnetic ions (with no magmom specified in default_magmoms) will be rounded to zero
         """
 

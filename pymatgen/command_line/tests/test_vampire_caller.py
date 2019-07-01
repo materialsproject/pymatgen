@@ -35,6 +35,8 @@ class VampireCallerTest(unittest.TestCase):
         cls.Mn3Al = pd.read_json(os.path.join(test_dir,
             'Mn3Al.json'))
 
+        cls.LiMnPO4 = pd.read_json(os.path.join(test_dir, 'LiMnPO4.json'))
+
         cls.compounds = [cls.Mn3Al]
 
         cls.structure_inputs = []
@@ -57,8 +59,9 @@ class VampireCallerTest(unittest.TestCase):
     def test_vampire(self):
         for structs, energies in zip(self.structure_inputs, 
             self.energy_inputs):
-            vc = vampirecaller.VampireCaller(structs, energies,
-                equil_timesteps=100, mc_timesteps=100)
+            vc = vampirecaller.VampireCaller(structs, energies, 
+                mc_box_size=6.0,
+                equil_timesteps=2000, mc_timesteps=4000)
             print('Critical temp: ', vc.output.critical_temp, ' K')
 
 if __name__ == '__main__':

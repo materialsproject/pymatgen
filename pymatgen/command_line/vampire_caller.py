@@ -43,7 +43,7 @@ class VampireCaller:
     "Please follow the instructions at https://vampire.york.ac.uk/download/.")
     
     def __init__(self, ordered_structures, energies, 
-        mc_box_size=4.0, equil_timesteps=10000, mc_timesteps=10000, hm=None):
+        mc_box_size=5.0, equil_timesteps=10000, mc_timesteps=10000, hm=None):
         
         """
         Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical temperature with classical Monte Carlo.
@@ -65,6 +65,8 @@ class VampireCaller:
             ex_params (dict): Exchange parameter values (meV/atom)
             mft_t (float): Mean field theory estimate of critical T
             mat_name (str): Formula unit label for input files
+            mat_id_dict (dict): Maps sites to material id # for vampire
+                indexing.
 
         """
     
@@ -85,6 +87,7 @@ class VampireCaller:
 
         # Instance attributes from HeisenbergMapper
         self.hm = hm
+        self.structure = hm.ordered_structures[0]  # ground state
         self.sgraph = hm.sgraphs[0]  # ground state graph
         self.unique_site_ids = hm.unique_site_ids
         self.nn_interactions = hm.nn_interactions
@@ -96,12 +99,13 @@ class VampireCaller:
         j_avg = hm.estimate_exchange()
         self.mft_t = hm.get_mft_temperature(j_avg)
 
+        # Full structure name before reducing to only magnetic ions
+        self.mat_name = str(hm.ordered_structures_[0].composition.reduced_formula)
+
         # Create input files
-        structure = ordered_structures[0]  # ground state
-        self.mat_name = str(structure.composition.reduced_formula)
-        self._create_mat(structure)
-        self._create_input(structure)
-        self._create_ucf(structure)
+        self._create_mat()
+        self._create_input()
+        self._create_ucf()
         
         # Call Vampire
         process = subprocess.Popen(['vampire-serial'],
@@ -121,45 +125,96 @@ class VampireCaller:
         self._stderr = stderr
     
         # Process output
-        self.output = VampireOutput('output')
+        nmats = max(self.mat_id_dict.values())
+        self.output = VampireOutput('output', nmats)
        
-    def _create_mat(self, structure):
-        """Todo: 
-            * make different materials (sublattices) for up and down spin
-            * if up/down spins are on inequivalent sites this is already
-              taken care of
-        """
+    def _create_mat(self):
 
+        structure = self.structure
         mat_name = self.mat_name
-        nmats = len(self.unique_site_ids)
+        magmoms = structure.site_properties['magmom']
+
+        # Maps sites to material id for vampire inputs
+        mat_id_dict = {}
+
+        nmats = 0
+        for key in self.unique_site_ids:
+            spin_up, spin_down = False, False
+            nmats += 1  # at least 1 mat for each unique site
+            
+            # Check which spin sublattices exist for this site id 
+            for site in key:
+                m = magmoms[site]
+                if m > 0:
+                    spin_up = True
+                if m < 0:
+                    spin_down = True
+
+            # Assign material id for each site
+            for site in key:
+                m = magmoms[site]
+                if spin_up and not spin_down:
+                    mat_id_dict[site] = nmats
+                if spin_down and not spin_up:
+                    mat_id_dict[site] = nmats
+                if spin_up and spin_down:
+
+                    # Check if spin up or down shows up first
+                    m0 = magmoms[key[0]]
+                    if m > 0 and m0 > 0:
+                        mat_id_dict[site] = nmats
+                    if m < 0 and m0 < 0:
+                        mat_id_dict[site] = nmats
+                    if m > 0 and m0 < 0:
+                        mat_id_dict[site] = nmats + 1
+                    if m < 0 and m0 > 0:
+                        mat_id_dict[site] = nmats + 1
+
+            # Increment index if two sublattices
+            if spin_up and spin_down:
+                nmats += 1
         
         mat_file = ['material:num-materials=%d' % (nmats)]
         
         for key in self.unique_site_ids:
+            i = self.unique_site_ids[key]  # unique site id
+
             for site in key:
-                i = self.unique_site_ids[key]
-                mat_id = i + 1  # Starts at 1
+                mat_id = mat_id_dict[site]
+
+                # Only positive magmoms allowed
+                m_magnitude = abs(magmoms[site])
+
+                if magmoms[site] > 0:
+                    spin = 1
+                if magmoms[site] < 0:
+                    spin = -1
+
                 atom = structure[i].species.reduced_formula
 
-                # Only positive magmoms are allowed
-                mag_mom = abs(structure.site_properties['magmom'][site])
                 mat_file += ['material[%d]:material-element=%s' % (mat_id, atom)]
                 mat_file += ['material[%d]:damping-constant=1.0' % (mat_id),
                                  'material[%d]:uniaxial-anisotropy-constant=0.0' % (mat_id),
-                                 'material[%d]:atomic-spin-moment=%.2f !muB' % (mat_id, mag_mom)]
+                                 'material[%d]:atomic-spin-moment=%.2f !muB' % (mat_id, m_magnitude),
+                                 'material[%d]:initial-spin-direction=0,0,%d'
+                                 % (mat_id, spin)]
             
         mat_file = "\n".join(mat_file)
         mat_file_name = mat_name + '.mat'
         
+        self.mat_id_dict = mat_id_dict
+
         with open(mat_file_name, 'w') as f:
             f.write(mat_file)
         
-    def _create_input(self, structure):
+    def _create_input(self):
         """Todo:
-            * Does temperature increment need to evenly divide the
-              interval?
+            * How to determine range and increment of simulation?
+            * Minimum can probably be set to ~ 100 K or whatever
+                the "classical" limit is
         """
         
+        structure = self.structure
         mcbs = self.mc_box_size
         equil_timesteps = self.equil_timesteps
         mc_timesteps = self.mc_timesteps
@@ -195,31 +250,38 @@ class VampireCaller:
                          'sim:loop-time-steps = %d' % (mc_timesteps),
                          'sim:time-steps-increment = 1']
         
-        # Do Monte Carlo between +- 400 K from MFT estimate
-        mft_t = self.mft_t
-        delta_t = 400
-        max_t = round(mft_t + delta_t)
-        if mft_t - delta_t > 0:
-            min_t = round(mft_t - delta_t)
-        else:
-            min_t = 0
+        # xx - Do Monte Carlo between +- 400 K from MFT estimate
+        # mft_t = self.mft_t
+        # delta_t = 400
+        # max_t = round(mft_t + delta_t)
+        # if mft_t - delta_t > 0:
+        #     min_t = round(mft_t - delta_t)
+        # else:
+        #     min_t = 0
 
-        # Temperature range of simulation
+        # xx - Temperature range of simulation
+        min_t = 0
+        max_t = 1500
+
+        # xx - Temp increment
         input_script += ['sim:minimum-temperature = %d' % (min_t),
                          'sim:maximum-temperature = %d' % (max_t),
                          'sim:temperature-increment = 25']
         
         # Output to save
         input_script += ['output:temperature',
-                         'output:mean-magnetisation-length']
+                         'output:mean-magnetisation-length',
+                         'output:material-mean-magnetisation-length',
+                         'output:mean-susceptibility']
         
         input_script = "\n".join(input_script)
         
         with open('input', 'w') as f:
             f.write(input_script)
         
-    def _create_ucf(self, structure):
+    def _create_ucf(self):
         
+        structure = self.structure
         mat_name = self.mat_name
         tol = self.tol
         dists = self.dists
@@ -238,17 +300,16 @@ class VampireCaller:
         a3 = list(structure.lattice.matrix[2])
         ucf += ['%.10f %.10f %.10f' % (a3[0], a3[1], a3[2])]
         
-        nmats = len(self.unique_site_ids)
+        nmats = max(self.mat_id_dict.values())
         
         ucf += ['# Atoms num_materials; id cx cy cz mat cat hcat']
         ucf += ['%d %d' % (len(structure), nmats)]
         
         # Fractional coordinates of atoms
-        for i, r in enumerate(structure.frac_coords):
-            for key in self.unique_site_ids:
-                if i in key:
-                    mat_id = self.unique_site_ids[key]
-            ucf += ['%d %.10f %.10f %.10f %d 0 0' % (i, r[0], r[1], r[2], mat_id)]
+        for site, r in enumerate(structure.frac_coords):
+            # Back to 0 indexing for some reason...
+            mat_id = self.mat_id_dict[site] - 1 
+            ucf += ['%d %.10f %.10f %.10f %d 0 0' % (site, r[0], r[1], r[2], mat_id)]
             
         # J_ij exchange interaction matrix
         sgraph = self.sgraph
@@ -275,6 +336,7 @@ class VampireCaller:
 
                 # Convert J_ij from meV to Joules
                 j_exc *= 1.6021766e-22
+
                 j_exc = str(j_exc)  # otherwise this rounds to 0
 
                 ucf += ['%d %d %d %d %d %d %s' % (iid, i, j, dx, dy, dz, j_exc)]
@@ -289,7 +351,7 @@ class VampireCaller:
   
 class VampireOutput:
     
-    def __init__(self, vamp_stdout):
+    def __init__(self, vamp_stdout, nmats):
         """
         This class processes results from a Vampire Monte Carlo simulation
         and returns the critical temperature.
@@ -303,17 +365,19 @@ class VampireOutput:
         
         self.vamp_stdout = vamp_stdout
         self.critical_temp = np.nan
-        self._parse_stdout(vamp_stdout)
+        self._parse_stdout(vamp_stdout, nmats)
         
-    def _parse_stdout(self, vamp_stdout):
+    def _parse_stdout(self, vamp_stdout, nmats):
         
-        # Parsing vampire MC output
-        df = pd.read_csv(vamp_stdout,sep='\t',skiprows=8,header=None,
-                         names=['T','m','nan'])
-        df.drop('nan', axis=1, inplace=True)
+        names = ['T', 'm_total'] + ['m_' + str(i) for i in range(1, nmats + 1)] + ['X_x', 'X_y', 'X_z', 'X_m', 'nan']
 
-        # Compute derivative to get critical temp
-        grad = np.gradient(df['m'], df['T'])
-        T_crit = df.iloc[grad.argmin()]['T']
+        # Parsing vampire MC output
+        df = pd.read_csv(vamp_stdout,sep='\t',skiprows=9,header=None,
+                         names=names)
+        df.drop('nan', axis=1, inplace=True)
+        df.to_csv('vamp_out.txt')
+
+        # Max of susceptibility <-> critical temp
+        T_crit = df.iloc[df.X_m.idxmax()]['T']
         
         self.critical_temp = T_crit

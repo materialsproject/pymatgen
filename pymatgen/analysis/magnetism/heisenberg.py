@@ -642,9 +642,8 @@ class HeisenbergMapper:
 
                 j_exc = self._get_j_exc(i, j, dist)
 
-                if order == '-nn':
-                    igraph.add_edge(i, j, to_jimage=jimage, weight=j_exc,
-                        warn_duplicates=False)
+                igraph.add_edge(i, j, to_jimage=jimage, weight=j_exc,
+                    warn_duplicates=False)
 
         # Save to a json file if desired
         if filename:
@@ -656,7 +655,7 @@ class HeisenbergMapper:
 
         return igraph
 
-    def _get_j_exc(i, j, dist):
+    def _get_j_exc(self, i, j, dist):
         """
         Convenience method for looking up exchange parameter between two sites.
 
@@ -677,6 +676,8 @@ class HeisenbergMapper:
             if j in k:
                 j_index = self.unique_site_ids[k]
 
+        order = ''
+        
         # Determine order of interaction
         if abs(dist - self.dists['nn']) <= self.tol:
             order = '-nn'

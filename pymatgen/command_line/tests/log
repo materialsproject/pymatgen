@@ -1,60 +1,60 @@
-27-06-2019 [14:38:54] Logfile opened
-27-06-2019 [14:38:54] Executable : vampire-serial
-27-06-2019 [14:38:54] Host name  : LAPTOP-1AANUV51:
-27-06-2019 [14:38:54] Directory  : /mnt/c/Users/nfrey/Documents/pymatgen/pymatgen/command_line/tests
-27-06-2019 [14:38:54] Process ID : 17493
-27-06-2019 [14:38:54] Version    : 5.0.0
-27-06-2019 [14:38:54] Githash    : 333e1e78d8528477ae6e4d24b0238c8a0b16f9d6
-27-06-2019 [14:38:54] Opening main input file "input".
-27-06-2019 [14:38:54] Parsing system parameters from main input file.
-27-06-2019 [14:38:54] Opening material file "Mn3Al.mat".
-27-06-2019 [14:38:54] Parsing material file for parameters.
-27-06-2019 [14:38:54] Reading in unit cell data from disk...
-27-06-2019 [14:38:54] Reading data completed. Processing unit cell data...
-27-06-2019 [14:38:54] 	Processing data for 8 unit cell atoms...
-27-06-2019 [14:38:54] 	Processing unit cell atoms completed
-27-06-2019 [14:38:54] 	Processing data from 484 unit cell interactions...
-27-06-2019 [14:38:54] 	Processing unit cell interactions completed
-27-06-2019 [14:38:54] 	Verifying unit cell exchange interactions...
-27-06-2019 [14:38:54] Verifying unit cell exchange interactions completed
-27-06-2019 [14:38:54] 	Number of atoms read-in: 8
-27-06-2019 [14:38:54] 	Number of interactions read-in: 484
-27-06-2019 [14:38:54] 	Exchange type: isotropic
-27-06-2019 [14:38:54] 	Calculated interaction range: 2 Unit Cells
-27-06-2019 [14:38:54] Calculating alloy properties of system
-27-06-2019 [14:38:54] Determining atomic composition
-27-06-2019 [14:38:54] Material 1 material1 makes up 25% of all atoms.
-27-06-2019 [14:38:54] Material 2 material2 makes up 75% of all atoms.
-27-06-2019 [14:38:54] Memory required for neighbourlist calculation:0.0384 MB
-27-06-2019 [14:38:54] Allocating memory for supercell array in neighbourlist calculation...
-27-06-2019 [14:38:54] 	Done
-27-06-2019 [14:38:54] Populating supercell array for neighbourlist calculation...
-27-06-2019 [14:38:54] 	Done
-27-06-2019 [14:38:54] Memory required for neighbour list:2.3232 MB
-27-06-2019 [14:38:54] Generating neighbour list...
-27-06-2019 [14:38:54] 	Done
-27-06-2019 [14:38:54] Deallocating supercell array for neighbour list calculation
-27-06-2019 [14:38:54] 	Done
-27-06-2019 [14:38:54] Copying system data to optimised data structures.
-27-06-2019 [14:38:54] Number of atoms generated on rank 0: 4800
-27-06-2019 [14:38:54] Memory required for copying to performance array on rank 0: 0.7296 MB RAM
-27-06-2019 [14:38:54] Identifying surface atoms using global threshold value of 0
-27-06-2019 [14:38:54] 0 surface atoms found.
-27-06-2019 [14:38:54] Memory required for creation of 1D neighbour list on rank 0: 0.0768 MB RAM
-27-06-2019 [14:38:54] Initialising data structures for exchange calculation.
-27-06-2019 [14:38:54] Unrolled exchange template requires 0.003872MB RAM
-27-06-2019 [14:38:54] Macrocell size = 10 Angstroms
-27-06-2019 [14:38:54] Macrocells in x,y,z: 5	5	5
-27-06-2019 [14:38:54] Total number of macrocells: 125
-27-06-2019 [14:38:54] Memory required for macrocell arrays: 0.01 MB
-27-06-2019 [14:38:54] Number of local macrocells on rank 0: 120
-27-06-2019 [14:38:54] Number of atoms generated: 4800
-27-06-2019 [14:38:54] Initialising data structures for anisotropy calculation.
-27-06-2019 [14:38:54] Initialising statistics module
-27-06-2019 [14:38:54] Starting Simulation with Program Curie-Temperature...
-27-06-2019 [14:39:07] Simulation run time [s]: 13.0041
-27-06-2019 [14:39:07] Monte Carlo statistics:
-27-06-2019 [14:39:07] 	Total moves: 3.168e+07
-27-06-2019 [14:39:07] 	45.6254% Accepted
-27-06-2019 [14:39:07] 	54.3746% Rejected
-27-06-2019 [14:39:07] Simulation ended gracefully.
+01-07-2019 [13:59:56] Logfile opened
+01-07-2019 [13:59:56] Executable : vampire-serial
+01-07-2019 [13:59:56] Host name  : LAPTOP-1AANUV51:
+01-07-2019 [13:59:56] Directory  : /mnt/c/Users/nfrey/Documents/pymatgen/pymatgen/command_line/tests
+01-07-2019 [13:59:56] Process ID : 457
+01-07-2019 [13:59:56] Version    : 5.0.0
+01-07-2019 [13:59:56] Githash    : 333e1e78d8528477ae6e4d24b0238c8a0b16f9d6
+01-07-2019 [13:59:56] Opening main input file "input".
+01-07-2019 [13:59:56] Parsing system parameters from main input file.
+01-07-2019 [13:59:56] Opening material file "Mn3Al.mat".
+01-07-2019 [13:59:56] Parsing material file for parameters.
+01-07-2019 [13:59:56] Reading in unit cell data from disk...
+01-07-2019 [13:59:56] Reading data completed. Processing unit cell data...
+01-07-2019 [13:59:56] 	Processing data for 6 unit cell atoms...
+01-07-2019 [13:59:56] 	Processing unit cell atoms completed
+01-07-2019 [13:59:56] 	Processing data from 628 unit cell interactions...
+01-07-2019 [13:59:56] 	Processing unit cell interactions completed
+01-07-2019 [13:59:56] 	Verifying unit cell exchange interactions...
+01-07-2019 [13:59:56] Verifying unit cell exchange interactions completed
+01-07-2019 [13:59:56] 	Number of atoms read-in: 6
+01-07-2019 [13:59:56] 	Number of interactions read-in: 628
+01-07-2019 [13:59:56] 	Exchange type: isotropic
+01-07-2019 [13:59:56] 	Calculated interaction range: 2 Unit Cells
+01-07-2019 [13:59:56] Calculating alloy properties of system
+01-07-2019 [13:59:56] Determining atomic composition
+01-07-2019 [13:59:56] Material 1 material1 makes up 33.3333% of all atoms.
+01-07-2019 [13:59:56] Material 2 material2 makes up 66.6667% of all atoms.
+01-07-2019 [13:59:56] Memory required for neighbourlist calculation:0.0972 MB
+01-07-2019 [13:59:56] Allocating memory for supercell array in neighbourlist calculation...
+01-07-2019 [13:59:56] 	Done
+01-07-2019 [13:59:56] Populating supercell array for neighbourlist calculation...
+01-07-2019 [13:59:56] 	Done
+01-07-2019 [13:59:56] Memory required for neighbour list:10.1736 MB
+01-07-2019 [13:59:56] Generating neighbour list...
+01-07-2019 [13:59:56] 	Done
+01-07-2019 [13:59:56] Deallocating supercell array for neighbour list calculation
+01-07-2019 [13:59:56] 	Done
+01-07-2019 [13:59:56] Copying system data to optimised data structures.
+01-07-2019 [13:59:56] Number of atoms generated on rank 0: 12150
+01-07-2019 [13:59:56] Memory required for copying to performance array on rank 0: 1.8468 MB RAM
+01-07-2019 [13:59:56] Identifying surface atoms using global threshold value of 0
+01-07-2019 [13:59:56] 0 surface atoms found.
+01-07-2019 [13:59:56] Memory required for creation of 1D neighbour list on rank 0: 0.1944 MB RAM
+01-07-2019 [13:59:56] Initialising data structures for exchange calculation.
+01-07-2019 [13:59:56] Unrolled exchange template requires 0.005024MB RAM
+01-07-2019 [13:59:56] Macrocell size = 10 Angstroms
+01-07-2019 [13:59:56] Macrocells in x,y,z: 7	7	7
+01-07-2019 [13:59:56] Total number of macrocells: 343
+01-07-2019 [13:59:56] Memory required for macrocell arrays: 0.02744 MB
+01-07-2019 [13:59:56] Number of local macrocells on rank 0: 294
+01-07-2019 [13:59:56] Number of atoms generated: 12150
+01-07-2019 [13:59:56] Initialising data structures for anisotropy calculation.
+01-07-2019 [13:59:56] Initialising statistics module
+01-07-2019 [13:59:56] Starting Simulation with Program Curie-Temperature...
+01-07-2019 [14:58:29] Simulation run time [s]: 3512.44
+01-07-2019 [14:58:29] Monte Carlo statistics:
+01-07-2019 [14:58:29] 	Total moves: 2.4057e+09
+01-07-2019 [14:58:29] 	15.253% Accepted
+01-07-2019 [14:58:29] 	84.747% Rejected
+01-07-2019 [14:58:29] Simulation ended gracefully.

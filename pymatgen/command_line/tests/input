@@ -6,16 +6,18 @@ create:periodic-boundaries-z
 dimensions:unit-cell-size-x = 4.0998326964 !A
 dimensions:unit-cell-size-y = 4.1043626312 !A
 dimensions:unit-cell-size-z = 7.1099159441 !A
-dimensions:system-size-x = 4.0 !nm
-dimensions:system-size-y = 4.0 !nm
-dimensions:system-size-z = 4.0 !nm
+dimensions:system-size-x = 6.0 !nm
+dimensions:system-size-y = 6.0 !nm
+dimensions:system-size-z = 6.0 !nm
 sim:integrator = monte-carlo
 sim:program = curie-temperature
-sim:equilibration-time-steps = 100
-sim:loop-time-steps = 100
+sim:equilibration-time-steps = 2000
+sim:loop-time-steps = 4000
 sim:time-steps-increment = 1
-sim:minimum-temperature = 273
-sim:maximum-temperature = 1073
+sim:minimum-temperature = 64
+sim:maximum-temperature = 864
 sim:temperature-increment = 25
 output:temperature
 output:mean-magnetisation-length
+output:material-mean-magnetisation-length
+output:mean-susceptibility
