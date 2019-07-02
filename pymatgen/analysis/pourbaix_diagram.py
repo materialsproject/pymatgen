@@ -330,7 +330,7 @@ class IonEntry(PDEntry):
     Composition object.
 
     Args:
-        comp: Ion object
+        ion: Ion object
         energy: Energy for composition.
         name: Optional parameter to name the entry. Defaults to the
             chemical formula.
@@ -342,11 +342,13 @@ class IonEntry(PDEntry):
         set to some other string for display purposes.
     """
 
-    def __init__(self, ion, energy, name=None):
-        self.energy = energy
+    def __init__(self, ion, energy, name=None, attribute=None):
         self.ion = ion
-        self.composition = ion.composition
-        self.name = name if name else self.ion.reduced_formula
+        # Auto-assign name
+        name = name if name else self.ion.reduced_formula
+        super(PDEntry, self).__init__(
+            composition=ion.composition, energy=energy, name=name,
+            attribute=attribute)
 
     @classmethod
     def from_dict(cls, d):
@@ -394,6 +396,7 @@ def ion_or_solid_comp_object(formula):
 
 
 ELEMENTS_HO = {Element('H'), Element('O')}
+
 
 # TODO: There's a lot of functionality here that diverges
 #   based on whether or not the pbx diagram is multielement
@@ -505,16 +508,40 @@ class PourbaixDiagram(MSONable):
         self._stable_domains, self._stable_domain_vertices = \
             self.get_pourbaix_domains(self._processed_entries)
 
+    def _convert_entries_to_points(self, pourbaix_entries):
+        """
+
+        Args:
+            pourbaix_entries ([PourbaixEntry]): list of pourbaix entries
+                to process into vectors in nph-nphi-composition space
+
+        Returns:
+            list of vectors, [[nph, nphi, e0, x1, x2, ..., xn-1]]
+            corresponding to each entry in nph-nphi-composition space
+
+        """
+        vecs = [[entry.npH, entry.nPhi, entry.energy] +
+                [entry.composition.get(elt) for elt in self.pbx_elts[:-1]]
+                for entry in pourbaix_entries]
+        vecs = np.array(vecs)
+        norms = np.transpose([[entry.normalization_factor
+                               for entry in pourbaix_entries]])
+        vecs *= norms
+        return vecs
+
     def _get_hull_in_nph_nphi_space(self, entries):
         """
         Generates convex hull of pourbaix diagram entries in composition,
-        npH, and nphi space.
+        npH, and nphi space.  This enables filtering of multi-entries
+        such that only compositionally stable combinations of entries
+        are included.
 
         Args:
             entries ([PourbaixEntry]): list of PourbaixEntries to construct
                 the convex hull
 
-        Returns: list of stable MultiEntries, the facets, and the vectors
+        Returns: list of entries and stable facets corresponding to that
+            list of entries
 
         """
         ion_entries = [entry for entry in entries
@@ -534,13 +561,8 @@ class PourbaixDiagram(MSONable):
         min_entries += ion_entries
 
         logger.debug("Constructing nph-nphi-composition points for qhull")
-        vecs = [[entry.npH, entry.nPhi, entry.energy] +
-                [entry.composition.get(elt) for elt in self.pbx_elts[:-1]]
-                for entry in min_entries]
-        vecs = np.array(vecs)
-        norms = np.transpose([[entry.normalization_factor
-                               for entry in min_entries]])
-        vecs *= norms
+
+        vecs = self._convert_entries_to_points(min_entries)
         maxes = np.max(vecs[:, :3], axis=0)
         extra_point = np.concatenate(
             [maxes, np.ones(self.dim) / self.dim], axis=0)
@@ -571,6 +593,7 @@ class PourbaixDiagram(MSONable):
 
         return min_entries, valid_facets
 
+    # TODO: get rid of forced_include?
     def _preprocess_pourbaix_entries(self, entries, forced_include=None, nproc=None):
         """
         Generates multi-entries for pourbaix diagram
