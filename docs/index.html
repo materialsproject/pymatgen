@@ -4,8 +4,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Introduction &#8212; pymatgen 2019.6.5 documentation</title>
-    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <title>Introduction &#8212; pymatgen 2019.7.2 documentation</title>
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
@@ -37,13 +37,12 @@
         <li class="right" >
           <a href="installation.html" title="Requirements"
              accesskey="N">next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">pymatgen 2019.7.2 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <a class="reference internal image-reference" href="_images/pymatgen.png"><img alt="pymatgen" class="align-center" src="_images/pymatgen.png" style="width: 300px;" /></a>
@@ -166,10 +165,13 @@ other research groups.</p></li>
 <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
-<li><p>Linear scaling get_all_neighbors. Tested to be faster for &gt; 100 atoms (&#64;chc273).</p></li>
-<li><p>Lobsterin class to handle input for Lobster (&#64;JaGeo).</p></li>
-<li><p>Strict options for composition parsing (&#64;mkhorton).</p></li>
-<li><p>Bug fix for CovalentBondNN.get_bonded_structure (&#64;lan496).</p></li>
+<li><p>Improvements to grain boundary transformations and Rester (&#64;Tinaatucsd)</p></li>
+<li><p>Improvements to AdsorbateSiteFinder (&#64;oxana-a)</p></li>
+<li><p>Improvements to Waveder support (&#64;JRSuckert)</p></li>
+<li><p>Improvements to run type detection (&#64;darnoceloc)</p></li>
+<li><p>Add XAS data to Rester (&#64;yimingchen95)</p></li>
+<li><p>Fix to ATAT input/output (&#64;dongsenfo)</p></li>
+<li><p>Initial support for Prismatic input (&#64;mkhorton)</p></li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </div>
@@ -656,64 +658,6 @@ to indicate the copyright and license terms:</p>
 
 
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h3><a href="#">Table of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Introduction</a></li>
-<li><a class="reference internal" href="#offline-docs">Offline docs</a></li>
-<li><a class="reference internal" href="#development-news">Development News</a><ul>
-<li><a class="reference internal" href="#py3k-only-with-effect-from-2019-1-1">Py3k-only with effect from 2019.1.1</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#matgenie-examples">Matgenie &amp; Examples</a></li>
-<li><a class="reference internal" href="#why-use-pymatgen">Why use pymatgen?</a></li>
-<li><a class="reference internal" href="#change-log">Change log</a></li>
-<li><a class="reference internal" href="#getting-pymatgen">Getting pymatgen</a><ul>
-<li><a class="reference internal" href="#via-conda-recommended">Via conda (recommended)</a></li>
-<li><a class="reference internal" href="#via-pip">Via pip</a></li>
-<li><a class="reference internal" href="#shared-cluster-installation">Shared cluster installation</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#usage">Usage</a><ul>
-<li><a class="reference internal" href="#quick-start">Quick start</a></li>
-<li><a class="reference internal" href="#api-documentation">API documentation</a></li>
-<li><a class="reference internal" href="#more-resources">More resources</a></li>
-<li><a class="reference internal" href="#pmg-command-line-tool">pmg - Command line tool</a></li>
-<li><a class="reference internal" href="#add-ons">Add-ons</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#contributing">Contributing</a></li>
-<li><a class="reference internal" href="#how-to-cite-pymatgen">How to cite pymatgen</a></li>
-<li><a class="reference internal" href="#license">License</a></li>
-<li><a class="reference internal" href="#about-the-team">About the Team</a></li>
-<li><a class="reference internal" href="#copyright-policy">Copyright Policy</a></li>
-<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
-</ul>
-
-  <h4>Next topic</h4>
-  <p class="topless"><a href="installation.html"
-                        title="next chapter">Requirements</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/index.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -729,13 +673,13 @@ to indicate the copyright and license terms:</p>
         <li class="right" >
           <a href="installation.html" title="Requirements"
              >next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">pymatgen 2019.7.2 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

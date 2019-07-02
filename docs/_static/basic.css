@@ -289,21 +289,11 @@ img.align-center, .figure.align-center, object.align-center {
   margin-right: auto;
 }
 
-img.align-default, .figure.align-default {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-}
-
 .align-left {
     text-align: left;
 }
 
 .align-center {
-    text-align: center;
-}
-
-.align-default {
     text-align: center;
 }
 
@@ -374,11 +364,6 @@ table.docutils {
 }
 
 table.align-center {
-    margin-left: auto;
-    margin-right: auto;
-}
-
-table.align-default {
     margin-left: auto;
     margin-right: auto;
 }

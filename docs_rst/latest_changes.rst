@@ -1,9 +1,12 @@
 Change log
 ==========
 
-v2019.6.5
+v2019.7.2
 ---------
-* Linear scaling get_all_neighbors. Tested to be faster for > 100 atoms (@chc273). 
-* Lobsterin class to handle input for Lobster (@JaGeo).
-* Strict options for composition parsing (@mkhorton).
-* Bug fix for CovalentBondNN.get_bonded_structure (@lan496).
+* Improvements to grain boundary transformations and Rester (@Tinaatucsd)
+* Improvements to AdsorbateSiteFinder (@oxana-a)
+* Improvements to Waveder support (@JRSuckert)
+* Improvements to run type detection (@darnoceloc)
+* Add XAS data to Rester (@yimingchen95)
+* Fix to ATAT input/output (@dongsenfo)
+* Initial support for Prismatic input (@mkhorton)
