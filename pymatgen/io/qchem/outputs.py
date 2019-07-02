@@ -640,6 +640,10 @@ class QCOutput(MSONable):
                 terminate_on_match=True).get('key') == [[]]:
             self.data["warnings"]["diagonalizing_BBt"] = True
 
+        # Check for bad Roothaan step
+        for scf in self.data["SCF"]:
+            if abs(scf[0][0]-scf[1][0]) > 10.0:
+                self.data["warnings"]["bad_roothaan"] = True
 
     def _read_geometries(self):
         """
@@ -1027,9 +1031,7 @@ class QCOutput(MSONable):
 
     def _check_completion_errors(self):
         """
-        Parses four potential errors that can cause jobs to crash: inability to transform
-        coordinates due to a bad symmetric specification, an input file that fails to pass
-        inspection, and errors reading and writing files.
+        Parses potential errors that can cause jobs to crash
         """
         if read_pattern(
                 self.text, {
@@ -1081,6 +1083,12 @@ class QCOutput(MSONable):
                 },
                 terminate_on_match=True).get('key') == [[]]:
             self.data["errors"] += ["hessian_eigenvalue_error"]
+        elif read_pattern(
+                self.text, {
+                    "key": r"FlexNet Licensing error"
+                },
+                terminate_on_match=True).get('key') == [[]]:
+            self.data["errors"] += ["licensing_error"]
         else: 
             tmp_failed_line_searches = read_pattern(
                 self.text, {
