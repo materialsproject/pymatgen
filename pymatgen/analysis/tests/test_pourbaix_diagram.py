@@ -290,7 +290,7 @@ class PourbaixPlotterTest(unittest.TestCase):
 
         # binary system
         pd_binary = PourbaixDiagram(self.test_data['Ag-Te'],
-                                    comp_dict = {"Ag": 0.5, "Te": 0.5})
+                                    comp_dict={"Ag": 0.5, "Te": 0.5})
         binary_plotter = PourbaixPlotter(pd_binary)
         test_entry = pd_binary._unprocessed_entries[0]
         plt = binary_plotter.plot_entry_stability(test_entry)
