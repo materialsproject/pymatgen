@@ -1016,11 +1016,36 @@ class PourbaixPlotter:
         plt.title(title, fontsize=20, fontweight='bold')
         return plt
 
-    def get_composition_hull_plot(self):
+    def get_composition_hull_plot(self, plt=None, add_labels=False):
+        """
+
+        Args:
+            plt:
+
+        Returns:
+
+        """
+
+        plt = plt or pretty_plot(16)
+
         entries, facets = self._pbx._get_hull_in_nph_nphi_space(
             self._pbx._unprocessed_entries)
-        vecs = self._pbx._convert_entries_to_points(entries)
-        
+        points = self._pbx._convert_entries_to_points(entries)
+
+        # 2D Plot
+        if len(points[0]) == 3:
+            for entry, point in zip(entries, points):
+                plt.plot(*point, 'bo')
+                if add_labels:
+                    plt.annotate(entry.name, *point)
+            for facet in facets:
+                for pair in itertools.combinations(facet, 2):
+                    plt.plot(points[pair], 'k-')
+
+        # 3D (tetrahedral-ish) plot
+        elif len(points[0]) == 4:
+            pass
+
 
     def get_plotly_plot(self, limits=None, show=False, filename=None,
                         plot_3d=False, **kwargs):

@@ -296,6 +296,10 @@ class PourbaixPlotterTest(unittest.TestCase):
         plt = binary_plotter.plot_entry_stability(test_entry)
         plt.close()
 
+    def test_plot_composition_hull(self):
+        plt = self.plotter.get_composition_hull_plot()
+        plt.savefig('out.png')
+
     def test_plotly_plot(self):
         self.plotter.get_plotly_plot(show=True)
 

@@ -658,6 +658,7 @@ class MPRester:
 
         Returns:
             List of ComputedEntries.
+
         """
         entries = []
         for i in range(len(elements)):
