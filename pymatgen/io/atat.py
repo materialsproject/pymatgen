@@ -42,9 +42,9 @@ class Mcsqs:
                   "{:6f} {:6f} {:6f}".format(*m[2])]
 
         # define coord system, use Cartesian
-        output .append("1.0 0.0 0.0")
-        output .append("0.0 1.0 0.0")
-        output .append("0.0 0.0 1.0")
+        output.append("1.0 0.0 0.0")
+        output.append("0.0 1.0 0.0")
+        output.append("0.0 0.0 1.0")
         
         # add species
         for site in self.structure:
