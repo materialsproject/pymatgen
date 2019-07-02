@@ -346,7 +346,7 @@ class IonEntry(PDEntry):
         self.ion = ion
         # Auto-assign name
         name = name if name else self.ion.reduced_formula
-        super(PDEntry, self).__init__(
+        super(IonEntry, self).__init__(
             composition=ion.composition, energy=energy, name=name,
             attribute=attribute)
 
@@ -1021,10 +1021,11 @@ class PourbaixPlotter:
         """
 
         Args:
-            plt:
+            plt (pyplot): pyplot instance for plotting
+            add_labels (bool): labels to be added
 
         Returns:
-
+            (pyplot) plot object for plotting
         """
 
         plt = plt or pretty_plot(16)
@@ -1041,11 +1042,14 @@ class PourbaixPlotter:
                     plt.annotate(entry.name, *point)
             for facet in facets:
                 for pair in itertools.combinations(facet, 2):
-                    plt.plot(points[pair], 'k-')
+                    plt.plot(points[[tuple(pair)]], 'k-')
 
         # 3D (tetrahedral-ish) plot
         elif len(points[0]) == 4:
             pass
+
+        return plt
+
 
 
     def get_plotly_plot(self, limits=None, show=False, filename=None,

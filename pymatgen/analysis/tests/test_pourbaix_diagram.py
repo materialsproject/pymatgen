@@ -297,7 +297,7 @@ class PourbaixPlotterTest(unittest.TestCase):
         plt.close()
 
     def test_plot_composition_hull(self):
-        plt = self.plotter.get_composition_hull_plot()
+        plt = self.plotter.get_composition_hull_plot(add_labels=True)
         plt.savefig('out.png')
 
     def test_plotly_plot(self):
