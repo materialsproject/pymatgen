@@ -355,7 +355,8 @@ class IonEntry(PDEntry):
         """
         Returns an IonEntry object from a dict.
         """
-        return IonEntry(Ion.from_dict(d["ion"]), d["energy"], d.get("name", None))
+        return IonEntry(Ion.from_dict(d["ion"]), d["energy"], d.get("name"),
+                        d.get("attribute"))
 
     def as_dict(self):
         """
