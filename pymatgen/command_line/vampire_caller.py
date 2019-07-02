@@ -37,14 +37,23 @@ __date__ = "June 2019"
 
 VAMPEXE = which("vampire-serial")
 
+
 class VampireCaller:
-        
-    @requires(VAMPEXE, "VampireCaller requires vampire-serial to be in the path."
-    "Please follow the instructions at https://vampire.york.ac.uk/download/.")
-    
-    def __init__(self, ordered_structures, energies, 
-        mc_box_size=5.0, equil_timesteps=10000, mc_timesteps=10000, hm=None):
-        
+    @requires(
+        VAMPEXE,
+        "VampireCaller requires vampire-serial to be in the path."
+        "Please follow the instructions at https://vampire.york.ac.uk/download/.",
+    )
+    def __init__(
+        self,
+        ordered_structures,
+        energies,
+        mc_box_size=5.0,
+        equil_timesteps=10000,
+        mc_timesteps=10000,
+        hm=None,
+    ):
+
         """
         Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical temperature with classical Monte Carlo.
         
@@ -69,21 +78,21 @@ class VampireCaller:
                 indexing.
 
         """
-    
+
         self.mc_box_size = mc_box_size
         self.equil_timesteps = equil_timesteps
         self.mc_timesteps = mc_timesteps
 
         # Sort by energy if not already sorted
-        ordered_structures = [s for _, s in
-                              sorted(zip(energies, ordered_structures), reverse=False)]
+        ordered_structures = [
+            s for _, s in sorted(zip(energies, ordered_structures), reverse=False)
+        ]
 
         energies = sorted(energies, reverse=False)
 
         # Get exchange parameters and set instance variables
         if not hm:
-            hm = HeisenbergMapper(ordered_structures, energies, cutoff=7.5,
-                tol=0.02)
+            hm = HeisenbergMapper(ordered_structures, energies, cutoff=7.5, tol=0.02)
 
         # Instance attributes from HeisenbergMapper
         self.hm = hm
@@ -106,33 +115,35 @@ class VampireCaller:
         self._create_mat()
         self._create_input()
         self._create_ucf()
-        
+
         # Call Vampire
-        process = subprocess.Popen(['vampire-serial'],
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
+        process = subprocess.Popen(
+            ["vampire-serial"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
         stdout, stderr = process.communicate()
         stdout = stdout.decode()
 
         if stderr:
             stderr = stderr.decode()
             logging.warning(stderr)
-        
+
         if process.returncode != 0:
-            raise RuntimeError("Vampire exited with return code {}.".format(process.returncode))
-        
+            raise RuntimeError(
+                "Vampire exited with return code {}.".format(process.returncode)
+            )
+
         self._stdout = stdout
         self._stderr = stderr
-    
+
         # Process output
         nmats = max(self.mat_id_dict.values())
-        self.output = VampireOutput('output', nmats)
-       
+        self.output = VampireOutput("output", nmats)
+
     def _create_mat(self):
 
         structure = self.structure
         mat_name = self.mat_name
-        magmoms = structure.site_properties['magmom']
+        magmoms = structure.site_properties["magmom"]
 
         # Maps sites to material id for vampire inputs
         mat_id_dict = {}
@@ -141,8 +152,8 @@ class VampireCaller:
         for key in self.unique_site_ids:
             spin_up, spin_down = False, False
             nmats += 1  # at least 1 mat for each unique site
-            
-            # Check which spin sublattices exist for this site id 
+
+            # Check which spin sublattices exist for this site id
             for site in key:
                 m = magmoms[site]
                 if m > 0:
@@ -173,9 +184,9 @@ class VampireCaller:
             # Increment index if two sublattices
             if spin_up and spin_down:
                 nmats += 1
-        
-        mat_file = ['material:num-materials=%d' % (nmats)]
-        
+
+        mat_file = ["material:num-materials=%d" % (nmats)]
+
         for key in self.unique_site_ids:
             i = self.unique_site_ids[key]  # unique site id
 
@@ -192,64 +203,73 @@ class VampireCaller:
 
                 atom = structure[i].species.reduced_formula
 
-                mat_file += ['material[%d]:material-element=%s' % (mat_id, atom)]
-                mat_file += ['material[%d]:damping-constant=1.0' % (mat_id),
-                                 'material[%d]:uniaxial-anisotropy-constant=0.0' % (mat_id),
-                                 'material[%d]:atomic-spin-moment=%.2f !muB' % (mat_id, m_magnitude),
-                                 'material[%d]:initial-spin-direction=0,0,%d'
-                                 % (mat_id, spin)]
-            
+                mat_file += ["material[%d]:material-element=%s" % (mat_id, atom)]
+                mat_file += [
+                    "material[%d]:damping-constant=1.0" % (mat_id),
+                    "material[%d]:uniaxial-anisotropy-constant=0.0" % (mat_id),
+                    "material[%d]:atomic-spin-moment=%.2f !muB" % (mat_id, m_magnitude),
+                    "material[%d]:initial-spin-direction=0,0,%d" % (mat_id, spin),
+                ]
+
         mat_file = "\n".join(mat_file)
-        mat_file_name = mat_name + '.mat'
-        
+        mat_file_name = mat_name + ".mat"
+
         self.mat_id_dict = mat_id_dict
 
-        with open(mat_file_name, 'w') as f:
+        with open(mat_file_name, "w") as f:
             f.write(mat_file)
-        
+
     def _create_input(self):
         """Todo:
             * How to determine range and increment of simulation?
             * Minimum can probably be set to ~ 100 K or whatever
                 the "classical" limit is
         """
-        
+
         structure = self.structure
         mcbs = self.mc_box_size
         equil_timesteps = self.equil_timesteps
         mc_timesteps = self.mc_timesteps
         mat_name = self.mat_name
 
-        input_script = ['material:unit-cell-file=%s.ucf' % (mat_name)]
-        input_script += ['material:file=%s.mat' % (mat_name)]
-        
+        input_script = ["material:unit-cell-file=%s.ucf" % (mat_name)]
+        input_script += ["material:file=%s.mat" % (mat_name)]
+
         # Specify periodic boundary conditions
-        input_script += ['create:periodic-boundaries-x',
-                         'create:periodic-boundaries-y',
-                         'create:periodic-boundaries-z']
-        
+        input_script += [
+            "create:periodic-boundaries-x",
+            "create:periodic-boundaries-y",
+            "create:periodic-boundaries-z",
+        ]
+
         # Unit cell size in Angstrom
         abc = structure.lattice.abc
         ucx, ucy, ucz = abc[0], abc[1], abc[2]
-        
-        input_script += ['dimensions:unit-cell-size-x = %.10f !A' % (ucx)]
-        input_script += ['dimensions:unit-cell-size-y = %.10f !A' % (ucy)]
-        input_script += ['dimensions:unit-cell-size-z = %.10f !A' % (ucz)]
+
+        input_script += ["dimensions:unit-cell-size-x = %.10f !A" % (ucx)]
+        input_script += ["dimensions:unit-cell-size-y = %.10f !A" % (ucy)]
+        input_script += ["dimensions:unit-cell-size-z = %.10f !A" % (ucz)]
 
         # System size in nm
-        input_script += ['dimensions:system-size-x = %.1f !nm' % (mcbs),
-                         'dimensions:system-size-y = %.1f !nm' % (mcbs),
-                         'dimensions:system-size-z = %.1f !nm' % (mcbs)]
-        
+        input_script += [
+            "dimensions:system-size-x = %.1f !nm" % (mcbs),
+            "dimensions:system-size-y = %.1f !nm" % (mcbs),
+            "dimensions:system-size-z = %.1f !nm" % (mcbs),
+        ]
+
         # Critical temperature Monte Carlo calculation
-        input_script += ['sim:integrator = monte-carlo',
-                         'sim:program = curie-temperature']
-        
+        input_script += [
+            "sim:integrator = monte-carlo",
+            "sim:program = curie-temperature",
+        ]
+
         # Default Monte Carlo params
-        input_script += ['sim:equilibration-time-steps = %d' % (equil_timesteps),
-                         'sim:loop-time-steps = %d' % (mc_timesteps),
-                         'sim:time-steps-increment = 1']
-        
+        input_script += [
+            "sim:equilibration-time-steps = %d" % (equil_timesteps),
+            "sim:loop-time-steps = %d" % (mc_timesteps),
+            "sim:time-steps-increment = 1",
+        ]
+
         # xx - Do Monte Carlo between +- 400 K from MFT estimate
         # mft_t = self.mft_t
         # delta_t = 400
@@ -264,23 +284,27 @@ class VampireCaller:
         max_t = 1500
 
         # xx - Temp increment
-        input_script += ['sim:minimum-temperature = %d' % (min_t),
-                         'sim:maximum-temperature = %d' % (max_t),
-                         'sim:temperature-increment = 25']
-        
+        input_script += [
+            "sim:minimum-temperature = %d" % (min_t),
+            "sim:maximum-temperature = %d" % (max_t),
+            "sim:temperature-increment = 25",
+        ]
+
         # Output to save
-        input_script += ['output:temperature',
-                         'output:mean-magnetisation-length',
-                         'output:material-mean-magnetisation-length',
-                         'output:mean-susceptibility']
-        
+        input_script += [
+            "output:temperature",
+            "output:mean-magnetisation-length",
+            "output:material-mean-magnetisation-length",
+            "output:mean-susceptibility",
+        ]
+
         input_script = "\n".join(input_script)
-        
-        with open('input', 'w') as f:
+
+        with open("input", "w") as f:
             f.write(input_script)
-        
+
     def _create_ucf(self):
-        
+
         structure = self.structure
         mat_name = self.mat_name
         tol = self.tol
@@ -288,38 +312,38 @@ class VampireCaller:
 
         abc = structure.lattice.abc
         ucx, ucy, ucz = abc[0], abc[1], abc[2]
-        
-        ucf = ['# Unit cell size:']
-        ucf += ['%.10f %.10f %.10f' % (ucx, ucy, ucz)]
-        
-        ucf += ['# Unit cell lattice vectors:']
+
+        ucf = ["# Unit cell size:"]
+        ucf += ["%.10f %.10f %.10f" % (ucx, ucy, ucz)]
+
+        ucf += ["# Unit cell lattice vectors:"]
         a1 = list(structure.lattice.matrix[0])
-        ucf += ['%.10f %.10f %.10f' % (a1[0], a1[1], a1[2])]
+        ucf += ["%.10f %.10f %.10f" % (a1[0], a1[1], a1[2])]
         a2 = list(structure.lattice.matrix[1])
-        ucf += ['%.10f %.10f %.10f' % (a2[0], a2[1], a2[2])]
+        ucf += ["%.10f %.10f %.10f" % (a2[0], a2[1], a2[2])]
         a3 = list(structure.lattice.matrix[2])
-        ucf += ['%.10f %.10f %.10f' % (a3[0], a3[1], a3[2])]
-        
+        ucf += ["%.10f %.10f %.10f" % (a3[0], a3[1], a3[2])]
+
         nmats = max(self.mat_id_dict.values())
-        
-        ucf += ['# Atoms num_materials; id cx cy cz mat cat hcat']
-        ucf += ['%d %d' % (len(structure), nmats)]
-        
+
+        ucf += ["# Atoms num_materials; id cx cy cz mat cat hcat"]
+        ucf += ["%d %d" % (len(structure), nmats)]
+
         # Fractional coordinates of atoms
         for site, r in enumerate(structure.frac_coords):
             # Back to 0 indexing for some reason...
-            mat_id = self.mat_id_dict[site] - 1 
-            ucf += ['%d %.10f %.10f %.10f %d 0 0' % (site, r[0], r[1], r[2], mat_id)]
-            
+            mat_id = self.mat_id_dict[site] - 1
+            ucf += ["%d %.10f %.10f %.10f %d 0 0" % (site, r[0], r[1], r[2], mat_id)]
+
         # J_ij exchange interaction matrix
         sgraph = self.sgraph
         ninter = 0
         for i, node in enumerate(sgraph.graph.nodes):
             ninter += sgraph.get_coordination_of_site(i)
 
-        ucf += ['# Interactions']
-        ucf += ['%d isotropic' % (ninter)]
-        
+        ucf += ["# Interactions"]
+        ucf += ["%d isotropic" % (ninter)]
+
         iid = 0  # counts number of interaction
         for i, node in enumerate(sgraph.graph.nodes):
             connections = sgraph.get_connected_sites(i)
@@ -339,18 +363,17 @@ class VampireCaller:
 
                 j_exc = str(j_exc)  # otherwise this rounds to 0
 
-                ucf += ['%d %d %d %d %d %d %s' % (iid, i, j, dx, dy, dz, j_exc)]
+                ucf += ["%d %d %d %d %d %d %s" % (iid, i, j, dx, dy, dz, j_exc)]
                 iid += 1
-        
-        ucf = '\n'.join(ucf)
-        ucf_file_name = mat_name + '.ucf'
-        
-        with open(ucf_file_name, 'w') as f:
+
+        ucf = "\n".join(ucf)
+        ucf_file_name = mat_name + ".ucf"
+
+        with open(ucf_file_name, "w") as f:
             f.write(ucf)
 
-  
+
 class VampireOutput:
-    
     def __init__(self, vamp_stdout, nmats):
         """
         This class processes results from a Vampire Monte Carlo simulation
@@ -362,22 +385,25 @@ class VampireOutput:
         Parameters:
             critical_temp (float): Monte Carlo Tc result.
         """
-        
+
         self.vamp_stdout = vamp_stdout
         self.critical_temp = np.nan
         self._parse_stdout(vamp_stdout, nmats)
-        
+
     def _parse_stdout(self, vamp_stdout, nmats):
-        
-        names = ['T', 'm_total'] + ['m_' + str(i) for i in range(1, nmats + 1)] + ['X_x', 'X_y', 'X_z', 'X_m', 'nan']
+
+        names = (
+            ["T", "m_total"]
+            + ["m_" + str(i) for i in range(1, nmats + 1)]
+            + ["X_x", "X_y", "X_z", "X_m", "nan"]
+        )
 
         # Parsing vampire MC output
-        df = pd.read_csv(vamp_stdout,sep='\t',skiprows=9,header=None,
-                         names=names)
-        df.drop('nan', axis=1, inplace=True)
-        df.to_csv('vamp_out.txt')
+        df = pd.read_csv(vamp_stdout, sep="\t", skiprows=9, header=None, names=names)
+        df.drop("nan", axis=1, inplace=True)
+        df.to_csv("vamp_out.txt")
 
         # Max of susceptibility <-> critical temp
-        T_crit = df.iloc[df.X_m.idxmax()]['T']
-        
+        T_crit = df.iloc[df.X_m.idxmax()]["T"]
+
         self.critical_temp = T_crit
