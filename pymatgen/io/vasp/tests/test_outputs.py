@@ -685,6 +685,11 @@ class OutcarTest(PymatgenTest):
         self.assertDictEqual({'Ba': 10.00, 'Ti': 10.00, 'O': 6.00},
                              outcar.zval_dict)
 
+        filepath = self.TEST_FILES_DIR / "OUTCAR.LaSnNO2.polar"
+        outcar = Outcar(filepath)
+        self.assertDictEqual({'La': 11.0, 'N': 5.0, 'O': 6.0, 'Sn': 14.0},
+                             outcar.zval_dict)
+
     def test_dielectric(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.dielectric"
         outcar = Outcar(filepath)
