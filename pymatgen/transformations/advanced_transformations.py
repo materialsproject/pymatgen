@@ -1362,7 +1362,7 @@ class GrainBoundaryTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return False
 
-class CubicSupercellTransformation:
+class CubicSupercellTransformation(AbstractTransformation):
     """
     A transformation that aims to generate a nearly cubic supercell structure from a structure.
 
