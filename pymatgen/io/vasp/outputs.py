@@ -2583,27 +2583,29 @@ class Outcar:
         Create pseudopotential ZVAL dictionary.
         """
         try:
-            def poscar_line(results, match):
-                poscar_line = match.group(1)
-                results.poscar_line = re.findall(r'[A-Z][a-z]?', poscar_line)
+            def atom_symbols(results, match):
+                element_symbol = match.group(1)
+                if not hasattr(results, 'atom_symbols'):
+                    results.atom_symbols = [] 
+                results.atom_symbols.append(element_symbol.strip())
 
             def zvals(results, match):
                 zvals = match.group(1)
                 results.zvals = map(float, re.findall(r'-?\d+\.\d*', zvals))
 
-            search = []
-            search.append([r'^.*POSCAR.*=(.*)', None, poscar_line])
+            search = [] 
+            search.append([r'(?<=VRHFIN =)(.*)(?=:)', None, atom_symbols])
             search.append([r'^\s+ZVAL.*=(.*)', None, zvals])
 
             micro_pyawk(self.filename, search, self)
 
-            zval_dict = {}
-            for x, y in zip(self.poscar_line, self.zvals):
+            zval_dict = {} 
+            for x, y in zip(self.atom_symbols, self.zvals):
                 zval_dict.update({x: y})
             self.zval_dict = zval_dict
 
             # Clean-up
-            del (self.poscar_line)
+            del (self.atom_symbols)
             del (self.zvals)
         except:
             raise Exception("ZVAL dict could not be parsed.")
