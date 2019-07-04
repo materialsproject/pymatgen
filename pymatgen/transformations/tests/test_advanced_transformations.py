@@ -647,10 +647,10 @@ class PerturbSitesTransformationTest(PymatgenTest):
         structures_per_displacement_val = 2
 
         structure = PymatgenTest.get_mp_structure('mp-1101039') #what structure should i put in here????
-        perturb_transformer = PerturbSitesTransformation(max_displacement_val=max_displacement,
-                                                min_displacement_val=min_displacement,
+        perturb_transformer = PerturbSitesTransformation(max_displacement=max_displacement,
+                                                min_displacement=min_displacement,
                                                 num_displacements=num_displacements,
-                                                structures_per_displacement_val=structures_per_displacement_val)
+                                                structures_per_displacement=structures_per_displacement_val)
         random_structures = perturb_transformer.apply_transformation(structure)
         num_random_structures = len(random_structures)
         self.assertEqual(num_random_structures, num_displacements*structures_per_displacement_val)
