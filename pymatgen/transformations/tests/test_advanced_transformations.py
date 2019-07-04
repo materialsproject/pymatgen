@@ -19,7 +19,7 @@ from pymatgen.transformations.advanced_transformations import \
     DopingTransformation, _find_codopant, SlabTransformation, \
     MagOrderParameterConstraint, DisorderOrderedTransformation, \
     GrainBoundaryTransformation, CubicSupercellTransformation, \
-    PerturbedSupercellsTransformation
+    PerturbSitesTransformation
 from monty.os.path import which
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.cif import CifParser
@@ -617,28 +617,56 @@ class DisorderedOrderedTransformationTest(PymatgenTest):
 
 class CubicSupercellTransformationTest(PymatgenTest):
 
-    def test_gen_scaling_matrix(self):
+    def test_apply_transformation(self):
 
-        structure = structure = PymatgenTest.get_structure("LiFePO4") #what structure should i put in here????
-        sc_generator = CubicSupercellTransformation(structure, min_atoms=150,
-                                                    max_atoms=1000, num_nn_dists=5)
-        superstructure, scale_mat = sc_generator.gen_scaling_matrix()
+        structure = PymatgenTest.get_mp_structure('mp-1101039') #what structure should i put in here????
+        min_atoms = 150
+        max_atoms = 1000
+        num_nn_dists = 5
+        supercell_generator = CubicSupercellTransformation(min_atoms=min_atoms,
+                                                    max_atoms=max_atoms, num_nn_dists=num_nn_dists)
+        superstructure = supercell_generator.apply_transformation(structure)
+
+        num_atoms = superstructure.num_sites
+        self.assertTrue(num_atoms>=min_atoms)
+        self.assertTrue(num_atoms<=max_atoms)
+        self.assertTrue(supercell_generator.smallest_dim >= num_nn_dists*supercell_generator.nn_dist)
+        self.assertArrayAlmostEqual(superstructure.lattice.matrix[0], [1.49656087e+01, -1.11448000e-03,  9.04924836e+00])
+        self.assertArrayAlmostEqual(superstructure.lattice.matrix[1], [-0.95005506, 14.95766342, 10.01819773])
+        self.assertArrayAlmostEqual(superstructure.lattice.matrix[2], [3.69130000e-02, 4.09320200e-02, 5.90830153e+01])
+        self.assertEqual(superstructure.num_sites, 448)
 
 
-class PerturbedSupercellsTransformationTest(PymatgenTest):
+class PerturbSitesTransformationTest(PymatgenTest):
 
-    def test_perturbed_supercells_class(self):
+    def test_apply_transformation(self):
 
-        structure = structure = PymatgenTest.get_structure("LiFePO4") #what structure should i put in here????
-        sc_generator = CubicSupercellTransformation(structure, min_atoms=150,
-                                                    max_atoms=1000, num_nn_dists=5)
-        superstructure, scale_mat = sc_generator.gen_scaling_matrix()
-        enumerator = PerturbedSupercellsTransformation(superstructure,
-                                                max_displacement_val=0.05,
-                                                min_displacement_val=0.01,
-                                                num_displacements=2,
-                                                scs_per_displacement_val=1)
-        random_supercells = enumerator.perturbed_supercells
+        max_displacement = 0.05
+        min_displacement = 0.01
+        num_displacements = 2
+        structures_per_displacement_val = 2
+
+        structure = PymatgenTest.get_mp_structure('mp-1101039') #what structure should i put in here????
+        perturb_transformer = PerturbSitesTransformation(max_displacement_val=max_displacement,
+                                                min_displacement_val=min_displacement,
+                                                num_displacements=num_displacements,
+                                                structures_per_displacement_val=structures_per_displacement_val)
+        random_structures = perturb_transformer.apply_transformation(structure)
+        num_random_structures = len(random_structures)
+        self.assertEqual(num_random_structures, num_displacements*structures_per_displacement_val)
+
+        original_coords = structure.cart_coords
+        new_coords1 = random_structures[0].cart_coords
+        new_coords2 = random_structures[-1].cart_coords
+        num_sites,_ = original_coords.shape
+        random_sites_idxs = np.random.randint(0, num_sites, size=round(num_sites/2))
+
+        for random_site_idx in random_sites_idxs:
+            self.assertAlmostEqual(np.linalg.norm(original_coords[random_site_idx]-new_coords1[random_site_idx]),
+                             min_displacement)
+            self.assertAlmostEqual(np.linalg.norm(original_coords[random_site_idx]-new_coords2[random_site_idx]),
+                             max_displacement)
+
 
 if __name__ == "__main__":
     unittest.main()
