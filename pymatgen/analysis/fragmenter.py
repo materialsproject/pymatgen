@@ -64,7 +64,7 @@ class Fragmenter(MSONable):
             print("Extending lithium and magnesium edges to ensure that we capture coordination to nearby common coordinators: O, N, F, and Cl.")
             if self.open_rings:
                 print("WARNING: Metal edge extension while opening rings can yeild unphysical fragments!")
-            self._metal_edge_extender()
+            self.mol_graph = metal_edge_extender(self.mol_graph)
 
         self.prev_unique_frag_dict = prev_unique_frag_dict or {}
         self.new_unique_frag_dict = {}
@@ -339,6 +339,7 @@ class Fragmenter(MSONable):
                 self.all_unique_frag_dict[key] = copy.deepcopy(new_frag_key_dict[key])
         self.all_unique_frag_dict.pop(mol_key)
 
+
 def open_ring(mol_graph, bond, opt_steps):
     """
     Function to actually open a ring using OpenBabel's local opt. Given a molecule
@@ -351,3 +352,42 @@ def open_ring(mol_graph, bond, opt_steps):
     obmol.remove_bond(bond[0][0]+1, bond[0][1]+1)
     obmol.localopt(steps=opt_steps,forcefield='uff')
     return MoleculeGraph.with_local_env_strategy(obmol.pymatgen_mol, OpenBabelNN(), reorder=False, extend_structure=False)
+
+
+def metal_edge_extender(mol_graph):
+    metal_sites = {"Li": {}, "Mg": {}}
+    coordinators = ["O","N","F","Cl"]
+    num_new_edges = 0
+    for idx in mol_graph.graph.nodes():
+        if mol_graph.graph.nodes()[idx]["specie"] in metal_sites:
+            metal_sites[mol_graph.graph.nodes()[idx]["specie"]][idx] = [site[2] for site in mol_graph.get_connected_sites(idx)]
+    for metal in metal_sites:
+        for idx in metal_sites[metal]:
+            for ii,site in enumerate(mol_graph.molecule):
+                if ii != idx and ii not in metal_sites[metal][idx]:
+                    if str(site.specie) in coordinators:
+                        if site.distance(mol_graph.molecule[idx]) < 2.5:
+                            mol_graph.add_edge(idx,ii)
+                            num_new_edges += 1
+                            metal_sites[metal][idx].append(ii)
+    total_metal_edges = 0
+    for metal in metal_sites:
+        for idx in metal_sites[metal]:
+            total_metal_edges += len(metal_sites[metal][idx])
+    if total_metal_edges == 0:
+        for metal in metal_sites:
+            for idx in metal_sites[metal]:
+                for ii,site in enumerate(mol_graph.molecule):
+                    if ii != idx and ii not in metal_sites[metal][idx]:
+                        if str(site.specie) in coordinators:
+                            if site.distance(mol_graph.molecule[idx]) < 3.5:
+                                mol_graph.add_edge(idx,ii)
+                                num_new_edges += 1
+                                metal_sites[metal][idx].append(ii)
+    total_metal_edges = 0
+    for metal in metal_sites:
+        for idx in metal_sites[metal]:
+            total_metal_edges += len(metal_sites[metal][idx])
+    print("Metal edge extension added", num_new_edges, "new edges.")
+    print("Total of", total_metal_edges, "metal edges.")
+    return mol_graph
