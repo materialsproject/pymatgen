@@ -5,7 +5,7 @@
 import os
 import unittest
 
-from pymatgen.io.shengbte import ShengBTE_CONTROL_IO
+from pymatgen.io.shengbte import Control
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -19,7 +19,7 @@ this_dir = os.path.dirname(os.path.abspath(__file__))
 class TestShengBTE(PymatgenTest):
 
     def setUp(self):
-        self.sbte_io = ShengBTE_CONTROL_IO()
+        self.filename = os.path.join(test_dir, "CONTROL-CSLD_Si")
         self.test_dict = {
             'allocations':
                 {'nelements': 1,
@@ -45,41 +45,40 @@ class TestShengBTE(PymatgenTest):
                  'nanowires': False}
         }
 
-    def test_read_CONTROL(self):
-        filename = os.path.join(test_dir, "CONTROL-CSLD_Si")
-        sbte_dict = self.sbte_io.read_CONTROL(filename)
-
-        self.assertIsInstance(sbte_dict, dict)
-        self.assertEqual(sbte_dict['allocations']['nelements'], 1)
-        self.assertEqual(sbte_dict['allocations']['natoms'], 2)
-        self.assertArrayEqual(sbte_dict['allocations']['ngrid'], [25, 25, 25])
-        self.assertEqual(sbte_dict['allocations']['norientations'], 0)
-        self.assertEqual(sbte_dict['crystal']['lfactor'], 0.1)
-        self.assertEqual(sbte_dict['crystal']['lattvec'][0], [0.0, 2.734363999, 2.734363999])
-        self.assertEqual(sbte_dict['crystal']['lattvec'][1], [2.734363999, 0.0, 2.734363999])
-        self.assertEqual(sbte_dict['crystal']['lattvec'][2], [2.734363999, 2.734363999, 0.0])
-        self.assertIsInstance(sbte_dict['crystal']['elements'], (list, str))
-        if isinstance(sbte_dict['crystal']['elements'], list):
-            all_strings = all(isinstance(item, str) for item in sbte_dict['crystal']['elements'])
+    def test_from_file(self):
+        io = Control.from_file(self.filename)
+        self.assertIsInstance(io.alloc_dict, dict)
+        self.assertIsInstance(io.crystal_dict, dict)
+        self.assertIsInstance(io.params_dict, dict)
+        self.assertIsInstance(io.flags_dict, dict)
+        self.assertEqual(io.alloc_dict['nelements'], 1)
+        self.assertEqual(io.alloc_dict['natoms'], 2)
+        self.assertArrayEqual(io.alloc_dict['ngrid'], [25, 25, 25])
+        self.assertEqual(io.alloc_dict['norientations'], 0)
+        self.assertEqual(io.crystal_dict['lfactor'], 0.1)
+        self.assertEqual(io.crystal_dict['lattvec'][0], [0.0, 2.734363999, 2.734363999])
+        self.assertEqual(io.crystal_dict['lattvec'][1], [2.734363999, 0.0, 2.734363999])
+        self.assertEqual(io.crystal_dict['lattvec'][2], [2.734363999, 2.734363999, 0.0])
+        self.assertIsInstance(io.crystal_dict['elements'], (list, str))
+        if isinstance(io.crystal_dict['elements'], list):
+            all_strings = all(isinstance(item, str) for item in io.crystal_dict['elements'])
             self.assertTrue(all_strings)
-        self.assertIsInstance(sbte_dict['crystal']['types'], (list, int))
-        if isinstance(sbte_dict['crystal']['types'], list):
-            all_ints = all(isinstance(item, int) for item in sbte_dict['crystal']['types'])
+        self.assertIsInstance(io.crystal_dict['types'], (list, int))
+        if isinstance(io.crystal_dict['types'], list):
+            all_ints = all(isinstance(item, int) for item in io.crystal_dict['types'])
             self.assertTrue(all_ints)
-        self.assertArrayEqual(sbte_dict['crystal']['positions'], [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25]])
-        self.assertArrayEqual(sbte_dict['crystal']['scell'], [5, 5, 5])
-        self.assertEqual(sbte_dict['parameters']['T'], 500)
-        self.assertEqual(sbte_dict['parameters']['scalebroad'], 0.5)
-        self.assertFalse(sbte_dict['flags']['isotopes'])
-        self.assertFalse(sbte_dict['flags']['onlyharmonic'])
-        self.assertFalse(sbte_dict['flags']['nonanalytic'])
-        self.assertFalse(sbte_dict['flags']['nanowires'])
-
-    def test_file_writer_helper_func(self):
+        self.assertArrayEqual(io.crystal_dict['positions'], [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25]])
+        self.assertArrayEqual(io.crystal_dict['scell'], [5, 5, 5])
+        self.assertEqual(io.params_dict['T'], 500)
+        self.assertEqual(io.params_dict['scalebroad'], 0.5)
+        self.assertFalse(io.flags_dict['isotopes'])
+        self.assertFalse(io.flags_dict['onlyharmonic'])
+        self.assertFalse(io.flags_dict['nonanalytic'])
+        self.assertFalse(io.flags_dict['nanowires'])
 
         if os.path.exists(os.path.join(test_dir,'test_control')):
             os.remove(os.path.join(test_dir,'test_control'))
-        self.sbte_io.file_writer_helper_func(self.test_dict, filename=os.path.join(test_dir,'test_control'))
+        io.to_file(filename=os.path.join(test_dir,'test_control'))
 
         with open(os.path.join(test_dir,'test_control'), 'r') as file:
             test_string = file.read()
@@ -88,10 +87,11 @@ class TestShengBTE(PymatgenTest):
         self.assertMultiLineEqual(test_string, reference_string)
         os.remove(os.path.join(test_dir, 'test_control'))
 
-    def test_write_CONTROL_from_dict(self):
+    def test_from_dict(self):
+        io = Control.from_dict(self.test_dict)
         if os.path.exists(os.path.join(test_dir,'test_control')):
             os.remove(os.path.join(test_dir,'test_control'))
-        self.sbte_io.write_CONTROL_from_dict(self.test_dict, filename=os.path.join(test_dir,'test_control'))
+        io.to_file(filename=os.path.join(test_dir,'test_control'))
         with open(os.path.join(test_dir,'test_control'), 'r') as file:
             test_string = file.read()
         with open(os.path.join(test_dir, "CONTROL-CSLD_Si"), 'r') as reference_file:

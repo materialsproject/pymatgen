@@ -1,5 +1,3 @@
-# pymatgen>pymatgen>io
-
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License
@@ -21,21 +19,124 @@ __email__ = "rc564@cornell.edu"
 __date__ = "June 27, 2019"
 
 
-class ShengBTE_CONTROL_IO:
+class Control:
 
     """
     Class for reading, updating, and writing ShengBTE CONTROL files.
     Currently only supports ShengBTE options relevant to CSLD.
     """
 
-    def read_CONTROL(self, filename):
+    def __init__(self,
+                 alloc_dict={},
+                 crystal_dict={},
+                 params_dict={},
+                 flags_dict={}):
         """
-        Read a CONTROL namelist file and output a namelist object
-        :param filename: Name of the CONTROL file if in current directory.
-            If not, use full path.
-        :return: Dictionary of CONTROL parameters.
+        Args:
+            alloc_dict (dict): ShengBTE 'allocations' parameters
+            crystal_dict (dict): ShengBTE 'crystal' parameters
+            params_dict (dict): ShengBTE 'parameters' parameters
+            flags_dict (dict): ShengBTE 'flags' parameters
         """
-        nml = f90nml.read(filename)
+
+        self.alloc_dict = {
+            'nelements': None,
+            'natoms': None,
+            'ngrid': None,
+            'norientations': 0,
+        }
+        self.alloc_dict.update(alloc_dict)
+
+        self.crystal_dict = {
+            'lfactor': 0.1,
+            'lattvec': None, #required
+            'types': None, #required
+            'elements': None, #required
+            'positions': None, #required
+            'masses': None,
+            'gfactors': None,
+            'epsilon': None,
+            'born': None,
+            'scell': None, #required
+            'orientations': None
+        }
+        self.crystal_dict.update(crystal_dict)
+
+        self.params_dict = {
+            'T': 300, #required
+            'T_min': None,
+            'T_max': None,
+            'T_step': None,
+            'omega_max': None,
+            'scalebroad': 0.5, #required
+            'rmin': None,
+            'rmax': None,
+            'dr': None,
+            'maxiter': None,
+            'nticks': None,
+            'eps': None
+        }
+        self.params_dict.update(params_dict)
+
+        self.flags_dict = {
+            'nonanalytic': None,
+            'convergence': None,
+            'isotopes': None,
+            'autoisotopes': None,
+            'nanowires': None,
+            'onlyharmonic': None,
+            'espresso': None
+        }
+        self.flags_dict.update(flags_dict)
+
+        def check_required_params():
+            """
+            Raise error if any required parameters are missing
+            """
+            required_params = {'crystal':
+                                   ['lattvec',
+                                    'types',
+                                    'elements',
+                                    'positions',
+                                    'scell'],
+                               'parameters':
+                                   ['T',
+                                    'scalebroad'],
+                               }
+            required_namelists = list(required_params.keys())
+            for required_namelist in required_namelists:
+                required_namelist_params = required_params[required_namelist]
+                for required_namelist_param in required_namelist_params:
+                    if required_namelist == 'allocations' and \
+                            self.alloc_dict[required_namelist_param] is None:
+                        raise AttributeError('Missing argument: {}>{}'.format(required_namelist,
+                                                                              required_namelist_param))
+                    elif required_namelist == 'crystal' and \
+                            self.crystal_dict[required_namelist_param] is None:
+                        raise AttributeError('Missing argument: {}>{}'.format(required_namelist,
+                                                                              required_namelist_param))
+                    elif required_namelist == 'parameters' and \
+                            self.params_dict[required_namelist_param] is None:
+                        raise AttributeError('Missing argument: {}>{}'.format(required_namelist,
+                                                                              required_namelist_param))
+                    elif required_namelist == 'flags' and \
+                            self.flags_dict[required_namelist_param] is None:
+                        raise AttributeError('Missing argument: {}>{}'.format(required_namelist,
+                                                                              required_namelist_param))
+        check_required_params()
+
+    @classmethod
+    def from_file(cls, filepath):
+        """
+        Read a CONTROL namelist file and output a 'Control' object
+
+        Args:
+            filepath (String): Path of the CONTROL file.
+
+        Returns:
+            'Control' object with parameters instantiated.
+        """
+        nml = f90nml.read(filepath)
         sdict = nml.todict()
         if 't' in sdict['parameters']:
             sdict['parameters']['T'] = sdict['parameters']['t']
@@ -49,52 +150,101 @@ class ShengBTE_CONTROL_IO:
         if 't_step' in sdict['parameters']:
             sdict['parameters']['T_step'] = sdict['parameters']['t_step']
             del sdict['parameters']['t_step']
-        return sdict
 
-    def file_writer_helper_func(self, dict, filename):
-        """
-        Helper function, not meant to be called directly
-        """
-        nelements = str(dict['allocations']['nelements'])
-        natoms = str(dict['allocations']['natoms'])
-        ngrid = dict['allocations']['ngrid']
-        norientations = str(dict['allocations']['norientations'])
+        alloc_dict = sdict['allocations']
+        crystal_dict = sdict['crystal']
+        params_dict = sdict['parameters']
+        flags_dict = sdict['flags']
 
-        lfactor = str(dict['crystal']['lfactor'])
-        lattvec1 = dict['crystal']['lattvec'][0]
-        lattvec2 = dict['crystal']['lattvec'][1]
-        lattvec3 = dict['crystal']['lattvec'][2]
-        elements = dict['crystal']['elements']
-        types = dict['crystal']['types']
-        positions = np.asarray(dict['crystal']['positions'])
-        scell = dict['crystal']['scell']
+        return cls(alloc_dict, crystal_dict, params_dict, flags_dict)
+
+    @classmethod
+    def from_dict(cls, sdict):
+        """
+        Write a CONTROL file from a Python dictionary.
+        Description and default parameters can be found at
+        https://bitbucket.org/sousaw/shengbte/src/master/.
+        Note some parameters are mandatory. Optional parameters
+        default here to None and will not be written to file.
+
+        Args:
+            dict: A Python dictionary of ShengBTE input parameters.
+            filename: Filename to save the CONTROL file
+        """
+
+        try:
+            alloc_dict = sdict['allocations']
+        except:
+            alloc_dict = {}
+        try:
+            crystal_dict = sdict['crystal']
+        except:
+            crystal_dict = {}
+        try:
+            params_dict = sdict['parameters']
+        except:
+            params_dict = {}
+        try:
+            flags_dict = sdict['flags']
+        except:
+            flags_dict = {}
+
+        return cls(alloc_dict, crystal_dict, params_dict, flags_dict)
+
+    def to_file(self, filename):
+        """
+        Writes ShengBTE CONTROL file from 'Control' object
+        """
+        positions = np.asarray(self.crystal_dict['positions'])
+        num_sites, _ = positions.shape
+
+        nelements = str(self.alloc_dict['nelements'])
+        natoms = str(self.alloc_dict['natoms'])
+        ngrid = self.alloc_dict['ngrid']
+        norientations = str(self.alloc_dict['norientations'])
+
+        lfactor = str(self.crystal_dict['lfactor'])
+        lattvec1 = self.crystal_dict['lattvec'][0]
+        lattvec2 = self.crystal_dict['lattvec'][1]
+        lattvec3 = self.crystal_dict['lattvec'][2]
+        elements = self.crystal_dict['elements']
+        types = self.crystal_dict['types']
+        scell = self.crystal_dict['scell']
         # new from here
-        epsilon1 = dict['crystal']['epsilon'][0]
-        epsilon2 = dict['crystal']['epsilon'][1]
-        epsilon3 = dict['crystal']['epsilon'][2]
-        born = np.asarray(dict['crystal']['born'])
-        orientations = np.asarray(dict['crystal']['orientations'])
+        if self.crystal_dict['epsilon'] is not None:
+            epsilon1 = self.crystal_dict['epsilon'][0]
+            epsilon2 = self.crystal_dict['epsilon'][1]
+            epsilon3 = self.crystal_dict['epsilon'][2]
+        else:
+            epsilon1 = np.full(3, None)
+            epsilon2 = np.full(3, None)
+            epsilon3 = np.full(3, None)
+        if self.crystal_dict['born'] is not None:
+            born = np.asarray(self.crystal_dict['born'])
+        else:
+            born = np.full((num_sites, 3, 3), None)
+        orientations = np.asarray(self.crystal_dict['orientations'])
 
-        temperature = str(int(dict['parameters']['T']))
-        scalebroad = str(dict['parameters']['scalebroad'])
-        t_min = str(dict['parameters']['T_min'])
-        t_max = str(dict['parameters']['T_max'])
-        t_step = str(dict['parameters']['T_step'])
-        omega_max = str(dict['parameters']['omega_max'])
-        rmin = str(dict['parameters']['rmin'])
-        rmax = str(dict['parameters']['rmax'])
-        dr = str(dict['parameters']['dr'])
-        maxiter = str(dict['parameters']['maxiter'])
-        nticks = str(dict['parameters']['nticks'])
-        eps = str(dict['parameters']['eps'])
+        temperature = str(int(self.params_dict['T']))
+        scalebroad = str(self.params_dict['scalebroad'])
+        t_min = str(self.params_dict['T_min'])
+        t_max = str(self.params_dict['T_max'])
+        t_step = str(self.params_dict['T_step'])
+        omega_max = str(self.params_dict['omega_max'])
+        rmin = str(self.params_dict['rmin'])
+        rmax = str(self.params_dict['rmax'])
+        dr = str(self.params_dict['dr'])
+        maxiter = str(self.params_dict['maxiter'])
+        nticks = str(self.params_dict['nticks'])
+        eps = str(self.params_dict['eps'])
 
-        onlyharmonic = dict['flags']['onlyharmonic']
-        isotopes = dict['flags']['isotopes']
-        nonanalytic = dict['flags']['nonanalytic']
-        nanowires = dict['flags']['nanowires']
-        convergence = dict['flags']['convergence']
-        autoisotopes = dict['flags']['autoisotopes']
-        espresso = dict['flags']['espresso']
+        onlyharmonic = self.flags_dict['onlyharmonic']
+        isotopes = self.flags_dict['isotopes']
+        nonanalytic = self.flags_dict['nonanalytic']
+        nanowires = self.flags_dict['nanowires']
+        convergence = self.flags_dict['convergence']
+        autoisotopes = self.flags_dict['autoisotopes']
+        espresso = self.flags_dict['espresso']
 
         def boolean_to_string(boolean):
             if boolean is not None:
@@ -106,7 +256,6 @@ class ShengBTE_CONTROL_IO:
                 return 'None'
 
         #Write strings for types, positions, and born
-        num_sites, _ = positions.shape
         indent = '        '
         types_string = 'types='
         positions_string = ''
@@ -125,7 +274,7 @@ class ShengBTE_CONTROL_IO:
                                +str(born[line][i][1])+' '+str(born[line][i][2])+',\n'
 
         #Write string for orientations
-        num_orientations = dict['allocations']['norientations']
+        num_orientations = self.alloc_dict['norientations']
         orientations_string = ''
         for o in range(num_orientations):
             if o != num_orientations-1:
@@ -199,77 +348,3 @@ class ShengBTE_CONTROL_IO:
         file = open(filename, 'w+')
         file.write(full_string)
         file.close()
-
-    def write_CONTROL_from_dict(self, dict, filename='CONTROL'):
-        """
-        Write a CONTROL file from a Python dictionary.
-        Description and default parameters can be found at
-        https://bitbucket.org/sousaw/shengbte/src/master/.
-        Note some parameters are mandatory. Optional parameters
-        default here to None and will not be written to file.
-
-        Args:
-            dict: A Python dictionary of ShengBTE input parameters.
-            filename: Filename to save the CONTROL file
-        """
-        new_dict = {'allocations':
-                            {'nelements': dict.get('allocations', None).get('nelements', None),
-                             'natoms': dict.get('allocations', None).get('natoms', None),
-                             'ngrid': dict.get('allocations', None).get('ngrid', None),
-                             'norientations': dict.get('allocations', 0).get('norientations', 0)},
-                    'crystal':
-                            {'lfactor': dict.get('crystal', 1.0).get('lfactor', 1.0),
-                             'lattvec': dict.get('crystal', 'mandatory').get('lattvec', 'mandatory'),
-                             'types': dict.get('crystal', 'mandatory').get('types', 'mandatory'),
-                             'elements': dict.get('crystal', 'mandatory').get('elements', 'mandatory'),
-                             'positions': dict.get('crystal', 'mandatory').get('positions', 'mandatory'),
-                             'masses': dict.get('crystal', None).get('masses', None), #new
-                             'gfactors': dict.get('crystal', None).get('gfactors', None), #new
-                             'epsilon': dict.get('crystal', None).get('epsilon', None),
-                             'born': dict.get('crystal', None).get('born', None),
-                             'scell': dict.get('crystal', 'mandatory').get('scell', 'mandatory'),
-                             'orientations': dict.get('crystal', None).get('orientations', None)},
-                    'parameters':
-                            {'T': dict.get('parameters', 'mandatory').get('T', 'mandatory'),
-                             'T_min': dict.get('parameters', None).get('T_min', None), #new
-                             'T_max': dict.get('parameters', None).get('T_max', None), #new
-                             'T_step': dict.get('parameters', None).get('T_step', None), #new
-                             'omega_max': dict.get('parameters', None).get('omega_max', None), #new
-                             'scalebroad': dict.get('parameters', 1.0).get('scalebroad', 1.0),
-                             'rmin': dict.get('parameters', None).get('rmin', None), #new
-                             'rmax': dict.get('parameters', None).get('rmax', None), #new
-                             'dr': dict.get('parameters', None).get('dr', None), #new
-                             'maxiter': dict.get('parameters', None).get('maxiter', None), #new
-                             'nticks': dict.get('parameters', None).get('nticks', None), #new
-                             'eps': dict.get('parameters', None).get('eps', None)}, #new
-                    'flags':
-                            {'nonanalytic': dict.get('flags', None).get('nonanalytic', None),
-                             'convergence': dict.get('flags', None).get('convergence', None),
-                             'isotopes': dict.get('flags', None).get('isotopes', None),
-                             'autoisotopes': dict.get('flags', None).get('autoisotopes', None),
-                             'nanowires': dict.get('flags', None).get('nanowires', None),
-                             'onlyharmonic': dict.get('flags', None).get('onlyharmonic', None),
-                             'espresso': dict.get('flags', None).get('espresso', None)}
-                    }
-        self.file_writer_helper_func(new_dict, filename=filename)
-
-
-def main():
-    io = ShengBTE_CONTROL_IO()
-    sdict = io.read_CONTROL('CONTROL')
-    print(sdict)
-    print(isinstance(sdict, dict))
-    print(sdict['crystal']['born'])
-    print(sdict['crystal']['born'][1][0][0])
-
-    print(isinstance(sdict['crystal']['types'],list))
-    print(sdict['parameters']['T'])
-    print(sdict['crystal']['types'])
-    print(type(sdict['crystal']['types'][0]))
-    print(type(sdict['crystal']['types'][1]))
-
-    io.write_CONTROL_from_dict(sdict, filename='CONTROL_test1')
-
-
-if __name__ == '__main__':
-    main()
