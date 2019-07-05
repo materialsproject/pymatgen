@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 class Fragmenter(MSONable):
 
-    def __init__(self, molecule, edges=None, depth=1, open_rings=False, metal_edge_extender=False, opt_steps=10000, use_igraph=True, prev_unique_frag_dict=None):
+    def __init__(self, molecule, edges=None, depth=1, open_rings=False, use_metal_edge_extender=False, opt_steps=10000, use_igraph=True, prev_unique_frag_dict=None):
         """
         Standard constructor for molecule fragmentation
 
@@ -60,7 +60,7 @@ class Fragmenter(MSONable):
             edges = {(e[0], e[1]): None for e in edges}
             self.mol_graph = MoleculeGraph.with_edges(molecule, edges)
 
-        if ("Li" in molecule.composition or "Mg" in molecule.composition) and metal_edge_extender:
+        if ("Li" in molecule.composition or "Mg" in molecule.composition) and use_metal_edge_extender:
             print("Extending lithium and magnesium edges to ensure that we capture coordination to nearby common coordinators: O, N, F, and Cl.")
             if self.open_rings:
                 print("WARNING: Metal edge extension while opening rings can yeild unphysical fragments!")
@@ -154,43 +154,6 @@ class Fragmenter(MSONable):
             self.total_unique_fragments = 0
             for frag_key in self.unique_frag_dict:
                 self.total_unique_fragments += len(self.unique_frag_dict[frag_key])
-
-    def _metal_edge_extender(self):
-        metal_sites = {"Li": {}, "Mg": {}}
-        coordinators = ["O","N","F","Cl"]
-        num_new_edges = 0
-        for idx in self.mol_graph.graph.nodes():
-            if self.mol_graph.graph.nodes()[idx]["specie"] in metal_sites:
-                metal_sites[self.mol_graph.graph.nodes()[idx]["specie"]][idx] = [site[2] for site in self.mol_graph.get_connected_sites(idx)]
-        for metal in metal_sites:
-            for idx in metal_sites[metal]:
-                for ii,site in enumerate(self.mol_graph.molecule):
-                    if ii != idx and ii not in metal_sites[metal][idx]:
-                        if str(site.specie) in coordinators:
-                            if site.distance(self.mol_graph.molecule[idx]) < 2.5:
-                                self.mol_graph.add_edge(idx,ii)
-                                num_new_edges += 1
-                                metal_sites[metal][idx].append(ii)
-        total_metal_edges = 0
-        for metal in metal_sites:
-            for idx in metal_sites[metal]:
-                total_metal_edges += len(metal_sites[metal][idx])
-        if total_metal_edges == 0:
-            for metal in metal_sites:
-                for idx in metal_sites[metal]:
-                    for ii,site in enumerate(self.mol_graph.molecule):
-                        if ii != idx and ii not in metal_sites[metal][idx]:
-                            if str(site.specie) in coordinators:
-                                if site.distance(self.mol_graph.molecule[idx]) < 3.5:
-                                    self.mol_graph.add_edge(idx,ii)
-                                    num_new_edges += 1
-                                    metal_sites[metal][idx].append(ii)
-        total_metal_edges = 0
-        for metal in metal_sites:
-            for idx in metal_sites[metal]:
-                total_metal_edges += len(metal_sites[metal][idx])
-        print("Metal edge extension added", num_new_edges, "new edges.")
-        print("Total of", total_metal_edges, "metal edges.")
 
     def _fragment_one_level(self, old_frag_dict):
         """
