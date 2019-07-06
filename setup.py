@@ -89,6 +89,7 @@ setup(
     version="2019.7.2",
     cmdclass={'build_ext': build_ext},
     setup_requires=['numpy>=1.14.3', 'setuptools>=18.0'],
+    python_requires='>=3.6',
     install_requires=["numpy>=1.14.3", "requests", "ruamel.yaml>=0.15.6",
                       "monty>=1.0.6", "scipy>=1.0.1", "pydispatcher>=2.0.5",
                       "tabulate", "spglib>=1.9.9.44", "networkx>=2.2",
