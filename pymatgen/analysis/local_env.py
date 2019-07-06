@@ -542,7 +542,7 @@ class NearNeighbors:
                                 for n in range(len(structure))]
             structure.add_site_property('order_parameters', order_parameters)
 
-        sg = StructureGraph.with_local_env_strategy(structure, self)
+        sg = StructureGraph.with_local_env_strategy(structure, self, weights=True)
 
         return sg
 
