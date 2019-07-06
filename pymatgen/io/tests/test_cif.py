@@ -302,12 +302,12 @@ loop_
                 self.assertEqual(sum(s.site_properties['implicit_hydrogens']), 20)
             self.assertIn("Structure has implicit hydrogens defined, "
                           "parsed structure unlikely to be suitable for use "
-                          "in calculations unless hydrogens added.", parser.errors)
+                          "in calculations unless hydrogens added.", parser.warnings)
             parser = CifParser(self.TEST_FILES_DIR / 'cif_implicit_hydrogens_cod_1011130.cif')
             s = parser.get_structures()[0]
             self.assertIn("Structure has implicit hydrogens defined, "
                           "parsed structure unlikely to be suitable for use "
-                          "in calculations unless hydrogens added.", parser.errors)
+                          "in calculations unless hydrogens added.", parser.warnings)
 
 
     def test_CifParserSpringerPauling(self):
@@ -874,7 +874,7 @@ loop_
             s = p.get_structures()[0]
             self.assertEqual(str(s.composition), "N5+24")
             self.assertIn("Some fractional co-ordinates rounded to ideal values to "
-                          "avoid finite precision errors.", p.errors)
+                          "avoid finite precision errors.", p.warnings)
 
     def test_empty_deque(self):
         s = """data_1526655
