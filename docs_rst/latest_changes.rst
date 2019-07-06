@@ -1,11 +1,12 @@
 Change log
 ==========
 
-v2019.5.1
+v2019.7.2
 ---------
-* Small speeds to Structure.get_all_neighbors.
-* Big fixes for gulp_caller. (@kmu)
-* Plot fatbands from Lobster. (@jageo)
-* Speed up get_ir_mesh (@utf)
-* Parsing of plasma frequencies from Outcar.
-* Miscellaneous bug fixes.
+* Improvements to grain boundary transformations and Rester (@Tinaatucsd)
+* Improvements to AdsorbateSiteFinder (@oxana-a)
+* Improvements to Waveder support (@JRSuckert)
+* Improvements to run type detection (@darnoceloc)
+* Add XAS data to Rester (@yimingchen95)
+* Fix to ATAT input/output (@dongsenfo)
+* Initial support for Prismatic input (@mkhorton)

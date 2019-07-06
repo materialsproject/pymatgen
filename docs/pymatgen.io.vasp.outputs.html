@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.vasp.outputs module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.io.vasp.outputs module &#8212; pymatgen 2019.7.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.2 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -137,6 +137,27 @@ etc. are ignored.</p>
 <dt id="pymatgen.io.vasp.outputs.Dynmat.nspecs">
 <code class="descname">nspecs</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Dynmat.nspecs" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns the number of species</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.vasp.outputs.Elfcar">
+<em class="property">class </em><code class="descname">Elfcar</code><span class="sig-paren">(</span><em>poscar</em>, <em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Elfcar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Elfcar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vasp.outputs.VolumetricData" title="pymatgen.io.vasp.outputs.VolumetricData"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.vasp.outputs.VolumetricData</span></code></a></p>
+<p>Read an ELFCAR file which contains the Electron Localization Function (ELF)
+as calculated by VASP.</p>
+<p>For ELF, “total” key refers to Spin.up, and “diff” refers to Spin.down.</p>
+<p>This also contains information on the kinetic energy density.</p>
+<dl class="classmethod">
+<dt id="pymatgen.io.vasp.outputs.Elfcar.from_file">
+<em class="property">classmethod </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Elfcar.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Elfcar.from_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.vasp.outputs.Elfcar.get_alpha">
+<code class="descname">get_alpha</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Elfcar.get_alpha"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Elfcar.get_alpha" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the parameter alpha where ELF = 1/(1+alpha^2).</p>
 </dd></dl>
 
 </dd></dl>
@@ -571,6 +592,13 @@ Each dict key/value pair corresponds to a component of the tensors.</p>
 <dd class="field-odd"><p>A list of Electric Field Gradient Tensors in the order of Atoms from OUTCAR</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.vasp.outputs.Outcar.read_onsite_density_matrices">
+<code class="descname">read_onsite_density_matrices</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar.read_onsite_density_matrices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_onsite_density_matrices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the onsite density matrices, returns list with index corresponding
+to atom index in Structure.</p>
 </dd></dl>
 
 <dl class="method">
@@ -1635,7 +1663,7 @@ at least as fine as the VASP default.</p></li>
 
 <dl class="class">
 <dt id="pymatgen.io.vasp.outputs.Waveder">
-<em class="property">class </em><code class="descname">Waveder</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Waveder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Waveder" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">Waveder</code><span class="sig-paren">(</span><em>filename</em>, <em>gamma_only=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Waveder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Waveder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class for reading a WAVEDER file.
 The LOPTICS tag produces a WAVEDER file.
@@ -1646,6 +1674,12 @@ Author: Kamal Choudhary, NIST</p>
 <dd class="field-odd"><p><strong>filename</strong> – Name of file containing WAVEDER.</p>
 </dd>
 </dl>
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.outputs.Waveder.cder_data">
+<code class="descname">cder_data</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Waveder.cder_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the orbital derivative between states</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="pymatgen.io.vasp.outputs.Waveder.get_orbital_derivative_between_states">
 <code class="descname">get_orbital_derivative_between_states</code><span class="sig-paren">(</span><em>band_i</em>, <em>band_j</em>, <em>kpoint</em>, <em>spin</em>, <em>cart_dir</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Waveder.get_orbital_derivative_between_states"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Waveder.get_orbital_derivative_between_states" title="Permalink to this definition">¶</a></dt>
@@ -1938,7 +1972,7 @@ any. Note that this is sometimes very large</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.2 documentation</a> &#187;</li> 
       </ul>
     </div>
 

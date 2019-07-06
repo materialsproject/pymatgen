@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.composition module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.core.composition module &#8212; pymatgen 2019.7.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.2 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -76,7 +76,7 @@ added/subtracted with other ChemicalPotentials.</p>
 
 <dl class="class">
 <dt id="pymatgen.core.composition.Composition">
-<em class="property">class </em><code class="descname">Composition</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">Composition</code><span class="sig-paren">(</span><em>*args</em>, <em>strict=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.Hashable</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.Mapping</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Represents a Composition, which is essentially a {element:amount} mapping
 type. Composition is written to be immutable and hashable,
@@ -124,6 +124,7 @@ of these. E.g., {Element(“Li”):2 ,Element(“O”):1},
 <li><p><strong>Keyword arg initialization</strong><strong>, </strong><strong>similar to a dict</strong><strong>, </strong><strong>e.g.</strong><strong>,</strong> (<em>2.</em>) – Composition(Li = 2, O = 1)</p></li>
 <li><p><strong>addition</strong><strong>, </strong><strong>the Composition constructor also allows a single</strong> (<em>In</em>) – </p></li>
 <li><p><strong>as an input formula. E.g.</strong><strong>, </strong><strong>Composition</strong> (<em>string</em>) – </p></li>
+<li><p><strong>strict</strong> – Only allow valid Elements and Species in the Composition.</p></li>
 <li><p><strong>allow_negative</strong> – Whether to allow negative compositions. This
 argument must be popped from the **kwargs due to *args
 ambiguity.</p></li>
@@ -220,6 +221,34 @@ anonymized_formula ABC3.</p>
 <dt id="pymatgen.core.composition.Composition.average_electroneg">
 <code class="descname">average_electroneg</code><a class="headerlink" href="#pymatgen.core.composition.Composition.average_electroneg" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.composition.Composition.chemical_system">
+<code class="descname">chemical_system</code><a class="headerlink" href="#pymatgen.core.composition.Composition.chemical_system" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the chemical system of a Composition, for example “O-Si” for
+SiO2. Chemical system is a string of a list of elements
+sorted alphabetically and joined by dashes, by convention for use
+in database keys.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.composition.Composition.contains_element_type">
+<code class="descname">contains_element_type</code><span class="sig-paren">(</span><em>category</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.contains_element_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.contains_element_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if Composition contains any elements matching a given category.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>category</strong> (<em>str</em>) – one of “noble_gas”, “transition_metal”,</p></li>
+<li><p><strong>&quot;rare_earth_metal&quot;</strong><strong>, </strong><strong>&quot;metal&quot;</strong><strong>, </strong><strong>&quot;metalloid&quot;</strong><strong>,</strong> (<em>&quot;post_transition_metal&quot;</em><em>,</em>) – </p></li>
+<li><p><strong>&quot;alkaline&quot;</strong><strong>, </strong><strong>&quot;halogen&quot;</strong><strong>, </strong><strong>&quot;chalcogen&quot;</strong><strong>, </strong><strong>&quot;lanthanoid&quot;</strong><strong>,</strong> (<em>&quot;alkali&quot;</em><em>,</em>) – </p></li>
+<li><p><strong>&quot;quadrupolar&quot;</strong><strong>, </strong><strong>&quot;s-block&quot;</strong><strong>, </strong><strong>&quot;p-block&quot;</strong><strong>, </strong><strong>&quot;d-block&quot;</strong><strong>, </strong><strong>&quot;f-block&quot;</strong> (<em>&quot;actinoid&quot;</em><em>,</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if any elements in Composition match category, otherwise False</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.composition.Composition.copy">
@@ -515,6 +544,13 @@ Dict with element symbol and reduced amount e.g.,
 <dd></dd></dl>
 
 <dl class="attribute">
+<dt id="pymatgen.core.composition.Composition.valid">
+<code class="descname">valid</code><a class="headerlink" href="#pymatgen.core.composition.Composition.valid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if Composition contains valid elements or species and
+False if the Composition contains any dummy species.</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="pymatgen.core.composition.Composition.weight">
 <code class="descname">weight</code><a class="headerlink" href="#pymatgen.core.composition.Composition.weight" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -590,7 +626,7 @@ the elements.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.2 documentation</a> &#187;</li> 
       </ul>
     </div>
 

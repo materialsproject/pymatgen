@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.defects.utils module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.analysis.defects.utils module &#8212; pymatgen 2019.7.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.2 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -543,6 +543,17 @@ for both bulk and defect structures
 </dd></dl>
 
 <dl class="function">
+<dt id="pymatgen.analysis.defects.utils.generate_R_and_G_vecs">
+<code class="descname">generate_R_and_G_vecs</code><span class="sig-paren">(</span><em>gamma</em>, <em>prec_set</em>, <em>lattice</em>, <em>epsilon</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/utils.html#generate_R_and_G_vecs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.generate_R_and_G_vecs" title="Permalink to this definition">¶</a></dt>
+<dd><p>This returns a set of real and reciprocal lattice vectors
+(and real/recip summation values)
+based on a list of precision values (prec_set)</p>
+<p>gamma (float): Ewald parameter
+prec_set (list or number): for prec values to consider (20, 25, 30 are sensible numbers)
+lattice: Lattice object of supercell in question</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="pymatgen.analysis.defects.utils.generate_reciprocal_vectors_squared">
 <code class="descname">generate_reciprocal_vectors_squared</code><span class="sig-paren">(</span><em>a1</em>, <em>a2</em>, <em>a3</em>, <em>encut</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/utils.html#generate_reciprocal_vectors_squared"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.generate_reciprocal_vectors_squared" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate reciprocal vector magnitudes within the cutoff along the specied
@@ -573,6 +584,15 @@ determined by a1, a2, a3 and whose magntidue is less than gcut^2.</p>
 <dd class="field-even"><p>reciprocal lattice vectors with energy less than encut</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.defects.utils.tune_for_gamma">
+<code class="descname">tune_for_gamma</code><span class="sig-paren">(</span><em>lattice</em>, <em>epsilon</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/utils.html#tune_for_gamma"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.tune_for_gamma" title="Permalink to this definition">¶</a></dt>
+<dd><p>This tunes the gamma parameter for Kumagai anisotropic
+Ewald calculation. Method is to find a gamma parameter which generates a similar
+number of reciprocal and real lattice vectors,
+given the suggested cut off radii by Kumagai and Oba</p>
 </dd></dl>
 
 </div>
@@ -613,7 +633,7 @@ determined by a1, a2, a3 and whose magntidue is less than gcut^2.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.2 documentation</a> &#187;</li> 
       </ul>
     </div>
 

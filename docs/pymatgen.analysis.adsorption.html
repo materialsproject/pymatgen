@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.adsorption module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.analysis.adsorption module &#8212; pymatgen 2019.7.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.2 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -99,10 +99,11 @@ center of mass</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.add_adsorbate">
-<code class="descname">add_adsorbate</code><span class="sig-paren">(</span><em>molecule</em>, <em>ads_coord</em>, <em>repeat=None</em>, <em>reorient=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.add_adsorbate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.add_adsorbate" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_adsorbate</code><span class="sig-paren">(</span><em>molecule</em>, <em>ads_coord</em>, <em>repeat=None</em>, <em>translate=True</em>, <em>reorient=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.add_adsorbate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.add_adsorbate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds an adsorbate at a particular coordinate.  Adsorbate
-represented by a Molecule object, and is positioned relative
-to the input adsorbate coordinate.</p>
+represented by a Molecule object and is translated to (0, 0, 0) if
+translate is True, or positioned relative to the input adsorbate
+coordinate if translate is False.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -110,6 +111,8 @@ to the input adsorbate coordinate.</p>
 <li><p><strong>ads_coord</strong> (<em>array</em>) – coordinate of adsorbate position</p></li>
 <li><p><strong>repeat</strong> (<em>3-tuple</em><em> or </em><em>list</em>) – input for making a supercell of slab
 prior to placing the adsorbate</p></li>
+<li><p><strong>translate</strong> (<em>bool</em>) – flag on whether to translate the molecule so
+that its CoM is at the origin prior to adding it to the surface</p></li>
 <li><p><strong>reorient</strong> (<em>bool</em>) – flag on whether to reorient the molecule to
 have its z-axis concurrent with miller index</p></li>
 </ul>
@@ -119,7 +122,7 @@ have its z-axis concurrent with miller index</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.adsorb_both_surfaces">
-<code class="descname">adsorb_both_surfaces</code><span class="sig-paren">(</span><em>molecule</em>, <em>repeat=None</em>, <em>min_lw=5.0</em>, <em>reorient=True</em>, <em>find_args={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.adsorb_both_surfaces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.adsorb_both_surfaces" title="Permalink to this definition">¶</a></dt>
+<code class="descname">adsorb_both_surfaces</code><span class="sig-paren">(</span><em>molecule</em>, <em>repeat=None</em>, <em>min_lw=5.0</em>, <em>translate=True</em>, <em>reorient=True</em>, <em>find_args={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.adsorb_both_surfaces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.adsorb_both_surfaces" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function that generates all adsorption structures for a given
 molecular adsorbate on both surfaces of a slab. This is useful
 for calculating surface energy where both surfaces need to be
@@ -259,7 +262,7 @@ are 10% less coordinated than their bulk counterpart</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.generate_adsorption_structures">
-<code class="descname">generate_adsorption_structures</code><span class="sig-paren">(</span><em>molecule</em>, <em>repeat=None</em>, <em>min_lw=5.0</em>, <em>reorient=True</em>, <em>find_args={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.generate_adsorption_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.generate_adsorption_structures" title="Permalink to this definition">¶</a></dt>
+<code class="descname">generate_adsorption_structures</code><span class="sig-paren">(</span><em>molecule</em>, <em>repeat=None</em>, <em>min_lw=5.0</em>, <em>translate=True</em>, <em>reorient=True</em>, <em>find_args={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.generate_adsorption_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.generate_adsorption_structures" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function that generates all adsorption structures for a given
 molecular adsorbate.  Can take repeat argument or minimum
 length/width of precursor slab as an input</p>
@@ -445,7 +448,7 @@ normal to the A-B plane</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.2 documentation</a> &#187;</li> 
       </ul>
     </div>
 

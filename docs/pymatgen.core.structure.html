@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.structure module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.core.structure module &#8212; pymatgen 2019.7.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.2 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -683,7 +683,59 @@ are within merge_tol from each other will be merged. Usually
 
 <dl class="method">
 <dt id="pymatgen.core.structure.IStructure.get_all_neighbors">
-<code class="descname">get_all_neighbors</code><span class="sig-paren">(</span><em>r</em>, <em>include_index=False</em>, <em>include_image=False</em>, <em>include_site=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.get_all_neighbors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_all_neighbors" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_all_neighbors</code><span class="sig-paren">(</span><em>r</em>, <em>include_index=False</em>, <em>include_image=False</em>, <em>include_site=True</em>, <em>sites=None</em>, <em>numerical_tol=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.get_all_neighbors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_all_neighbors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get neighbors for each atom in the unit cell, out to a distance r
+Returns a list of list of neighbors for each site in structure.
+Use this method if you are planning on looping over all sites in the
+crystal. If you only want neighbors for a particular site, use the
+method get_neighbors as it may not have to build such a large supercell
+However if you are looping over all sites in the crystal, this method
+is more efficient since it only performs one pass over a large enough
+supercell to contain all possible atoms out to a distance r.
+The return type is a [(site, dist) …] since most of the time,
+subsequent processing requires the distance.</p>
+<p>A note about periodic images: Before computing the neighbors, this
+operation translates all atoms to within the unit cell (having
+fractional coordinates within [0,1)). This means that the “image” of a
+site does not correspond to how much it has been translates from its
+current position, but which image of the unit cell it resides.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>r</strong> (<em>float</em>) – Radius of sphere.</p></li>
+<li><p><strong>include_index</strong> (<em>bool</em>) – Whether to include the non-supercell site
+in the returned data</p></li>
+<li><p><strong>include_image</strong> (<em>bool</em>) – Whether to include the supercell image
+in the returned data</p></li>
+<li><p><strong>include_site</strong> (<em>bool</em>) – Whether to include the site in the returned
+data. Defaults to True.</p></li>
+<li><p><strong>sites</strong> (<em>list of Sites</em><em> or </em><a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a><em> or </em><em>None</em>) – sites for getting all neighbors,
+default is None, which means neighbors will be obtained for all
+sites. This is useful in the situation where you are interested
+only in one subspecies type, and makes it a lot faster.</p></li>
+<li><p><strong>numerical_tol</strong> (<em>float</em>) – This is a numerical tolerance for distances.
+Sites which are &lt; numerical_tol are determined to be conincident
+with the site. Sites which are r + numerical_tol away is deemed
+to be within r from the site. The default of 1e-8 should be
+ok in most instances.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of a list of nearest neighbors for each site, i.e.,
+[[(site, dist, index, image) …], ..]
+Index only supplied if include_index = True.
+The index is the index of the site in the original (non-supercell)
+structure. This is needed for ewaldmatrix by keeping track of which
+sites contribute to the ewald sum.
+Image only supplied if include_image = True
+Site is supplied only if include_site = True (the default).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IStructure.get_all_neighbors_old">
+<code class="descname">get_all_neighbors_old</code><span class="sig-paren">(</span><em>r</em>, <em>include_index=False</em>, <em>include_image=False</em>, <em>include_site=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.get_all_neighbors_old"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_all_neighbors_old" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get neighbors for each atom in the unit cell, out to a distance r
 Returns a list of list of neighbors for each site in structure.
 Use this method if you are planning on looping over all sites in the
@@ -833,6 +885,33 @@ Image only supplied if include_image = True</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pymatgen.core.structure.IStructure.get_neighbors_old">
+<code class="descname">get_neighbors_old</code><span class="sig-paren">(</span><em>site</em>, <em>r</em>, <em>include_index=False</em>, <em>include_image=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.get_neighbors_old"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_neighbors_old" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all neighbors to a site within a sphere of radius r.  Excludes the
+site itself.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>site</strong> (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a>) – Which is the center of the sphere.</p></li>
+<li><p><strong>r</strong> (<em>float</em>) – Radius of sphere.</p></li>
+<li><p><strong>include_index</strong> (<em>bool</em>) – Whether the non-supercell site index
+is included in the returned data</p></li>
+<li><p><strong>include_image</strong> (<em>bool</em>) – Whether to include the supercell image
+is included in the returned data</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>[(site, dist) …] since most of the time, subsequent processing
+requires the distance.
+If include_index == True, the tuple for each neighbor also includes
+the index of the neighbor.
+If include_supercell == True, the tuple for each neighbor also includes
+the index of supercell.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.core.structure.IStructure.get_primitive_structure">
 <code class="descname">get_primitive_structure</code><span class="sig-paren">(</span><em>tolerance=0.25</em>, <em>use_site_props=False</em>, <em>constrain_latt=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.get_primitive_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_primitive_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>This finds a smaller unit cell than the input. Sometimes it doesn”t
@@ -955,7 +1034,8 @@ construction of NEB inputs.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>end_structure</strong> (<a class="reference internal" href="#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – structure to interpolate between this
 structure and end.</p></li>
-<li><p><strong>nimages</strong> (<em>int</em>) – No. of interpolation images. Defaults to 10 images.</p></li>
+<li><p><strong>nimages</strong> (<em>int</em><em>,</em><em>list</em>) – No. of interpolation images or a list of
+interpolation images. Defaults to 10 images.</p></li>
 <li><p><strong>interpolate_lattices</strong> (<em>bool</em>) – Whether to interpolate the lattices.
 Interpolates the lengths and angles (rather than the matrix)
 so orientation may be affected.</p></li>
@@ -1964,6 +2044,17 @@ cell</p></li>
 Raised when the structure has problems, e.g., atoms that are too close.</p>
 </dd></dl>
 
+<dl class="function">
+<dt id="pymatgen.core.structure.find_neighbors">
+<code class="descname">find_neighbors</code><span class="sig-paren">(</span><em>label</em>, <em>nx</em>, <em>ny</em>, <em>nz</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#find_neighbors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.find_neighbors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a cube index, find the neighbor cube indices
+:param label: (array) (n,) or (n x 3) indice array
+:param nx: (int) number of cells in y direction
+:param ny: (int) number of cells in y direction
+:param nz: (int) number of cells in z direction
+:return: neighbor cell indices</p>
+</dd></dl>
+
 </div>
 
 
@@ -2002,7 +2093,7 @@ Raised when the structure has problems, e.g., atoms that are too close.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.2 documentation</a> &#187;</li> 
       </ul>
     </div>
 

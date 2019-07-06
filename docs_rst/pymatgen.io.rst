@@ -31,6 +31,7 @@ Submodules
    pymatgen.io.lobster
    pymatgen.io.nwchem
    pymatgen.io.phonopy
+   pymatgen.io.prismatic
    pymatgen.io.pwscf
    pymatgen.io.qchem_deprecated
    pymatgen.io.xcrysden

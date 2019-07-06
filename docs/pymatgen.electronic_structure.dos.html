@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.electronic_structure.dos module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.electronic_structure.dos module &#8212; pymatgen 2019.7.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.2 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -451,94 +451,113 @@ level.</p>
 
 <dl class="class">
 <dt id="pymatgen.electronic_structure.dos.FermiDos">
-<em class="property">class </em><code class="descname">FermiDos</code><span class="sig-paren">(</span><em>dos</em>, <em>structure=None</em>, <em>nelecs=None</em>, <em>bandgap=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#FermiDos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.FermiDos" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.electronic_structure.dos.Dos" title="pymatgen.electronic_structure.dos.Dos"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.electronic_structure.dos.Dos</span></code></a></p>
-<p>This wrapper class helps relates the density of states, doping levels
+<em class="property">class </em><code class="descname">FermiDos</code><span class="sig-paren">(</span><em>dos: pymatgen.electronic_structure.dos.Dos</em>, <em>structure: pymatgen.core.structure.Structure = None</em>, <em>nelecs: float = None</em>, <em>bandgap: float = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#FermiDos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.FermiDos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.electronic_structure.dos.Dos" title="pymatgen.electronic_structure.dos.Dos"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.electronic_structure.dos.Dos</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>This wrapper class helps relate the density of states, doping levels
 (i.e. carrier concentrations) and corresponding fermi levels. A negative
-doping concentration (c) means that the majority carriers are electrons
-(n-type doping) and positive c represents holes or p-type doping.</p>
+doping concentration indicates the majority carriers are electrons
+(n-type doping); a positive doping concentration indicates holes are the
+majority carriers (p-type doping).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dos</strong> (<em>pymatgen Dos class</em>) – density of states at corresponding energy levels</p></li>
-<li><p><strong>structure</strong> (<em>pymatgen Structure class</em>) – provided either as input or
-inside Dos (e.g. if CompleteDos used)</p></li>
-<li><p><strong>nelecs</strong> (<em>float</em>) – the number of electrons included in the energy range of
+<li><p><strong>dos</strong> – Pymatgen Dos object.</p></li>
+<li><p><strong>structure</strong> – A structure. If not provided, the structure
+of the dos object will be used. If the dos does not have an
+associated structure object, an error will be thrown.</p></li>
+<li><p><strong>nelecs</strong> – The number of electrons included in the energy range of
 dos. It is used for normalizing the densities. Default is the total
 number of electrons in the structure.</p></li>
-<li><p><strong>bandgap</strong> (<em>float</em>) – if set, the energy values are scissored so that the
-electronic band gap matches this value.</p></li>
+<li><p><strong>bandgap</strong> – If set, the energy values are scissored so that the electronic
+band gap matches this value.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="method">
+<dt id="pymatgen.electronic_structure.dos.FermiDos.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#FermiDos.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.FermiDos.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Json-serializable dict representation of Dos.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.electronic_structure.dos.FermiDos.from_dict">
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#FermiDos.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.FermiDos.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Dos object from dict representation of Dos.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.electronic_structure.dos.FermiDos.get_doping">
-<code class="descname">get_doping</code><span class="sig-paren">(</span><em>fermi</em>, <em>T</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#FermiDos.get_doping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.FermiDos.get_doping" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the doping (majority carrier concentration) at a given fermi
-level and temperature. A simple Left Riemann sum is used for integrating
-the density of states over energy &amp; equilibrium Fermi-Dirac distribution</p>
+<code class="descname">get_doping</code><span class="sig-paren">(</span><em>fermi_level: float</em>, <em>temperature: float</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#FermiDos.get_doping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.FermiDos.get_doping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the doping (majority carrier concentration) at a given
+fermi level  and temperature. A simple Left Riemann sum is used for
+integrating the density of states over energy &amp; equilibrium Fermi-Dirac
+distribution.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>fermi</strong> (<em>float</em>) – the fermi level in eV</p></li>
-<li><p><strong>T</strong> (<em>float</em>) – the temperature in Kelvin</p></li>
+<li><p><strong>fermi_level</strong> – The fermi_level level in eV.</p></li>
+<li><p><strong>temperature</strong> – The temperature in Kelvin.</p></li>
 </ul>
 </dd>
-</dl>
-<dl class="simple">
-<dt>Returns (float): in units 1/cm3. If negative it means that the majority</dt><dd><p>carriers are electrons (n-type doping) and if positive holes/p-type</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The doping concentration in units of 1/cm^3. Negative values
+indicate that the majority carriers are electrons (n-type doping)
+whereas positivie values indicates the majority carriers are holes
+(p-type doping).</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.dos.FermiDos.get_fermi">
-<code class="descname">get_fermi</code><span class="sig-paren">(</span><em>c</em>, <em>T</em>, <em>rtol=0.01</em>, <em>nstep=50</em>, <em>step=0.1</em>, <em>precision=8</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#FermiDos.get_fermi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.FermiDos.get_fermi" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_fermi</code><span class="sig-paren">(</span><em>concentration: float</em>, <em>temperature: float</em>, <em>rtol: float = 0.01</em>, <em>nstep: int = 50</em>, <em>step: float = 0.1</em>, <em>precision: int = 8</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#FermiDos.get_fermi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.FermiDos.get_fermi" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds the fermi level at which the doping concentration at the given
-temperature (T) is equal to c. A greedy algorithm is used where the
-relative error is minimized by calculating the doping at a grid which
-is continuously become finer.</p>
+temperature (T) is equal to concentration. A greedy algorithm is used
+where the relative error is minimized by calculating the doping at a
+grid which continually becomes finer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>c</strong> (<em>float</em>) – doping concentration. c&lt;0 represents n-type doping and
-c&gt;0 represents p-type doping (i.e. majority carriers are holes)</p></li>
-<li><p><strong>T</strong> (<em>float</em>) – absolute temperature in Kelvin</p></li>
-<li><p><strong>rtol</strong> (<em>float</em>) – maximum acceptable relative error</p></li>
-<li><p><strong>nstep</strong> (<em>int</em>) – number of steps checked around a given fermi level</p></li>
-<li><p><strong>step</strong> (<em>float</em>) – initial step in fermi level when searching</p></li>
-<li><p><strong>precision</strong> (<em>int</em>) – essentially the decimal places of calculated fermi</p></li>
+<li><p><strong>concentration</strong> – The doping concentration in 1/cm^3. Negative values
+represent n-type doping and positive values represent p-type
+doping.</p></li>
+<li><p><strong>temperature</strong> – The temperature in Kelvin.</p></li>
+<li><p><strong>rtol</strong> – The maximum acceptable relative error.</p></li>
+<li><p><strong>nstep</strong> – THe number of steps checked around a given fermi level.</p></li>
+<li><p><strong>step</strong> – Initial step in energy when searching for the Fermi level.</p></li>
+<li><p><strong>precision</strong> – Essentially the decimal places of calculated Fermi level.</p></li>
 </ul>
 </dd>
-</dl>
-<dl class="simple">
-<dt>Returns (float): the fermi level. Note that this is different from the</dt><dd><p>default dos.efermi.</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The fermi level in eV.. Note that this is different from the default
+dos.efermi.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.dos.FermiDos.get_fermi_interextrapolated">
-<code class="descname">get_fermi_interextrapolated</code><span class="sig-paren">(</span><em>c</em>, <em>T</em>, <em>warn=True</em>, <em>c_ref=10000000000.0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#FermiDos.get_fermi_interextrapolated"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.FermiDos.get_fermi_interextrapolated" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_fermi_interextrapolated</code><span class="sig-paren">(</span><em>concentration: float</em>, <em>temperature: float</em>, <em>warn: bool = True</em>, <em>c_ref: float = 10000000000.0</em>, <em>**kwargs</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#FermiDos.get_fermi_interextrapolated"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.FermiDos.get_fermi_interextrapolated" title="Permalink to this definition">¶</a></dt>
 <dd><p>Similar to get_fermi except that when get_fermi fails to converge,
-an interpolated or extrapolated fermi (depending on c) is returned with
-the assumption that the fermi level changes linearly with log(abs(c)).</p>
+an interpolated or extrapolated fermi is returned with the assumption
+that the fermi level changes linearly with log(abs(concentration)).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>c</strong> (<em>float</em>) – doping concentration in 1/cm3. c&lt;0 represents n-type
-doping and c&gt;0 p-type doping (i.e. majority carriers are holes)</p></li>
-<li><p><strong>T</strong> (<em>float</em>) – absolute temperature in Kelvin</p></li>
-<li><p><strong>warn</strong> (<em>bool</em>) – whether to warn for the first time when no fermi can
-be found.</p></li>
-<li><p><strong>c_ref</strong> (<em>float</em>) – a doping concentration where get_fermi returns a
-value without error for both c_ref and -c_ref</p></li>
-<li><p><strong>**kwargs</strong> – see keyword arguments of the get_fermi function</p></li>
+<li><p><strong>concentration</strong> – The doping concentration in 1/cm^3. Negative values
+represent n-type doping and positive values represent p-type
+doping.</p></li>
+<li><p><strong>temperature</strong> – The temperature in Kelvin.</p></li>
+<li><p><strong>warn</strong> – Whether to give a warning the first time the fermi cannot be
+found.</p></li>
+<li><p><strong>c_ref</strong> – A doping concentration where get_fermi returns a
+value without error for both c_ref and -c_ref.</p></li>
+<li><p><strong>**kwargs</strong> – Keyword arguments passed to the get_fermi function.</p></li>
 </ul>
 </dd>
-</dl>
-<dl class="simple">
-<dt>Returns (float): the fermi level that is possibly interapolated or</dt><dd><p>extrapolated and must be used with caution.</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The Fermi level. Note, the value is possibly interpolated or
+extrapolated and must be used with caution.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -697,7 +716,7 @@ For example, if 3s and 4s are included in the basis of some element, they will b
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.2 documentation</a> &#187;</li> 
       </ul>
     </div>
 

@@ -14,7 +14,7 @@ import unittest
 
 from pymatgen.util.string import formula_double_format, latexify, \
     latexify_spacegroup, transformation_to_string, htmlify, unicodeify, \
-    disordered_formula
+    disordered_formula, unicodeify_spacegroup, unicodeify_species
 
 from pymatgen.core import Structure
 
@@ -41,6 +41,8 @@ class FuncTest(unittest.TestCase):
                          "Li₃Fe₂(PO₄)₃")
         self.assertRaises(ValueError, unicodeify,
                           "Li0.2Na0.8Cl")
+        self.assertEqual(unicodeify_species("O2+"), "O²⁺")
+        self.assertEqual(unicodeify_spacegroup("F-3m"), "F̅3m")
 
     def test_formula_double_format(self):
         self.assertEqual(formula_double_format(1.00), "")
