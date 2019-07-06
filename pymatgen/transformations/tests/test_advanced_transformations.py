@@ -655,16 +655,15 @@ class PerturbSitesTransformationTest(PymatgenTest):
         num_random_structures = len(random_structures)
         self.assertEqual(num_random_structures, num_displacements*structures_per_displacement_val)
 
-        original_coords = structure.cart_coords
-        new_coords1 = random_structures[0].cart_coords
-        new_coords2 = random_structures[-1].cart_coords
-        num_sites,_ = original_coords.shape
-        random_sites_idxs = np.random.randint(0, num_sites, size=round(num_sites/2))
-
+        nsites = structure.num_sites
+        random_sites_idxs = np.random.randint(0, nsites, size=round(nsites / 2))
+        original_sites = structure._sites
+        new_sites1 = random_structures[0]._sites
+        new_sites2 = random_structures[-1]._sites
         for random_site_idx in random_sites_idxs:
-            self.assertAlmostEqual(np.linalg.norm(original_coords[random_site_idx]-new_coords1[random_site_idx]),
+            self.assertAlmostEqual(original_sites[random_site_idx].distance(new_sites1[random_site_idx]),
                              min_displacement)
-            self.assertAlmostEqual(np.linalg.norm(original_coords[random_site_idx]-new_coords2[random_site_idx]),
+            self.assertAlmostEqual(original_sites[random_site_idx].distance(new_sites2[random_site_idx]),
                              max_displacement)
 
 

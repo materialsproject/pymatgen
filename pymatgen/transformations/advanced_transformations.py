@@ -1656,7 +1656,7 @@ class PerturbSitesTransformation(AbstractTransformation):
 
             # Perturb structure with the random displacements
             for i in range(len(structure._sites)):
-                structure.translate_sites([i], dr[i], frac_coords=False, to_unit_cell=False)
+                structure.translate_sites([i], dr[i], frac_coords=False, to_unit_cell=True)
             return structure
         else:
             raise AttributeError('Displacement entered is not a float.')
