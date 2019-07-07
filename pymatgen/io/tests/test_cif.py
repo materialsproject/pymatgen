@@ -873,8 +873,8 @@ loop_
             p = CifParser(f)
             s = p.get_structures()[0]
             self.assertEqual(str(s.composition), "N5+24")
-            self.assertIn("Some fractional co-ordinates rounded to ideal values to "
-                          "avoid finite precision errors.", p.warnings)
+            self.assertIn("Some fractional co-ordinates rounded to ideal "
+                          "values to avoid issues with finite precision.", p.warnings)
 
     def test_empty_deque(self):
         s = """data_1526655
