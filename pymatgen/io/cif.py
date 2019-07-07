@@ -558,7 +558,7 @@ class CifParser:
                             fracs_to_change[(label, idx)] = str(comparison_frac)
         if fracs_to_change:
             self.warnings.append("Some fractional co-ordinates rounded to ideal values to "
-                               "avoid finite precision errors.")
+                                 "avoid issues with finite precision.")
             for (label, idx), val in fracs_to_change.items():
                 data.data[label][idx] = val
 
