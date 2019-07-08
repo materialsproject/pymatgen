@@ -1618,9 +1618,9 @@ class PerturbSitesTransformation(AbstractTransformation):
         self.structures_per_disp = structures_per_displacement_distance
 
         if min_random_distance is not None:
-            self.floor_disp = float(min_random_distance)
+            self.min_random_distance = float(min_random_distance)
         else:
-            self.floor_disp = None
+            self.min_random_distance = None
 
         self.disps = np.linspace(min_displacement, max_displacement,
                                  num=num_displacements)
@@ -1695,7 +1695,7 @@ class PerturbSitesTransformation(AbstractTransformation):
                 perturbed_structure = structure.copy()
                 perturbed_structure = self._perturb_structure(perturbed_structure,
                                                               disp_val,
-                                                              self.floor_disp)
+                                                              self.min_random_distance)
                 perturbed_structures += [perturbed_structure]
         return perturbed_structures
 
