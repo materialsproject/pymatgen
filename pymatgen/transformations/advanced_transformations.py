@@ -1377,14 +1377,16 @@ class CubicSupercellTransformation(AbstractTransformation):
 
     def __init__(self, min_atoms=-np.Inf, max_atoms=np.Inf, num_nn_dists=5):
         """
-        Returns the transformation matrix of a Pymatgen structure into a suitable supercell for CSLD
+        Returns the transformation matrix of a Pymatgen structure into a
+        suitable supercell for CSLD
 
         Args:
             structure (Structure): input structure.
             max_atoms (int): maximum number of atoms allowed in the supercell
             min_atoms (int): minimum number of atoms allowed in the supercell
-            num_nn_dists (int): number of multiples of atomic nearest neighbor distances to
-                force all directions of the supercell to be at least as large
+            num_nn_dists (int): number of multiples of atomic nearest neighbor
+                distances to force all directions of the supercell to be at
+                least as large
         Returns:
             Supercell structure (Structure)
         """
@@ -1438,14 +1440,17 @@ class CubicSupercellTransformation(AbstractTransformation):
         """
         arr_rounded = np.around(arr)
 
-        # Zero rows in 'arr_rounded' make the array singular, so force zero rows to be nonzero
+        # Zero rows in 'arr_rounded' make the array singular,
+        #   so force zero rows to be nonzero
         if (~arr_rounded.any(axis=1)).any():  # Check for zero rows in T_rounded
-            zero_row_idxs = np.where(~arr_rounded.any(axis=1))[0]  # indices of zero rows
+            # indices of zero rows
+            zero_row_idxs = np.where(~arr_rounded.any(axis=1))[0]
+
             for zero_row_idx in zero_row_idxs: # loop over zero rows
                 zero_row = arr[zero_row_idx, :]
 
-                # Find the element of the zero row with the largest absolute magnitude in the original
-                # (non-rounded) array (i.e. 'arr')
+                # Find the element of the zero row with the largest absolute
+                #   magnitude in the original (non-rounded) array (i.e. 'arr')
                 col_idx_to_fix = np.where(np.absolute(zero_row) == np.amax(np.absolute(zero_row)))[0]
 
                 # Break ties for the largest absolute magnitude
@@ -1466,13 +1471,16 @@ class CubicSupercellTransformation(AbstractTransformation):
 
     def apply_transformation(self, structure):
         """
-        The algorithm solves for a transformation matrix that makes the supercell cubic. The matrix
-        must have integer entries, so entries are rounded (in such a way that forces the matrix to be
-        nonsingular). From the supercell resulting from this transformation matrix, vector projections
-        are used to determine the side length of the largest cube that can fit inside the supercell.
-        The algorithm will iteratively increase the size of the supercell until the largest inscribed
-        cube's side length is at least 'num_nn_dists' times the nearest neighbor distance and the
-        number of atoms in the supercell falls in the range ['min_atoms', 'max_atoms'].
+        The algorithm solves for a transformation matrix that makes the
+        supercell cubic. The matrix must have integer entries, so entries are
+        rounded (in such a way that forces the matrix to be nonsingular). From
+        the supercell resulting from this transformation matrix, vector
+        projections are used to determine the side length of the largest cube
+        that can fit inside the supercell. The algorithm will iteratively
+        increase the size of the supercell until the largest inscribed cube's
+        side length is at least 'num_nn_dists' times the nearest neighbor
+        distance and the number of atoms in the supercell falls in the range
+        ['min_atoms', 'max_atoms'].
 
         Returns:
             supercell (Structure)
@@ -1486,7 +1494,8 @@ class CubicSupercellTransformation(AbstractTransformation):
         if not structure:
             raise AttributeError('No structure was passed into gen_scaling_matrix()')
         else:
-            sc_not_found = True  # boolean indicating if a sufficiently large supercell has been created
+            # boolean for if a sufficiently large supercell has been created
+            sc_not_found = True
 
             # minimum distance any direction of the supercell must be as large as
             hard_sc_size_threshold = self.nn_dist * self.num_nn_cutoff
@@ -1540,9 +1549,11 @@ class CubicSupercellTransformation(AbstractTransformation):
                     # Increase threshold until proposed supercell meets requirements
                     target_sc_size += 0.1
                     if num_at > self.max_atoms:
-                        raise AttributeError('While trying to solve for the supercell, the max'
-                                             'number of atoms was exceeded. Try lowering the number'
-                                             'of nearest neighbor distances.')
+                        raise AttributeError('While trying to solve for the '
+                                             'supercell, the max number of atoms'
+                                             ' was exceeded. Try lowering the '
+                                             'number of nearest neighbor '
+                                             'distances.')
 
     @property
     def inverse(self):
@@ -1554,20 +1565,29 @@ class CubicSupercellTransformation(AbstractTransformation):
 
 class PerturbSitesTransformation(AbstractTransformation):
     """
-    Uses a structure, a min/max displacement, a number of unique displacement
-    values, and a number of supercells per unique displacement value
-    to generate a list of randomly perturbed supercells from a given
-    supercell. The total number of perturbed supercells will be the number
-    of unique displacement values times the number of supercells per unique
-    displacement value.
+    Generates supercells where the atoms have been displaced around their
+    ideal sites.
+
+    The algorithm is as follows:
+    - Generate a list of distances between min_displacement and
+      max_displacement.
+    - If floor_displacement is None, a structure is generated for each of
+      the displacement distances where all atoms are displaced in random
+      directions from their original locations by the displacement distance.
+    - If structures_per_displacement is greater than 1, multiple structures
+      per displacement distance will be generated.
+    - If floor_displacement is a number (float less than min_displacement),
+      for each displacement distance, the atoms will be perturbed in a random
+      direction and by a random amount sample uniformly between
+      floor_displacement and the displacement distance.
     """
 
     def __init__(self,
                  max_displacement=0.30,
                  min_displacement=0.01,
                  num_displacements=10,
-                 structures_per_displacement=1,
-                 floor_displacement=None):
+                 structures_per_displacement_distance=1,
+                 min_random_distance=None):
         """
         Args:
             max_displacement (float): maximum displacement value for
@@ -1577,16 +1597,17 @@ class PerturbSitesTransformation(AbstractTransformation):
             num_displacements (int): number of unique displacement values to
                 try, uniformly distributed between 'min_displacement' and
                 'max_displacement'.
-            structures_per_displacement (int): number of perturbed structures to
-                generate for each unique displacement value.
+            structures_per_displacement_distance (int): number of perturbed
+                structures to generate for each unique displacement value.
 
-            floor_displacement (Optional float): If None (default), then for a
+            min_random_distance (Optional float): If None (default), then for a
                 given perturbed structure, all atoms will move the same distance
-                from their original locations. If float, then for a given perturbed
-                structure, the distances that atoms move will be uniformly distributed
-                from a minimum value of 'floor_displacement' to one of the displacement
-                values, 'displacement_val', as generated by 'min_displacement_val',
-                'max_displacement_val', and 'max_displacement'.
+                from their original locations. If float, then for a given
+                perturbed structure, the distances that atoms move will be
+                uniformly distributed from a minimum value of
+                'min_random_distance' to one of the displacement values, as
+                generated by 'min_displacement_val', 'max_displacement_val', and
+                'max_displacement'.
         Returns:
             List of randomly displaced structures (List of Structures)
         """
@@ -1594,14 +1615,15 @@ class PerturbSitesTransformation(AbstractTransformation):
         self.max_disp = max_displacement
         self.min_disp = min_displacement
         self.num_disps = num_displacements
-        self.structures_per_disp = structures_per_displacement
+        self.structures_per_disp = structures_per_displacement_distance
 
-        if floor_displacement is not None:
-            self.floor_disp = float(floor_displacement)
+        if min_random_distance is not None:
+            self.floor_disp = float(min_random_distance)
         else:
             self.floor_disp = None
 
-        self.disps = np.linspace(min_displacement, max_displacement, num=num_displacements)
+        self.disps = np.linspace(min_displacement, max_displacement,
+                                 num=num_displacements)
 
     def _random_displacements(self, natom, rmax, rmin):
         """
@@ -1633,7 +1655,8 @@ class PerturbSitesTransformation(AbstractTransformation):
         disp_dists = np.full(natom, rmax) if rmin is None else np.random.uniform(rmin, rmax, natom)
 
         if 0 not in dx_norms:
-            return dx * (disp_dists / dx_norms)[:, None] # Renormalize Gaussian vectors with 'disp_dists'
+            # Renormalize Gaussian vectors with 'disp_dists'
+            return dx * (disp_dists / dx_norms)[:, None]
         else:
             # Protect against dividing by 0
             self._random_displacements(natom, rmax, rmin)
@@ -1652,11 +1675,13 @@ class PerturbSitesTransformation(AbstractTransformation):
         na = structure.num_sites
         max_disp = float(max_disp)
         if isinstance(max_disp, float):
-            dr = self._random_displacements(na, max_disp, floor_disp) #generate random displacements
+            # generate random displacements
+            dr = self._random_displacements(na, max_disp, floor_disp)
 
             # Perturb structure with the random displacements
             for i in range(len(structure._sites)):
-                structure.translate_sites([i], dr[i], frac_coords=False, to_unit_cell=True)
+                structure.translate_sites([i], dr[i], frac_coords=False,
+                                          to_unit_cell=True)
             return structure
         else:
             raise AttributeError('Displacement entered is not a float.')
@@ -1668,7 +1693,9 @@ class PerturbSitesTransformation(AbstractTransformation):
         for disp_val in self.disps:
             for cell in range(self.structures_per_disp):
                 perturbed_structure = structure.copy()
-                perturbed_structure = self._perturb_structure(perturbed_structure, disp_val, self.floor_disp)
+                perturbed_structure = self._perturb_structure(perturbed_structure,
+                                                              disp_val,
+                                                              self.floor_disp)
                 perturbed_structures += [perturbed_structure]
         return perturbed_structures
 
