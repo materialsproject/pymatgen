@@ -27,10 +27,10 @@ class Control:
     """
 
     def __init__(self,
-                 alloc_dict={},
-                 crystal_dict={},
-                 params_dict={},
-                 flags_dict={}):
+                 alloc_dict=None,
+                 crystal_dict=None,
+                 params_dict=None,
+                 flags_dict=None):
         """
         Args:
             alloc_dict (dict): ShengBTE 'allocations' parameters
@@ -45,7 +45,8 @@ class Control:
             'ngrid': None,
             'norientations': 0,
         }
-        self.alloc_dict.update(alloc_dict)
+        if alloc_dict:
+            self.alloc_dict.update(alloc_dict)
 
         self.crystal_dict = {
             'lfactor': 0.1,
@@ -60,7 +61,8 @@ class Control:
             'scell': None, #required
             'orientations': None
         }
-        self.crystal_dict.update(crystal_dict)
+        if crystal_dict:
+            self.crystal_dict.update(crystal_dict)
 
         self.params_dict = {
             'T': 300, #required
@@ -76,7 +78,8 @@ class Control:
             'nticks': None,
             'eps': None
         }
-        self.params_dict.update(params_dict)
+        if params_dict:
+            self.params_dict.update(params_dict)
 
         self.flags_dict = {
             'nonanalytic': None,
@@ -87,7 +90,8 @@ class Control:
             'onlyharmonic': None,
             'espresso': None
         }
-        self.flags_dict.update(flags_dict)
+        if flags_dict:
+            self.flags_dict.update(flags_dict)
 
         def check_required_params():
             """
