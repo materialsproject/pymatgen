@@ -1,11 +1,15 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License
+import warnings
 
+from monty.dev import requires
+from monty.json import MSONable
 
-import f90nml
-import numpy as np
-import re
+try:
+    import f90nml
+except:
+    f90nml = None
 
 """
 This module defines IO ShengBTE for reading, updating, and writing the
@@ -19,118 +23,51 @@ __email__ = "rc564@cornell.edu"
 __date__ = "June 27, 2019"
 
 
-class Control:
+class Control(dict, MSONable):
 
     """
     Class for reading, updating, and writing ShengBTE CONTROL files.
-    Currently only supports ShengBTE options relevant to CSLD.
     """
 
-    def __init__(self,
-                 alloc_dict=None,
-                 crystal_dict=None,
-                 params_dict=None,
-                 flags_dict=None):
+    required_params = ["lattvec", "types", "elements", "positions", "scell",
+                       "t", "scalebroad"]
+    allocations_keys = ["nelements", "natoms", "ngrid", "norientations"]
+    crystal_keys = ["lfactor", "lattvec", "types", "elements", "positions",
+                    "masses", "gfactors", "epsilon", "born", "scell",
+                    "orientations"]
+    params_keys = ["t", "t_min", "t_max", "t_step", "omega_max", "scalebroad",
+                   "rmin", "rmax", "dr", "maxiter", "nticks", "eps"]
+    flags_keys = ["nonanalytic", "convergence", "isotopes", "autoisotopes",
+                  "nanowires", "onlyharmonic", "espresso"]
+
+    @requires(f90nml,
+              "ShengBTE Control object requires f90nml to be installed. " \
+              "Please get it at https://pypi.org/project/f90nml.")
+    def __init__(self, ngrid=None, lfactor=0.1,
+                 scalebroad=0.5, t=500, **kwargs):
         """
+        See  https://bitbucket.org/sousaw/shengbte/src/master/ for more
+        detailed description of CONTROL arguments.
+
         Args:
-            alloc_dict (dict): ShengBTE 'allocations' parameters
-            crystal_dict (dict): ShengBTE 'crystal' parameters
-            params_dict (dict): ShengBTE 'parameters' parameters
-            flags_dict (dict): ShengBTE 'flags' parameters
+            ngrid (size 3 list):
+            lfactor (float):
+            scell (size 3 list):
+            scalebroad (float):
+            t (int): Temperature (Kelvin)
+            **kwargs: Other ShengBTE parameters.
         """
+        if ngrid is None:
+            ngrid = [25, 25, 25]
 
-        self.alloc_dict = {
-            'nelements': None,
-            'natoms': None,
-            'ngrid': None,
-            'norientations': 0,
-        }
-        if alloc_dict:
-            self.alloc_dict.update(alloc_dict)
+        self["ngrid"] = ngrid
+        self["lfactor"] = lfactor
+        self["scalebroad"] = scalebroad
+        self["t"] = t
+        self.update(kwargs)
 
-        self.crystal_dict = {
-            'lfactor': 0.1,
-            'lattvec': None, #required
-            'types': None, #required
-            'elements': None, #required
-            'positions': None, #required
-            'masses': None,
-            'gfactors': None,
-            'epsilon': None,
-            'born': None,
-            'scell': None, #required
-            'orientations': None
-        }
-        if crystal_dict:
-            self.crystal_dict.update(crystal_dict)
-
-        self.params_dict = {
-            'T': 300, #required
-            'T_min': None,
-            'T_max': None,
-            'T_step': None,
-            'omega_max': None,
-            'scalebroad': 0.5, #required
-            'rmin': None,
-            'rmax': None,
-            'dr': None,
-            'maxiter': None,
-            'nticks': None,
-            'eps': None
-        }
-        if params_dict:
-            self.params_dict.update(params_dict)
-
-        self.flags_dict = {
-            'nonanalytic': None,
-            'convergence': None,
-            'isotopes': None,
-            'autoisotopes': None,
-            'nanowires': None,
-            'onlyharmonic': None,
-            'espresso': None
-        }
-        if flags_dict:
-            self.flags_dict.update(flags_dict)
-
-        def check_required_params():
-            """
-            Raise error if any required parameters are missing
-            """
-            required_params = {'crystal':
-                                   ['lattvec',
-                                    'types',
-                                    'elements',
-                                    'positions',
-                                    'scell'],
-                               'parameters':
-                                   ['T',
-                                    'scalebroad'],
-                               }
-            required_namelists = list(required_params.keys())
-            for required_namelist in required_namelists:
-                required_namelist_params = required_params[required_namelist]
-                for required_namelist_param in required_namelist_params:
-                    if required_namelist == 'allocations' and \
-                            self.alloc_dict[required_namelist_param] is None:
-                        raise AttributeError('Missing argument: {}>{}'.format(required_namelist,
-                                                                              required_namelist_param))
-                    elif required_namelist == 'crystal' and \
-                            self.crystal_dict[required_namelist_param] is None:
-                        raise AttributeError('Missing argument: {}>{}'.format(required_namelist,
-                                                                              required_namelist_param))
-                    elif required_namelist == 'parameters' and \
-                            self.params_dict[required_namelist_param] is None:
-                        raise AttributeError('Missing argument: {}>{}'.format(required_namelist,
-                                                                              required_namelist_param))
-                    elif required_namelist == 'flags' and \
-                            self.flags_dict[required_namelist_param] is None:
-                        raise AttributeError('Missing argument: {}>{}'.format(required_namelist,
-                                                                              required_namelist_param))
-        check_required_params()
-
-    @classmethod
-    def from_file(cls, filepath):
+    @staticmethod
+    def from_file(filepath):
         """
         Read a CONTROL namelist file and output a 'Control' object
 
@@ -142,25 +79,14 @@ class Control:
         """
         nml = f90nml.read(filepath)
         sdict = nml.todict()
-        if 't' in sdict['parameters']:
-            sdict['parameters']['T'] = sdict['parameters']['t']
-            del sdict['parameters']['t']
-        if 't_min' in sdict['parameters']:
-            sdict['parameters']['T_min'] = sdict['parameters']['t_min']
-            del sdict['parameters']['t_min']
-        if 't_max' in sdict['parameters']:
-            sdict['parameters']['T_max'] = sdict['parameters']['t_max']
-            del sdict['parameters']['t_max']
-        if 't_step' in sdict['parameters']:
-            sdict['parameters']['T_step'] = sdict['parameters']['t_step']
-            del sdict['parameters']['t_step']
 
-        alloc_dict = sdict['allocations']
-        crystal_dict = sdict['crystal']
-        params_dict = sdict['parameters']
-        flags_dict = sdict['flags']
+        all_dict = {}
+        all_dict.update(sdict["allocations"])
+        all_dict.update(sdict["crystal"])
+        all_dict.update(sdict["parameters"])
+        all_dict.update(sdict["flags"])
 
-        return cls(alloc_dict, crystal_dict, params_dict, flags_dict)
+        return Control(**all_dict)
 
     @classmethod
     def from_dict(cls, sdict):
@@ -173,182 +99,41 @@ class Control:
 
         Args:
             dict: A Python dictionary of ShengBTE input parameters.
-            filename: Filename to save the CONTROL file
         """
-
-        try:
-            alloc_dict = sdict['allocations']
-        except:
-            alloc_dict = {}
-        try:
-            crystal_dict = sdict['crystal']
-        except:
-            crystal_dict = {}
-        try:
-            params_dict = sdict['parameters']
-        except:
-            params_dict = {}
-        try:
-            flags_dict = sdict['flags']
-        except:
-            flags_dict = {}
-
-        return cls(alloc_dict, crystal_dict, params_dict, flags_dict)
+        return cls(**sdict)
 
     def to_file(self, filename):
         """
         Writes ShengBTE CONTROL file from 'Control' object
         """
-        positions = np.asarray(self.crystal_dict['positions'])
-        num_sites, _ = positions.shape
 
-        nelements = str(self.alloc_dict['nelements'])
-        natoms = str(self.alloc_dict['natoms'])
-        ngrid = self.alloc_dict['ngrid']
-        norientations = str(self.alloc_dict['norientations'])
+        for param in self.required_params:
+            if param not in self.as_dict():
+                warnings.warn(
+                    "Required parameter '{}' not specified!".format(param))
 
-        lfactor = str(self.crystal_dict['lfactor'])
-        lattvec1 = self.crystal_dict['lattvec'][0]
-        lattvec2 = self.crystal_dict['lattvec'][1]
-        lattvec3 = self.crystal_dict['lattvec'][2]
-        elements = self.crystal_dict['elements']
-        types = self.crystal_dict['types']
-        scell = self.crystal_dict['scell']
-        # new from here
-        if self.crystal_dict['epsilon'] is not None:
-            epsilon1 = self.crystal_dict['epsilon'][0]
-            epsilon2 = self.crystal_dict['epsilon'][1]
-            epsilon3 = self.crystal_dict['epsilon'][2]
-        else:
-            epsilon1 = np.full(3, None)
-            epsilon2 = np.full(3, None)
-            epsilon3 = np.full(3, None)
-        if self.crystal_dict['born'] is not None:
-            born = np.asarray(self.crystal_dict['born'])
-        else:
-            born = np.full((num_sites, 3, 3), None)
-        orientations = np.asarray(self.crystal_dict['orientations'])
+        alloc_dict = {k: self[k] for k in self.allocations_keys
+                      if k in self and self[k] is not None}
+        alloc_nml = f90nml.Namelist({"allocations": alloc_dict})
+        control_str = str(alloc_nml) + "\n"
 
-        temperature = str(int(self.params_dict['T']))
-        scalebroad = str(self.params_dict['scalebroad'])
-        t_min = str(self.params_dict['T_min'])
-        t_max = str(self.params_dict['T_max'])
-        t_step = str(self.params_dict['T_step'])
-        omega_max = str(self.params_dict['omega_max'])
-        rmin = str(self.params_dict['rmin'])
-        rmax = str(self.params_dict['rmax'])
-        dr = str(self.params_dict['dr'])
-        maxiter = str(self.params_dict['maxiter'])
-        nticks = str(self.params_dict['nticks'])
-        eps = str(self.params_dict['eps'])
+        crystal_dict = {k: self[k] for k in self.crystal_keys
+                      if k in self and self[k] is not None}
+        crystal_nml = f90nml.Namelist({"crystal": crystal_dict})
+        control_str += str(crystal_nml) + "\n"
 
-        onlyharmonic = self.flags_dict['onlyharmonic']
-        isotopes = self.flags_dict['isotopes']
-        nonanalytic = self.flags_dict['nonanalytic']
-        nanowires = self.flags_dict['nanowires']
-        convergence = self.flags_dict['convergence']
-        autoisotopes = self.flags_dict['autoisotopes']
-        espresso = self.flags_dict['espresso']
+        params_dict = {k: self[k] for k in self.params_keys
+                      if k in self and self[k] is not None}
+        params_nml = f90nml.Namelist({"params": params_dict})
+        control_str += str(params_nml) + "\n"
 
-        def boolean_to_string(boolean):
-            if boolean is not None:
-                if boolean is True:
-                    return '.TRUE.'
-                else:
-                    return '.FALSE.'
-            else:
-                return 'None'
+        flags_dict = {k: self[k] for k in self.flags_keys
+                      if k in self and self[k] is not None}
+        flags_nml = f90nml.Namelist({"flags": flags_dict})
+        control_str += str(flags_nml)
 
-        #Write strings for types, positions, and born
-        indent = '        '
-        types_string = 'types='
-        positions_string = ''
-        born_string = ''
-        for line in range(num_sites):
-            if line != num_sites-1:
-                types_string += str(types[line])+' '
-            else:
-                types_string += str(types[line])+',\n'
+        with open(filename, "w") as file:
+            file.write(control_str)
 
-            positions_string += indent+'positions(:,' + str(line+1) + ')=' + str(positions[line,0]) + '  ' \
-                                + str(positions[line,1]) + '  ' + str(positions[line,2]) + ',\n'
-
-            for i in range(3):
-                born_string += indent+'born(:,'+str(i+1)+','+str(line+1)+')='+str(born[line][i][0])+' '\
-                               +str(born[line][i][1])+' '+str(born[line][i][2])+',\n'
-
-        #Write string for orientations
-        num_orientations = self.alloc_dict['norientations']
-        orientations_string = ''
-        for o in range(num_orientations):
-            if o != num_orientations-1:
-                orientations_string += indent+'orientations(:,'+str(o+1)+')='+str(orientations[o][0])+' '+\
-                                       str(orientations[o][1])+' '+str(orientations[o][2])+',\n'
-            else:
-                orientations_string += indent + 'orientations(:,' + str(o + 1) + ')=' + str(orientations[o][0]) + ' ' + \
-                                       str(orientations[o][1]) + ' ' + str(orientations[o][2]) + '\n'
-
-        #masses, gfactors
-
-
-        full_string = '&allocations\n'+indent+'nelements='+nelements+',\n'
-        full_string += indent+'natoms='+natoms+',\n'
-        full_string += indent+'ngrid(:)='+str(ngrid[0])+' '+str(ngrid[1])+' '+str(ngrid[2])+'\n'
-        full_string += indent+'norientations='+norientations+'\n'
-
-        full_string += '&end\n&crystal\n'
-        full_string += indent+'lfactor='+lfactor+',\n'
-        full_string += indent+'lattvec(:,1)='+str(lattvec1[0])+'  '+str(lattvec1[1])+'  '+str(lattvec1[2])+',\n'
-        full_string += indent+'lattvec(:,2)='+str(lattvec2[0])+'  '+str(lattvec2[1])+'  '+str(lattvec2[2])+',\n'
-        full_string += indent+'lattvec(:,3)='+str(lattvec3[0])+'  '+str(lattvec3[1])+'  '+str(lattvec3[2])+',\n'
-        full_string += indent+'elements='
-        if isinstance(elements, list):
-            for i in range(len(elements)):
-                full_string += '\"'+elements[i]+str('\"')
-                if i != (len(elements)-1):
-                    full_string += ' '
-                else:
-                    full_string += '\n'
-        else:
-            full_string += '\"'+elements+str('\"\n')
-        full_string += indent+types_string
-        full_string += positions_string
-        full_string += indent+'epsilon(:,1)='+str(epsilon1[0])+' '+str(epsilon1[1])+' '+str(epsilon1[2])+',\n'
-        full_string += indent+'epsilon(:,2)='+str(epsilon2[0])+' '+str(epsilon2[1])+' '+str(epsilon2[2])+',\n'
-        full_string += indent+'epsilon(:,3)='+str(epsilon3[0])+' '+str(epsilon3[1])+' '+str(epsilon3[2])+',\n'
-        full_string += born_string
-        full_string += indent+'scell(:)='+str(scell[0])+' '+str(scell[1])+' '+str(scell[2])+'\n'
-        full_string += orientations_string
-
-        full_string += '&end\n&parameters\n'
-        full_string += indent+'T='+temperature+'\n'
-        full_string += indent+'scalebroad='+scalebroad+'\n'
-        full_string += indent+'T_min='+t_min+'\n'
-        full_string += indent+'T_max='+t_max+'\n'
-        full_string += indent+'T_step='+t_step+'\n'
-        full_string += indent+'omega_max='+omega_max+'\n'
-        full_string += indent+'rmin='+rmin+'\n'
-        full_string += indent+'rmax='+rmax+'\n'
-        full_string += indent+'dr='+dr+'\n'
-        full_string += indent+'maxiter='+maxiter+'\n'
-        full_string += indent+'nticks='+nticks+'\n'
-        full_string += indent+'eps='+eps+'\n'
-
-        full_string += '&end\n&flags\n'
-        full_string += indent+'isotopes='+boolean_to_string(isotopes)+'\n'
-        full_string += indent+'onlyharmonic='+boolean_to_string(onlyharmonic)+'\n'
-        full_string += indent+'nonanalytic='+boolean_to_string(nonanalytic)+'\n'
-        full_string += indent+'nanowires='+boolean_to_string(nanowires)+'\n'
-        full_string += indent + 'convergence=' + boolean_to_string(convergence) + '\n'
-        full_string += indent + 'autoisotopes=' + boolean_to_string(autoisotopes) + '\n'
-        full_string += indent + 'espresso=' + boolean_to_string(espresso) + '\n'
-        full_string += '&end'
-
-        def remove_substring(substring, string):
-            #Removes lines from 'string' containing 'substring'
-            return re.sub('.*'+substring+'.*\n?', '', string)
-
-        full_string = remove_substring('None', full_string)
-        file = open(filename, 'w+')
-        file.write(full_string)
-        file.close()
+    def as_dict(self):
+        return dict(self)

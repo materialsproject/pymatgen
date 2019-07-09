@@ -47,34 +47,30 @@ class TestShengBTE(PymatgenTest):
 
     def test_from_file(self):
         io = Control.from_file(self.filename)
-        self.assertIsInstance(io.alloc_dict, dict)
-        self.assertIsInstance(io.crystal_dict, dict)
-        self.assertIsInstance(io.params_dict, dict)
-        self.assertIsInstance(io.flags_dict, dict)
-        self.assertEqual(io.alloc_dict['nelements'], 1)
-        self.assertEqual(io.alloc_dict['natoms'], 2)
-        self.assertArrayEqual(io.alloc_dict['ngrid'], [25, 25, 25])
-        self.assertEqual(io.alloc_dict['norientations'], 0)
-        self.assertEqual(io.crystal_dict['lfactor'], 0.1)
-        self.assertEqual(io.crystal_dict['lattvec'][0], [0.0, 2.734363999, 2.734363999])
-        self.assertEqual(io.crystal_dict['lattvec'][1], [2.734363999, 0.0, 2.734363999])
-        self.assertEqual(io.crystal_dict['lattvec'][2], [2.734363999, 2.734363999, 0.0])
-        self.assertIsInstance(io.crystal_dict['elements'], (list, str))
-        if isinstance(io.crystal_dict['elements'], list):
-            all_strings = all(isinstance(item, str) for item in io.crystal_dict['elements'])
+        self.assertEqual(io['nelements'], 1)
+        self.assertEqual(io['natoms'], 2)
+        self.assertArrayEqual(io['ngrid'], [25, 25, 25])
+        self.assertEqual(io['norientations'], 0)
+        self.assertEqual(io['lfactor'], 0.1)
+        self.assertEqual(io['lattvec'][0], [0.0, 2.734363999, 2.734363999])
+        self.assertEqual(io['lattvec'][1], [2.734363999, 0.0, 2.734363999])
+        self.assertEqual(io['lattvec'][2], [2.734363999, 2.734363999, 0.0])
+        self.assertIsInstance(io['elements'], (list, str))
+        if isinstance(io['elements'], list):
+            all_strings = all(isinstance(item, str) for item in io['elements'])
             self.assertTrue(all_strings)
-        self.assertIsInstance(io.crystal_dict['types'], (list, int))
-        if isinstance(io.crystal_dict['types'], list):
-            all_ints = all(isinstance(item, int) for item in io.crystal_dict['types'])
+        self.assertIsInstance(io['types'], (list, int))
+        if isinstance(io['types'], list):
+            all_ints = all(isinstance(item, int) for item in io['types'])
             self.assertTrue(all_ints)
-        self.assertArrayEqual(io.crystal_dict['positions'], [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25]])
-        self.assertArrayEqual(io.crystal_dict['scell'], [5, 5, 5])
-        self.assertEqual(io.params_dict['T'], 500)
-        self.assertEqual(io.params_dict['scalebroad'], 0.5)
-        self.assertFalse(io.flags_dict['isotopes'])
-        self.assertFalse(io.flags_dict['onlyharmonic'])
-        self.assertFalse(io.flags_dict['nonanalytic'])
-        self.assertFalse(io.flags_dict['nanowires'])
+        self.assertArrayEqual(io['positions'], [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25]])
+        self.assertArrayEqual(io['scell'], [5, 5, 5])
+        self.assertEqual(io['T'], 500)
+        self.assertEqual(io['scalebroad'], 0.5)
+        self.assertFalse(io['isotopes'])
+        self.assertFalse(io['onlyharmonic'])
+        self.assertFalse(io['nonanalytic'])
+        self.assertFalse(io['nanowires'])
 
         if os.path.exists(os.path.join(test_dir,'test_control')):
             os.remove(os.path.join(test_dir,'test_control'))
@@ -98,5 +94,12 @@ class TestShengBTE(PymatgenTest):
             reference_string = reference_file.read()
         self.assertMultiLineEqual(test_string, reference_string)
         os.remove(os.path.join(test_dir, 'test_control'))
+
+    def test_MSONable_implementation(self):
+        # tests as dict and from dict methods
+        Controlinfromfile = Control.from_file(self.filename)
+        newControlin = Control.from_dict(Controlinfromfile.as_dict())
+        self.assertDictEqual(newControlin, Controlinfromfile)
+        newControlin.to_json()
 
 
