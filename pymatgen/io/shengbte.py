@@ -82,8 +82,8 @@ class Control(dict, MSONable):
         self["t"] = t
         self.update(kwargs)
 
-    @staticmethod
-    def from_file(filepath):
+    @classmethod
+    def from_file(cls, filepath):
         """
         Read a CONTROL namelist file and output a 'Control' object
 
@@ -102,7 +102,7 @@ class Control(dict, MSONable):
         all_dict.update(sdict["parameters"])
         all_dict.update(sdict["flags"])
 
-        return Control(**all_dict)
+        return cls.from_dict(all_dict)
 
     @classmethod
     def from_dict(cls, sdict):
