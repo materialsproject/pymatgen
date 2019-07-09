@@ -1661,9 +1661,8 @@ class PerturbSitesTransformation(AbstractTransformation):
             self._random_displacements(natom, rmax, rmin)
 
     def _perturb_structure(self, structure, max_disp, floor_disp):
-        # *** Adapted from CSLD's 'polaron_main' file
-
         """
+        *** Adapted from CSLD's 'polaron_main' file
         All atoms move in a random direction (with each coordinate sampled
         from the Normal distribution - see '_random_displacements()').
         If 'floor_disp' is None, all atoms will move a distance of 'max_disp'.
