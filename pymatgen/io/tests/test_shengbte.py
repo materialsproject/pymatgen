@@ -21,28 +21,24 @@ class TestShengBTE(PymatgenTest):
     def setUp(self):
         self.filename = os.path.join(test_dir, "CONTROL-CSLD_Si")
         self.test_dict = {
-            'allocations':
-                {'nelements': 1,
-                 'natoms': 2,
-                 'ngrid': [25, 25, 25],
-                 'norientations': 0},
-            'crystal':
-                {'lfactor': 0.1,
-                 'lattvec': [[0.0, 2.734363999, 2.734363999],
-                             [2.734363999, 0.0, 2.734363999],
-                             [2.734363999, 2.734363999, 0.0]],
-                 'elements': 'Si',
-                 'types': [1, 1],
-                 'positions': [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25]],
-                 'scell': [5, 5, 5]},
-            'parameters':
-                {'T': 500,
-                 'scalebroad': 0.5},
-            'flags':
-                {'isotopes': False,
-                 'onlyharmonic': False,
-                 'nonanalytic': False,
-                 'nanowires': False}
+            'nelements': 1,
+            'natoms': 2,
+            'ngrid': [25, 25, 25],
+            'norientations': 0,
+            'lfactor': 0.1,
+            'lattvec': [[0.0, 2.734363999, 2.734363999],
+                        [2.734363999, 0.0, 2.734363999],
+                        [2.734363999, 2.734363999, 0.0]],
+            'elements': 'Si',
+            'types': [1, 1],
+            'positions': [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25]],
+            'scell': [5, 5, 5],
+            't': 500,
+            'scalebroad': 0.5,
+            'isotopes': False,
+            'onlyharmonic': False,
+            'nonanalytic': False,
+            'nanowires': False
         }
 
     def test_from_file(self):
@@ -65,7 +61,7 @@ class TestShengBTE(PymatgenTest):
             self.assertTrue(all_ints)
         self.assertArrayEqual(io['positions'], [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25]])
         self.assertArrayEqual(io['scell'], [5, 5, 5])
-        self.assertEqual(io['T'], 500)
+        self.assertEqual(io['t'], 500)
         self.assertEqual(io['scalebroad'], 0.5)
         self.assertFalse(io['isotopes'])
         self.assertFalse(io['onlyharmonic'])
