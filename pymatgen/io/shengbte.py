@@ -29,8 +29,8 @@ class Control(dict, MSONable):
     Class for reading, updating, and writing ShengBTE CONTROL files.
     """
 
-    required_params = ["lattvec", "types", "elements", "positions", "scell",
-                       "t", "scalebroad"]
+    required_params = ["nelements", "natoms", "ngrid", "lattvec", "types",
+                       "elements", "positions", "scell"]
     allocations_keys = ["nelements", "natoms", "ngrid", "norientations"]
     crystal_keys = ["lfactor", "lattvec", "types", "elements", "positions",
                     "masses", "gfactors", "epsilon", "born", "scell",
@@ -47,14 +47,22 @@ class Control(dict, MSONable):
                  scalebroad=0.5, t=500, **kwargs):
         """
         See  https://bitbucket.org/sousaw/shengbte/src/master/ for more
-        detailed description of CONTROL arguments.
+        detailed description and default values of CONTROL arguments.
 
         Args:
-            ngrid (size 3 list):
-            lfactor (float):
-            scell (size 3 list):
-            scalebroad (float):
-            t (int): Temperature (Kelvin)
+            nelements (int): number of different elements in the compound
+            natoms (int): number of atoms in the unit cell
+            ngrid (size 3 list): number of grid planes along each axis in
+                reciprocal space
+            lattvec (size 3x3 array): real-space lattice vectors, in units of
+                lfactor
+            types (size natom list): a vector of natom integers, ranging from 1
+                to nelements, assigning an element to each atom in the system
+            elements (size natom list): a vector of element names
+            positions (size natomx3 array): atomic positions in lattice
+                coordinates
+            scell (size 3 list): supercell sizes along each crystal axis used
+                for the 2nd-order force constant calculation
             **kwargs: Other ShengBTE parameters.
         """
         if ngrid is None:
