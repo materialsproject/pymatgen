@@ -41,7 +41,7 @@ class Control(dict, MSONable):
                   "nanowires", "onlyharmonic", "espresso"]
 
     @requires(f90nml,
-              "ShengBTE Control object requires f90nml to be installed. " \
+              "ShengBTE Control object requires f90nml to be installed. "
               "Please get it at https://pypi.org/project/f90nml.")
     def __init__(self, ngrid=None, lfactor=0.1,
                  scalebroad=0.5, t=300, **kwargs):
