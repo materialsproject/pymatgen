@@ -1377,8 +1377,13 @@ class CubicSupercellTransformation(AbstractTransformation):
 
     def __init__(self, min_atoms=-np.Inf, max_atoms=np.Inf, num_nn_dists=5):
         """
-        Returns the transformation matrix of a Pymatgen structure into a
-        suitable supercell for CSLD
+        Returns a supercell structure given a Pymatgen structure suitable for
+        Compressed Sensing Lattice Dynamics (CSLD). See papers below for details
+        on CSLD.
+
+        doi: 10.1103/PhysRevLett.113.185501
+        https://arxiv.org/abs/1805.08904
+        https://arxiv.org/abs/1805.08903
 
         Args:
             structure (Structure): input structure.
