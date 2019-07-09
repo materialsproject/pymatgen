@@ -15,7 +15,12 @@ test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 
+try:
+    import f90nml
+except ImportError:
+    f90nml = None
 
+@unittest.skipIf(not f90nml, "f90nml not present. Skipping...")
 class TestShengBTE(PymatgenTest):
 
     def setUp(self):
