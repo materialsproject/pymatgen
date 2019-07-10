@@ -100,6 +100,14 @@ class HeisenbergMapper:
                     if i != i_check and i_check not in remove_list and e == e_check:
                         remove_list.append(i_check)
 
+        # Also discard structures with small |magmoms| < 0.1 uB
+        for i, s in enumerate(ordered_structures):
+            magmoms = s.site_properties['magmom']
+            if i not in remove_list:
+                if any(abs(m) < 0.1 for m in magmoms):
+                    remove_list.append(i)
+
+        # Remove duplicates and low magmom structures
         if len(remove_list):
             ordered_structures = [
                 s for i, s in enumerate(ordered_structures) if i not in remove_list
@@ -521,7 +529,6 @@ class HeisenbergMapper:
         afm_struct = CollinearMagneticStructureAnalyzer(
             afm_struct, make_primitive=False, threshold=0.0
         ).get_structure_with_only_magnetic_atoms(make_primitive=False)
-
         return fm_struct, afm_struct, fm_e, afm_e
 
     def estimate_exchange(self, fm_struct=None, afm_struct=None, fm_e=None, afm_e=None):
@@ -556,8 +563,8 @@ class HeisenbergMapper:
         # If m_avg for FM config is < 1 we won't get sensibile results.
         if m_avg < 1:
             iamthedanger = """ 
-                Local magnetic moments are small (< 1 muB). The
-                exchange parameters will be wrong, but <J> and the mean
+                Local magnetic moments are small (< 1 muB / atom). The
+                exchange parameters may be wrong, but <J> and the mean
                 field critical temperature estimate may be OK. 
                 """
             logging.warning(iamthedanger)
