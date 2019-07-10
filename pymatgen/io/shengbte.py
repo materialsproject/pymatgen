@@ -24,9 +24,34 @@ __date__ = "June 27, 2019"
 
 
 class Control(dict, MSONable):
-
     """
     Class for reading, updating, and writing ShengBTE CONTROL files.
+    See  https://bitbucket.org/sousaw/shengbte/src/master/ for more
+    detailed description and default values of CONTROL arguments.
+
+    Args:
+        ngrid (size 3 list): number of grid planes along each axis in
+            reciprocal space
+        lfactor (float): unit of measurement for lattice vectors (nm)
+        scalebroad (float): scale parameter for Gaussian smearing. A value
+            of 1.0 is theoretically guaranteed to work, but significant
+            speedups can sometimes be achieved by reducing it with
+            negligible loss of precision.
+        t (int or float): temperature (Kelvin)
+        **kwargs: Other ShengBTE parameters. Several parameters are required
+            for ShengBTE to run - we have listed these parameters below:
+            - nelements (int): number of different elements in the compound
+            - natoms (int): number of atoms in the unit cell
+            - lattvec (size 3x3 array): real-space lattice vectors, in units
+              of lfactor
+            - types (size natom list): a vector of natom integers, ranging
+              from 1 to nelements, assigning an element to each atom in the
+              system
+            - elements (size natom list): a vector of element names
+            - positions (size natomx3 array): atomic positions in lattice
+              coordinates
+            - scell (size 3 list): supercell sizes along each crystal axis
+              used for the 2nd-order force constant calculation
     """
 
     required_params = ["nelements", "natoms", "ngrid", "lattvec", "types",
@@ -45,34 +70,6 @@ class Control(dict, MSONable):
               "Please get it at https://pypi.org/project/f90nml.")
     def __init__(self, ngrid=None, lfactor=0.1,
                  scalebroad=0.5, t=300, **kwargs):
-        """
-        See  https://bitbucket.org/sousaw/shengbte/src/master/ for more
-        detailed description and default values of CONTROL arguments.
-
-        Args:
-            ngrid (size 3 list): number of grid planes along each axis in
-                reciprocal space
-            lfactor (float): unit of measurement for lattice vectors (nm)
-            scalebroad (float): scale parameter for Gaussian smearing. A value
-                of 1.0 is theoretically guaranteed to work, but significant
-                speedups can sometimes be achieved by reducing it with
-                negligible loss of precision.
-            t (int or float): temperature (Kelvin)
-            **kwargs: Other ShengBTE parameters. Several parameters are required
-                for ShengBTE to run - we have listed these parameters below:
-                - nelements (int): number of different elements in the compound
-                - natoms (int): number of atoms in the unit cell
-                - lattvec (size 3x3 array): real-space lattice vectors, in units
-                  of lfactor
-                - types (size natom list): a vector of natom integers, ranging
-                  from 1 to nelements, assigning an element to each atom in the
-                  system
-                - elements (size natom list): a vector of element names
-                - positions (size natomx3 array): atomic positions in lattice
-                  coordinates
-                - scell (size 3 list): supercell sizes along each crystal axis
-                  used for the 2nd-order force constant calculation
-        """
         if ngrid is None:
             ngrid = [25, 25, 25]
 
@@ -118,7 +115,7 @@ class Control(dict, MSONable):
         """
         return cls(**sdict)
 
-    def to_file(self, filename):
+    def to_file(self, filename='CONTROL'):
         """
         Writes ShengBTE CONTROL file from 'Control' object
         """
@@ -127,7 +124,6 @@ class Control(dict, MSONable):
             if param not in self.as_dict():
                 warnings.warn(
                     "Required parameter '{}' not specified!".format(param))
-                raise AttributeError("param {} not specified".format(param))
 
         alloc_dict = {k: self[k] for k in self.allocations_keys
                       if k in self and self[k] is not None}
