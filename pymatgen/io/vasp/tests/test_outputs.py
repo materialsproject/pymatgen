@@ -276,6 +276,24 @@ class VasprunTest(PymatgenTest):
         self.assertAlmostEqual(34.186, vasprun_diel.dielectric[2][85][2])
         self.assertAlmostEqual(0.0, vasprun_diel.dielectric[2][85][3])
 
+    def test_dielectric_vasp608(self):
+        # test reading dielectric constant in vasp 6.0.8
+        vasprun_diel = Vasprun(
+            self.TEST_FILES_DIR / "vasprun.xml.dielectric_6.0.8",
+            parse_potcar_file=False)
+        self.assertAlmostEqual(0.4338, vasprun_diel.dielectric[0][10])
+        self.assertAlmostEqual(5.267, vasprun_diel.dielectric[1][51][0])
+        self.assertAlmostEqual(
+            0.4338, vasprun_diel.dielectric_data["density"][0][10])
+        self.assertAlmostEqual(
+            5.267, vasprun_diel.dielectric_data["density"][1][51][0])
+        self.assertAlmostEqual(
+            0.4338, vasprun_diel.dielectric_data["velocity"][0][10])
+        self.assertAlmostEqual(
+            1.0741, vasprun_diel.dielectric_data["velocity"][1][51][0])
+        self.assertEqual(len(vasprun_diel.other_dielectric), 0)
+
+
     def test_indirect_vasprun(self):
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.indirect.gz")
         (gap, cbm, vbm, direct) = v.eigenvalue_band_properties
