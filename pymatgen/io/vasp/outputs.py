@@ -448,20 +448,36 @@ class Vasprun(MSONable):
                     self.projected_eigenvalues = self._parse_projected_eigen(
                         elem)
                 elif tag == "dielectricfunction":
-                    if ("comment" not in elem.attrib) or \
-                            elem.attrib[
-                                "comment"] == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))":
-                        if not 'density' in self.dielectric_data:
-                            self.dielectric_data['density'] = self._parse_diel(elem)
-                            # "velocity-velocity" is also named "current-current"
-                            # in OUTCAR
-                        elif not 'velocity' in self.dielectric_data:
-                            self.dielectric_data['velocity'] = self._parse_diel(elem)
+                    if ("comment" not in elem.attrib or
+                            elem.attrib["comment"] ==
+                            "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including "
+                            "local field effects in RPA (Hartree))"):
+                        if 'density' not in self.dielectric_data:
+                            self.dielectric_data['density'] = self._parse_diel(
+                                elem)
+                        elif 'velocity' not in self.dielectric_data:
+                            # "velocity-velocity" is also named
+                            # "current-current" in OUTCAR
+                            self.dielectric_data['velocity'] = self._parse_diel(
+                                elem)
                         else:
-                            raise NotImplementedError('This vasprun.xml has >2 unlabelled dielectric functions')
+                            raise NotImplementedError(
+                                'This vasprun.xml has >2 unlabelled dielectric '
+                                'functions')
                     else:
                         comment = elem.attrib["comment"]
-                        self.other_dielectric[comment] = self._parse_diel(elem)
+                        # VASP 6+ has labels for the density and current
+                        # derived dielectric constants
+                        if comment == "density-density":
+                            self.dielectric_data["density"] = self._parse_diel(
+                                elem)
+                        elif comment == "current-current":
+                            self.dielectric_data["velocity"] = self._parse_diel(
+                                elem)
+                        else:
+                            self.other_dielectric[comment] = self._parse_diel(
+                                elem)
+
                 elif tag == "varray" and elem.attrib.get("name") == 'opticaltransitions':
                     self.optical_transition = np.array(_parse_varray(elem))
                 elif tag == "structure" and elem.attrib.get("name") == \
