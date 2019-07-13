@@ -76,49 +76,10 @@ class HeisenbergMapper:
         self.ordered_structures_ = ordered_structures
         self.energies_ = energies
 
-        # Get energies / supercell if needed
-        # energies = [e * len(s) for (e, s) in zip(energies, ordered_structures)]
-
-        # Get only magnetic ions & give all structures site_properties['magmom']
-        # zero threshold so that magnetic ions with small moments
-        # are preserved
-        ordered_structures = [
-            CollinearMagneticStructureAnalyzer(
-                s, make_primitive=False, threshold=0.0
-            ).get_structure_with_only_magnetic_atoms(make_primitive=False)
-            for s in ordered_structures
-        ]
-
-        # Check for duplicate / degenerate states (sometimes different initial
-        # configs relax to the same state)
-        remove_list = []
-        for i, e in enumerate(energies):
-            e = round(e, 6)  # 10^-6 eV tol on equal energies
-            if i not in remove_list:
-                for i_check, e_check in enumerate(energies):
-                    e_check = round(e_check, 6)
-                    if i != i_check and i_check not in remove_list and e == e_check:
-                        remove_list.append(i_check)
-
-        # Also discard structures with small |magmoms| < 0.1 uB
-        for i, s in enumerate(ordered_structures):
-            magmoms = s.site_properties['magmom']
-            if i not in remove_list:
-                if any(abs(m) < 0.1 for m in magmoms):
-                    remove_list.append(i)
-
-        # Remove duplicates and low magmom structures
-        if len(remove_list):
-            ordered_structures = [
-                s for i, s in enumerate(ordered_structures) if i not in remove_list
-            ]
-            energies = [e for i, e in enumerate(energies) if i not in remove_list]
-
-        # Sort by energy if not already sorted
-        ordered_structures = [
-            s for _, s in sorted(zip(energies, ordered_structures), reverse=False)
-        ]
-        energies = sorted(energies, reverse=False)
+        # Sanitize inputs and order them by energy / magnetic moments
+        hs = HeisenbergScreener(ordered_structures, energies)
+        ordered_structures = hs.screened_structures
+        energies = hs.screened_energies
 
         self.ordered_structures = ordered_structures
         self.energies = energies
@@ -723,3 +684,146 @@ class HeisenbergMapper:
             j_exc = self.ex_params["<J>"]
 
         return j_exc
+
+
+class HeisenbergScreener():
+    def __init__(self, structures, energies):
+        """Clean and screen magnetic orderings.
+
+        This class pre-processes magnetic orderings and energies for HeisenbergMapper. It prioritizes low-energy orderings with large and localized magnetic moments.
+
+        Args:
+            structures (list): Structure objects with magnetic moments.
+            energies (list): energies of magnetic orderings.
+
+        Attributes:
+            screened_structures (list): Sorted structures.
+            screened_energies (list): Sorted energies.
+
+        """
+
+        # Cleanup
+        structures, energies = self._do_cleanup(structures, energies)
+
+        n_structures = len(structures)
+
+        # If there are more than 2 structures, we want to perform a
+        # screening to prioritize well-behaved orderings
+        if n_structures > 2:
+            structures, energies = self._do_screen(structures, energies)
+
+        self.screened_structures = structures
+        self.screened_energies = energies
+
+
+    @staticmethod
+    def _do_cleanup(structures, energies):
+        """Sanitize input structures and energies.
+
+        Takes magnetic structures and performs the following operations
+        - Erases nonmagnetic ions and gives all ions ['magmom'] site prop
+        - Checks for duplicate/degenerate orderings
+        - Sorts by energy 
+
+        Args:
+            structures (list): Structure objects with magmoms.
+            energies (list): Corresponding energies.
+
+        Returns:
+            ordered_structures (list): Sanitized structures.
+            ordered_energies (list): Sorted energies.
+
+        """
+
+        # Get only magnetic ions & give all structures site_properties['magmom']
+        # zero threshold so that magnetic ions with small moments
+        # are preserved
+        ordered_structures = [
+            CollinearMagneticStructureAnalyzer(
+                s, make_primitive=False, threshold=0.0
+            ).get_structure_with_only_magnetic_atoms(make_primitive=False)
+            for s in structures
+        ]
+
+        # Check for duplicate / degenerate states (sometimes different initial
+        # configs relax to the same state)
+        remove_list = []
+        for i, e in enumerate(energies):
+            e_tol = 6  # 10^-4 eV tol on equal energies
+            e = round(e, e_tol)  
+            if i not in remove_list:
+                for i_check, e_check in enumerate(energies):
+                    e_check = round(e_check, e_tol)
+                    if i != i_check and i_check not in remove_list and e == e_check:
+                        remove_list.append(i_check)
+
+        # Also discard structures with small |magmoms| < 0.1 uB
+        # xx - get rid of these or just bury them in the list?
+        # for i, s in enumerate(ordered_structures):
+        #     magmoms = s.site_properties['magmom']
+        #     if i not in remove_list:
+        #         if any(abs(m) < 0.1 for m in magmoms):
+        #             remove_list.append(i)
+
+        # Remove duplicates
+        if len(remove_list):
+            ordered_structures = [
+                s for i, s in enumerate(ordered_structures) if i not in remove_list
+            ]
+            energies = [e for i, e in enumerate(energies) if i not in remove_list]
+
+        # Sort by energy if not already sorted
+        ordered_structures = [
+            s for _, s in sorted(zip(energies, ordered_structures), reverse=False)
+        ]
+        ordered_energies = sorted(energies, reverse=False)
+
+        return ordered_structures, ordered_energies
+
+    @staticmethod
+    def _do_screen(structures, energies):
+        """Screen and sort magnetic orderings based on some criteria.
+
+        Prioritize low energy orderings and large, localized magmoms. do_clean should be run first to sanitize inputs.
+
+        Args:
+            structures (list): At least three structure objects.
+            energies (list): Energies.
+
+        Returns:
+            screened_structures (list): Sorted structures.
+            screened_energies (list): Sorted energies.
+
+        """
+
+        magmoms = [s.site_properties['magmom'] for s in structures]
+        mean_mm = [np.mean([abs(m) for m in ms]) for ms in magmoms]
+        max_mm = [np.max([abs(m) for m in ms]) for ms in magmoms]
+        min_mm = [np.min([abs(m) for m in ms]) for ms in magmoms]
+        n_below_1ub = [len([m for m in ms if abs(m) < 1]) for ms in magmoms]
+
+        df = pd.DataFrame({'structure': structures, 'energy': energies, 'magmoms': magmoms, 'n_below_1ub': n_below_1ub})
+
+        # keep the ground and first excited state fixed to capture the
+        # low-energy spectrum
+        index = list(df.index)[2:]
+        df_high_energy = df.iloc[2:]
+
+        # Prioritize structures with fewer magmoms < 1 uB
+        df_high_energy = df_high_energy.sort_values(by='n_below_1ub')
+
+        index = [0, 1] + list(df_high_energy.index)
+
+        # sort
+        df = df.reindex(index)
+        screened_structures = list(df['structure'].values)
+        screened_energies = list(df['energy'].values)
+
+        return screened_structures, screened_energies
+
+
+
+
+
+
+

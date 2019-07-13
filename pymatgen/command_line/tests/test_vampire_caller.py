@@ -20,12 +20,6 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
 
 @unittest.skipIf(not which('vampire-serial'), "vampire executable not present")
 class VampireCallerTest(unittest.TestCase):
-    """Todo:
-        * Put json files of magnetic orderings and energies in
-        pymatgen/test_files with variable number of unique magnetic
-        sites, sublattices, FM, FiM, and AFM ground state, etc.
-        * Compare Tc calcs to known Tc
-    """
 
     @classmethod
     def setUpClass(cls):
@@ -34,8 +28,6 @@ class VampireCallerTest(unittest.TestCase):
 
         cls.Mn3Al = pd.read_json(os.path.join(test_dir,
             'Mn3Al.json'))
-
-        cls.LiMnPO4 = pd.read_json(os.path.join(test_dir, 'LiMnPO4.json'))
 
         cls.compounds = [cls.Mn3Al]
 
@@ -60,9 +52,11 @@ class VampireCallerTest(unittest.TestCase):
         for structs, energies in zip(self.structure_inputs, 
             self.energy_inputs):
             vc = vampirecaller.VampireCaller(structs, energies, 
-                mc_box_size=6.0,
+                mc_box_size=4.0,
                 equil_timesteps=2000, mc_timesteps=4000)
-            print('Critical temp: ', vc.output.critical_temp, ' K')
+            
+            critical_temp = vc.output.critical_temp
+            self.assertAlmostEqual(425, critical_temp, delta=100)
 
 if __name__ == '__main__':
     unittest.main()

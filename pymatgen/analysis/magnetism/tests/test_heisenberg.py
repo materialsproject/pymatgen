@@ -10,16 +10,11 @@ import pandas as pd
 
 from monty.serialization import loadfn
 
-import pymatgen.analysis.magnetism.heisenberg as heisenberg
+from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
 from pymatgen import Structure
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files', 'magnetic_orderings')
-
-"""
-References for computed exchange constants and Curie temps
-CoS2: https://iopscience.iop.org/article/10.1088/0953-8984/17/10/013/meta
-"""
 
 class HeisenbergMapperTest(unittest.TestCase):
 
@@ -27,26 +22,11 @@ class HeisenbergMapperTest(unittest.TestCase):
     def setUpClass(cls):
         cls.df = pd.read_json(os.path.join(test_dir, 'mag_orderings_test_cases.json'))
 
-        # xx - Magmoms all too small for sensible results
-        # CoS2 <J> is OK
-        cls.CoS2 = pd.read_json(os.path.join(test_dir, 'CoS2.json'))
-        cls.MnNi2Sn = pd.read_json(os.path.join(test_dir, 'MnNi2Sn.json'))
-        cls.MnSi = pd.read_json(os.path.join(test_dir, 'MnSi.json'))
-        cls.Cr2FeS4 = pd.read_json(os.path.join(test_dir, 'Cr2FeS4.json'))
-
         # Good tests
         cls.Mn3Al = pd.read_json(os.path.join(test_dir,
-            'Mn3Al.json'))
-        cls.NbFe2 = pd.read_json(os.path.join(test_dir, 'NbFe2.json'))
-        cls.LiMnPO4 = pd.read_json(os.path.join(test_dir, 'LiMnPO4.json'))
-        cls.Ta2CoO6 = pd.read_json(os.path.join(test_dir, 'Ta2CoO6.json'))
-        cls.Ni_SbO3_2 = pd.read_json(os.path.join(test_dir, 'Ni(SbO3)2.json'))
-        
+            'Mn3Al.json'))        
 
-        # cls.compounds = [cls.CoS2, cls.MnNi2Sn, cls.MnSi,
-        # cls.LiMnPO4, cls.Ta2CoO6, cls.Ni_SbO3_2]
-        cls.compounds = [cls.LiMnPO4]
-        # cls.compounds = [cls.CoS2]
+        cls.compounds = [cls.Mn3Al]
 
         cls.hms = []
         for c in cls.compounds:
@@ -55,7 +35,7 @@ class HeisenbergMapperTest(unittest.TestCase):
             epa = list(c['energy_per_atom'])
             energies = [e*len(s) for (e, s) in zip(epa, ordered_structures)]
 
-            hm = heisenberg.HeisenbergMapper(ordered_structures, energies, cutoff=7.5)
+            hm = HeisenbergMapper(ordered_structures, energies, cutoff=7.5, tol=0.02)
             cls.hms.append(hm)
 
     def setUp(self):
@@ -66,63 +46,42 @@ class HeisenbergMapperTest(unittest.TestCase):
 
     def test_graphs(self):
         for hm in self.hms:
-            print(hm.ordered_structures_[0].formula)
             sgraphs = hm.sgraphs
-            print('Num of graphs: %d' % (len(sgraphs)))
-            print(sgraphs[0].structure)
-        pass
+            self.assertEqual(len(sgraphs), 7)
 
     def test_sites(self):
         for hm in self.hms:
-            try:
-                unique_site_ids = hm.unique_site_ids
-                print('Unique sites: ' + str(unique_site_ids))
-            except:
-                pass
+            unique_site_ids = hm.unique_site_ids
+            self.assertEqual(unique_site_ids[(0, 1)], 0)
 
     def test_nn_interactions(self):
         for hm in self.hms:
-            try:
-                nn_interactions = hm.nn_interactions
-                print('NN interactions: ' + str(nn_interactions))
-                dists = hm.dists
-                print('NN distances: ' + str(dists))
-            except:
-                pass
+            num_interacts = len(hm.nn_interactions)
+            self.assertEqual(num_interacts, 3)
 
-    def test_exchange_matrix(self):
-        for hm in self.hms:
-            try:
-                ex_mat = hm.ex_mat
-                print('Ex mat: ')
-                # print(ex_mat)
-            except:
-                pass
+            dists = hm.dists
+            self.assertEqual(dists['nn'], 2.51)
 
     def test_exchange_params(self):
         for hm in self.hms:
-            try:
-                ex_params = hm.get_exchange()
-                print('Ex params: ' + str(ex_params))
-            except:
-                pass
+            ex_params = hm.get_exchange()
+            J_nn = round(101.01616118049606, 3)
+            self.assertEqual(round(ex_params['0-1-nn'], 3), J_nn)
 
     def test_mean_field(self):
         for hm in self.hms:
-            try:
-                j_avg = hm.estimate_exchange()
-                print('<J> ' + str(j_avg))
-                mft_t = hm.get_mft_temperature(j_avg)
-                print('MFT T: ' + str(mft_t))
-                print('\n')
-            except:
-                pass
+            j_avg = hm.estimate_exchange()
+            value = round(52.54997149705518, 3)
+            self.assertEqual(round(j_avg, 3), value)
+
+            mft_t = hm.get_mft_temperature(j_avg)
+            value = round(1031.1626039484843)
+            self.assertEqual(round(mft_t), value)
 
     def test_get_igraph(self):
         for hm in self.hms:
             igraph = hm.get_interaction_graph('igraph.json')
-            print('Interaction graph: ')
-            # print(igraph)
+            self.assertEqual(len(igraph), 6)
 
 if __name__ == '__main__':
     unittest.main()

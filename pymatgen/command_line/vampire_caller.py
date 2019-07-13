@@ -6,9 +6,11 @@ import subprocess
 import logging
 import numpy as np
 import pandas as pd
+import os
 
 from monty.dev import requires
 from monty.os.path import which
+from monty.tempfile import ScratchDir
 
 from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
 from pymatgen.analysis.magnetism.analyzer import CollinearMagneticStructureAnalyzer
@@ -51,6 +53,7 @@ class VampireCaller:
         mc_box_size=5.0,
         equil_timesteps=10000,
         mc_timesteps=10000,
+        save_inputs=False,
         hm=None,
     ):
 
@@ -63,6 +66,7 @@ class VampireCaller:
             mc_box_size (float): x=y=z dimensions (nm) of MC simulation box
             equil_timesteps (int): number of MC steps for equilibrating
             mc_timesteps (int): number of MC steps for averaging
+            save_inputs (bool): if True, save scratch dir of vampire input files
             hm (HeisenbergMapper): object already fit to low energy
                 magnetic orderings.
 
@@ -77,11 +81,15 @@ class VampireCaller:
             mat_id_dict (dict): Maps sites to material id # for vampire
                 indexing.
 
+        TODO:
+            * Create input files in a temp folder that gets cleaned up after run terminates
+
         """
 
         self.mc_box_size = mc_box_size
         self.equil_timesteps = equil_timesteps
         self.mc_timesteps = mc_timesteps
+        self.save_inputs = save_inputs
 
         # Sort by energy if not already sorted
         ordered_structures = [
@@ -105,11 +113,17 @@ class VampireCaller:
         self.ex_params = hm.get_exchange()
 
         # Get mean field estimate of critical temp
-        j_avg = hm.estimate_exchange()
-        self.mft_t = hm.get_mft_temperature(j_avg)
+        # xx - This isn't actually useful...
+        # j_avg = hm.estimate_exchange()
+        # self.mft_t = hm.get_mft_temperature(j_avg)
 
         # Full structure name before reducing to only magnetic ions
         self.mat_name = str(hm.ordered_structures_[0].composition.reduced_formula)
+
+        # Switch to scratch dir which automatically cleans up vampire inputs files unless user specifies to save them
+        # with ScratchDir('/scratch', copy_from_current_on_enter=self.save_inputs, copy_to_current_on_exit=self.save_inputs) as temp_dir:
+
+        #     os.chdir(temp_dir)
 
         # Create input files
         self._create_mat()
@@ -206,9 +220,9 @@ class VampireCaller:
                 mat_file += ["material[%d]:material-element=%s" % (mat_id, atom)]
                 mat_file += [
                     "material[%d]:damping-constant=1.0" % (mat_id),
-                    "material[%d]:uniaxial-anisotropy-constant=0.0" % (mat_id),
+                    "material[%d]:uniaxial-anisotropy-constant=1.0e-24" % (mat_id),  # xx - do we need this?
                     "material[%d]:atomic-spin-moment=%.2f !muB" % (mat_id, m_magnitude),
-                    "material[%d]:initial-spin-direction=0,0,%d" % (mat_id, spin),
+                    "material[%d]:initial-spin-direction=0,0,%d" % (mat_id, spin)
                 ]
 
         mat_file = "\n".join(mat_file)
@@ -222,8 +236,6 @@ class VampireCaller:
     def _create_input(self):
         """Todo:
             * How to determine range and increment of simulation?
-            * Minimum can probably be set to ~ 100 K or whatever
-                the "classical" limit is
         """
 
         structure = self.structure
@@ -281,7 +293,7 @@ class VampireCaller:
 
         # xx - Temperature range of simulation
         min_t = 0
-        max_t = 1500
+        max_t = 500
 
         # xx - Temp increment
         input_script += [
@@ -382,7 +394,7 @@ class VampireOutput:
         Args:
             vamp_stdout (txt file): stdout from running vampire-serial.
 
-        Parameters:
+        Attributes:
             critical_temp (float): Monte Carlo Tc result.
         """
 
