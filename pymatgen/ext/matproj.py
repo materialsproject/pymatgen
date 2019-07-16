@@ -20,6 +20,7 @@ from pymatgen import SETTINGS, __version__ as pmg_version
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
+from pymatgen.core.surface import get_symmetrically_equivalent_miller_indices
 
 from pymatgen.entries.computed_entries import ComputedEntry, \
     ComputedStructureEntry
@@ -1183,12 +1184,13 @@ class MPRester:
             req += "?include_structures=true"
 
         if miller_index:
-            abs_miller_index = [abs(i) for i in miller_index]
-            sorted_miller_index = sorted(abs_miller_index, key=int, reverse=True)
             surf_data_dict = self._make_request(req)
             surf_list = surf_data_dict['surfaces']
+            ucell = self.get_structure_by_material_id(material_id,
+                                                      conventional_unit_cell=True)
+            eq_indices = get_symmetrically_equivalent_miller_indices(ucell, miller_index)
             for one_surf in surf_list:
-                if one_surf['miller_index'] == sorted_miller_index:
+                if tuple(one_surf['miller_index']) in eq_indices:
                     return one_surf
         else:
             return self._make_request(req)
