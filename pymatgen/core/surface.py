@@ -1566,11 +1566,49 @@ def get_recp_symmetry_operation(structure, symprec=0.01):
     return recp_symmops
 
 
-def is_already_analyzed(miller_index, miller_list):
+def is_already_analyzed(miller_index, miller_list, symm_ops):
     for op in symm_ops:
         if in_coord_list(miller_list, op.operate(miller_index)):
             return True
     return False
+
+
+def get_symmetrically_equivalent_miller_indices(structure, miller_index):
+    """
+    Returns all symmetrically equivalent indices for a given structure. Analysis
+    is based on the symmetry of the reciprocal lattice of the structure.
+
+    Args:
+        miller_index (tuple): Designates the family of Miller indices to find.
+    """
+
+    mmi = max(np.abs(miller_index))
+    r = list(range(-mmi, mmi + 1))
+    r.reverse()
+
+    sg = SpacegroupAnalyzer(structure)
+    # Get distinct hkl planes from the rhombohedral setting if trigonal
+    if sg.get_crystal_system() == "trigonal":
+        prim_structure = SpacegroupAnalyzer(structure).get_primitive_standard_structure()
+        symm_ops = get_recp_symmetry_operation(prim_structure)
+    else:
+        symm_ops = get_recp_symmetry_operation(structure)
+
+    equivalent_millers = [miller_index]
+    for miller in itertools.product(r, r, r):
+        if miller == miller_index:
+            continue
+        if any([i != 0 for i in miller]):
+            if is_already_analyzed(miller, equivalent_millers, symm_ops):
+                equivalent_millers.append(miller)
+            # include larger Miller indices in the family of planes
+            if all([mmi > i for i in np.abs(miller)]) and \
+                    not in_coord_list(equivalent_millers, miller):
+                if is_already_analyzed(mmi * np.array(miller),
+                                       equivalent_millers, symm_ops):
+                    equivalent_millers.append(miller)
+
+    return equivalent_millers
 
 
 def get_symmetrically_distinct_miller_indices(structure, max_index):
@@ -1607,7 +1645,7 @@ def get_symmetrically_distinct_miller_indices(structure, max_index):
     for i, miller in enumerate(miller_list):
         d = abs(reduce(gcd, miller))
         miller = tuple([int(i / d) for i in miller])
-        if not is_already_analyzed(miller, miller_list):
+        if not is_already_analyzed(miller, miller_list, symm_ops):
             if sg.get_crystal_system() == "trigonal":
                 # Now we find the distinct primitive hkls using
                 # the primitive symmetry operations and their
@@ -1621,6 +1659,45 @@ def get_symmetrically_distinct_miller_indices(structure, max_index):
                 unique_millers_conv.append(miller)
 
     return unique_millers_conv
+
+
+def get_symmetrically_equivalent_miller_indices(structure, miller_index):
+    """
+    Returns all symmetrically equivalent indices for a given structure. Analysis
+    is based on the symmetry of the reciprocal lattice of the structure.
+
+    Args:
+        miller_index (tuple): Designates the family of Miller indices to find.
+    """
+    equivalent_millers = [miller_index]
+    r = list(range(-max(np.abs(miller_index)), max(np.abs(miller_index)) + 1))
+    r.reverse()
+
+    sg = SpacegroupAnalyzer(structure)
+    # Get distinct hkl planes from the rhombohedral setting if trigonal
+    if sg.get_crystal_system() == "trigonal":
+        prim_structure = SpacegroupAnalyzer(structure).get_primitive_standard_structure()
+        symm_ops = get_recp_symmetry_operation(prim_structure)
+    else:
+        symm_ops = get_recp_symmetry_operation(structure)
+
+    for miller in itertools.product(r, r, r):
+
+        if miller[0] == miller_index[0] and \
+                        miller[1] == miller_index[1] and \
+                        miller[2] == miller_index[2]:
+            continue
+
+        if any([i != 0 for i in miller]):
+            d = abs(reduce(gcd, miller))
+            miller = tuple([int(i / d) for i in miller])
+            if in_coord_list(equivalent_millers, miller):
+                # equivalent_millers.append(miller)
+                continue
+            if is_already_analyzed(miller, equivalent_millers, symm_ops):
+                equivalent_millers.append(miller)
+
+    return equivalent_millers
 
 
 def hkl_transformation(transf, miller_index):
