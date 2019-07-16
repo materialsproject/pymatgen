@@ -629,9 +629,10 @@ class MillerIndexFinderTests(PymatgenTest):
         self.Fe = Structure.from_spacegroup( \
             "Im-3m", Lattice.cubic(2.82), ["Fe"],
             [[0, 0, 0]])
-        self.Mg = Structure.from_spacegroup( \
-            "P6_3/mmc", Lattice.hexagonal(3.2, 5.13), ["Mg", "Mg"],
-            [[0.3333, 0.6667, 0.2500], [0.6667, 0.3333, 0.7500]])
+        mglatt = Lattice.from_parameters(3.2, 3.2, 5.13, 90, 90, 120)
+        self.Mg = Structure(mglatt, ["Mg", "Mg"],
+                            [[1 / 3, 2 / 3, 1 / 4],
+                             [2 / 3, 1 / 3, 3 / 4]])
         self.lifepo4 = self.get_structure("LiFePO4")
         self.tei = Structure.from_file(get_path("icsd_TeI.cif"),
                                        primitive=False)
