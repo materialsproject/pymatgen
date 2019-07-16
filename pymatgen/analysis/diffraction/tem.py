@@ -36,7 +36,7 @@ from pymatgen.analysis.diffraction.core import DiffractionPattern, AbstractDiffr
 
 from pymatgen.analysis.local_env import site_is_of_motif_type, MinimumDistanceNN
 
-with open(os.path.join(os.path.dirname("__file__"),
+with open(os.path.join(os.path.dirname(__file__),
                        "atomic_scattering_params.json")) as f:
     ATOMIC_SCATTERING_PARAMS = json.load(f)
 
