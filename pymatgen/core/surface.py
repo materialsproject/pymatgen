@@ -1566,6 +1566,13 @@ def get_recp_symmetry_operation(structure, symprec=0.01):
     return recp_symmops
 
 
+def is_already_analyzed(miller_index, miller_list):
+    for op in symm_ops:
+        if in_coord_list(miller_list, op.operate(miller_index)):
+            return True
+    return False
+
+
 def get_symmetrically_distinct_miller_indices(structure, max_index):
     """
     Returns all symmetrically distinct indices below a certain max-index for
@@ -1597,16 +1604,10 @@ def get_symmetrically_distinct_miller_indices(structure, max_index):
 
     unique_millers, unique_millers_conv = [], []
 
-    def is_already_analyzed(miller_index):
-        for op in symm_ops:
-            if in_coord_list(unique_millers, op.operate(miller_index)):
-                return True
-        return False
-
     for i, miller in enumerate(miller_list):
         d = abs(reduce(gcd, miller))
         miller = tuple([int(i / d) for i in miller])
-        if not is_already_analyzed(miller):
+        if not is_already_analyzed(miller, miller_list):
             if sg.get_crystal_system() == "trigonal":
                 # Now we find the distinct primitive hkls using
                 # the primitive symmetry operations and their
